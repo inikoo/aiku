@@ -46,7 +46,7 @@ const comment = ref("");
 const isLoading = ref(false)
 const data = ref({
   ...props.webpage,
-  layout: props.webpage.layout.layout ? props.webpage.layout.layout : props.webpage.layout
+  layout: props.webpage.layout.blocks ? props.webpage.layout.blocks : props.webpage.layout
 });
 
 
@@ -56,8 +56,9 @@ const sendUpdate = async () => {
       route(props.webpage.update_route.name, props.webpage.update_route.parameters), 
       { layout: data.value }
     );
-    const set = {...response.data, layout : data.layout.data }
-    data.value = set
+    const set = {...response.data, layout : response.data.data.layout }
+    console.log(set)
+  /*   data.value = set */
     console.log('saved', response);
   } catch (error: any) {
     console.log('error', error);
