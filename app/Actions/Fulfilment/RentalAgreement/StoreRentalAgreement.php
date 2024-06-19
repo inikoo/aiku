@@ -56,7 +56,7 @@ class StoreRentalAgreement extends OrgAction
             foreach ($clauseData as $data) {
                 $data['state'] = match ($rentalAgreement->state) {
                     RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
-                    default => RentalAgreementCauseStateEnum::DRAFT
+                    default                               => RentalAgreementCauseStateEnum::DRAFT
                 };
                 StoreRentalAgreementClause::run($rentalAgreement, $data);
             }

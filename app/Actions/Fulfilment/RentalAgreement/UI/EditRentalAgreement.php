@@ -11,10 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Http\Resources\Catalogue\OutersResource;
-use App\Http\Resources\Catalogue\ProductClausesResource;
-use App\Http\Resources\Catalogue\RentalClausesResource;
 use App\Http\Resources\Catalogue\RentalsResource;
-use App\Http\Resources\Catalogue\ServiceClausesResource;
 use App\Http\Resources\Catalogue\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -34,9 +31,9 @@ class EditRentalAgreement extends OrgAction
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
         $clauses = [
-            'rental'=>[],
-            'service'=>[],
-            'physical_good'=>[]
+            'rental'       => [],
+            'service'      => [],
+            'physical_good'=> []
         ];
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
             $price         = $clause->asset->price;

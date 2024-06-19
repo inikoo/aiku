@@ -40,11 +40,11 @@ class CreateRentalAgreement extends OrgAction
                     'title' => __('new rental agreement')
                 ],
                 'formData' => [
-                    'fullLayout'    => true,
-                    'submitButton'  => 'dropdown',
-                    'submitField'   => 'state',
+                    'fullLayout'       => true,
+                    'submitButton'     => 'dropdown',
+                    'submitField'      => 'state',
                     'submitPosition'   => 'top',
-                    'blueprint'     =>
+                    'blueprint'        =>
                         [
                             [
                                 'title'  => __(''),

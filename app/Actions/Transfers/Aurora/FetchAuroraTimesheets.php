@@ -47,12 +47,12 @@ class FetchAuroraTimesheets extends FetchAuroraAction
 
                 foreach ($timesheetData['clockings'] as $clockingData) {
                     try {
-                    StoreClocking::make()->action(
-                        generator: $clockingData['generator'],
-                        parent: $clockingData['parent'],
-                        subject: $clockingData['subject'],
-                        modelData: $clockingData['clockingData']
-                    );
+                        StoreClocking::make()->action(
+                            generator: $clockingData['generator'],
+                            parent: $clockingData['parent'],
+                            subject: $clockingData['subject'],
+                            modelData: $clockingData['clockingData']
+                        );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $clockingData['clockingData'], 'Clocking', 'store');
                         return null;
