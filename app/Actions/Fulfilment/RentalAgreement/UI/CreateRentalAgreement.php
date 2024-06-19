@@ -43,6 +43,7 @@ class CreateRentalAgreement extends OrgAction
                     'fullLayout'    => true,
                     'submitButton'  => 'dropdown',
                     'submitField'   => 'state',
+                    'submitPosition'   => 'top',
                     'blueprint'     =>
                         [
                             [
