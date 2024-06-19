@@ -100,7 +100,7 @@ class ShowPalletReturn extends OrgAction
         $servicesList      = ServicesResource::collection(IndexFulfilmentServices::run($palletReturn->fulfilment))->toArray($request);
         $physicalGoodsList = PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($palletReturn->fulfilment))->toArray($request);
 
-
+        
         if($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                 [
@@ -353,11 +353,7 @@ class ShowPalletReturn extends OrgAction
                         [
                             'address'      => [
                                 'value'   => AddressFormFieldsResource::make(
-                                    new Address(
-                                        [
-                                            'country_id' => $palletReturn->fulfilment->shop->country_id,
-                                        ]
-                                    )
+                                    $palletReturn->deliveryAddress
                                 )->getArray(),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
