@@ -383,7 +383,7 @@ Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
 
     Route::name('content.')->prefix('content')->group(function () {
         Route::patch('/', UpdateWebpageContent::class)->name('update');
-        Route::post('/', PublishWebpage::class)->name('publish');
+        Route::post('/publish', PublishWebpage::class)->name('publish');
     });
 });
 
