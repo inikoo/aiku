@@ -20,6 +20,7 @@ use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerAgreedPricesResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -129,8 +130,9 @@ class ShowFulfilmentCustomer extends OrgAction
                         ];
 
         }
-
+        // dd(FulfilmentCustomerAgreedPricesResource::collection(IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer, 'agreed_prices')));
         // dd(IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer));
+        // dd(IndexFulfilmentCustomerAgreedPrices::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value));
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomer',
             [
@@ -185,9 +187,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
                 FulfilmentCustomerTabsEnum::AGREED_PRICES->value => $this->tab == FulfilmentCustomerTabsEnum::AGREED_PRICES->value ?
-                    fn () => IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer)
-                    : Inertia::lazy(fn () => IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer)),
-
+                    fn () => FulfilmentCustomerAgreedPricesResource::collection(IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer, 'agreed_prices')) 
+                    : Inertia::lazy(fn () => FulfilmentCustomerAgreedPricesResource::collection(IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer, 'agreed_prices'))),
 
                 FulfilmentCustomerTabsEnum::WEBHOOK->value => $this->tab == FulfilmentCustomerTabsEnum::WEBHOOK->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
@@ -201,6 +202,7 @@ class ShowFulfilmentCustomer extends OrgAction
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
+            ->table(IndexFulfilmentCustomerAgreedPrices::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value))
             ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
     }
 

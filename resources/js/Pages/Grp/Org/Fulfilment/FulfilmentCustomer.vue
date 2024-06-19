@@ -72,18 +72,18 @@ const props = defineProps<{
     }
     showcase?: {}
     agreed_prices?: {}
-    invoices?: {}
-    recurringBills?: {}
-    pallets?: {}
-    stored_items?: {}
-    stored_item_returns?: {}
-    dispatched_emails?: {}
-    pallet_deliveries?: {}
-    pallet_returns?: {}
-    web_users?: {}
-    recurring_bills?: {}
-    webhook?: {}
-    history?: {}
+    // invoices?: {}
+    // recurringBills?: {}
+    // pallets?: {}
+    // stored_items?: {}
+    // stored_item_returns?: {}
+    // dispatched_emails?: {}
+    // pallet_deliveries?: {}
+    // pallet_returns?: {}
+    // web_users?: {}
+    // recurring_bills?: {}
+    // webhook?: {}
+    // history?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -94,17 +94,17 @@ const component = computed(() => {
     const components = {
         showcase: FulfilmentCustomerShowcase,
         agreed_prices: AgreedPriceShowcase,
-        pallets: TablePallets,
-        stored_items: TableStoredItems,
-        stored_item_returns: TableStoredItemReturn,
-        pallet_deliveries: TablePalletDeliveries,
-        pallet_returns: TablePalletReturns,
-        invoices: TableInvoices,
-        details: ModelDetails,
-        web_users: TableWebUsers,
-        webhook: FulfilmentCustomerWebhook,
-        recurring_bills: TableRecurringBills,
-        history: TableHistories
+        // pallets: TablePallets,
+        // stored_items: TableStoredItems,
+        // stored_item_returns: TableStoredItemReturn,
+        // pallet_deliveries: TablePalletDeliveries,
+        // pallet_returns: TablePalletReturns,
+        // invoices: TableInvoices,
+        // details: ModelDetails,
+        // web_users: TableWebUsers,
+        // webhook: FulfilmentCustomerWebhook,
+        // recurring_bills: TableRecurringBills,
+        // history: TableHistories
     }
 
     return components[currentTab.value]
@@ -199,7 +199,6 @@ console.log(props)
 </script>
 
 <template>
-    <!-- {{currentTab}} --> 
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">

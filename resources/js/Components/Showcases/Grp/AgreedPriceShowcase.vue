@@ -62,39 +62,15 @@ const props = defineProps<{
 }>()
 
 
-const setData = { rental: props.data }
-
-const form = useForm(setData)
-
-const tabs =
-    [
-        {
-            title: 'Rentals',
-            value: 'rentals',
-            key: 'rentals',
-            tableBluprint: RentalBluprint
-        },
-        {
-            title: 'Services',
-            value: 'services',
-            key: 'services',
-            tableBluprint: ServicesBluprint
-        },
-        {
-            title: 'Physical Goods',
-            value: 'physical_goods',
-            key: 'physical_goods',
-            tableBluprint: PhysicalGoodsBluprint
-        }
-    ]
-
-
+console.log(props.data)
 
 </script>
 
 <template>
     <div class="p-3">
-    <Table :data="data"></Table>
+    <Table :data="data" :name="tab">
+
+    </Table>
        <!--  <Agreement :form="form" fieldName="rental" :fieldData="data" :tabs="tabs" :reset="false">
             <template #table="{ data: tabledata }">
                 <RentalTable v-bind="tabledata.p" :bluprint="tabledata.tab.tableBluprint" />

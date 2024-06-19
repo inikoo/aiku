@@ -20,6 +20,7 @@ use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentCustomerAgreedPrices extends OrgAction
 {
@@ -32,6 +33,12 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null)
     {
+        // $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+        //     $query->where(function ($query) use ($value) {
+        //         $query->whereAnyWordStartWith('rental_agreement_clauses.state', $value);
+        //     });
+        // });
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
@@ -39,7 +46,7 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
         $queryBuilder->where('rental_agreement_clauses.fulfilment_customer_id', $fulfilmentCustomer->id);
 
         return $queryBuilder
-            ->defaultSort('id')
+            ->defaultSort('asset_code')
             ->select([
                 'rental_agreement_clauses.id',
                 'rental_agreement_clauses.percentage_off'
@@ -53,7 +60,7 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
             'assets.units as asset_units',
             'assets.unit as asset_unit'
         )
-            ->allowedSorts(['asset_code','asset_type'])
+            ->allowedSorts(['id','asset_code','asset_type'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -68,7 +75,6 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
             }
 
             $table
-                ->defaultSort('id')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
@@ -76,8 +82,8 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
                     'title'       => __("No agreements found"),
                     'description' =>  __('Get started by creating a new rental agreement. ✨')
                     ]
-                    );
-            $table->column(key: 'asset_code', label: __('code'), canBeHidden: false, sortable: true, searchable: false)
+                    )
+            ->column(key: 'asset_code', label: __('code'), canBeHidden: false, sortable: true, searchable: false)
             ->column(key: 'asset_name', label: __('name'), canBeHidden: false, sortable: false, searchable: false)
             ->column(key: 'asset_type', label: __('type'), canBeHidden: false, sortable: true, searchable: false)
             ->column(key: 'percentage_off', label: __('discount'), canBeHidden: false, sortable: false, searchable: false)
@@ -88,7 +94,7 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
     public function htmlResponse(LengthAwarePaginator $clauses, ActionRequest $request)
     {
         return Inertia::render(
-            'Org/Fulfilment/AgreedPrices',
+            'Org/Fulfilment/AgreedPriceShowcase',
             [
                 'title'       => __('Agreed Prices'),
                 'pageHead'    => [
