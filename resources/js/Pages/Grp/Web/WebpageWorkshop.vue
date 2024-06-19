@@ -54,11 +54,11 @@ const sendUpdate = async () => {
   try {
     const response = await axios.patch(
       route(props.webpage.update_route.name, props.webpage.update_route.parameters), 
-      { layout: data.value }
+      { layout: {blocks : data.value.layout }}
     );
-    const set = {...response.data, layout : response.data.data.layout }
+    const set = {...response.data, layout : response.data.data.layout.blocks }
     console.log(set)
-  /*   data.value = set */
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.log('error', error);
@@ -117,7 +117,7 @@ const onPublish = async (action) => {
     // Make sure route and axios are defined and used correctly
     const response = await axios[action.method](route(action.name, action.parameters), {
       comment: comment.value,
-      publishLayout: data.value.layout
+      publishLayout: {blocks : data.value.layout }
     });
 
     console.log('saved', response);
