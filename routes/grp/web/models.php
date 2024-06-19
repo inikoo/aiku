@@ -306,8 +306,11 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
         Route::post('/', StoreRentalAgreement::class)->name('store');
-        Route::patch('{rentalAgreement:id}', UpdateRentalAgreement::class)->name('update')->withoutScopedBindings();
     });
+});
+
+Route::prefix('rental-agreement/{rentalAgreement:id}')->group(function () {
+    Route::patch('', UpdateRentalAgreement::class)->name('rental-agreement.update');
 });
 
 Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {

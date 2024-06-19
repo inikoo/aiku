@@ -41,8 +41,11 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-        $clauses=Arr::get($modelData, 'clauses', []);
+        $clauses = Arr::get($modelData, 'clauses', []);
         data_forget($modelData, 'clauses');
+
+
+
 
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create($modelData);
@@ -51,8 +54,7 @@ class StoreRentalAgreement extends OrgAction
 
         foreach ($clauses as $clauseData) {
             foreach ($clauseData as $data) {
-
-                $data['state']= match ($rentalAgreement->state) {
+                $data['state'] = match ($rentalAgreement->state) {
                     RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
                     default                               => RentalAgreementCauseStateEnum::DRAFT
                 };
@@ -60,10 +62,11 @@ class StoreRentalAgreement extends OrgAction
             }
         }
 
-        StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot:true);
+        StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot: true);
 
 
         FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
+
 
         return $rentalAgreement;
     }
@@ -71,26 +74,29 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'                   => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
-            'pallets_limit'                   => ['nullable', 'integer', 'min:1', 'max:10000'],
-            'clauses'                         => ['sometimes', 'array'],
-            'clauses.rentals.*.asset_id'      => ['sometimes',
-                                         Rule::exists('assets', 'id')
-                                             ->where('shop_id', $this->fulfilment->shop_id)
-                ],
-            'clauses.rentals.*.percentage_off'   => ['sometimes', 'numeric', 'gt:0'],
-            'clauses.services.*.asset_id'        => ['sometimes',
-                                         Rule::exists('assets', 'id')
-                                             ->where('shop_id', $this->fulfilment->shop_id)
-                ],
-            'clauses.services.*.percentage_off'        => ['sometimes', 'numeric', 'gt:0'],
-            'clauses.physical_goods.*.asset_id'        => ['sometimes',
-                                         Rule::exists('assets', 'id')
-                                             ->where('shop_id', $this->fulfilment->shop_id)
-                ],
-            'clauses.physical_goods.*.percentage_off'  => ['sometimes', 'numeric', 'gt:0'],
-            'state'                                    => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
-            'created_at'                               => ['sometimes', 'date']
+            'billing_cycle'                           => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
+            'pallets_limit'                           => ['nullable', 'integer', 'min:1', 'max:10000'],
+            'clauses'                                 => ['sometimes', 'array'],
+            'clauses.rentals.*.asset_id'              => [
+                'sometimes',
+                Rule::exists('assets', 'id')
+                    ->where('shop_id', $this->fulfilment->shop_id)
+            ],
+            'clauses.rentals.*.percentage_off'        => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.services.*.asset_id'             => [
+                'sometimes',
+                Rule::exists('assets', 'id')
+                    ->where('shop_id', $this->fulfilment->shop_id)
+            ],
+            'clauses.services.*.percentage_off'       => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.physical_goods.*.asset_id'       => [
+                'sometimes',
+                Rule::exists('assets', 'id')
+                    ->where('shop_id', $this->fulfilment->shop_id)
+            ],
+            'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0'],
+            'state'                                   => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
+            'created_at'                              => ['sometimes', 'date']
         ];
     }
 
@@ -100,6 +106,19 @@ class StoreRentalAgreement extends OrgAction
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function prepareForValidation(): void
+    {
+        $clauses = $this->get('clauses', []);
+        foreach ($clauses as $clauseType => $clauseData) {
+            foreach ($clauseData as $key => $clause) {
+                if (!Arr::get($clause, 'percentage_off', 0)) {
+                    unset($clauses[$clauseType][$key]);
+                }
+            }
+        }
+        $this->set('clauses', $clauses);
     }
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement

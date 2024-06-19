@@ -20,15 +20,15 @@ class OutersResource extends JsonResource
         /** @var Product $outer */
         $outer=$this;
         return [
-            'id'                    => $outer->id,
-            'asset_id'              => $outer->asset_id,
-            'slug'                  => $outer->slug,
-            'code'                  => $outer->code,
-            'name'                  => $outer->name,
-            'price'                 => $outer->price,
-            'unit'                  => $outer->unit,
-            'currency'              => CurrencyResource::make($currency),
-            'agreed_price'          => $outer->agreed_price ?? $outer->price,
+            'id'                          => $outer->id,
+            'asset_id'                    => $outer->asset_id,
+            'slug'                        => $outer->slug,
+            'code'                        => $outer->code,
+            'name'                        => $outer->name,
+            'price'                       => $outer->price,
+            'unit'                        => $outer->unit,
+            'currency'                    => CurrencyResource::make($currency),
+            'agreed_price'                => $outer->agreed_price ?? $outer->price,
             'percentage_off'              => 0,
 
         ];

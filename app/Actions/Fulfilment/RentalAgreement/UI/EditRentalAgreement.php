@@ -10,9 +10,9 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
-use App\Http\Resources\Catalogue\ProductClausesResource;
-use App\Http\Resources\Catalogue\RentalClausesResource;
-use App\Http\Resources\Catalogue\ServiceClausesResource;
+use App\Http\Resources\Catalogue\OutersResource;
+use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
@@ -30,46 +30,27 @@ class EditRentalAgreement extends OrgAction
      */
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
-        $rentals = [];
+        $clauses = [
+            'rental'       => [],
+            'service'      => [],
+            'physical_good'=> []
+        ];
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
-            $price       = $clause->asset->price;
-            $agreedPrice = $clause->agreed_price;
+            $price         = $clause->asset->price;
+            $percentageOff = $clause->percentage_off;
 
-            $rentals[] = [
-                'asset_id'         => $clause->asset_id,
-                'agreed_price'     => $agreedPrice,
-                'price'            => $price,
-                'percentage_off'         => ($price - $agreedPrice) / $agreedPrice * 100
+
+
+
+            $clauses[$clause->asset->type->value][] = [
+                'asset_id'       => $clause->asset_id,
+                'agreed_price'   => $price * $percentageOff / 100,
+                'price'          => $price,
+                'percentage_off' => $percentageOff
             ];
         }
-        // dd($rentalAgreement->clauses->pluck('agreed_price'));
-        if ($rentalAgreement->clauses->isEmpty()) {
-            $isEmpty    = true;
-            $rentalData = [
-                'type'             => 'rental',
-                'label'            => __(''),
-                'required'         => false,
-                'full'             => true,
-                'rentals'          => RentalClausesResource::collection($rentalAgreement->fulfilmentCustomer->fulfilment->rentals),
-                'services'         => ServiceClausesResource::collection($rentalAgreement->fulfilmentCustomer->fulfilment->shop->services),
-                'physical_goods'   => ProductClausesResource::collection($rentalAgreement->fulfilmentCustomer->fulfilment->shop->products),
-                'clauses'          => $rentalAgreement->fulfilmentCustomer->rentalAgreementClauses,
-            ];
-        } else {
-            $isEmpty = false;
-            // Use the existing rental data
-            $rentalData = [
-                'type'             => 'rental',
-                'label'            => __('Rental'),
-                'required'         => false,
-                'full'             => true,
-                'rentals'          => RentalClausesResource::collection($rentalAgreement->clauses->where('type', 'rental')),
-                'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
-                'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'product')),
-                'clauses'          => $rentalAgreement->clauses,
-                'value'            => $rentals
-            ];
-        }
+
+
 
         return Inertia::render(
             'EditModel',
@@ -77,11 +58,11 @@ class EditRentalAgreement extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('edit rental agreement'),
-                'pageHead' => [
+                'title'       => __('edit rental agreement'),
+                'pageHead'    => [
                     'title' => __('edit rental agreement')
                 ],
-                'formData' => [
+                'formData'    => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
@@ -89,11 +70,11 @@ class EditRentalAgreement extends OrgAction
                                 'title'  => __(''),
                                 'fields' => [
                                     'billing_cycle' => [
-                                        'type'       => 'select',
-                                        'label'      => __('billing cycle'),
-                                        'required'   => true,
-                                        'options'    => Options::forEnum(RentalAgreementBillingCycleEnum::class),
-                                        'value'      => $rentalAgreement->billing_cycle
+                                        'type'     => 'select',
+                                        'label'    => __('billing cycle'),
+                                        'required' => true,
+                                        'options'  => Options::forEnum(RentalAgreementBillingCycleEnum::class),
+                                        'value'    => $rentalAgreement->billing_cycle
                                     ],
                                     'pallets_limit' => [
                                         'type'        => 'input',
@@ -102,16 +83,25 @@ class EditRentalAgreement extends OrgAction
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
-                                    'clauses'  => $rentalData,
-                                    // 'isEmpty' => $isEmpty,
+                                    'clauses'       => [
+                                        'type'           => 'clauses',
+                                        'label'          => __('Clauses'),
+                                        'required'       => false,
+                                        'full'           => true,
+                                        'rentals'        => RentalsResource::collection($rentalAgreement->fulfilment->rentals),
+                                        'services'       => ServicesResource::collection($rentalAgreement->fulfilment->shop->services),
+                                        'physical_goods' => OutersResource::collection($rentalAgreement->fulfilment->shop->products),
+                                        'value'          => $clauses
+                                    ]
+
+
                                 ]
                             ]
                         ],
-                    'args'      => [
+                    'args'       => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.fulfilment-customer.rental-agreements.update',
+                            'name'       => 'grp.models.rental-agreement.update',
                             'parameters' => [
-                                'fulfilmentCustomer' => $rentalAgreement->fulfilment_customer_id,
                                 'rentalAgreement'    => $rentalAgreement->id,
                             ]
                         ],

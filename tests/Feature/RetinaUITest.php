@@ -7,7 +7,6 @@
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -26,7 +25,7 @@ beforeEach(function () {
     $this->warehouse         = createWarehouse();
     $this->fulfilment        = createFulfilment($this->organisation);
     $this->fulfilmentWebsite = createWebsite($this->fulfilment->shop);
-  
+
     $shop = Shop::first();
     if (!$shop) {
         $storeData = Shop::factory()->definition();
