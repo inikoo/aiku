@@ -24,7 +24,7 @@ defineProps<{
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-
+<!-- TODO: make logic for the show route,  check if the type is service , rental or product and use the route related to that type-->
 
     </Table>
 </template>
