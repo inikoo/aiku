@@ -74,6 +74,10 @@
     @apply relative before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent isolate overflow-hidden shadow-xl shadow-black/5 before:border-y before:border-white/30
 }
 
+.errorShake {
+    @apply animate-error_shake ring-2 ring-red-500
+}
+
 
 /* For Notification */
 .custom-style-notification {
