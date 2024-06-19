@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const message = ref('Hello Vue!')
-const dataProduct = ref()
 const navigationsList = [
   {
     label: 'New In & Trending'
@@ -134,15 +132,14 @@ const navigationsList = [
   },
 ]
 
-const toggleChildClass = (element) => {
-  element.currentTarget.querySelector('ul').classList.toggle('hidden')
-}
 
 </script>
 
 <template>
-  <!-- Top Bar -->
-  <div class="bg-gray-800 grid grid-cols-3 text-white flex justify-between items-center p-2 text-xs">
+
+  <div class="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
+    <!-- Top Bar -->
+    <div class="bg-gray-800 grid grid-cols-3 text-white flex justify-between items-center p-2 text-xs">
     <div></div>
     <div class="font-bold text-center">FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</div>
 
@@ -226,6 +223,10 @@ const toggleChildClass = (element) => {
       </nav>
     </div>
   </div>
+  
+  </div>
+
+
 </template>
 
 
