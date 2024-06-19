@@ -19,13 +19,13 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div class="rounded-md shadow-sm" :class="full ? 'w-full' : ''">
+    <div class="rounded-lg" :class="full ? 'w-full' : ''">
         <textarea
             :value="modelValue"
             @input="(event: any) => emits('update:modelValue', event.target.value)"
             v-bind="$attrs"
             :placeholder="placeholder || trans('Enter text here')"
-            class="block w-full rounded-md shadow-sm text-gray-600 placeholder:text-gray-400 placeholder:italic placeholder:text-xs disabled:text-gray-500 border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
+            class="block w-full rounded-md placeholder:text-gray-400 placeholder:italic placeholder:text-xs disabled:text-gray-500 border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
     </div>
     
     <div v-if="counter" class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start tabular-nums">

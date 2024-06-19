@@ -27,6 +27,12 @@ module.exports = {
                         transform: 'translateX(100%)',
                     },
                 },
+                errorShake: {
+                    '0%, 100%': { transform: 'translateX(0)' },
+                    '25%': { transform: 'translateX(-5px)' },
+                    '50%': { transform: 'translateX(5px)' },
+                    '75%': { transform: 'translateX(-5px)' },
+                },
             },
             colors: {
                 retina: {
@@ -36,6 +42,7 @@ module.exports = {
             animation: {
                 skeleton: 'shimmer 1.3s ease-in-out infinite',
                 shimmer: 'shimmer 2.5s ease-in-out infinite',
+                error_shake: 'errorShake 0.3s ease-in-out',
             }
         },
     },
