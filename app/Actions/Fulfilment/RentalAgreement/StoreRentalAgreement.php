@@ -44,6 +44,9 @@ class StoreRentalAgreement extends OrgAction
         $clauses = Arr::get($modelData, 'clauses', []);
         data_forget($modelData, 'clauses');
 
+
+
+
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create($modelData);
         $rentalAgreement->stats()->create();
@@ -63,6 +66,7 @@ class StoreRentalAgreement extends OrgAction
 
 
         FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
+
 
         return $rentalAgreement;
     }

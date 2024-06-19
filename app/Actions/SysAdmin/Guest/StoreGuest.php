@@ -51,6 +51,7 @@ class StoreGuest
         Arr::forget($modelData, 'roles');
 
 
+
         /** @var Guest $guest */
         $guest = $group->guests()->create(
             Arr::except($modelData, [
