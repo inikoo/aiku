@@ -13,6 +13,7 @@ use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -49,8 +50,8 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('assets.name', $value)
-                    ->orWhereStartWith('assets.code', $value);
+                $query->whereAnyWordStartWith('products.name', $value)
+                    ->orWhereStartWith('products.code', $value);
             });
         });
 
@@ -58,9 +59,9 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Asset::class);
-        $queryBuilder->where('assets.shop_id', $parent->shop_id);
-        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
+        $queryBuilder = QueryBuilder::for(Product::class);
+        $queryBuilder->where('products.shop_id', $parent->shop_id);
+        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -73,16 +74,16 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('assets.id')
+            ->defaultSort('products.id')
             ->select([
-                'assets.id',
-                'assets.slug',
-                'assets.name',
-                'assets.code',
-                'assets.state',
-                'assets.created_at',
-                'assets.price',
-                'assets.unit',
+                'products.id',
+                'products.slug',
+                'products.name',
+                'products.code',
+                'products.state',
+                'products.created_at',
+                'products.price',
+                'products.unit',
                 'currencies.code as currency_code',
             ]);
 

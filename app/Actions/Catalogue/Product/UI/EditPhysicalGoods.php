@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -21,9 +22,9 @@ use Spatie\LaravelOptions\Options;
 
 class EditPhysicalGoods extends OrgAction
 {
-    public function handle(Asset $asset): Asset
+    public function handle(Product $product): Product
     {
-        return $asset;
+        return $product;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -49,17 +50,17 @@ class EditPhysicalGoods extends OrgAction
     //     return $this->handle($product);
     // }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Asset $asset, ActionRequest $request): Asset
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
-        return $this->handle($asset);
+        return $this->handle($product);
     }
 
     /**
      * @throws \Exception
      */
-    public function htmlResponse(Asset $asset, ActionRequest $request): Response
+    public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -70,11 +71,11 @@ class EditPhysicalGoods extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($asset, $request),
-                    'next'     => $this->getNext($asset, $request),
+                    'previous' => $this->getPrevious($product, $request),
+                    'next'     => $this->getNext($product, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $asset->code,
+                    'title'    => $product->code,
                     'icon'     =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
@@ -99,40 +100,40 @@ class EditPhysicalGoods extends OrgAction
                                 'code' => [
                                     'type'     => 'input',
                                     'label'    => __('code'),
-                                    'value'    => $asset->code,
+                                    'value'    => $product->code,
                                     'readonly' => true
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('label'),
-                                    'value' => $asset->name,
+                                    'value' => $product->name,
                                 ],
                                 'description' => [
                                     'type'  => 'input',
                                     'label' => __('description'),
-                                    'value' => $asset->description
+                                    'value' => $product->description
                                 ],
                                 'unit' => [
                                     'type'     => 'input',
                                     'label'    => __('unit'),
-                                    'value'    => $asset->unit,
+                                    'value'    => $product->unit,
                                 ],
                                 'units' => [
                                     'type'     => 'input',
                                     'label'    => __('units'),
-                                    'value'    => $asset->units,
+                                    'value'    => $product->units,
                                 ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
                                     'required'=> true,
-                                    'value'   => $asset->price
+                                    'value'   => $product->price
                                 ],
                                 'state' => [
                                     'type'    => 'select',
                                     'label'   => __('state'),
                                     'required'=> true,
-                                    'value'   => $asset->state,
+                                    'value'   => $product->state,
                                     'options' => Options::forEnum(AssetStateEnum::class)
                                 ],
                                 // 'type' => [
@@ -151,7 +152,7 @@ class EditPhysicalGoods extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.product.update',
-                            'parameters' => $asset->id
+                            'parameters' => $product->id
 
                         ],
                     ]
@@ -170,42 +171,42 @@ class EditPhysicalGoods extends OrgAction
         );
     }
 
-    public function getPrevious(Asset $asset, ActionRequest $request): ?array
+    public function getPrevious(Product $product, ActionRequest $request): ?array
     {
-        $previous = Asset::where('slug', '<', $asset->slug)->orderBy('slug', 'desc')->first();
+        $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Asset $asset, ActionRequest $request): ?array
+    public function getNext(Product $product, ActionRequest $request): ?array
     {
-        $next = Asset::where('slug', '>', $asset->slug)->orderBy('slug')->first();
+        $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Asset $asset, string $routeName): ?array
+    private function getNavigation(?Product $product, string $routeName): ?array
     {
-        if(!$asset) {
+        if(!$product) {
             return null;
         }
         return match ($routeName) {
             'shops.products.edit'=> [
-                'label'=> $asset->name,
+                'label'=> $product->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'product'=> $asset->slug
+                        'product'=> $product->slug
                     ]
 
                 ]
             ],
             'shops.show.products.edit'=> [
-                'label'=> $asset->name,
+                'label'=> $product->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'   => $asset->shop->slug,
-                        'product'=> $asset->slug
+                        'shop'   => $product->shop->slug,
+                        'product'=> $product->slug
                     ]
 
                 ]

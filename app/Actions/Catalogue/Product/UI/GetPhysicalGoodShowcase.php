@@ -8,13 +8,14 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetPhysicalGoodShowcase
 {
     use AsObject;
 
-    public function handle(Asset $asset): array
+    public function handle(Product $product): array
     {
         return [
             []

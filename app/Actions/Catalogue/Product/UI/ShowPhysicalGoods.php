@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\FulfilmentAssetTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -26,9 +27,9 @@ class ShowPhysicalGoods extends OrgAction
 {
     private Organisation|Shop|Fulfilment|ProductCategory $parent;
 
-    public function handle(Asset $asset): Asset
+    public function handle(Product $product): Product
     {
-        return $asset;
+        return $product;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -50,36 +51,36 @@ class ShowPhysicalGoods extends OrgAction
 
     }
 
-    public function inOrganisation(Organisation $organisation, Asset $asset, ActionRequest $request): Asset
+    public function inOrganisation(Organisation $organisation, Product $product, ActionRequest $request): Product
     {
         $this->parent= $organisation;
         $this->initialisation($organisation, $request)->withTab(FulfilmentAssetTabsEnum::values());
-        return $this->handle($asset);
+        return $this->handle($product);
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Asset $asset, ActionRequest $request): Asset
+    public function asController(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): Product
     {
         $this->parent= $shop;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentAssetTabsEnum::values());
-        return $this->handle($asset);
+        return $this->handle($product);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Asset $asset, ActionRequest $request): Asset
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Product $product, ActionRequest $request): Product
     {
         $this->parent= $department;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentAssetTabsEnum::values());
 
-        return $this->handle($asset);
+        return $this->handle($product);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Asset $asset, ActionRequest $request): Asset
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentAssetTabsEnum::values());
-        return $this->handle($asset);
+        return $this->handle($product);
     }
 
-    public function htmlResponse(Asset $asset, ActionRequest $request): Response
+    public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Fulfilment/PhysicalGood',
@@ -90,16 +91,16 @@ class ShowPhysicalGoods extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($asset, $request),
-                    'next'     => $this->getNext($asset, $request),
+                    'previous' => $this->getPrevious($product, $request),
+                    'next'     => $this->getNext($product, $request),
                 ],
                 'pageHead'    => [
                     'model'   => __('physical goods'),
-                    'title'   => $asset->code,
+                    'title'   => $product->code,
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
-                            'title' => __('asset')
+                            'title' => __('product')
                         ],
                     'actions' => [
                         $this->canEdit ? [
@@ -127,21 +128,21 @@ class ShowPhysicalGoods extends OrgAction
 
 
                 FulfilmentAssetTabsEnum::SHOWCASE->value => $this->tab == FulfilmentAssetTabsEnum::SHOWCASE->value ?
-                    fn () => GetPhysicalGoodShowcase::run($asset)
-                    : Inertia::lazy(fn () => GetPhysicalGoodShowcase::run($asset)),
+                    fn () => GetPhysicalGoodShowcase::run($product)
+                    : Inertia::lazy(fn () => GetPhysicalGoodShowcase::run($product)),
 
             ]
         );
     }
 
-    public function jsonResponse(Asset $asset): ProductsResource
+    public function jsonResponse(Product $product): ProductsResource
     {
-        return new ProductsResource($asset);
+        return new ProductsResource($product);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Asset $asset, array $routeParameters, $suffix) {
+        $headCrumb = function (Product $product, array $routeParameters, $suffix) {
             return [
 
                 [
@@ -153,7 +154,7 @@ class ShowPhysicalGoods extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $asset->slug,
+                            'label' => $product->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -163,7 +164,7 @@ class ShowPhysicalGoods extends OrgAction
             ];
         };
 
-        $asset = Asset::where('slug', $routeParameters['asset'])->first();
+        $product = Product::where('slug', $routeParameters['product'])->first();
 
         return match ($routeName) {
             'shops.products.show' =>
@@ -188,7 +189,7 @@ class ShowPhysicalGoods extends OrgAction
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $asset,
+                    $product,
                     [
                         'index' => [
                             'name'       => 'grp.org.shops.show.catalogue.products.index',
@@ -206,7 +207,7 @@ class ShowPhysicalGoods extends OrgAction
             array_merge(
                 (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $asset,
+                    $product,
                     [
                         'index' => [
                             'name'       => 'grp.org.fulfilments.show.assets.outers.index',
@@ -224,54 +225,54 @@ class ShowPhysicalGoods extends OrgAction
         };
     }
 
-    public function getPrevious(Asset $asset, ActionRequest $request): ?array
+    public function getPrevious(Product $product, ActionRequest $request): ?array
     {
-        $previous = Asset::where('slug', '<', $asset->slug)->orderBy('slug', 'desc')->first();
+        $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Asset $asset, ActionRequest $request): ?array
+    public function getNext(Product $product, ActionRequest $request): ?array
     {
-        $next = Asset::where('slug', '>', $asset->slug)->orderBy('slug')->first();
+        $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Asset $asset, string $routeName): ?array
+    private function getNavigation(?Product $product, string $routeName): ?array
     {
-        if (!$asset) {
+        if (!$product) {
             return null;
         }
 
         return match ($routeName) {
             'shops.products.show' => [
-                'label' => $asset->name,
+                'label' => $product->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'product' => $asset->slug,
+                        'product' => $product->slug,
                     ],
                 ],
             ],
             'grp.org.shops.show.catalogue.products.show' => [
-                'label' => $asset->name,
+                'label' => $product->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $this->parent->slug,
-                        'shop'         => $asset->shop->slug,
-                        'product'      => $asset->slug,
+                        'shop'         => $product->shop->slug,
+                        'product'      => $product->slug,
                     ],
                 ],
             ],
             'grp.org.fulfilments.show.assets.show' => [
-                'label' => $asset->name,
+                'label' => $product->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $this->parent->slug,
-                        'fulfilment'   => $asset->shop->slug,
-                        'asset'        => $asset->slug,
+                        'fulfilment'   => $product->shop->slug,
+                        'asset'        => $product->slug,
                     ],
                 ],
             ],
