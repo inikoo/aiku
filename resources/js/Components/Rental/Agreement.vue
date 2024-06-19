@@ -98,9 +98,9 @@ onBeforeMount(() => {
                     const found = props.fieldData?.value?.service.find((e) => e.asset_id === item.asset_id);
                     return found ? { ...item, ...found, agreed_price : parseFloat(found.agreed_price.toFixed(2)) } : item;
                 });
-            } else if (l === 'physical_goods' && props.fieldData?.value?.physical_good) {
-                clonedData[l] = clonedData[l].map((item) => {
-                    const found = props.fieldData?.value?.physical_good.find((e) => e.asset_id === item.asset_id);
+            } else if (l === 'physical_goods' && props.fieldData?.value?.product) {
+                    clonedData[l] = clonedData[l].map((item) => {
+                    const found = props.fieldData?.value?.product.find((e) => e.asset_id === item.asset_id);
                     return found ? { ...item, ...found, agreed_price : parseFloat(found.agreed_price.toFixed(2)) } : item;
                 });
             }

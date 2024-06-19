@@ -10,12 +10,13 @@ import { PalletCustomer, PieCustomer } from '@/types/Pallet'
 import { faLink } from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import Agreement from '@/Components/Rental/Agreement.vue'
+/* import Agreement from '@/Components/Rental/Agreement.vue' */
 import { useForm } from '@inertiajs/vue3'
 import RentalTable from '@/Components/Rental/Table.vue'
 import RentalBluprint from './BluprintAgreedPrice/rental'
 import PhysicalGoodsBluprint from './BluprintAgreedPrice/physicalGoods'
 import ServicesBluprint from './BluprintAgreedPrice/services'
+import Table from '@/Components/Table/Table.vue'
 
 
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone)
@@ -93,11 +94,12 @@ const tabs =
 
 <template>
     <div class="p-3">
-        <Agreement :form="form" fieldName="rental" :fieldData="data" :tabs="tabs" :reset="false">
+    <Table :data="data"></Table>
+       <!--  <Agreement :form="form" fieldName="rental" :fieldData="data" :tabs="tabs" :reset="false">
             <template #table="{ data: tabledata }">
                 <RentalTable v-bind="tabledata.p" :bluprint="tabledata.tab.tableBluprint" />
             </template>
-        </Agreement>
+        </Agreement> -->
 
     </div>
 
