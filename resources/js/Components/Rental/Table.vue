@@ -60,7 +60,7 @@ const onBulkDiscount = (close: Function) => {
     for (const item of props.form[props.fieldName][props.bluprint.key]) {
     
         if (bulkData.value.includes(item.id)) {
-            item.discount = bulkDiscInput.value
+            item.percentage_off = bulkDiscInput.value
             let discountedPrice = item.price - (item.price * (bulkDiscInput.value / 100))
             item.agreed_price = discountedPrice
         }
