@@ -76,6 +76,7 @@ class PublishWebpage extends OrgAction
             'published_layout'    => $snapshot->layout,
             'published_checksum'  => md5(json_encode($snapshot->layout)),
             'state'               => WebpageStateEnum::LIVE,
+            'is_dirty'            => false,
         ];
 
         if ($webpage->state == WebpageStateEnum::IN_PROCESS or $webpage->state == WebpageStateEnum::READY) {
