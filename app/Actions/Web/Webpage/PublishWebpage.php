@@ -11,6 +11,7 @@ use App\Actions\Helpers\Deployment\StoreDeployment;
 use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -22,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 class PublishWebpage extends OrgAction
 {
     use WithActionUpdate;
+    use HasWebAuthorisation;
+    use WebpageContentManagement;
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
@@ -80,21 +83,7 @@ class PublishWebpage extends OrgAction
         }
 
         $webpage->update($updateData);
-
-
-
-
-
         return $webpage;
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
     }
 
     public function rules(): array
@@ -116,12 +105,9 @@ class PublishWebpage extends OrgAction
         );
     }
 
-    public function asController(Webpage $webpage, ActionRequest $request): string
+
+    public function jsonResponse(Webpage $webpage): string
     {
-        $this->initialisationFromShop($webpage->website->shop, $request);
-
-        $this->handle($webpage, $this->validatedData);
-
         return "🚀";
     }
 

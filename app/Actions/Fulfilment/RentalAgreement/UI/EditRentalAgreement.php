@@ -31,8 +31,8 @@ class EditRentalAgreement extends OrgAction
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
-            $price         = $clause->asset->price;
-            $percentageOff = $clause->percentage_off;
+            $price                                  = $clause->asset->price;
+            $percentageOff                          = $clause->percentage_off;
             $clauses[$clause->asset->type->value][] = [
                 'asset_id'       => $clause->asset_id,
                 'agreed_price'   => $price * $percentageOff / 100,
@@ -41,8 +41,8 @@ class EditRentalAgreement extends OrgAction
             ];
         }
 
-    
-     
+
+
 
 
         return Inertia::render(

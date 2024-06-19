@@ -8,20 +8,19 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Web\Webpage;
-use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateWebpageContent extends OrgAction
 {
-    use AsAction;
     use WithActionUpdate;
+    use HasWebAuthorisation;
+    use WebpageContentManagement;
 
     public function handle(Webpage $webpage, array $data): Webpage
     {
-
         $snapshot = $webpage->unpublishedSnapshot;
 
         $snapshot->update(
@@ -42,7 +41,7 @@ class UpdateWebpageContent extends OrgAction
         );
 
 
-        return $this->update($webpage, $data);
+        return $webpage;
     }
 
     public function rules(): array
@@ -50,13 +49,6 @@ class UpdateWebpageContent extends OrgAction
         return [
             'layout' => ['required', 'array'],
         ];
-    }
-
-    public function asController(Webpage $webpage, ActionRequest $request): Webpage
-    {
-        $this->initialisationFromShop($webpage->website->shop, $request);
-
-        return $this->handle($webpage, $this->validatedData);
     }
 
     public function jsonResponse(Webpage $webpage): WebpageResource
