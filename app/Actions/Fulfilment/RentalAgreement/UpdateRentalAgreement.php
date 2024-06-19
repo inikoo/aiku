@@ -156,6 +156,19 @@ class UpdateRentalAgreement extends OrgAction
         ];
     }
 
+    public function prepareForValidation(): void
+    {
+        $clauses = $this->get('clauses', []);
+        foreach ($clauses as $clauseType => $clauseData) {
+            foreach ($clauseData as $key => $clause) {
+                if (!Arr::get($clause, 'percentage_off', 0)) {
+                    unset($clauses[$clauseType][$key]);
+                }
+            }
+        }
+        $this->set('clauses', $clauses);
+    }
+
     public function action(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
         $this->asAction = true;
