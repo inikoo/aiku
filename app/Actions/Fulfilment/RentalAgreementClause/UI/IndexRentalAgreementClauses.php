@@ -1,29 +1,36 @@
 <?php
 
 /*
- * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 19 Jun 2024 11:29:40 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 19 Jun 2024 15:16:17 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
-namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
+namespace App\Actions\Fulfilment\RentalAgreementClause\UI;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\Fulfilment\FulfilmentCustomerAgreedPricesResource;
+use App\Http\Resources\Fulfilment\RentalAgreementClausesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreementClause;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexFulfilmentCustomerAgreedPrices extends OrgAction
+class IndexRentalAgreementClauses extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+    }
+
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -31,13 +38,14 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
         return $this->handle($fulfilmentCustomer);
     }
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null)
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, $prefix = null): LengthAwarePaginator
     {
-        // $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-        //     $query->where(function ($query) use ($value) {
-        //         $query->whereAnyWordStartWith('rental_agreement_clauses.state', $value);
-        //     });
-        // });
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query->whereAnyWordStartWith('assets.code', $value)
+                    ->orWereAnyWordStartWith('assets.name', $value);
+            });
+        });
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -53,19 +61,20 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
             ])
             ->leftJoin('assets', 'rental_agreement_clauses.asset_id', 'assets.id')
             ->addSelect(
-            'assets.code as asset_code',
-            'assets.name as asset_name',
-            'assets.type as asset_type',
-            'assets.price as asset_price',
-            'assets.units as asset_units',
-            'assets.unit as asset_unit'
-        )
+                'assets.code as asset_code',
+                'assets.name as asset_name',
+                'assets.type as asset_type',
+                'assets.price as asset_price',
+                'assets.units as asset_units',
+                'assets.unit as asset_unit'
+            )
             ->allowedSorts(['id','asset_code','asset_type'])
+            ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null)
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
@@ -79,22 +88,21 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     [
-                    'title'       => __("No agreements found"),
-                    'description' =>  __('Get started by creating a new rental agreement. ✨')
+                    'title'       => __("No agreed prices found"),
                     ]
-                    )
-            ->column(key: 'asset_code', label: __('code'), canBeHidden: false, sortable: true, searchable: false)
-            ->column(key: 'asset_name', label: __('name'), canBeHidden: false, sortable: false, searchable: false)
-            ->column(key: 'asset_type', label: __('type'), canBeHidden: false, sortable: true, searchable: false)
-            ->column(key: 'percentage_off', label: __('discount'), canBeHidden: false, sortable: false, searchable: false)
-            ->column(key: 'agreed_price', label: __('agreed price'), canBeHidden: false, sortable: false, searchable: false);
+                )
+            ->column(key: 'asset_code', label: __('code'), canBeHidden: false, sortable: true)
+            ->column(key: 'asset_name', label: __('name'), canBeHidden: false)
+            ->column(key: 'asset_type', label: __('type'), canBeHidden: false, sortable: true)
+            ->column(key: 'percentage_off', label: __('discount'), canBeHidden: false)
+            ->column(key: 'agreed_price', label: __('agreed price'), canBeHidden: false);
         };
     }
 
-    public function htmlResponse(LengthAwarePaginator $clauses, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $clauses, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/AgreedPriceShowcase',
+            'Org/Fulfilment/RentalAgreementClauses',
             [
                 'title'       => __('Agreed Prices'),
                 'pageHead'    => [
@@ -104,7 +112,7 @@ class IndexFulfilmentCustomerAgreedPrices extends OrgAction
                         'title' => __('agreed prices')
                     ],
                 ],
-                'data'        => FulfilmentCustomerAgreedPricesResource::collection($clauses),
+                'data'        => RentalAgreementClausesResource::collection($clauses),
             ]
         )->table($this->tableStructure());
     }

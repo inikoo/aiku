@@ -54,7 +54,7 @@ class ShowHome
             'Home',
             [
                 'header' => $structure,
-                'blocks'=>$home->published_layout
+                'blocks' => $home->published_layout
             ]
         );
     }

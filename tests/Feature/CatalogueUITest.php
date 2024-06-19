@@ -7,15 +7,12 @@
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -67,4 +64,3 @@ test('UI Index catalogue departments', function () {
             ->has('breadcrumbs', 3);
     });
 });
-
