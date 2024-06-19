@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import {  Head, useForm } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk, faChevronDown } from '@fas'
@@ -49,6 +49,7 @@ const props = defineProps<{
     formData: {
         submitButton?: String
         fullLayout?: Boolean
+        submitPosition?:String
         blueprint: {
             title?: string
             subtitle?: string
@@ -83,8 +84,8 @@ const getComponent = (componentName: string) => {
         'senderEmail': SenderEmail,
         'employeePosition': EmployeePosition,
         'interest': Interest,
-        'rental' : Agreement,
-        'webRegistrations' : WebRegistrations
+        'rental': Agreement,
+        'webRegistrations': WebRegistrations
     }
     return components[componentName] ?? null
 }
@@ -98,19 +99,19 @@ Object.entries(props.formData.blueprint).forEach(([, val]) => {
 
 const ButtonActive = ref(isArray(props.formData.route) ? props.formData.route[0] : null)
 const form = useForm(
-  props.formData.submitField // This seems to be a condition for choosing between two objects
-    ? { ...fields, [props.formData.submitField]: 'active' } // This part executes if the condition is truthy
-    : fields // This part executes if the condition is falsy
+    props.formData.submitField // This seems to be a condition for choosing between two objects
+        ? { ...fields, [props.formData.submitField]: 'active' } // This part executes if the condition is truthy
+        : fields // This part executes if the condition is falsy
 );
 
 
 const handleFormSubmit = () => {
-   if (!props.formData.submitButton) {
+    if (!props.formData.submitButton) {
         form.post(route(
             props.formData.route.name,
             props.formData.route.parameters
         ))
-    }else{
+    } else {
         form.post(route(
             ButtonActive.value.name,
             ButtonActive.value.parameters
@@ -155,7 +156,51 @@ const onSelectSubmitChange = (value) => {
 <template>
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template v-if="formData?.submitPosition == 'top'" #button>
+            <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
+                <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing" :style="'primary'"
+                    size="m" icon="fas fa-save" @click="handleFormSubmit">
+                    {{ trans('Save') }}
+                </Button>
+
+                <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
+                    <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
+                        class="rounded-r-none border-none" :style="'primary'" size="m" @click="handleFormSubmit">
+                        {{ ButtonActive.label }}
+                    </Button>
+
+                    <Menu as="div" class="relative inline-block text-left">
+                        <MenuButton as="template">
+                            <Button icon="fas fa-chevron-down" :disabled="form.processing"
+                                class="rounded-l-none border-none" :style="'tertiary'" size="l" />
+                        </MenuButton>
+
+                        <transition enter-active-class="transition duration-100 ease-out"
+                            enter-from-class="transform scale-95 opacity-0"
+                            enter-to-class="transform scale-100 opacity-100"
+                            leave-active-class="transition duration-75 ease-in"
+                            leave-from-class="transform scale-100 opacity-100"
+                            leave-to-class="transform scale-95 opacity-0">
+                            <MenuItems
+                                class="absolute top-[-90px] right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                <div class="px-1 py-1">
+                                    <div v-for="(item, index) in formData.route">
+                                        <MenuItem>
+                                        <div class="hover:bg-gray-50 group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer"
+                                            @click="() => onSelectSubmitChange(item)">
+                                            {{ item.label }}
+                                        </div>
+                                        </MenuItem>
+                                    </div>
+                                </div>
+                            </MenuItems>
+                        </transition>
+                    </Menu>
+                </div>
+            </div>
+        </template>
+    </PageHeading>
 
     <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
@@ -239,24 +284,24 @@ const onSelectSubmitChange = (value) => {
                         </div>
                     </div>
                 </template>
-                
+
                 <!-- Button -->
-                <div class="pt-5 flex justify-end">
-                    <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing"
-                        :style="'primary'" size="m" icon="fas fa-save" @click="handleFormSubmit">
+                <div v-if="!formData?.submitPosition || formData?.submitPosition != 'top'" class="pt-5 flex justify-end">
+                    <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing" :style="'primary'"
+                        size="m" icon="fas fa-save" @click="handleFormSubmit">
                         {{ trans('Save') }}
                     </Button>
 
                     <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
                         <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
-                            class="rounded-r-none border-none"
-                            :style="'primary'" size="m" @click="handleFormSubmit">
+                            class="rounded-r-none border-none" :style="'primary'" size="m" @click="handleFormSubmit">
                             {{ ButtonActive.label }}
                         </Button>
 
                         <Menu as="div" class="relative inline-block text-left">
                             <MenuButton as="template">
-                                <Button icon="fas fa-chevron-down" :disabled="form.processing" class="rounded-l-none border-none" :style="'tertiary'" size="l" />
+                                <Button icon="fas fa-chevron-down" :disabled="form.processing"
+                                    class="rounded-l-none border-none" :style="'tertiary'" size="l" />
                             </MenuButton>
 
                             <transition enter-active-class="transition duration-100 ease-out"
@@ -270,7 +315,8 @@ const onSelectSubmitChange = (value) => {
                                     <div class="px-1 py-1">
                                         <div v-for="(item, index) in formData.route">
                                             <MenuItem>
-                                            <div class="hover:bg-gray-50 group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer" @click="() => onSelectSubmitChange(item)">
+                                            <div class="hover:bg-gray-50 group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer"
+                                                @click="() => onSelectSubmitChange(item)">
                                                 {{ item.label }}
                                             </div>
                                             </MenuItem>
