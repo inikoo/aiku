@@ -5,8 +5,15 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Helpers\Address\HydrateAddress;
+use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Helpers\Country\UI\GetCountriesOptions;
+use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
+use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
+use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Group\UpdateGroup;
@@ -21,6 +28,8 @@ use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\SysAdmin\User\UserRemoveRoles;
 use App\Actions\SysAdmin\User\UserSyncRoles;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Helpers\Address;
+use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
 use App\Models\SysAdmin\Admin;
@@ -97,7 +106,6 @@ test('update group name', function (Group $group) {
 })->depends('create group');
 
 
-
 test('create a system admin', function () {
     $admin = StoreAdmin::make()->action(Admin::factory()->definition());
     $this->assertModelExists($admin);
@@ -109,9 +117,14 @@ test('create organisation type shop', function (Group $group) {
     data_set($modelData, 'code', 'acme');
     data_set($modelData, 'type', OrganisationTypeEnum::SHOP);
 
+    $address = new Address(Address::factory()->definition());
+    data_set($modelData, 'address', $address->toArray());
+
+
     $organisation = StoreOrganisation::make()->action($group, $modelData);
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
+        ->and($organisation->address)->toBeInstanceOf(Address::class)
         ->and($organisation->roles()->count())->toBe(7)
         ->and($group->roles()->count())->toBe(12)
         ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
@@ -325,7 +338,6 @@ test('delete guest', function ($user) {
 })->depends('update user password');
 
 
-
 test('can show app login', function () {
     Config::set(
         'inertia.testing.page_paths',
@@ -386,12 +398,12 @@ test('can show hr dashboard', function (Guest $guest) {
             ->where('stats.0.stat', 2)->where('stats.0.href.name', 'grp.sysadmin.users.index')
             ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
     });
+
     return $guest;
 })->depends('create guest');
 
 test('Hydrate group via command', function (Group $group) {
     $this->artisan('hydrate:group '.$group->slug)->assertSuccessful();
-
 })->depends('create group');
 
 test('Hydrate organisations via command', function (Organisation $organisation) {
@@ -403,17 +415,14 @@ test('seed stock images', function () {
 });
 
 test('hydrate media', function (Group $group) {
-
     /** @var Media $media */
-    $media=$group->images()->first();
+    $media = $group->images()->first();
     HydrateMedia::run($media);
-    $this->artisan('media:hydrate')->assertSuccessful();
+    $this->artisan('hydrate:medias')->assertSuccessful();
 
     $media->refresh();
     expect($media->usage)->toBe(1)
-    ->and($media->multiplicity)->toBe(2);
-
-
+        ->and($media->multiplicity)->toBe(2);
 })->depends('create group');
 
 test('can show media', function (Guest $guest) {
@@ -422,11 +431,44 @@ test('can show media', function (Guest $guest) {
     setPermissionsTeamId($group->id);
 
     /** @var Media $media */
-    $media=$group->images()->where('mime_type', 'image/png')->first();
+    $media = $group->images()->where('mime_type', 'image/png')->first();
     actingAs($guest->user);
     $response = get(route('grp.media.show', $media->ulid));
     $response->assertOk();
     $response->assertHeader('Content-Type', 'image/png');
-
-
 })->depends('create guest');
+
+test('hydrate address', function (Organisation $organisation) {
+    $address = $organisation->address;
+    HydrateAddress::run($address);
+    $this->artisan('hydrate:addresses')->assertSuccessful();
+
+    $address->refresh();
+    expect($address->usage)->toBe(1)
+        ->and($address->multiplicity)->toBe(1);
+})->depends('create organisation type shop');
+
+test('parse country', function () {
+    $countryId = ParseCountryID::run('malaysia');
+    $country   = Country::find($countryId);
+    expect($country->code)->toBe('MY');
+
+    $countryId = ParseCountryID::run('DEU');
+    $country   = Country::find($countryId);
+    expect($country->code)->toBe('DE');
+});
+
+test('get helpers select options data', function () {
+    $countryData = GetAddressData::run();
+    expect($countryData)->toHaveCount(259);
+    $countryDataBis = GetCountriesOptions::run();
+    expect($countryDataBis)->toHaveCount(259);
+    $currencyData = GetCurrenciesOptions::run();
+    expect($currencyData)->toHaveCount(159);
+    $timezonesData = GetTimeZonesOptions::run();
+    expect($timezonesData)->toHaveCount(419);
+    $languagesData = GetLanguagesOptions::make()->all();
+    expect($languagesData)->toHaveCount(279);
+    $translatedLanguagesData = GetLanguagesOptions::make()->translated();
+    expect($translatedLanguagesData)->toHaveCount(8);
+});
