@@ -26,7 +26,7 @@ class RentalClausesResource extends JsonResource
             'code'                              => $this->asset->code,
             'price'                             => $this->asset->rental->price,
             'agreed_price'                      => $this->agreed_price ??  $this->asset->rental->price,
-            'discount'                          => 0,
+            'percentage_off'                          => 0,
             'unit'                              => $this->asset->rental->unit,
             'currency'                          => CurrencyResource::make($this->asset->currency)
         ];

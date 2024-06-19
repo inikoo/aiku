@@ -220,7 +220,7 @@ const showAll = () => {
 
                                 <div v-else-if="column.type == 'inputDiscount'" class="w-28">
                                     <PureInputNumber v-model="itemData[column.key]" placeholder="Input Discount" 
-                                        :suffix="true" :minValue="0"
+                                        :suffix="true" :minValue="0" :key="index"
                                         @input="(value) => column?.propsOptions?.onChange(value, column, itemData)">
                                         <template #suffix>
                                             <div

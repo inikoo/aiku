@@ -29,7 +29,7 @@ class OutersResource extends JsonResource
             'unit'                  => $outer->unit,
             'currency'              => CurrencyResource::make($currency),
             'agreed_price'          => $outer->agreed_price ?? $outer->price,
-            'discount'              => 0,
+            'percentage_off'              => 0,
 
         ];
     }

@@ -39,7 +39,7 @@ class EditRentalAgreement extends OrgAction
                 'asset_id'         => $clause->asset_id,
                 'agreed_price'     => $agreedPrice,
                 'price'            => $price,
-                'discount'         => ($price - $agreedPrice) / $agreedPrice * 100
+                'percentage_off'         => ($price - $agreedPrice) / $agreedPrice * 100
             ];
         }
         // dd($rentalAgreement->clauses->pluck('agreed_price'));
@@ -102,7 +102,7 @@ class EditRentalAgreement extends OrgAction
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
-                                    'rental'  => $rentalData,
+                                    'clauses'  => $rentalData,
                                     // 'isEmpty' => $isEmpty,
                                 ]
                             ]

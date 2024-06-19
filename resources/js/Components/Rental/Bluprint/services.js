@@ -25,13 +25,13 @@ export default {
                 onChange: (value, column, rowData) => {
                     let discount = (1 - (parseFloat(value) / rowData.price)) * 100;
                     discount = parseFloat(discount.toFixed(2));
-                    rowData.discount = discount;
+                    rowData.percentage_off = discount;
                 }
             }
         },
         {
             title : 'Discount',
-            key : 'discount',
+            key : 'percentage_off',
             type : 'inputDiscount',
             class : 'w-80',
             propsOptions : {

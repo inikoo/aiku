@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
     tabs?: Array
     fieldName: string
     options?: any
-    reset: Boolean
+    reset?: Boolean
     fieldData?: {
         type: string
         placeholder: string
@@ -87,6 +87,8 @@ onBeforeMount(() => {
     })
     props.form.reset(props.fieldName)
 })
+
+console.log(props)
 
 </script>
 
