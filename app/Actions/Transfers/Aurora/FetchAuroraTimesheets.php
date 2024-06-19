@@ -12,6 +12,7 @@ use App\Actions\HumanResources\Timesheet\StoreTimesheet;
 use App\Actions\HumanResources\Timesheet\UpdateTimesheet;
 use App\Models\HumanResources\Timesheet;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,28 +23,41 @@ class FetchAuroraTimesheets extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Timesheet
     {
         if ($timesheetData = $organisationSource->fetchTimesheet($organisationSourceId)) {
-
             if ($timesheet = Timesheet::where('source_id', $timesheetData['timesheet']['source_id'])->first()) {
-                $timesheet = UpdateTimesheet::make()->action(
-                    timesheet: $timesheet,
-                    modelData: $timesheetData['timesheet']
-                );
+                try {
+                    $timesheet = UpdateTimesheet::make()->action(
+                        timesheet: $timesheet,
+                        modelData: $timesheetData['timesheet']
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $timesheetData['timesheet'], 'Timesheet', 'update');
+
+                    return null;
+                }
             } else {
-                $timesheet = StoreTimesheet::make()->action(
-                    parent: $timesheetData['employee'],
-                    modelData: $timesheetData['timesheet'],
-                );
+                try {
+                    $timesheet = StoreTimesheet::make()->action(
+                        parent: $timesheetData['employee'],
+                        modelData: $timesheetData['timesheet'],
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $timesheetData['timesheet'], 'Timesheet', 'store');
+                    return null;
+                }
 
                 foreach ($timesheetData['clockings'] as $clockingData) {
+                    try {
                     StoreClocking::make()->action(
                         generator: $clockingData['generator'],
                         parent: $clockingData['parent'],
                         subject: $clockingData['subject'],
                         modelData: $clockingData['clockingData']
                     );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $clockingData['clockingData'], 'Clocking', 'store');
+                        return null;
+                    }
                 }
-
-
             }
 
             return $timesheet;
