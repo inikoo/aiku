@@ -27,7 +27,7 @@ class ProductClausesResource extends JsonResource
             'code'                               => $clause->asset->code,
             'price'                              => $clause->asset->product->price,
             'agreed_price'                       => $clause->agreed_price ??  $clause->asset->product->price,
-            'discount'                           => 0,
+            'percentage_off'                           => 0,
             'unit'                               => $clause->asset->product->unit,
             'currency'                           => CurrencyResource::make($clause->asset->currency)
         ];

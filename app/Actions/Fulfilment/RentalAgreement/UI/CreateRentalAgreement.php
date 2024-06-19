@@ -61,7 +61,7 @@ class CreateRentalAgreement extends OrgAction
                                         'placeholder' => '0',
                                         'required'    => false
                                     ],
-                                    'rental' => [
+                                    'clauses' => [
                                         'type'             => 'rental',
                                         'label'            => __(''),
                                         'required'         => false,
