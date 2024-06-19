@@ -9,6 +9,7 @@ namespace App\Actions\Catalogue\ProductCategory\Hydrators;
 
 use App\Models\Catalogue\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsAction;
+use stdClass;
 
 class SyncDepartmentTradeUnitImages
 {
@@ -22,9 +23,10 @@ class SyncDepartmentTradeUnitImages
         foreach ($department->tradeUnits as $tradeUnit) {
             foreach ($tradeUnit->media as $media) {
                 $images[$media->id] = [
-                    'owner_type' => 'TradeUnit',
-                    'owner_id'   => $tradeUnit->id,
-                    'type'       => 'image'
+                    'owner_type'      => 'TradeUnit',
+                    'owner_id'        => $tradeUnit->id,
+                    'type'            => 'image',
+                    'data'            => json_encode(new stdClass())
                 ];
             }
         }

@@ -18,6 +18,7 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
+use stdClass;
 
 class SaveModelImage
 {
@@ -37,9 +38,9 @@ class SaveModelImage
         }
 
         data_set($imageData, 'checksum', $checksum);
-        $media    = StoreMediaFromFile::run($model, $imageData, 'image');
+        $media = StoreMediaFromFile::run($model, $imageData, 'image');
 
-        if($oldImage && $oldImage->id == $media->id) {
+        if ($oldImage && $oldImage->id == $media->id) {
             return $model;
         }
 
@@ -62,6 +63,7 @@ class SaveModelImage
                         'group_id'        => $group_id,
                         'organisation_id' => $organisation_id,
                         'scope'           => $scope,
+                        'data'            => json_encode(new stdClass())
                     ]
                 ]
             );

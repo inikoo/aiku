@@ -16,6 +16,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Exception;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreMediaFromIcon
@@ -44,7 +45,8 @@ class StoreMediaFromIcon
                 ->preservingOriginal()
                 ->withProperties(
                     [
-                        'group_id' => $group_id
+                        'group_id' => $group_id,
+                        'ulid'     => Str::ulid()
                     ]
                 )
                 ->usingName($model->slug."-icon")

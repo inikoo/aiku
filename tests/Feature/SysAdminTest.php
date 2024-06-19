@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Group\UpdateGroup;
@@ -21,6 +22,7 @@ use App\Actions\SysAdmin\User\UserRemoveRoles;
 use App\Actions\SysAdmin\User\UserSyncRoles;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Media;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -384,6 +386,7 @@ test('can show hr dashboard', function (Guest $guest) {
             ->where('stats.0.stat', 2)->where('stats.0.href.name', 'grp.sysadmin.users.index')
             ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
     });
+    return $guest;
 })->depends('create guest');
 
 test('Hydrate group via command', function (Group $group) {
@@ -398,3 +401,32 @@ test('Hydrate organisations via command', function (Organisation $organisation) 
 test('seed stock images', function () {
     $this->artisan('group:seed-stock-images')->assertSuccessful();
 });
+
+test('hydrate media', function (Group $group) {
+
+    /** @var Media $media */
+    $media=$group->images()->first();
+    HydrateMedia::run($media);
+    $this->artisan('media:hydrate')->assertSuccessful();
+
+    $media->refresh();
+    expect($media->usage)->toBe(1)
+    ->and($media->multiplicity)->toBe(2);
+
+
+})->depends('create group');
+
+test('can show media', function (Guest $guest) {
+    $group = $guest->group;
+    app()->instance('group', $guest->group);
+    setPermissionsTeamId($group->id);
+
+    /** @var Media $media */
+    $media=$group->images()->where('mime_type', 'image/png')->first();
+    actingAs($guest->user);
+    $response = get(route('grp.media.show', $media->ulid));
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'image/png');
+
+
+})->depends('create guest');

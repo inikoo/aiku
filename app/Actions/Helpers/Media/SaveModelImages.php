@@ -12,6 +12,7 @@ use App\Actions\Helpers\Media\Hydrators\MediaHydrateUsage;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Media;
 use Lorisleiva\Actions\Concerns\AsAction;
+use stdClass;
 
 class SaveModelImages
 {
@@ -51,6 +52,7 @@ class SaveModelImages
                         'group_id'        => $group_id,
                         'organisation_id' => $organisation_id,
                         'scope'           => $scope,
+                        'data'            => json_encode(new stdClass())
                     ]
                 ]
             );

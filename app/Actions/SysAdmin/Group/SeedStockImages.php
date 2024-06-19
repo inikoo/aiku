@@ -33,8 +33,8 @@ class SeedStockImages
                     continue;
                 }
 
-                $scope = $fileData[1];
-                $subScope = $fileData[2].'-'.$fileData[3];
+                $scope     = $fileData[1];
+                $subScope  = $fileData[2].'-'.$fileData[3];
                 $imageName = $fileData[3];
 
                 $data      = [
