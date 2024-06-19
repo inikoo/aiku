@@ -11,7 +11,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Catalogue\HasRentalAgreement;
-use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerAgreedPrices;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomerAgreedPrices;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
@@ -130,6 +130,7 @@ class ShowFulfilmentCustomer extends OrgAction
 
         }
 
+        // dd(IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer));
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomer',
             [
@@ -184,8 +185,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
                 FulfilmentCustomerTabsEnum::AGREED_PRICES->value => $this->tab == FulfilmentCustomerTabsEnum::AGREED_PRICES->value ?
-                    fn () => GetFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer)
-                    : Inertia::lazy(fn () => GetFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer)),
+                    fn () => IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer)
+                    : Inertia::lazy(fn () => IndexFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer)),
 
 
                 FulfilmentCustomerTabsEnum::WEBHOOK->value => $this->tab == FulfilmentCustomerTabsEnum::WEBHOOK->value ?
