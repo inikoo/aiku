@@ -394,3 +394,7 @@ test('Hydrate group via command', function (Group $group) {
 test('Hydrate organisations via command', function (Organisation $organisation) {
     $this->artisan('hydrate:organisations '.$organisation->slug)->assertSuccessful();
 })->depends('create organisation type shop');
+
+test('seed stock images', function () {
+    $this->artisan('group:seed-stock-images')->assertSuccessful();
+});
