@@ -21,6 +21,10 @@ class ShowHome
     {
         /** @var Website $website */
         $website   = request()->get('website');
+
+        $home=$website->storefront;
+
+
         $structure = Arr::get(
             $website->structure,
             'header',
@@ -45,10 +49,12 @@ class ShowHome
         );
 
 
+
         return Inertia::render(
             'Home',
             [
-                'header' => $structure
+                'header' => $structure,
+                'blocks'=>$home->published_layout
             ]
         );
     }
