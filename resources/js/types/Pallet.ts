@@ -107,12 +107,18 @@ export interface PalletDelivery {
 
 export interface PalletReturn {
     id: number
+    delivery_address: {
+        formatted_address?: string
+    }
     reference: string
     state: string
     timeline: {
         [key: string]: Timeline
     }
     number_pallets: number
+    number_stored_items: number
+    number_services: number
+    number_physical_goods: number
 }
 
 // Box Stats in Pallet Delivery
