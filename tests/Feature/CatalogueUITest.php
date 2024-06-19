@@ -13,6 +13,7 @@ use App\Models\Catalogue\Shop;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -55,12 +56,31 @@ beforeEach(function () {
 // Department
 
 test('UI Index catalogue departments', function () {
-    $response = $this->get(route('grp.org.shops.show.catalogue.departments.index', [$this->organisation->slug, $this->shop->slug]));
+    $response = get(route('grp.org.shops.show.catalogue.departments.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/Departments')
             ->has('title')
             ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->product->department->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Department')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->department->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
