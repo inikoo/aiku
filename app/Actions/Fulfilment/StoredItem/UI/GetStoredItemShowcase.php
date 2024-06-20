@@ -19,7 +19,7 @@ class GetStoredItemShowcase
     public function handle(StoredItem $storedItem): array
     {
         return [
-//            'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
+            'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
             'pieData'             => $this->getDashboardData($storedItem),
         ];
     }
