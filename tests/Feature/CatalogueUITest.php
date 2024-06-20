@@ -119,3 +119,22 @@ test('UI edit department', function () {
     });
 });
 
+test('UI show department (customers tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/shops/'.$this->shop->slug.'/catalogue/departments/'.$this->department->slug.'?tab=customers');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Department')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->department->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
