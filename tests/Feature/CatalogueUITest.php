@@ -297,3 +297,14 @@ test('UI edit sub department in department', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Index catalogue collection', function () {
+    $response = get(route('grp.org.shops.show.catalogue.collections.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Collections')
+            ->has('title')
+            ->has('breadcrumbs', 4);
+    });
+});
