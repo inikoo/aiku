@@ -12,6 +12,7 @@ use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 use Spatie\Sluggable\HasSlug;
@@ -35,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Web\WebBlockTypeStats|null $stats
  * @property-read \App\Models\Web\WebBlockTypeCategory $webBlockTypeCategory
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @method static Builder|WebBlockType newModelQuery()
  * @method static Builder|WebBlockType newQuery()
  * @method static Builder|WebBlockType query()
@@ -74,6 +76,11 @@ class WebBlockType extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(WebBlockTypeStats::class);
+    }
+
+    public function webBlocks(): HasMany
+    {
+        return $this->hasMany(WebBlock::class);
     }
 
 

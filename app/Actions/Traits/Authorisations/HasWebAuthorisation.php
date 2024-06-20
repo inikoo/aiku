@@ -17,6 +17,11 @@ trait HasWebAuthorisation
     private Organisation|Fulfilment|Shop $scope;
     public function authorize(ActionRequest $request): bool
     {
+
+        if($this->asAction) {
+            return true;
+        }
+
         if ($this->scope instanceof Organisation) {
             $this->canEdit      = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");
             $this->isSupervisor = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}");

@@ -20,8 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $group_id
  * @property int $web_block_type_category_id
  * @property int $web_block_type_id
- * @property string $code
- * @property string $name
  * @property array $layout
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at

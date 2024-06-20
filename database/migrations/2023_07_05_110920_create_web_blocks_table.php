@@ -20,8 +20,7 @@ return new class () extends Migration {
             $table->foreign('web_block_type_category_id')->references('id')->on('web_block_type_categories')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('web_block_type_id');
             $table->foreign('web_block_type_id')->references('id')->on('web_block_types')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('code')->collation('und_ci');
-            $table->string('name')->collation('und_ci');
+
             $table->jsonb('layout');
             $table->jsonb('data');
             $table->timestampsTz();

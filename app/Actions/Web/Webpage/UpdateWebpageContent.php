@@ -10,6 +10,7 @@ namespace App\Actions\Web\Webpage;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Http\Resources\Web\WebBlockResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Web\Webpage;
 
@@ -19,13 +20,24 @@ class UpdateWebpageContent extends OrgAction
     use HasWebAuthorisation;
     use WebpageContentManagement;
 
-    public function handle(Webpage $webpage, array $data): Webpage
+    public function handle(Webpage $webpage): Webpage
     {
         $snapshot = $webpage->unpublishedSnapshot;
 
+        $layout  =[];
+        foreach($webpage->webBlocks as $webBlock) {
+            $layout[]=
+                [
+                    'id'       => $webBlock->pivot->id,
+                    'type'     => $webBlock->webBlockType->code,
+                    'web_block'=> WebBlockResource::make($webBlock)->getArray()
+                ];
+
+        }
+
         $snapshot->update(
             [
-                'layout' => $data['layout']
+                'layout' => $layout
             ]
         );
 

@@ -90,6 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedFooterSnapshot
  * @property-read Snapshot|null $unpublishedHeaderSnapshot
+ * @property-read Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @property-read \App\Models\Web\WebsiteStats|null $webStats
  * @property-read Collection<int, \App\Models\Web\Webpage> $webpages
  * @method static \Database\Factories\Web\WebsiteFactory factory($count = null, $state = [])
@@ -236,5 +237,9 @@ class Website extends Model implements Auditable
         return $scheme.'://'.$this->domain;
     }
 
+    public function webBlocks(): MorphMany
+    {
+        return $this->morphMany(WebBlock::class, 'model');
+    }
 
 }

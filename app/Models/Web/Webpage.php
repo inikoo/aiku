@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;
@@ -71,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Web\WebpageStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedSnapshot
+ * @property-read Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @property-read Collection<int, Webpage> $webpages
  * @property-read \App\Models\Web\Website $website
  * @method static \Database\Factories\Web\WebpageFactory factory($count = null, $state = [])
@@ -169,5 +171,12 @@ class Webpage extends Model
         return $this->belongsTo(Webpage::class, 'parent_id');
     }
 
+    public function webBlocks(): MorphToMany
+    {
+        return $this->morphToMany(WebBlock::class, 'model', 'model_has_web_blocks')
+            ->orderByPivot('position')
+            ->withPivot('id', 'position')
+            ->withTimestamps();
+    }
 
 }

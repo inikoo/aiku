@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
@@ -16,6 +17,8 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Helpers\SnapshotStats;
+use App\Models\Web\WebBlock;
+use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
@@ -99,10 +102,26 @@ test('create webpage', function (Website $website) {
 
     expect($snapshot->layout)->toBeArray()
         ->and($snapshot->stats)->toBeInstanceOf(SnapshotStats::class)
-        ->and(Arr::get($snapshot->layout, 'blocks'))->toBeArray()
+        ->and(Arr::get($snapshot->layout, 'web_blocks'))->toBeArray()
         ->and($snapshot->checksum)->toBeString()
         ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);
+
+    return $webpage;
+
 })->depends('create b2b website');
+
+test('create add web block', function (Webpage $webpage) {
+
+    /** @var WebBlockType $webBlockType */
+    $webBlockType=$webpage->group->webBlockTypes()->where('code', 'Text')->first();
+    expect($webBlockType)->toBeInstanceOf(WebBlockType::class);
+
+    $webBlock=AttachWebBlockToWebpage::make()->action($webpage, $webBlockType, []);
+    expect($webBlock)->toBeInstanceOf(WebBlock::class);
+    $webpage->refresh();
+    expect($webpage->is_dirty)->toBeTrue();
+
+})->depends('create webpage');
 
 
 // Fulfilment Website

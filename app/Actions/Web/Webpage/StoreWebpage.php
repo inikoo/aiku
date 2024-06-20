@@ -58,7 +58,7 @@ class StoreWebpage extends OrgAction
             $webpage,
             [
                 'layout' => [
-                    'blocks'=> []
+                    'web_blocks'=> []
                 ]
             ],
         );
