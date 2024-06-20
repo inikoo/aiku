@@ -1,13 +1,12 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 18 Jun 2024 17:59:52 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 20 Jun 2024 17:27:10 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Helpers;
 
-use App\Models\Helpers\Snapshot;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

@@ -9,7 +9,6 @@ namespace App\Models\Helpers;
 
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
-use App\Models\SnapshotStats;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Builder;

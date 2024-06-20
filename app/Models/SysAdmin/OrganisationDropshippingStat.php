@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 11 Jun 2024 10:24:50 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 20 Jun 2024 17:28:32 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\SysAdmin;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  *
  * @property int $id
- * @property int $customer_id
+ * @property int $organisation_id
  * @property int $number_customer_clients
  * @property int $number_current_customer_clients
  * @property int $number_dropshipping_customer_portfolios
@@ -26,11 +26,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerDropshippingStat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerDropshippingStat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerDropshippingStat query()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganisationDropshippingStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganisationDropshippingStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrganisationDropshippingStat query()
  * @mixin \Eloquent
  */
-class CustomerDropshippingStat extends Model
+class OrganisationDropshippingStat extends Model
 {
 }

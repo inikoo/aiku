@@ -8,7 +8,6 @@
 namespace App\Models\Dropshipping;
 
 use App\Models\Catalogue\Product;
-use App\Models\DropshippingCustomerPortfolioStats;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

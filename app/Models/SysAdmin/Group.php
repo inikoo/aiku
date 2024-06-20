@@ -27,7 +27,6 @@ use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
-use App\Models\GroupDropshippingStat;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
 use App\Models\HumanResources\ClockingMachine;

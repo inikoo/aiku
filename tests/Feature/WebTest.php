@@ -15,11 +15,10 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Snapshot;
-use App\Models\SnapshotStats;
+use App\Models\Helpers\SnapshotStats;
 use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
-
 use Illuminate\Support\Carbon;
 
 use function Pest\Laravel\actingAs;
