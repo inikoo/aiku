@@ -7,14 +7,12 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,7 +34,7 @@ class CreateProduct extends OrgAction
                 ),
                 'title'    => __('new product'),
                 'pageHead' => [
-                    'title' => __('new product'),
+                    'title'        => __('new product'),
                     'actions'      => [
                         [
                             'type'  => 'button',
