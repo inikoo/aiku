@@ -7,6 +7,7 @@
 
 namespace App\Actions\SupplyChain\Supplier;
 
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

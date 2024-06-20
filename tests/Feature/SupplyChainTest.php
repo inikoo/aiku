@@ -153,8 +153,7 @@ test('create org-agent', function ($agent) {
 test('create org-supplier', function ($supplier) {
     $orgSupplier = StoreOrgSupplier::make()->action(
         $this->organisation,
-        $supplier,
-        []
+        $supplier
     );
 
     expect($orgSupplier)->toBeInstanceOf(OrgSupplier::class)
@@ -162,3 +161,7 @@ test('create org-supplier', function ($supplier) {
 
     return $supplier;
 })->depends('create independent supplier');
+
+test('update search', function () {
+    $this->artisan('search:update')->assertSuccessful();
+});

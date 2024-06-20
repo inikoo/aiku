@@ -472,3 +472,7 @@ test('get helpers select options data', function () {
     $translatedLanguagesData = GetLanguagesOptions::make()->translated();
     expect($translatedLanguagesData)->toHaveCount(8);
 });
+
+test('update search', function () {
+    $this->artisan('search:update')->assertSuccessful();
+});
