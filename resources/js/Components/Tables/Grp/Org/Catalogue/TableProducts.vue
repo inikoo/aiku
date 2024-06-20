@@ -49,6 +49,10 @@ console.log(route().current())
       return route(
           'grp.org.shops.show.catalogue.departments.show.families.show.products.show',
           [route().params['organisation'], route().params['shop'], route().params['department'], route().params['family'], product.slug]);
+    case 'grp.org.shops.show.catalogue.departments.show.products.index':
+      return route(
+          'grp.org.shops.show.catalogue.departments.show.products.show',
+          [route().params['organisation'], route().params['shop'], route().params['department'], product.slug]);
     default:
       return null
   }

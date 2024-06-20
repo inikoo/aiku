@@ -42,6 +42,7 @@ enum PalletStateEnum: string
     // Status: incident
     case DAMAGED    = 'damaged';
     case LOST       = 'lost';
+    case OTHER      = 'other';
 
     // Status: returned
     case DISPATCHED = 'dispatched';
@@ -63,6 +64,7 @@ enum PalletStateEnum: string
             'dispatched'   => __('Dispatched'),
             'lost'         => __('Lost'),
             'damaged'      => __('Damaged'),
+            'other'        => __('Other'),
         ];
     }
 
@@ -199,6 +201,16 @@ enum PalletStateEnum: string
                     'name' => 'ghost',
                     'type' => 'font-awesome-5'
                 ]
+            ],
+            'other' => [
+                'tooltip' => __('Other'),
+                'icon'    => 'fal fa-ghost',
+                'class'   => 'text-red-400',
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'ghost',
+                    'type' => 'font-awesome-5'
+                ]
             ]
         ];
     }
@@ -228,7 +240,7 @@ enum PalletStateEnum: string
             'dispatched'   => $stats->number_pallets_state_disoatched,
             'lost'         => $stats->number_pallets_state_lost,
             'damaged'      => $stats->number_pallets_state_damaged,
-
+            'other'        => $stats->number_pallets_state_other
         ];
     }
 }

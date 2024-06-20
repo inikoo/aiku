@@ -51,7 +51,7 @@ const listStatusNotPicked = [
         label: trans('Other'),
         value: 'other'
     }
-] 
+]
 const selectedStatusNotPicked = reactive({
     status: 'other',
     notes: ''
@@ -142,7 +142,7 @@ const isUndoLoading = ref(false)
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
             <!-- <pre>{{ pallet.state }}</pre> -->
-            
+
             <div v-if="props.state == 'in-process'">
                 <Link as="div" :href="route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)" v-tooltip="trans('Unselect this pallet')" method="delete"
                     @start="() => isDeleteLoading = pallet.id"
@@ -162,7 +162,7 @@ const isUndoLoading = ref(false)
                     @start="() => isPickingLoading = pallet.id"
                     @finish="() => isPickingLoading = false"
                     method="patch"
-                    v-tooltip="`Set as picked`"    
+                    v-tooltip="`Set as picked`"
                 >
                     <!-- <div class="border border-green-500 rounded py-2 px-6 hover:bg-green-500/10 cursor-pointer">
                         <FontAwesomeIcon icon='fal fa-check' class='flex items-center justify-center text-green-500' fixed-width aria-hidden='true' />
@@ -172,12 +172,12 @@ const isUndoLoading = ref(false)
 
                 <!-- Button: Undo picking -->
                 <Link v-if="pallet.state === 'picked'" as="div"
-                    :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
+                    :href="route(pallet.undoPickingRoute.name, pallet.undoPickingRoute.parameters)"
                     :data="{ state: 'picked' }"
                     @start="() => isUndoLoading = pallet.id"
                     @finish="() => isUndoLoading = false"
                     method="patch"
-                    v-tooltip="`Undo`"    
+                    v-tooltip="`Undo`"
                 >
                     <Button icon="fal fa-undo" label="Undo picking" type="tertiary" size="xs" :loading="isUndoLoading === pallet.id" class="py-0" />
                 </Link>
@@ -211,7 +211,7 @@ const isUndoLoading = ref(false)
 
                             <!-- Button: Save -->
                             <div class="flex justify-end mt-2">
-                                <Button @click="async () => onSubmitNotPicked(pallet.id, close, pallet.updateRoute)"
+                                <Button @click="async () => onSubmitNotPicked(pallet.id, close, pallet.notPickedRoute)"
                                     full
                                     label="Submit"
                                     :disabled="!selectedStatusNotPicked.status || !selectedStatusNotPicked.notes"

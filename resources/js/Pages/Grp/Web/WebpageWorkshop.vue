@@ -45,8 +45,7 @@ const sendUpdate = async () => {
       route(props.webpage.update_route.name, props.webpage.update_route.parameters), 
       { layout: {blocks : data.value.layout }}
     );
-    const set = {...response.data, layout : response.data.data.layout.blocks }
-    console.log(set)
+    const set = {...response.data.data, layout : response.data.data.layout.blocks }
     data.value = set
     console.log('saved', response);
   } catch (error: any) {
