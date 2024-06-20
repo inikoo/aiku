@@ -37,7 +37,6 @@ class ConnectMayaWithCredentials
             'username'             => ['required', 'exists:users,username'],
             'password'             => ['required', 'string'],
             'device_name'          => ['required', 'string'],
-            'organisation_user_id' => ['sometimes'],
         ];
     }
 
@@ -59,26 +58,22 @@ class ConnectMayaWithCredentials
             return;
         }
 
+
         if (!Hash::check($this->get('password'), $user->password)) {
+
             $validator->errors()->add('password', __('Wrong password.'));
 
-            return;
         }
 
-
-        $this->fill([
-            'organisation_user_id' => $user->id
-        ]);
     }
 
 
     public function asController(ActionRequest $request): array
     {
+
         $this->fillFromRequest($request);
-
         $validatedData = $this->validateAttributes();
-
-        $user = User::find($this->get('organisation_user_id'));
+        $user          = User::where('username', $this->get('username'))->first();
 
         return $this->handle($user, Arr::only($validatedData, ['device_name']));
     }
