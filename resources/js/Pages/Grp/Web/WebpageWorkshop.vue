@@ -15,20 +15,9 @@ import draggable from "vuedraggable";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from "@/Components/Utils/Modal.vue";
-import BlockList from './Block/BlockList.vue';
-import WowsbarBanner from './Block/WowsbarBanner.vue';
-import ProductPage from './Block/ProductPage.vue';
-import Text from './Block/TextContent.vue';
-import FamilyPageOffer from './Block/FamilyPage-offer.vue';
-import ProductList from './Block/ProductList.vue'
-import CTA from './Block/CTA.vue'
-import Rewiews from './Block/Reviews.vue'
-import Image from './Block/Image.vue'
-import CTA2 from './Block/CTA2.vue'
-import Gallery from './Block/Gallery.vue'
-import Iframe from './Block/Iframe.vue'
+import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue';
+import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
 import axios from 'axios';
-import Action from "@/Components/Forms/Fields/Action.vue";
 import debounce from 'lodash/debounce';
 import Publish from '@/Components/Publish.vue';
 import { notify } from "@kyvg/vue3-notification"
@@ -72,22 +61,7 @@ const onUpdated = () => {
   debouncedSendUpdate();
 };
 
-const getComponent = (componentName: string) => {
-  const components: any = {
-    'bannerWowsbar': WowsbarBanner,
-    'ProductPage': ProductPage,
-    'text': Text,
-    'FamilyPageOffer': FamilyPageOffer,
-    'ProductList': ProductList,
-    'CTA': CTA,
-    'CTA2': CTA2,
-    'Reviews': Rewiews,
-    'Image': Image,
-    'Gallery': Gallery,
-    "Iframe": Iframe
-  };
-  return components[componentName] ?? null;
-};
+
 
 const onPickBlock = (e) => {
   data.value.layout.push(e);
@@ -148,7 +122,6 @@ console.log(data)
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
 		<template #button-publish="{ action }">
-    {{ data.is_dirty }}
 			<!--  <Action v-if="action.action" :action="action.action" :dataToSubmit="data" /> -->
 			<Publish
 				:isLoading="isLoading"
