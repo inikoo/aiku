@@ -153,6 +153,14 @@ export interface BoxStats {
             pallets_storage: boolean
         }
     }
+    order_summary: {
+        number_pallets: number
+        number_services: number
+        number_physical_goods: number
+        total_services_price: number
+        total_physical_goods_price: number
+        total_price: number
+    }
 }
 
 export interface PalletStatus {

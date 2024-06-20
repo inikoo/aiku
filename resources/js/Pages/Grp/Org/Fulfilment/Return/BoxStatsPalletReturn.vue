@@ -205,21 +205,21 @@ const onSubmitAddress = async () => {
                     <div class="flex flex-col gap-y-2">
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
                             <dt class="text-sm text-gray-600">Pallets</dt>
-                            <dd class="place-self-end text-sm">4pcs</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_pallets}}</dd>
                             <dd class="place-self-end text-sm">@4.25</dd>
                             <dd class="place-self-end text-sm font-medium">$99.00</dd>
                         </div>
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
                             <dt class="text-sm text-gray-600">Services</dt>
-                            <dd class="place-self-end text-sm">4pcs</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_services}}</dd>
                             <dd class="place-self-end text-sm">@4.25</dd>
-                            <dd class="place-self-end text-sm font-medium">$99.00</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_services_price }}</dd>
                         </div>
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
                             <dt class="text-sm text-gray-600">Physical Goods</dt>
-                            <dd class="place-self-end text-sm">4pcs</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_physical_goods}}</dd>
                             <dd class="place-self-end text-sm">@4.25</dd>
-                            <dd class="place-self-end text-sm font-medium">$99.00</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_physical_goods_price }}</dd>
                         </div>
                     </div>
 
@@ -244,7 +244,7 @@ const onSubmitAddress = async () => {
 
                     <div class="flex items-center justify-between border-t border-gray-200 pt-3">
                         <dt class="text-base font-medium">Order total</dt>
-                        <dd class="text-base font-medium">$112.32</dd>
+                        <dd class="text-base font-medium">{{ boxStats.order_summary.total_price }}</dd>
                     </div>
                 </dl>
 
