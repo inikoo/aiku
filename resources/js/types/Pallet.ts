@@ -157,6 +157,10 @@ export interface BoxStats {
         number_pallets: number
         number_services: number
         number_physical_goods: number
+        pallets_price: number
+        physical_goods_price: number
+        services_price: number
+        total_pallets_price: number
         total_services_price: number
         total_physical_goods_price: number
         total_price: number
