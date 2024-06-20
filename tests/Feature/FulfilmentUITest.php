@@ -376,6 +376,24 @@ test('UI show pallet', function () {
     });
 });
 
+test('UI show pallet (Stored Items Tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/pallets/'.$this->pallet->slug.'?tab=stored_items');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallet')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->pallet->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
 test('UI edit pallet', function () {
     $response = get(route('grp.org.fulfilments.show.operations.pallets.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
