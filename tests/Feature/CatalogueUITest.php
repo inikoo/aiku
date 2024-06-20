@@ -284,3 +284,16 @@ test('UI show sub department in department', function () {
 
     });
 });
+
+test('UI edit sub department in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.sub-departments.edit', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->subDepartment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
