@@ -343,7 +343,7 @@ class ShowPalletReturn extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletReturnTabsEnum::navigation()
+                    'navigation' => PalletReturnTabsEnum::navigation($palletReturn)
                 ],
                 'data'             => PalletReturnResource::make($palletReturn),
                 'box_stats'        => [
