@@ -351,3 +351,16 @@ test('UI show collection', function () {
 
     });
 });
+
+test('UI edit collection', function () {
+    $response = get(route('grp.org.shops.show.catalogue.collections.edit', [$this->organisation->slug, $this->shop->slug, $this->collection->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
