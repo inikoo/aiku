@@ -74,25 +74,7 @@ class ShowPalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        if ($this->parent instanceof Warehouse) {
-            $container = [
-                'icon'    => ['fal', 'fa-warehouse'],
-                'tooltip' => __('Warehouse'),
-                'label'   => Str::possessive($this->parent->code)
-            ];
-        } elseif ($this->parent instanceof Fulfilment) {
-            $container = [
-                'icon'    => ['fal', 'fa-pallet-alt'],
-                'tooltip' => __('Fulfilment'),
-                'label'   => Str::possessive($this->parent->slug)
-            ];
-        } else {
-            $container = [
-                'icon'    => ['fal', 'fa-user'],
-                'tooltip' => __('Customer'),
-                'label'   => Str::possessive($this->parent->customer->reference)
-            ];
-        }
+
 
         $actions = [];
 
