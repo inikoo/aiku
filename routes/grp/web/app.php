@@ -59,8 +59,8 @@ Route::middleware(["auth"])->group(function () {
         ->name("media.")
         ->group(__DIR__."/media.php");
     Route::prefix("gallery")
-        ->name("galley.")
-        ->group(__DIR__."/galley.php");
+        ->name("gallery.")
+        ->group(__DIR__."/gallery.php");
     /*
 
     Route::prefix("account")
