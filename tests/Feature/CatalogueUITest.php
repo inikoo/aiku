@@ -199,3 +199,14 @@ test('UI edit family in department', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Index catalogue product inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.products.index', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Products')
+            ->has('title')
+            ->has('breadcrumbs', 4);
+    });
+});
