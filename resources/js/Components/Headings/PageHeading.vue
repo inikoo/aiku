@@ -121,10 +121,10 @@ const originUrl = location.origin
                         </slot>
                         
                         <!-- ButtonGroup -->
-                        <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="{ action }">
+                        <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="action">
                             <div class="rounded-md flex" :class="[(action.button?.length || 0) > 1 ? 'shadow' : '']">
                                 <template v-if="action.button?.length">
-                                    <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
+                                    <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="button">
                                         <component :is="button.route?.name ? Link : 'div'"
                                             :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
                                             :method="button.route?.method || 'get'"
@@ -132,11 +132,11 @@ const originUrl = location.origin
                                             :target="button.target"
                                         >
                                             <Button :style="button.style" :label="button.label"
-                                                    :icon="button.icon"
-                                                    :iconRight="action.iconRight"
-                                                    :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
-                                                    class="inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-                                                    :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
+                                                :icon="button.icon"
+                                                :iconRight="action.iconRight"
+                                                :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
+                                                class="inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                                :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
                                             >
                                             </Button>
                                         </component>

@@ -197,16 +197,16 @@ const typePallet = [
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
-                v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
+            <Button @click="() => onUploadOpen(action)" :style="action.style" :icon="action.icon"
+                v-tooltip="action.tooltip" class="rounded-l rounded-r-none border-none" />
         </template>
 
         <!-- Button: Add many pallets -->
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
-                    <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
-                        :key="`ActionButton${action.button.label}${action.button.style}`"
+                    <Button :style="action.style" :icon="action.icon" :iconRight="action.iconRight"
+                        :key="`ActionButton${action.label}${action.style}`"
                         :tooltip="trans('Add multiple pallets')" class="rounded-r-none border-none" />
                 </template>
 
@@ -229,7 +229,7 @@ const typePallet = [
                             <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1-100" type="number"
                                 :minValue="1" :maxValue="100" autofocus
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
-                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action.button, closed) : ''" />
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action, closed) : ''" />
                             <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])"
                                 class="mt-2 text-sm text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
@@ -237,7 +237,7 @@ const typePallet = [
                         </div>
                         <div class="flex justify-end mt-3">
                             <Button :style="'save'" :loading="loading" :label="'save'"
-                                @click="() => onAddMultiplePallet(action.button, closed)" />
+                                @click="() => onAddMultiplePallet(action, closed)" />
                         </div>
                     </div>
                 </template>
@@ -249,9 +249,9 @@ const typePallet = [
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-                            :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                        <Button :style="action.style" :label="action.label" :icon="action.icon"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
 
                     <template #content="{ close: closed }">
@@ -290,7 +290,7 @@ const typePallet = [
 
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => onAddPallet(action.button, closed)" />
+                                    @click="() => onAddPallet(action, closed)" />
                             </div>
                         </div>
                     </template>

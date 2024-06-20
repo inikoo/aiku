@@ -31,10 +31,10 @@ const onUploadOpen = (action) => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-group-upload="{ action : action }">
+        <template #button-group-upload="{ action }">
             <Button
                 :style="'upload'"
-                @click="()=>onUploadOpen(action.button)"
+                @click="()=>onUploadOpen(action)"
                 class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
             />
         </template>
