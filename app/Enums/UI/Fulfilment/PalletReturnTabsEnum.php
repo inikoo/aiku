@@ -35,8 +35,9 @@ enum PalletReturnTabsEnum: string
                 'align' => 'right',
             ],
             PalletReturnTabsEnum::PALLETS => [
-                'title' => __("pallets ($parent->number_pallets)"),
-                'icon'  => 'fal fa-pallet',
+                'title'     => __("pallets ($parent->number_pallets)"),
+                'icon'      => 'fal fa-pallet',
+                'indicator' => $parent->pallets()->whereNotNull('location_id')->count() < $parent->pallets()->count()
             ],
             PalletReturnTabsEnum::STORED_ITEMS => [
                 'title' => __("stored items ($parent->number_stored_items)"),

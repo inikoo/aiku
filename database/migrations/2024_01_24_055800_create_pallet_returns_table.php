@@ -34,6 +34,12 @@ return new class () extends Migration {
                 $table->text('customer_notes')->nullable();
                 $table->text('public_notes')->nullable();
                 $table->text('internal_notes')->nullable();
+
+                $table->unsignedInteger('delivery_address_id')->index()->nullable();
+                $table->foreign('delivery_address_id')->references('id')->on('addresses');
+                $table->unsignedInteger('collection_address_id')->index()->nullable();
+                $table->foreign('collection_address_id')->references('id')->on('addresses');
+
                 $table->timestampsTz();
                 $this->softDeletes($table);
             });

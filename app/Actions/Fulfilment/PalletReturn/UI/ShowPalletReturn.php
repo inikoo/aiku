@@ -23,6 +23,7 @@ use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -259,6 +260,8 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
+        $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
+
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -405,7 +408,7 @@ class ShowPalletReturn extends OrgAction
                 'service_lists'                        => $servicesList,
                 'physical_good_lists'                  => $physicalGoodsList,
 
-                'delivery_addresses' => $palletReturn->addresses()->where('scope', 'delivery')->get(),
+                'delivery_addresses' => $addressHistories,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))

@@ -18,6 +18,7 @@ use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -84,8 +85,9 @@ class UpdatePalletReturn extends OrgAction
         }
 
         return [
-            'customer_notes' => ['sometimes','nullable','string', 'max:5000'],
-            'address'        => ['sometimes'],
+            'customer_notes'      => ['sometimes','nullable','string', 'max:5000'],
+            'address'             => ['sometimes'],
+            'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
             ...$rules
         ];
     }
