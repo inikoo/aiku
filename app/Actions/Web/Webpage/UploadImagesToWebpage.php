@@ -23,11 +23,11 @@ class UploadImagesToWebpage extends OrgAction
     public function asController(Webpage $webpage, ActionRequest $request): Collection
     {
 
-        if($webpage->shop->type==ShopTypeEnum::FULFILMENT){
+        if($webpage->shop->type==ShopTypeEnum::FULFILMENT) {
             $this->scope = $webpage->shop->fulfilment;
             $this->initialisationFromFulfilment($this->scope, $request);
 
-        }else{
+        } else {
             $this->scope = $webpage->shop;
             $this->initialisationFromShop($this->scope, $request);
 
