@@ -27,7 +27,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePalletReturnItem extends OrgAction
+class SyncPalletReturnItem extends OrgAction
 {
     use WithActionUpdate;
 
@@ -48,6 +48,8 @@ class UpdatePalletReturnItem extends OrgAction
             default                                      => null
         };
 
+        data_set($modelData, 'pallet_return_id', $pallet->id);
+
         UpdatePallet::run($pallet, $modelData);
         UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
 
@@ -61,7 +63,6 @@ class UpdatePalletReturnItem extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
