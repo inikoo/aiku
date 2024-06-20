@@ -263,7 +263,7 @@ class IndexProducts extends OrgAction
                             'tooltip' => __('new product'),
                             'label'   => __('product'),
                             'route'   => [
-                                'name'       => $request->route()->getName().'.create',
+                                'name'       => str_replace('index', 'create', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,

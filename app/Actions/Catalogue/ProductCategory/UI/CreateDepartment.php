@@ -47,7 +47,6 @@ class CreateDepartment extends OrgAction
         return $request;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);

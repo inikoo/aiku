@@ -27,38 +27,40 @@ Route::middleware(["auth"])->group(function () {
     Route::get('/notifications', IndexNotification::class)->name('notifications');
     Route::prefix("overview")
         ->name("overview.")
-        ->group(__DIR__ . "/overview.php");
+        ->group(__DIR__."/overview.php");
     Route::prefix("organisations")
         ->name("organisations.")
-        ->group(__DIR__ . "/organisations.php");
+        ->group(__DIR__."/organisations.php");
     Route::prefix("dashboard")
         ->name("dashboard.")
-        ->group(__DIR__ . "/dashboard.php");
+        ->group(__DIR__."/dashboard.php");
     Route::prefix("supply-chain")
         ->name("supply-chain.")
-        ->group(__DIR__ . "/supply-chain.php");
+        ->group(__DIR__."/supply-chain.php");
     Route::prefix("goods")
         ->name("goods.")
-        ->group(__DIR__ . "/goods.php");
+        ->group(__DIR__."/goods.php");
     Route::prefix("profile")
         ->name("profile.")
-        ->group(__DIR__ . "/profile.php");
+        ->group(__DIR__."/profile.php");
     Route::prefix("sysadmin")
         ->name("sysadmin.")
-        ->group(__DIR__ . "/sysadmin.php");
+        ->group(__DIR__."/sysadmin.php");
     Route::prefix("org/{organisation}")
         ->name("org.")
-        ->group(__DIR__ . "/org/org.php");
+        ->group(__DIR__."/org/org.php");
     Route::prefix("models")
         ->name("models.")
-        ->group(__DIR__ . "/models.php");
+        ->group(__DIR__."/models.php");
     Route::prefix("search")
         ->name("search.")
-        ->group(__DIR__ . "/search.php");
+        ->group(__DIR__."/search.php");
     Route::prefix("media")
-    ->name("media.")
-    ->group(__DIR__."/media.php");
-
+        ->name("media.")
+        ->group(__DIR__."/media.php");
+    Route::prefix("gallery")
+        ->name("galley.")
+        ->group(__DIR__."/gallery.php");
     /*
 
     Route::prefix("account")
@@ -86,28 +88,4 @@ Route::middleware(["auth"])->group(function () {
 
 */
 });
-require __DIR__ . "/auth.php";
-
-
-if(!app()->isProduction()) {
-    Route::get('routes', function () {
-        $routeCollection = Route::getRoutes();
-
-        echo "<table style='width:100%'>";
-        echo "<tr>";
-        echo "<td width='10%'><h4>HTTP Method</h4></td>";
-        echo "<td width='10%'><h4>Route</h4></td>";
-        echo "<td width='10%'><h4>Name</h4></td>";
-        echo "<td width='70%'><h4>Corresponding Action</h4></td>";
-        echo "</tr>";
-        foreach ($routeCollection as $value) {
-            echo "<tr>";
-            echo "<td>" . $value->methods()[0] . "</td>";
-            echo "<td>" . $value->uri() . "</td>";
-            echo "<td>" . $value->getName() . "</td>";
-            echo "<td>" . $value->getActionName() . "</td>";
-            echo "</tr>";
-        }
-        echo "</table>";
-    });
-}
+require __DIR__."/auth.php";

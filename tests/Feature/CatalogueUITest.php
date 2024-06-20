@@ -229,3 +229,24 @@ test('UI show product in department', function () {
 
     });
 });
+
+test('UI Index catalogue sub department inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.sub-departments.index', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/SubDepartments')
+            ->has('title')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI Create catalogue sub department inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.sub-departments.create', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});

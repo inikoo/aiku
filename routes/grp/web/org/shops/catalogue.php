@@ -5,12 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Asset\UI\CreateProduct;
 use App\Actions\Catalogue\Asset\UI\EditProduct;
 use App\Actions\Catalogue\Collection\UI\CreateCollection;
 use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
+use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
@@ -94,6 +94,7 @@ Route::name("families.")->prefix('families')
             Route::get('', [ShowFamily::class, 'inShop']);
             Route::prefix('products')->name('.products.')->group(function () {
                 Route::get('', [IndexProducts::class, 'inFamily'])->name('index');
+                Route::get('create', [CreateProduct::class, 'inFamily'])->name('create');
                 Route::get('{product}', [ShowProduct::class, 'inFamily'])->name('show');
             });
         });
