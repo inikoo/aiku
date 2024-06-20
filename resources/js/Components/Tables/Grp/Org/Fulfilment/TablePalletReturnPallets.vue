@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import Table from "@/Components/Table/Table.vue"
-import { Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 import Tag from "@/Components/Tag.vue"
 import TagPallet from '@/Components/TagPallet.vue'
 import '@/Composables/Icon/PalletReturnStateEnum'  // Import all icon for State
@@ -24,6 +24,7 @@ import { faTrashAlt, faPaperPlane } from "@far"
 import { faSignOutAlt, faTimes, faShare, faCross, faUndo } from "@fal"
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import { routeType } from "@/types/route"
 
 const layout = inject('layout', layoutStructure)
 
@@ -53,24 +54,33 @@ const listStatusNotPicked = [
 ] 
 const selectedStatusNotPicked = reactive({
     status: 'other',
-    message: ''
+    notes: ''
 })
 const errorNotPicked = reactive({
     status: null,
-    message: null
+    notes: null
 })
 const isSubmitNotPickedLoading = ref<boolean | number>(false)
-const onSubmitNotPicked = async (idPallet: number, closePopup: Function) => {
+const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNotPicked: routeType) => {
     isSubmitNotPickedLoading.value = idPallet
-
-    setTimeout(() => {
-        selectedStatusNotPicked.status = 'other'
-        selectedStatusNotPicked.message = ''
-        errorNotPicked.status = null
-        errorNotPicked.message = null
-        isSubmitNotPickedLoading.value = false
-        closePopup()
-    }, 1000)
+    router[routeNotPicked.method || 'get'](route(routeNotPicked.name, routeNotPicked.parameters), {
+        state: selectedStatusNotPicked.status,
+        notes: selectedStatusNotPicked.notes
+    }, {
+        onSuccess: () => {
+            selectedStatusNotPicked.status = 'other'
+            selectedStatusNotPicked.notes = ''
+            errorNotPicked.status = null
+            errorNotPicked.notes = null
+            closePopup()
+        },
+        onError: (error) => {
+            console.error('hehehe', error)
+        },
+        onFinish: () => {
+            isSubmitNotPickedLoading.value = false
+        }
+    })
 }
 
 
@@ -195,16 +205,16 @@ const isUndoLoading = ref(false)
                             <!-- Field: Description -->
                             <div class="mb-4 ">
                                 <div class="text-xs px-1 mb-1"><span class="text-red-500 text-sm mr-0.5">*</span>Description:</div>
-                                <PureTextarea v-model="selectedStatusNotPicked.message" @update:modelValue="() => errorNotPicked.message = null" placeholder="Enter reason why the pallet is not picked" :class="errorNotPicked.message ? 'errorShake' : ''" />
-                                <div v-if="errorNotPicked.message" class="mt-1 text-red-500 italic text-xxs">{{ errorNotPicked.message }}</div>
+                                <PureTextarea v-model="selectedStatusNotPicked.notes" @update:modelValue="() => errorNotPicked.notes = null" placeholder="Enter reason why the pallet is not picked" :class="errorNotPicked.notes ? 'errorShake' : ''" />
+                                <div v-if="errorNotPicked.notes" class="mt-1 text-red-500 italic text-xxs">{{ errorNotPicked.notes }}</div>
                             </div>
 
                             <!-- Button: Save -->
                             <div class="flex justify-end mt-2">
-                                <Button @click="async () => onSubmitNotPicked(pallet.id, close)"
+                                <Button @click="async () => onSubmitNotPicked(pallet.id, close, pallet.updateRoute)"
                                     full
                                     label="Submit"
-                                    :disabled="!selectedStatusNotPicked.status || !selectedStatusNotPicked.message"
+                                    :disabled="!selectedStatusNotPicked.status || !selectedStatusNotPicked.notes"
                                     :loading="isSubmitNotPickedLoading == pallet.id"
                                 />
                             </div>
