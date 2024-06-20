@@ -9,6 +9,6 @@ use App\Actions\Helpers\Gallery\UI\StockImages\IndexStockImages;
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('stock-images')->name('.stock-images')->group(function () {
+Route::prefix('stock-images')->name('stock-images')->group(function () {
     Route::get('', IndexStockImages::class)->name('.index');
 });

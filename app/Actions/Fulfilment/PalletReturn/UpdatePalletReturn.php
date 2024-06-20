@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
@@ -15,7 +14,6 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
@@ -47,9 +45,13 @@ class UpdatePalletReturn extends OrgAction
 
             data_set($addressData, 'group_id', $groupId);
 
-            $address = Address::create($addressData);
-            data_set($modelData, 'delivery_address_id', $address->id);
-            AddressHydrateUsage::dispatch($address);
+            $this->addAddressToModel(
+                $palletReturn,
+                $addressData,
+                'delivery',
+                false,
+                'delivery_address_id'
+            );
 
             Arr::forget($modelData, 'address');
         }

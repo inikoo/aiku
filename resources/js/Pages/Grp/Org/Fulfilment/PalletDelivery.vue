@@ -237,8 +237,8 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action.button)"
-                :style="action.button.style" :icon="action.button.icon" v-tooltip="action.button.tooltip"
+            <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action)"
+                :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
                 class="rounded-l rounded-r-none border-none" />
             <div v-else></div>
         </template>
@@ -247,9 +247,9 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
-                    <Button v-if="currentTab === 'pallets'" :style="action.button.style" :icon="action.button.icon"
-                        :iconRight="action.button.iconRight"
-                        :key="`ActionButton${action.button.label}${action.button.style}`"
+                    <Button v-if="currentTab === 'pallets'" :style="action.style" :icon="action.icon"
+                        :iconRight="action.iconRight"
+                        :key="`ActionButton${action.label}${action.style}`"
                         :tooltip="trans('Add multiple pallets')" class="rounded-none border-none" />
                     <div v-else></div>
                 </template>
@@ -272,7 +272,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             <PureInput v-model="formMultiplePallet.number_pallets" autofocus placeholder="1-100"
                                 type="number" :minValue="1" :maxValue="100"
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
-                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''" />
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action, closed) : ''" />
                             <p v-if="get(formMultiplePallet, ['errors', 'number_pallets'])"
                                 class="mt-2 text-xxs italic text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
@@ -282,7 +282,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                         <div class="flex justify-end mt-3">
                             <Button :style="'save'" :loading="loading" :disabled="!formMultiplePallet.number_pallets"
                                 :key="formMultiplePallet.number_pallets"
-                                @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
+                                @click="() => handleFormSubmitAddMultiplePallet(action, closed)" />
                         </div>
                     </div>
                 </template>
@@ -290,13 +290,13 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
         </template>
 
         <!-- Button: Add pallet (single) -->
-        <template #button-group-add-pallet="{ action: action }">
+        <template #button-group-add-pallet="{ action }">
             <div class="relative" v-if="currentTab === 'pallets'">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-                            :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                        <Button :style="action.style" :label="action.label" :icon="action.icon"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
@@ -316,7 +316,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
                                 <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Reference"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
@@ -334,7 +334,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @click="() => handleFormSubmitAddPallet(action, closed)" />
                             </div>
                         </div>
                     </template>
@@ -344,13 +344,13 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
         </template>
 
         <!-- Button: Add service (single) -->
-        <template #button-group-add-service="{ action: action }">
+        <template #button-group-add-service="{ action }">
                 <div class="relative" v-if="currentTab === 'services'">
                     <Popover width="w-full">
                         <template #button>
-                            <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-                                :key="`ActionButton${action.button.label}${action.button.style}`"
-                                :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                            <Button :style="action.style" :label="action.label" :icon="action.icon"
+                                :key="`ActionButton${action.label}${action.style}`"
+                                :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
@@ -359,7 +359,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                                 <PureMultiselect v-model="formAddService.service_id" autofocus placeholder="Services" :options="props.service_lists"
                                                  label="name"
                                                  valueProp="id"
-                                    @keydown.enter="() => handleFormSubmitAddService(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
                                     class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
@@ -368,7 +368,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
                                 <PureInput v-model="formAddService.quantity" placeholder="Qty"
-                                    @keydown.enter="() => handleFormSubmitAddService(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
                                 <p v-if="get(formAddService, ['errors', 'quantity'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddService.errors.quantity }}
@@ -376,7 +376,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => handleFormSubmitAddService(action.button, closed)" />
+                                    @click="() => handleFormSubmitAddService(action, closed)" />
                             </div>
                         </div>
                     </template>
@@ -386,13 +386,13 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
         </template>
 
         <!-- Button: Add physical good (single) -->
-        <template #button-group-add-physical-good="{ action: action }">
+        <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-                            :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                        <Button :style="action.style" :label="action.label" :icon="action.icon"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
@@ -405,7 +405,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                                     :options="props.physical_good_lists"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action, closed)" />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.outer_id }}
@@ -414,7 +414,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
                                 <PureInput v-model="formAddPhysicalGood.quantity" placeholder="Qty"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action, closed)" />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.quantity }}
@@ -422,7 +422,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => handleFormSubmitAddPhysicalGood(action.button, closed)" />
+                                    @click="() => handleFormSubmitAddPhysicalGood(action, closed)" />
                             </div>
                         </div>
                     </template>

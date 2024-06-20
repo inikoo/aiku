@@ -156,7 +156,7 @@ const isUndoLoading = ref(false)
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
                 <!-- {{ pallet.state }} -->
                 <!-- Button: Picking -->
-                <Link v-if="pallet.state !== 'picked'" as="div"
+                <Link v-if="pallet.state === 'picking'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
                     :data="{ state: 'picked' }"
                     @start="() => isPickingLoading = pallet.id"

@@ -37,8 +37,8 @@ const onUploadOpen = (action) => {
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-group-upload="{ action: action }">
-            <Button :style="'upload'" @click="() => onUploadOpen(action.button)"
+        <template #button-group-upload="{ action }">
+            <Button :style="'upload'" @click="() => onUploadOpen(action)"
                 class="rounded-r-none text-sm border-none focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
         </template>
     </PageHeading>

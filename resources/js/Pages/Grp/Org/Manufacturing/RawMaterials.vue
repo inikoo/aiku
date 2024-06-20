@@ -62,8 +62,8 @@ console.log(props)
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
     <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
-                v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
+            <Button @click="() => onUploadOpen(action)" :style="action.style" :icon="action.icon"
+                v-tooltip="action.tooltip" class="rounded-l rounded-r-none border-none" />
         </template>
   </PageHeading>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

@@ -78,10 +78,10 @@ watch(
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-group-add-stored-item="{ action: action }">
-            <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-                    :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
-                    :tooltip="action.button.tooltip" @click="() => (openModal = true)" />
+        <template #button-group-add-stored-item="{ action }">
+            <Button :style="action.style" :label="action.label" :icon="action.icon"
+                    :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
+                    :tooltip="action.tooltip" @click="() => (openModal = true)" />
         </template>
     </PageHeading>
 

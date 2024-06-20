@@ -15,6 +15,8 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -86,6 +88,8 @@ class PalletReturn extends Model
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
+    use HasAddress;
+    use HasAddresses;
 
     protected $guarded = [];
     protected $casts   = [
