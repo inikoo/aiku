@@ -308,3 +308,13 @@ test('UI Index catalogue collection', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Create collection', function () {
+    $response = get(route('grp.org.shops.show.catalogue.collections.create', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
