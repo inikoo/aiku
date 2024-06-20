@@ -405,6 +405,8 @@ class ShowPalletReturn extends OrgAction
                 'service_lists'                        => $servicesList,
                 'physical_good_lists'                  => $physicalGoodsList,
 
+                'delivery_addresses' => $palletReturn->addresses()->where('scope', 'delivery')->get(),
+
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),

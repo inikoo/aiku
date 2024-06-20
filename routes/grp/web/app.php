@@ -60,7 +60,7 @@ Route::middleware(["auth"])->group(function () {
         ->group(__DIR__."/media.php");
     Route::prefix("gallery")
         ->name("galley.")
-        ->group(__DIR__."/galley.php");
+        ->group(__DIR__."/gallery.php");
     /*
 
     Route::prefix("account")
@@ -89,4 +89,3 @@ Route::middleware(["auth"])->group(function () {
 */
 });
 require __DIR__."/auth.php";
-
