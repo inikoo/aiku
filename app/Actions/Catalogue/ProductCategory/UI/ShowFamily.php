@@ -34,7 +34,7 @@ class ShowFamily extends OrgAction
     use WithFamilySubNavigation;
 
 
-    private Organisation|ProductCategory $parent;
+    private Organisation|ProductCategory|Shop $parent;
 
     public function handle(ProductCategory $family): ProductCategory
     {
@@ -53,7 +53,7 @@ class ShowFamily extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
-        $this->parent=$family;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($family);
@@ -71,6 +71,7 @@ class ShowFamily extends OrgAction
 
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
+        // dd($this->parent);
         return Inertia::render(
             'Org/Catalogue/Family',
             [
@@ -121,8 +122,8 @@ class ShowFamily extends OrgAction
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($family)),
 
                 FamilyTabsEnum::CUSTOMERS->value => $this->tab == FamilyTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomersResource::collection(IndexCustomers::run($family))
-                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($family))),
+                    fn () => CustomersResource::collection(IndexCustomers::run(parent : $family->shop, prefix: FamilyTabsEnum::CUSTOMERS->value))
+                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run(parent : $family->shop, prefix: FamilyTabsEnum::CUSTOMERS->value))),
                 FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($family))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
@@ -160,7 +161,7 @@ class ShowFamily extends OrgAction
                     : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($family))),
 
             ]
-        )->table(IndexCustomers::make()->tableStructure($family))
+        )->table(IndexCustomers::make()->tableStructure(parent: $family, prefix: FamilyTabsEnum::CUSTOMERS->value))
             ->table(IndexMailshots::make()->tableStructure($family))
             ->table(IndexProducts::make()->tableStructure($family));
     }
