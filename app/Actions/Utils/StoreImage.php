@@ -18,6 +18,7 @@ use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Guest;
+use Illuminate\Support\Str;
 
 class StoreImage
 {
@@ -43,7 +44,8 @@ class StoreImage
                 ->withProperties(
                     [
                         'checksum'    => $checksum,
-                        'group_id'    => $subject->getGroupId()
+                        'group_id'    => $subject->getGroupId(),
+                        'ulid'        => Str::ulid()
                     ]
                 )
                 ->usingName($filename)

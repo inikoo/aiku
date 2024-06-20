@@ -31,10 +31,8 @@ class MediaHydrateUsage implements ShouldBeUnique
 
     public function handle(Media $media): void
     {
-        if (!$media->is_fixed) {
-            $usage = DB::table('model_has_media')->where('media_id', $media->id)->where('group_id', $media->group_id)->count();
-            $media->update(['usage' => $usage]);
-        }
+        $usage = DB::table('model_has_media')->where('media_id', $media->id)->where('group_id', $media->group_id)->count();
+        $media->update(['usage' => $usage]);
     }
 
 

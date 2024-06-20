@@ -21,7 +21,6 @@ class WebpageResource extends JsonResource
         /** @var Webpage $webpage */
         $webpage = $this;
 
-
         return [
             'id'                  => $webpage->id,
             'slug'                => $webpage->slug,

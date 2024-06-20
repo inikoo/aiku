@@ -32,6 +32,7 @@ return new class () extends Migration {
             $table->json('custom_properties');
             $table->json('generated_conversions');
             $table->json('responsive_images');
+            $table->ulid()->index();
             $table->string('checksum')->index()->nullable();
             $table->unsignedSmallInteger('multiplicity')->index()->default(1);
             $table->unsignedSmallInteger('usage')->index()->default(1);

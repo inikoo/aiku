@@ -22,13 +22,13 @@ defineProps<{
 }>()
 
 
-function serviceRoute(asset: {}) {
+function serviceRoute(product: {}) {
     console.log(route().current())
     switch (route().current()) {
         case 'grp.org.fulfilments.show.assets.outers.index':
             return route(
                 'grp.org.fulfilments.show.assets.outers.show',
-                [route().params['organisation'], route().params['fulfilment'], asset.slug])
+                [route().params['organisation'], route().params['fulfilment'], product.slug])
         default:
             return null
     }

@@ -18,10 +18,16 @@ class GetDiceBearAvatar
 
     public function handle(DiceBearStylesEnum $style, string $seed): string
     {
+
+
+        if(config('app.use_dice_bear_api') === false) {
+            return Storage::disk('art')->get('icons/'.$style->value.'.svg');
+        }
+
         try {
             $svg = file_get_contents("https://api.dicebear.com/8.x/".$style->value."/svg?seed=$seed");
         } catch (Exception) {
-            $svg= Storage::disk('art')->get('avatars/shapes.svg');
+            return Storage::disk('art')->get('icons/'.$style->value.'.svg');
         }
         return $svg;
 

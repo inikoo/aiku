@@ -33,6 +33,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property array $custom_properties
  * @property array $generated_conversions
  * @property array $responsive_images
+ * @property string $ulid
  * @property string|null $checksum
  * @property int $multiplicity
  * @property int $usage

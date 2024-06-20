@@ -59,7 +59,7 @@ function createOrganisation(): Organisation
 {
     GetDiceBearAvatar::mock()
         ->shouldReceive('handle')
-        ->andReturn(Storage::disk('art')->get('avatars/shapes.svg'));
+        ->andReturn(Storage::disk('art')->get('icons/shapes.svg'));
 
     $group = Group::first();
     if (!$group) {

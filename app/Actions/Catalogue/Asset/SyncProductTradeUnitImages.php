@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\Asset;
 use App\Actions\Catalogue\Asset\Hydrators\ProductInitialiseImageID;
 use App\Models\Catalogue\Asset;
 use Lorisleiva\Actions\Concerns\AsAction;
+use stdClass;
 
 class SyncProductTradeUnitImages
 {
@@ -23,9 +24,10 @@ class SyncProductTradeUnitImages
         foreach ($product->tradeUnits as $tradeUnit) {
             foreach ($tradeUnit->media as $media) {
                 $images[$media->id] = [
-                    'owner_type' => 'TradeUnit',
-                    'owner_id'   => $tradeUnit->id,
-                    'type'       => 'image'
+                    'owner_type'      => 'TradeUnit',
+                    'owner_id'        => $tradeUnit->id,
+                    'type'            => 'image',
+                    'data'            => json_encode(new stdClass())
                 ];
             }
         }

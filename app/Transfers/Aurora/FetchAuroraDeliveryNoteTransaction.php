@@ -63,7 +63,6 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                     $transactionID = $transaction->id;
                 }
 
-
                 $this->parsedData['delivery_note_item'] = [
                     'transaction_id'      => $transactionID,
                     'state'               => $state,
@@ -79,6 +78,8 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                 ];
             } else {
                 print "Warning Part SKU  ".$this->auroraModelData->{'Part SKU'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
+                dd('xx');
+
             }
         } else {
             print "Warning Part SKU missing in inventory transaction >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";

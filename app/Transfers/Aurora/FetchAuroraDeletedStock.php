@@ -8,6 +8,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -44,9 +45,9 @@ class FetchAuroraDeletedStock extends FetchAurora
                 'deleted_at'  => $deleted_at,
                 'created_at'  => $auroraDeletedData->{'Part Valid From'} ?? null,
                 'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
-                'source_slug' => $sourceSlug
+                'source_slug' => $sourceSlug,
+                'state'       => StockStateEnum::DISCONTINUED,
             ];
-
 
 
         $this->parsedData['org_stock'] = [

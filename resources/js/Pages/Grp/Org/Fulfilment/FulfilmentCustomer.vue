@@ -5,33 +5,20 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head,  } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
-import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import { router } from '@inertiajs/vue3'
-import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
 
-import ModelDetails from "@/Components/ModelDetails.vue"
-import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
-import TableWebUsers from "@/Components/Tables/Grp/Org/CRM/TableWebUsers.vue"
-
-import TableStoredItemReturn from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturn.vue"
+import TableRentalAgreementClauses from "@/Components/Tables/Grp/Org/Fulfilment/TableRentalAgreementClauses.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
-import TableRecurringBills from '@/Components/Tables/Grp/Org/Fulfilment/TableRecurringBills.vue'
-import Popover from '@/Components/Popover.vue'
+
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
-import Button from '@/Components/Elements/Buttons/Button.vue'
-import Multiselect from "@vueform/multiselect"
-import { Link } from "@inertiajs/vue3"
-import { get } from 'lodash'
-import axios from 'axios'
+
 import { Action } from '@/types/Action'
 
 import { trans } from 'laravel-vue-i18n'
@@ -52,13 +39,9 @@ import {
     faExclamationTriangle, faUsdCircle
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
-import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
-import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue";
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import Modal from "@/Components/Utils/Modal.vue"
-import AgreedPriceShowcase from '@/Components/Showcases/Grp/AgreedPriceShowcase.vue'
 library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -72,18 +55,18 @@ const props = defineProps<{
     }
     showcase?: {}
     agreed_prices?: {}
-    invoices?: {}
-    recurringBills?: {}
-    pallets?: {}
-    stored_items?: {}
-    stored_item_returns?: {}
-    dispatched_emails?: {}
-    pallet_deliveries?: {}
-    pallet_returns?: {}
-    web_users?: {}
-    recurring_bills?: {}
-    webhook?: {}
-    history?: {}
+    // invoices?: {}
+    // recurringBills?: {}
+    // pallets?: {}
+    // stored_items?: {}
+    // stored_item_returns?: {}
+    // dispatched_emails?: {}
+    // pallet_deliveries?: {}
+    // pallet_returns?: {}
+    // web_users?: {}
+    // recurring_bills?: {}
+    // webhook?: {}
+    // history?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -93,18 +76,18 @@ const component = computed(() => {
 
     const components = {
         showcase: FulfilmentCustomerShowcase,
-        agreed_prices: AgreedPriceShowcase,
-        pallets: TablePallets,
-        stored_items: TableStoredItems,
-        stored_item_returns: TableStoredItemReturn,
-        pallet_deliveries: TablePalletDeliveries,
-        pallet_returns: TablePalletReturns,
-        invoices: TableInvoices,
-        details: ModelDetails,
-        web_users: TableWebUsers,
-        webhook: FulfilmentCustomerWebhook,
-        recurring_bills: TableRecurringBills,
-        history: TableHistories
+        agreed_prices: TableRentalAgreementClauses,
+        // pallets: TablePallets,
+        // stored_items: TableStoredItems,
+        // stored_item_returns: TableStoredItemReturn,
+        // pallet_deliveries: TablePalletDeliveries,
+        // pallet_returns: TablePalletReturns,
+        // invoices: TableInvoices,
+        // details: ModelDetails,
+        // web_users: TableWebUsers,
+        // webhook: FulfilmentCustomerWebhook,
+        // recurring_bills: TableRecurringBills,
+        // history: TableHistories
     }
 
     return components[currentTab.value]
@@ -199,7 +182,6 @@ console.log(props)
 </script>
 
 <template>
-    <!-- {{currentTab}} --> 
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">

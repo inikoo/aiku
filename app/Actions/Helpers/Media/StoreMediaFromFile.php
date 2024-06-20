@@ -9,6 +9,7 @@ namespace App\Actions\Helpers\Media;
 
 use App\Models\Helpers\Media;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreMediaFromFile
@@ -22,6 +23,8 @@ class StoreMediaFromFile
             $extension = pathinfo($imageData['path'], PATHINFO_EXTENSION);
         }
 
+
+
         $media = $model->addMedia($imageData['path'])
             ->preservingOriginal()
             ->withProperties(
@@ -29,7 +32,9 @@ class StoreMediaFromFile
                     [
                         'checksum' => $imageData['checksum'],
                         'group_id' => group()->id,
-                        'type'     => $type
+                        'type'     => $type,
+                        'ulid'     => Str::ulid()
+
                     ],
                 )
             )

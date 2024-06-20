@@ -15,6 +15,7 @@ use App\Models\Mail\EmailTemplate;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
+use Illuminate\Support\Str;
 
 trait WithUpdateModelImage
 {
@@ -49,7 +50,8 @@ trait WithUpdateModelImage
                     array_merge(
                         [
                             'checksum' => $checksum,
-                            'group_id' => group()->id
+                            'group_id' => group()->id,
+                            'ulid'     => Str::ulid()
                         ],
                         $properties
                     )

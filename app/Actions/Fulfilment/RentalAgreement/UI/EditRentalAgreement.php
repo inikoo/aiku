@@ -30,18 +30,9 @@ class EditRentalAgreement extends OrgAction
      */
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
-        $clauses = [
-            'rental'       => [],
-            'service'      => [],
-            'physical_good'=> []
-        ];
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
-            $price         = $clause->asset->price;
-            $percentageOff = $clause->percentage_off;
-
-
-
-
+            $price                                  = $clause->asset->price;
+            $percentageOff                          = $clause->percentage_off;
             $clauses[$clause->asset->type->value][] = [
                 'asset_id'       => $clause->asset_id,
                 'agreed_price'   => $price * $percentageOff / 100,
@@ -49,6 +40,8 @@ class EditRentalAgreement extends OrgAction
                 'percentage_off' => $percentageOff
             ];
         }
+
+
 
 
 
@@ -84,7 +77,7 @@ class EditRentalAgreement extends OrgAction
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
                                     'clauses'       => [
-                                        'type'           => 'clauses',
+                                        'type'           => 'rental',
                                         'label'          => __('Clauses'),
                                         'required'       => false,
                                         'full'           => true,

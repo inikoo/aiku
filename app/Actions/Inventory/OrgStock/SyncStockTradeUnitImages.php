@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\OrgStock;
 use App\Actions\Goods\Stock\Hydrators\StockInitialiseImageID;
 use App\Models\SupplyChain\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
+use stdClass;
 
 class SyncStockTradeUnitImages
 {
@@ -23,9 +24,10 @@ class SyncStockTradeUnitImages
         foreach ($stock->tradeUnits as $tradeUnit) {
             foreach ($tradeUnit->media as $media) {
                 $images[$media->id] = [
-                    'owner_type' => 'TradeUnit',
-                    'owner_id'   => $tradeUnit->id,
-                    'type'       => 'image'
+                    'owner_type'      => 'TradeUnit',
+                    'owner_id'        => $tradeUnit->id,
+                    'type'            => 'image',
+                    'data'            => json_encode(new stdClass())
                 ];
             }
         }

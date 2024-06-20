@@ -15,7 +15,7 @@ use Illuminate\Console\Command;
 
 class HydrateMedia extends HydrateModel
 {
-    public string $commandSignature = 'media:hydrate {--id=}';
+    public string $commandSignature = 'hydrate:medias {--id=}';
 
     public function handle(Media $media): void
     {

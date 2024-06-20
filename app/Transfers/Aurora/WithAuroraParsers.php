@@ -402,13 +402,13 @@ trait WithAuroraParsers
             $res     = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
             $orgStock=$res['orgStock'];
         }
-        /*
+
         if (!$orgStock) {
-            $res = FetchAuroraDeletedStocks::run($this->organisationSource,$sourceData[1]);
-            $orgStock=$res['org_stock'];
+            $res     = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
+            $orgStock=$res['orgStock'];
 
         }
-        */
+
         return $orgStock;
     }
 
@@ -416,6 +416,7 @@ trait WithAuroraParsers
 
     public function parseStock($sourceId): ?Stock
     {
+
         $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
         $sourceData = explode(':', $sourceId);
         if (!$stock) {

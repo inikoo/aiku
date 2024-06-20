@@ -13,10 +13,11 @@ use App\Models\Helpers\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use stdClass;
 
 trait WithAttachMediaToModel
 {
-    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser $model, Media $media, $scope = 'default'): Group|Organisation|Shop|User|Webuser
+    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser $model, Media $media, string $scope = 'default', string $subScope=null, $data=null): Group|Organisation|Shop|User|Webuser
     {
         $model->updateQuietly(
             [
@@ -37,13 +38,22 @@ trait WithAttachMediaToModel
             $organisation_id = $model->organisation_id;
         }
 
+        if(!$data) {
+            $data = new stdClass();
+        }
+
+
+
+
 
         $model->images()->attach(
             [
                 $media->id => [
                     'group_id'        => $group_id,
                     'organisation_id' => $organisation_id,
-                    'scope'           => $scope
+                    'scope'           => $scope,
+                    'sub_scope'       => $subScope,
+                    'data'            => json_encode($data)
                 ]
             ]
         );

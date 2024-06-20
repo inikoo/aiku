@@ -16,7 +16,7 @@ use Illuminate\Console\Command;
 
 class HydrateAddress extends HydrateModel
 {
-    public string $commandSignature = 'address:hydrate {--id=}';
+    public string $commandSignature = 'hydrate:addresses {--id=}';
 
     public function handle(Address $address): void
     {
