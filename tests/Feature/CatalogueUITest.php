@@ -178,3 +178,24 @@ test('UI show family in department', function () {
     });
 });
 
+test('UI edit family in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.edit', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->family->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.org.catalogue.families.update')
+                        ->where('parameters', [
+                            'organisation'      => $this->family->organisation_id,
+                            'shop'              => $this->family->shop_id,
+                            'productCategory'   => $this->family->id
+                            ])
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
