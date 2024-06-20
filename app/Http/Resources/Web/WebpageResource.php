@@ -42,7 +42,7 @@ class WebpageResource extends JsonResource
             'updated_at'          => $webpage->updated_at,
             'state'               => $webpage->state,
             'images_upload_route' => [
-                'name'       => 'org.models.webpage.images.store',
+                'name'       => 'grp.models.webpage.images.store',
                 'parameters' => $webpage->id
             ],
             'update_route'        => [
