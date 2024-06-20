@@ -101,7 +101,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
- * @property-read CustomerDropshippingStat|null $dropshippingStats
+ * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Media|null $image

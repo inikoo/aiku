@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read DropshippingCustomerPortfolioStats|null $stats
+ * @property-read \App\Models\Dropshipping\DropshippingCustomerPortfolioStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio query()
