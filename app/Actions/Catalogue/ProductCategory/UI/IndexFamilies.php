@@ -242,29 +242,18 @@ class IndexFamilies extends OrgAction
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('family')
                     ],
-                    'actions'       => [
+                    'actions' => [
                         $this->canEdit ? (
-                            class_basename($this->parent) == 'ProductCategory'
-                            ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new family'),
-                            'label'   => __('family'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.show.catalogue.departments.show.families.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ]
-                            : (class_basename($this->parent) == 'Shop' ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new family'),
-                            'label'   => __('family'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.show.catalogue.families.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false)
+                            class_basename($this->parent) == 'ProductCategory' ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new family'),
+                                'label'   => __('family'),
+                                'route'   => [
+                                    'name'       => 'grp.org.shops.show.catalogue.departments.show.families.create',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
+                            ] : false
                         ) : false,
                     ],
                     'subNavigation' => $subNavigation,
