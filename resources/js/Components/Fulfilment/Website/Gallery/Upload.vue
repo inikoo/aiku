@@ -53,7 +53,7 @@ const onUpload = () =>{
       e.preventDefault();
       uploadedFilesList.value = e.dataTransfer.files;
       isDragging.value = false;
-      console.log(uploadedFilesList)
+      onUpload()
   };    
   
   </script>
