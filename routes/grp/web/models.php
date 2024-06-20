@@ -44,6 +44,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
@@ -68,7 +69,9 @@ use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SyncPhysicalGoodToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SyncServiceToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
-use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
+use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -120,9 +123,11 @@ use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
+use App\Actions\Web\Webpage\UploadImagesToWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Actions\Web\Website\UploadImagesToWebsite;
 use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use App\Stubs\UIDummies\ImportDummy;
 use Illuminate\Support\Facades\Route;
@@ -266,7 +271,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('', UpdatePallet::class)->name('update');
     Route::patch('rental', SetPalletRental::class)->name('rental.update');
 
-    Route::patch('pallet-return-item', UpdatePalletReturnItem::class)->name('pallet-return-item.update');
+    Route::patch('pallet-return-item', SyncPalletReturnItem::class)->name('pallet-return-item.sync');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
     Route::patch('booked-in', BookInPallet::class)->name('booked-in');
@@ -276,6 +281,12 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
     Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
     Route::patch('lost', SetPalletAsLost::class)->name('lost');
+});
+
+Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
+    Route::patch('', UpdatePalletItem::class)->name('update');
+    Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
+    Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
@@ -294,7 +305,10 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('', [StoreWebUser::class, 'inFulfilmentCustomer'])->name('web-user.store');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
-        Route::delete('pallet/{pallet:id}', DeletePalletFromReturn::class)->name('pallet.delete');
+        Route::prefix('pallet/{pallet:id}')->group(function () {
+            Route::delete('/', DeletePalletFromReturn::class)->name('pallet.delete');
+        });
+
         Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
         Route::post('submit', SubmitPalletReturn::class)->name('submit');
         Route::post('delivery', PickingPalletReturn::class)->name('picking');
@@ -356,6 +370,18 @@ Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('or
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::patch('', UpdateWebsite::class)->name('update');
     Route::post('launch', LaunchWebsite::class)->name('launch');
+    Route::post('images/header', [UploadImagesToWebsite::class, 'header'])->name('header.images.store');
+    Route::post('images/footer', [UploadImagesToWebsite::class, 'footer'])->name('footer.images.store');
+    Route::post('images/favicon', [UploadImagesToWebsite::class, 'favicon'])->name('favicon.images.store');
+});
+Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
+    Route::post('images', UploadImagesToWebpage::class)->name('images.store');
+
+    Route::name('content.')->prefix('content')->group(function () {
+        Route::patch('/', UpdateWebpageContent::class)->name('update');
+        Route::post('/publish', PublishWebpage::class)->name('publish');
+
+    });
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
@@ -384,13 +410,7 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
 Route::patch('/job-order/{jobOrder:id}', UpdateJobOrder::class)->name('job-order.update');
 
 
-Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
 
-    Route::name('content.')->prefix('content')->group(function () {
-        Route::patch('/', UpdateWebpageContent::class)->name('update');
-        Route::post('/publish', PublishWebpage::class)->name('publish');
-    });
-});
 
 
 

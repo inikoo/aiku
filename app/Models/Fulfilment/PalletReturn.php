@@ -145,7 +145,7 @@ class PalletReturn extends Model
 
     public function pallets(): BelongsToMany
     {
-        return $this->belongsToMany(Pallet::class, 'pallet_return_items')->withPivot('state');
+        return $this->belongsToMany(Pallet::class, 'pallet_return_items')->withPivot('state', 'id');
     }
 
     public function stats(): HasOne

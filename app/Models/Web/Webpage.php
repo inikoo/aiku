@@ -15,7 +15,7 @@ use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\InOrganisation;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,6 +36,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property int $shop_id
+ * @property int|null $parent_id
+ * @property int $website_id
  * @property string $slug
  * @property string $code
  * @property string $url
@@ -44,8 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebpageStateEnum $state
  * @property WebpageTypeEnum $type
  * @property WebpagePurposeEnum $purpose
- * @property int|null $parent_id
- * @property int $website_id
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
  * @property array $published_layout
@@ -65,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Webpage|null $parent
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots
  * @property-read \App\Models\Web\WebpageStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
@@ -86,7 +88,7 @@ class Webpage extends Model
     use HasFactory;
     use HasUniversalSearch;
     use SoftDeletes;
-    use InOrganisation;
+    use InShop;
 
     protected $casts = [
         'data'             => 'array',

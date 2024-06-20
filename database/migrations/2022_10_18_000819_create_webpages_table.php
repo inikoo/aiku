@@ -20,6 +20,13 @@ return new class () extends Migration {
         Schema::create('webpages', function (Blueprint $table) {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->index();
+            $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('parent_id')->index()->nullable();
+            $table->foreign('parent_id')->references('id')->on('webpages');
+            $table->unsignedSmallInteger('website_id')->index();
+            $table->foreign('website_id')->references('id')->on('websites');
+
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('url')->index()->collation('und_ns');
@@ -28,10 +35,6 @@ return new class () extends Migration {
             $table->string('state')->index()->default(WebpageStateEnum::IN_PROCESS);
             $table->string('type')->index();
             $table->string('purpose')->index();
-            $table->unsignedSmallInteger('parent_id')->index()->nullable();
-            $table->foreign('parent_id')->references('id')->on('webpages');
-            $table->unsignedSmallInteger('website_id')->index();
-            $table->foreign('website_id')->references('id')->on('websites');
             $table->unsignedInteger('unpublished_snapshot_id')->nullable()->index();
             $table->unsignedInteger('live_snapshot_id')->nullable()->index();
             $table->jsonb('published_layout');

@@ -1,31 +1,29 @@
 <script setup lang="ts">
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
-import { ref, computed } from 'vue'
 
-const props = defineProps<{
-    modelValue: any
-}>()
-
-const editMode = ref(false)
+const props = withDefaults(defineProps<{
+    modelValue?: {
+        value: string
+    }
+    isEditable?: boolean
+}>(), {
+    isEditable: true
+})
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: string | number): void
     (e: 'autoSave'): void
 }>()
-
-const parsedHtml = computed(() => {
-    const parser = new DOMParser();
-    const elem = parser.parseFromString(modelValue.value, 'text/html');
-    return elem.body.innerText;
-});
 
 </script>
 
 <template>
-    <div class="relative">
-        <div>
-            <Editor v-model="modelValue.value"  @update:modelValue="()=>emits('autoSave')"/>
-        </div>
+    <div class="relative" id="blockTextContent">
+        <Editor
+            v-if="isEditable"
+            v-model="modelValue.value"
+            @update:modelValue="() => emits('autoSave')"
+        />
+        <div v-else v-html="modelValue?.value"></div>
     </div>
 </template>
 
@@ -33,26 +31,26 @@ const parsedHtml = computed(() => {
 <style lang="scss">
 /* Basic editor styles */
 
-blockquote {
+#blockTextContent blockquote {
     padding-left: 1rem;
     border-left: 3px solid rgba(#0D0D0D, 0.1);
 }
 
 
-ul,
-ol {
+#blockTextContent ul,
+#blockTextContent ol {
     padding: 0 1rem;
 }
 
-ul {
+#blockTextContent ul {
     list-style: disc
 }
 
-ol {
+#blockTextContent ol {
     list-style: decimal
 }
 
-h1 {
+#blockTextContent h1 {
     display: block;
     font-size: 2em;
     margin-block-start: 0.67em;
@@ -63,7 +61,7 @@ h1 {
     unicode-bidi: isolate;
 }
 
-h2 {
+#blockTextContent h2 {
     display: block;
     font-size: 1.5em;
     margin-block-start: 0.83em;
@@ -74,7 +72,7 @@ h2 {
     unicode-bidi: isolate;
 }
 
-h3 {
+#blockTextContent h3 {
     display: block;
     font-size: 1.17em;
     margin-block-start: 1em;
@@ -85,7 +83,7 @@ h3 {
     unicode-bidi: isolate;
 }
 
-p:empty::after {
+#blockTextContent p:empty::after {
     content: "\00A0";
 }
 </style>
