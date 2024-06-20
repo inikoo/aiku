@@ -106,7 +106,7 @@
         }
     },
     "scope": "website",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "FooterTheme1",
             "name": "Footer 1"

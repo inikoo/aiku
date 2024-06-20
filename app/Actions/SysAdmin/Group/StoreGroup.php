@@ -43,6 +43,7 @@ class StoreGroup
         SeedGroupPaymentServiceProviders::run($group);
         SeedGroupJobPositions::run($group);
         SeedStockImages::run($group);
+        SeedWebBlockTypes::run($group);
 
         $group->supplyChainStats()->create();
         $group->sysadminStats()->create();

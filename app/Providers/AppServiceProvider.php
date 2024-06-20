@@ -213,11 +213,11 @@ class AppServiceProvider extends ServiceProvider
                 'Role'                                   => 'App\Models\SysAdmin\Role',
 
                 // Web
-                'Website'                     => 'App\Models\Web\Website',
-                'Webpage'                     => 'App\Models\Web\Webpage',
-                'ContentBlock'                => 'App\Models\Web\ContentBlock',
-                'WebBlock'                    => 'App\Models\Web\WebBlock',
-                'WebBlockType'                => 'App\Models\Web\WebBlockType',
+                'Website'                             => 'App\Models\Web\Website',
+                'Webpage'                             => 'App\Models\Web\Webpage',
+                'WebBlock'                            => 'App\Models\Web\WebBlock',
+                'WebBlockType'                        => 'App\Models\Web\WebBlockType',
+                'WebBlockTypeCategory'                => 'App\Models\Web\WebBlockTypeCategory',
 
                 //Manufacturing
                 'Production'                  => 'App\Models\Manufacturing\Production',

@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_rows for emails
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Snapshot $snapshot
+ * @property-read \App\Models\Helpers\Snapshot $snapshot
  * @method static \Illuminate\Database\Eloquent\Builder|SnapshotStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SnapshotStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SnapshotStats query()

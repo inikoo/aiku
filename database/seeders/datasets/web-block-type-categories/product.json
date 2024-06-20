@@ -5,7 +5,7 @@
         "defaultParameters": {}
     },
     "scope": "webpage",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "product",
             "name": "Product showcase A"

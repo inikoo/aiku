@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('web_block_type_stats', function (Blueprint $table) {
+        Schema::create('web_block_type_category_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('web_block_type_id');
-            $table->foreign('web_block_type_id')->references('id')->on('web_block_types')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('web_block_type_category_id');
+            $table->foreign('web_block_type_category_id')->references('id')->on('web_block_type_categories')->onUpdate('cascade')->onDelete('cascade');
             $table->integer('number_organisations')->default(0);
             $table->integer('number_web_blocks')->default(0);
             $table->integer('number_websites')->default(0);
@@ -27,6 +27,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('web_block_type_stats');
+        Schema::dropIfExists('web_block_type_category_stats');
     }
 };

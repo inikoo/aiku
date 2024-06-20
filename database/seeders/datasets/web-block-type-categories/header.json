@@ -163,7 +163,7 @@
         }
     },
     "scope": "website",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "DarkHeader",
             "name": "Header 1"

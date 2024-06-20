@@ -15,9 +15,9 @@ class UpdateWebBlockType
     use WithActionUpdate;
 
 
-    public function handle(WebBlockType $webBlockType, array $modelData): WebBlockType
+    public function handle(WebBlockType $webBlock, array $modelData): WebBlockType
     {
-        return $this->update($webBlockType, $modelData, ['data']);
+        return $this->update($webBlock, $modelData, ['data']);
     }
 
 

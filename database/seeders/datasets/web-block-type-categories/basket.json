@@ -45,7 +45,7 @@
         }
     },
     "scope": "webpage",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "BasketCompact",
             "name": "Basket Compact"

@@ -49,6 +49,8 @@ use App\Models\SupplyChain\StockFamily;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasImage;
+use App\Models\Web\WebBlockType;
+use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Eloquent;
@@ -100,7 +102,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
  * @property-read LaravelCollection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
- * @property-read GroupDropshippingStat|null $dropshippingStats
+ * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
@@ -150,6 +152,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
+ * @property-read LaravelCollection<int, WebBlockTypeCategory> $webBlockTypeCategories
+ * @property-read LaravelCollection<int, WebBlockType> $webBlockTypes
  * @property-read \App\Models\SysAdmin\GroupWebStats|null $webStats
  * @property-read LaravelCollection<int, WebUser> $webUsers
  * @property-read LaravelCollection<int, Webpage> $webpages
@@ -525,5 +529,16 @@ class Group extends Authenticatable implements HasMedia
     {
         return $this->hasMany(Outbox::class);
     }
+
+    public function webBlockTypeCategories(): HasMany
+    {
+        return $this->hasMany(WebBlockTypeCategory::class);
+    }
+
+    public function webBlockTypes(): HasMany
+    {
+        return $this->hasMany(WebBlockType::class);
+    }
+
 
 }

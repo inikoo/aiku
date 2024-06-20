@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 05 Jul 2023 14:36:52 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 05 Jul 2023 15:48:50 Malaysia Time, Pantai Lembeng, Bali, Id
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -14,13 +14,20 @@ return new class () extends Migration {
     {
         Schema::create('web_block_types', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('scope')->index();
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('web_block_type_category_id');
+            $table->foreign('web_block_type_category_id')->references('id')->on('web_block_type_categories')->onUpdate('cascade')->onDelete('cascade');
+
             $table->string('slug')->unique()->index();
+            $table->string('scope')->index();
+            $table->string('code');
             $table->string('name');
+            $table->string('description')->nullable();
             $table->jsonb('blueprint');
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table->unique(['web_block_type_category_id', 'code']);
         });
     }
 

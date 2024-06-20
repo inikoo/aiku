@@ -74,9 +74,14 @@ test('create group', function () {
         'name' => 'Test Group',
     ]);
 
+
+
+
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
-        ->and($group->roles()->count())->toBe(5);
+        ->and($group->roles()->count())->toBe(5)
+        ->and($group->webBlockTypeCategories()->count())->toBe(8)
+    ->and($group->webBlockTypes()->count())->toBe(12);
 
     return $group;
 });
@@ -476,3 +481,10 @@ test('get helpers select options data', function () {
 test('update search', function () {
     $this->artisan('search:update')->assertSuccessful();
 });
+
+test('update web block types', function (Group $group) {
+    $this->artisan('group:seed-web-block-types')->assertSuccessful();
+    $group->refresh();
+    expect($group->webBlockTypeCategories()->count())->toBe(8)
+        ->and($group->webBlockTypes()->count())->toBe(12);
+})->depends('create group');

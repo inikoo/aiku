@@ -9,7 +9,7 @@
         }
     },
     "scope": "webpage",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "Picture",
             "name": "Main Picture"

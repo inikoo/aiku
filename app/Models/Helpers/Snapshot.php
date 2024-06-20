@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $parent
  * @property-read Model|\Eloquent $publisher
- * @property-read SnapshotStats|null $stats
+ * @property-read \App\Models\Helpers\SnapshotStats|null $stats
  * @method static Builder|Snapshot newModelQuery()
  * @method static Builder|Snapshot newQuery()
  * @method static Builder|Snapshot query()

@@ -38,7 +38,7 @@
         }
     },
     "scope": "webpage",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "Banner",
             "name": "Main Banner"

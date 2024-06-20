@@ -14,7 +14,7 @@
         }
     },
     "scope": "webpage",
-    "webBlocks": [
+    "webBlockTypes": [
         {
             "code": "Text",
             "name": "Text"

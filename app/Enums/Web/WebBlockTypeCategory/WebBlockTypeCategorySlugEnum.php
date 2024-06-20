@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Web\WebBlockType;
+namespace App\Enums\Web\WebBlockTypeCategory;
 
 use App\Enums\EnumHelperTrait;
 
-enum WebBlockTypeSlugEnum: string
+enum WebBlockTypeCategorySlugEnum: string
 {
     use EnumHelperTrait;
 

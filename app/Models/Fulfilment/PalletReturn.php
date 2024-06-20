@@ -57,10 +57,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_notes
  * @property string|null $public_notes
  * @property string|null $internal_notes
+ * @property int|null $delivery_address_id
+ * @property int|null $collection_address_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property-read Address|null $address
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
  * @property-read Customer|null $customer
  * @property-read Address|null $deliveryAddress
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
