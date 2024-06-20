@@ -343,7 +343,7 @@ class ShowPalletReturn extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletReturnTabsEnum::navigation()
+                    'navigation' => PalletReturnTabsEnum::navigation($palletReturn)
                 ],
                 'data'             => PalletReturnResource::make($palletReturn),
                 'box_stats'        => [
@@ -365,9 +365,18 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
-                    'total_services_price'         => $palletReturn->stats->total_services_price,
-                    'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,
-                    'total_price'                  => $palletReturn->stats->total_price
+                    'order_summary'                => [
+                        'number_pallets'               => $palletReturn->number_pallets,
+                        'number_services'              => $palletReturn->stats->number_services,
+                        'number_physical_goods'        => $palletReturn->stats->number_physical_goods,
+                        'pallets_price'                => 0,
+                        'physical_goods_price'         => $palletReturn->physicalGoods->pluck('price'),
+                        'services_price'               => $palletReturn->physicalGoods->pluck('price'),
+                        'total_pallets_price'          => 0,
+                        'total_services_price'         => $palletReturn->stats->total_services_price,
+                        'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,
+                        'total_price'                  => $palletReturn->stats->total_price
+                    ]
                 ],
                 'notes_data'             => [
                     [

@@ -14,6 +14,7 @@ import { usePage } from "@inertiajs/vue3"
 import Footer from "@/Components/Footer/Footer.vue"
 
 import { useLayoutStore } from "@/Stores/layout"
+import { useLocaleStore } from "@/Stores/locale"
 
 
 import TopBar from "@/Layouts/Grp/TopBar.vue"
@@ -26,7 +27,9 @@ import { faTachometerAltFast, faGlobe } from '@fal'
 import { faSearch, faBell } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
+
 provide('layout', useLayoutStore())
+provide('locale', useLocaleStore())
 provide('isMovePallet', true)  // To conditionally render 'Move Pallet' button
 
 initialiseApp()

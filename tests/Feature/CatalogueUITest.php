@@ -46,6 +46,9 @@ beforeEach(function () {
         $this->product
     ) = createProduct($this->shop);
 
+    $this->department = $this->product->department;
+    $this->family = $this->product->family;
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -67,7 +70,7 @@ test('UI Index catalogue departments', function () {
 });
 
 test('UI show department', function () {
-    $response = get(route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->product->department->slug]));
+    $response = get(route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/Department')
@@ -91,5 +94,108 @@ test('UI create department', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
+
+test('UI edit department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.edit', [$this->organisation->slug,  $this->shop->slug, $this->department->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.org.catalogue.departments.update')
+                        ->where('parameters', [
+                            'organisation' => $this->department->organisation_id, 
+                            'shop' => $this->department->shop_id, 
+                            'productCategory' => $this->department->id
+                            ])
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show department (customers tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/shops/'.$this->shop->slug.'/catalogue/departments/'.$this->department->slug.'?tab=customers');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Department')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->department->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI Index catalogue family inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.index', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Families')
+            ->has('title')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI Create catalogue family inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.create', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+test('UI show family in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->family->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Family')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->family->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit family in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.edit', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->family->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.org.catalogue.families.update')
+                        ->where('parameters', [
+                            'organisation'      => $this->family->organisation_id,
+                            'shop'              => $this->family->shop_id,
+                            'productCategory'   => $this->family->id
+                            ])
+            )
+            ->has('breadcrumbs', 4);
     });
 });

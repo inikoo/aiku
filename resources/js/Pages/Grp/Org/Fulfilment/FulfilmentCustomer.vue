@@ -12,7 +12,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { router } from '@inertiajs/vue3'
 
-import RentalAgreementClauses from "@/Components/Tables/Grp/Org/Fulfilment/TableRentalAgreementClauses.vue"
+import TableRentalAgreementClauses from "@/Components/Tables/Grp/Org/Fulfilment/TableRentalAgreementClauses.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -76,7 +76,7 @@ const component = computed(() => {
 
     const components = {
         showcase: FulfilmentCustomerShowcase,
-        agreed_prices: RentalAgreementClauses,
+        agreed_prices: TableRentalAgreementClauses,
         // pallets: TablePallets,
         // stored_items: TableStoredItems,
         // stored_item_returns: TableStoredItemReturn,
