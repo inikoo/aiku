@@ -259,6 +259,8 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
+        // dd($palletReturn->stats);
+
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -365,9 +367,14 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
-                    'total_services_price'         => $palletReturn->stats->total_services_price,
-                    'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,
-                    'total_price'                  => $palletReturn->stats->total_price
+                    'order_summary'                => [
+                        'number_pallets'               => $palletReturn->stats->number_pallets,
+                        'number_services'              => $palletReturn->stats->number_services,
+                        'number_physical_goods'        => $palletReturn->stats->number_physical_goods,
+                        'total_services_price'         => $palletReturn->stats->total_services_price,
+                        'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,
+                        'total_price'                  => $palletReturn->stats->total_price
+                    ]
                 ],
                 'notes_data'             => [
                     [
