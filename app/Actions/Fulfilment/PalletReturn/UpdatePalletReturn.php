@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
@@ -14,6 +15,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
@@ -46,13 +48,17 @@ class UpdatePalletReturn extends OrgAction
 
             data_set($addressData, 'group_id', $groupId);
 
-            $this->addAddressToModel(
-                $palletReturn,
-                $addressData,
-                'delivery',
-                false,
-                'delivery_address_id'
-            );
+            if(Arr::exists($addressData, 'id')) {
+                UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
+            } else {
+                $this->addAddressToModel(
+                    $palletReturn,
+                    $addressData,
+                    'delivery',
+                    false,
+                    'delivery_address_id'
+                );
+            }
 
             Arr::forget($modelData, 'address');
         }
