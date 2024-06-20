@@ -128,7 +128,7 @@ class IndexStoredItems extends OrgAction
                 ],
                 'data' => StoredItemResource::collection($storedItems),
             ]
-        )->table($this->tableStructure($storedItems));
+        )->table($this->tableStructure($storedItems, prefix: 'stored_items'));
     }
 
 

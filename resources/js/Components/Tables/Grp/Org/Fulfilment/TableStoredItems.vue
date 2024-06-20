@@ -15,7 +15,7 @@ const props = defineProps<{
 
 function storedItemRoute(storedItem) {
     switch (route().current()) {
-        case 'grp.org.fulfilments.show.crm.customers.show.pallets.show':
+        case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
