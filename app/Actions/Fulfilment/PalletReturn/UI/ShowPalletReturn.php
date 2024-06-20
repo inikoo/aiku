@@ -18,9 +18,9 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -406,8 +406,8 @@ class ShowPalletReturn extends OrgAction
                 'physical_good_lists'                  => $physicalGoodsList,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))),
+                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))

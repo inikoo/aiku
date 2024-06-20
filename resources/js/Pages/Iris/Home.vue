@@ -10,6 +10,8 @@ import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
+import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
+
 // import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 const props = defineProps<{
@@ -75,18 +77,18 @@ const pricing = [
     },
 ]
 
-const faqs = [
-    {
-        question: "What sizes of storage spaces do you offer?",
-        answer:
-            "We offer a range of storage space sizes to accommodate various needs, from small businesses to large-scale operations. Our options include spaces starting from 100 square feet up to customizable areas exceeding 500 square feet.",
-    },
-    {
-        question: "How secure are your warehouse facilities?",
-        answer:
-            "Security is a top priority for us. Our warehouse facilities are equipped with state-of-the-art security systems, including surveillance cameras, access control measures, and on-site personnel. Additionally, we implement customized security protocols to ensure the safety and integrity of your stored items.",
-    },
-]
+// const faqs = [
+//     {
+//         question: "What sizes of storage spaces do you offer?",
+//         answer:
+//             "We offer a range of storage space sizes to accommodate various needs, from small businesses to large-scale operations. Our options include spaces starting from 100 square feet up to customizable areas exceeding 500 square feet.",
+//     },
+//     {
+//         question: "How secure are your warehouse facilities?",
+//         answer:
+//             "Security is a top priority for us. Our warehouse facilities are equipped with state-of-the-art security systems, including surveillance cameras, access control measures, and on-site personnel. Additionally, we implement customized security protocols to ensure the safety and integrity of your stored items.",
+//     },
+// ]
 
 const people = [
   {
@@ -155,12 +157,30 @@ const people = [
 
 
     <div class="bg-white pb-20">
-        <div class="">
+        <template v-if="props.blocks.blocks.length">
+            <div v-for="(activityItem, activityItemIdx) in props.blocks.blocks"
+                :key="'block' + activityItem.id"
+                class="w-full">
+                <component
+                    :is="getComponent(activityItem['component'])"
+                    :key="activityItemIdx"
+                    v-model="activityItem.fieldValue"
+                    :isEditable="false"
+                    v-bind="activityItem.fieldData"
+                />
+            </div>
+        </template>
+
+        <div class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
+            This page have no data
+        </div>
+    
+        <!-- <div class="">
             <iframe title="AW Fulfilment" style="width:100%;height: 100%; border: 0px;overflow:hidden;"
                 src="https://delivery.wowsbar.com/banners/01HDRV5VBPRY0DMEED42JGFGX4" ></iframe>
-        </div>
+        </div> -->
 
-        <div class="px-12">
+        <!-- <div class="px-12">
             <h1 class="text-4xl font-bold text-center pt-8"
                 :style="{
                     fontFamily: `'Space Mono', 'monospace'`,
@@ -207,7 +227,7 @@ const people = [
                     German, Polish & Dutch.</p>
                 <br>
             </div>
-        </div>
+        </div> -->
 
         <!-- Hero section -->
         <div v-if="false" class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
@@ -274,7 +294,7 @@ const people = [
             </div>
         </div>
 
-        <div class="bg-white py-24 md:py-32 lg:py-40">
+        <div v-if="false" class="bg-white py-24 md:py-32 lg:py-40">
             <div class="mx-auto grid max-w-7xl grid-cols-1 gap-x-8 gap-y-20 px-6 lg:px-8 xl:grid-cols-3">
                 <ul role="list"
                     class="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-20 sm:grid-cols-3 lg:mx-0 lg:max-w-none lg:gap-x-8 xl:col-span-3">

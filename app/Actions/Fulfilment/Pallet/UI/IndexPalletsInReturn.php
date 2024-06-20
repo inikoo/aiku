@@ -51,15 +51,17 @@ class IndexPalletsInReturn extends OrgAction
         $query = QueryBuilder::for(Pallet::class);
 
 
-        $query->where('pallet_return_id', $palletReturn->id);
+        $query->where('pallets.pallet_return_id', $palletReturn->id);
 
 
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
+        $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
 
 
         $query->defaultSort('pallets.id')
             ->select(
-                'pallets.id',
+                'pallet_return_items.id',
+                'pallets.id as pallet_id',
                 'pallets.slug',
                 'pallets.reference',
                 'pallets.customer_reference',

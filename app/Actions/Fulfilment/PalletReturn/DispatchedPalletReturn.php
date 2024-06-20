@@ -31,7 +31,9 @@ class DispatchedPalletReturn extends OrgAction
         $modelData[PalletReturnStateEnum::DISPATCHED->value.'_at'] = now();
         $modelData['state']                                        = PalletReturnStateEnum::DISPATCHED;
 
-        foreach ($palletReturn->pallets as $pallet) {
+        foreach ($palletReturn->pallets()
+                     ->whereNot('status', PalletStatusEnum::INCIDENT->value)
+                     ->get() as $pallet) {
             UpdatePallet::run($pallet, [
                 'state'  => PalletStateEnum::DISPATCHED,
                 'status' => PalletStatusEnum::RETURNED
