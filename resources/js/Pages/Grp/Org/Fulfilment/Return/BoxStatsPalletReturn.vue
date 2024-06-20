@@ -15,15 +15,16 @@ import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 import PureAddress from '@/Components/Pure/PureAddress.vue'
 import { trans } from 'laravel-vue-i18n'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle } from '@fal'
-import { library } from '@fortawesome/fontawesome-svg-core'
 import Modal from '@/Components/Utils/Modal.vue'
 import { routeType } from '@/types/route'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-library.add(faQuestionCircle)
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faQuestionCircle, faPencil } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faQuestionCircle, faPencil)
 
 const props = defineProps<{
     dataPalletReturn: PalletReturn
@@ -127,20 +128,23 @@ const onSubmitAddress = async () => {
                 <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</dd>
             </div>
 
-            <!-- Field: Location -->
-            <div v-if="dataPalletReturn.delivery_address"
-                class="flex items-center w-full flex-none gap-x-2">
+            <!-- Field: Delivery Address -->
+            <div class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
-                    <span class="sr-only">Location</span>
+                    <span class="sr-only">Delivery address</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">
-                    <span class="mr-2" v-html="dataPalletReturn.delivery_address.formatted_address"></span>                    <div @click="() => isModalAddress = true" class="inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                <dd v-if="dataPalletReturn.delivery_address" class="text-xs text-gray-500">
+                    <span class="mr-2" v-html="dataPalletReturn.delivery_address.formatted_address"></span>
+                    <div @click="() => isModalAddress = true" class="inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                         <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' />
                         <span>Edit</span>
                     </div>
                 </dd>
+                <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                    <span>Setup delivery address</span>
+                </div>
             </div>
         </BoxStatPallet>
 
@@ -161,65 +165,61 @@ const onSubmitAddress = async () => {
                 </dt>
                 <dd class="text-xs text-gray-500">{{ boxStats.delivery_status.tooltip }}</dd>
             </div>
+
+            <!-- Section: Pallets, Services, Physical Goods -->
+            <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
+                <div v-tooltip="trans('Count of pallets')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-sm font-medium tabular-nums">{{ dataPalletReturn.number_pallets }} <span class="text-gray-400 font-normal">{{ dataPalletReturn.number_pallets > 1 ? trans('Pallets') : trans('Pallet') }}</span></dd>
+                </div>
+                <div v-tooltip="trans('Count of stored items')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-sm font-medium tabular-nums">{{ dataPalletReturn.number_stored_items }} <span class="text-gray-400 font-normal">{{ dataPalletReturn.number_pallets > 1 ? trans('Stored items') : trans('Stored item') }}</span></dd>
+                </div>
+                <div v-tooltip="trans('Count of services')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-sm font-medium tabular-nums">{{ dataPalletReturn.number_services }} <span class="text-gray-400 font-normal">{{ dataPalletReturn.number_pallets > 1 ? trans('Services') : trans('Service') }}</span></dd>
+                </div>
+                <div v-tooltip="trans('Count of physical goods')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-sm font-medium tabular-nums">{{ dataPalletReturn.number_physical_goods }} <span class="text-gray-400 font-normal">{{ dataPalletReturn.number_pallets > 1 ? trans('Physical goods') : trans('Physical good') }}</span></dd>
+                </div>
+            </div>
         </BoxStatPallet>
 
-        <!-- Box: Pallet -->
-        <!-- <BoxStatPallet class="py-1 sm:py-2 px-3 border-t sm:border-t-0 border-gray-300" :percentage="0">
-            <div class="flex items-end gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ dataPalletReturn.number_pallets }}</dd>
-            </div>
 
-            <div class="flex items-end gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Services</span>
-                    <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletReturn.number_services }}</dd>
-            </div>
-
-            <div class="flex items-end gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Physical Goods</span>
-                    <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletReturn.number_physical_goods }}</dd>
-            </div>
-
-        </BoxStatPallet> -->
-
-
-        <!-- Box: Barcode -->
+        <!-- Box: Order summary -->
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
-            <!-- Order summary -->
             <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
                 <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2>
 
-                <dl class="mt-4 space-y-2">
+                <dl class="mt-2 space-y-2">
                     <div class="flex flex-col gap-y-2">
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
                             <dt class="text-sm text-gray-600">Pallets</dt>
-                            <dd class="place-self-end text-sm">4pcs</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_pallets}}</dd>
                             <dd class="place-self-end text-sm">@4.25</dd>
                             <dd class="place-self-end text-sm font-medium">$99.00</dd>
                         </div>
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
                             <dt class="text-sm text-gray-600">Services</dt>
-                            <dd class="place-self-end text-sm">4pcs</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_services}}</dd>
                             <dd class="place-self-end text-sm">@4.25</dd>
-                            <dd class="place-self-end text-sm font-medium">$99.00</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_services_price }}</dd>
                         </div>
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
                             <dt class="text-sm text-gray-600">Physical Goods</dt>
-                            <dd class="place-self-end text-sm">4pcs</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_physical_goods}}</dd>
                             <dd class="place-self-end text-sm">@4.25</dd>
-                            <dd class="place-self-end text-sm font-medium">$99.00</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_physical_goods_price }}</dd>
                         </div>
                     </div>
 
@@ -244,7 +244,7 @@ const onSubmitAddress = async () => {
 
                     <div class="flex items-center justify-between border-t border-gray-200 pt-3">
                         <dt class="text-base font-medium">Order total</dt>
-                        <dd class="text-base font-medium">$112.32</dd>
+                        <dd class="text-base font-medium">{{ boxStats.order_summary.total_price }}</dd>
                     </div>
                 </dl>
 
@@ -262,6 +262,7 @@ const onSubmitAddress = async () => {
                 Edit customer's address
             </div>
             <div class="grid grid-cols-2 gap-x-4">
+            <!-- <pre>{{ boxStats.fulfilment_customer.address.value }}</pre> -->
                 <PureAddress v-model="boxStats.fulfilment_customer.address.value" :options="boxStats.fulfilment_customer.address.options" />
                 <div class="bg-gray-100 ring-1 ring-gray-300 rounded-lg px-6 pt-4 pb-6 h-fit">
                     <div class="font-bold text-lg">India</div>

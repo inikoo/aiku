@@ -43,6 +43,7 @@ class PalletReturnResource extends JsonResource
             'state'                   => $palletReturn->state,
             'timeline'                => $finalTimeline,
             'number_pallets'          => $palletReturn->number_pallets,
+            'number_stored_items'     => $palletReturn->number_stored_items,
             'number_services'         => $palletReturn->stats->number_services,
             'number_physical_goods'   => $palletReturn->stats->number_physical_goods,
             'delivery_address'        => AddressResource::make($palletReturn->deliveryAddress)

@@ -23,9 +23,9 @@ return new class () extends Migration {
             $table->unsignedInteger('number_services')->default(0);
             $table->unsignedInteger('number_physical_goods')->default(0);
 
-            $table->unsignedInteger('total_physical_goods_price')->default(0);
-            $table->unsignedInteger('total_services_price')->default(0);
-            $table->unsignedInteger('total_price')->default(0);
+            $table->decimal('total_physical_goods_price')->default(0);
+            $table->decimal('total_services_price')->default(0);
+            $table->decimal('total_price')->default(0);
 
             $table->timestampsTz();
         });

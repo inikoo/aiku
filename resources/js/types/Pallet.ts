@@ -107,12 +107,18 @@ export interface PalletDelivery {
 
 export interface PalletReturn {
     id: number
+    delivery_address: {
+        formatted_address?: string
+    }
     reference: string
     state: string
     timeline: {
         [key: string]: Timeline
     }
     number_pallets: number
+    number_stored_items: number
+    number_services: number
+    number_physical_goods: number
 }
 
 // Box Stats in Pallet Delivery
@@ -146,6 +152,14 @@ export interface BoxStats {
             items_storage: boolean
             pallets_storage: boolean
         }
+    }
+    order_summary: {
+        number_pallets: number
+        number_services: number
+        number_physical_goods: number
+        total_services_price: number
+        total_physical_goods_price: number
+        total_price: number
     }
 }
 
