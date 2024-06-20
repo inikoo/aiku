@@ -46,6 +46,9 @@ beforeEach(function () {
         $this->product
     ) = createProduct($this->shop);
 
+    $this->department = $this->product->department;
+    $this->family = $this->product->family;
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -67,7 +70,7 @@ test('UI Index catalogue departments', function () {
 });
 
 test('UI show department', function () {
-    $response = get(route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->product->department->slug]));
+    $response = get(route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/Department')
@@ -93,3 +96,26 @@ test('UI create department', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
+
+test('UI edit department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.edit', [$this->organisation->slug,  $this->shop->slug, $this->department->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.org.catalogue.departments.update')
+                        ->where('parameters', [
+                            'organisation' => $this->department->organisation_id, 
+                            'shop' => $this->department->shop_id, 
+                            'productCategory' => $this->department->id
+                            ])
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
