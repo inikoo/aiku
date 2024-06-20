@@ -27,9 +27,7 @@ use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Actions\Helpers\Country\UI\GetAddressData;
-use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -354,17 +352,12 @@ class ShowPalletReturn extends OrgAction
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
-                                'value'   => AddressFormFieldsResource::make(
-                                    new Address(
-                                        [
-                                            'country_id' => $palletReturn->fulfilment->shop->country_id,
-                                        ]
-                                    )
-                                )->getArray(),
+                                'value'   => AddressResource::make($palletReturn->deliveryAddress),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ]
-                            ]
+                            ],
+                            'addresses_list'   => $addressHistories,
                         ]
                     ),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
@@ -407,8 +400,6 @@ class ShowPalletReturn extends OrgAction
 
                 'service_lists'                        => $servicesList,
                 'physical_good_lists'                  => $physicalGoodsList,
-
-                'delivery_addresses' => $addressHistories,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))

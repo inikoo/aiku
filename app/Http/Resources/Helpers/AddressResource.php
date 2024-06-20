@@ -19,6 +19,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class AddressResource extends JsonResource
 {
     use HasSelfCall;
+    public static $wrap = null;
 
     public function toArray($request): array
     {
@@ -44,6 +45,7 @@ class AddressResource extends JsonResource
             ->withAddressLine1($address->address_line_1);
 
         return [
+            'id'                  => $address->id,
             'address_line_1'      => $address->address_line_1,
             'address_line_2'      => $address->address_line_2,
             'sorting_code'        => $address->sorting_code,

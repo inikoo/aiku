@@ -2,7 +2,7 @@
 
 import { Timeline } from "@/types/Timeline"
 import { routeType } from "@/types/route"
-import { Address } from "@/types/PureComponent/Address"
+import { Address, AddressValue } from "@/types/PureComponent/Address"
 
 
 
@@ -126,6 +126,7 @@ export interface BoxStats {
     delivery_status: PalletStatus
     fulfilment_customer: {
         address: Address
+        addresses_list: AddressValue[]
         customer: {
             slug: string
             reference: string

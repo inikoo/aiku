@@ -1,4 +1,5 @@
 export interface AddressValue {
+    id?: number
     address_line_1?: string
     address_line_2?: string
     sorting_code?: string
