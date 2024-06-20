@@ -209,6 +209,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
         Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
         Route::post('family/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('family.store')->withoutScopedBindings();
         Route::post('sub-department/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('sub-department.store')->withoutScopedBindings();
+        Route::patch('sub-department/update/{productCategory:id}', UpdateProductCategory::class)->name('sub-department.update')->withoutScopedBindings();
     });
 
     Route::prefix('/shop/{shop:id}/catalogue/families')->name('catalogue.families.')->group(function () {
