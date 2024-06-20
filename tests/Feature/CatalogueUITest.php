@@ -210,3 +210,22 @@ test('UI Index catalogue product inside department', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI show product in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.products.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Product')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
