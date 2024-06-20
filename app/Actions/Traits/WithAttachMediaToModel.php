@@ -13,11 +13,13 @@ use App\Models\Helpers\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use App\Models\Web\Webpage;
+use App\Models\Web\Website;
 use stdClass;
 
 trait WithAttachMediaToModel
 {
-    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser $model, Media $media, string $scope = 'default', string $subScope=null, $data=null): Group|Organisation|Shop|User|Webuser
+    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser|Website|Webpage $model, Media $media, string $scope = 'default', string $subScope=null, $data=null): Group|Organisation|Shop|User|Webuser
     {
         $model->updateQuietly(
             [

@@ -36,6 +36,7 @@ class StoreWebpage extends OrgAction
     public function handle(Website|Webpage $parent, array $modelData): Webpage
     {
         data_set($modelData, 'url', '', overwrite: false);
+        data_set($modelData, 'shop_id', $parent->shop_id);
 
         if ($parent instanceof Webpage) {
             data_set($modelData, 'website_id', $parent->website_id);

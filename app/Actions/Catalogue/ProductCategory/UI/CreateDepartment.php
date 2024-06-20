@@ -47,7 +47,6 @@ class CreateDepartment extends OrgAction
         return $request;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);
@@ -108,7 +107,7 @@ class CreateDepartment extends OrgAction
                         ],
                     'route' => match ($request->route()->getName()) {
                         'grp.org.shops.show.catalogue.departments.create' => [
-                            'name'      => 'grp.models.org.catalogue.departments.store',
+                            'name'       => 'grp.models.org.catalogue.departments.store',
                             'parameters' => [
                                 'organisation'    => $this->organisation->id,
                                 'shop'            => $this->shop->id,

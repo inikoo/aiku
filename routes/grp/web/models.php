@@ -120,9 +120,11 @@ use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
+use App\Actions\Web\Webpage\UploadImagesToWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Actions\Web\Website\UploadImagesToWebsite;
 use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use App\Stubs\UIDummies\ImportDummy;
 use Illuminate\Support\Facades\Route;
@@ -356,6 +358,18 @@ Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('or
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::patch('', UpdateWebsite::class)->name('update');
     Route::post('launch', LaunchWebsite::class)->name('launch');
+    Route::post('images/header', [UploadImagesToWebsite::class, 'header'])->name('header.images.store');
+    Route::post('images/footer', [UploadImagesToWebsite::class, 'footer'])->name('footer.images.store');
+    Route::post('images/favicon', [UploadImagesToWebsite::class, 'favicon'])->name('favicon.images.store');
+});
+Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
+    Route::post('images', UploadImagesToWebpage::class)->name('images.store');
+
+    Route::name('content.')->prefix('content')->group(function () {
+        Route::patch('/', UpdateWebpageContent::class)->name('update');
+        Route::post('/publish', PublishWebpage::class)->name('publish');
+
+    });
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
@@ -384,13 +398,7 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
 Route::patch('/job-order/{jobOrder:id}', UpdateJobOrder::class)->name('job-order.update');
 
 
-Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
 
-    Route::name('content.')->prefix('content')->group(function () {
-        Route::patch('/', UpdateWebpageContent::class)->name('update');
-        Route::post('/publish', PublishWebpage::class)->name('publish');
-    });
-});
 
 
 
