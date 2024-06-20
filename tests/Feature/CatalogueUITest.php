@@ -5,10 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use Inertia\Testing\AssertableInertia;
 
@@ -48,6 +51,18 @@ beforeEach(function () {
 
     $this->department = $this->product->department;
     $this->family     = $this->product->family;
+
+
+    $subDepartment = $this->shop->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->first();
+    if (!$subDepartment) {
+        $subDepartmentData = ProductCategory::factory()->definition();
+        data_set($subDepartmentData, 'type', ProductCategoryTypeEnum::SUB_DEPARTMENT->value);
+        $subDepartment = StoreProductCategory::make()->action(
+            $this->department,
+            $subDepartmentData
+        );
+    }
+    $this->subDepartment = $subDepartment;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -248,5 +263,37 @@ test('UI Create catalogue sub department inside department', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+test('UI show sub department in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.sub-departments.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->subDepartment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Department')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->subDepartment->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit sub department in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.sub-departments.edit', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->subDepartment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 4);
     });
 });
