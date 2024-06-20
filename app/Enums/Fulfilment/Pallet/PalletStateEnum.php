@@ -112,7 +112,7 @@ enum PalletStateEnum: string
                 ]
             ],
             'not-received' => [
-                'tooltip' => __('not received'),
+                'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
                 'color'   => 'red',
@@ -193,7 +193,7 @@ enum PalletStateEnum: string
                 ]
             ],
             'lost' => [
-                'tooltip' => __('Not Picked'),
+                'tooltip' => __('Lost'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
                 'color'   => 'red',
