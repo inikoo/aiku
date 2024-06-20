@@ -8,11 +8,13 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateDepartment extends OrgAction
 {
@@ -83,6 +85,14 @@ class CreateDepartment extends OrgAction
                             [
                                 'title'  => __('department'),
                                 'fields' => [
+                                    'type' => [
+                                        'type'     => 'select',
+                                        'label'    => __('type'),
+                                        'required' => true,
+                                        'options'  => Options::forEnum(ProductCategoryTypeEnum::class),
+                                        'value'    => ProductCategoryTypeEnum::DEPARTMENT->value,
+                                        'readonly' => true,
+                                    ],
                                     'code' => [
                                         'type'     => 'input',
                                         'label'    => __('code'),
@@ -97,9 +107,12 @@ class CreateDepartment extends OrgAction
                             ]
                         ],
                     'route' => match ($request->route()->getName()) {
-                        'shops.show.departments.create' => [
-                            'name'      => 'grp.models.shop.department.store',
-                            'arguments' => $this->shop->id
+                        'grp.org.shops.show.catalogue.departments.create' => [
+                            'name'      => 'grp.models.org.catalogue.departments.store',
+                            'parameters' => [
+                                'organisation'    => $this->organisation->id,
+                                'shop'            => $this->shop->id,
+                            ]
                         ],
                         default => [
                             'name' => 'grp.models.department.store'

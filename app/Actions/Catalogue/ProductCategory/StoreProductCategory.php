@@ -175,7 +175,11 @@ class StoreProductCategory extends OrgAction
                 'family'       => $productCategory->slug,
             ]);
         } else {
-            abort(419);
+            return Redirect::route('grp.org.shops.show.catalogue.departments.show', [
+                'organisation' => $productCategory->organisation->slug,
+                'shop'         => $productCategory->shop->slug,
+                'department'   => $productCategory->slug,
+            ]);
         }
     }
 
