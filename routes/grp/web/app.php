@@ -10,11 +10,6 @@ use App\Actions\UI\Grp\IndexGroups;
 use App\Actions\UI\Grp\ShowGroup;
 use App\Actions\UI\Notification\IndexNotification;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
-Route::get('/searchxx', function () {
-    return Inertia::render('SearchDummy');
-})->name('searchxx');  // for testing Luigi search
 
 Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {
@@ -61,31 +56,6 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("gallery")
         ->name("gallery.")
         ->group(__DIR__."/gallery.php");
-    /*
 
-    Route::prefix("account")
-        ->name("account.")
-        ->group(__DIR__."/account.php");
-    Route::prefix("bi")
-        ->name("reports.")
-        ->group(__DIR__."/reports.php");
-
-
-
-    Route::prefix("accounting")
-        ->name("accounting.")
-        ->group(__DIR__."/accounting.php");
-    Route::prefix("marketing")
-        ->name("marketing.")
-        ->group(__DIR__."/marketing.php");
-
-    Route::prefix("json")
-        ->name("json.")
-        ->group(__DIR__."/json.php");
-    Route::prefix("google")
-        ->name("google.")
-        ->group(__DIR__."/google.php");
-
-*/
 });
 require __DIR__."/auth.php";
