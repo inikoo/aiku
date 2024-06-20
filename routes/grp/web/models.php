@@ -203,10 +203,15 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     });
 
     Route::prefix('/shop/{shop:id}/catalogue/departments')->name('catalogue.departments.')->group(function () {
-        // Route::post('/', Store::class)->name('store');
+        Route::post('/', StoreProductCategory::class)->name('store')->withoutScopedBindings();
         Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
         Route::post('family/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('family.store')->withoutScopedBindings();
         Route::post('sub-department/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('sub-department.store')->withoutScopedBindings();
+    });
+
+    Route::prefix('/shop/{shop:id}/catalogue/families')->name('catalogue.families.')->group(function () {
+        // Route::post('/', Store::class)->name('store');
+        Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');

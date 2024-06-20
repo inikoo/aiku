@@ -28,6 +28,7 @@ const emits = defineEmits<{
     (e: 'onPublish'): void
 }>()
 
+
 </script>
 
 <template>
@@ -43,7 +44,7 @@ const emits = defineEmits<{
                     :style="!is_dirty
                             ? 'disabled'
                             :  'primary'"
-                    :key="compRandomKey"
+                    :key="!is_dirty ? compRandomKey : uuidv4()"
                     :icon="'far fa-rocket-launch'"
                 />
                 <Button v-else :style="`cancel`" icon="fal fa-times" label="Cancel" />

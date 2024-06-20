@@ -177,3 +177,55 @@ test('UI show family in department', function () {
 
     });
 });
+
+test('UI edit family in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.edit', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->family->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.org.catalogue.families.update')
+                        ->where('parameters', [
+                            'organisation'      => $this->family->organisation_id,
+                            'shop'              => $this->family->shop_id,
+                            'productCategory'   => $this->family->id
+                            ])
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI Index catalogue product inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.products.index', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Products')
+            ->has('title')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show product in department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.products.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Product')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
