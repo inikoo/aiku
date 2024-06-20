@@ -138,3 +138,24 @@ test('UI show department (customers tab)', function () {
     });
 });
 
+test('UI Index catalogue family inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.index', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Families')
+            ->has('title')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI Create catalogue family inside department', function () {
+    $response = get(route('grp.org.shops.show.catalogue.departments.show.families.create', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+

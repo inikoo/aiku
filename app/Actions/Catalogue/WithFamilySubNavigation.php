@@ -9,12 +9,13 @@ namespace App\Actions\Catalogue;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
 trait WithFamilySubNavigation
 {
-    protected function getFamilySubNavigation(ProductCategory $family, Organisation|ProductCategory $parent, ActionRequest $request): array
+    protected function getFamilySubNavigation(ProductCategory $family, Organisation|ProductCategory|Shop $parent, ActionRequest $request): array
     {
         $routeParameters = $request->route()->originalParameters();
 
@@ -44,6 +45,11 @@ trait WithFamilySubNavigation
                 'parameters' => $routeParameters
             ];
         } elseif ($parent->type == ProductCategoryTypeEnum::FAMILY) {
+            $productRoute = [
+                'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
+                'parameters' => $routeParameters
+            ];
+        } elseif ($parent instanceof Shop) {
             $productRoute = [
                 'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
                 'parameters' => $routeParameters
