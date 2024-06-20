@@ -5,12 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use Inertia\Testing\AssertableInertia;
@@ -63,6 +65,18 @@ beforeEach(function () {
         );
     }
     $this->subDepartment = $subDepartment;
+
+    $collection = Collection::first();
+    if (!$collection) {
+        data_set($storeData, 'code', 'Test');
+        data_set($storeData, 'name', 'Testa');
+
+        $collection = StoreCollection::make()->action(
+            $this->shop,
+            $storeData
+        );
+    }
+    $this->collection = $collection;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -316,5 +330,24 @@ test('UI Create collection', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+test('UI show collection', function () {
+    $response = get(route('grp.org.shops.show.catalogue.collections.show', [$this->organisation->slug, $this->shop->slug, $this->collection->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Collection')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->collection->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
