@@ -36,7 +36,6 @@ class PalletsResource extends JsonResource
     public function toArray($request): array
     {
         $rental = Rental::find($this->rental_id) ?? null;
-        // dd($rental);
         return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,

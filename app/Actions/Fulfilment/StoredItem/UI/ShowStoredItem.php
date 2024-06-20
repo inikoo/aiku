@@ -170,7 +170,6 @@ class ShowStoredItem extends OrgAction
 
     public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
     {
-        return [];
         return array_merge(
             ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
@@ -179,13 +178,14 @@ class ShowStoredItem extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.fulfilment.stored-items.index',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('stored items')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.fulfilment.stored-items.show',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $storedItem->slug,
