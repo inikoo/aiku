@@ -10,21 +10,34 @@
   import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
   import Gallery from "../Gallery/Gallery.vue";
   import { ref } from "vue"
+  import { router } from '@inertiajs/vue3'
+
   library.add(faCube, faStar, faImage)
   
   const props = defineProps<{
-      modelValue: any
+      uploadRoutes: Array
   }>()
 
+
+  console.log('lll',props)
 
 const isDragging = ref(false);
 const uploadedFilesList =ref([])
 const fileInput = ref();
 
+
+const onUpload = () =>{
+    router.post(
+        route(props.uploadRoutes.name,props.uploadRoutes.parameters),
+        { images : uploadedFilesList.value },
+    )
+}
+
   
   const addComponent = (element) => {
      uploadedFilesList.value = element.target.files;
      console.log(uploadedFilesList)
+     onUpload()
   }
   
   const dragover = (e) => {

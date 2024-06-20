@@ -1,5 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes } from '@fas';
+import { faHeart } from '@far';
+
+library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes);
+const layout = inject('layout', layoutStructure)
 
 const navigationsList = [
   {
@@ -137,95 +146,113 @@ const navigationsList = [
 
 <template>
 
-  <div class="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
+  <div class="mx-auto max-w-9xl sm:px-6 sm:py-10 lg:px-8 border-2">
     <!-- Top Bar -->
     <div class="bg-gray-800 grid grid-cols-3 text-white flex justify-between items-center p-2 text-xs">
-    <div></div>
-    <div class="font-bold text-center">FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</div>
+      <div></div>
+      <div class="font-bold text-center">FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</div>
 
-    <!-- Section: Logout, Cart, profile -->
-    <div class="place-self-end flex items-center space-x-4 mr-4">
-      <a href="#" class="flex items-center">
-        <i class="fas fa-sign-out-alt mr-1"></i> Log Out
-      </a>
-      <a href="#">
-        <i class="far fa-heart"></i>
-      </a>
-      <a href="#" class="flex items-center gap-x-1">
-        <i class="fas fa-shopping-cart relative mr-1">
-          <div
-            class="absolute -top-1 -right-1 bg-white border border-gray-800 h-2.5 aspect-square rounded-full text-gray-600 text-[6px] flex items-center justify-center">
-            5
-          </div>
-        </i> £568.20
-      </a>
-      <a href="#" class="flex items-center"><i class="fas fa-user-circle mr-1"></i> Hello Sandra</a>
+      <div class="place-self-end flex items-center space-x-4 mr-4">
+        <a href="#" class="flex items-center">
+          <FontAwesomeIcon icon="fas fa-sign-out-alt" class=" mr-1"></FontAwesomeIcon> Log Out
+        </a>
+        <a href="#">
+          <FontAwesomeIcon icon="far fa-heart"></FontAwesomeIcon>
+        </a>
+        <a href="#" class="flex items-center gap-x-1">
+          <FontAwesomeIcon icon="fas fa-shopping-cart" class="relative mr-1">
+            <div
+              class="absolute -top-1 -right-1 bg-white border border-gray-800 h-2.5 aspect-square rounded-full text-gray-600 text-[6px] flex items-center justify-center">
+              5
+            </div>
+          </FontAwesomeIcon> £568.20
+        </a>
+        <a href="#" class="flex items-center"><i class="fas fa-user-circle mr-1"></i> Hello Sandra</a>
+      </div>
     </div>
+
+
+    <!-- Main Nav -->
+    <div class="bg-white shadow-md border-b-2 border-gray-700">
+      <div class="container mx-auto flex flex-col justify-between items-center">
+        <div class="w-full grid grid-cols-3 items-center justify-between space-x-4">
+          <img src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
+            alt="Ancient Wisdom Logo" class="h-24">
+          <div class="relative w-fit justify-self-center">
+            <input type="text" placeholder="Search Products" class="border border-gray-400 py-1 px-4 text-sm w-80">
+            <FontAwesomeIcon icon="fas fa-search" class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400">
+            </FontAwesomeIcon>
+          </div>
+          <button
+            class="justify-self-end w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md">Become
+            a Gold Reward Member <FontAwesomeIcon icon="fas fa-chevron-right" class="ml-1  text-xs"></FontAwesomeIcon>
+          </button>
+        </div>
+
+        <!-- Section: Navigation list horizontal -->
+        <nav class="relative flex text-sm text-gray-600">
+          <div v-for="(navigation, idxNavigation) in navigationsList" href="#" class="group w-full ">
+            <div
+              class="px-5 hover:bg-gray-200 hover:text-orange-500 flex items-center justify-center gap-x-1 h-full cursor-pointer">
+              <div class="w-fit text-center">{{ navigation.label }}</div>
+              <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-[11px]"></FontAwesomeIcon>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+
   </div>
 
+  <div class="w-7xl sm:px-6 lg:px-8 mt-3 overflow-hidden">
+    <TabGroup>
+      <TabList class="flex space-x-8 border-b-2 w-full overflow-x-auto scrollbar-hide">
+        <Tab v-for="tab in navigationsList" as="template" :key="tab.label" v-slot="{ selected }">
+          <button :style="selected ? { color: layout.app.theme[0] } : {}" :class="[
+            'whitespace-nowrap py-1.5 px-1 text-sm font-medium focus:ring-0 focus:outline-none mb-2',
+            selected
+              ? `text-[${layout.app.theme[0]}] border-2 border-b-0 rounded-t-lg px-2`
+              : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
+          ]">
+            <span> {{ tab.label }} <font-awesome-icon v-if="selected" :icon="['fas', 'times']" class="ml-1" /></span>
+          </button>
+        </Tab>
+      </TabList>
 
-  <!-- Main Nav -->
-  <div class="bg-white shadow-md border-b-2 border-gray-700">
-    <div class="container mx-auto flex flex-col justify-between items-center">
-      <div class="w-full grid grid-cols-3 items-center justify-between space-x-4">
-        <img src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
-          alt="Ancient Wisdom Logo" class="h-24">
-        <div class="relative w-fit justify-self-center">
-          <input type="text" placeholder="Search Products" class="border border-gray-400 py-1 px-4 text-sm w-80">
-          <i class="fas fa-search absolute top-1/2 -translate-y-1/2 right-4 text-gray-400"></i>
-        </div>
-        <button
-          class="justify-self-end w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md">Become
-          a Gold Reward Member <i class="ml-1 fas fa-chevron-right text-xs"></i> </button>
-      </div>
+      <TabPanels class="mt-2">
+        <TabPanel v-for="(tab, idx) in navigationsList" :key="idx" :class="[
+          'rounded-xl bg-white p-3 shadow-lg',
+          'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
+        ]">
+          <div class="card-content">
+            <div v-if="tab.subnavs" class="grid grid-cols-4 gap-x-5 gap-y-8 px-6 pt-6 pb-14">
+              <div v-for="subnav in tab.subnavs" class="space-y-2">
+                <div class="font-semibold">{{ subnav.title }}</div>
 
-      <!-- Section: Navigation list horizontal -->
-      <nav class="relative flex text-sm text-gray-600">
-        <div v-for="(navigation, idxNavigation) in navigationsList" href="#" class="group w-full ">
-          <div
-            class="px-5 hover:bg-gray-200 hover:text-orange-500 flex items-center justify-center gap-x-1 h-full cursor-pointer">
-            <div class="w-fit text-center">{{ navigation.label }}</div>
-            <i class="fas fa-chevron-down text-[11px]"></i>
-          </div>
-
-          <!-- Section: Subnav hover -->
-          <div v-if="navigation.subnavs"
-            class="hidden group-hover:grid inline absolute left-0 top-full border border-gray-300 w-full grid-cols-4 gap-x-5 gap-y-8 px-6 pt-6 pb-14">
-            <div v-for="subnav in navigation.subnavs" class="space-y-2">
-              <div class="font-semibold">{{ subnav.title }}</div>
-
-              <!-- Subnav links -->
-              <div class="flex flex-col gap-y-2">
-                <div v-for="link in subnav.links" class="flex items-center gap-x-2">
-                  <i class="fas fa-chevron-right text-[10px] text-gray-400"></i>
-                  <span class=" text-gray-500 hover:text-gray-600 hover:underline cursor-pointer">{{ link }}</span>
-                </div>
-
-                <div v-if="subnav.title != 'Fragrance'" class="font-semibold underline text-xs cursor-pointer">
-                  See all
-                </div>
-                <div v-else class="mt-6">
-                  <div class="font-bold underline">
-                    Starters
-                  </div>
-                  <div class="mt-2">
-                    Shop Beauty & Spa Starters
-                  </div>
-                  <div class="mt-6 underline font-semibold">
-                    BLOG - AW Product Guide
+                <!-- Subnav links -->
+                <div class="flex flex-col gap-y-2">
+                  <div v-for="link in subnav.links" class="flex items-center gap-x-2">
+                    <font-awesome-icon icon="fas fa-chevron-right"
+                      class="text-[10px] text-gray-400"></font-awesome-icon>
+                    <span class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer">{{ link }}</span>
                   </div>
 
+                  <div v-if="subnav.title != 'Fragrance'" class="font-semibold underline text-xs cursor-pointer">
+                    See all
+                  </div>
+                  <div v-else class="mt-6">
+                    <div class="font-bold underline">Starters</div>
+                    <div class="mt-2">Shop Beauty & Spa Starters</div>
+                    <div class="mt-6 underline font-semibold">BLOG - AW Product Guide</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </nav>
-    </div>
+        </TabPanel>
+      </TabPanels>
+    </TabGroup>
   </div>
-  
-  </div>
-
 
 </template>
 

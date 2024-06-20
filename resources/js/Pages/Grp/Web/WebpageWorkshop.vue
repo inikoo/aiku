@@ -30,6 +30,8 @@ const props = defineProps<{
   webpage: Object
 }>();
 
+console.log(props)
+
 const openModal = ref(false);
 const comment = ref("");
 const isLoading = ref(false)
@@ -93,7 +95,6 @@ const onPublish = async (action) => {
       publishLayout: {blocks : data.value.layout }
     });
 
-    console.log('saved', response);
 
   } catch (error) {
     // Ensure the error is logged properly
@@ -112,7 +113,6 @@ const onPublish = async (action) => {
   }
 };
 
-console.log(data)
 
 
 </script>
@@ -150,6 +150,7 @@ console.log(data)
 						<component
 							:is="getComponent(activityItem['component'])"
 							:key="activityItemIdx"
+							:webpageData="webpage"
 							v-bind="activityItem.fieldData"
 							v-model="activityItem.fieldValue"
 							@autoSave="() => onUpdated()" />
@@ -167,7 +168,7 @@ console.log(data)
 							@click="() => (openModal = true)" />
 					</div>
 					<draggable
-          	v-if="data?.layout?.length > 0"
+          				v-if="data?.layout?.length > 0"
 						:list="data.layout"
 						ghost-class="ghost"
 						group="column"

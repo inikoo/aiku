@@ -13,12 +13,14 @@
   import { inject } from 'vue'
   import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
   import Upload from './Upload.vue'
+  import StockImages from './StockImages.vue'
   
   library.add(faCube, faStar, faImage)
   
   const props = defineProps<{
       open: Boolean
-      width?: String
+      width?: String,
+      uploadRoutes: Array
   }>()
 
   const layout = inject('layout', layoutStructure)
@@ -37,14 +39,15 @@ const tabs = [
         key : 'images_uploaded',
     },
     {
-        label : "Images Template",
-        key : 'images_template',
+        label : "Stock Images",
+        key : 'stock_images',
     },
 ]
 
 const getComponent = (componentName: string) => {
   const components: any = {
     'upload': Upload,
+    'stock_images' : StockImages
   };
   return components[componentName] ?? null;
 };
@@ -75,9 +78,7 @@ const getComponent = (componentName: string) => {
                     'rounded-xl bg-white p-3',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                <component
-							:is="getComponent(tab['key'])"
-							 />
+                <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes"/>
 
                 </TabPanel>
             </TabPanels>
