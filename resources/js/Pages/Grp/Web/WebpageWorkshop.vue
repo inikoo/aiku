@@ -32,9 +32,11 @@ const props = defineProps<{
 
 console.log(props)
 
+
 const openModal = ref(false);
 const comment = ref("");
 const isLoading = ref(false)
+const selectedBlock = ref(null)
 const data = ref({
   ...props.webpage,
   layout: props.webpage.layout.blocks ? props.webpage.layout.blocks : props.webpage.layout
@@ -145,11 +147,11 @@ const onPublish = async (action) => {
 				<div v-else>
 					<div
 						v-for="(activityItem, activityItemIdx) in data.layout"
-						:key="activityItem.id"
+						:key="activityItem.id" @click="()=>selectedBlock = activityItem"
 						class="w-full">
 						<component
 							:is="getComponent(activityItem['component'])"
-							:key="activityItemIdx"
+							:key="activityItemIdx"  
 							:webpageData="webpage"
 							v-bind="activityItem.fieldData"
 							v-model="activityItem.fieldValue"

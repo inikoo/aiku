@@ -27,6 +27,7 @@
   
   const emits = defineEmits<{
     (e: 'onClose'): void
+    (e: 'onPick', value: Object): void
 }>()
 
 const tabs = [
@@ -52,6 +53,10 @@ const getComponent = (componentName: string) => {
   return components[componentName] ?? null;
 };
 
+const OnPick = (e) => {
+    emits('onPick', e)
+}
+
   
   </script>
   
@@ -75,10 +80,10 @@ const getComponent = (componentName: string) => {
 
             <TabPanels class="mt-2">
                 <TabPanel v-for="(tab, idx) in tabs" :key="idx" :class="[
-                    'rounded-xl bg-white p-3',
+                    'rounded-xl bg-white p-3 h-96 overflow-auto',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes"/>
+                <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick"/>
 
                 </TabPanel>
             </TabPanels>
