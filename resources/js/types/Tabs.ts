@@ -5,6 +5,7 @@ export interface Navigation {
         type?: string
         align?: string
         iconClass?: string
+        indicator?: boolean  // A blue dot indicator in Tabs
     }
 }
 

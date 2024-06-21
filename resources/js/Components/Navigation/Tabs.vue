@@ -87,11 +87,13 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             v-if="tab.align !== 'right'"
                             @click="onChangeTab(tabSlug)"
                             :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation']"
-                            class="group flex items-center py-2 px-1 font-medium capitalize text-left text-sm md:text-base w-fit"
+                            class="relative group flex items-center py-2 px-1 font-medium capitalize text-left text-sm md:text-base w-fit"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined">
                             <FontAwesomeIcon v-if="tabLoading === tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
+                            
+                            <FontAwesomeIcon v-if="tab.indicator" icon='fas fa-circle' class='animate-pulse absolute top-3 -right-1 text-blue-500 text-[6px]' fixed-width aria-hidden='true' />
                         </button>
                     </template>
                 </nav>
