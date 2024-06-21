@@ -17,6 +17,7 @@ use App\Actions\Catalogue\ProductCategory\HydrateDepartments;
 use App\Actions\Catalogue\ProductCategory\HydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
+use App\Actions\Catalogue\ProductVariant\HydrateProductVariant;
 use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
 use App\Actions\Catalogue\ProductVariant\UpdateProductVariant;
 use App\Actions\Catalogue\Service\StoreService;
@@ -376,7 +377,7 @@ test('add variant to product', function (Product $product) {
     expect($product->stats->number_product_variants)->toBe(1);
 
 
-    $outerData =
+    $variant =
         [
             'code'    => $product->code.'-v1',
             'ratio'   => 2,
@@ -386,7 +387,7 @@ test('add variant to product', function (Product $product) {
         ];
 
 
-    $productVariant = StoreProductVariant::run($product, $outerData);
+    $productVariant = StoreProductVariant::run($product, $variant);
     $product->refresh();
 
 
@@ -412,7 +413,7 @@ test('update second product variant', function (ProductVariant $productVariant) 
         'price' => 99.99
     ];
 
-    $productVariant = UpdateProductVariant::run($productVariant, $modelData);
+    $productVariant = UpdateProductVariant::make()->action($productVariant, $modelData);
     $productVariant->refresh();
     $product->refresh();
 
@@ -600,6 +601,12 @@ test('hydrate families', function (ProductCategory $family) {
 test('hydrate products', function (Product $product) {
     HydrateProducts::run($product);
     $this->artisan('hydrate:products')->assertExitCode(0);
+})->depends('create product');
+
+test('hydrate product variants', function (Product $product) {
+    $variant=$product->productVariant;
+    HydrateProductVariant::run($variant);
+    $this->artisan('hydrate:product-variants')->assertExitCode(0);
 })->depends('create product');
 
 test('can show catalogue', function (Shop $shop) {

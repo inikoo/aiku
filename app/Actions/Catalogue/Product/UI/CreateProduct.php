@@ -92,8 +92,8 @@ class CreateProduct extends OrgAction
                         'name'       => 'grp.models.org.catalogue.families.product.store',
                         'parameters' => [
                             'organisation' => $parent->organisation_id,
-                            'shop'   => $parent->shop_id,
-                            'family' => $parent->id
+                            'shop'         => $parent->shop_id,
+                            'family'       => $parent->id
                         ]
                     ]
                 ],
