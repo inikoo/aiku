@@ -98,8 +98,8 @@ const onSubmitEditAddress = () => {
             preserveScroll: true,
             onStart: () => isSubmitAddressLoading.value = true,
             onFinish: () => {
-                isSubmitAddressLoading.value = false,
-                isModalAddress.value = false
+                isSubmitAddressLoading.value = false
+                // isModalAddress.value = false
             },
             onError: () => notify({
                 title: "Failed",
@@ -192,17 +192,22 @@ const onSelectAddress = (selectedAddress) => {
             </div>
 
             <!-- Field: Delivery Address -->
-            <div class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
+            <div class="flex items-start w-full flex-none gap-x-2">
+                <dt v-tooltip="`Pallet Return's address`" class="flex-none">
                     <span class="sr-only">Delivery address</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
+                
                 <dd v-if="dataPalletReturn.delivery_address" class="text-xs text-gray-500">
-                    <span class="mr-2" v-html="dataPalletReturn.delivery_address.formatted_address"></span>
-                    <div @click="() => isModalAddress = true" class="inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                        <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' />
-                        <span>Edit</span>
+                    <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
+                        <span class="" v-html="dataPalletReturn.delivery_address.formatted_address" />
+
+                        <div @click="() => isModalAddress = true"
+                            class="absolute top-1.5 right-2.5 inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                            <span>Edit</span>
+                        </div>
                     </div>
                 </dd>
                 <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
@@ -324,6 +329,7 @@ const onSelectAddress = (selectedAddress) => {
             <div class="text-2xl font-bold text-center mb-8">
                 Edit customer's address
             </div>
+
             <div class="grid grid-cols-2 gap-x-8 ">
                 <div class="col-span-2 flex items-center justify-center mb-4 gap-x-2 text-sm">
                     <!-- <div @click="selectedCreateOrSelect = 'createNew'"
@@ -372,24 +378,38 @@ const onSelectAddress = (selectedAddress) => {
                     <!-- Saved Address: list -->
                     <template v-if="boxStats.fulfilment_customer.addresses_list.data?.length">
                         <div class="grid grid-cols-2 gap-x-4">                            
-                            <div class="grid gap-x-2 gap-y-2 h-fit transition-all" :class="[ isEditAddress ? '' : 'col-span-2 grid-cols-2' ]">
+                            <div class="grid gap-x-2 gap-y-4 h-fit transition-all" :class="[ isEditAddress ? '' : 'col-span-2 grid-cols-2' ]">
                                 <div
                                     v-for="(address, idxAddress) in boxStats.fulfilment_customer.addresses_list.data"
                                     :key="idxAddress + address.id"
-                                    class="relative text-xs ring-1 ring-gray-300 rounded-lg px-5 pt-2.5 pb-4 h-fit transition-all"
-                                    :class="boxStats.fulfilment_customer.address.value.id == address.id ? 'bg-indigo-50 ring-2 ring-indigo-500' : ''"
+                                    class="relative text-xs ring-1 ring-gray-300 rounded-lg px-5 py-3 h-fit transition-all"
+                                    :class="[
+                                        boxStats.fulfilment_customer.address.value.id == address.id ? 'bg-indigo-50' : '',
+                                        selectedEditableAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''    
+                                    ]"
                                 >
                                     <div v-html="address.formatted_address"></div>
-                                    <div class="absolute top-2 right-2 space-x-1">
-                                        <Button
+                                    <div class="flex items-center gap-x-1 absolute top-2 right-2">
+                                        <!-- <Button
                                             size="xxs"
-                                            icon="fal fa-pencil"
-                                            type="tertiary"
-                                            @click="() => onEditAddress(address)"
-                                        />
+                                            label="Edit"
+                                            :key="address.id + '-' + selectedEditableAddress?.id"
+                                            :type="selectedEditableAddress?.id == address.id ? 'primary' : 'tertiary'"
+                                            
+                                        /> -->
+                                        <div @click="() => onEditAddress(address)" class="inline cursor-pointer" :class="[selectedEditableAddress?.id == address.id ? 'underline' : 'hover:underline']">
+                                            Edit
+                                        </div>
+                                        
                                         <Transition>
+                                            <div v-if="boxStats.fulfilment_customer.address.value.id == address.id"
+                                                v-tooltip="'Selected as pallet return address'"
+                                                class="bg-indigo-500/80 text-white cursor-default rounded px-1.5 py-1 leading-none text-xxs"
+                                            >
+                                                Selected
+                                            </div>
                                             <Button
-                                                v-if="boxStats.fulfilment_customer.address.value.id !== address.id"
+                                                v-else
                                                 @click="() => onSelectAddress(address)"
                                                 :label="isSelectAddressLoading == address.id ? '' : 'Select'"
                                                 size="xxs"
@@ -402,7 +422,7 @@ const onSelectAddress = (selectedAddress) => {
                             </div>
 
                             <div v-if="isEditAddress" class="relative bg-gray-100 p-4 rounded-md">
-                                <div @click="() => isEditAddress = false" class="absolute top-2 right-2 cursor-pointer">
+                                <div @click="() => (isEditAddress = false, selectedEditableAddress = null)" class="absolute top-2 right-2 cursor-pointer">
                                     <FontAwesomeIcon icon='fal fa-times' class='text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
                                 </div>
 
