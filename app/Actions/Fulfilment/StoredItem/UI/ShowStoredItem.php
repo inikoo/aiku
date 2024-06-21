@@ -73,6 +73,7 @@ class ShowStoredItem extends OrgAction
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('stored item')
                         ],
+                    'model'  => 'stored item',
                     'title'  => $storedItem->slug,
                     'actions'=> [
                         [
