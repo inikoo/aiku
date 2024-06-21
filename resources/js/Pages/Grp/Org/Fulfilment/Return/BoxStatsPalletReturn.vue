@@ -53,7 +53,7 @@ const onSubmitNewAddress = async () => {
     delete filterDataAdddress.formatted_address
     delete filterDataAdddress.country
     delete filterDataAdddress.id  // Remove id cuz create new one
-    
+
     router.patch(
         route(props.updateRoute.name, props.updateRoute.parameters),
         {
@@ -85,10 +85,11 @@ const onEditAddress = (address: {}) => {
 }
 const onSubmitEditAddress = () => {
     // console.log(props.boxStats.fulfilment_customer.address.value)
-    const filterDataAdddress = {...props.boxStats.fulfilment_customer.address.value}
+    const filterDataAdddress = {...selectedEditableAddress.value}
     delete filterDataAdddress.formatted_address
     delete filterDataAdddress.country
-    
+    delete filterDataAdddress.country_code
+
     router.patch(
         route(props.updateRoute.name, props.updateRoute.parameters),
         {
@@ -117,7 +118,7 @@ const isSelectAddressLoading = ref<number | boolean>(false)
 const onSelectAddress = (selectedAddress) => {
 
     router.patch(
-        route(props.updateRoute.name, props.updateRoute.parameters), 
+        route(props.updateRoute.name, props.updateRoute.parameters),
         {
             delivery_address_id: selectedAddress.id
         },
@@ -198,7 +199,7 @@ const onSelectAddress = (selectedAddress) => {
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                
+
                 <dd v-if="dataPalletReturn.delivery_address" class="text-xs text-gray-500">
                     <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
                         <span class="" v-html="dataPalletReturn.delivery_address.formatted_address" />
@@ -353,7 +354,7 @@ const onSelectAddress = (selectedAddress) => {
                         xx
                     </div> -->
                 </div>
-                
+
                 <div v-if="selectedCreateOrSelect === 'createNew'" class="relative p-3">
                     <PureAddress v-model="boxStats.fulfilment_customer.address.value"
                         :options="boxStats.fulfilment_customer.address.options"
@@ -377,7 +378,7 @@ const onSelectAddress = (selectedAddress) => {
 
                     <!-- Saved Address: list -->
                     <template v-if="boxStats.fulfilment_customer.addresses_list.data?.length">
-                        <div class="grid grid-cols-2 gap-x-4">                            
+                        <div class="grid grid-cols-2 gap-x-4">
                             <div class="grid gap-x-2 gap-y-4 h-fit transition-all" :class="[ isEditAddress ? '' : 'col-span-2 grid-cols-2' ]">
                                 <div
                                     v-for="(address, idxAddress) in boxStats.fulfilment_customer.addresses_list.data"
@@ -385,7 +386,7 @@ const onSelectAddress = (selectedAddress) => {
                                     class="relative text-xs ring-1 ring-gray-300 rounded-lg px-5 py-3 h-fit transition-all"
                                     :class="[
                                         boxStats.fulfilment_customer.address.value.id == address.id ? 'bg-indigo-50' : '',
-                                        selectedEditableAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''    
+                                        selectedEditableAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
                                     ]"
                                 >
                                     <div v-html="address.formatted_address"></div>
@@ -395,12 +396,12 @@ const onSelectAddress = (selectedAddress) => {
                                             label="Edit"
                                             :key="address.id + '-' + selectedEditableAddress?.id"
                                             :type="selectedEditableAddress?.id == address.id ? 'primary' : 'tertiary'"
-                                            
+
                                         /> -->
                                         <div @click="() => onEditAddress(address)" class="inline cursor-pointer" :class="[selectedEditableAddress?.id == address.id ? 'underline' : 'hover:underline']">
                                             Edit
                                         </div>
-                                        
+
                                         <Transition>
                                             <div v-if="boxStats.fulfilment_customer.address.value.id == address.id"
                                                 v-tooltip="'Selected as pallet return address'"
@@ -450,7 +451,7 @@ const onSelectAddress = (selectedAddress) => {
                 </div>
             </div>
 
-            
+
             <!-- {{ boxStats.fulfilment_customer.address.value }} -->
 		</div>
 	</Modal>

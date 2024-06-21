@@ -16,6 +16,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Country;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
@@ -49,6 +50,8 @@ class UpdatePalletReturn extends OrgAction
             data_set($addressData, 'group_id', $groupId);
 
             if(Arr::exists($addressData, 'id')) {
+                $countryCode = Country::find(Arr::get($addressData, 'country_id'))->code;
+                data_set($addressData, 'country_code', $countryCode);
                 UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
             } else {
                 $this->addAddressToModel(

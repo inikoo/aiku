@@ -39,7 +39,7 @@ Route::name("products.")->prefix('products')
 
         Route::prefix('{product}')->group(function () {
             Route::get('', ShowProduct::class)->name('show');
-            Route::get('edit', EditProduct::class)->name('edit');
+            Route::get('edit', [UIEditProduct::class, 'inShop'])->name('edit');
         });
     });
 
