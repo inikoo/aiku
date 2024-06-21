@@ -380,3 +380,16 @@ test('UI edit product', function () {
     });
 });
 
+test('UI create product', function () {
+    $response = get(route('grp.org.shops.show.catalogue.families.show.products.create', [$this->organisation->slug, $this->shop->slug, $this->family->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 5)
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 5);
+    });
+});
+
