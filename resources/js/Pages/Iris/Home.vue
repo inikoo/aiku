@@ -157,7 +157,7 @@ const people = [
 
 
     <div class="bg-white pb-20">
-        <template v-if="props.blocks.blocks.length">
+        <template v-if="props.blocks.web_blocks.length">
             <div v-for="(activityItem, activityItemIdx) in props.blocks.blocks"
                 :key="'block' + activityItem.id"
                 class="w-full">

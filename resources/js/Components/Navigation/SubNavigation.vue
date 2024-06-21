@@ -78,7 +78,7 @@ const props = defineProps<{
 }
 
 .tabSubNav {
-    @apply px-2 sm:border-b border-gray-300;
+    @apply px-2 sm:border border-transparent border-b-gray-300;
 
     color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
 

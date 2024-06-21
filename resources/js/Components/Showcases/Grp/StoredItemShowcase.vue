@@ -56,7 +56,7 @@ const options = {
         <div class="h-fit flex flex-col justify-between px-5 py-3 rounded-lg border border-gray-100 shadow tabular-nums">
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
-                    <h1 class="font-semibold leading-6">Pie chart <span class="font-light">({{ data.pieData.stats.length }})</span></h1>
+                    <h1 class="font-semibold leading-6">Pallet that contain this item <span class="font-light">({{ data.pieData.stats.length }})</span></h1>
                     <!-- <p class="text-sm font-light">
                         A list of pallets that contain item <span class="font-semibold">{{ 'Gelas' }}</span>
                     </p> -->
