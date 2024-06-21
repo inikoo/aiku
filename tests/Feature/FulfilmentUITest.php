@@ -610,7 +610,7 @@ test('UI show pallet return', function () {
             ->has('tabs');
 
     });
-})->skip('This test is skipped because bug in address');
+});
 
 test('UI show pallet return (physical goods tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/returns/'.$this->palletReturn->slug.'?tab=physical_goods');
@@ -628,7 +628,7 @@ test('UI show pallet return (physical goods tab)', function () {
             ->has('tabs');
 
     });
-})->skip('This test is skipped because bug in address');
+});
 
 test('UI show pallet return (services tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/returns/'.$this->palletReturn->slug.'?tab=services');
@@ -646,7 +646,7 @@ test('UI show pallet return (services tab)', function () {
             ->has('tabs');
 
     });
-})->skip('This test is skipped because bug in address');
+});
 
 // Rental
 

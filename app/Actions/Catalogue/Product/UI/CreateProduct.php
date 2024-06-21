@@ -89,10 +89,11 @@ class CreateProduct extends OrgAction
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.org.fulfilment.rentals.store',
+                        'name'       => 'grp.models.org.catalogue.families.product.store',
                         'parameters' => [
                             'organisation' => $parent->organisation_id,
-                            'fulfilment'   => $parent->id,
+                            'shop'   => $parent->shop_id,
+                            'family' => $parent->id
                         ]
                     ]
                 ],

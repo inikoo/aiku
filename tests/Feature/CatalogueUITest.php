@@ -259,6 +259,8 @@ test('UI show product in department', function () {
     });
 });
 
+
+
 test('UI Index catalogue sub department inside department', function () {
     $response = get(route('grp.org.shops.show.catalogue.departments.show.sub-departments.index', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
 
@@ -362,5 +364,31 @@ test('UI edit collection', function () {
             ->has('pageHead')
             ->has('formData')
             ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI edit product', function () {
+    $response = get(route('grp.org.shops.show.catalogue.families.show.products.edit', [$this->organisation->slug, $this->shop->slug, $this->family->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 7)
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI create product', function () {
+    $response = get(route('grp.org.shops.show.catalogue.families.show.products.create', [$this->organisation->slug, $this->shop->slug, $this->family->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 5)
+            ->has('pageHead')
+            ->has('formData')
+            ->has('breadcrumbs', 5);
     });
 });
