@@ -39,7 +39,7 @@ const isLoading = ref(false)
 const selectedBlock = ref(null)
 const data = ref({
   ...props.webpage,
-  layout: props.webpage.layout.blocks ? props.webpage.layout.blocks : props.webpage.layout
+  layout: props.webpage.layout.web_blocks ? props.webpage.layout.web_blocks : []
 });
 
 
