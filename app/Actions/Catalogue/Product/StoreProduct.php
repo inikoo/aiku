@@ -25,6 +25,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Goods\TradeUnit;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
@@ -233,6 +234,16 @@ class StoreProduct extends OrgAction
         return Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
     }
 
+    public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): RedirectResponse
+    {
+
+        $this->initialisationFromShop($shop, $request);
+        $request->validate();
+        $this->handle($family, $request->all());
+
+        return Redirect::route('grp.org.shops.show.catalogue.families.show.products.index', [$organisation->slug, $shop->slug, $family->slug]);
+    }
+
     public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
@@ -248,6 +259,11 @@ class StoreProduct extends OrgAction
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($parent, $this->validatedData);
+    }
+
+    public function afterValidator($validator)
+    {
+        dd($validator);
     }
 
 }

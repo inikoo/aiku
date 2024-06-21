@@ -213,7 +213,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     });
 
     Route::prefix('/shop/{shop:id}/catalogue/families')->name('catalogue.families.')->group(function () {
-        // Route::post('/', Store::class)->name('store');
+        Route::post('{family:id}/product/store', [StoreProduct::class, 'inFamily'])->name('product.store')->withoutScopedBindings();
         Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
     });
 
