@@ -260,6 +260,8 @@ test('create product', function (ProductCategory $family) {
     $product = StoreProduct::make()->action($family, $productData);
     $product->refresh();
 
+
+    /** @var ProductVariant $productVariant */
     $productVariant = $product->productVariant;
 
 
@@ -285,6 +287,7 @@ test('create product', function (ProductCategory $family) {
         ->and($product->department->stats->number_current_products)->toBe(0)
         ->and($product->shop->stats->number_assets_type_product)->toBe(1)
         ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
+        ->and($productVariant->asset)->toBeInstanceOf(Asset::class)
         ->and($productVariant->name)->toBe($product->name)
         ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
 
@@ -374,24 +377,24 @@ test('update product', function (Product $product) {
 })->depends('create product');
 
 test('add variant to product', function (Product $product) {
+
     expect($product->stats->number_product_variants)->toBe(1);
 
-
-    $variant =
+    $productVariant = StoreProductVariant::run(
+        $product,
         [
             'code'    => $product->code.'-v1',
             'ratio'   => 2,
             'price'   => 99,
             'name'    => $product->name.' variant 1',
             'is_main' => false
-        ];
-
-
-    $productVariant = StoreProductVariant::run($product, $variant);
+        ]
+    );
     $product->refresh();
 
 
     expect($productVariant)->toBeInstanceOf(ProductVariant::class)
+        ->and($productVariant->asset)->toBeInstanceOf(Asset::class)
         ->and($productVariant->is_main)->toBeFalse()
         ->and($productVariant->product->id)->toBe($product->id)
         ->and($product->stats->number_product_variants)->toBe(2)
