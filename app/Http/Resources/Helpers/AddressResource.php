@@ -62,7 +62,7 @@ class AddressResource extends JsonResource
                 'country',
                 CountryResource::make($address->country)
             ),
-            'formatted_address'   => $formatter->format($adr),
+            'formatted_address'   => $adr->getCountryCode() ? $formatter->format($adr) : null,
 
 
         ];

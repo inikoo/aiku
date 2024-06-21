@@ -28,6 +28,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -333,7 +334,7 @@ class ShowPalletReturn extends OrgAction
                         FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                         [
                             'address'      => [
-                                'value'   => AddressResource::make($palletReturn->deliveryAddress),
+                                'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
                                 ]

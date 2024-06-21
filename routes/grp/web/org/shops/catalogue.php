@@ -5,7 +5,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Asset\UI\EditProduct;
 use App\Actions\Catalogue\Collection\UI\CreateCollection;
 use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\Collection\UI\IndexCollection;

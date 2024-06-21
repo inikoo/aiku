@@ -377,12 +377,7 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 });
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('images', UploadImagesToWebpage::class)->name('images.store');
-
-    Route::name('content.')->prefix('content')->group(function () {
-        Route::patch('/', UpdateWebpageContent::class)->name('update');
-        Route::post('/publish', PublishWebpage::class)->name('publish');
-
-    });
+    Route::post('publish', PublishWebpage::class)->name('publish');
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');

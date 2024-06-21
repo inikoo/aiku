@@ -392,4 +392,3 @@ test('UI create product', function () {
             ->has('breadcrumbs', 5);
     });
 });
-
