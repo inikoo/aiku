@@ -266,9 +266,4 @@ class StoreProduct extends OrgAction
         return $this->handle($parent, $this->validatedData);
     }
 
-    public function afterValidator($validator)
-    {
-        dd($validator);
-    }
-
 }
