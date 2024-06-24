@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
@@ -14,6 +15,7 @@ use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -26,6 +28,7 @@ use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
+use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -78,6 +81,12 @@ beforeEach(function () {
     $this->shop = $shop;
 
     $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+    
+    list(
+        $this->tradeUnit,
+        $this->product
+    ) = createProduct($this->shop);
+
 
     $this->customer = createCustomer($this->shop);
 
@@ -140,6 +149,21 @@ beforeEach(function () {
 
     $this->rental = $rental;
 
+    $service = Service::first();
+    if (!$service) {
+        data_set($storeData, 'code', 'TEST');
+        data_set($storeData, 'state',ServiceStateEnum::ACTIVE);
+        data_set($storeData, 'name', 'testo');
+        data_set($storeData, 'price', 100);
+        data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
+
+        $service = StoreService::make()->action(
+            $this->shop,
+            $storeData
+        );
+    }
+
+    $this->service = $service;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -681,7 +705,7 @@ test('UI edit rental', function () {
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.product.update')
-                        ->where('parameters', $this->rental->id)
+                        ->where('parameters', $this->rental->id) //wrong route
             )
             ->has('breadcrumbs', 4);
     });
@@ -704,5 +728,100 @@ test('UI create rental agreement', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
+
+// Service
+
+test('UI show service', function () {
+
+    $response = get(route('grp.org.fulfilments.show.assets.services.show', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Service')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->service->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit service', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.services.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 6)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.product.update')
+                        ->where('parameters', $this->rental->id) //wrong route
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI create service', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.services.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+// Physical Goods
+
+test('UI show physical goods', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.outers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PhysicalGood')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit physical goods', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.outers.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 7)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.product.update')
+                        ->where('parameters', $this->product->id) //wrong route
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI create physical goods', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.outers.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
     });
 });
