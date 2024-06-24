@@ -116,3 +116,16 @@ test('UI edit raw material', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Index artefacts', function () {
+    $response = $this->get(route('grp.org.productions.show.crafts.artefacts.index', [$this->organisation->slug, $this->production->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/Artefacts')
+            ->has('title')
+            ->has('tabs')
+            ->has('breadcrumbs', 3);
+    });
+});
+
