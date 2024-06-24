@@ -816,3 +816,12 @@ test('UI edit physical goods', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI create physical goods', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.outers.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
