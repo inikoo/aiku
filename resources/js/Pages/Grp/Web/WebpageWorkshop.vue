@@ -46,14 +46,14 @@ const data = ref({
 });
 
 
-const sendUpdate = async (e) => {
+const sendUpdate = async (block) => {
   try {
-    const response = await axios.patch(
+    const response = await axios.post(
       route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters), 
-      {blocks : e }
+      {web_block_type_id : block.id }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set
+  /*   const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    data.value = set */
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
@@ -69,11 +69,9 @@ const onUpdated = () => {
 
 
 
-const onPickBlock = (e) => {
-sendUpdate(e)
-/*   data.value.layout.push(e); */
-  isModalBlocksList.value = false;
-/*   sendUpdate(); */
+const onPickBlock = (block) => {
+	sendUpdate(block)
+	isModalBlocksList.value = false;
 };
 
 const deleteBlock = (index) => {
