@@ -1,75 +1,72 @@
+#!/bin/bash
 #
 # Author: Raul Perusquia <raul@inikoo.com>
-# Created: Tue, 28 Nov 2023 17:15:13 Malaysia Time, Kuala Lumpur, Malaysia
+# Created: Tue, 23 May 2023 15:27:47 Malaysia Time, Kuala Lumpur, Malaysia
 # Copyright (c) 2023, Raul A Perusquia Flores
 #
 
-DB=aiku
+DB_PORT=5432
 DB_COLLATE=C.UTF-8
+PHP=php
+
+DB_PORT="${1:-$DB_PORT}"
+DB_COLLATE="${2:-$DB_COLLATE}"
+PHP="${3:-$PHP}"
+
+DB=aiku
 BACKUP_DB=aiku_elasticserch_backup
+DB_SUFFIX=_base
 
 echo -e "🧼 Cleaning storage"
 rm -rf storage/app/media
-
-echo -e "✨ Resetting databases ${ITALIC}${DB}${NONE}"
+echo -e "✨ Resetting databases ${DB}"
 dropdb --force --if-exists ${DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
 dropdb --force --if-exists ${BACKUP_DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
-
 echo -e "✨ Resetting elasticsearch"
-php artisan es:refresh
-
+${PHP} artisan es:refresh
+./restart_elasticsearch.sh
 echo "Public assets link 🔗"
-php artisan storage:link
-
+${PHP} artisan storage:link
 echo "Clear horizon 🧼"
-php artisan horizon:clear
-php artisan horizon:terminate
-
+${PHP} artisan horizon:clear
+${PHP} artisan horizon:terminate
 echo "Clear cache 🧼"
-php artisan cache:clear
-redis-cli KEYS "aiku_database_*" | xargs redis-cli DEL
-
+${PHP} artisan cache:clear
+redis-cli KEYS "aiku_local_*" | sed 's/\(.*\)/"\1"/'  | xargs redis-cli DEL
 echo "🌱 Migrating and seeding database"
-php artisan migrate --database=backup --path=database/migrations/backup
-php artisan migrate
-php artisan db:seed
+${PHP} artisan migrate --database=backup --path=database/migrations/backup
+${PHP} artisan migrate
+${PHP} artisan db:seed
 ./seed_currency_exchanges.sh
-php artisan telescope:clear
+${PHP} artisan telescope:clear
 pg_dump -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
-
 echo "🏢 create group"
-php artisan group:create aw AW GB GBP --subdomain=aw
-pg_dump -Fc -f "devops/devel/snapshots/group.dump" ${DB}
+./create_aurora_organisations.sh
+./create_wowsbar_organisations.sh
+${PHP} artisan fetch:aurora-organisations -d "${DB_SUFFIX}"
+${PHP} artisan group:seed-integration-token 1:hello
 
-php artisan org:create aw shop awa indo@inikoo.com 'Advantage' ID IDR
-php artisan org:create aw shop inikoo raul@inikoo.com 'Inikoo' GB GBP
-pg_dump -Fc -f "devops/devel/snapshots/organisations.dump" ${DB}
-php artisan warehouse:create awa AC 'AWA Warehouse C'
-php artisan warehouse-areas:create ac area1 'Area One'
-php artisan warehouse-areas:create ac area2 'Area Bis'
-php artisan locations:create ac loc1 --area=area
-php artisan locations:create ac loc2 --area=area
-php artisan locations:create ac loc3 --area=area-1
-php artisan warehouse:create inikoo wA 'Warehouse A'
-php artisan warehouse:create inikoo AB 'Warehouse B'
+${PHP} artisan fetch:reset_base -d "${DB_SUFFIX}"
+
+${PHP} artisan production:create aroma AWA 'Aromatics' --state open --source_id '4:1' --created_at '2020-08-25 05:45:47'
+${PHP} artisan production:create es AWapro 'AWA Production' --state open --source_id '3:213' --created_at '2021-06-01 07:52:01'
+${PHP} artisan production:create aw AR 'Affinity Repacking' --state open --source_id '1:6755' --created_at '2021-06-10 14:43:45'
+${PHP} artisan production:create sk AWGp 'AW Gifts production' --state open --source_id '2:364' --created_at '2021-08-06 09:26:15'
+pg_dump -Fc -f "devops/devel/snapshots/productions.dump" ${DB}
+
+${PHP} artisan fetch:warehouses -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 
-php artisan guest:create aw 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
-php artisan guest:create aw 'Mr Vika' vika -e vika@inikoo.com --roles=super-admin
-pg_dump -Fc -f "devops/devel/snapshots/guests.dump" ${DB}
-php artisan shop:create awa bali   "bali b2b shop" b2b
-php artisan shop:create awa lomb "Lombok b2c shop" b2c
-php artisan shop:create awa java "Java Fulfilment" fulfilment --warehouses=1
-php artisan website:create java  fulfilment.test jf 'Fulfilment test website'
-php artisan website:launch jf
-php artisan shop:create inikoo au   "Au b2b shop" b2b
+${PHP} artisan fetch:shops -d "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
+${PHP} artisan fetch:websites -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/websites.dump" ${DB}
+${PHP} artisan guest:create awg 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
+pg_dump -Fc -f "devops/devel/snapshots/with_user.dump" ${DB}
 
-php artisan workplace:create awa "Beach bar" hq
-php artisan workplace:create inikoo "Office B" hq
+${PHP} artisan fetch:agents -d "${DB_SUFFIX}"
+${PHP} artisan org:attach-agent aroma indo
 
-php artisan customer:create java --contact_name 'Mr Retina'
-php artisan web-user:create mr-retina  aiku  -P hello --email ret@inikoo.com
-php artisan pallet-delivery:import -g aiku/data-sets/pallet-deliveries
+pg_dump -Fc -f "devops/devel/snapshots/installed.dump" ${DB}

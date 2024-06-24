@@ -1,0 +1,20 @@
+{
+    "slug": "reviews",
+    "name": "Reviews",
+    "blueprint": {},
+    "scope": "webpage",
+    "webBlockTypes": [
+        {
+            "code": "order_reviews",
+            "name": "Order reviews",
+            "component": "Reviews",
+            "icon": ["fal", "stars"]
+        },
+        {
+            "code": "product_review",
+            "name": "Product review",
+            "component": "Reviews",
+            "icon": ["fal", "stars"]
+        }
+    ]
+}

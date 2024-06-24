@@ -41,12 +41,19 @@ class WebpageResource extends JsonResource
             'created_at'          => $webpage->created_at,
             'updated_at'          => $webpage->updated_at,
             'state'               => $webpage->state,
-            'images_upload_route' => [
-                'name'       => 'grp.models.webpage.images.store',
+
+            'add_web_block_route'        => [
+                'name'       => 'grp.models.webpage.web_block.store',
                 'parameters' => $webpage->id
             ],
-            'update_route'        => [
-                'name'       => 'grp.models.webpage.content.update',
+            'update_web_block_route'        => [
+                'name'       => 'grp.models.web_block.update',
+            ],
+            'images_upload_route' => [
+                'name'       => 'grp.models.web_block.images.store',
+            ],
+            'update_erb_block_positions_route'        => [
+                'name'       => 'grp.models.webpage.web_blocks_positions',
                 'parameters' => $webpage->id
             ],
         ];

@@ -93,6 +93,7 @@ class SupplierProduct extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
+        'cost'                   => 'decimal:4',
         'data'                   => 'array',
         'settings'               => 'array',
         'status'                 => 'boolean',
@@ -102,8 +103,8 @@ class SupplierProduct extends Model implements Auditable
     ];
 
     protected $attributes = [
-        'data'        => '{}',
-        'settings'    => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
 
     ];
 

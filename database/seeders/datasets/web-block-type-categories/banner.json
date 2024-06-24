@@ -1,47 +1,14 @@
 {
     "slug": "banner",
     "name": "Banner",
-    "blueprint": {
-        "parameters": {},
-        "data": {
-                "delay": 2500,
-                "slides": [
-                    {
-                        "id": 1,
-                        "imageSrc": "/banner/incentives-07-hero.jpg",
-                        "imageAlt": "Front of men's Basic Tee in sienna",
-                        "link": {
-                            "label": "Open",
-                            "target": "#"
-                        }
-                    },
-                    {
-                        "id": 2,
-                        "imageSrc": "/banner/product-page-01-featured-product-shot.jpg",
-                        "imageAlt": "Lorem ipsum dolor sit amet consectetur."
-                    },
-                    {
-                        "id": 3,
-                        "imageSrc": "/banner/product-page-03-product-01.jpg",
-                        "imageAlt": "Lorem ipsum dolor Basic Tee in sienna",
-                        "link": {
-                            "label": "Browse Promo",
-                            "target": "#"
-                        }
-                    },
-                    {
-                        "id": 4,
-                        "imageSrc": "/banner/product-page-05-product-01.jpg",
-                        "imageAlt": "Continuous infinite slider"
-                    }
-                ]
-        }
-    },
+    "blueprint": {},
     "scope": "webpage",
     "webBlockTypes": [
         {
-            "code": "Banner",
-            "name": "Main Banner"
+            "code": "banner",
+            "name": "Wowsbar banner",
+            "component" : "bannerWowsbar",
+            "icon" : ["fal", "presentation"]
         }
     ]
 }

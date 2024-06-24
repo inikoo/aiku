@@ -1,18 +1,14 @@
 {
     "slug": "picture",
     "name": "Picture",
-    "blueprint": {
-        "defaultParameters": {},
-        "dummyData": {
-            "src": "https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg",
-            "alt": ""
-        }
-    },
+    "blueprint": {},
     "scope": "webpage",
     "webBlockTypes": [
         {
-            "code": "Picture",
-            "name": "Main Picture"
+            "code": "image",
+            "name": "Image",
+            "component": "Image",
+            "icon" : ["fal", "image"]
         }
     ]
 }

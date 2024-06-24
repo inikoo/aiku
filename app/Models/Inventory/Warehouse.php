@@ -112,9 +112,6 @@ class Warehouse extends Model implements Auditable
 
     protected $guarded = [];
 
-    protected array $auditExclude = [
-        'location','id'
-    ];
 
     public function getSlugOptions(): SlugOptions
     {

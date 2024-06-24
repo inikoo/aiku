@@ -47,15 +47,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property PurchaseOrderStateEnum $state
  * @property PurchaseOrderStatusEnum $status
- * @property string $date latest relevant date
- * @property string|null $submitted_at
- * @property string|null $confirmed_at
- * @property string|null $manufactured_at
- * @property string|null $dispatched_at
- * @property string|null $received_at
- * @property string|null $checked_at
- * @property string|null $settled_at
- * @property string|null $cancelled_at
+ * @property Carbon $date latest relevant date
+ * @property Carbon|null $submitted_at
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $manufactured_at
+ * @property Carbon|null $dispatched_at
+ * @property Carbon|null $received_at
+ * @property Carbon|null $checked_at
+ * @property Carbon|null $settled_at
+ * @property Carbon|null $cancelled_at
  * @property int $currency_id
  * @property string $group_exchange
  * @property string $org_exchange
@@ -107,10 +107,18 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
 
 
     protected $casts = [
-        'data'   => 'array',
-        'state'  => PurchaseOrderStateEnum::class,
-        'status' => PurchaseOrderStatusEnum::class
-    ];
+        'data'            => 'array',
+        'state'           => PurchaseOrderStateEnum::class,
+        'status'          => PurchaseOrderStatusEnum::class,
+        'date'            => 'datetime',
+        'submitted_at'    => 'datetime',
+        'confirmed_at'    => 'datetime',
+        'manufactured_at' => 'datetime',
+        'dispatched_at'   => 'datetime',
+        'received_at'     => 'datetime',
+        'checked_at'      => 'datetime',
+        'settled_at'      => 'datetime',
+        'cancelled_at'    => 'datetime'];
 
     protected $attributes = [
         'data' => '{}',
@@ -130,6 +138,10 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     {
         return 'slug';
     }
+
+    protected $auditInclude = [
+        'number',
+    ];
 
     public function parent(): MorphTo
     {
