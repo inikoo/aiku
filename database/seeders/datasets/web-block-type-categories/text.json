@@ -1,14 +1,18 @@
 {
-    "slug": "text",
-    "name": "Text",
-    "blueprint": {},
-    "scope": "webpage",
-    "webBlockTypes": [
-        {
-            "code": "text",
-            "name": "Text",
-            "component": "text",
-            "icon":  ["fal", "text"]
-        }
-    ]
+	"slug": "text",
+	"name": "Text",
+	"blueprint": {
+		"value": ""
+	},
+	"scope": "webpage",
+	"webBlockTypes": [
+		{
+			"code": "text",
+			"name": "Text",
+			"data": {
+				"component": "text",
+				"icon": ["fal", "text"]
+			}
+		}
+	]
 }

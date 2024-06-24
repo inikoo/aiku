@@ -1,20 +1,26 @@
 {
-    "slug": "reviews",
-    "name": "Reviews",
-    "blueprint": {},
-    "scope": "webpage",
-    "webBlockTypes": [
-        {
-            "code": "order_reviews",
-            "name": "Order reviews",
-            "component": "Reviews",
-            "icon": ["fal", "stars"]
-        },
-        {
-            "code": "product_review",
-            "name": "Product review",
-            "component": "Reviews",
-            "icon": ["fal", "stars"]
-        }
-    ]
+	"slug": "reviews",
+	"name": "Reviews",
+	"blueprint": {
+		"value": ""
+	},
+	"scope": "webpage",
+	"webBlockTypes": [
+		{
+			"code": "order_reviews",
+			"name": "Order reviews",
+			"data": {
+				"component": "Reviews",
+				"icon": ["fal", "stars"]
+			}
+		},
+		{
+			"code": "product_review",
+			"name": "Product review",
+			"data": {
+				"component": "Reviews",
+				"icon": ["fal", "stars"]
+			}
+		}
+	]
 }
