@@ -80,8 +80,8 @@ test('create group', function () {
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
-        ->and($group->webBlockTypeCategories()->count())->toBe(8)
-    ->and($group->webBlockTypes()->count())->toBe(12);
+        ->and($group->webBlockTypeCategories()->count())->toBe(11)
+    ->and($group->webBlockTypes()->count())->toBe(17);
 
     return $group;
 });
@@ -485,6 +485,6 @@ test('update search', function () {
 test('update web block types', function (Group $group) {
     $this->artisan('group:seed-web-block-types')->assertSuccessful();
     $group->refresh();
-    expect($group->webBlockTypeCategories()->count())->toBe(8)
-        ->and($group->webBlockTypes()->count())->toBe(12);
+    expect($group->webBlockTypeCategories()->count())->toBe(11)
+        ->and($group->webBlockTypes()->count())->toBe(17);
 })->depends('create group');
