@@ -14,6 +14,7 @@ use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
+use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -53,6 +54,7 @@ class StoreAgent extends GrpAction
             $organisationData['created_at'] = Arr::get($modelData, 'created_at');
         }
 
+
         $organisation = StoreOrganisation::make()->action(
             $group,
             $organisationData
@@ -85,6 +87,12 @@ class StoreAgent extends GrpAction
                 'required',
                 'max:9',
                 'alpha_dash',
+                new IUnique(
+                    table: 'organisations',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
+                    ]
+                ),
             ],
             'name'        => ['nullable', 'string', 'max:255'],
             'email'       => ['nullable', 'email'],
@@ -92,7 +100,10 @@ class StoreAgent extends GrpAction
             'address'     => ['required', new ValidAddress()],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],
-            'currency_id' => ['required'],
+            'currency_id' => ['required', 'exists:currencies,id'],
+            'country_id'  => ['required', 'exists:countries,id'],
+            'timezone_id' => ['required', 'exists:timezones,id'],
+            'language_id' => ['required', 'exists:languages,id'],
             'deleted_at'  => ['sometimes', 'nullable', 'date'],
         ];
     }

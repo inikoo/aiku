@@ -97,6 +97,9 @@ class UpdateAgent extends GrpAction
             'phone'       => ['nullable', 'phone:AUTO'],
             'address'     => ['sometimes', 'required', new ValidAddress()],
             'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'  => ['sometimes', 'required', 'exists:countries,id'],
+            'timezone_id' => ['sometimes', 'required', 'exists:timezones,id'],
+            'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'status'      => ['sometimes', 'required', 'boolean'],
         ];
     }

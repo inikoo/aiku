@@ -172,7 +172,7 @@ class StoreOrganisation
 
     public function getCommandSignature(): string
     {
-        return 'org:create {group} {type} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone} {--a|address= : Address}
+        return 'org:create {group} {type} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--t|timezone= : Timezone} {--a|address= : Address}
         {--s|source= : source for migration from other system}';
     }
 

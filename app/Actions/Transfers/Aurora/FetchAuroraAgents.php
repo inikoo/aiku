@@ -36,7 +36,7 @@ class FetchAuroraAgents extends FetchAuroraAction
                 $agent = $agentData['foundAgent'];
             } elseif ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
-                    $agent = UpdateAgent::make()->run($agent, $agentData['agent']);
+                    $agent = UpdateAgent::make()->action($agent, $agentData['agent']);
                 }
             } else {
                 $agent = StoreAgent::make()->action(
