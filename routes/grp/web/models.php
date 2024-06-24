@@ -77,6 +77,8 @@ use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
+use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
+use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\DeleteStoredItemFromStoredItemReturn;
@@ -291,6 +293,9 @@ Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
+Route::patch('{storedItem:id}/stored-items/damaged', SetDamagedStoredItem::class)->name('stored-items.damaged');
+Route::patch('{storedItem:id}/stored-items/return', SetReturnStoredItem::class)->name('stored-items.return');
+//Route::patch('{storedItem:id}/stored-items/lost', SetPalletAsLost::class)->name('stored-items.lost');
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
