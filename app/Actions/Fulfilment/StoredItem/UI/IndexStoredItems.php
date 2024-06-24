@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -27,6 +28,8 @@ use App\Services\QueryBuilder;
 
 class IndexStoredItems extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
+
     public function handle(Organisation|FulfilmentCustomer|StoredItemReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -107,8 +110,14 @@ class IndexStoredItems extends OrgAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $storedItems): Response
+    public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
+        // dd($this->parent);
+        $subNavigation=[];
+
+        if($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
         return Inertia::render(
             'Org/Fulfilment/StoredItems',
             [
@@ -116,6 +125,7 @@ class IndexStoredItems extends OrgAction
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'   => __('stored items'),
+                    'subNavigation' => $subNavigation,
                     'actions' => [
                         'buttons' => [
                             'route' => [
@@ -141,6 +151,7 @@ class IndexStoredItems extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, 'stored_items');
