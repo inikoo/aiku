@@ -54,6 +54,7 @@ class ShowWebpageWorkshop extends OrgAction
                 ),
                 'pageHead'      => [
                     'title'     => $webpage->code,
+                    'model'     => __('Webpages'),
                     'icon'      => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'
@@ -66,21 +67,21 @@ class ShowWebpageWorkshop extends OrgAction
                     'actions'   => [
                         [
                             'type'  => 'button',
+                            'style' => 'exit',
+                            'label' => __('Exit workshop'),
+                            'route' => [
+                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters()),
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
                             'style' => 'save',
                             'label' => __('publish'),
                             'route' => [
                                 'name'       => 'grp.models.webpage.content.publish',
                                 'parameters' => $webpage->id,
                                 'method'     => 'post'
-                            ]
-                        ],
-                        [
-                            'type'  => 'button',
-                            'style' => 'exit',
-                            'label' => __('Exit workshop'),
-                            'route' => [
-                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters()),
                             ]
                         ],
                     ],

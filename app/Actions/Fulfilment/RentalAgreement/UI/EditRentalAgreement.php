@@ -30,6 +30,7 @@ class EditRentalAgreement extends OrgAction
      */
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
+        $clauses = null;
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
             $price                                  = $clause->asset->price;
             $percentageOff                          = $clause->percentage_off;

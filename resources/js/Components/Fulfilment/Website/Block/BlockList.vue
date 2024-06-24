@@ -3,12 +3,12 @@ import { faPresentation, faCube, faText, faImage, faImages, faPaperclip } from "
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import dataList from "../data/blogActivity.js"
-import  { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash'
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { useTabChange } from "@/Composables/tab-change"
 import { ref } from 'vue'
+import { trans } from "laravel-vue-i18n"
 
-library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip );
+library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip)
 const props = defineProps<{
     onPickBlock: Funcition,
     webBlockTypes: {
@@ -26,27 +26,53 @@ const tabs = [
         title : 'Text',
         key : 'text',
         icon : ['fal','text']
+    onPickBlock: Function,
+}>()
+
+// Method: to count the types of the blocks 
+const countTypes = () => {
+    return dataList.block.reduce((acc, obj) => {
+        const type = obj.type
+        if (acc[type]) {
+            acc[type]++
+        } else {
+            acc[type] = 1
+        }
+        return acc
+    }, {})
+}
+
+const tabs = {
+    all: {
+        title: `All (${dataList.block.length})`,
+        key: 'all',
     },
-    {
-        title : 'Product',
-        key : 'product',
-        icon : ['fal','cube']
+    text: {
+        title: `Text (${countTypes().text || 0})`,
+        key: 'text',
+        icon: ['fal', 'text']
     },
-    {
-        title : 'Wowsbar',
-        key : 'wowsbar',
-        icon : ['fal','presentation']
+    product: {
+        title: `Product (${countTypes().product || 0})`,
+        key: 'product',
+        icon: ['fal', 'cube']
+    },
+    wowsbar: {
+        title: `Wowsbar (${countTypes().wowsbar || 0})`,
+        key: 'wowsbar',
+        icon: ['fal', 'presentation']
     }
-]
-const list = ref(cloneDeep(dataList.block))
+}
+
+const listBlocks = ref(cloneDeep(dataList.block))
 const currentTab = ref(0)
 
-const filter = (e) => {
+const filter = (e: string) => {
     if (tabs[e].key != 'all') {
         const filterData = cloneDeep(dataList.block).filter((item) => item.type == tabs[e].key)
-        list.value = filterData
+        listBlocks.value = filterData
     } else {
-        list.value = cloneDeep(dataList.block)
+        listBlocks.value = cloneDeep(dataList.block)
     }
     currentTab.value = e
 }
@@ -56,45 +82,100 @@ const filter = (e) => {
 </script>
 
 <template>
-    <div class="bg-white">
-        <main class="pb-24">
-            <div class="px-4 pb-16 text-center sm:px-6 lg:px-8">
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900">Blocks</h1>
-                <p class="mx-auto mt-4 max-w-xl text-base text-gray-500">
-                    The secret to a tidy desk? Don't get rid of anything, just put it in really
-                    really nice looking containers.
-                </p>
-            </div>
+    <div class="bg-white h-[500px]">
+        <div class="px-4 pb-8 text-center sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-bold tracking-tight">Blocks</h1>
+            <!-- <p class="mx-auto mt-4 max-w-xl text-base text-gray-500">
+                The secret to a tidy desk? Don't get rid of anything, just put it in really
+                really nice looking containers.
+            </p> -->
+        </div>
 
 
-            <div class="mb-4">
-                <Tabs :current="currentTab" :navigation="tabs" @update:tab="filter"/>
-            </div>
-          
+        <div class="mb-4">
+            <Tabs :current="currentTab" :navigation="tabs" @update:tab="(tabName: string) => filter(tabName)" />
+        </div>
 
-            <section aria-labelledby="products-heading" class="mx-auto w-full sm:px-6 lg:px-8">
-                <h2 id="products-heading" class="sr-only">Products</h2>
-
-                <div class="-mx-px grid grid-cols-2 border-l border-gray-200 sm:mx-0 md:grid-cols-3 lg:grid-cols-4">
-                    <div v-for="product in list" :key="product.id" @click="()=>onPickBlock(product)"
-                        class="group relative border-b border-t border-r p-2">
-                        <div class="w-32 h-32 overflow-hidden rounded-lg group-hover:opacity-75 mx-auto">
-                            <font-awesome-icon :icon="product.icon" class="h-full w-full object-cover object-center" />
+        <!-- Section: Blocks List -->
+        <section aria-labelledby="products-heading" class="h-full mx-auto w-full sm:px-6 lg:px-8 overflow-y-auto">
+            <TransitionGroup tag="div" name="zzz" class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
+                <template v-if="listBlocks.length">
+                    <div v-for="block in listBlocks" :key="block.id + block.name" @click="() => onPickBlock(block)"
+                        class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center justify-center">
+                            <FontAwesomeIcon :icon='block.icon' class='' fixed-width aria-hidden='true' />
                         </div>
-                        <div class="mt-2 text-center">
-                            <h3 class="text-sm font-medium text-gray-900">
-                                <a :href="product.href">
-                                    <span aria-hidden="true" class="absolute inset-0"></span>
-                                    {{ product.name }}
-                                </a>
-                            </h3>
-                        </div>
+                        <h3 class="text-sm font-medium">
+                            {{ block.name }}
+                        </h3>
                     </div>
+                </template>
+
+                <div v-else class="text-center col-span-2 md:col-span-3 lg:col-span-4 text-gray-400">
+                    {{ trans('No block in this category') }}
                 </div>
-            </section>
-        </main>
+            </TransitionGroup>
+        </section>
     </div>
 </template>
 
 <style lang="scss">
+#text-editor {
+
+    .highlight-prosemirror {
+        @apply px-1 py-0.5
+    }
+
+    .ProseMirror {
+        height: 300px;
+        width: 100%;
+        overflow-y: auto;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        outline: none;
+
+        >p:first-child {
+            margin-top: 0.5em;
+        }
+
+        >h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            &:first-child {
+                margin-top: 0.5em;
+            }
+        }
+    }
+
+    a {
+        color: #e3ae00;
+    }
+
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+
+    ul {
+        list-style: disc
+    }
+
+    ol {
+        list-style: decimal
+    }
+
+	.ProseMirror {
+    height: fit-content;
+    width: 100%;
+    overflow-y: auto;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    outline: none;
+}
+}
+
+
 </style>

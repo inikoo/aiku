@@ -5,24 +5,24 @@
   -->
 
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { capitalize } from "@/Composables/capitalize";
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { ref } from 'vue';
-import { faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins, faTimes, faBrowser, faStars, faNewspaper, faRectangleWide } from '@fal';
-import draggable from "vuedraggable";
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import Button from '@/Components/Elements/Buttons/Button.vue';
-import Modal from "@/Components/Utils/Modal.vue";
-import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue';
+import { Head, router } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { capitalize } from "@/Composables/capitalize"
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { ref } from 'vue'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars } from '@fal'
+import draggable from "vuedraggable"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import Modal from "@/Components/Utils/Modal.vue"
+import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import axios from 'axios';
-import debounce from 'lodash/debounce';
-import Publish from '@/Components/Publish.vue';
+import axios from 'axios'
+import debounce from 'lodash/debounce'
+import Publish from '@/Components/Publish.vue'
 import { notify } from "@kyvg/vue3-notification"
 
-library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faTimes, faBrowser, faStars, faNewspaper, faRectangleWide);
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars)
 
 const props = defineProps<{
   title: string,
@@ -36,7 +36,7 @@ const props = defineProps<{
 console.log(props)
 
 
-const openModal = ref(false);
+const isModalBlocksList = ref(false)
 const comment = ref("");
 const isLoading = ref(false)
 const selectedBlock = ref(null)
@@ -56,7 +56,7 @@ const sendUpdate = async () => {
     data.value = set
     console.log('saved', response);
   } catch (error: any) {
-    console.log('error', error);
+    console.error('error', error);
   }
 };
 
@@ -71,7 +71,7 @@ const onUpdated = () => {
 
 const onPickBlock = (e) => {
   data.value.layout.push(e);
-  openModal.value = false;
+  isModalBlocksList.value = false;
   onUpdated();
 };
 
@@ -138,77 +138,83 @@ const onPublish = async (action) => {
 	<div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
 		<div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
 			<div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
-				<div
-					v-if="data.length == 0"
-					class="relative block w-full h-full border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-					<font-awesome-icon
-						:icon="['fal', 'browser']"
-						class="mx-auto h-12 w-12 text-gray-400" />
-					<span class="mt-2 block text-sm font-semibold text-gray-900"
-						>You dont have block</span
-					>
+				<div v-if="data.layout?.length">
+					<TransitionGroup tag="div" name="zzz" class="relative">
+                        <div v-for="(activityItem, activityItemIdx) in data.layout"
+                            :key="activityItem.id" @click="()=>selectedBlock = activityItem"
+                            class="w-full">
+                            <component
+                                :is="getComponent(activityItem['component'])"
+                                :key="activityItemIdx"
+                                :webpageData="webpage"
+                                v-bind="activityItem.fieldData"
+                                v-model="activityItem.fieldValue"
+                                @autoSave="() => onUpdated()" />
+                        </div>
+                    </TransitionGroup>
 				</div>
-				<div v-else>
-					<div
-						v-for="(activityItem, activityItemIdx) in data.layout"
-						:key="activityItem.id" @click="()=>selectedBlock = activityItem"
-						class="w-full">
-						<component
-							:is="getComponent(activityItem['component'])"
-							:key="activityItemIdx"  
-							:webpageData="webpage"
-							v-bind="activityItem.fieldData"
-							v-model="activityItem.fieldValue"
-							@autoSave="() => onUpdated()" />
-					</div>
+
+                <div v-else
+					class="relative block w-full h-full border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+					<font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
+					<span class="mt-2 block text-sm font-semibold" >You dont have block</span
+					>
 				</div>
 			</div>
 			<div class="col-span-1 h-screen">
 				<div class="border-2 bg-gray-200 p-3 h-full">
 					<div class="flex justify-between">
-						<h2 class="text-sm font-semibold leading-6 text-gray-900">Block List</h2>
+						<h2 class="text-sm font-semibold leading-6">Block List</h2>
 						<Button
-							label="Block"
-							type="create"
+                            icon="fas fa-plus"
 							size="xs"
-							@click="() => (openModal = true)" />
+							@click="() => (isModalBlocksList = true)" />
 					</div>
-					<draggable
-          				v-if="data?.layout?.length > 0"
+                    
+					<draggable v-if="data?.layout?.length > 0"
 						:list="data.layout"
 						ghost-class="ghost"
 						group="column"
 						itemKey="column_id"
 						class="mt-2 space-y-1">
 						<template #item="{ element, index }">
-							<div
-								class="flex-auto rounded-md p-3 ring-1 ring-inset ring-gray-200 bg-white cursor-grab">
-								<div class="flex justify-between gap-x-4">
-									<div class="py-0.5 text-xs leading-5 text-gray-500">
-										<span class="font-medium text-gray-900">{{
-											element.name
-										}}</span>
-									</div>
-									<div
-										class="flex-none py-0 text-xs leading-5 text-gray-500 cursor-pointer"
-										@click="() => deleteBlock(index)">
-										<font-awesome-icon :icon="['fal', 'times']" />
-									</div>
-								</div>
-							</div>
+
+                            <div class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
+                                <div class="flex gap-x-2">
+                                    <div class="flex items-center justify-center">
+                                        <FontAwesomeIcon :icon='element.icon' class='' fixed-width aria-hidden='true' />
+                                    </div>
+                                    <h3 class="text-sm font-medium">
+                                        {{ element.name }}
+                                    </h3>
+                                </div>
+                                
+                                <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
+                                    @click="() => deleteBlock(index)">
+                                    <font-awesome-icon :icon="['fal', 'times']" />
+                                </div>
+                            </div>
 						</template>
 					</draggable>
-					<div
-						v-else
-						:style="{ height: 'calc(100vh - 8%)' }"
-						class="relative mt-4 block rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-						<font-awesome-icon
-							:icon="['fal', 'browser']"
-							class="mx-auto h-12 w-12 text-gray-400" />
-						<span class="mt-2 block text-sm font-semibold text-gray-900"
-							>You dont have block</span
+
+                    <!-- Section: if no blocks selected -->
+					<div v-else
+						class="h-fit mt-4 rounded-lg border-2 p-4 text-center border-gray-300"
+                    >
+						<font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
+						<span class="mt-2 block text-sm font-semibold text-gray-600">You dont have block</span
 						>
 					</div>
+
+                    <Button
+                        type="dashed"
+                        icon="fal fa-plus"
+                        label="Add block"
+                        full
+                        size="s"
+                        class="mt-2"
+                        @click="() => (isModalBlocksList = true)"
+                    />
 				</div>
 			</div>
 		</div>
