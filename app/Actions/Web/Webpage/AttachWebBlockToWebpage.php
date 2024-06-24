@@ -21,7 +21,7 @@ class AttachWebBlockToWebpage extends OrgAction
     use HasWebAuthorisation;
 
 
-    public function handle(Webpage $webpage, WebBlockType $webBlockType, array $modelData): WebBlock
+    public function handle(Webpage $webpage, array $modelData): WebBlock
     {
         $webBlock = StoreWebBlock::run($webBlockType, $modelData);
         $webpage->webBlocks()->attach(
@@ -39,7 +39,17 @@ class AttachWebBlockToWebpage extends OrgAction
         return $webBlock;
     }
 
-    public function asController(Webpage $webpage, WebBlockType $webBlockType, ActionRequest $request): WebBlock
+    public function rules(): array
+    {
+        return [
+            'web_block_type_id' => [
+                'required',
+                Rule::Exists('web_block_types', 'id')->where('group_id', $this->organisation->group_id)
+            ]
+        ];
+    }
+
+    public function asController(Webpage $webpage, ActionRequest $request): WebBlock
     {
         if ($webpage->shop->type == ShopTypeEnum::FULFILMENT) {
             $this->scope = $webpage->shop->fulfilment;

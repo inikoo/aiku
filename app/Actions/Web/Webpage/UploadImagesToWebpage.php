@@ -33,7 +33,6 @@ class UploadImagesToWebpage extends OrgAction
 
         }
 
-
         return $this->handle($webpage, 'header', $this->validatedData);
     }
 
