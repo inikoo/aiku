@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table = $this->productionsStats($table);
             $table = $this->rawMaterialStats($table);
             $table = $this->manufactureTaskStats($table);
+            $table = $this->artefactsStats($table);
             $table->timestampsTz();
         });
     }

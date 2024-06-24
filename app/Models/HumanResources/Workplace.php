@@ -94,10 +94,18 @@ class Workplace extends Model implements Auditable
 
     protected $guarded = [];
 
-    protected array $auditExclude = [
-        'location',
-        'id'
+    public function generateTags(): array
+    {
+        return [
+            'hr'
+        ];
+    }
+
+    protected $auditInclude = [
+        'name',
+        'type',
     ];
+
 
     public function getRouteKeyName(): string
     {

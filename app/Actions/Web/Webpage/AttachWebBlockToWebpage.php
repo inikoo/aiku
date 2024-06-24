@@ -14,6 +14,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachWebBlockToWebpage extends OrgAction
@@ -21,8 +22,10 @@ class AttachWebBlockToWebpage extends OrgAction
     use HasWebAuthorisation;
 
 
-    public function handle(Webpage $webpage, WebBlockType $webBlockType, array $modelData): WebBlock
+    public function handle(Webpage $webpage, array $modelData): WebBlock
     {
+        $webBlockType=WebBlockType::find($modelData['web_block_type_id']);
+
         $webBlock = StoreWebBlock::run($webBlockType, $modelData);
         $webpage->webBlocks()->attach(
             $webBlock->id,
@@ -39,7 +42,17 @@ class AttachWebBlockToWebpage extends OrgAction
         return $webBlock;
     }
 
-    public function asController(Webpage $webpage, WebBlockType $webBlockType, ActionRequest $request): WebBlock
+    public function rules(): array
+    {
+        return [
+            'web_block_type_id' => [
+                'required',
+                Rule::Exists('web_block_types', 'id')->where('group_id', $this->organisation->group_id)
+            ]
+        ];
+    }
+
+    public function asController(Webpage $webpage, ActionRequest $request): WebBlock
     {
         if ($webpage->shop->type == ShopTypeEnum::FULFILMENT) {
             $this->scope = $webpage->shop->fulfilment;
@@ -50,16 +63,16 @@ class AttachWebBlockToWebpage extends OrgAction
         }
 
 
-        return $this->handle($webpage, $webBlockType, $this->validatedData);
+        return $this->handle($webpage, $this->validatedData);
     }
 
-    public function action(Webpage $webpage, WebBlockType $webBlockType, array $modelData): WebBlock
+    public function action(Webpage $webpage, array $modelData): WebBlock
     {
         $this->asAction = true;
 
         $this->initialisationFromShop($webpage->shop, $modelData);
 
-        return $this->handle($webpage, $webBlockType, $this->validatedData);
+        return $this->handle($webpage, $this->validatedData);
     }
 
 }

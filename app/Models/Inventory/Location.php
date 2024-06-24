@@ -116,6 +116,12 @@ class Location extends Model implements Auditable
             ->saveSlugsTo('slug');
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'warehouse'
+        ];
+    }
 
     public function getRouteKeyName(): string
     {

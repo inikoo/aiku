@@ -22,11 +22,15 @@ trait WithUploadImage
     use WithAttachMediaToModel;
     use WithAttachMediaToModel;
 
-    public function handle(Webpage|Website $model, string $scope, array $imageFiles): Collection
+    public function handle(Webpage|Website $model, string $scope, array $modelData): Collection
     {
         $medias = [];
 
-        foreach ($imageFiles as $imageFile) {
+
+
+        foreach ($modelData['images'] as $imageFile) {
+
+
             $imageData = [
                 'path'         => $imageFile->getPathName(),
                 'originalName' => $imageFile->getClientOriginalName(),

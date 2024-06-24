@@ -116,7 +116,12 @@ test('create add web block', function (Webpage $webpage) {
     $webBlockType=$webpage->group->webBlockTypes()->where('code', 'Text')->first();
     expect($webBlockType)->toBeInstanceOf(WebBlockType::class);
 
-    $webBlock=AttachWebBlockToWebpage::make()->action($webpage, $webBlockType, []);
+    $webBlock=AttachWebBlockToWebpage::make()->action(
+        $webpage,
+        [
+            'web_block_type_id' => $webBlockType->id,
+        ]
+    );
     expect($webBlock)->toBeInstanceOf(WebBlock::class);
     $webpage->refresh();
     expect($webpage->is_dirty)->toBeTrue();

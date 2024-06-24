@@ -144,19 +144,14 @@ class Website extends Model implements Auditable
         ];
     }
 
-    protected array $auditExclude = [
-        'id',
-        'slug',
-        'storefront_id',
-        'live_header_snapshot_id',
-        'live_footer_snapshot_id',
-        'storefront_id',
-        'published_layout',
-        'unpublished_header_snapshot_id',
-        'unpublished_footer_snapshot_id',
-        'published_header_checksum',
-        'published_footer_checksum'
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'domain',
+        'state',
+        'status',
     ];
+
 
     public function getRouteKeyName(): string
     {

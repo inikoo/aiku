@@ -122,6 +122,7 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UploadImagesToWebpage;
@@ -381,6 +382,9 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 });
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
+    Route::post('web-block', AttachWebBlockToWebpage::class)->name('web_block.store');
+    Route::post('web-blocks/positions', AttachWebBlockToWebpage::class)->name('web_blocks.positions');
+
 });
 
 Route::name('web_block.')->prefix('web-block/{webBlock:id}')->group(function () {
