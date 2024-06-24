@@ -13,7 +13,6 @@ DB_SUFFIX="${2:-$DB_SUFFIX}"
 echo -e "🧼 Migrating procurement models"
 
 ${PHP} artisan fetch:agents -d "${DB_SUFFIX}"
-${PHP} artisan org:attach-agent aroma indo
 ${PHP} artisan fetch:suppliers -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:deleted-suppliers -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:supplier-products -d "${DB_SUFFIX}"

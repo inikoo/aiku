@@ -81,7 +81,7 @@ beforeEach(function () {
     $this->shop = $shop;
 
     $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
-    
+
     list(
         $this->tradeUnit,
         $this->product
@@ -152,7 +152,7 @@ beforeEach(function () {
     $service = Service::first();
     if (!$service) {
         data_set($storeData, 'code', 'TEST');
-        data_set($storeData, 'state',ServiceStateEnum::ACTIVE);
+        data_set($storeData, 'state', ServiceStateEnum::ACTIVE);
         data_set($storeData, 'name', 'testo');
         data_set($storeData, 'price', 100);
         data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
