@@ -79,6 +79,7 @@ class ShowRawMaterial extends OrgAction
                             'title' => __('raw material')
                         ],
                     'title'   => $rawMaterial->code,
+                    'model'   => __('raw material'),
                     'actions' => [
                         [
                             'type'    => 'button',
