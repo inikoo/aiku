@@ -146,7 +146,7 @@ beforeEach(function () {
     $service = Service::first();
     if (!$service) {
         data_set($storeData, 'code', 'TEST');
-        data_set($storeData, 'state',ServiceStateEnum::ACTIVE);
+        data_set($storeData, 'state', ServiceStateEnum::ACTIVE);
         data_set($storeData, 'name', 'testo');
         data_set($storeData, 'price', 100);
         data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
@@ -772,4 +772,3 @@ test('UI create service', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
     });
 });
-

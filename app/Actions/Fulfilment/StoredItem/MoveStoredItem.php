@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
@@ -19,13 +20,13 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class MoveStoredItem
+class MoveStoredItem extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
-    public FulfilmentCustomer $fulfilmentCustomer;
-    private Fulfilment $fulfilment;
+    protected FulfilmentCustomer $fulfilmentCustomer;
+    protected Fulfilment $fulfilment;
 
     public function handle(StoredItem $storedItem, array $modelData): void
     {
@@ -48,17 +49,12 @@ class MoveStoredItem
                 ]
             ]);
         }
-
-        if (Arr::exists($modelData, 'location_id')) {
-            $storedItem->update(['location_id' => $modelData['location_id']]);
-        }
     }
 
     public function authorize(ActionRequest $request): bool
     {
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -80,9 +76,9 @@ class MoveStoredItem
         $this->fulfilmentCustomer = $storedItem->fulfilmentCustomer;
         $this->fulfilment         = $this->fulfilmentCustomer->fulfilment;
 
-        $this->setRawAttributes($request->all());
+        $this->initialisation($storedItem->organisation, $request);
 
-        $this->handle($storedItem, $this->validateAttributes());
+        $this->handle($storedItem, $this->validatedData);
     }
 
     public function jsonResponse(StoredItem $storedItem): StoredItemResource

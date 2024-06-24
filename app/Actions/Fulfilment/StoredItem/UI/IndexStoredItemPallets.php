@@ -72,6 +72,31 @@ class IndexStoredItemPallets extends OrgAction
 
         $query = QueryBuilder::for($parent->pallets());
 
+        $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
+        $query->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallets.fulfilment_customer_id');
+
+        $query->defaultSort('pallets.id')
+            ->select(
+                'pallets.id',
+                'pallets.slug',
+                'pallets.reference',
+                'pallets.customer_reference',
+                'pallets.notes',
+                'pallets.state',
+                'pallets.status',
+                'pallets.rental_id',
+                'pallets.type',
+                'pallets.received_at',
+                'pallets.location_id',
+                'pallets.fulfilment_customer_id',
+                'pallets.warehouse_id',
+                'pallets.pallet_delivery_id',
+                'pallets.pallet_return_id',
+                'locations.slug as location_slug',
+                'locations.slug as location_code',
+                'fulfilment_customers.slug as fulfilment_customer_slug',
+            );
+
         return $query->defaultSort('pallets.id')
             ->allowedSorts(['customer_reference', 'pallets.reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
@@ -112,9 +137,8 @@ class IndexStoredItemPallets extends OrgAction
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, searchable: true);
-            $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+            $table->column(key: 'fulfilment_customer_slug', label: __('Customer'), canBeHidden: false, searchable: true);
+            $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, searchable: true);
 
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'stored_items_quantity', label: 'stored items', canBeHidden: false, searchable: true)

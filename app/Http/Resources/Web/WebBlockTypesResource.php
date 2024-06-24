@@ -8,7 +8,6 @@
 namespace App\Http\Resources\Web;
 
 use App\Http\Resources\HasSelfCall;
-use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use Illuminate\Http\Resources\Json\JsonResource;
 

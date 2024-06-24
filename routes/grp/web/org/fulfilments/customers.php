@@ -30,6 +30,7 @@ use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
+use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
 use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
@@ -68,6 +69,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('pallets/stored', [IndexStoredPallets::class, 'inFulfilmentCustomer'])->name('.stored-pallets.index');
     Route::get('stored-items', [IndexStoredItems::class, 'inFulfilmentCustomer'])->name('.stored-items.index');
     Route::get('stored-items/{storedItem}', [ShowStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.show');
+    Route::get('stored-items/{storedItem}/edit', [EditStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.edit');
 
     Route::prefix('pallets')->as('.pallets.')->group(function () {
         Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');

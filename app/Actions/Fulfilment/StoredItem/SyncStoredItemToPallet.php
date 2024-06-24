@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
@@ -18,13 +19,13 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class SyncStoredItemToPallet
+class SyncStoredItemToPallet extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
-    public FulfilmentCustomer $fulfilmentCustomer;
-    private Fulfilment $fulfilment;
+    protected FulfilmentCustomer $fulfilmentCustomer;
+    protected Fulfilment $fulfilment;
 
     public function handle(Pallet $pallet, array $modelData): void
     {
@@ -35,9 +36,6 @@ class SyncStoredItemToPallet
         });
 
         $pallet->storedItems()->sync(Arr::get($modelData, 'stored_item_ids', []));
-
-        // hydrate stored items goes here
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -73,9 +71,9 @@ class SyncStoredItemToPallet
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
-        $this->setRawAttributes($request->all());
+        $this->initialisation($pallet->organisation, $request);
 
-        $this->handle($pallet, $this->validateAttributes());
+        $this->handle($pallet, $this->validatedData);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource

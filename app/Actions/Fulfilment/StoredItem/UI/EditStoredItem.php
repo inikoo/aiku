@@ -7,18 +7,22 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\InertiaAction;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
+use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditStoredItem extends InertiaAction
+class EditStoredItem extends OrgAction
 {
     public function handle(StoredItem $storedItem): StoredItem
     {
@@ -27,15 +31,14 @@ class EditStoredItem extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('fulfilment.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('hr.view')
+                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
             );
     }
-
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
@@ -88,8 +91,7 @@ class EditStoredItem extends InertiaAction
                                     'type'     => 'combobox',
                                     'label'    => __('location'),
                                     'value'    => '',
-                                    'required' => true,
-                                    'apiUrl'   => route('grp.json.locations') . '?filter[slug]=',
+                                    'required' => true
                                 ]
                             ]
                         ]
@@ -105,9 +107,17 @@ class EditStoredItem extends InertiaAction
         );
     }
 
-    public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->initialisation($request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(StoredItemTabsEnum::values());
+
+        return $this->handle($storedItem);
+    }
+
+    public function asController(Organisation $organisation, StoredItem $storedItem, ActionRequest $request): StoredItem
+    {
+        $this->initialisation($organisation, $request);
 
         return $this->handle($storedItem);
     }
@@ -116,13 +126,14 @@ class EditStoredItem extends InertiaAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+            ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                            'parameters' => $routeParameters
                         ],
                         'label' => __('stored items'),
                         'icon'  => 'fal fa-bars',

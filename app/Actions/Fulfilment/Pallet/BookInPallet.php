@@ -30,6 +30,10 @@ class BookInPallet extends OrgAction
         data_set($modelData, 'booked_in_at', now());
         data_set($modelData, 'set_as_not_received_at', null);
 
+        if($pallet->storedItems()->count() > 0) {
+            $pallet->storedItems()->newPivotQuery()->update(['location_id' => $pallet->location_id]);
+        }
+
         $pallet             = $this->update($pallet, $modelData, ['data']);
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
 
