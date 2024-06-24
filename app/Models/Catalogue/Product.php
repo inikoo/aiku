@@ -130,6 +130,14 @@ class Product extends Model implements Auditable, HasMedia
             ->slugsShouldBeNoLongerThan(64);
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+
     public function stats(): HasOne
     {
         return $this->hasOne(ProductStats::class);

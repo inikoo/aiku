@@ -9,6 +9,7 @@ namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,11 +55,11 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|PaymentServiceProvider withoutTrashed()
  * @mixin Eloquent
  */
-class PaymentServiceProvider extends Model
+class PaymentServiceProvider extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-
+    use HasHistory;
     use HasFactory;
 
     protected $casts = [
@@ -83,7 +85,7 @@ class PaymentServiceProvider extends Model
         ];
     }
 
-    protected $auditInclude = [
+    protected array $auditInclude = [
         'code',
         'name',
     ];

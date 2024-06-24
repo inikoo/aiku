@@ -18,6 +18,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -81,6 +82,7 @@ class Agent extends Model implements HasMedia, Auditable
     use HasFactory;
     use HasHistory;
     use HasImage;
+    use InGroup;
 
     protected $casts = [
         'status'      => 'boolean',
@@ -88,6 +90,20 @@ class Agent extends Model implements HasMedia, Auditable
 
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'supply-chain'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'status',
+    ];
+
 
 
     public function getSlugOptions(): SlugOptions
@@ -98,11 +114,6 @@ class Agent extends Model implements HasMedia, Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
     }
 
     // Note: this a one-to-one relationship (agent is an extension of an organisation)

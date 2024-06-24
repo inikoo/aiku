@@ -235,6 +235,13 @@ class Organisation extends Model implements HasMedia, Auditable
         return 'slug';
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'sysadmin',
+        ];
+    }
+
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);

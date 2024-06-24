@@ -49,10 +49,14 @@ return [
     |
     */
     'resolvers' => [
-        'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
-        'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
-        'url'        => OwenIt\Auditing\Resolvers\UrlResolver::class,
-        'group_id'   => \App\AuditResolvers\AuditGroupResolver::class,
+        'ip_address'      => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
+        'user_agent'      => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
+        'url'             => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'group_id'        => \App\AuditResolvers\AuditGroupResolver::class,
+        'organisation_id' => \App\AuditResolvers\AuditOrganisationResolver::class,
+        'shop_id'         => \App\AuditResolvers\AuditShopResolver::class,
+        'website_id'      => \App\AuditResolvers\AuditWebsiteResolver::class,
+        'customer_id'     => \App\AuditResolvers\AuditCustomerResolver::class,
     ],
 
     /*

@@ -104,12 +104,25 @@ class ProductCategory extends Model implements Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->code.'-'.$this->shop->cpde;
+                return $this->code.'-'.$this->shop->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+    ];
 
     public function stats(): HasOne
     {

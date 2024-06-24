@@ -204,7 +204,7 @@ class Shop extends Model implements HasMedia, Auditable
         ];
     }
 
-    protected $auditInclude = [
+    protected array $auditInclude = [
         'code',
         'name',
         'email',
