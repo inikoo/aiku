@@ -699,7 +699,7 @@ test('UI edit rental', function () {
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.product.update')
-                        ->where('parameters', $this->rental->id)
+                        ->where('parameters', $this->rental->id) //wrong route
             )
             ->has('breadcrumbs', 4);
     });
@@ -745,3 +745,31 @@ test('UI show service', function () {
 
     });
 });
+
+test('UI edit service', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.services.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->service->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 6)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.product.update')
+                        ->where('parameters', $this->rental->id) //wrong route
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI create service', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.services.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
