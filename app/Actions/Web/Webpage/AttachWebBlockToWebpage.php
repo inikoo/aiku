@@ -14,6 +14,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachWebBlockToWebpage extends OrgAction
@@ -23,6 +24,8 @@ class AttachWebBlockToWebpage extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): WebBlock
     {
+        $webBlockType=WebBlockType::find($modelData['web_block_type_id']);
+
         $webBlock = StoreWebBlock::run($webBlockType, $modelData);
         $webpage->webBlocks()->attach(
             $webBlock->id,
@@ -60,16 +63,16 @@ class AttachWebBlockToWebpage extends OrgAction
         }
 
 
-        return $this->handle($webpage, $webBlockType, $this->validatedData);
+        return $this->handle($webpage, $this->validatedData);
     }
 
-    public function action(Webpage $webpage, WebBlockType $webBlockType, array $modelData): WebBlock
+    public function action(Webpage $webpage, array $modelData): WebBlock
     {
         $this->asAction = true;
 
         $this->initialisationFromShop($webpage->shop, $modelData);
 
-        return $this->handle($webpage, $webBlockType, $this->validatedData);
+        return $this->handle($webpage, $this->validatedData);
     }
 
 }
