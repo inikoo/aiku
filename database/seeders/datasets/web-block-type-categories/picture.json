@@ -11,8 +11,8 @@
     "scope": "webpage",
     "webBlockTypes": [
         {
-            "code": "Picture",
-            "name": "Main Picture"
+            "code": "picture",
+            "name": "Image"
         }
     ]
 }

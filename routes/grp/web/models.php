@@ -376,8 +376,13 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('images/favicon', [UploadImagesToWebsite::class, 'favicon'])->name('favicon.images.store');
 });
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
-    Route::post('images', UploadImagesToWebpage::class)->name('images.store');
     Route::post('publish', PublishWebpage::class)->name('publish');
+});
+
+Route::name('web_block.')->prefix('web-block/{webBlock:id}')->group(function () {
+    Route::patch('', UpdateWebsite::class)->name('update');
+    Route::post('images', UploadImagesToWebpage::class)->name('images.store');
+
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');

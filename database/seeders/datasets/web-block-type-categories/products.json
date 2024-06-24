@@ -1,0 +1,14 @@
+{
+    "slug": "products",
+    "name": "Product showcases",
+    "blueprint": {
+        "defaultParameters": {}
+    },
+    "scope": "webpage",
+    "webBlockTypes": [
+        {
+            "code": "products",
+            "name": "List products"
+        }
+    ]
+}

@@ -98,7 +98,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     [
                         'type'     => 'button',
                         'style'    => 'create',
-                        'tooltip'  => __('Create Delivery'),
+                        'tooltip'  => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT ? __('Rental Agreement is not exist') : __('Create a pallet Delivery'),
                         'label'    => __('Delivery'),
                         'disabled' => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT,
                         'route'    => [
