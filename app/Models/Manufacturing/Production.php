@@ -90,6 +90,13 @@ class Production extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(4);
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'manufacturing'
+        ];
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(ProductionStats::class);

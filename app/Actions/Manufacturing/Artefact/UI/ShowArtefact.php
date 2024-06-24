@@ -78,6 +78,7 @@ class ShowArtefact extends OrgAction
                             'icon'  => ['fal', 'fa-map-signs'],
                             'title' => __('warehouse area')
                         ],
+                    'model'   => __('artefact'),
                     'title'   => $artefact->name,
                     'actions' => [
                         // $this->canEdit ?

@@ -77,6 +77,8 @@ use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
+use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
+use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\DeleteStoredItemFromStoredItemReturn;
@@ -120,6 +122,7 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UploadImagesToWebpage;
@@ -290,6 +293,9 @@ Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
+Route::patch('{storedItem:id}/stored-items/damaged', SetDamagedStoredItem::class)->name('stored-items.damaged');
+Route::patch('{storedItem:id}/stored-items/return', SetReturnStoredItem::class)->name('stored-items.return');
+//Route::patch('{storedItem:id}/stored-items/lost', SetPalletAsLost::class)->name('stored-items.lost');
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
@@ -376,6 +382,9 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 });
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
+    Route::post('web-block', AttachWebBlockToWebpage::class)->name('web_block.store');
+    Route::post('web-blocks/positions', AttachWebBlockToWebpage::class)->name('web_blocks.positions');
+
 });
 
 Route::name('web_block.')->prefix('web-block/{webBlock:id}')->group(function () {
