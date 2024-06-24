@@ -10,23 +10,10 @@ import { trans } from "laravel-vue-i18n"
 
 library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip)
 const props = defineProps<{
-    onPickBlock: Funcition,
+    onPickBlock: Function
     webBlockTypes: {
-        data : Array
+        data: []
     }
-}>();
-
-const tabs = [
-    {
-        title : 'All',
-        key : 'all',
-        icon : []
-    },
-    {
-        title : 'Text',
-        key : 'text',
-        icon : ['fal','text']
-    onPickBlock: Function,
 }>()
 
 // Method: to count the types of the blocks 
@@ -77,9 +64,8 @@ const filter = (e: string) => {
     currentTab.value = e
 }
 
-
-
 </script>
+
 
 <template>
     <div class="bg-white h-[500px]">
@@ -118,6 +104,7 @@ const filter = (e: string) => {
         </section>
     </div>
 </template>
+
 
 <style lang="scss">
 #text-editor {
