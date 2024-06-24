@@ -113,6 +113,7 @@ class StoreWebpage extends OrgAction
             'state'     => ['sometimes', Rule::enum(WebpageStateEnum::class)],
             'is_fixed'  => ['sometimes', 'boolean'],
             'ready_at'  => ['sometimes', 'date'],
+            'live_at'   => ['sometimes', 'date'],
         ];
 
         if ($this->parent instanceof Webpage) {

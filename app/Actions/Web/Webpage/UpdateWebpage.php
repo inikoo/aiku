@@ -51,7 +51,6 @@ class UpdateWebpage extends OrgAction
     public function rules(): array
     {
         return [
-
             'url' => [
                 'sometimes',
                 'required',
@@ -74,7 +73,6 @@ class UpdateWebpage extends OrgAction
                     ]
                 ),
             ],
-
             'code' => [
                 'sometimes',
                 'required',
@@ -95,12 +93,13 @@ class UpdateWebpage extends OrgAction
                 ),
 
             ],
-
             'level'         => ['sometimes', 'integer'],
             'purpose'       => ['sometimes', Rule::enum(WebpagePurposeEnum::class)],
             'type'          => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
             'state'         => ['sometimes', Rule::enum(WebpageStateEnum::class)],
-            'google_search' => ['sometimes', 'array']
+            'google_search' => ['sometimes', 'array'],
+            'ready_at'      => ['sometimes', 'date'],
+            'live_at'       => ['sometimes', 'date'],
         ];
     }
 

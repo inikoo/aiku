@@ -29,9 +29,7 @@ class LaunchWebsite extends OrgAction
 
     public function handle(Website $website): Website
     {
-        if ($website->state != WebsiteStateEnum::IN_PROCESS) {
-            abort(419);
-        }
+
 
 
         PublishWebsiteMarginal::run($website, 'header', ['layout' => $website->unpublishedHeaderSnapshot->layout]);
@@ -94,6 +92,10 @@ class LaunchWebsite extends OrgAction
         } else {
             $this->parent = $website->shop;
             $this->initialisationFromShop($website->shop, $request);
+        }
+
+        if ($website->state != WebsiteStateEnum::IN_PROCESS) {
+            abort(419);
         }
 
 

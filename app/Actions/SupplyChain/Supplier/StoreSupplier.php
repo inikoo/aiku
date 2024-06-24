@@ -103,7 +103,7 @@ class StoreSupplier extends GrpAction
             'source_slug'  => ['sometimes', 'nullable', 'string'],
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
             'status'       => ['sometimes', 'required', 'boolean'],
-            'archived_at'  => ['sometimes', 'nullable', 'datetime'],
+            'archived_at'  => ['sometimes', 'nullable', 'date'],
         ];
 
         if (!$this->strict) {

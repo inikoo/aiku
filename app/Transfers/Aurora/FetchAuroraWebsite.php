@@ -65,16 +65,17 @@ class FetchAuroraWebsite extends FetchAurora
                 'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
             ];
 
-        if ($state !== WebsiteStateEnum::LIVE) {
-            if ($launchedAt = $this->parseDate($this->auroraModelData->{'Website Launched'})) {
-                $this->parsedData['website']['launched_at'] = $launchedAt;
-            }
-            $this->parsedData['website']['state']  = $state;
-            $this->parsedData['website']['status'] = $this->auroraModelData->{'Website Status'} === 'Active';
-            $this->parsedData['launch']            =false;
+        $this->parsedData['website']['state']  = $state;
+        $this->parsedData['website']['status'] = $this->auroraModelData->{'Website Status'} === 'Active';
 
+        if ($launchedAt = $this->parseDate($this->auroraModelData->{'Website Launched'})) {
+            $this->parsedData['website']['launched_at'] = $launchedAt;
+        }
+
+        if ($state !== WebsiteStateEnum::LIVE) {
+            $this->parsedData['launch'] = false;
         } else {
-            $this->parsedData['launch']=true;
+            $this->parsedData['launch'] = true;
         }
 
 

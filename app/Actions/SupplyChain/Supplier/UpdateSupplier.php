@@ -92,7 +92,7 @@ class UpdateSupplier extends GrpAction
             'phone'        => ['sometimes', 'nullable', 'phone:AUTO'],
             'address'      => ['sometimes', 'required', new ValidAddress()],
             'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
-            'archived_at'  => ['sometimes', 'nullable', 'datetime'],
+            'archived_at'  => ['sometimes', 'nullable', 'date'],
         ];
 
         if (!$this->strict) {
