@@ -76,6 +76,18 @@ class PaymentServiceProvider extends Model
         return 'slug';
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'accounting'
+        ];
+    }
+
+    protected $auditInclude = [
+        'code',
+        'name',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

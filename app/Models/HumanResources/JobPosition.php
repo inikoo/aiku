@@ -89,9 +89,11 @@ class JobPosition extends Model implements Auditable
         ];
     }
 
-    protected array $auditExclude = [
-        'share_work_time',
-        'number_employees'
+    protected $auditInclude = [
+        'code',
+        'name',
+        'team',
+        'department',
     ];
 
     public function employees(): MorphToMany

@@ -81,6 +81,12 @@ class WarehouseArea extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(32);
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'warehouse'
+        ];
+    }
 
     public function locations(): HasMany
     {
