@@ -22,8 +22,6 @@ class StoreFetch
     {
         /** @var Fetch $fetch */
         $fetch= Fetch::create($modelData);
-
-
         return $fetch;
     }
 

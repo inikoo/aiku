@@ -10,6 +10,22 @@ import { trans } from "laravel-vue-i18n"
 
 library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip)
 const props = defineProps<{
+    onPickBlock: Funcition,
+    webBlockTypes: {
+        data : Array
+    }
+}>();
+
+const tabs = [
+    {
+        title : 'All',
+        key : 'all',
+        icon : []
+    },
+    {
+        title : 'Text',
+        key : 'text',
+        icon : ['fal','text']
     onPickBlock: Function,
 }>()
 
@@ -151,32 +167,15 @@ const filter = (e: string) => {
         list-style: decimal
     }
 
-    .ProseMirror {
-        height: fit-content;
-        width: 100%;
-        overflow-y: auto;
-        padding-left: 0.5em;
-        padding-right: 0.5em;
-        outline: none;
-    }
+	.ProseMirror {
+    height: fit-content;
+    width: 100%;
+    overflow-y: auto;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    outline: none;
+}
 }
 
-.zzz-move,
-.zzz-enter-active,
-.zzz-leave-active {
-  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
-}
 
-/* 2. declare enter from and leave to state */
-.zzz-enter-from,
-.zzz-leave-to {
-  opacity: 0;
-  transform: scaleY(0.01) translate(30px, 0);
-}
-
-/* 3. ensure leaving items are taken out of layout flow so that moving
-      animations can be calculated correctly. */
-.zzz-leave-active {
-  position: absolute;
-}
 </style>

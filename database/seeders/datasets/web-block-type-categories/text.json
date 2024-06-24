@@ -6,7 +6,9 @@
     "webBlockTypes": [
         {
             "code": "text",
-            "name": "Text"
+            "name": "Text",
+            "component": "text",
+            "icon":  ["fal", "text"]
         }
     ]
 }

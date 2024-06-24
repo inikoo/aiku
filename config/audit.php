@@ -49,10 +49,10 @@ return [
     |
     */
     'resolvers' => [
-        'ip_address'    => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
-        'user_agent'    => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
-        'url'           => OwenIt\Auditing\Resolvers\UrlResolver::class,
-        'group_id'      => \App\AuditResolvers\AuditGroupResolver::class,
+        'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
+        'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
+        'url'        => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'group_id'   => \App\AuditResolvers\AuditGroupResolver::class,
     ],
 
     /*
@@ -92,7 +92,25 @@ return [
     |
     */
 
-    'exclude' => ['id', 'password', 'slug', 'created_at', 'updated_at', 'uuid'],
+    'exclude' => [
+        'id',
+        'password',
+        'slug',
+        'created_at',
+        'updated_at',
+        'uuid',
+        'group_id',
+        'organisation_id',
+        'shop_id',
+        'customer_id',
+        'warehouse_id',
+        'warehouse_area_id',
+        'location_id',
+        'data',
+        'settings',
+        'location',
+        'source_id'
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -109,7 +127,7 @@ return [
     |
     */
 
-    'empty_values'         => true,
+    'empty_values'         => false,
     'allowed_empty_values' => [
         'retrieved',
         'created'
