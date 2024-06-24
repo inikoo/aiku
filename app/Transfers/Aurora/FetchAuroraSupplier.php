@@ -62,11 +62,15 @@ class FetchAuroraSupplier extends FetchAurora
 
         $sourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
 
+        $code=preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'});
+        $code=preg_replace('/&/', 'and', $code);
+        $code=preg_replace('/\s|\?|\.|\'/', '', $code);
+        $code=preg_replace('/-?\(.+\)/', '', $code);
 
         $this->parsedData['supplier'] =
             [
                 'name'         => $name,
-                'code'         => preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'}),
+                'code'         => $code,
                 'company_name' => $this->auroraModelData->{'Supplier Company Name'},
                 'contact_name' => $this->auroraModelData->{'Supplier Main Contact Name'},
                 'email'        => $this->auroraModelData->{'Supplier Main Plain Email'},

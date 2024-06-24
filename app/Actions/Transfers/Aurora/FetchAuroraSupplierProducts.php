@@ -38,7 +38,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
             $orgSupplierProduct = OrgSupplierProduct::where('organisation_id', $organisation->id)->where('supplier_product_id', $supplierProduct->id)->first();
             if(!$orgSupplierProduct) {
-                StoreOrgSupplierProduct::make()->run(
+                StoreOrgSupplierProduct::make()->action(
                     organisation: $organisation,
                     supplierProduct: $supplierProduct,
                     modelData: [
