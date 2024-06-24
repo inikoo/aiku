@@ -11,7 +11,10 @@
 			"name": "Image",
 			"data": {
 				"component": "Image",
-				"icon": ["fal", "image"]
+				"icon": ["fal", "image"],
+				"fieldValue": {
+					"value": null
+				}
 			}
 		}
 	]
