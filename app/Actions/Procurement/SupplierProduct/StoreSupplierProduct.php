@@ -41,6 +41,7 @@ class StoreSupplierProduct extends GrpAction
         if ($supplier->agent_id) {
             $modelData['agent_id'] = $supplier->agent_id;
         }
+        data_set($modelData, 'currency_id', $supplier->currency_id);
 
 
         /** @var SupplierProduct $supplierProduct */
