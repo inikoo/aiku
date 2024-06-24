@@ -50,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\OrgPaymentServiceProvider|null $orgPaymentServiceProvider
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider

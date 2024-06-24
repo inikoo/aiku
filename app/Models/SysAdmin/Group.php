@@ -94,6 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Agent> $agents
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
+ * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, Barcode> $barcodes
  * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
  * @property-read LaravelCollection<int, CustomerClient> $clients

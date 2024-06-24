@@ -42,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Accounting\OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments

@@ -58,6 +58,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property Carbon|null $deleted_at
  * @property bool $with_refund
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read Group $group
