@@ -23,13 +23,12 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table->string('slug')->unique()->collation('und_ns');
-
             $table->string('status')->index()->default(LocationStatusEnum::OPERATIONAL->value);
             $table->string('code', 64)->index()->collation('und_ns');
-            $table->decimal('stock_value', 16)->default(0);
+            $table->decimal('stock_value', 16, 2)->default(0);
             $table->boolean('is_empty')->default(true);
-            $table->double('max_weight')->nullable();
-            $table->double('max_volume')->nullable();
+            $table->decimal('max_weight', 16, 3)->nullable()->comment('Max weight in Kg');
+            $table->decimal('max_volume', 16, 4)->nullable()->comment('Max volume in m3 (cbm)');
             $table->boolean('allow_stocks')->default(true);
             $table->boolean('allow_dropshipping')->default(true);
             $table->boolean('allow_fulfilment')->default(true);

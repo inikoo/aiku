@@ -43,8 +43,8 @@ use Spatie\Tags\HasTags;
  * @property string $code
  * @property string $stock_value
  * @property bool $is_empty
- * @property float|null $max_weight
- * @property float|null $max_volume
+ * @property string|null $max_weight Max weight in Kg
+ * @property string|null $max_volume Max volume in m3 (cbm)
  * @property bool $allow_stocks
  * @property bool $allow_dropshipping
  * @property bool $allow_fulfilment
@@ -94,9 +94,12 @@ class Location extends Model implements Auditable
     use InWarehouse;
 
     protected $casts = [
-        'data'       => 'array',
-        'audited_at' => 'datetime',
-        'status'     => LocationStatusEnum::class
+        'data'        => 'array',
+        'audited_at'  => 'datetime',
+        'status'      => LocationStatusEnum::class,
+        'stock_value' => 'decimal:2',
+        'max_weight'  => 'decimal:3',
+        'max_volume'  => 'decimal:4',
     ];
 
     protected $attributes = [
@@ -113,12 +116,11 @@ class Location extends Model implements Auditable
             ->saveSlugsTo('slug');
     }
 
+
     public function getRouteKeyName(): string
     {
         return 'slug';
     }
-
-
 
     public function warehouseArea(): BelongsTo
     {

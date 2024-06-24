@@ -22,12 +22,12 @@ enum WebBlockTypeCategorySlugEnum: string
     case HEADER   = 'header';
     case BANNER   = 'banner';
 
-    case TEXT    = 'text';
-    case PICTURE = 'picture';
-    case MAPS    = 'maps';
-    case CTE    = 'cta';
+    case TEXT        = 'text';
+    case PICTURE     = 'picture';
+    case MAPS        = 'maps';
+    case CTE         = 'cta';
     case PRODUCTS    = 'products';
-    case REVIEWS    = 'reviews';
+    case REVIEWS     = 'reviews';
 
 
 }
