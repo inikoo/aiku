@@ -13,6 +13,8 @@ DB_SUFFIX="${2:-$DB_SUFFIX}"
 echo -e "🧼 Migrating catalogue models"
 
 ${PHP} artisan fetch:shops -d "${DB_SUFFIX}"
+${PHP} artisan fetch:websites -d "${DB_SUFFIX}"
+${PHP} artisan fetch:webpages -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:departments -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:families -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:products -d "${DB_SUFFIX}"
