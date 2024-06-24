@@ -1,20 +1,26 @@
 {
-    "slug": "cta",
-    "name": "Call to action",
-    "blueprint": {},
-    "scope": "webpage",
-    "webBlockTypes": [
-        {
-            "code": "cta1",
-            "name": "Call to action 1",
-            "component": "CTA",
-            "icon" : ["fal", "rectangle-wide"]
-        },
-        {
-            "code": "cta2",
-            "name": "Call to action 2",
-            "component": "CTA2",
-            "icon" : ["fal", "rectangle-wide"]
-        }
-    ]
+	"slug": "cta",
+	"name": "Call to action",
+	"blueprint": {
+		"value": ""
+	},
+	"scope": "webpage",
+	"webBlockTypes": [
+		{
+			"code": "cta1",
+			"name": "Call to action 1",
+			"data": {
+				"component": "CTA",
+				"icon": ["fal", "rectangle-wide"]
+			}
+		},
+		{
+			"code": "cta2",
+			"name": "Call to action 2",
+			"data": {
+				"component": "CTA2",
+				"icon": ["fal", "rectangle-wide"]
+			}
+		}
+	]
 }

@@ -1,14 +1,18 @@
 {
-    "slug": "picture",
-    "name": "Picture",
-    "blueprint": {},
-    "scope": "webpage",
-    "webBlockTypes": [
-        {
-            "code": "image",
-            "name": "Image",
-            "component": "Image",
-            "icon" : ["fal", "image"]
-        }
-    ]
+	"slug": "picture",
+	"name": "Picture",
+	"blueprint": {
+		"value": ""
+	},
+	"scope": "webpage",
+	"webBlockTypes": [
+		{
+			"code": "image",
+			"name": "Image",
+			"data": {
+				"component": "Image",
+				"icon": ["fal", "image"]
+			}
+		}
+	]
 }
