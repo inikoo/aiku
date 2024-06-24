@@ -122,6 +122,13 @@ class Warehouse extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(4);
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'warehouse'
+        ];
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

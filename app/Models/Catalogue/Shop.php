@@ -197,6 +197,30 @@ class Shop extends Model implements HasMedia, Auditable
         return 'slug';
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'catalogue'
+        ];
+    }
+
+    protected $auditInclude = [
+        'code',
+        'name',
+        'email',
+        'phone',
+        'state',
+        'country_id',
+        'currency_id',
+        'language_id',
+        'timezone_id',
+        'company_name',
+        'contact_name',
+        'identity_document_number'
+    ];
+
+
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

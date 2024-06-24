@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Models\Fulfilment\StoredItem;
@@ -16,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class SetDamagedStoredItem
+class SetDamagedStoredItem extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -43,6 +44,11 @@ class SetDamagedStoredItem
 
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.fulfilment.stored-items.show', $storedItem->slug);
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.stored-items.show', [
+            'organisation'       => $storedItem->fulfilmentCustomer->slug,
+            'fulfilment'         => $storedItem->fulfilment->slug,
+            'fulfilmentCustomer' => $storedItem->fulfilmentCustomer->slug,
+            'storedItem'         => $storedItem->slug
+        ]);
     }
 }

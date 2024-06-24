@@ -210,10 +210,6 @@ class Organisation extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
-    protected array $auditExclude = [
-        'location','id'
-    ];
-
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
