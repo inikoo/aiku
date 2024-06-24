@@ -13,6 +13,7 @@ use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\Inventory\Location;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -69,6 +70,7 @@ class StoredItem extends Model implements Auditable
     use SoftDeletes;
     use HasSlug;
     use HasHistory;
+    use InOrganisation;
 
     protected $casts = [
         'data'            => 'array',
