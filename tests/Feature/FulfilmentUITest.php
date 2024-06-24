@@ -81,6 +81,12 @@ beforeEach(function () {
     $this->shop = $shop;
 
     $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+    
+    list(
+        $this->tradeUnit,
+        $this->product
+    ) = createProduct($this->shop);
+
 
     $this->customer = createCustomer($this->shop);
 
@@ -773,3 +779,22 @@ test('UI create service', function () {
     });
 });
 
+// Physical Goods
+
+test('UI show physical goods', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.outers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PhysicalGood')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->product->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
