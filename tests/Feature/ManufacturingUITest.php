@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Manufacturing\Artefact\StoreArtefact;
 use App\Actions\Manufacturing\Production\StoreProduction;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -14,6 +15,7 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Inventory\Location;
+use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Manufacturing\RawMaterialStats;
@@ -42,6 +44,18 @@ beforeEach(function () {
         );
     }
     $this->production = $production;
+
+    $artefact = Artefact::first();
+    if (!$artefact) {
+        data_set($storeData, 'code', 'CODE');
+        data_set($storeData, 'name', 'NAME');
+
+        $artefact = StoreArtefact::make()->action(
+            $this->production,
+            $storeData
+        );
+    }
+    $this->artefact = $artefact;
 
     $rawMaterial = RawMaterial::first();
     if (!$rawMaterial) {
@@ -138,3 +152,20 @@ test('UI create artefact', function () {
     });
 });
 
+test('UI show artifact', function () {
+    $response = get(route('grp.org.productions.show.crafts.artefacts.show', [$this->organisation->slug, $this->production->slug, $this->artefact->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/Artefact')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->artefact->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
