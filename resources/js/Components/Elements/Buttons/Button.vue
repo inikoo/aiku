@@ -56,7 +56,7 @@ else if ( props.type == 'secondary' ||  props.style == 'secondary' ) {
 }
 
 else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' || props.type == 'edit' || props.style == 'edit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
-else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-400 text-gray-700 hover:bg-black/10'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
 else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
