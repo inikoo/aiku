@@ -7,16 +7,11 @@
 
 use App\Actions\Manufacturing\Production\StoreProduction;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
-use App\Enums\Catalogue\Shop\ShopStateEnum;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\Inventory\Location;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
-use App\Models\Manufacturing\RawMaterialStats;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -46,7 +41,7 @@ beforeEach(function () {
     $rawMaterial = RawMaterial::first();
     if (!$rawMaterial) {
         data_set($storeData, 'type', RawMaterialTypeEnum::CONSUMABLE->value);
-        data_set($storeData, 'state',RawMaterialStateEnum::ORPHAN->value);
+        data_set($storeData, 'state', RawMaterialStateEnum::ORPHAN->value);
         data_set($storeData, 'code', 'CODE');
         data_set($storeData, 'description', 'desc');
         data_set($storeData, 'unit', RawMaterialUnitEnum::KILOGRAM->value);
@@ -58,7 +53,7 @@ beforeEach(function () {
         );
     }
     $this->rawMaterial = $rawMaterial;
-    
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -137,4 +132,3 @@ test('UI create artefact', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
-

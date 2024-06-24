@@ -31,7 +31,9 @@ class DeletePalletFromReturn extends OrgAction
     {
         $this->update($pallet, ['pallet_return_id' => null,
             'status'                               => PalletStatusEnum::STORING,
-            'state'                                => PalletStateEnum::STORING]);
+            'state'                                => PalletStateEnum::STORING
+        ]);
+
         $palletReturn->pallets()->detach([$pallet->id]);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);

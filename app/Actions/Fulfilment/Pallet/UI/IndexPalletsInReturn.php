@@ -60,8 +60,8 @@ class IndexPalletsInReturn extends OrgAction
 
         $query->defaultSort('pallets.id')
             ->select(
-                'pallet_return_items.id',
-                'pallets.id as pallet_id',
+                //                'pallet_return_items.id',
+                'pallets.id',
                 'pallets.slug',
                 'pallets.reference',
                 'pallets.customer_reference',
