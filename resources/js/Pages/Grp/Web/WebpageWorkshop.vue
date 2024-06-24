@@ -46,11 +46,11 @@ const data = ref({
 });
 
 
-const sendUpdate = async () => {
+const sendUpdate = async (e) => {
   try {
     const response = await axios.patch(
-      route(props.webpage.update_route.name, props.webpage.update_route.parameters), 
-      { layout: {blocks : data.value.layout }}
+      route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters), 
+      {blocks : e }
     );
     const set = {...response.data.data, layout : response.data.data.layout.blocks }
     data.value = set
@@ -61,23 +61,24 @@ const sendUpdate = async () => {
 };
 
 
-const debouncedSendUpdate = debounce(sendUpdate, 1000);
+/* const debouncedSendUpdate = debounce(sendUpdate, 1000);
 
 const onUpdated = () => {
   debouncedSendUpdate();
-};
+}; */
 
 
 
 const onPickBlock = (e) => {
-  data.value.layout.push(e);
+sendUpdate(e)
+/*   data.value.layout.push(e); */
   isModalBlocksList.value = false;
-  onUpdated();
+/*   sendUpdate(); */
 };
 
 const deleteBlock = (index) => {
   data.value.layout.splice(index, 1);
-  onUpdated();
+/*   onUpdated(); */
 };
 
 const setData = () => {
@@ -206,7 +207,7 @@ const onPublish = async (action) => {
 						>
 					</div>
 
-                    <Button
+                   <!--  <Button
                         type="dashed"
                         icon="fal fa-plus"
                         label="Add block"
@@ -214,12 +215,12 @@ const onPublish = async (action) => {
                         size="s"
                         class="mt-2"
                         @click="() => (isModalBlocksList = true)"
-                    />
+                    /> -->
 				</div>
 			</div>
 		</div>
 	</div>
-	<Modal :isOpen="openModal" @onClose="openModal = false">
+	<Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
 		<BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
 	</Modal>
 	<div @click="setData">see data</div>
