@@ -28,6 +28,9 @@ const props = defineProps<{
   title: string,
   pageHead: PageHeadingTypes,
   webpage: Object
+  webBlockTypes :  {
+        data : Array
+    }
 }>();
 
 console.log(props)
@@ -131,6 +134,7 @@ const onPublish = async (action) => {
 				@onPublish="onPublish(action.action.route)" />
 		</template>
 	</PageHeading>
+
 	<div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
 		<div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
 			<div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
@@ -215,8 +219,8 @@ const onPublish = async (action) => {
 			</div>
 		</div>
 	</div>
-	<Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
-		<BlockList :onPickBlock="onPickBlock" />
+	<Modal :isOpen="openModal" @onClose="openModal = false">
+		<BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
 	</Modal>
 	<div @click="setData">see data</div>
 </template>
