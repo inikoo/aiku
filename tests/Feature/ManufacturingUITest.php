@@ -169,3 +169,15 @@ test('UI show artifact', function () {
 
     });
 });
+
+test('UI edit artefact', function () {
+    $response = get(route('grp.org.productions.show.crafts.artefacts.edit', [$this->organisation->slug, $this->production->slug, $this->artefact->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has('breadcrumbs', 4);
+    });
+});
