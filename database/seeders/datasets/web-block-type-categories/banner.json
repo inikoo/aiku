@@ -1,14 +1,18 @@
 {
     "slug": "banner",
     "name": "Banner",
-    "blueprint": {},
+    "blueprint": {
+        "value": "default_value"
+    },
     "scope": "webpage",
     "webBlockTypes": [
         {
             "code": "banner",
             "name": "Wowsbar banner",
-            "component" : "bannerWowsbar",
-            "icon" : ["fal", "presentation"]
+            "data": {
+                "icon" : ["fal", "presentation"],
+                "component": "bannerWowsbar"
+            }
         }
     ]
 }

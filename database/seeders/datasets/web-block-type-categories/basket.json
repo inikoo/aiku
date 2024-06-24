@@ -1,20 +1,26 @@
 {
-    "slug": "basket",
-    "name": "Basket",
-    "blueprint": {},
-    "scope": "webpage",
-    "webBlockTypes": [
-        {
-            "code": "BasketCompact",
-            "name": "Basket Compact",
-            "component" : "",
-            "icon" : ["fal", "presentation"]
-        },
-        {
-            "code": "BasketStyle",
-            "name": "Basket Style",
-            "component" : "",
-            "icon" : ["fal", "presentation"]
-        }
-    ]
+	"slug": "basket",
+	"name": "Basket",
+	"blueprint": {
+		"value": ""
+	},
+	"scope": "webpage",
+	"webBlockTypes": [
+		{
+			"code": "BasketCompact",
+			"name": "Basket Compact",
+			"data": {
+				"component": "",
+				"icon": ["fal", "presentation"]
+			}
+		},
+		{
+			"code": "BasketStyle",
+			"name": "Basket Style",
+			"data": {
+				"component": "",
+				"icon": ["fal", "presentation"]
+			}
+		}
+	]
 }

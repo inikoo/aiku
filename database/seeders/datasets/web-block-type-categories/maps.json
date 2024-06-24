@@ -1,14 +1,18 @@
 {
-    "slug": "maps",
-    "name": "Maps",
-    "blueprint": {},
-    "scope": "webpage",
-    "webBlockTypes": [
-        {
-            "code": "iframe",
-            "name": "I Frame",
-            "component": "Iframe",
-            "icon": ["fal", "paperclip"]
-        }
-    ]
+	"slug": "maps",
+	"name": "Maps",
+	"blueprint": {
+		"value": ""
+	},
+	"scope": "webpage",
+	"webBlockTypes": [
+		{
+			"code": "iframe",
+			"name": "I Frame",
+			"data": {
+				"component": "Iframe",
+				"icon": ["fal", "paperclip"]
+			}
+		}
+	]
 }
