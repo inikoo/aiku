@@ -798,3 +798,21 @@ test('UI show physical goods', function () {
 
     });
 });
+
+test('UI edit physical goods', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.outers.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->product->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 7)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.product.update')
+                        ->where('parameters', $this->product->id) //wrong route
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
