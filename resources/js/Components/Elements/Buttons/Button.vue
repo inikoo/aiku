@@ -51,11 +51,11 @@ if ( props.type == 'primary' || props.type == 'create' || props.type == 'save' |
     styleClass = `buttonPrimary`
 }
 
-else if ( props.type == 'secondary' || props.type == 'edit' || props.style == 'secondary' || props.style == 'edit' ) {
+else if ( props.type == 'secondary' ||  props.style == 'secondary' ) {
     styleClass = 'buttonSecondary'
 }
 
-else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' || props.type == 'edit' || props.style == 'edit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 

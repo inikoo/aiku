@@ -11,7 +11,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { router } from '@inertiajs/vue3'
-
+import type { Component } from 'vue'
 import TableRentalAgreementClauses from "@/Components/Tables/Grp/Org/Fulfilment/TableRentalAgreementClauses.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
@@ -42,6 +42,7 @@ import { notify } from '@kyvg/vue3-notification'
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import Modal from "@/Components/Utils/Modal.vue"
+import Button from '@/Components/Elements/Buttons/Button.vue'
 library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -69,12 +70,12 @@ const props = defineProps<{
     // history?: {}
 }>()
 
-let currentTab = ref(props.tabs.current)
+const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
-    const components = {
+    const components: Component = {
         showcase: FulfilmentCustomerShowcase,
         agreed_prices: TableRentalAgreementClauses,
         // pallets: TablePallets,
@@ -177,7 +178,7 @@ onUnmounted(() => {
 
 
 
-console.log(props)
+// console.log(props)
 
 </script>
 
@@ -221,12 +222,19 @@ console.log(props)
 </template> -->
 
 
-        <!-- <template #button-delivery="{ action: action }">
-            <Button :style="action.action.disabled ? 'gray' : action.action.style" :label="action.action.label"
-                :icon="['fas', 'plus']" :iconRight="action.action.iconRight"
-                @click="() => onButtonCreateDeliveryClick(action.action)" :loading="loadingCreatePalletDelivery"
-                :key="`ActionButton${action.action.label}${action.action.style}`" :tooltip="action.action.tooltip" />
-        </template> -->
+        <template #button-delivery="{ action }">
+            <Button
+                @click="() => onButtonCreateDeliveryClick(action.action)"
+                :style="action.action.style"
+                :label="action.action.label"
+                icon="fas fa-plus"
+                :disabled="action.action.disabled || loadingCreatePalletDelivery"
+                :iconRight="action.action.iconRight"
+                :loading="loadingCreatePalletDelivery"
+                :key="`ActionButton${action.action.label}${action.action.style}`"
+                :tooltip="action.action.tooltip"
+            />
+        </template>
 
     </PageHeading>
 

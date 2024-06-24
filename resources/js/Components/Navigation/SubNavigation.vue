@@ -25,7 +25,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="select-none w-full flex flex-wrap px-4 sm:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
+    <div class="relative select-none w-full flex flex-wrap px-4 sm:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
         <!-- Tab: Home/dashboard -->
         <div v-if="dataNavigation.length"
             class="py-1 flex items-center transition-all"
@@ -50,20 +50,23 @@ const props = defineProps<{
         </div>
 
         <!-- Tabs -->
-        <component
-            v-for="subNav, itemIdx in [...dataNavigation].slice(1)"
-            :is="subNav.href?.name ? Link : 'div'"
-            :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
-            class="py-1.5 flex items-center transition-all"
-            :class="[
-                layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
-            ]"
-        >
-            <div class="py-1 px-1.5 flex items-center">
-                <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
-                <MetaLabel :item="subNav" />
-            </div>
-        </component>
+        <TransitionGroup>
+            <component
+                v-for="subNav, itemIdx in [...dataNavigation].slice(1)"
+                :key="'subNav' + itemIdx"
+                :is="subNav.href?.name ? Link : 'div'"
+                :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
+                class="py-1.5 flex items-center transition-all"
+                :class="[
+                    layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
+                ]"
+            >
+                <div class="py-1 px-1.5 flex items-center">
+                    <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
+                    <MetaLabel :item="subNav" />
+                </div>
+            </component>
+        </TransitionGroup>
 
         <div class="hidden border-b border-gray-300 px-1 sm:flex flex-auto">&nbsp</div>
 
