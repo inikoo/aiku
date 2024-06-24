@@ -210,6 +210,18 @@ class Organisation extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
+    protected $auditInclude = [
+        'code',
+        'name',
+        'email',
+        'phone',
+        'status',
+        'country_id',
+        'currency_id',
+        'language_id',
+        'timezone_id',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -466,7 +478,7 @@ class Organisation extends Model implements HasMedia, Auditable
 
     public function orgAgents(): HasMany
     {
-        return $this->hasMany(OrgAgent::class, );
+        return $this->hasMany(OrgAgent::class);
     }
 
     public function orgSuppliers(): HasMany
@@ -569,7 +581,7 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasMany(Asset::class);
     }
 
-    public function tasks()
+    public function tasks(): MorphMany
     {
         return $this->morphMany(Task::class, 'assigner');
     }

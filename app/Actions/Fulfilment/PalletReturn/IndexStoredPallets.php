@@ -87,6 +87,8 @@ class IndexStoredPallets extends OrgAction
         $query->where('state', PalletStateEnum::STORING);
         $query->where('status', '!=', PalletStatusEnum::RETURNED);
 
+
+
         return $query->defaultSort('pallets.reference')
             ->allowedSorts(['customer_reference', 'pallets.reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
