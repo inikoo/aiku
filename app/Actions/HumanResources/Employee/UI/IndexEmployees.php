@@ -166,6 +166,7 @@ class IndexEmployees extends OrgAction
                     ]
                 );
             }
+            $table->withAdditional('Employees');
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
