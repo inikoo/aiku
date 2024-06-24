@@ -11,6 +11,9 @@ import { ref } from 'vue'
 library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip );
 const props = defineProps<{
     onPickBlock: Funcition,
+    webBlockTypes: {
+        data : Array
+    }
 }>();
 
 const tabs = [
@@ -94,62 +97,4 @@ const filter = (e) => {
 </template>
 
 <style lang="scss">
-#text-editor {
-
-    .highlight-prosemirror {
-        @apply px-1 py-0.5
-    }
-
-    .ProseMirror {
-        height: 300px;
-        width: 100%;
-        overflow-y: auto;
-        padding-left: 0.5em;
-        padding-right: 0.5em;
-        outline: none;
-
-        >p:first-child {
-            margin-top: 0.5em;
-        }
-
-        >h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            &:first-child {
-                margin-top: 0.5em;
-            }
-        }
-    }
-
-    a {
-        color: #e3ae00;
-    }
-
-    ul,
-    ol {
-        padding: 0 1rem;
-    }
-
-    ul {
-        list-style: disc
-    }
-
-    ol {
-        list-style: decimal
-    }
-
-	.ProseMirror {
-    height: fit-content;
-    width: 100%;
-    overflow-y: auto;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    outline: none;
-}
-}
-
-
 </style>

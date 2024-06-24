@@ -1,14 +1,20 @@
 {
     "slug": "cta",
     "name": "Call to action",
-    "blueprint": {
-        "defaultParameters": {}
-    },
+    "blueprint": {},
     "scope": "webpage",
     "webBlockTypes": [
         {
-            "code": "cta",
-            "name": "Call to action"
+            "code": "cta1",
+            "name": "Call to action 1",
+            "component": "CTA",
+            "icon" : ["fal", "rectangle-wide"]
+        },
+        {
+            "code": "cta2",
+            "name": "Call to action 2",
+            "component": "CTA2",
+            "icon" : ["fal", "rectangle-wide"]
         }
     ]
 }

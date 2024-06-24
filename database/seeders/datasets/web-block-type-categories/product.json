@@ -1,26 +1,14 @@
 {
     "slug": "product",
     "name": "Product showcase",
-    "blueprint": {
-        "defaultParameters": {}
-    },
+    "blueprint": {},
     "scope": "webpage",
     "webBlockTypes": [
         {
             "code": "product",
-            "name": "Product showcase A"
-        },
-        {
-            "code": "product",
-            "name": "Product showcase A"
-        },
-        {
-            "code": "product",
-            "name": "Product showcase A"
-        },
-        {
-            "code": "product",
-            "name": "Product showcase A"
+            "name": "Product showcase A",
+            "component" : "",
+            "icon": ["fal", "cube"]
         }
     ]
 }
