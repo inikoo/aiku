@@ -104,3 +104,15 @@ test('UI show raw material', function () {
 
     });
 });
+
+test('UI edit raw material', function () {
+    $response = get(route('grp.org.productions.show.crafts.raw_materials.edit', [$this->organisation->slug, $this->production->slug, $this->rawMaterial->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 8)
+            ->has('pageHead')
+            ->has('breadcrumbs', 4);
+    });
+});
