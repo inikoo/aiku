@@ -48,15 +48,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $unit
  * @property string $units
  * @property int $currency_id
- * @property int|null $current_historic_asset_id
  * @property int|null $current_historic_product_variant_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $historic_source_id
+ * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
+ * @property-read \App\Models\Catalogue\ProductCategory|null $department
+ * @property-read \App\Models\Catalogue\ProductCategory|null $family
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricProductVariant> $historicProductVariants
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -135,5 +137,21 @@ class ProductVariant extends Model implements Auditable
     {
         return $this->hasMany(HistoricProductVariant::class);
     }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'department_id');
+    }
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'family_id');
+    }
+
+    public function asset(): BelongsTo
+    {
+        return $this->belongsTo(Asset::class);
+    }
+
 
 }

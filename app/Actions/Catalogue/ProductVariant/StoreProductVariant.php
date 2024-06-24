@@ -41,6 +41,13 @@ class StoreProductVariant extends OrgAction
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
+        data_set($modelData, 'asset_id', $product->asset_id);
+        data_set($modelData, 'family_id', $product->family_id);
+        data_set($modelData, 'department_id', $product->department_id);
+
+        data_set($modelData, 'shop_id', $product->shop_id);
+
+
         data_set($modelData, 'currency_id', $product->currency_id);
         data_set($modelData, 'unit', $product->unit);
         data_set($modelData, 'units', $product->units * $modelData['ratio']);
@@ -56,6 +63,7 @@ class StoreProductVariant extends OrgAction
                 default                         => ProductVariantStateEnum::IN_PROCESS
             }
         );
+
 
         /** @var ProductVariant $productVariant */
         $productVariant = $product->productVariants()->create($modelData);
@@ -111,8 +119,8 @@ class StoreProductVariant extends OrgAction
             ],
             'name'               => ['required', 'max:250', 'string'],
             'price'              => ['required', 'numeric', 'min:0'],
-            'source_id'          => ['sometimes', 'required', 'string', 'max:255'],
-            'historic_source_id' => ['sometimes', 'required', 'string', 'max:255'],
+            'source_id'          => ['sometimes', 'nullable', 'string', 'max:255'],
+            'historic_source_id' => ['sometimes', 'nullable', 'string', 'max:255'],
 
         ];
     }

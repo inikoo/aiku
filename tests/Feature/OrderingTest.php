@@ -121,10 +121,10 @@ test('create order', function () {
 
 
 test('create transaction', function ($order) {
-    $transactionData = Transaction::factory()->definition();
-    $item            = $this->product->historicAsset;
-    expect($item)->toBeInstanceOf(HistoricAsset::class);
-    $transaction = StoreTransaction::make()->action($order, $item, $transactionData);
+    $transactionData          = Transaction::factory()->definition();
+    $historicAsset            = $this->product->historicAsset;
+    expect($historicAsset)->toBeInstanceOf(HistoricAsset::class);
+    $transaction = StoreTransaction::make()->action($order, $historicAsset, $transactionData);
 
     $order->refresh();
 

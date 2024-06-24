@@ -44,6 +44,11 @@ class FetchAuroraOrder extends FetchAurora
                 $this->organisationSource,
                 $this->auroraModelData->{'Order Customer Client Key'},
             );
+
+            if($parent==null and $this->auroraModelData->{'Order State'} == "Cancelled") {
+                return;
+            }
+
         } else {
             $parent = $this->parseCustomer(
                 $this->organisation->id.':'.$this->auroraModelData->{'Order Customer Key'}

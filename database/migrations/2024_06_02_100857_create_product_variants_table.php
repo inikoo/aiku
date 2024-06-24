@@ -39,8 +39,7 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->unsignedInteger('current_historic_asset_id')->index()->nullable();
-            $table->foreign('current_historic_asset_id')->references('id')->on('historic_assets');
+
             $table->unsignedInteger('current_historic_product_variant_id')->index()->nullable();
 
             $table->timestampsTz();

@@ -17,6 +17,7 @@ use App\Actions\Catalogue\ProductCategory\HydrateDepartments;
 use App\Actions\Catalogue\ProductCategory\HydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
+use App\Actions\Catalogue\ProductVariant\HydrateProductVariant;
 use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
 use App\Actions\Catalogue\ProductVariant\UpdateProductVariant;
 use App\Actions\Catalogue\Service\StoreService;
@@ -259,6 +260,8 @@ test('create product', function (ProductCategory $family) {
     $product = StoreProduct::make()->action($family, $productData);
     $product->refresh();
 
+
+    /** @var ProductVariant $productVariant */
     $productVariant = $product->productVariant;
 
 
@@ -284,6 +287,7 @@ test('create product', function (ProductCategory $family) {
         ->and($product->department->stats->number_current_products)->toBe(0)
         ->and($product->shop->stats->number_assets_type_product)->toBe(1)
         ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
+        ->and($productVariant->asset)->toBeInstanceOf(Asset::class)
         ->and($productVariant->name)->toBe($product->name)
         ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
 
@@ -373,24 +377,24 @@ test('update product', function (Product $product) {
 })->depends('create product');
 
 test('add variant to product', function (Product $product) {
+
     expect($product->stats->number_product_variants)->toBe(1);
 
-
-    $outerData =
+    $productVariant = StoreProductVariant::run(
+        $product,
         [
             'code'    => $product->code.'-v1',
             'ratio'   => 2,
             'price'   => 99,
             'name'    => $product->name.' variant 1',
             'is_main' => false
-        ];
-
-
-    $productVariant = StoreProductVariant::run($product, $outerData);
+        ]
+    );
     $product->refresh();
 
 
     expect($productVariant)->toBeInstanceOf(ProductVariant::class)
+        ->and($productVariant->asset)->toBeInstanceOf(Asset::class)
         ->and($productVariant->is_main)->toBeFalse()
         ->and($productVariant->product->id)->toBe($product->id)
         ->and($product->stats->number_product_variants)->toBe(2)
@@ -412,7 +416,7 @@ test('update second product variant', function (ProductVariant $productVariant) 
         'price' => 99.99
     ];
 
-    $productVariant = UpdateProductVariant::run($productVariant, $modelData);
+    $productVariant = UpdateProductVariant::make()->action($productVariant, $modelData);
     $productVariant->refresh();
     $product->refresh();
 
@@ -600,6 +604,12 @@ test('hydrate families', function (ProductCategory $family) {
 test('hydrate products', function (Product $product) {
     HydrateProducts::run($product);
     $this->artisan('hydrate:products')->assertExitCode(0);
+})->depends('create product');
+
+test('hydrate product variants', function (Product $product) {
+    $variant=$product->productVariant;
+    HydrateProductVariant::run($variant);
+    $this->artisan('hydrate:product-variants')->assertExitCode(0);
 })->depends('create product');
 
 test('can show catalogue', function (Shop $shop) {

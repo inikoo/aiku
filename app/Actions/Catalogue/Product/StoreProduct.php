@@ -88,33 +88,6 @@ class StoreProduct extends OrgAction
         $product->salesIntervals()->create();
         $product->refresh();
 
-        foreach ($tradeUnits as $tradeUnitId => $tradeUnitData) {
-            $tradeUnit = TradeUnit::find($tradeUnitId);
-            $product->tradeUnits()->attach(
-                $tradeUnit,
-                [
-                    'units' => $tradeUnitData['units'],
-                    'notes' => Arr::get($tradeUnitData, 'notes'),
-                ]
-            );
-        }
-
-        StoreProductVariant::run(
-            $product,
-            [
-                'is_main'            => true,
-                'ratio'              => 1,
-                'code'               => $product->code,
-                'name'               => $product->name,
-                'price'              => $product->price,
-                'state'              => $product->state,
-                'source_id'          => $product->source_id,
-                'historic_source_id' => $product->historic_source_id,
-            ]
-        );
-
-
-
         $asset = StoreAsset::run(
             $product,
             [
@@ -134,6 +107,19 @@ class StoreProduct extends OrgAction
             ]
         );
 
+
+        foreach ($tradeUnits as $tradeUnitId => $tradeUnitData) {
+            $tradeUnit = TradeUnit::find($tradeUnitId);
+            $product->tradeUnits()->attach(
+                $tradeUnit,
+                [
+                    'units' => $tradeUnitData['units'],
+                    'notes' => Arr::get($tradeUnitData, 'notes'),
+                ]
+            );
+        }
+
+
         $historicAsset = StoreHistoricAsset::run(
             $product,
             [
@@ -151,6 +137,25 @@ class StoreProduct extends OrgAction
                 'current_historic_asset_id' => $historicAsset->id,
             ]
         );
+
+        StoreProductVariant::make()->action(
+            $product,
+            [
+                'is_main'            => true,
+                'ratio'              => 1,
+                'code'               => $product->code,
+                'name'               => $product->name,
+                'price'              => $product->price,
+                'source_id'          => $product->source_id,
+                'historic_source_id' => $product->historic_source_id,
+            ]
+        );
+
+
+
+
+
+
 
         GroupHydrateProducts::dispatch($product->group);
         OrganisationHydrateProducts::dispatch($product->organisation);
@@ -259,11 +264,6 @@ class StoreProduct extends OrgAction
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($parent, $this->validatedData);
-    }
-
-    public function afterValidator($validator)
-    {
-        dd($validator);
     }
 
 }
