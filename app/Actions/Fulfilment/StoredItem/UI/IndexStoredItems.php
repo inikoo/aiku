@@ -124,9 +124,9 @@ class IndexStoredItems extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
                 'pageHead'    => [
-                    'title'   => __('stored items'),
+                    'title'         => __('stored items'),
                     'subNavigation' => $subNavigation,
-                    'actions' => [
+                    'actions'       => [
                         'buttons' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.employees.create',
