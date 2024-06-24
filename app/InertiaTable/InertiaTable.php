@@ -31,17 +31,20 @@ class InertiaTable
     private static bool|string $defaultGlobalSearch = false;
     private static array $defaultQueryBuilderConfig = [];
 
+    private string $labelRecord          = 'record';
+
     public function __construct(Request $request)
     {
-        $this->request         = $request;
-        $this->periodFilters   = [];
-        $this->columns         = new Collection();
-        $this->searchInputs    = new Collection();
-        $this->elementGroups   = new Collection();
-        $this->filters         = new Collection();
-        $this->modelOperations = new Collection();
-        $this->exportLinks     = new Collection();
-        $this->emptyState      = new Collection();
+        $this->request          = $request;
+        $this->periodFilters    = [];
+        $this->columns          = new Collection();
+        $this->searchInputs     = new Collection();
+        $this->elementGroups    = new Collection();
+        $this->filters          = new Collection();
+        $this->modelOperations  = new Collection();
+        $this->exportLinks      = new Collection();
+        $this->emptyState       = new Collection();
+        $this->labelRecord      = '';
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -117,31 +120,32 @@ class InertiaTable
     protected function getQueryBuilderProps(): array
     {
         return [
-            'defaultVisibleToggleableColumns' => $this->columns->reject->hidden->map->key->sort()->values(),
-            'columns'                         => $this->transformColumns(),
-            'hasHiddenColumns'                => $this->columns->filter->hidden->isNotEmpty(),
-            'hasToggleableColumns'            => $this->columns->filter->canBeHidden->isNotEmpty(),
-            'filters'                         => $this->transformFilters(),
-            'hasFilters'                      => $this->filters->isNotEmpty(),
-            'hasEnabledFilters'               => $this->filters->filter->value->isNotEmpty(),
-            'searchInputs'                    => $searchInputs              = $this->transformSearchInputs(),
-            'searchInputsWithoutGlobal'       => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
-            'hasSearchInputs'                 => $searchInputsWithoutGlobal->isNotEmpty(),
-            'hasSearchInputsWithValue'        => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
-            'hasSearchInputsWithoutValue'     => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
-            'globalSearch'                    => $this->searchInputs->firstWhere('key', 'global'),
-            'cursor'                          => $this->query('cursor'),
-            'sort'                            => $this->query('sort', $this->defaultSort) ?: null,
-            'defaultSort'                     => $this->defaultSort,
-            'page'                            => Paginator::resolveCurrentPage($this->pageName),
-            'pageName'                        => $this->pageName,
-            'perPageOptions'                  => $this->perPageOptions,
-            'elementGroups'                   => $this->transformElementGroups(),
-            'period_filter'                   => $this->transformPeriodFilters(),
-            'modelOperations'                 => $this->modelOperations,
-            'exportLinks'                     => $this->exportLinks,
-            'emptyState'                      => $this->emptyState,
-            'title'                           => $this->title
+            'defaultVisibleToggleableColumns'  => $this->columns->reject->hidden->map->key->sort()->values(),
+            'columns'                          => $this->transformColumns(),
+            'hasHiddenColumns'                 => $this->columns->filter->hidden->isNotEmpty(),
+            'hasToggleableColumns'             => $this->columns->filter->canBeHidden->isNotEmpty(),
+            'filters'                          => $this->transformFilters(),
+            'hasFilters'                       => $this->filters->isNotEmpty(),
+            'hasEnabledFilters'                => $this->filters->filter->value->isNotEmpty(),
+            'searchInputs'                     => $searchInputs              = $this->transformSearchInputs(),
+            'searchInputsWithoutGlobal'        => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
+            'hasSearchInputs'                  => $searchInputsWithoutGlobal->isNotEmpty(),
+            'hasSearchInputsWithValue'         => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
+            'hasSearchInputsWithoutValue'      => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
+            'globalSearch'                     => $this->searchInputs->firstWhere('key', 'global'),
+            'cursor'                           => $this->query('cursor'),
+            'sort'                             => $this->query('sort', $this->defaultSort) ?: null,
+            'defaultSort'                      => $this->defaultSort,
+            'page'                             => Paginator::resolveCurrentPage($this->pageName),
+            'pageName'                         => $this->pageName,
+            'perPageOptions'                   => $this->perPageOptions,
+            'elementGroups'                    => $this->transformElementGroups(),
+            'period_filter'                    => $this->transformPeriodFilters(),
+            'modelOperations'                  => $this->modelOperations,
+            'exportLinks'                      => $this->exportLinks,
+            'emptyState'                       => $this->emptyState,
+            'labelRecord'                      => $this->labelRecord,
+            'title'                            => $this->title
         ];
     }
 
@@ -358,6 +362,13 @@ class InertiaTable
     public function withEmptyState(array $emptyState = null): self
     {
         $this->emptyState = collect($emptyState);
+
+        return $this;
+    }
+
+    public function withLabelRecord(string $labelRecord = null): self
+    {
+        $this->labelRecord = $labelRecord;
 
         return $this;
     }

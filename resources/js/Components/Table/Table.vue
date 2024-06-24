@@ -661,7 +661,7 @@ watch(selectRow, () => {
                         <!-- Result Number -->
                         <div class="bg-gray-100 h-fit flex items-center border border-gray-300 overflow-hidden rounded">
                             <div class="grid justify-end items-center text-base font-normal text-gray-700">
-                                <div class="px-2 py-[1px] whitespace-nowrap flex gap-x-1 flex-nowrap">
+                                <div class="px-2 py-[1px] whitespace-nowrap flex gap-x-1.5 flex-nowrap">
                                     <span class="font-semibold tabular-nums">
                                         <CountUp :endVal="compResourceMeta?.total || 0" :duration="1.2" :scrollSpyOnce="true"
                                             :options="{
@@ -670,7 +670,7 @@ watch(selectRow, () => {
                                     </span>
                                     
                                     <span class="font-light">
-                                        {{ compResourceMeta.total > 1 ? trans('records') : trans('record') }}
+                                        {{ queryBuilderProps.labelRecord || (compResourceMeta.total > 1 ? trans('records') : trans('record')) }}
                                     </span>
                                 </div>
                             </div>
