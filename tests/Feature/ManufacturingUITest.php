@@ -9,11 +9,17 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Manufacturing\Production\StoreProduction;
+use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Inventory\Location;
 use App\Models\Manufacturing\Production;
+use App\Models\Manufacturing\RawMaterial;
+use App\Models\Manufacturing\RawMaterialStats;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -39,6 +45,22 @@ beforeEach(function () {
         );
     }
     $this->production = $production;
+
+    $rawMaterial = RawMaterial::first();
+    if (!$rawMaterial) {
+        data_set($storeData, 'type', RawMaterialTypeEnum::CONSUMABLE->value);
+        data_set($storeData, 'state',RawMaterialStateEnum::ORPHAN->value);
+        data_set($storeData, 'code', 'CODE');
+        data_set($storeData, 'description', 'desc');
+        data_set($storeData, 'unit', RawMaterialUnitEnum::KILOGRAM->value);
+        data_set($storeData, 'unit_cost', 10);
+
+        $rawMaterial = StoreRawMaterial::make()->action(
+            $this->production,
+            $storeData
+        );
+    }
+    $this->rawMaterial = $rawMaterial;
     
     Config::set(
         'inertia.testing.page_paths',
@@ -65,5 +87,23 @@ test('UI create raw material', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show raw material', function () {
+    $response = get(route('grp.org.productions.show.crafts.raw_materials.show', [$this->organisation->slug, $this->production->slug, $this->rawMaterial->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/RawMaterial')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->rawMaterial->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
