@@ -1,0 +1,14 @@
+{
+    "slug": "cta",
+    "name": "Call to action",
+    "blueprint": {
+        "defaultParameters": {}
+    },
+    "scope": "webpage",
+    "webBlockTypes": [
+        {
+            "code": "cta",
+            "name": "Call to action"
+        }
+    ]
+}

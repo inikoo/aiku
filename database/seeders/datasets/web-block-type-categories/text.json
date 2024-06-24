@@ -1,22 +1,11 @@
 {
     "slug": "text",
     "name": "Text",
-    "blueprint": {
-        "defaultParameters": {},
-        "dummyData": {
-            "data": {
-                "delay": 2500,
-                "data": {
-                    "component": "p",
-                    "value": "Enjoy your best clothes with us"
-                }
-            }
-        }
-    },
+    "blueprint": {},
     "scope": "webpage",
     "webBlockTypes": [
         {
-            "code": "Text",
+            "code": "text",
             "name": "Text"
         }
     ]

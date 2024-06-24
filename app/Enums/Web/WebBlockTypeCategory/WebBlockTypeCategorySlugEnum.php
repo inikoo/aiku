@@ -25,6 +25,9 @@ enum WebBlockTypeCategorySlugEnum: string
     case TEXT    = 'text';
     case PICTURE = 'picture';
     case MAPS    = 'maps';
+    case CTE    = 'cta';
+    case PRODUCTS    = 'products';
+    case REVIEWS    = 'reviews';
 
 
 }

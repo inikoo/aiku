@@ -40,8 +40,8 @@
     "scope": "webpage",
     "webBlockTypes": [
         {
-            "code": "Banner",
-            "name": "Main Banner"
+            "code": "banner",
+            "name": "Wowsbar banner"
         }
     ]
 }
