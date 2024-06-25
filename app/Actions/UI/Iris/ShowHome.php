@@ -49,7 +49,6 @@ class ShowHome
         );
 
 
-
         return Inertia::render(
             'Home',
             [

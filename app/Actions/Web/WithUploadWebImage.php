@@ -11,18 +11,18 @@ use App\Actions\Helpers\Media\StoreMediaFromFile;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Http\Resources\Helpers\ImageResource;
-use App\Models\Web\Webpage;
+use App\Models\Web\WebBlock;
 use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Collection;
 
-trait WithUploadImage
+trait WithUploadWebImage
 {
     use HasWebAuthorisation;
     use WithAttachMediaToModel;
     use WithAttachMediaToModel;
 
-    public function handle(Webpage|Website $model, string $scope, array $modelData): Collection
+    public function handle(WebBlock|Website $model, string $scope, array $modelData): Collection
     {
         $medias = [];
 

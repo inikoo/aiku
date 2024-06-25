@@ -17,7 +17,6 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 
 
 export const getComponent = (componentName: string) => {
-    console.log('ddd',componentName)
     const components: Component = {
         'bannerWowsbar': WowsbarBanner,
         'ProductPage': ProductPage,

@@ -56,6 +56,6 @@ const setImage = (e) => {
         </div>
     </div>
 
-    <Gallery :open="openGallery" @on-close="openGallery = false" :uploadRoutes="route(webpageData?.images_upload_route.name,{ modelHasWebBlock : web_block.id })"  @onPick="setImage"></Gallery>
+    <Gallery :open="openGallery" @on-close="openGallery = false" :uploadRoutes="route(webpageData?.images_upload_route.name,{ modelHasWebBlocks : web_block.id })"  @onPick="setImage"></Gallery>
 
 </template>
