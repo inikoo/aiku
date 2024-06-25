@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\UI\ProcurementDashboard;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\SupplyChain\SupplierResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;

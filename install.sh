@@ -68,3 +68,12 @@ ${PHP} artisan fetch:agents -d "${DB_SUFFIX}"
 ${PHP} artisan org:attach-agent aroma indo
 
 pg_dump -Fc -f "devops/devel/snapshots/installed.dump" ${DB}
+
+./aurora_procurement_migration.sh
+pg_dump -Fc -f "devops/devel/snapshots/procurement.dump" ${DB}
+
+./aurora_warehouses_migration.sh
+pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
+
+./aurora_inventory_migration.sh
+pg_dump -Fc -f "devops/devel/snapshots/inventory.dump" ${DB}

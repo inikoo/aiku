@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 14 Jun 2024 00:01:00 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 25 Jun 2024 22:26:54 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Procurement;
+namespace App\Http\Resources\SupplyChain;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 

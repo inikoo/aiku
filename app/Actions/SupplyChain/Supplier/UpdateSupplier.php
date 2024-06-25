@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\SupplyChain\Supplier;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;

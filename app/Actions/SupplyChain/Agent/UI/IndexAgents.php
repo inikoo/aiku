@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\SupplyChain\AgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
