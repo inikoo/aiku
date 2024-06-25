@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 20 Jun 2024 20:54:23 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 25 Jun 2024 13:19:07 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\WebBlock;
+namespace App\Actions\Web\Webpage;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
@@ -13,7 +13,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
 use Lorisleiva\Actions\ActionRequest;
 
-class OrderPositionWebBlock extends GrpAction
+class ReorderWebBlocks extends GrpAction
 {
     use HasWebAuthorisation;
 
@@ -21,20 +21,14 @@ class OrderPositionWebBlock extends GrpAction
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
-        $syncData = [];
-
-        foreach ($modelData as $webpageId => $data) {
-            $syncData[$webpageId] = ['position' => $data['position']];
-        }
-
-        $webpage->webBlocks()->syncWithoutDetaching($syncData);
+        $webpage->webBlocks()->syncWithoutDetaching($modelData);
 
         return $webpage;
     }
 
     public function asController(Webpage $webpage, ActionRequest $request): Webpage
     {
-        return $this->handle($webpage, $request->input('web_block_type_id'));
+        return $this->handle($webpage, $request->input('positions'));
     }
 
     public function action(Webpage $webpage, array $modelData): Webpage

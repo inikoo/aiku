@@ -11,7 +11,10 @@
 			"name": "Product showcase A",
 			"data": {
 				"component": "",
-				"icon": ["fal", "cube"]
+				"icon": ["fal", "cube"],
+				"fieldValue": {
+					"value": ""
+				}
 			}
 		}
 	]

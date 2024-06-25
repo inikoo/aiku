@@ -45,16 +45,20 @@ class WebpageResource extends JsonResource
                 'name'       => 'grp.models.webpage.web_block.store',
                 'parameters' => $webpage->id
             ],
-            'update_web_block_route'        => [
-                'name'       => 'grp.models.web_block.update',
+            'update_model_has_web_blocks_route'        => [
+                'name'       => 'grp.models.model_has_web_block.update',
+            ],
+            'delete_model_has_web_blocks_route'        => [
+                'name'       => 'grp.models.model_has_web_block.delete',
             ],
             'images_upload_route' => [
-                'name'       => 'grp.models.web_block.images.store',
+                'name'       => 'grp.models.web_block.model_has_web_block.store',
             ],
-            'update_erb_block_positions_route'        => [
-                'name'       => 'grp.models.webpage.web_blocks_positions',
+            'reorder_web_blocks_route'        => [
+                'name'       => 'grp.models.webpage.reorder_web_blocks',
                 'parameters' => $webpage->id
             ],
+
         ];
     }
 }

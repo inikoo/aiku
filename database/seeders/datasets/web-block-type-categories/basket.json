@@ -19,7 +19,10 @@
 			"name": "Basket Style",
 			"data": {
 				"component": "",
-				"icon": ["fal", "presentation"]
+				"icon": ["fal", "presentation"],
+				"fieldValue": {
+					"value": ""
+				}
 			}
 		}
 	]

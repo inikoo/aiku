@@ -48,11 +48,11 @@ const data = ref({
 const sendNewBlock = async (block) => {
   try {
     const response = await axios.post(
-      route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters), 
+      route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
       {web_block_type_id : block.id }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
+    const set = {...response.data.data }
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
@@ -62,11 +62,11 @@ const sendNewBlock = async (block) => {
 const sendBlockUpdate =  async (block) => {
 	try {
     const response = await axios.patch(
-      route(props.webpage.update_web_block_route.name, {webBlock : block.id}), 
+      route(props.webpage.update_model_has_web_blocks_route.name, {modelHasWebBlock : block.id}),
       {web_block : block }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
+	const set = {...response.data.data }
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
@@ -76,11 +76,11 @@ const sendBlockUpdate =  async (block) => {
 const sendOrderBlock =  async (block) => {
 	try {
     const response = await axios.post(
-      route(props.webpage.update_erb_block_positions_route.name, props.webpage.update_erb_block_positions_route.parameters), 
-      {web_block_type_id : block }
+      route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
+      {positions : block }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
+	const set = {...response.data.data }
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
@@ -89,11 +89,12 @@ const sendOrderBlock =  async (block) => {
 
 const sendDeleteBlock =  async (block) => {
 	try {
+        console.log(block)
     const response = await axios.delete(
-      route(props.webpage.delete_web_block_route.name, {webpage : props.webpage.delete_web_block_route.parameters, webBlock : block.id })
+      route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlock : block.web_block.id })
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
+    const set = {...response.data.data }
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
@@ -215,7 +216,7 @@ const onPublish = async (action) => {
 							size="xs"
 							@click="() => (isModalBlocksList = true)" />
 					</div>
-                    
+
 					<draggable v-if="data?.layout?.web_blocks.length > 0"
 						:list="data.layout.web_blocks"
 						@change="onChangeOrderBlock"
@@ -234,7 +235,7 @@ const onPublish = async (action) => {
                                         {{ element.web_block.layout.name }}
                                     </h3>
                                 </div>
-                                
+
                                 <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
                                     @click="() => sendDeleteBlock(element)">
                                     <font-awesome-icon :icon="['fal', 'times']" />
