@@ -190,6 +190,24 @@ test('UI show artifact', function () {
     });
 });
 
+test('UI show artifact (manufacture task tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/artefacts/'.$this->artefact->slug.'?tab=manufacture_tasks');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/Artefact')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->artefact->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
 test('UI edit artefact', function () {
     $response = get(route('grp.org.productions.show.crafts.artefacts.edit', [$this->organisation->slug, $this->production->slug, $this->artefact->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
