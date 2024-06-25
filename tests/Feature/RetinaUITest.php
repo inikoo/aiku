@@ -8,6 +8,7 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -55,22 +56,28 @@ beforeEach(function () {
         );
     }
     $this->webUser = $webUser;
+    $website= $this->fulfilmentWebsite;
 
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Retina')]
     );
+    DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($website);
+
     actingAs($this->webUser);
 });
 
-// test('UI Index pallets', function () {
-//     $response = $this->get(route('retina.storage.pallets.index'));
+test('UI Index pallets', function () {
+    $this->withoutExceptionHandling();
+    // $this->withoutMix();
+    // $this->withoutVite();
+    $response = $this->get(route('retina.storage.pallets.index'));
 
-//     $response->assertInertia(function (AssertableInertia $page) {
-//         $page
-//             ->component('Storage/RetinaPallets')
-//             ->has('title')
-//             ->has('pageHead')
-//             ->has('breadcrumbs', 3);
-//     });
-// });
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPallets')
+            ->has('title')
+            ->has('pageHead')
+            ->has('breadcrumbs', 3);
+    });
+});
