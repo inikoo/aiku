@@ -11,7 +11,10 @@
 			"name": "List products",
 			"data": {
 				"component": "ProductList",
-				"icon": ["fal", "cube"]
+				"icon": ["fal", "cube"],
+				"fieldValue": {
+					"value": ""
+				}
 			}
 		}
 	]

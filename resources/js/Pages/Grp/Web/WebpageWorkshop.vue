@@ -62,7 +62,7 @@ const sendNewBlock = async (block) => {
 const sendBlockUpdate =  async (block) => {
 	try {
     const response = await axios.patch(
-      route(props.webpage.update_web_block_route.name, {webBlock : block.id}),
+      route(props.webpage.update_model_has_web_blocks_route.name, {modelHasWebBlock : block.id}),
       {web_block : block }
     );
     const set = {...response.data.data, layout : response.data.data.layout.blocks }
@@ -76,7 +76,7 @@ const sendBlockUpdate =  async (block) => {
 const sendOrderBlock =  async (block) => {
 	try {
     const response = await axios.post(
-      route(props.webpage.update_erb_block_positions_route.name, props.webpage.update_erb_block_positions_route.parameters),
+      route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
       {positions : block }
     );
     const set = {...response.data.data, layout : response.data.data.layout.blocks }
@@ -91,7 +91,7 @@ const sendDeleteBlock =  async (block) => {
 	try {
         console.log(block)
     const response = await axios.delete(
-      route(props.webpage.delete_web_block_route.name, {webpage : props.webpage.delete_web_block_route.parameters, webBlock : block.web_block.id })
+      route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlock : block.web_block.id })
     );
     const set = {...response.data.data, layout : response.data.data.layout.blocks }
     data.value = set
