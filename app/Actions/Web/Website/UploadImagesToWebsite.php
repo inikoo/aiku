@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
-use App\Actions\Web\WithUploadImage;
+use App\Actions\Web\WithUploadWebImage;
 use App\Http\Resources\Helpers\ImageResource;
 use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UploadImagesToWebsite extends OrgAction
 {
-    use WithUploadImage;
+    use WithUploadWebImage;
 
 
 

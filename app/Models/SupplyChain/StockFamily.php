@@ -11,7 +11,10 @@ use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -55,11 +60,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|StockFamily withoutTrashed()
  * @mixin Eloquent
  */
-class StockFamily extends Model
+class StockFamily extends Model implements HasMedia, Auditable
 {
     use HasSlug;
     use SoftDeletes;
-
+    use HasImage;
+    use InGroup;
+    use HasHistory;
     use HasUniversalSearch;
     use HasFactory;
 
@@ -89,6 +96,20 @@ class StockFamily extends Model
         return 'slug';
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'goods'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'state',
+        'description'
+    ];
+
     public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class);
@@ -99,10 +120,6 @@ class StockFamily extends Model
         return $this->hasOne(StockFamilyStats::class);
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function orgStockFamilies(): HasMany
     {
