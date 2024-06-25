@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\Webpage\StoreWebpage;
@@ -138,6 +139,11 @@ test('create model has web block', function (Webpage $webpage) {
 test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
 
     $modelHasWebBlock=UpdateModelHasWebBlocks::make()->action($modelHasWebBlock, ['layout' => ['text' => 'Test Text']]);
+    expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
+})->depends('create model has web block');
+
+test('delete model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
+    $modelHasWebBlock= DeleteModelHasWebBlocks::make()->action($modelHasWebBlock, []);
     expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
 })->depends('create model has web block');
 
