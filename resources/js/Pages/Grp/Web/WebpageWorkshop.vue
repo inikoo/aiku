@@ -78,7 +78,16 @@ const sendOrderBlock =  async (block) => {
 }
 
 const sendDeleteBlock =  async (block) => {
-	console.log(block)
+	try {
+    const response = await axios.delete(
+      route(props.webpage.delete_web_block_route.name, {webpage : props.webpage.delete_web_block_route.parameters, webBlock : block.id })
+    );
+    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    data.value = set 
+    console.log('saved', response);
+  } catch (error: any) {
+    console.error('error', error);
+  }
 }
 
 
@@ -96,11 +105,11 @@ const onPickBlock = (block) => {
 };
 
 const onChangeOrderBlock = (moved) => {
-	const id = []
-	data.value.layout.web_blocks.map((item)=>{
-		id.push(item.id)
+	let payload = {}
+	data.value.layout.web_blocks.map((item,index)=>{
+		payload[item.id] =  {position : index }
 	})
-	sendOrderBlock(id)
+	sendOrderBlock(payload)
 }
 
 const deleteBlock = (index) => {
@@ -222,7 +231,7 @@ const onPublish = async (action) => {
                                 </div>
                                 
                                 <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
-                                    @click="() => deleteBlock(index)">
+                                    @click="() => sendDeleteBlock(element)">
                                     <font-awesome-icon :icon="['fal', 'times']" />
                                 </div>
                             </div>
