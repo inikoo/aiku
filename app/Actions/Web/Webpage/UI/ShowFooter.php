@@ -74,6 +74,14 @@ class ShowFooter extends OrgAction
         return $website;
     }
 
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    {
+        $this->parent = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $website;
+    }
+
     public function getBreadcrumbs($routeName, $routeParameters): array
     {
         return [];
