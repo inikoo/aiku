@@ -42,11 +42,11 @@ class StoreModelHasWebBlock extends OrgAction
                 'webpage_id'      => $webpage->id,
                 'position'        => $position,
                 'model_id'        => $webpage->id,
-                'model_type'      => Webpage::class,
+                'model_type'      => class_basename(Webpage::class),
                 'web_block_id'    => $webBlock->id,
             ]
         );
-        UpdateWebpageContent::run($webpage);
+        UpdateWebpageContent::run($webpage->refresh());
 
         return $modelHasWebBlock;
     }

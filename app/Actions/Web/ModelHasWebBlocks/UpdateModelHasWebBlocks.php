@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\ModelHasWebBlocks;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateModelHasWebBlocks extends OrgAction
 {
@@ -20,13 +21,19 @@ class UpdateModelHasWebBlocks extends OrgAction
     use WithActionUpdate;
 
 
-    public function handle(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
+    public function handle(ModelHasWebBlocks $modelHasWebBlock, array $modelData): ModelHasWebBlocks
     {
-        $this->update($modelHasWebBlocks->webBlock, $modelData, ['data', 'layout']);
-        $modelHasWebBlocks->refresh();
-        UpdateWebpageContent::run($modelHasWebBlocks->webpage);
-        return $modelHasWebBlocks;
+        $this->update($modelHasWebBlock->webBlock, $modelData, ['data', 'layout']);
+        $modelHasWebBlock->refresh();
+        UpdateWebpageContent::run($modelHasWebBlock->webpage);
 
+        return $modelHasWebBlock;
+
+    }
+
+    public function asController(ModelHasWebBlocks $modelHasWebBlock, ActionRequest $request): ModelHasWebBlocks
+    {
+        return $this->handle($modelHasWebBlock, $request->all());
     }
 
     public function rules(): array
