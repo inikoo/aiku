@@ -14,6 +14,7 @@ use App\Models\SupplyChain\Supplier;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -101,6 +102,17 @@ test('UI Index agents', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/OrgAgents')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index purchase orders', function () {
+    $response = $this->get(route('grp.org.procurement.purchase_orders.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/PurchaseOrders')
             ->has('title')
             ->has('breadcrumbs', 3);
     });
