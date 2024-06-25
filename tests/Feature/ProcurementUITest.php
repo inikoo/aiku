@@ -5,15 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\Inventory\Location\StoreLocation;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
