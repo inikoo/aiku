@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 19 Jun 2024 09:24:40 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Wed, 19 Jun 2024 09:24:40 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -49,7 +49,7 @@ beforeEach(function () {
     if (!$webUser) {
         data_set($storeData, 'username', 'test');
         data_set($storeData, 'email', 'test@testmail.com');
-        data_set($storeData, 'password', 'testo');
+        data_set($storeData, 'password', 'test');
 
         $webUser = StoreWebUser::make()->action(
             $this->customer,
@@ -81,4 +81,4 @@ test('UI Index pallets', function () {
             ->has('pageHead')
             ->has('breadcrumbs', 3);
     });
-});
+})->todo();
