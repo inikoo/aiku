@@ -14,6 +14,8 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import { get } from "lodash"
 import { routeType } from "@/types/route"
+import { ref } from 'vue'
+import { v4 as uuidv4 } from 'uuid';
 
 library.add(faPlus)
 
@@ -26,7 +28,8 @@ const props = defineProps<{
 	stored_items: {}[]
 }>()
 
-
+const _selectQuery = ref(null)
+const key = ref(uuidv4())
 
 const emits = defineEmits<{
     (e: 'onSave', event: any): void
@@ -40,6 +43,7 @@ const createPallet = async (option, select) => {
 			{ headers: { "Content-Type": "multipart/form-data" } }
 		)
 		props.form.errors = {}
+		_selectQuery.value.page = 1
 		return response.data
 	} catch (error: any) {
 		console.log(error)
@@ -81,6 +85,8 @@ const onSaved = async () => {
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		<div class="mt-1">
 			<SelectQuery
+			    :key="key"
+				ref="_selectQuery"
 				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
 				:value="form"
 				:placeholder="'Select or add item'"
