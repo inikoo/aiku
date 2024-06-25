@@ -103,7 +103,7 @@ const isLoadingButtonRentalAgreement = ref(false)
                 <!-- Section: Profile box -->
                 <Transition name="headlessui" mode="out-in">
                     <div v-if="props.data.fulfilment_customer.radioTabs.dropshipping" class="col-span-2 grid grid-cols-2">
-                        <div>
+                        <div class="w-fit">
                             <h2 class="sr-only">Customer profile</h2>
                             <div class="rounded-lg shadow-sm ring-1 ring-gray-900/5">
                                 <dl class="flex flex-wrap">
