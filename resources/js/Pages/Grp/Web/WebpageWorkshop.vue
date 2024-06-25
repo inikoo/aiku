@@ -61,9 +61,10 @@ const sendNewBlock = async (block) => {
 
 const sendBlockUpdate =  async (block) => {
 	try {
+        console.log(block)
     const response = await axios.patch(
       route(props.webpage.update_model_has_web_blocks_route.name, {modelHasWebBlock : block.id}),
-      {web_block : block }
+      {layout : block.web_block.layout }
     );
 	const set = {...response.data.data }
     data.value = set
@@ -89,9 +90,8 @@ const sendOrderBlock =  async (block) => {
 
 const sendDeleteBlock =  async (block) => {
 	try {
-        console.log(block)
     const response = await axios.delete(
-      route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlock : block.web_block.id })
+      route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlock : block.id })
     );
     const set = {...response.data.data }
     data.value = set
@@ -193,7 +193,7 @@ const onPublish = async (action) => {
                                 :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                 :key="activityItemIdx"
                                 :webpageData="webpage"
-                                v-bind="activityItem?.web_block?.layout?.data?.fieldData"
+                                v-bind="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
                                 @autoSave="()=>onUpdatedBlock(activityItem)" />
                         </div>

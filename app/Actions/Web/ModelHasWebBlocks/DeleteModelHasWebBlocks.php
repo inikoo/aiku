@@ -11,8 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Http\Resources\Web\WebpageResource;
-use App\Models\Web\WebBlock;
-use App\Models\Web\Webpage;
+use App\Models\ModelHasWebBlocks;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeleteModelHasWebBlocks extends GrpAction
@@ -20,26 +19,32 @@ class DeleteModelHasWebBlocks extends GrpAction
     use HasWebAuthorisation;
 
 
-    public function handle(Webpage $webpage, WebBlock $webBlock): Webpage
+    public function handle(ModelHasWebBlocks $modelHasWebBlock): ModelHasWebBlocks
     {
-        $webpage->webBlocks()->detach([$webBlock->id]);
+        $webBlockUsed = ModelHasWebBlocks::where('web_block_id', $modelHasWebBlock->web_block_id)->count();
 
-        UpdateWebpageContent::run($webpage);
+        if ($webBlockUsed === 1) {
+            $modelHasWebBlock->webBlock()->delete();
+        }
 
-        return $webpage;
+        $modelHasWebBlock->delete();
+
+        UpdateWebpageContent::run($modelHasWebBlock->webpage);
+
+        return $modelHasWebBlock;
     }
 
-    public function jsonResponse(Webpage $webpage): JsonResource
+    public function jsonResponse(ModelHasWebBlocks $modelHasWebBlock): JsonResource
     {
-        return WebpageResource::make($webpage);
+        return WebpageResource::make($modelHasWebBlock->webpage);
     }
 
-    public function action(Webpage $webpage, WebBlock $webBlock, array $modelData): void
+    public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
     {
         $this->asAction = true;
 
-        $this->initialisation($webpage->group, $modelData);
+        $this->initialisation($modelHasWebBlocks->group, $modelData);
 
-        $this->handle($webpage, $webBlock);
+        return $this->handle($modelHasWebBlocks);
     }
 }

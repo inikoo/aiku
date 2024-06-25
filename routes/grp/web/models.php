@@ -387,7 +387,6 @@ Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
     Route::post('web-block', StoreModelHasWebBlock::class)->name('web_block.store');
     Route::post('reorder-web-blocks', ReorderWebBlocks::class)->name('reorder_web_blocks');
-    Route::delete('{webBlock:id}/web-block', DeleteModelHasWebBlocks::class)->name('web_block.delete')->withoutScopedBindings();
 });
 
 Route::name('model_has_web_block.')->prefix('model-has-web-block/{modelHasWebBlock:id}')->group(function () {
