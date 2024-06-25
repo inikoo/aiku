@@ -121,7 +121,7 @@ const onPickBlock = (block) => {
 const onChangeOrderBlock = (moved) => {
 	let payload = {}
 	data.value.layout.web_blocks.map((item,index)=>{
-		payload[item.id] =  {position : index }
+		payload[item.web_block.id] =  {position : index }
 	})
 	sendOrderBlock(payload)
 }

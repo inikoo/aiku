@@ -19,7 +19,6 @@ use App\Models\SupplyChain\Supplier;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
