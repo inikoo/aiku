@@ -7,8 +7,10 @@
 
 namespace App\Models;
 
+use App\Models\Traits\InShop;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
+use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -27,8 +29,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $model_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read WebBlock $webBlock
  * @property-read Webpage|null $webpage
+ * @property-read Website $website
  * @method static \Illuminate\Database\Eloquent\Builder|ModelHasWebBlocks newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ModelHasWebBlocks newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ModelHasWebBlocks query()
@@ -36,6 +42,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ModelHasWebBlocks extends Model
 {
+    use InShop;
+
     protected $table = 'model_has_web_blocks';
 
     protected $guarded = [];
@@ -47,6 +55,11 @@ class ModelHasWebBlocks extends Model
     public function webBlock(): BelongsTo
     {
         return $this->belongsTo(WebBlock::class);
+    }
+
+    public function website(): BelongsTo
+    {
+        return $this->belongsTo(Website::class);
     }
 
     public function webpage(): BelongsTo

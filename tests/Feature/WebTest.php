@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
+use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
@@ -111,7 +112,7 @@ test('create webpage', function (Website $website) {
 
 })->depends('create b2b website');
 
-test('create add web block', function (Webpage $webpage) {
+test('create model has web block', function (Webpage $webpage) {
 
     /** @var WebBlockType $webBlockType */
     $webBlockType=$webpage->group->webBlockTypes()->where('code', 'text')->first();
@@ -130,8 +131,15 @@ test('create add web block', function (Webpage $webpage) {
     $webpage->refresh();
     expect($webpage->is_dirty)->toBeTrue();
 
+    return $modelHasWebBlock;
+
 })->depends('create webpage');
 
+test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
+
+    $modelHasWebBlock=UpdateModelHasWebBlocks::make()->action($modelHasWebBlock, ['layout' => ['text' => 'Test Text']]);
+    expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
+})->depends('create model has web block');
 
 // Fulfilment Website
 
