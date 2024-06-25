@@ -193,7 +193,7 @@ const onPublish = async (action) => {
                                 :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                 :key="activityItemIdx"
                                 :webpageData="webpage"
-                                v-bind="activityItem?.web_block?.layout?.data?.fieldData"
+                                v-bind="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
                                 @autoSave="()=>onUpdatedBlock(activityItem)" />
                         </div>

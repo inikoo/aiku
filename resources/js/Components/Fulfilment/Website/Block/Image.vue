@@ -20,8 +20,11 @@ library.add(faCube, faStar, faImage, faPencil)
 const props = defineProps<{
     modelValue: any
     webpageData: any
+    web_block : any
 }>()
 
+
+console.log('llll',props)
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
 }>()
@@ -53,7 +56,6 @@ const setImage = (e) => {
         </div>
     </div>
 
-    <Gallery :open="openGallery" @on-close="openGallery = false" :uploadRoutes="webpageData?.images_upload_route"
-        @onPick="setImage"></Gallery>
+    <Gallery :open="openGallery" @on-close="openGallery = false" :uploadRoutes="route(webpageData?.images_upload_route.name,{ modelHasWebBlock : web_block.id })"  @onPick="setImage"></Gallery>
 
 </template>
