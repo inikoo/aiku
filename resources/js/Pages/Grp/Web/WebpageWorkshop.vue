@@ -51,7 +51,7 @@ const sendNewBlock = async (block) => {
       route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
       {web_block_type_id : block.id }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    const set = {...response.data.data }
     data.value = set
     console.log('saved', response);
   } catch (error: any) {
@@ -65,7 +65,7 @@ const sendBlockUpdate =  async (block) => {
       route(props.webpage.update_model_has_web_blocks_route.name, {modelHasWebBlock : block.id}),
       {web_block : block }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+	const set = {...response.data.data }
     data.value = set
     console.log('saved', response);
   } catch (error: any) {
@@ -79,7 +79,7 @@ const sendOrderBlock =  async (block) => {
       route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
       {positions : block }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+	const set = {...response.data.data }
     data.value = set
     console.log('saved', response);
   } catch (error: any) {
@@ -93,7 +93,7 @@ const sendDeleteBlock =  async (block) => {
     const response = await axios.delete(
       route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlock : block.web_block.id })
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    const set = {...response.data.data }
     data.value = set
     console.log('saved', response);
   } catch (error: any) {
