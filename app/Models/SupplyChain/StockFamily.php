@@ -81,6 +81,19 @@ class StockFamily extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'goods'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description'
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -94,20 +107,6 @@ class StockFamily extends Model implements HasMedia, Auditable
     {
         return 'slug';
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'goods'
-        ];
-    }
-
-    protected array $auditInclude = [
-        'code',
-        'name',
-        'state',
-        'description'
-    ];
 
     public function stocks(): HasMany
     {

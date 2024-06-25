@@ -10,7 +10,6 @@ namespace App\Http\Resources\Procurement;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
 class OrgSupplierResource extends JsonResource
 {
     public function toArray($request): array

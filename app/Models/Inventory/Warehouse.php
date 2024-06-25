@@ -112,6 +112,21 @@ class Warehouse extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'warehouse'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'state',
+        'allow_stocks',
+        'allow_fulfilment',
+        'allow_dropshipping'
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -120,13 +135,6 @@ class Warehouse extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(4);
-    }
-
-    public function generateTags(): array
-    {
-        return [
-            'warehouse'
-        ];
     }
 
     public function getRouteKeyName(): string

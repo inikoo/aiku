@@ -72,7 +72,7 @@ pg_dump -Fc -f "devops/devel/snapshots/installed.dump" ${DB}
 ./aurora_procurement_migration.sh
 pg_dump -Fc -f "devops/devel/snapshots/procurement.dump" ${DB}
 
-./aurora_warehouses_migration.sh
+./aurora_warehouse_migration.sh
 pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 
 ./aurora_inventory_migration.sh
