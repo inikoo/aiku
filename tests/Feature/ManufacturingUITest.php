@@ -240,3 +240,15 @@ test('UI show manufacturing task', function () {
 
     });
 });
+
+test('UI edit manufacture task', function () {
+    $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.edit', [$this->organisation->slug, $this->production->slug, $this->manufactureTask->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 12)
+            ->has('pageHead')
+            ->has('breadcrumbs', 4);
+    });
+});
