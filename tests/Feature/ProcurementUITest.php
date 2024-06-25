@@ -5,14 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\Inventory\Location;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -32,7 +27,7 @@ beforeEach(function () {
     $agent = Agent::first();
     if (!$agent) {
         $storeData = Agent::factory()->definition();
-        $agent = StoreAgent::make()->action(
+        $agent     = StoreAgent::make()->action(
             $this->organisation->group,
             $storeData
         );
@@ -43,7 +38,7 @@ beforeEach(function () {
     $supplier = Supplier::first();
     if (!$supplier) {
         $storeData = Supplier::factory()->definition();
-        $supplier = StoreSupplier::make()->action(
+        $supplier  = StoreSupplier::make()->action(
             $this->agent,
             $storeData
         );

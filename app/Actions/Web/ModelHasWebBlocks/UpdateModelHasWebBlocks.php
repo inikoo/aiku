@@ -21,19 +21,19 @@ class UpdateModelHasWebBlocks extends OrgAction
     use WithActionUpdate;
 
 
-    public function handle(ModelHasWebBlocks $modelHasWebBlock, array $modelData): ModelHasWebBlocks
+    public function handle(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
     {
-        $this->update($modelHasWebBlock->webBlock, $modelData, ['data', 'layout']);
-        $modelHasWebBlock->refresh();
-        UpdateWebpageContent::run($modelHasWebBlock->webpage);
+        $this->update($modelHasWebBlocks->webBlock, $modelData, ['data', 'layout']);
+        $modelHasWebBlocks->refresh();
+        UpdateWebpageContent::run($modelHasWebBlocks->webpage);
 
-        return $modelHasWebBlock;
+        return $modelHasWebBlocks;
 
     }
 
-    public function asController(ModelHasWebBlocks $modelHasWebBlock, ActionRequest $request): ModelHasWebBlocks
+    public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): ModelHasWebBlocks
     {
-        return $this->handle($modelHasWebBlock, $request->all());
+        return $this->handle($modelHasWebBlocks, $request->all());
     }
 
     public function rules(): array
@@ -53,10 +53,10 @@ class UpdateModelHasWebBlocks extends OrgAction
         return $this->handle($modelHasWebBlocks, $this->validatedData);
     }
 
-    public function jsonResponse(ModelHasWebBlocks $modelHasWebBlock): WebpageResource
+    public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): WebpageResource
     {
-        $modelHasWebBlock->webpage->refresh();
-        return new WebpageResource($modelHasWebBlock->webpage);
+        $modelHasWebBlocks->webpage->refresh();
+        return new WebpageResource($modelHasWebBlocks->webpage);
     }
 
 }
