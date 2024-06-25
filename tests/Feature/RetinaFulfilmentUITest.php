@@ -17,6 +17,8 @@ use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 
+uses()->group('ui');
+
 beforeAll(function () {
     loadDB();
 });

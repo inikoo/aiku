@@ -57,8 +57,10 @@ function loadDB(): void
 
 function createGroup(): Group
 {
-    $group = StoreGroup::make()->action(Group::factory()->definition());
-
+    $group = Group::first();
+    if (!$group) {
+        $group = StoreGroup::make()->action(Group::factory()->definition());
+    }
     return $group;
 }
 

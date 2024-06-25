@@ -22,6 +22,8 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
 
+uses()->group('base');
+
 beforeAll(function () {
     loadDB();
 });
