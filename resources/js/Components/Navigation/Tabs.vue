@@ -79,7 +79,6 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
         <!-- Tabs: Desktop view -->
         <div class="hidden sm:block">
             <div class="border-b border-gray-200 flex">
-
                 <!-- Left section -->
                 <nav class="-mb-px flex w-full gap-x-6 ml-4" aria-label="Tabs">
                     <template v-for="(tab, tabSlug) in navigation" :key="tabSlug">
