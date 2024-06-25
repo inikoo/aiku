@@ -51,7 +51,7 @@ const tabs = {
     } */
 }
 
-const listBlocks = ref(cloneDeep(props.webBlockTypes.data))
+const listBlocks = ref(cloneDeep(props.webBlockTypes.data.filter((item)=>item.scope == 'webpage')))
 const currentTab = ref(0)
 
 /* const filter = (e: string) => {

@@ -28,7 +28,7 @@ const fileInput = ref();
 
 const onUpload = () =>{
     router.post(
-        route(props.uploadRoutes.name,props.uploadRoutes.parameters),
+        props.uploadRoutes,
         { images : uploadedFilesList.value },
     )
 }
