@@ -77,3 +77,6 @@ pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 
 ./aurora_inventory_migration.sh
 pg_dump -Fc -f "devops/devel/snapshots/inventory.dump" ${DB}
+
+./aurora_catalogue_migration.sh
+pg_dump -Fc -f "devops/devel/snapshots/catalogue.dump" ${DB}
