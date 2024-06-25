@@ -12,6 +12,7 @@ use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
+use App\Models\ModelHasWebBlocks;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -65,8 +66,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
+ * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks
  * @property-read Organisation $organisation
  * @property-read Webpage|null $parent
  * @property-read \App\Models\Catalogue\Shop $shop
@@ -182,6 +185,12 @@ class Webpage extends Model implements Auditable
         return $this->belongsTo(Webpage::class, 'parent_id');
     }
 
+    public function modelHasWebBlocks(): HasMany
+    {
+        return $this->hasMany(ModelHasWebBlocks::class);
+    }
+
+
     public function webBlocks(): MorphToMany
     {
         return $this->morphToMany(WebBlock::class, 'model', 'model_has_web_blocks')
@@ -189,5 +198,6 @@ class Webpage extends Model implements Auditable
             ->withPivot('id', 'position')
             ->withTimestamps();
     }
+
 
 }

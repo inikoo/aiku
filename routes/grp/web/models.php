@@ -122,9 +122,9 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\WebBlock\DeleteWebBlock;
 use App\Actions\Web\WebBlock\OrderPositionWebBlock;
-use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UploadImagesToWebpage;
@@ -384,8 +384,8 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 });
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
-    Route::post('web-block', AttachWebBlockToWebpage::class)->name('web_block.store');
-    Route::post('web-blocks/positions', AttachWebBlockToWebpage::class)->name('web_blocks.positions');
+    Route::post('web-block', StoreModelHasWebBlock::class)->name('web_block.store');
+    Route::post('web-blocks/positions', StoreModelHasWebBlock::class)->name('web_blocks.positions');
 
     Route::delete('{webBlock:id}/web-block', DeleteWebBlock::class)->name('web_block.delete')->withoutScopedBindings();
     Route::post('web-block/positions', OrderPositionWebBlock::class)->name('web_blocks_positions')->withoutScopedBindings();
