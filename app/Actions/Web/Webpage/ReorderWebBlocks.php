@@ -23,6 +23,8 @@ class ReorderWebBlocks extends GrpAction
     {
         $webpage->webBlocks()->syncWithoutDetaching($modelData);
 
+        UpdateWebpageContent::run($webpage->refresh());
+
         return $webpage;
     }
 
