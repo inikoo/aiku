@@ -488,3 +488,17 @@ test('update web block types', function (Group $group) {
     expect($group->webBlockTypeCategories()->count())->toBe(11)
         ->and($group->webBlockTypes()->count())->toBe(17);
 })->depends('create group');
+
+test('show log in', function () {
+
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.login.show'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Auth/Login');
+    });
+});
+
+test('should not show without authentication', function () {
+    $response= $this->get(route('grp.home'));
+    expect($response)->toHaveStatus(302);
+});
