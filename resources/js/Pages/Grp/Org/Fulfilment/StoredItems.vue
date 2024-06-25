@@ -9,10 +9,16 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+
+import { faNarwhal } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+library.add(faNarwhal)
+
 const props = defineProps<{
-    data: object
+    data: {}
     title: string
-    pageHead: object
+    pageHead: TSPageHeading
 }>()
 
 </script>

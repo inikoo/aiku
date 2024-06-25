@@ -17,7 +17,7 @@ library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
     data: {
-        customer: object
+        customer: {}
         updateRoute: routeType
 
     },
