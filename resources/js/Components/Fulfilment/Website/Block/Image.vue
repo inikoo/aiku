@@ -20,11 +20,10 @@ library.add(faCube, faStar, faImage, faPencil)
 const props = defineProps<{
     modelValue: any
     webpageData: any
-    web_block : any
+    web_block : Object
 }>()
 
 
-console.log('llll',props)
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
 }>()

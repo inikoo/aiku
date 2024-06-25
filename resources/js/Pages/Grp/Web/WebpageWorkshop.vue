@@ -225,11 +225,13 @@ const onPublish = async (action) => {
 						itemKey="column_id"
 						class="mt-2 space-y-1">
 						<template #item="{ element, index }">
+						
 
                             <div class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
                                 <div class="flex gap-x-2">
                                     <div class="flex items-center justify-center">
-                                        <FontAwesomeIcon :icon='element.icon' class='' fixed-width aria-hidden='true' />
+										<!-- <pre>{{element }}</pre> -->
+                                        <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs' fixed-width aria-hidden='true' />
                                     </div>
                                     <h3 class="text-sm font-medium">
                                         {{ element.web_block.layout.name }}

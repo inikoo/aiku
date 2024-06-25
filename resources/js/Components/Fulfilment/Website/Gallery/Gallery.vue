@@ -20,7 +20,7 @@
   const props = defineProps<{
       open: Boolean
       width?: String,
-      uploadRoutes: Array
+      uploadRoutes: String
   }>()
 
   const layout = inject('layout', layoutStructure)

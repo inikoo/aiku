@@ -18,8 +18,8 @@ import InputUseOption from "@/Components/Pure/InputUseOption.vue"
 library.add(faPresentation, faLink)
 
 const props = defineProps<{
-    modelValue: any
-    emptyState: Boolean
+    modelValue: Object|String
+    emptyState?: Boolean
 }>()
 
 const optionWidthHeight = [

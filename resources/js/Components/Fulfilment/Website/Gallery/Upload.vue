@@ -9,28 +9,28 @@
   import { library } from "@fortawesome/fontawesome-svg-core"
   import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
   import Gallery from "../Gallery/Gallery.vue";
+  import axios from 'axios'
   import { ref } from "vue"
   import { router } from '@inertiajs/vue3'
 
   library.add(faCube, faStar, faImage)
   
   const props = defineProps<{
-      uploadRoutes: Array
+      uploadRoutes: string
   }>()
-
-
-  console.log('lll',props)
 
 const isDragging = ref(false);
 const uploadedFilesList =ref([])
 const fileInput = ref();
 
 
-const onUpload = () =>{
-    router.post(
-        props.uploadRoutes,
-        { images : uploadedFilesList.value },
-    )
+const onUpload = async () =>{
+    try {
+    const response = await axios.post(props.uploadRoutes,{ images : uploadedFilesList.value });
+    console.log('saved', response);
+  } catch (error: any) {
+    console.error('error', error);
+  }
 }
 
   

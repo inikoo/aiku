@@ -19,7 +19,7 @@
   
   const props = defineProps<{
       modelValue: any
-      emptyState: Boolean
+      emptyState?: Boolean
   }>()
   
   const optionWidthHeight = [
@@ -45,9 +45,9 @@
       <div type="button" v-if="modelValue.emptyState"
           class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
           <font-awesome-icon :icon="['fal', 'paperclip']" class="mx-auto h-12 w-12 text-gray-400" />
-          <span class="mt-2 block text-sm font-semibold text-gray-900">Wowsbar Banner</span>
+          <span class="mt-2 block text-sm font-semibold text-gray-900">I Frame</span>
           <div class="flex justify-center m-2">
-              <PureInput v-model="modelValue.link" :placeholder="'Banner Link'" :suffix="true" @onEnter="(e) => onEnter('a')">
+              <PureInput v-model="modelValue.link" :placeholder="'Link'" :suffix="true" @onEnter="(e) => onEnter('a')">
                   <template #suffix>
                       <div
                           class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
