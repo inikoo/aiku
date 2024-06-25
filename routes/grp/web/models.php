@@ -122,6 +122,8 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\WebBlock\DeleteWebBlock;
+use App\Actions\Web\WebBlock\OrderPositionWebBlock;
 use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
 use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
@@ -385,6 +387,8 @@ Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('web-block', AttachWebBlockToWebpage::class)->name('web_block.store');
     Route::post('web-blocks/positions', AttachWebBlockToWebpage::class)->name('web_blocks.positions');
 
+    Route::delete('{webBlock:id}/web-block', DeleteWebBlock::class)->name('web_block.delete')->withoutScopedBindings();
+    Route::post('web-block/positions', OrderPositionWebBlock::class)->name('web_blocks_positions')->withoutScopedBindings();
 });
 
 Route::name('web_block.')->prefix('web-block/{webBlock:id}')->group(function () {
