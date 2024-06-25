@@ -13,14 +13,14 @@ import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TablePalletStoredItem from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletStoredItem.vue'
-import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
+// import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 import { routeType } from '@/types/route'
 import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vue'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFragile } from '@fal'
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faFragile, faNarwhal } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faFragile)
+library.add(faFragile, faNarwhal)
 
 
 const props = defineProps<{

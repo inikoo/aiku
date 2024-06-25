@@ -24,6 +24,9 @@ const props = defineProps<{
     pieData: {
         [key: string]: PieCustomer
     }
+    warehouseSummary: {
+        [key: string]: number
+    }
 }>()
 
 const options = {
@@ -51,8 +54,19 @@ const options = {
 
 <template>
     <div class="grid grid-cols-2 gap-y-2.5 gap-x-3 text-gray-600">
+        <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg border border-gray-100 shadow ">
+            <div class="font-medium text-lg mb-4">
+                Warehouse summary
+            </div>
+
+            <div class="flex flex-col">
+                <div>Pallets stored: {{ warehouseSummary?.pallets_stored || 0 }}</div>
+                <div>Total items: {{ warehouseSummary?.total_items || 0 }} ({{ warehouseSummary?.unique_items || 0 }} unique items) </div>
+            </div>
+        </div>
+        
         <div v-for="(pie, index) in pieData" class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums"
-            :class="[index === 'pallets' ? 'col-span-2' : '']"
+            :class="[index === 'palletsxxx' ? 'col-span-2' : '']"
         >
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ pie.label }}</dt>
@@ -90,5 +104,7 @@ const options = {
                 }" :options="options" />
             </div>
         </div>
+
+        
     </div>
 </template>

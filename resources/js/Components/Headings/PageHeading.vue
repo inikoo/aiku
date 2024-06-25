@@ -98,7 +98,7 @@ const originUrl = location.origin
                         :class="[
                             item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
                             ? 'text-gray-600 font-medium'
-                            : 'text-gray-400 hover:text-gray-500'
+                            : 'underline text-gray-400 hover:text-gray-500'
                         ]"
                     >
                         <MetaLabel :item="item" />

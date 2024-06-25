@@ -6,12 +6,16 @@
  */
 
 use App\Actions\Manufacturing\Artefact\StoreArtefact;
+use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
 use App\Actions\Manufacturing\Production\StoreProduction;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
+use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Manufacturing\Artefact;
+use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use Inertia\Testing\AssertableInertia;
@@ -67,6 +71,27 @@ beforeEach(function () {
         );
     }
     $this->rawMaterial = $rawMaterial;
+
+    $manufactureTask = ManufactureTask::first();
+    if (!$manufactureTask) {
+        data_set($storeData, 'code', 'CODE');
+        data_set($storeData, 'name', 'name');
+        data_set($storeData, 'task_materials_cost', 10);
+        data_set($storeData, 'task_energy_cost', 10);
+        data_set($storeData, 'task_other_cost', 10);
+        data_set($storeData, 'task_work_cost', 10);
+        data_set($storeData, 'task_lower_target', 10);
+        data_set($storeData, 'task_upper_target', 10);
+        data_set($storeData, 'operative_reward_terms', ManufactureTaskOperativeRewardTermsEnum::ABOVE_LOWER_LIMIT->value);
+        data_set($storeData, 'operative_reward_allowance_type', ManufactureTaskOperativeRewardAllowanceTypeEnum::OFFSET_SALARY->value);
+        data_set($storeData, 'operative_reward_amount', 10);
+
+        $manufactureTask = StoreManufactureTask::make()->action(
+            $this->production,
+            $storeData
+        );
+    }
+    $this->manufactureTask = $manufactureTask;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -195,5 +220,53 @@ test('UI create manufacturing task', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show manufacturing task', function () {
+    $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.show', [$this->organisation->slug, $this->production->slug, $this->manufactureTask->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/ManufactureTask')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->manufactureTask->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show manufacturing task (Artefacts tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/manufacture-tasks/'.$this->manufactureTask->slug.'?tab=artefact');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/ManufactureTask')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->manufactureTask->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit manufacture task', function () {
+    $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.edit', [$this->organisation->slug, $this->production->slug, $this->manufactureTask->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 12)
+            ->has('pageHead')
+            ->has('breadcrumbs', 4);
     });
 });

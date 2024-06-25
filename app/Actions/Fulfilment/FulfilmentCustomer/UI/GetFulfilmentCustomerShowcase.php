@@ -40,6 +40,11 @@ class GetFulfilmentCustomerShowcase
                 'parameters' => [$fulfilmentCustomer->id]
             ],
             'pieData'               => $this->getDashboardData($fulfilmentCustomer),
+            'warehouse_summary'     => [
+                'pallets_stored'    => 111,
+                'total_items'       => 222,
+                'unique_items'      => 333
+            ],
             'webhook'               => [
                 'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key,
                 'domain'                => (app()->environment('local') ? 'http://' : 'https://') . $irisDomain.'/webhooks/',
