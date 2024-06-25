@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +27,11 @@ class ReorderWebBlocks extends GrpAction
         UpdateWebpageContent::run($webpage->refresh());
 
         return $webpage;
+    }
+
+    public function jsonResponse(Webpage $webpage): WebpageResource
+    {
+        return WebpageResource::make($webpage);
     }
 
     public function asController(Webpage $webpage, ActionRequest $request): Webpage
