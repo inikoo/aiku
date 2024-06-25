@@ -125,10 +125,10 @@ use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
-use App\Actions\Web\Webpage\ReorderWebBlocks;
+use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlock;
 use App\Actions\Web\Webpage\PublishWebpage;
+use App\Actions\Web\Webpage\ReorderWebBlocks;
 use App\Actions\Web\Webpage\UpdateWebpage;
-use App\Actions\Web\Webpage\UploadImagesToWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
@@ -389,10 +389,10 @@ Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('reorder-web-blocks', ReorderWebBlocks::class)->name('reorder_web_blocks');
 });
 
-Route::name('model_has_web_block.')->prefix('model-has-web-block/{modelHasWebBlock:id}')->group(function () {
+Route::name('model_has_web_block.')->prefix('model-has-web-block/{modelHasWebBlocks:id}')->group(function () {
     Route::patch('', UpdateModelHasWebBlocks::class)->name('update');
     Route::delete('', DeleteModelHasWebBlocks::class)->name('delete');
-    Route::post('images', UploadImagesToWebpage::class)->name('images.store');
+    Route::post('images', UploadImagesToModelHasWebBlock::class)->name('images.store');
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
