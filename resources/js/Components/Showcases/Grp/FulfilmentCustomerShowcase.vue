@@ -40,6 +40,9 @@ const props = defineProps<{
         pieData: {
             [key: string]: PieCustomer
         }
+        warehouse_summary: {
+            [key: string]: number
+        }
         webhook: {
             webhook_access_key: string | null
             domain: string
@@ -99,76 +102,77 @@ const isLoadingButtonRentalAgreement = ref(false)
             <div class="space-y-3 relative">
                 <!-- Section: Profile box -->
                 <Transition name="headlessui" mode="out-in">
-                    <div v-if="props.data.fulfilment_customer.radioTabs.dropshipping" class="">
-                        <h2 class="sr-only">Customer profile</h2>
-                        <div class="rounded-lg shadow-sm ring-1 ring-gray-900/5">
-                            <dl class="flex flex-wrap">
-                                <!-- Profile: Header -->
-                                <div class="flex w-full py-6">
-                                    <div class="flex-auto pl-6">
-                                        <dt class="text-sm font-semibold leading-6 text-gray-900">Total Clients</dt>
-                                        <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.customer.number_current_clients || 0 }}</dd>
+                    <div v-if="props.data.fulfilment_customer.radioTabs.dropshipping" class="col-span-2 grid grid-cols-2">
+                        <div>
+                            <h2 class="sr-only">Customer profile</h2>
+                            <div class="rounded-lg shadow-sm ring-1 ring-gray-900/5">
+                                <dl class="flex flex-wrap">
+                                    <!-- Profile: Header -->
+                                    <div class="flex w-full py-6">
+                                        <div class="flex-auto pl-6">
+                                            <dt class="text-sm font-semibold leading-6 text-gray-900">Total Clients</dt>
+                                            <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.customer.number_current_clients || 0 }}</dd>
+                                        </div>
+                                        <div class="flex-none self-end px-6 pt-4">
+                                            <dt class="sr-only">Reference</dt>
+                                            <dd class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                {{ data.customer.reference }}
+                                            </dd>
+                                        </div>
                                     </div>
-                    
-                                    <div class="flex-none self-end px-6 pt-4">
-                                        <dt class="sr-only">Reference</dt>
-                                        <dd class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                            {{ data.customer.reference }}
-                                        </dd>
+                                    <!-- Section: Field -->
+                                    <div class="flex flex-col gap-y-3 border-t border-gray-900/5 w-full py-6">
+                                        <!-- Field: Contact name -->
+                                        <div v-if="data.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Contact name'" class="flex-none">
+                                                <span class="sr-only">Contact name</span>
+                                                <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
+                                            </dt>
+                                            <dd class="text-gray-500">{{ data.customer.contact_name }}</dd>
+                                        </div>
+                                        <!-- Field: Contact name -->
+                                        <div v-if="data.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Company name'" class="flex-none">
+                                                <span class="sr-only">Company name</span>
+                                                <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
+                                            </dt>
+                                            <dd class="text-gray-500">{{ data.customer.company_name }}</dd>
+                                        </div>
+                                        <!-- Field: Created at -->
+                                        <div v-if="data.customer?.created_at" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Created at'" class="flex-none">
+                                                <span class="sr-only">Created at</span>
+                                                <FontAwesomeIcon icon='fal fa-calendar-alt' class='text-gray-400' fixed-width aria-hidden='true' />
+                                            </dt>
+                                            <dd class="text-gray-500">
+                                                <time datetime="2023-01-31">{{ useFormatTime(data.customer?.created_at) }}</time>
+                                            </dd>
+                                        </div>
+                                        <!-- Field: Email -->
+                                        <div v-if="data.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Email'" class="flex-none">
+                                                <span class="sr-only">Email</span>
+                                                <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
+                                            </dt>
+                                            <dd class="text-gray-500">{{ data.customer?.email }}</dd>
+                                        </div>
+                                        <!-- Field: Phone -->
+                                        <div v-if="data.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Phone'" class="flex-none">
+                                                <span class="sr-only">Phone</span>
+                                                <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
+                                            </dt>
+                                            <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- Section: Field -->
-                                <div class="flex flex-col gap-y-3 border-t border-gray-900/5 w-full py-6">
-                                    <!-- Field: Contact name -->
-                                    <div v-if="data.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                        <dt v-tooltip="'Contact name'" class="flex-none">
-                                            <span class="sr-only">Contact name</span>
-                                            <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
-                                        </dt>
-                                        <dd class="text-gray-500">{{ data.customer.contact_name }}</dd>
-                                    </div>
-                                    <!-- Field: Contact name -->
-                                    <div v-if="data.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                        <dt v-tooltip="'Company name'" class="flex-none">
-                                            <span class="sr-only">Company name</span>
-                                            <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
-                                        </dt>
-                                        <dd class="text-gray-500">{{ data.customer.company_name }}</dd>
-                                    </div>
-                                    <!-- Field: Created at -->
-                                    <div v-if="data.customer?.created_at" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                        <dt v-tooltip="'Created at'" class="flex-none">
-                                            <span class="sr-only">Created at</span>
-                                            <FontAwesomeIcon icon='fal fa-calendar-alt' class='text-gray-400' fixed-width aria-hidden='true' />
-                                        </dt>
-                                        <dd class="text-gray-500">
-                                            <time datetime="2023-01-31">{{ useFormatTime(data.customer?.created_at) }}</time>
-                                        </dd>
-                                    </div>
-                                    <!-- Field: Email -->
-                                    <div v-if="data.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                        <dt v-tooltip="'Email'" class="flex-none">
-                                            <span class="sr-only">Email</span>
-                                            <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
-                                        </dt>
-                                        <dd class="text-gray-500">{{ data.customer?.email }}</dd>
-                                    </div>
-                                    <!-- Field: Phone -->
-                                    <div v-if="data.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                        <dt v-tooltip="'Phone'" class="flex-none">
-                                            <span class="sr-only">Phone</span>
-                                            <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
-                                        </dt>
-                                        <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
-                                    </div>
-                                </div>
-                            </dl>
+                                </dl>
+                            </div>
                         </div>
                     </div>
                 </Transition>
 
                 <!-- Box Group: Pallets -->
-                <CustomerShowcaseStats :pieData="data.pieData"/>
+                <CustomerShowcaseStats :pieData="data.pieData" :warehouseSummary="data.warehouse_summary" />
             </div>
         </div>
 
