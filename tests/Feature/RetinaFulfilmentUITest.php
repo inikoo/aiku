@@ -8,14 +8,16 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Web\Website\LaunchWebsite;
+use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\WebUser;
 use Inertia\Testing\AssertableInertia;
 
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -25,6 +27,8 @@ beforeEach(function () {
     $this->warehouse         = createWarehouse();
     $this->fulfilment        = createFulfilment($this->organisation);
     $this->fulfilmentWebsite = createWebsite($this->fulfilment->shop);
+
+    LaunchWebsite::make()->action($this->fulfilmentWebsite);
 
     $shop = Shop::first();
     if (!$shop) {
@@ -47,7 +51,7 @@ beforeEach(function () {
     if (!$webUser) {
         data_set($storeData, 'username', 'test');
         data_set($storeData, 'email', 'test@testmail.com');
-        data_set($storeData, 'password', 'testo');
+        data_set($storeData, 'password', 'test');
 
         $webUser = StoreWebUser::make()->action(
             $this->customer,
@@ -60,17 +64,34 @@ beforeEach(function () {
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Retina')]
     );
-    actingAs($this->webUser);
+  //  actingAs($this->webUser);
+    DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($this->fulfilmentWebsite);
+
 });
 
-// test('UI Index pallets', function () {
-//     $response = $this->get(route('retina.storage.pallets.index'));
+ test('show log in', function () {
 
-//     $response->assertInertia(function (AssertableInertia $page) {
-//         $page
-//             ->component('Storage/RetinaPallets')
-//             ->has('title')
-//             ->has('pageHead')
-//             ->has('breadcrumbs', 3);
-//     });
-// });
+     $this->withoutExceptionHandling();
+     $response = $this->get(route('retina.login.show'));
+     $response->assertInertia(function (AssertableInertia $page) {
+         $page->component('Auth/Login');
+     });
+ });
+
+test('should not show retina without authentication', function () {
+    $response= $this->get(route('retina.home'));
+    expect($response)->toHaveStatus(302);
+});
+
+test('show retina when authenticated', function () {
+
+
+
+    $this->actingAs($this->webUser);
+
+    $this->withoutExceptionHandling();
+    $response=$this->get(route('retina.home'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Dashboard/Dashboard');
+    });
+});
