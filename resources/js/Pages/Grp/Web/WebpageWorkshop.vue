@@ -60,7 +60,17 @@ const sendNewBlock = async (block) => {
 };
 
 const sendBlockUpdate =  async (block) => {
-	console.log(block)
+	try {
+    const response = await axios.patch(
+      route(props.webpage.update_web_block_route.name, {webBlock : block.id}), 
+      {web_block : block }
+    );
+    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    data.value = set 
+    console.log('saved', response);
+  } catch (error: any) {
+    console.error('error', error);
+  }
 }
 
 const sendOrderBlock =  async (block) => {
@@ -91,12 +101,15 @@ const sendDeleteBlock =  async (block) => {
 }
 
 
-/* const debouncedSendUpdate = debounce(sendUpdate, 1000);
+const debouncedSendUpdate = debounce(
+    (block) => sendBlockUpdate(block),
+    1000,
+    { leading: false, trailing: true }
+);
 
-const onUpdated = () => {
-  debouncedSendUpdate();
-}; */
-
+const onUpdatedBlock = (block) => {
+    debouncedSendUpdate(block);
+};
 
 
 const onPickBlock = (block) => {
@@ -112,17 +125,9 @@ const onChangeOrderBlock = (moved) => {
 	sendOrderBlock(payload)
 }
 
-const deleteBlock = (index) => {
-  data.value.layout.splice(index, 1);
-};
-
 const setData = () => {
   console.log(data.value);
 };
-
-const onUpdatedBlock = (e) => {
-	console.log(e)
-}
 
 
 const onPublish = async (action) => {
@@ -189,7 +194,7 @@ const onPublish = async (action) => {
                                 :webpageData="webpage"
                                 v-bind="activityItem?.web_block?.layout?.data?.fieldData"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
-                                @autoSave="()=>onUpdatedBlock" />
+                                @autoSave="()=>onUpdatedBlock(activityItem)" />
                         </div>
                     </TransitionGroup>
 				</div>
