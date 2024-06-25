@@ -139,6 +139,8 @@ onMounted(() => {
 })
 
 
+
+
 onUnmounted(() => {
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (dropdown) {
@@ -147,9 +149,12 @@ onUnmounted(() => {
 })
 
 
+
 defineExpose({
     _multiselectRef,
-    optionData
+    optionData,
+    q,
+    page
 })
 
 

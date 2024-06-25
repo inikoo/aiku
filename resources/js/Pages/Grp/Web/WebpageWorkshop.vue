@@ -52,8 +52,8 @@ const sendNewBlock = async (block) => {
       route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters), 
       {web_block_type_id : block.id }
     );
-  /*   const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set */
+    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    data.value = set 
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
