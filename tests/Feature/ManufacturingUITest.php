@@ -100,6 +100,36 @@ beforeEach(function () {
     actingAs($this->adminGuest->user);
 });
 
+test('UI Index productions', function () {
+    $response = $this->get(route('grp.org.productions.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/Productions')
+            ->has('title')
+            ->has('tabs')
+            ->has('breadcrumbs', 2);
+    });
+});
+
+test('UI show production', function () {
+    $response = get(route('grp.org.productions.show', [$this->organisation->slug, $this->production->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Manufacturing/Production')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->production->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
 test('UI Index raw materials', function () {
     $response = $this->get(route('grp.org.productions.show.crafts.raw_materials.index', [$this->organisation->slug, $this->production->slug]));
 
