@@ -15,6 +15,7 @@ import { notify } from "@kyvg/vue3-notification"
 import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
 import { get } from "lodash"
+import { trans } from "laravel-vue-i18n"
 
 library.add(faPlus)
 
@@ -116,7 +117,9 @@ const sendToServer = async (data) => {
 
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/2">
-            <div class="sr-only" />
+            <div class="text-center font-semibold text-2xl mb-4">
+                {{ trans('Add stored item') }}
+            </div>
             <div class="space-y-4">
                 <CreateStoredItems :storedItemsRoute="storedItemsRoute" :form="form" @onSave="sendToServer"
                     :stored_items="pallet.stored_items" />

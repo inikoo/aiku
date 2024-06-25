@@ -5,11 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router, Link } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -29,8 +29,6 @@ import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Table as TableTS } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import '@vuepic/vue-datepicker/dist/main.css'
-import axios from 'axios'
-import { notify } from '@kyvg/vue3-notification'
 import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStatsPalletDelivery.vue'
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
@@ -96,19 +94,6 @@ const typePallet = [
 ]
 
 
-const onChangeEstimateDate = async () => {
-    try {
-        const response = await axios.patch(route(props.updateRoute.name, props.updateRoute.parameters), {
-            estimated_delivery_date : props.data?.data.estimated_delivery_date
-        })
-    } catch (error) {
-        notify({
-			title: "Failed",
-			text: "Failed to update the Delivery date, try again.",
-			type: "error",
-		})
-    }
-}
 
 // Method: Add single pallet
 const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
@@ -219,11 +204,6 @@ const component = computed(() => {
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
-
-watch(() => props.data.data.estimated_delivery_date, (newValue) => {
-    onChangeEstimateDate()
-}, { })
-
 
 
 // console.log(currentTab.value)
@@ -463,7 +443,7 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
     </div>
 
     <!-- Box -->
-    <BoxStatsPalletDelivery :dataPalletDelivery="data.data" :boxStats="box_stats" />
+    <BoxStatsPalletDelivery :dataPalletDelivery="data.data" :boxStats="box_stats" :updateRoute />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
