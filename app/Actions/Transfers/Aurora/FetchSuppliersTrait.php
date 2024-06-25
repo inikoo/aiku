@@ -35,13 +35,18 @@ trait FetchSuppliersTrait
 
         if (Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->exists()) {
             if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])->first()) {
-                $supplier = UpdateSupplier::make()->run($supplier, $supplierData['supplier']);
+                $supplier = UpdateSupplier::make()->action(
+                    $supplier,
+                    $supplierData['supplier'],
+                    strict: false
+                );
             }
             $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
         } else {
-            $supplier = StoreSupplier::run(
+            $supplier = StoreSupplier::make()->action(
                 parent: $supplierData['parent'],
                 modelData: $supplierData['supplier'],
+                strict: false
             );
             $supplier->refresh();
 
@@ -58,7 +63,6 @@ trait FetchSuppliersTrait
                     );
                 }
             }
-
         }
         $organisation = $organisationSource->getOrganisation();
 
@@ -78,7 +82,7 @@ trait FetchSuppliersTrait
                         ]
                     );
             } else {
-                StoreOrgSupplier::make()->run(
+                StoreOrgSupplier::make()->action(
                     $organisationSource->getOrganisation(),
                     $supplier,
                     [
@@ -86,15 +90,13 @@ trait FetchSuppliersTrait
                     ]
                 );
             }
-
-
         } elseif ($baseSupplier) {
             $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $baseSupplier->id)->first();
             if ($orgSupplier) {
                 return $supplier;
             }
 
-            StoreOrgSupplier::make()->run(
+            StoreOrgSupplier::make()->action(
                 $organisationSource->getOrganisation(),
                 $baseSupplier,
                 [
@@ -104,9 +106,8 @@ trait FetchSuppliersTrait
         }
 
         if (in_array('attachments', $this->with)) {
-            $sourceData= explode(':', $supplier->source_id);
+            $sourceData = explode(':', $supplier->source_id);
             foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-
                 SaveModelAttachment::run(
                     $supplier,
                     $attachmentData['fileData'],
@@ -122,10 +123,13 @@ trait FetchSuppliersTrait
 
     private function parseAttachments($staffKey): array
     {
-        $attachments            = $this->getModelAttachmentsCollection(
+        $attachments = $this->getModelAttachmentsCollection(
             'Supplier',
             $staffKey
-        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        )->map(function ($auroraAttachment) {
+            return $this->fetchAttachment($auroraAttachment);
+        });
+
         return $attachments->toArray();
     }
 

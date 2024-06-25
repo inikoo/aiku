@@ -13,6 +13,7 @@ use App\Actions\Web\Webpage\StoreWebpage;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -28,14 +29,23 @@ class SeedWebsiteFixedWebpages extends OrgAction
 
     public function handle(Website $website): Website
     {
-        $storefront = StoreWebpage::make()->action($website, [
+
+        $storefrontData=[
             'code'     => 'storefront',
             'type'     => WebpageTypeEnum::STOREFRONT,
             'purpose'  => WebpagePurposeEnum::STOREFRONT,
             'is_fixed' => true,
             'state'    => WebpageStateEnum::READY,
             'ready_at' => now(),
-        ]);
+        ];
+
+        if($website->state==WebsiteStateEnum::LIVE) {
+            unset($storefrontData['ready_at']);
+            $storefrontData['state']  =WebpageStateEnum::LIVE;
+            $storefrontData['live_at']=now();
+        }
+
+        $storefront = StoreWebpage::make()->action($website, $storefrontData);
 
         $website->update(
             [
@@ -59,16 +69,23 @@ class SeedWebsiteFixedWebpages extends OrgAction
     {
         $modelData = json_decode(Storage::disk('datasets')->get($file), true);
 
+        $webpageData =[
+            'is_fixed' => true,
+            'ready_at' => now(),
+            'state'    => WebpageStateEnum::READY,
+        ];
+
+        if($home->state==WebpageStateEnum::LIVE) {
+            unset($webpageData['ready_at']);
+            $webpageData['state']  =WebpageStateEnum::LIVE;
+            $webpageData['live_at']=now();
+        }
 
         StoreWebpage::make()->action(
             $home,
             array_merge(
                 $modelData,
-                [
-                    'is_fixed' => true,
-                    'ready_at' => now(),
-                    'state'    => WebpageStateEnum::READY,
-                ]
+                $webpageData
             )
         );
     }

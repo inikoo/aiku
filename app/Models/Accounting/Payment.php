@@ -17,6 +17,7 @@ use App\Models\Helpers\Currency;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  *
@@ -56,6 +58,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $deleted_at
  * @property bool $with_refund
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read Group $group
@@ -73,12 +76,13 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Payment withoutTrashed()
  * @mixin Eloquent
  */
-class Payment extends Model
+class Payment extends Model implements Auditable
 {
     use SoftDeletes;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasHistory;
 
     protected $casts = [
         'data'              => 'array',
@@ -93,6 +97,13 @@ class Payment extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'accounting',
+        ];
+    }
 
     protected static function booted(): void
     {

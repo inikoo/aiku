@@ -8,13 +8,16 @@ import { capitalize } from '@/Composables/capitalize'
 import { trans } from 'laravel-vue-i18n'
 import Popover from '@/Components/Popover.vue'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { notify } from '@kyvg/vue3-notification'
+import { routeType } from '@/types/route'
 
 const props = defineProps<{
     dataPalletDelivery: PalletDelivery
     boxStats: BoxStats
+    updateRoute: routeType
 }>()
 
 
@@ -23,6 +26,26 @@ const disableBeforeToday = (date: Date) => {
     // Set time to 00:00:00 for comparison purposes
     today.setHours(0, 0, 0, 0)
     return date < today
+}
+
+const isLoadingSetEstimatedDate = ref(false)
+const onChangeEstimateDate = async () => {
+    router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
+    {
+        estimated_delivery_date : props.dataPalletDelivery.estimated_delivery_date
+    },
+    {
+        onStart: () => isLoadingSetEstimatedDate.value = true,
+        onError: () => {
+            notify({
+                title: "Failed",
+                text: "Failed to update the Delivery date, try again.",
+                type: "error",
+            })
+        },
+        onSuccess: () => console.log('success'),
+        onFinish: () => isLoadingSetEstimatedDate.value = false,
+    })
 }
 
 onMounted(() => {
@@ -141,15 +164,21 @@ onMounted(() => {
                     </template>
 
                     <template #content="{ close }">
-                        <DatePicker v-model="dataPalletDelivery.estimated_delivery_date" inline auto-apply
-                            :disabled-dates="disableBeforeToday" :enable-time-picker="false" />
+                        <DatePicker
+                            v-model="dataPalletDelivery.estimated_delivery_date"
+                            @update:modelValue="() => onChangeEstimateDate()"
+                            inline auto-apply
+                            :disabled-dates="disableBeforeToday"
+                            :enable-time-picker="false"
+                        >
+                        </DatePicker>
                     </template>
                 </Popover>
             </div>
         </BoxStatPallet>
 
 
-        <!-- Box: Pallet -->
+        <!-- Box: Stats -->
         <BoxStatPallet class="py-1 sm:py-2 px-3 border-t sm:border-t-0 border-gray-300" :percentage="0">
             <div v-tooltip="trans('Total Pallet')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">

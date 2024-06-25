@@ -139,7 +139,14 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         return 'slug';
     }
 
-    protected $auditInclude = [
+    public function generateTags(): array
+    {
+        return [
+            'procurement'
+        ];
+    }
+
+    protected array $auditInclude = [
         'number',
     ];
 

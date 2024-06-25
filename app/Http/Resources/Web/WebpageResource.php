@@ -35,13 +35,12 @@ class WebpageResource extends JsonResource
                 WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
                 default                     => ['fal', 'fa-browser']
             },
-            'is_dirty'            => $webpage->is_dirty,
-            'layout'              => $webpage->unpublishedSnapshot->layout ?: [],
-            'purpose'             => $webpage->purpose,
-            'created_at'          => $webpage->created_at,
-            'updated_at'          => $webpage->updated_at,
-            'state'               => $webpage->state,
-
+            'is_dirty'                   => $webpage->is_dirty,
+            'layout'                     => $webpage->unpublishedSnapshot->layout ?: [],
+            'purpose'                    => $webpage->purpose,
+            'created_at'                 => $webpage->created_at,
+            'updated_at'                 => $webpage->updated_at,
+            'state'                      => $webpage->state,
             'add_web_block_route'        => [
                 'name'       => 'grp.models.webpage.web_block.store',
                 'parameters' => $webpage->id

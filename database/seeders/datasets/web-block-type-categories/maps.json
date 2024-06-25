@@ -11,7 +11,19 @@
 			"name": "I Frame",
 			"data": {
 				"component": "Iframe",
-				"icon": ["fal", "paperclip"]
+				"icon": ["fal", "paperclip"],
+				"fieldValue": {
+					"link": null,
+					"emptyState": true,
+					"height": {
+						"value": "335",
+						"unit": "px"
+					},
+					"width": {
+						"value": "100",
+						"unit": "%"
+					}
+				}
 			}
 		}
 	]

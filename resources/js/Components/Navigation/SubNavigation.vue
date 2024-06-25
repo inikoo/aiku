@@ -30,7 +30,7 @@ const props = defineProps<{
         <div v-if="dataNavigation.length"
             class="py-1 flex items-center transition-all"
             :class="[
-                layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-1 bg-white sm:border-r sm:border-t rounded-t-md rounded-tl-none border-gray-300' : 'tabSubNav -ml-2 md:ml-0'
+                layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-2 bg-white rounded-t-md rounded-tl-none sm:border sm:border-transparent sm:border-r-gray-300' : 'tabSubNav -ml-2 md:ml-0'
             ]"
         >
             <component :is="dataNavigation[0].href?.name ? Link : 'div'" 

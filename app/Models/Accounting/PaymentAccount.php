@@ -12,6 +12,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -49,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\OrgPaymentServiceProvider|null $orgPaymentServiceProvider
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
@@ -71,6 +73,7 @@ class PaymentAccount extends Model implements Auditable
     use HasSlug;
     use HasFactory;
     use HasHistory;
+    use inOrganisation;
 
     protected $casts = [
         'data' => 'array',
@@ -96,9 +99,11 @@ class PaymentAccount extends Model implements Auditable
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function organisation(): BelongsTo
+    public function generateTags(): array
     {
-        return $this->belongsTo(Organisation::class);
+        return [
+            'accounting',
+        ];
     }
 
     public function paymentServiceProvider(): BelongsTo

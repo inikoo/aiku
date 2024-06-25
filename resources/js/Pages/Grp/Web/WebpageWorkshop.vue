@@ -46,19 +46,31 @@ const data = ref({
 });
 
 
-const sendUpdate = async (block) => {
+const sendNewBlock = async (block) => {
   try {
     const response = await axios.post(
       route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters), 
       {web_block_type_id : block.id }
     );
-  /*   const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set */
+    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    data.value = set 
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
   }
 };
+
+const sendBlockUpdate =  async (block) => {
+	console.log(block)
+}
+
+const sendOrderBlock =  async (block) => {
+	console.log(block)
+}
+
+const sendDeleteBlock =  async (block) => {
+	console.log(block)
+}
 
 
 /* const debouncedSendUpdate = debounce(sendUpdate, 1000);
@@ -70,18 +82,25 @@ const onUpdated = () => {
 
 
 const onPickBlock = (block) => {
-	sendUpdate(block)
+	sendNewBlock(block)
 	isModalBlocksList.value = false;
 };
 
+const onChangeOrderBlock = (a,b,c) => {
+	console.log(a,b,c)
+}
+
 const deleteBlock = (index) => {
   data.value.layout.splice(index, 1);
-/*   onUpdated(); */
 };
 
 const setData = () => {
   console.log(data.value);
 };
+
+const onUpdatedBlock = (e) => {
+	console.log(e)
+}
 
 
 const onPublish = async (action) => {
@@ -143,12 +162,12 @@ const onPublish = async (action) => {
                             :key="activityItem.id" @click="()=>selectedBlock = activityItem"
                             class="w-full">
                             <component
-                                :is="getComponent(activityItem['component'])"
+                                :is="getComponent(activityItem.data.component)"
                                 :key="activityItemIdx"
                                 :webpageData="webpage"
                                 v-bind="activityItem.fieldData"
                                 v-model="activityItem.fieldValue"
-                                @autoSave="() => onUpdated()" />
+                                @autoSave="onUpdatedBlock" />
                         </div>
                     </TransitionGroup>
 				</div>
@@ -172,6 +191,7 @@ const onPublish = async (action) => {
                     
 					<draggable v-if="data?.layout?.length > 0"
 						:list="data.layout"
+						@change="onChangeOrderBlock"
 						ghost-class="ghost"
 						group="column"
 						itemKey="column_id"

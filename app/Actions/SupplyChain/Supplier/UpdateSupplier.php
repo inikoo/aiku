@@ -24,6 +24,7 @@ class UpdateSupplier extends GrpAction
 
     private Supplier $supplier;
     private bool $action = false;
+    private mixed $strict;
 
     public function handle(Supplier $supplier, array $modelData): Supplier
     {
@@ -38,7 +39,6 @@ class UpdateSupplier extends GrpAction
             );
         }
 
-
         $supplier = $this->update($supplier, $modelData, ['data', 'settings']);
 
         if ($supplier->wasChanged(['name', 'code'])) {
@@ -52,12 +52,6 @@ class UpdateSupplier extends GrpAction
             }
         }
 
-
-
-
-
-
-
         SupplierHydrateUniversalSearch::dispatch($supplier);
 
         return $supplier;
@@ -65,16 +59,20 @@ class UpdateSupplier extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->action = true) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'         => [
                 'sometimes',
                 'required',
-                'max:9',
+                'max:32',
                 'alpha_dash',
                 new IUnique(
                     table: 'agents',
@@ -88,19 +86,28 @@ class UpdateSupplier extends GrpAction
                     ]
                 ),
             ],
-            'contact_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'company_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'        => ['sometimes', 'nullable', 'email'],
             'phone'        => ['sometimes', 'nullable', 'phone:AUTO'],
             'address'      => ['sometimes', 'required', new ValidAddress()],
             'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
+            'archived_at'  => ['sometimes', 'nullable', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['phone'] = ['sometimes', 'nullable', 'max:255'];
+        }
+
+        return $rules;
     }
 
-    public function action(Supplier $supplier, $modelData): Supplier
+    public function action(Supplier $supplier, $modelData, $strict = true): Supplier
     {
+
         $this->supplier = $supplier;
         $this->action   = true;
+        $this->strict   = $strict;
         $this->initialisation($supplier->group, $modelData);
 
         return $this->handle($supplier, $this->validatedData);

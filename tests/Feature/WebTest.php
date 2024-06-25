@@ -113,7 +113,7 @@ test('create webpage', function (Website $website) {
 test('create add web block', function (Webpage $webpage) {
 
     /** @var WebBlockType $webBlockType */
-    $webBlockType=$webpage->group->webBlockTypes()->where('code', 'Text')->first();
+    $webBlockType=$webpage->group->webBlockTypes()->where('code', 'text')->first();
     expect($webBlockType)->toBeInstanceOf(WebBlockType::class);
 
     $webBlock=AttachWebBlockToWebpage::make()->action(

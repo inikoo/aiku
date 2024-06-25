@@ -42,8 +42,8 @@ class FetchAuroraOrganisation
 
         $this->parsedData['organisation'] = [
             'name'        => $this->auroraModelData->{'Account Name'},
-            'language_id' => $this->parseLanguageID($this->auroraModelData->{'Account Locale'}),
-            'timezone_id' => $this->parseTimezoneID($this->auroraModelData->{'Account Timezone'}),
+            //'language_id' => $this->parseLanguageID($this->auroraModelData->{'Account Locale'}),
+            //'timezone_id' => $this->parseTimezoneID($this->auroraModelData->{'Account Timezone'}),
             'source'      => [
                 'type'         => 'Aurora',
                 'db_name'      => Arr::get($this->organisation->source, 'db_name'),

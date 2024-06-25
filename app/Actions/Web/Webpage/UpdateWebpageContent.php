@@ -26,7 +26,7 @@ class UpdateWebpageContent extends OrgAction
 
         $layout  =[];
         foreach($webpage->webBlocks as $webBlock) {
-            $layout[]=
+            $layout['web_blocks'][]=
                 [
                     'id'       => $webBlock->pivot->id,
                     'type'     => $webBlock->webBlockType->code,

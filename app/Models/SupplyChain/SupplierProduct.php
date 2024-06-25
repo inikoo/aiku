@@ -18,6 +18,7 @@ use App\Models\Procurement\SupplierProductTradeUnit;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -52,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string $cost unit cost
+ * @property int $currency_id
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
  * @property array $settings
@@ -91,6 +93,7 @@ class SupplierProduct extends Model implements Auditable
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;
+    use InGroup;
 
     protected $casts = [
         'cost'                   => 'decimal:4',
@@ -105,7 +108,6 @@ class SupplierProduct extends Model implements Auditable
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
-
     ];
 
     protected $guarded = [];
@@ -123,10 +125,23 @@ class SupplierProduct extends Model implements Auditable
         return 'slug';
     }
 
-    public function group(): BelongsTo
+    public function generateTags(): array
     {
-        return $this->belongsTo(Group::class);
+        return [
+            'supply-chain'
+        ];
     }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'status',
+        'description',
+        'cost',
+        'currency_id',
+        'units_per_pack',
+        'units_per_carton',
+    ];
 
     public function historicAssets(): HasMany
     {

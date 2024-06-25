@@ -11,7 +11,12 @@
 			"name": "Call to action 1",
 			"data": {
 				"component": "CTA",
-				"icon": ["fal", "rectangle-wide"]
+				"icon": ["fal", "rectangle-wide"],
+				"fieldValue": {
+					"headline": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
+					"description": "<p><span style='color: #FFFFFF'>Provide your customers with informed advice.</span></p><p></p>",
+					"button": "Read blog"
+				}
 			}
 		},
 		{
@@ -19,7 +24,12 @@
 			"name": "Call to action 2",
 			"data": {
 				"component": "CTA2",
-				"icon": ["fal", "rectangle-wide"]
+				"icon": ["fal", "rectangle-wide"],
+				"fieldValue": {
+					"headline": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2>",
+					"description": "<p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
+					"button": "Get Started"
+				}
 			}
 		}
 	]

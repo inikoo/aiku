@@ -33,6 +33,8 @@ class StoreSupplier extends GrpAction
     use WithAttributes;
     use WithModelAddressActions;
 
+    private mixed $strict;
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
@@ -79,10 +81,10 @@ class StoreSupplier extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'         => [
                 'required',
-                'max:9',
+                'max:32',
                 'alpha_dash',
                 new IUnique(
                     table: 'suppliers',
@@ -103,6 +105,12 @@ class StoreSupplier extends GrpAction
             'status'       => ['sometimes', 'required', 'boolean'],
             'archived_at'  => ['sometimes', 'nullable', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['phone'] = ['sometimes', 'nullable', 'max:255'];
+        }
+
+        return $rules;
     }
 
     public function afterValidator(Validator $validator): void
@@ -112,9 +120,10 @@ class StoreSupplier extends GrpAction
         }
     }
 
-    public function action(Group|Agent $parent, $modelData): Supplier
+    public function action(Group|Agent $parent, $modelData, $strict = true): Supplier
     {
         $this->asAction = true;
+        $this->strict   = $strict;
 
         if (class_basename($parent) == 'Agent') {
             $group = $parent->group;

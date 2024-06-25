@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\Web\WebpageResource;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
@@ -21,6 +22,8 @@ class AttachWebBlockToWebpage extends OrgAction
 {
     use HasWebAuthorisation;
 
+
+    private Webpage $webpage;
 
     public function handle(Webpage $webpage, array $modelData): WebBlock
     {
@@ -54,6 +57,7 @@ class AttachWebBlockToWebpage extends OrgAction
 
     public function asController(Webpage $webpage, ActionRequest $request): WebBlock
     {
+        $this->webpage=$webpage;
         if ($webpage->shop->type == ShopTypeEnum::FULFILMENT) {
             $this->scope = $webpage->shop->fulfilment;
             $this->initialisationFromFulfilment($this->scope, $request);
@@ -73,6 +77,12 @@ class AttachWebBlockToWebpage extends OrgAction
         $this->initialisationFromShop($webpage->shop, $modelData);
 
         return $this->handle($webpage, $this->validatedData);
+    }
+
+    public function jsonResponse(WebBlock $webBlock): WebpageResource
+    {
+        $this->webpage->refresh();
+        return new WebpageResource($this->webpage);
     }
 
 }

@@ -20,6 +20,7 @@ use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -104,6 +105,7 @@ class Supplier extends Model implements HasMedia, Auditable
     use HasFactory;
     use HasHistory;
     use HasAttachments;
+    use InGroup;
 
     protected $casts = [
         'data'        => 'array',
@@ -152,10 +154,25 @@ class Supplier extends Model implements HasMedia, Auditable
             ->saveSlugsTo('slug');
     }
 
-    public function group(): BelongsTo
+    public function generateTags(): array
     {
-        return $this->belongsTo(Group::class);
+        return [
+            'supply-chain'
+        ];
     }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'email',
+        'phone',
+        'contact_name',
+        'company_name',
+        'identity_document_type',
+        'identity_document_number',
+        'contact_website',
+        'archived_at'
+    ];
 
     public function stats(): HasOne
     {

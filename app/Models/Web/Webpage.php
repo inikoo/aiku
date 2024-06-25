@@ -14,6 +14,7 @@ use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -84,13 +86,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Webpage withoutTrashed()
  * @mixin Eloquent
  */
-class Webpage extends Model
+class Webpage extends Model implements Auditable
 {
     use HasSlug;
     use HasFactory;
     use HasUniversalSearch;
     use SoftDeletes;
     use InShop;
+    use HasHistory;
 
     protected $casts = [
         'data'             => 'array',
@@ -110,15 +113,6 @@ class Webpage extends Model
         'published_layout' => '{}',
     ];
 
-    protected array $auditExclude = [
-        'id',
-        'slug',
-        'live_snapshot_id',
-        'published_checksum',
-        'published_layout',
-        'unpublished_snapshot_id'
-    ];
-
     protected $guarded = [];
 
     public function getSlugOptions(): SlugOptions
@@ -134,6 +128,23 @@ class Webpage extends Model
         return 'slug';
     }
 
+    public function generateTags(): array
+    {
+        return [
+            'websites'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'url',
+        'state',
+        'ready_at',
+        'live_at',
+        'closed_at',
+        'purpose',
+        'type'
+    ];
 
     public function stats(): HasOne
     {

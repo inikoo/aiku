@@ -11,7 +11,19 @@
             "name": "Wowsbar banner",
             "data": {
                 "icon" : ["fal", "presentation"],
-                "component": "bannerWowsbar"
+                "component": "bannerWowsbar",
+                "fieldValue" : {
+                    "link": null,
+                    "emptyState": true,
+                    "height": {
+                        "value": "335",
+                        "unit": "px"
+                    },
+                    "width": {
+                        "value": "100",
+                        "unit": "%"
+                    }
+                }
             }
         }
     ]

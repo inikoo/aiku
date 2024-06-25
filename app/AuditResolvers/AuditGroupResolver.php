@@ -18,6 +18,14 @@ class AuditGroupResolver implements Resolver
             return app('group')->id;
         }
 
+        if($auditable->group_id) {
+            return $auditable->group_id;
+        }
+
+        if(class_basename($auditable)=='Group') {
+            return $auditable->id;
+        }
+
         return null;
     }
 }

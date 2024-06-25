@@ -48,6 +48,7 @@ use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\WebBlockTypeCategory;
@@ -64,6 +65,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -92,6 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Agent> $agents
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
+ * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, Barcode> $barcodes
  * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
  * @property-read LaravelCollection<int, CustomerClient> $clients
@@ -167,7 +170,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Group withoutTrashed()
  * @mixin Eloquent
  */
-class Group extends Authenticatable implements HasMedia
+class Group extends Authenticatable implements Auditable, HasMedia
 {
     use SoftDeletes;
     use HasSlug;
@@ -175,6 +178,7 @@ class Group extends Authenticatable implements HasMedia
     use InteractsWithMedia;
     use HasImage;
     use HasApiTokens;
+    use HasHistory;
 
     protected $guarded = [];
 
@@ -190,6 +194,22 @@ class Group extends Authenticatable implements HasMedia
     {
         return 'slug';
     }
+
+    public function generateTags(): array
+    {
+        return [
+            'sysadmin',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'country_id',
+        'currency_id',
+        'language_id',
+        'timezone_id'
+    ];
 
     public function tradeUnits(): HasMany
     {
