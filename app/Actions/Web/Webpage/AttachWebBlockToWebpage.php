@@ -27,6 +27,7 @@ class AttachWebBlockToWebpage extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): WebBlock
     {
+        $position    = $webpage->webBlocks()->count();
         $webBlockType=WebBlockType::find($modelData['web_block_type_id']);
 
         $webBlock = StoreWebBlock::run($webBlockType, $modelData);
@@ -38,6 +39,7 @@ class AttachWebBlockToWebpage extends OrgAction
                 'shop_id'         => $webpage->shop_id,
                 'website_id'      => $webpage->website_id,
                 'webpage_id'      => $webpage->id,
+                'position'        => $position
             ]
         );
         UpdateWebpageContent::run($webpage);

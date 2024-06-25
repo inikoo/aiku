@@ -21,20 +21,14 @@ class OrderPositionWebBlock extends GrpAction
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
-        $syncData = [];
-
-        foreach ($modelData as $webpageId => $data) {
-            $syncData[$webpageId] = ['position' => $data['position']];
-        }
-
-        $webpage->webBlocks()->syncWithoutDetaching($syncData);
+        $webpage->webBlocks()->syncWithoutDetaching($modelData);
 
         return $webpage;
     }
 
     public function asController(Webpage $webpage, ActionRequest $request): Webpage
     {
-        return $this->handle($webpage, $request->input('web_block_type_id'));
+        return $this->handle($webpage, $request->input('positions'));
     }
 
     public function action(Webpage $webpage, array $modelData): Webpage

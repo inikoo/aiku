@@ -55,6 +55,10 @@ class WebpageResource extends JsonResource
                 'name'       => 'grp.models.webpage.web_blocks_positions',
                 'parameters' => $webpage->id
             ],
+            'delete_web_block_route'        => [
+                'name'       => 'grp.models.webpage.web_block.delete',
+                'parameters' => $webpage->id
+            ],
         ];
     }
 }
