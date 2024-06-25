@@ -52,7 +52,7 @@ class WebpageResource extends JsonResource
                 'name'       => 'grp.models.model_has_web_block.delete',
             ],
             'images_upload_route' => [
-                'name'       => 'grp.models.web_block.model_has_web_block.store',
+                'name'       => 'grp.models.model_has_web_block.images.store',
             ],
             'reorder_web_blocks_route'        => [
                 'name'       => 'grp.models.webpage.reorder_web_blocks',
