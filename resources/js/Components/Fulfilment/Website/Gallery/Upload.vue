@@ -24,14 +24,28 @@ const uploadedFilesList =ref([])
 const fileInput = ref();
 
 
-const onUpload = async () =>{
-    try {
-    const response = await axios.post(props.uploadRoutes,{ images : uploadedFilesList.value });
+const onUpload = async () => {
+  try {
+    // Create a new FormData object
+    const formData = new FormData();
+
+    // Append each file to the FormData object
+    uploadedFilesList.value.forEach((file, index) => {
+      formData.append(`images[${index}]`, file);
+    });
+
+    // Make the POST request with FormData
+    const response = await axios.post(props.uploadRoutes, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
     console.log('saved', response);
-  } catch (error: any) {
+  } catch (error) {
     console.error('error', error);
   }
-}
+};
 
   
   const addComponent = (element) => {
