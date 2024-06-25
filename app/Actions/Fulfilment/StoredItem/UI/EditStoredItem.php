@@ -87,12 +87,12 @@ class EditStoredItem extends OrgAction
                                     'required'=> true,
                                     'options' => StoredItemTypeEnum::values()
                                 ],
-                                'location' => [
-                                    'type'     => 'combobox',
-                                    'label'    => __('location'),
-                                    'value'    => '',
-                                    'required' => true
-                                ]
+                                // 'location' => [
+                                //     'type'     => 'combobox',
+                                //     'label'    => __('location'),
+                                //     'value'    => '',
+                                //     'required' => true
+                                // ]
                             ]
                         ]
                     ],

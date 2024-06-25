@@ -70,7 +70,7 @@ class ShowStoredItem extends OrgAction
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fa', 'fa-narwhal'],
+                            'icon'  => ['fal', 'fa-narwhal'],
                             'title' => __('stored item')
                         ],
                     'model'  => 'stored item',

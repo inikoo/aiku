@@ -125,6 +125,7 @@ class IndexStoredItems extends OrgAction
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'         => __('stored items'),
+                    'icon'          => ['fal', 'fa-narwhal'],
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         'buttons' => [
