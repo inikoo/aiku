@@ -13,6 +13,7 @@ use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -74,7 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ProductCategory withoutTrashed()
  * @mixin Eloquent
  */
-class ProductCategory extends Model implements Auditable
+class ProductCategory extends Model implements Auditable, HasMedia
 {
     use HasSlug;
     use SoftDeletes;
@@ -82,6 +84,7 @@ class ProductCategory extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InShop;
+    use HasImage;
 
     protected $guarded = [];
 
@@ -93,6 +96,19 @@ class ProductCategory extends Model implements Auditable
 
     protected $attributes = [
         'data' => '{}',
+    ];
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
     ];
 
     public function getRouteKeyName(): string
@@ -110,19 +126,6 @@ class ProductCategory extends Model implements Auditable
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'catalogue',
-        ];
-    }
-
-    protected array $auditInclude = [
-        'code',
-        'name',
-        'description',
-    ];
 
     public function stats(): HasOne
     {

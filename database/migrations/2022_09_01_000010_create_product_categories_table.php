@@ -30,14 +30,14 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('department_id')->nullable()->index();
             $table->unsignedSmallInteger('sub_department_id')->nullable()->index();
             $table->unsignedSmallInteger('parent_id')->nullable()->index();
-
-
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
-
             $table->jsonb('data');
             $table->timestampstz();
+            $table->dateTimeTz('activated_at')->nullable();
+            $table->dateTimeTz('discontinuing_at')->nullable();
+            $table->dateTimeTz('discontinued_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_department_id')->nullable()->unique();
             $table->string('source_family_id')->nullable()->unique();

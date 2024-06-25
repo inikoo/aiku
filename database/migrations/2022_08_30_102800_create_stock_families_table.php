@@ -24,6 +24,9 @@ return new class () extends Migration {
             $table = $this->assertCodeDescription($table);
             $table->jsonb('data');
             $table->timestampstz();
+            $table->dateTimeTz('activated_at')->nullable();
+            $table->dateTimeTz('discontinuing_at')->nullable();
+            $table->dateTimeTz('discontinued_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable()->unique();

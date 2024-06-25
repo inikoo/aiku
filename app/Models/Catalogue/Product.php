@@ -114,6 +114,28 @@ class Product extends Model implements Auditable, HasMedia
         'settings' => '{}',
     ];
 
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+        'status',
+        'state',
+        'price',
+        'currency_id',
+        'units',
+        'unit',
+        'barcode',
+        'rrp',
+        'unit_relationship_type'
+    ];
+
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -129,14 +151,6 @@ class Product extends Model implements Auditable, HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'catalogue',
-        ];
-    }
-
 
     public function stats(): HasOne
     {

@@ -26,6 +26,9 @@ return new class () extends Migration {
             $table->string('state')->default(OrgStockFamilyStateEnum::IN_PROCESS->value)->index();
             $table->jsonb('data');
             $table->timestampstz();
+            $table->dateTimeTz('activated_in_organisation_at')->nullable();
+            $table->dateTimeTz('discontinuing_in_organisation_at')->nullable();
+            $table->dateTimeTz('discontinued_in_organisation_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
         });

@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 
 class FetchAuroraStockFamily extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
 
@@ -37,9 +39,22 @@ class FetchAuroraStockFamily extends FetchAurora
                 'NotInUse'      => 'discontinued',
                 default         => 'in-process',
             },
-            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
-            'source_slug' => $sourceSlug
+            'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'source_slug'            => $sourceSlug,
+            'images'                 => $this->parseImages()
         ];
+    }
+
+    private function parseImages(): array
+    {
+        $images = $this->getModelImagesCollection(
+            'Category',
+            $this->auroraModelData->{'Category Key'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+
+        return $images->toArray();
     }
 
 
@@ -50,4 +65,5 @@ class FetchAuroraStockFamily extends FetchAurora
             ->leftJoin('Part Category Dimension', 'Part Category Key', 'Category Key')
             ->where('Category Key', $id)->first();
     }
+
 }

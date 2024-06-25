@@ -106,7 +106,7 @@ class FetchAuroraProduct extends FetchAurora
     private function parseImages(): array
     {
         $images = $this->getModelImagesCollection(
-            'Asset',
+            'Product',
             $this->auroraModelData->{'Product ID'}
         )->map(function ($auroraImage) {
             return $this->fetchImage($auroraImage);
