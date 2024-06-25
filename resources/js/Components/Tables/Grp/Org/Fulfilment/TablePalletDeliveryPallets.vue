@@ -165,7 +165,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Notes -->
 		<template #cell(notes)="{ item: item }">
-			<div v-if="state == 'in-process'" class="">
+			<div v-if="state == 'in-process'" class="min-w-32">
 				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes" />
 			</div>
 			<div v-else>{{ item["notes"] }}</div>
@@ -192,7 +192,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		</template>
 
 
-		<!-- Column: type pallet -->
+		<!-- Column: Type pallet -->
 		<template #cell(type)="{ item: pallet }">
             <FieldEditableTable :data="pallet" @onSave="onSaved" :options="typePallet" :fieldType="'select'"
                 label="label"

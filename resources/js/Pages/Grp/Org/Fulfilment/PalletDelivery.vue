@@ -337,8 +337,10 @@ watch(() => props.data, (newValue) => {
                             <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
                             <div class="">
                                 <PureMultiselect v-model="formAddService.service_id" autofocus placeholder="Services" :options="props.service_lists"
-                                                 label="name"
-                                                 valueProp="id"
+                                    label="name"
+                                    valueProp="id"
+                                    caret
+                                    searchable
                                     @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
                                     class="mt-2 text-sm text-red-500">
@@ -381,6 +383,8 @@ watch(() => props.data, (newValue) => {
                                 <PureMultiselect
                                     v-model="formAddPhysicalGood.outer_id"
                                     autofocus
+                                    caret
+                                    searchable
                                     placeholder="Physical Goods"
                                     :options="props.physical_good_lists"
                                     label="name"

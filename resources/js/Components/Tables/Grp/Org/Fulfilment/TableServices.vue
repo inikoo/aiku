@@ -16,8 +16,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 library.add(faRobot)
 
 defineProps<{
-    data: object
-    tab?: string,
+    data: {}
+    tab?: string
 }>()
 
 function serviceRoute(service: {}) {
@@ -40,9 +40,9 @@ function serviceRoute(service: {}) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: service }">
-            <Link :href="serviceRoute(service)" class="primaryLink">
+            <component :is="serviceRoute(service) ? Link : 'div'" :href="serviceRoute(service) || '#'" :class="serviceRoute(service) ? 'primaryLink' : ''">
                 {{ service['code'] }}
-            </Link>
+            </component>
         </template>
 
         <!-- Column: Shop Code -->

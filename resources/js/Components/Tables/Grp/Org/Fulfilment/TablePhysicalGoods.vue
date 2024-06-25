@@ -17,12 +17,12 @@ library.add(faRobot)
 
 
 defineProps<{
-    data: object
-    tab?: string,
+    data: {}
+    tab?: string
 }>()
 
 
-function serviceRoute(product: {}) {
+function physicalGoodsRoute(product: {}) {
     console.log(route().current())
     switch (route().current()) {
         case 'grp.org.fulfilments.show.assets.outers.index':
@@ -41,14 +41,17 @@ function serviceRoute(product: {}) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: service }">
-            <Link :href="serviceRoute(service)" class="primaryLink">
+            <!-- <Link :href="physicalGoodsRoute(service)" class="primaryLink">
                 {{ service['code'] }}
-            </Link>
+            </Link> -->
+            <component :is="physicalGoodsRoute(service) ? Link : 'div'" :href="physicalGoodsRoute(service) || '#'" :class="physicalGoodsRoute(service) ? 'primaryLink' : ''">
+                {{ service['code'] }}
+            </component>
         </template>
 
         <!-- Column: Shop Code -->
         <template #cell(shop_code)="{ item: service }">
-            <Link v-if="service['shop_slug']" :href="serviceRoute(service)" class="secondaryLink">
+            <Link v-if="service['shop_slug']" :href="physicalGoodsRoute(service)" class="secondaryLink">
                 {{ service['shop_slug'] }}
             </Link>
         </template>

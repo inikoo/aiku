@@ -117,6 +117,7 @@ const onChange = (value : Any) => {
             :modelValue="pallet.form[fieldName]"
             :placeholder="placeholder"
             :options="options"
+            caret
             @OnChange="onChange"
             :required="required"
             :label="label"

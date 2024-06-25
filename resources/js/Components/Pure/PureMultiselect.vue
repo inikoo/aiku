@@ -1,13 +1,14 @@
 <script setup lang='ts'>
 import Multiselect from "@vueform/multiselect"
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     modelValue: any
     placeholder?: string
     mode?: "single" | "multiple" | "tags"
     required?: boolean
     searchable?: boolean
-    classes?: Object
+    clearOnBlur?: boolean  // Whether the search is cleared on blur or not
+    classes?: {}
     options: {
         label: string
     }[] | string[]
@@ -15,7 +16,9 @@ const props = defineProps<{
     object?: boolean
     label?: string
     valueProp?: string
-}>()
+}>(), {
+    clearOnBlur: true
+})
 
 
 const emits = defineEmits<{
@@ -36,7 +39,7 @@ const onInput = (keyOption : any) => {
         <Multiselect
             :value="modelValue"
             @input="onInput"
-            :classes="{placeholder: 'text-sm text-left w-full pl-4 font-light text-gray-400', ...classes}"
+            :classes="{placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1', ...classes}"
             :options="props.options"
             :placeholder="placeholder ?? 'Select your option'"
             :canClear="!required"
@@ -44,6 +47,7 @@ const onInput = (keyOption : any) => {
             :closeOnSelect="mode == 'multiple' ? false : true"
             :canDeselect="!required"
             :hideSelected="false"
+            :clearOnBlur
             :object="object"
             :searchable="!!searchable"
             :caret="caret ?? true"
