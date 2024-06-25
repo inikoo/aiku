@@ -41,8 +41,7 @@ const comment = ref("");
 const isLoading = ref(false)
 const selectedBlock = ref(null)
 const data = ref({
-  ...props.webpage,
-  layout: props.webpage.layout.web_blocks ? props.webpage.layout.web_blocks : []
+  ...props.webpage
 });
 
 
@@ -65,7 +64,17 @@ const sendBlockUpdate =  async (block) => {
 }
 
 const sendOrderBlock =  async (block) => {
-	console.log(block)
+	try {
+    const response = await axios.post(
+      route(props.webpage.update_erb_block_positions_route.name, props.webpage.update_erb_block_positions_route.parameters), 
+      {web_block_type_id : block }
+    );
+    const set = {...response.data.data, layout : response.data.data.layout.blocks }
+    data.value = set 
+    console.log('saved', response);
+  } catch (error: any) {
+    console.error('error', error);
+  }
 }
 
 const sendDeleteBlock =  async (block) => {
@@ -86,8 +95,12 @@ const onPickBlock = (block) => {
 	isModalBlocksList.value = false;
 };
 
-const onChangeOrderBlock = (a,b,c) => {
-	console.log(a,b,c)
+const onChangeOrderBlock = (moved) => {
+	const id = []
+	data.value.layout.web_blocks.map((item)=>{
+		id.push(item.id)
+	})
+	sendOrderBlock(id)
 }
 
 const deleteBlock = (index) => {
@@ -156,18 +169,18 @@ const onPublish = async (action) => {
 	<div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
 		<div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
 			<div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
-				<div v-if="data.layout?.length">
+				<div v-if="data.layout.web_blocks?.length">
 					<TransitionGroup tag="div" name="zzz" class="relative">
-                        <div v-for="(activityItem, activityItemIdx) in data.layout"
+                        <div v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
                             :key="activityItem.id" @click="()=>selectedBlock = activityItem"
                             class="w-full">
                             <component
-                                :is="getComponent(activityItem.data.component)"
+                                :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                 :key="activityItemIdx"
                                 :webpageData="webpage"
-                                v-bind="activityItem.fieldData"
-                                v-model="activityItem.fieldValue"
-                                @autoSave="onUpdatedBlock" />
+                                v-bind="activityItem?.web_block?.layout?.data?.fieldData"
+                                v-model="activityItem.web_block.layout.data.fieldValue"
+                                @autoSave="()=>onUpdatedBlock" />
                         </div>
                     </TransitionGroup>
 				</div>
@@ -189,8 +202,8 @@ const onPublish = async (action) => {
 							@click="() => (isModalBlocksList = true)" />
 					</div>
                     
-					<draggable v-if="data?.layout?.length > 0"
-						:list="data.layout"
+					<draggable v-if="data?.layout?.web_blocks.length > 0"
+						:list="data.layout.web_blocks"
 						@change="onChangeOrderBlock"
 						ghost-class="ghost"
 						group="column"
@@ -204,7 +217,7 @@ const onPublish = async (action) => {
                                         <FontAwesomeIcon :icon='element.icon' class='' fixed-width aria-hidden='true' />
                                     </div>
                                     <h3 class="text-sm font-medium">
-                                        {{ element.name }}
+                                        {{ element.web_block.layout.name }}
                                     </h3>
                                 </div>
                                 
