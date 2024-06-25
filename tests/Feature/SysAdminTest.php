@@ -491,14 +491,15 @@ test('update web block types', function (Group $group) {
 
 test('show log in', function () {
 
-    $this->withoutExceptionHandling();
+    // $this->withoutExceptionHandling();
     $response = $this->get(route('grp.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Auth/Login');
+        $page->component('SysAdmin/Login');
     });
 });
 
 test('should not show without authentication', function () {
-    $response= $this->get(route('grp.home'));
-    expect($response)->toHaveStatus(302);
+    $response= $this->get(route('grp.dashboard.show'));
+    $response->assertStatus(302);
+    $response->assertRedirect(route('grp.login.show'));
 });
