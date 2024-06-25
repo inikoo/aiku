@@ -53,6 +53,7 @@ class SeedStockImages
                 $media = StoreMediaFromFile::run($group, $imageData, 'stock-image');
 
                 $this->attachMediaToModel($group, $media, $scope, $subScope, $data);
+
             }
         }
     }

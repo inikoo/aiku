@@ -20,6 +20,11 @@ class SetIconAsWebUserImage
     {
         $media = StoreMediaFromIcon::run($webUser);
         $this->attachMediaToModel($webUser, $media, 'avatar');
+        $webUser->updateQuietly(
+            [
+                'image_id' => $media->id
+            ]
+        );
         return $webUser;
     }
 

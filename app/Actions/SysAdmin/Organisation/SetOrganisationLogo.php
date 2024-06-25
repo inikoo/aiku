@@ -23,6 +23,11 @@ class SetOrganisationLogo
     {
         $media = StoreMediaFromIcon::run($organisation);
         $this->attachMediaToModel($organisation, $media, 'logo');
+        $organisation->updateQuietly(
+            [
+                'image_id' => $media->id
+            ]
+        );
         return $organisation;
     }
 

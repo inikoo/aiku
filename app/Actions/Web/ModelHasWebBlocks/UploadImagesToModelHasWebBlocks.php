@@ -15,7 +15,7 @@ use App\Models\ModelHasWebBlocks;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
 
-class UploadImagesToModelHasWebBlock extends OrgAction
+class UploadImagesToModelHasWebBlocks extends OrgAction
 {
     use WithUploadWebImage;
     use HasWebAuthorisation;
@@ -36,7 +36,7 @@ class UploadImagesToModelHasWebBlock extends OrgAction
 
         }
 
-        return $this->handle($modelHasWebBlocks->webBlock, 'header', $this->validatedData);
+        return $this->handle($modelHasWebBlocks->webBlock, 'image', $this->validatedData);
     }
 
 

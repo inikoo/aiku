@@ -7,11 +7,15 @@
 
 namespace App\Models\Web;
 
+use App\Models\Helpers\Media;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  *
@@ -34,10 +38,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|WebBlock withoutTrashed()
  * @mixin \Eloquent
  */
-class WebBlock extends Model
+class WebBlock extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasFactory;
+    use InteractsWithMedia;
 
     protected $casts = [
         'layout'=> 'array',
@@ -55,6 +60,11 @@ class WebBlock extends Model
     public function webBlockType(): BelongsTo
     {
         return $this->belongsTo(WebBlockType::class);
+    }
+
+    public function images(): MorphToMany
+    {
+        return $this->morphToMany(Media::class, 'model', 'model_has_media');
     }
 
 }

@@ -23,6 +23,11 @@ class SetIconAsShopLogo
     {
         $media = StoreMediaFromIcon::run($shop);
         $this->attachMediaToModel($shop, $media, 'logo');
+        $shop->updateQuietly(
+            [
+                'image_id' => $media->id
+            ]
+        );
         return $shop;
     }
 
