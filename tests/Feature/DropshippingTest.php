@@ -18,6 +18,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Ordering\Platform;
+use App\Models\PlatformStats;
 use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
@@ -67,7 +68,7 @@ test('test platforms were seeded ', function () {
     $platform=Platform::first();
     expect($platform)->toBeInstanceOf(Platform::class)
         ->and($platform->stats)->toBeInstanceOf(PlatformStats::class);
-})->todo();
+});
 
 test('create customer client', function () {
     $customerClient = StoreCustomerClient::make()->action($this->customer, CustomerClient::factory()->definition());

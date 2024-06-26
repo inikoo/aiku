@@ -42,9 +42,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property string|null $activated_at
- * @property string|null $discontinuing_at
- * @property string|null $discontinued_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
