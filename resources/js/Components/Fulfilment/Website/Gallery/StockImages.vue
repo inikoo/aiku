@@ -16,7 +16,6 @@ import { faSpinnerThird } from '@fad'
 library.add(faSpinnerThird)
 
 const props = defineProps<{
-    modelValue: any
 }>()
 
 const stockImages = ref([])
