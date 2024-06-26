@@ -881,3 +881,21 @@ test('UI show stored item', function () {
 
     });
 });
+
+test('UI edit stored item', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-items.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug, $this->storedItem->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.stored-items.update')
+                        ->where('parameters', $this->storedItem->id) //wrong route
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
