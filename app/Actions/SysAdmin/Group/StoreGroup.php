@@ -44,6 +44,8 @@ class StoreGroup
         SeedGroupJobPositions::run($group);
         SeedStockImages::run($group);
         SeedWebBlockTypes::run($group);
+        SeedPlatforms::run();
+
 
         $group->supplyChainStats()->create();
         $group->sysadminStats()->create();

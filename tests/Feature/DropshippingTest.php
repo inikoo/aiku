@@ -71,7 +71,7 @@ test('test platforms were seeded ', function () {
     $platform=Platform::first();
     expect($platform)->toBeInstanceOf(Platform::class)
         ->and($platform->stats)->toBeInstanceOf(PlatformStats::class);
-})->todo();
+});
 
 test('create customer client', function () {
     $customerClient = StoreCustomerClient::make()->action($this->customer, CustomerClient::factory()->definition());
