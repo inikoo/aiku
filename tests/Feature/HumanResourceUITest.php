@@ -175,3 +175,21 @@ test('UI create clocking machine', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
     });
 });
+
+test('UI edit clocking machine', function () {
+    $response = get(route('grp.org.hr.workplaces.show.clocking_machines.edit', [$this->organisation->slug, $this->workplace->slug, $this->clockingMachine->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 1)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.clocking_machine..update')
+                        ->where('parameters', $this->clockingMachine->id) 
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
