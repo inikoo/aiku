@@ -45,7 +45,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgStockFamily> $orgStockFamilies
  * @property-read \App\Models\SupplyChain\StockFamilyStats|null $stats
  * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks

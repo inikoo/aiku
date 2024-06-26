@@ -68,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read MediaCollection<int, Media> $attachments
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
  * @property-read Media|null $image

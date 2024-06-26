@@ -25,6 +25,7 @@ use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Platform;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -112,6 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
+ * @property-read Platform|null $platform
  * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\CustomerStats|null $stats
@@ -329,4 +331,19 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return $this->hasOne(CustomerDropshippingStat::class);
     }
+
+
+    public function platforms(): MorphToMany
+    {
+        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')->withTimestamps();
+    }
+
+    public function platform(): Platform|null
+    {
+        /** @var Platform $platform */
+        $platform = $this->platforms()->first();
+
+        return $platform;
+    }
+
 }

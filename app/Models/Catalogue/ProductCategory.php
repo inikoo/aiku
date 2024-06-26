@@ -51,6 +51,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $activated_at
+ * @property string|null $discontinuing_at
+ * @property string|null $discontinued_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_department_id
@@ -59,6 +62,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ProductCategory> $children
  * @property-read ProductCategory|null $department
  * @property-read Group $group
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read ProductCategory|null $parent
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals

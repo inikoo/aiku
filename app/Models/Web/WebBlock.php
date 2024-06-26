@@ -29,6 +29,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \App\Models\Web\WebBlockType $webBlockType
  * @method static Builder|WebBlock newModelQuery()
  * @method static Builder|WebBlock newQuery()
