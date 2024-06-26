@@ -11,8 +11,10 @@ use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
+use App\Actions\Helpers\Media\SaveModelImages;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 
 use App\Models\Dropshipping\CustomerClient;
@@ -93,6 +95,27 @@ test('add product to customer portfolio', function () {
 
     return $dropshippingCustomerPortfolio;
 });
+
+test('add image to product', function () {
+
+
+    expect($this->product)->toBeInstanceOf(Product::class)
+        ->and($this->product->images->count())->toBe(0);
+
+
+    SaveModelImages::run(
+        $this->product,
+        [
+            'path'         => 'x',
+            'originalName' =>'hello.jpg'
+
+        ],
+        'photo',
+        'product_images'
+    );
+
+
+})->todo();
 
 test('update customer portfolio', function (DropshippingCustomerPortfolio $dropshippingCustomerPortfolio) {
     $dropshippingCustomerPortfolio = UpdateDropshippingCustomerPortfolio::make()->action(
