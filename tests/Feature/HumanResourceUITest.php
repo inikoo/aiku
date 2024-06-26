@@ -195,6 +195,7 @@ test('UI edit clocking machine', function () {
 });
 
 test('UI Index employees', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.hr.employees.index', [$this->organisation->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -256,5 +257,25 @@ test('UI edit employee', function () {
                         ->where('parameters', [$this->employee->id])
             )
             ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index job positions', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.org.hr.job_positions.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/JobPositions')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Job positions')
+                        ->etc()
+            )
+            ->has('data');
     });
 });
