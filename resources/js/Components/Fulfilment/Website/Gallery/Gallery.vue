@@ -10,7 +10,7 @@
   import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
   import Modal from "@/Components/Utils/Modal.vue";
   import { layoutStructure } from '@/Composables/useLayoutStructure'
-  import { inject } from 'vue'
+  import { inject, ref } from 'vue'
   import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
   import Upload from './Upload.vue'
   import StockImages from './StockImages.vue'
@@ -24,25 +24,33 @@
       uploadRoutes: String
   }>()
 
-  const layout = inject('layout', layoutStructure)
+const layout = inject('layout', layoutStructure)
+const selectedTab = ref(0)
 
-  const emits = defineEmits<{
+
+
+const emits = defineEmits<{
     (e: 'onClose'): void
     (e: 'onPick', value: Object): void
+    (e: 'onUpload', value: Object): void
 }>()
+
+function changeTab(index) {
+    selectedTab.value = index
+}
 
 const tabs = [
     {
-        label : "Upload",
-        key : 'upload',
+        label: "Upload",
+        key: 'upload',
     },
     {
-        label : "Images Uploaded",
-        key : 'images_uploaded',
+        label: "Images Uploaded",
+        key: 'images_uploaded',
     },
     {
-        label : "Stock Images",
-        key : 'stock_images',
+        label: "Stock Images",
+        key: 'stock_images',
     },
 ]
 
@@ -59,12 +67,18 @@ const OnPick = (e) => {
     emits('onPick', e)
 }
 
+const onUpload = (e) => {
+    emits('onUpload', e)
+    selectedTab.value = 1
+}
+
 
   </script>
 
-  <template>
-       <Modal :isOpen="open" @onClose="()=>emits('onClose')" width="w-1/2">
-        <TabGroup>
+
+<template>
+    <Modal :isOpen="open" @onClose="() => emits('onClose')" width="w-1/2">
+        <TabGroup :selectedIndex="selectedTab" @change="changeTab">
             <TabList class="flex space-x-8 border-b-2">
                 <Tab v-for="tab in tabs" as="template" :key="tab.key" v-slot="{ selected }">
                     <button
@@ -85,10 +99,11 @@ const OnPick = (e) => {
                     'rounded-xl bg-white p-3 h-96 overflow-auto',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick"/>
+                    <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick"
+                        @onUpload="onUpload" />
 
                 </TabPanel>
             </TabPanels>
         </TabGroup>
-        </Modal>
-  </template>
+    </Modal>
+</template>

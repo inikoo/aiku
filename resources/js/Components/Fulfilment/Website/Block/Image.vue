@@ -54,11 +54,11 @@ const onUpload = (e) => {
 </script>
 
 <template>
-    <div v-if="modelValue?.value?.source" class="aspect-[1902/683] mb-6 overflow-hidden flex items-center relative">
+    <div v-if="modelValue?.value?.source" class="transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200">
         <div class="absolute top-2 right-2 flex space-x-2">
             <Button :icon="['far', 'fa-pencil']" size="xs" @click="()=>openGallery = !openGallery"/>
         </div>
-        <Image :src="modelValue?.value?.source" class="w-full"></Image>
+        <Image :src="modelValue?.value?.source" class="w-full object-cover object-center group-hover:opacity-75"></Image>
     </div>
 
     <div v-if="!modelValue?.value" class="p-5">

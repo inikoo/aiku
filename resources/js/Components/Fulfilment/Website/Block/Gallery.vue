@@ -54,8 +54,6 @@ const onCloseGallery = () =>{
   openGallery.value = false
   imagePick.value = null
 }
-
-
 </script>
 
 <template>

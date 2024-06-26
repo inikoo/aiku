@@ -58,16 +58,6 @@ const selectedNav = ref(null)
           </template>
         </draggable>
 
-        <!--  <div v-for="subnav in selectedNav?.subnavs" class="bg-white h-[26rem] rounded-lg p-4">
-          <div class="font-bold text-xs mb-3">{{ subnav.title }}</div>
-          <div v-for="link in subnav.links"  class="flex flex-col gap-y-2 p-3">
-            <div class="flex items-center gap-x-2">
-              <font-awesome-icon icon="fas fa-chevron-right" class="text-[10px] text-gray-400"></font-awesome-icon>
-              <span class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs">{{  link  }}</span>
-            </div>
-          </div>
-        </div> -->
-
       </div>
     </div>
   </div>
