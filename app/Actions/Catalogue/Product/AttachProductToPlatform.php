@@ -15,6 +15,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachProductToPlatform extends OrgAction
 {
+    /**
+     * @var \App\Models\Catalogue\Product
+     */
+    private Product $product;
+
     public function handle(Product $product, Platform $platform, array $pivotData): Product
     {
         $pivotData['group_id']        = $this->organisation->group_id;
@@ -33,8 +38,16 @@ class AttachProductToPlatform extends OrgAction
         ];
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if($this->product->platforms()->count() >= 1) {
+            abort(403);
+        }
+    }
+
     public function action(Product $product, Platform $platform, array $modelData): Product
     {
+        $this->product = $product;
         $this->initialisation($product->organisation, $modelData);
 
         return $this->handle($product, $platform, $this->validatedData);

@@ -15,6 +15,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class AttachOrderToPlatform extends OrgAction
 {
+    /**
+     * @var \App\Models\Ordering\Order
+     */
+    private Order $order;
+
     public function handle(Order $order, Platform $platform, array $pivotData): Order
     {
         $pivotData['group_id']        = $this->organisation->group_id;
@@ -33,8 +38,16 @@ class AttachOrderToPlatform extends OrgAction
         ];
     }
 
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if($this->order->platforms()->count() >= 1) {
+            abort(403);
+        }
+    }
+
     public function action(Order $order, Platform $platform, array $modelData): Order
     {
+        $this->order = $order;
         $this->initialisation($order->organisation, $modelData);
 
         return $this->handle($order, $platform, $this->validatedData);
