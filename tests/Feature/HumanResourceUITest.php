@@ -5,9 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
 use Inertia\Testing\AssertableInertia;
@@ -35,6 +38,18 @@ beforeEach(function () {
         );
     }
     $this->workplace = $workplace;
+
+    $clockingMachine = ClockingMachine::first();
+    if (!$clockingMachine) {
+        data_set($storeData, 'name', 'machine');
+        data_set($storeData, 'type', ClockingMachineTypeEnum::BIOMETRIC->value);
+
+        $clockingMachine = StoreClockingMachine::make()->action(
+            $this->workplace,
+            $storeData
+        );
+    }
+    $this->clockingMachine = $clockingMachine;
 
     $employee = Employee::first();
     if (!$employee) {
@@ -130,5 +145,24 @@ test('UI Index clocking machines', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI show clocking machine', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.hr.workplaces.show.clocking_machines.show', [$this->organisation->slug, $this->workplace->slug, $this->clockingMachine->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/ClockingMachine')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->clockingMachine->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
