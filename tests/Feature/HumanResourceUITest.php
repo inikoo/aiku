@@ -188,7 +188,7 @@ test('UI edit clocking machine', function () {
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.clocking_machine..update')
-                        ->where('parameters', $this->clockingMachine->id) 
+                        ->where('parameters', $this->clockingMachine->id)
             )
             ->has('breadcrumbs', 4);
     });
@@ -253,7 +253,7 @@ test('UI edit employee', function () {
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.employee.update')
-                        ->where('parameters', [$this->employee->id]) 
+                        ->where('parameters', [$this->employee->id])
             )
             ->has('breadcrumbs', 3);
     });

@@ -113,6 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
+ * @property-read Platform|null $platform
  * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\CustomerStats|null $stats

@@ -75,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
+ * @property-read Platform|null $platform
  * @property-read \App\Models\Catalogue\ProductVariant|null $productVariant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductVariant> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
