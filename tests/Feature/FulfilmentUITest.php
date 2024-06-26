@@ -31,7 +31,6 @@ use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;

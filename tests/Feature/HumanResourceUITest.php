@@ -12,7 +12,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
 use Inertia\Testing\AssertableInertia;
 
- use function Pest\Laravel\actingAs;
+use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
 beforeAll(function () {

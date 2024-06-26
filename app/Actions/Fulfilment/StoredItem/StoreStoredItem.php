@@ -81,7 +81,7 @@ class StoreStoredItem extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItem
     {
-        $this->asAction = true;
+        $this->asAction           = true;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 

@@ -7,15 +7,17 @@
   <script setup lang="ts">
   import { faCube, faStar, faImage } from "@fas"
   import { library } from "@fortawesome/fontawesome-svg-core"
+  import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
   import Modal from "@/Components/Utils/Modal.vue";
   import { layoutStructure } from '@/Composables/useLayoutStructure'
-  import { inject, ref } from 'vue'
+  import { inject } from 'vue'
   import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
   import Upload from './Upload.vue'
   import StockImages from './StockImages.vue'
-  
+  import UploadedImages from "@/Components/Fulfilment/Website/Gallery/UploadedImages.vue";
+
   library.add(faCube, faStar, faImage)
-  
+
   const props = defineProps<{
       open: Boolean
       width?: String,
@@ -23,19 +25,11 @@
   }>()
 
   const layout = inject('layout', layoutStructure)
-  const selectedTab = ref(0)
-
-  
 
   const emits = defineEmits<{
     (e: 'onClose'): void
     (e: 'onPick', value: Object): void
-    (e: 'onUpload', value: Object): void
 }>()
-
-function changeTab(index) {
-    selectedTab.value = index
-  }
 
 const tabs = [
     {
@@ -55,6 +49,7 @@ const tabs = [
 const getComponent = (componentName: string) => {
   const components: any = {
     'upload': Upload,
+    'images_uploaded': UploadedImages,
     'stock_images' : StockImages
   };
   return components[componentName] ?? null;
@@ -64,17 +59,12 @@ const OnPick = (e) => {
     emits('onPick', e)
 }
 
-const onUpload = (e) => {
-    emits('onUpload', e)
-    selectedTab.value = 1
-}
 
-  
   </script>
-  
+
   <template>
        <Modal :isOpen="open" @onClose="()=>emits('onClose')" width="w-1/2">
-        <TabGroup :selectedIndex="selectedTab" @change="changeTab">
+        <TabGroup>
             <TabList class="flex space-x-8 border-b-2">
                 <Tab v-for="tab in tabs" as="template" :key="tab.key" v-slot="{ selected }">
                     <button
@@ -95,7 +85,7 @@ const onUpload = (e) => {
                     'rounded-xl bg-white p-3 h-96 overflow-auto',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick" @onUpload="onUpload"/>
+                <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick"/>
 
                 </TabPanel>
             </TabPanels>
