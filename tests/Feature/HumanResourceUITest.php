@@ -221,3 +221,22 @@ test('UI create employee', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
+
+test('UI show employee', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.hr.employees.show', [$this->organisation->slug, $this->employee->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Employee')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->employee->contact_name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
