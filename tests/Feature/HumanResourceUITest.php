@@ -112,3 +112,23 @@ test('UI Index clockings', function () {
             ->has('data');
     });
 });
+
+test('UI Index clocking machines', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.org.hr.workplaces.show.clocking_machines.index', [$this->organisation->slug, $this->workplace->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/ClockingMachines')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Clocking machines')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
