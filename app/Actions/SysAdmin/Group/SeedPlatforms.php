@@ -7,35 +7,58 @@
 
 namespace App\Actions\SysAdmin\Group;
 
+use App\Actions\GrpAction;
 use App\Actions\Ordering\Platform\StorePlatform;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
-use Illuminate\Support\Str;
+use App\Models\SysAdmin\Group;
+use Exception;
+use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SeedPlatforms
+class SeedPlatforms extends GrpAction
 {
     use AsAction;
     use WithAttachMediaToModel;
 
-    public function handle(): void
+    public function handle(Group $group): void
     {
-        $types = PlatformTypeEnum::values();
 
-        foreach ($types as $type) {
-            StorePlatform::make()->action([
-                'code' => $type,
-                'name' => Str::ucfirst($type)
-            ]);
+        foreach (PlatformTypeEnum::cases() as $case) {
+
+            $code= $case->value;
+
+            if($group->platforms()->where('code', $code)->exists()) {
+                continue;
+            }
+
+            StorePlatform::make()->action(
+                $group,
+                [
+                'code' => $code,
+                'name' => $case->labels()[$case->value],
+                'type' => $case
+                ]
+            );
         }
     }
 
+    public string $commandSignature = 'group:seed-platforms {group : group slug}';
 
-    public string $commandSignature = 'platforms:seed';
-
-    public function asCommand(): int
+    public function asCommand(Command $command): int
     {
-        $this->handle();
+        try {
+            $group       = Group::where('slug', $command->argument('group'))->firstOrFail();
+            $this->group = $group;
+            app()->instance('group', $group);
+            setPermissionsTeamId($group->id);
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $this->handle($group);
         echo "Success seed the platforms ✅ \n";
 
         return 0;

@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -75,7 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
- * @property-read Platform|null $platform
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Platform> $platforms
  * @property-read \App\Models\Catalogue\ProductVariant|null $productVariant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductVariant> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
@@ -193,9 +193,18 @@ class Product extends Model implements Auditable, HasMedia
         return $this->belongsTo(ProductCategory::class, 'family_id');
     }
 
-    public function platform(): MorphOne
+    public function platforms(): MorphToMany
     {
-        return $this->morphOne(Platform::class, 'model');
+        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')->withTimestamps();
+        ;
+    }
+
+    public function platform(): Platform|null
+    {
+        /** @var Platform $platform */
+        $platform = $this->platforms()->first();
+
+        return $platform;
     }
 
 

@@ -42,6 +42,7 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Platform;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
@@ -130,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, Platform> $platforms
  * @property-read LaravelCollection<int, PostRoom> $postRooms
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
@@ -558,6 +560,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function webBlockTypes(): HasMany
     {
         return $this->hasMany(WebBlockType::class);
+    }
+
+    public function platforms(): HasMany
+    {
+        return $this->hasMany(Platform::class);
     }
 
 
