@@ -10,6 +10,7 @@ namespace App\Actions\Dropshipping\Api;
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Api\Dropshipping\ProductsResource;
+use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -17,7 +18,7 @@ class ShowProduct extends GrpAction
 {
     private Product $product;
 
-    public function asController(Product $product, ActionRequest $request): Product
+    public function asController(Product $product, ActionRequest $request): ProductResource
     {
         $group         = $request->user();
         $this->product =$product;
@@ -26,9 +27,9 @@ class ShowProduct extends GrpAction
         return $this->handle($product);
     }
 
-    public function handle(Product $product): Product
+    public function handle(Product $product): ProductResource
     {
-        return $product;
+        return ProductResource::make($product);
     }
 
     public function prepareForValidation(): void
