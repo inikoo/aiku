@@ -16,6 +16,38 @@
 					"value": null
 				}
 			}
+		},
+		{
+			"code": "gallery",
+			"name": "Gallery",
+			"data": {
+				"component": "Gallery",
+				"icon": ["fal", "images"],
+				"fieldValue": {
+					"value":  [
+			  {
+				"id": 1,
+				"image": null,
+				"text" :  "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+			  },
+			  {
+				"id": 2,
+				"image": null,
+				"text" :   "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+			  },
+			  {
+				"id": 3,
+				"image": null,
+				"text" :   "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+			  },
+			  {
+				"id": 4,
+				"image": null,
+				"text" :  "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+			  }
+			]
+			}
+		}
 		}
 	]
 }
