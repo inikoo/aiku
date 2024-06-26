@@ -21,14 +21,14 @@ const props = defineProps<{
     modelValue: any
     webpageData: any
     web_block : Object
-    id: Number
+    id: Number,
+    type : String
 }>()
-
-console.log('sss',props)
 
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
+    (e: 'autoSave'): void
 }>()
 
 const openGallery = ref(false)
@@ -36,6 +36,7 @@ const openGallery = ref(false)
 const setImage = (e) => {
     openGallery.value = false
     emits('update:modelValue', { value: e })
+    emits('autoSave')
 }
 
 const onUpload = (e) => {
@@ -43,6 +44,7 @@ const onUpload = (e) => {
     if (e.data && e.data.length <= 1) {
         openGallery.value = false
         emits('update:modelValue', { value: e.data[0] });
+        emits('autoSave')
     } else {
         console.error('No files or multiple files detected.');
     }
@@ -54,13 +56,13 @@ const onUpload = (e) => {
 <template>
     <div v-if="modelValue?.value?.source" class="aspect-[1902/683] mb-6 overflow-hidden flex items-center relative">
         <div class="absolute top-2 right-2 flex space-x-2">
-            <Button :icon="['far', 'fa-pencil']" size="xs" @click="openGallery = !openGallery"/>
+            <Button :icon="['far', 'fa-pencil']" size="xs" @click="()=>openGallery = !openGallery"/>
         </div>
         <Image :src="modelValue?.value?.source" class="w-full"></Image>
     </div>
 
     <div v-if="!modelValue?.value" class="p-5">
-        <div type="button" @click="openGallery = !openGallery"
+        <div type="button" @click="()=>openGallery = !openGallery"
             class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             <font-awesome-icon :icon="['fas', 'image']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-900">Click Pick Image</span>

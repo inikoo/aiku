@@ -53,7 +53,6 @@ const sendNewBlock = async (block) => {
     );
     const set = {...response.data.data }
     data.value = set
-    console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
   }
@@ -68,7 +67,6 @@ const sendBlockUpdate =  async (block) => {
     );
 	const set = {...response.data.data }
     data.value = set
-    console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
   }
@@ -186,7 +184,7 @@ const onPublish = async (action) => {
 			<div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
 				<div v-if="data.layout.web_blocks?.length">
 					<TransitionGroup tag="div" name="zzz" class="relative">
-                        <div v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
+                        <section  v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
                             :key="activityItem.id" @click="()=>selectedBlock = activityItem"
                             class="w-full">
                             <component
@@ -196,7 +194,7 @@ const onPublish = async (action) => {
                                 v-bind="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
                                 @autoSave="()=>onUpdatedBlock(activityItem)" />
-                        </div>
+                        </section>
                     </TransitionGroup>
 				</div>
 

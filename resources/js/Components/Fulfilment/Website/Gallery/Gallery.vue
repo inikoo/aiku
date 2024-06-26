@@ -65,8 +65,8 @@ const OnPick = (e) => {
 }
 
 const onUpload = (e) => {
-    selectedTab.value = 1
     emits('onUpload', e)
+    selectedTab.value = 1
 }
 
   
