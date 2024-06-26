@@ -14,9 +14,13 @@ return new class () extends Migration {
     {
         Schema::create('platforms', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code', 64)->index()->collation('und_ns');
             $table->string('name');
+            $table->string('type')->index();
+
             $table->timestampsTz();
         });
     }

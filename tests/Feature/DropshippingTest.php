@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Product\AttachProductToPlatform;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
@@ -14,6 +15,7 @@ use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCus
 use App\Actions\Helpers\Media\SaveModelImages;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 
@@ -67,11 +69,14 @@ beforeEach(function () {
     actingAs($this->user);
 });
 
-test('test platforms were seeded ', function () {
-    $this->assertDatabaseCount('platforms', 2);
-    $platform=Platform::first();
+test('test platform were seeded ', function () {
+    expect($this->group->platforms()->count())->toBe(2);
+    $platform = Platform::first();
     expect($platform)->toBeInstanceOf(Platform::class)
         ->and($platform->stats)->toBeInstanceOf(PlatformStats::class);
+
+    $this->artisan('group:seed-platforms '.$this->group->slug)->assertExitCode(0);
+    expect($this->group->platforms()->count())->toBe(2);
 });
 
 test('create customer client', function () {
@@ -96,6 +101,28 @@ test('add product to customer portfolio', function () {
     expect($dropshippingCustomerPortfolio)->toBeInstanceOf(DropshippingCustomerPortfolio::class);
 
     return $dropshippingCustomerPortfolio;
+});
+
+test('add platform to product', function () {
+    $platform = Platform::first();
+
+
+    expect($this->product->platforms->count())->toBe(0)
+        ->and($this->product->platform())->toBeNull();
+    $product = AttachProductToPlatform::make()->action(
+        $this->product,
+        $platform,
+        [
+        ]
+    );
+
+
+    $product->refresh();
+
+
+    expect($product->platforms->first())->toBeInstanceOf(Platform::class)
+        ->and($product->platform())->toBeInstanceOf(Platform::class)
+        ->and($product->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
 });
 
 test('add image to product', function () {

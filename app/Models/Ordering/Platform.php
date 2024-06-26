@@ -7,9 +7,10 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\PlatformStats;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -17,9 +18,11 @@ use Spatie\Sluggable\SlugOptions;
  *
  *
  * @property int $id
+ * @property int $group_id
  * @property string $slug
  * @property string $code
  * @property string $name
+ * @property PlatformTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read PlatformStats|null $stats
@@ -32,6 +35,10 @@ class Platform extends Model
 {
     use HasSlug;
 
+    protected $casts = [
+        'type' => PlatformTypeEnum::class
+    ];
+
     protected $guarded = [];
 
     public function getSlugOptions(): SlugOptions
@@ -42,8 +49,8 @@ class Platform extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function stats(): BelongsTo
+    public function stats(): HasOne
     {
-        return $this->belongsTo(PlatformStats::class);
+        return $this->hasOne(PlatformStats::class);
     }
 }

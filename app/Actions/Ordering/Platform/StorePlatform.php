@@ -7,24 +7,26 @@
 
 namespace App\Actions\Ordering\Platform;
 
+use App\Actions\GrpAction;
+use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\Ordering\Platform;
-use Illuminate\Console\Command;
-use Illuminate\Support\Str;
+use App\Models\SysAdmin\Group;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StorePlatform
+class StorePlatform extends GrpAction
 {
     use AsAction;
     use WithAttributes;
 
-    public string $commandSignature = 'platform:store {code}';
 
-    public function handle(array $modelData): Platform
+    public function handle(Group $group, array $modelData): Platform
     {
         /** @var Platform $platform */
-        $platform = Platform::create($modelData);
+        $platform = $group->platforms()->create($modelData);
+        $platform->stats()->create();
 
         return $platform;
     }
@@ -32,29 +34,29 @@ class StorePlatform
     public function rules(): array
     {
         return [
-            'code' => ['string', 'required', Rule::unique('platforms', 'code')],
-            'name' => ['string', 'required']
+            'code' => [
+                'string',
+                'required',
+                new IUnique(
+                    table: 'platforms',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
+                    ]
+                ),
+                'max:64'
+
+            ],
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', Rule::enum(PlatformTypeEnum::class)],
         ];
     }
 
-    public function action(array $modelData): Platform
+    public function action(Group $group, array $modelData): Platform
     {
-        return $this->handle($modelData);
+        $this->initialisation($group, $modelData);
+
+        return $this->handle($group, $modelData);
     }
 
-    public function asCommand(Command $command): int
-    {
-        $code = $command->argument('code');
 
-        $modelData = [
-            'code' => $code,
-            'name' => Str::ucfirst($code)
-        ];
-
-        $this->handle($modelData);
-
-        echo "Success create the platform $code ✅ \n";
-
-        return 0;
-    }
 }

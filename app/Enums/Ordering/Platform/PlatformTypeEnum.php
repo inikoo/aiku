@@ -19,8 +19,8 @@ enum PlatformTypeEnum: string
     public function labels(): array
     {
         return [
-            'shopify' => __('Shopify'),
-            'tiktok'  => __('Tiktok')
+            'shopify' => 'Shopify',
+            'tiktok'  => 'Tiktok'
         ];
     }
 }
