@@ -15,4 +15,12 @@ enum PlatformTypeEnum: string
 
     case SHOPIFY = 'shopify';
     case TIKTOK  = 'tiktok';
+
+    public function labels(): array
+    {
+        return [
+            'shopify' => __('Shopify'),
+            'tiktok'  => __('Tiktok')
+        ];
+    }
 }

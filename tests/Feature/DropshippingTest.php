@@ -107,7 +107,7 @@ test('add image to product', function () {
         $this->product,
         [
             'path'         => 'x',
-            'originalName' =>'hello.jpg'
+            'originalName' => 'hello.jpg'
 
         ],
         'photo',
