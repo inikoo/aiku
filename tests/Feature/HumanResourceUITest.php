@@ -240,3 +240,21 @@ test('UI show employee', function () {
 
     });
 });
+
+test('UI edit employee', function () {
+    $response = get(route('grp.org.hr.employees.edit', [$this->organisation->slug, $this->employee->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.employee.update')
+                        ->where('parameters', [$this->employee->id]) 
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
