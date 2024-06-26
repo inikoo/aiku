@@ -219,13 +219,10 @@ class IndexClockings extends OrgAction
             ),
             'grp.org.hr.workplaces.show.clockings.index' =>
             array_merge(
-                (new ShowWorkplace())->getBreadcrumbs($routeParameters['workplace']),
+                ShowWorkplace::make()->getBreadcrumbs($routeParameters),
                 $headCrumb([
-                    'name'       => 'grp.org.hr.workplaces.show.clockings.index',
-                    'parameters' =>
-                        [
-                            $routeParameters['workplace']->slug
-                        ]
+                    'name'       => $routeName,
+                    'parameters' => $routeParameters
                 ])
             ),
             'grp.org.hr.clocking_machines.show.clockings.index' =>

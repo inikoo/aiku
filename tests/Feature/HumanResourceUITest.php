@@ -73,3 +73,42 @@ test('UI Index calendar', function () {
             ->has('data');
     });
 });
+
+test('UI show calendar', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.hr.calendars.show', [$this->organisation->slug, $this->employee->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Calendar')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->employee->worker_number)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+})->todo(); //authorization problem
+
+test('UI Index clockings', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.org.hr.workplaces.show.clockings.index', [$this->organisation->slug, $this->workplace->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Clockings')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'clockings')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});

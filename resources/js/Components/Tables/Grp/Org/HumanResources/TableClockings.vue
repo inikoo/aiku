@@ -21,9 +21,9 @@ console.log(props.data)
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
       <template #cell(media_slug)="{ item }">
-        <Link :href="route('grp.media.show', item.media_slug)" class="primaryLink">
+        <!-- <Link :href="route('grp.media.show', item.media_slug)" class="primaryLink">
           {{ item.media_slug }}
-        </Link>
+        </Link> -->
       </template>
       <template #cell(clocked_at)="{ item }">
         <div class="text-gray-500">
