@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -30,10 +31,12 @@ use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\Rental;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -92,7 +95,6 @@ beforeEach(function () {
 
 
     $this->customer = createCustomer($this->shop);
-
 
     $pallet = Pallet::first();
     if (!$pallet) {
@@ -167,6 +169,18 @@ beforeEach(function () {
     }
 
     $this->service = $service;
+
+    $storedItem = StoredItem::first();
+    if (!$storedItem) {
+        data_set($storeData, 'reference', 'reffxx');
+
+        $storedItem = StoreStoredItem::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->storedItem = $storedItem;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -826,5 +840,44 @@ test('UI create physical goods', function () {
         $page
             ->component('CreateModel')
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+
+test('UI Index stored items', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.crm.customers.show.stored-items.index', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/StoredItems')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'stored items')
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI show stored item', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.stored-items.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug, $this->storedItem->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/StoredItem')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->storedItem->slug)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
