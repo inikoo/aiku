@@ -5,22 +5,25 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Product\AttachProductToPlatform;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\CRM\Customer\AttachCustomerToPlatform;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
+use App\Actions\Dropshipping\DropshippingCustomerPortfolio\AttachPortfolioToPlatform;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
+use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
+use App\Helpers\ImgProxy\Image;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Helpers\Media;
 use App\Models\Ordering\Platform;
 use App\Models\PlatformStats;
 use Illuminate\Http\UploadedFile;
@@ -103,27 +106,49 @@ test('add product to customer portfolio', function () {
     return $dropshippingCustomerPortfolio;
 });
 
-test('add platform to product', function () {
-    $platform = Platform::first();
+test('add platform to customer', function () {
+    $platform = $this->group->platforms()->where('type', PlatformTypeEnum::SHOPIFY)->first();
 
 
-    expect($this->product->platforms->count())->toBe(0)
-        ->and($this->product->platform())->toBeNull();
-    $product = AttachProductToPlatform::make()->action(
-        $this->product,
+    expect($this->customer->platforms->count())->toBe(0)
+        ->and($this->customer->platform())->toBeNull();
+    $customer = AttachCustomerToPlatform::make()->action(
+        $this->customer,
         $platform,
         [
+            'reference' => 'test_shopify_reference'
         ]
     );
 
 
-    $product->refresh();
+    $customer->refresh();
 
 
-    expect($product->platforms->first())->toBeInstanceOf(Platform::class)
-        ->and($product->platform())->toBeInstanceOf(Platform::class)
-        ->and($product->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
+    expect($customer->platforms->first())->toBeInstanceOf(Platform::class)
+        ->and($customer->platform())->toBeInstanceOf(Platform::class)
+        ->and($customer->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
 });
+
+
+test('add platform to portfolio', function (DropshippingCustomerPortfolio $portfolio) {
+
+    expect($portfolio->platforms->count())->toBe(0)
+        ->and($portfolio->platform())->toBeNull();
+    $portfolio= AttachPortfolioToPlatform::make()->action(
+        $portfolio,
+        [
+            'reference' => 'test_shopify_reference_for_product'
+        ]
+    );
+
+    expect($portfolio->platforms()->first())->toBeInstanceOf(Platform::class)
+        ->and($portfolio->platforms()->first()->pivot->reference)->toBe('test_shopify_reference_for_product')
+        ->and($portfolio->platform())->toBeInstanceOf(Platform::class)
+        ->and($portfolio->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
+
+
+
+})->depends('add product to customer portfolio');
 
 test('add image to product', function () {
 
@@ -157,26 +182,10 @@ test('add 2nd image to product', function () {
 
     Storage::fake('public');
 
-    $fakeImage1 = UploadedFile::fake()->image('hello.jpg');
-    $path1      = $fakeImage1->store('photos', 'public');
+    $fakeImage2 = UploadedFile::fake()->image('hello2.jpg', 20, 20);
 
-    SaveModelImages::run(
-        $this->product,
-        [
-            'path'         => Storage::disk('public')->path($path1),
-            'originalName' => $fakeImage1->getClientOriginalName()
-        ],
-        'photo',
-        'product_images'
-    );
 
-    $this->product->refresh();
-
-    expect($this->product)->toBeInstanceOf(Product::class)
-        ->and($this->product->images->count())->toBe(1);
-
-    $fakeImage2 = UploadedFile::fake()->image('hello2.jpg');
-    $path2      = $fakeImage2->store('photos', 'public');
+    $path2 = $fakeImage2->store('photos', 'public');
 
     SaveModelImages::run(
         $this->product,
@@ -192,7 +201,39 @@ test('add 2nd image to product', function () {
 
     expect($this->product)->toBeInstanceOf(Product::class)
         ->and($this->product->images->count())->toBe(2);
-})->todo();
+});
+
+test('get product 1s1 images', function () {
+
+    $media1=$this->product->images->first();
+    expect($media1)->toBeInstanceOf(Media::class);
+
+    $image          = $media1->getImage();
+    expect($image)->toBeInstanceOf(Image::class);
+
+    $imageSources1=GetPictureSources::run($image);
+
+    expect($imageSources1)->toBeArray()->toHaveCount(3);
+
+
+})->depends('add 2nd image to product');
+
+test('get product 2nd images and show resized sources', function () {
+
+
+    $media2=$this->product->images->last();
+    expect($media2)->toBeInstanceOf(Media::class);
+
+
+    $image2         = $media2->getImage()->resize(5, 5);
+    expect($image2)->toBeInstanceOf(Image::class);
+
+    $imageSources2=GetPictureSources::run($image2);
+    expect($imageSources2)->toBeArray()->toHaveCount(6);
+
+
+})->depends('add 2nd image to product');
+
 
 test('update customer portfolio', function (DropshippingCustomerPortfolio $dropshippingCustomerPortfolio) {
     $dropshippingCustomerPortfolio = UpdateDropshippingCustomerPortfolio::make()->action(

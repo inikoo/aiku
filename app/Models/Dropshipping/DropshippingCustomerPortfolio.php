@@ -8,10 +8,13 @@
 namespace App\Models\Dropshipping;
 
 use App\Models\Catalogue\Product;
+use App\Models\CRM\Customer;
+use App\Models\Ordering\Platform;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
  *
@@ -31,9 +34,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
- * @property-read \App\Models\CRM\Customer $customer
+ * @property-read Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Platform> $platforms
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Dropshipping\DropshippingCustomerPortfolioStats|null $stats
@@ -66,9 +70,29 @@ class DropshippingCustomerPortfolio extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(DropshippingCustomerPortfolioStats::class);
+    }
+
+    public function platforms(): MorphToMany
+    {
+        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')
+            ->withPivot('group_id', 'organisation_id', 'shop_id', 'reference')
+            ->withTimestamps();
+    }
+
+    public function platform(): Platform|null
+    {
+        /** @var Platform $platform */
+        $platform = $this->platforms()->first();
+
+        return $platform;
     }
 
 }

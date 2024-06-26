@@ -105,7 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
- * @property-read \App\Models\Ordering\Platform|null $platform
+ * @property-read Collection<int, \App\Models\Ordering\Platform> $platforms
  * @property-read Shop $shop
  * @property-read \App\Models\Ordering\OrderStats|null $stats
  * @property-read Collection<int, \App\Models\Ordering\Transaction> $transactions

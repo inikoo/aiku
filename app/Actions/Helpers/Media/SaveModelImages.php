@@ -33,10 +33,7 @@ class SaveModelImages
         $media = Media::where('collection_name', $mediaScope)->where('group_id', $group_id)->where('checksum', $checksum)->first();
 
         if (!$media) {
-
-
             data_set($imageData, 'checksum', $checksum);
-
             $media = StoreMediaFromFile::run($model, $imageData, $mediaScope);
         } elseif($model->images()->where('media_id', $media->id)->exists()) {
             return $model;

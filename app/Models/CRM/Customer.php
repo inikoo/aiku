@@ -113,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
- * @property-read Platform|null $platform
+ * @property-read Collection<int, Platform> $platforms
  * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\CustomerStats|null $stats
@@ -335,7 +335,8 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function platforms(): MorphToMany
     {
-        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')->withTimestamps();
+        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')
+            ->withPivot('group_id', 'organisation_id', 'shop_id', 'reference')->withTimestamps();
     }
 
     public function platform(): Platform|null

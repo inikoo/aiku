@@ -7,15 +7,19 @@
 
 namespace App\Http\Resources\Catalogue;
 
+use App\Http\Resources\HasSelfCall;
+use App\Http\Resources\Helpers\ImageResource;
 use App\Models\Catalogue\Asset;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
 {
+    use HasSelfCall;
     public function toArray($request): array
     {
         /** @var Asset $product */
-        $product=$this;
+        $product = $this;
+
         return [
             'slug'       => $product->slug,
             'image_id'   => $product->image_id,
@@ -24,6 +28,7 @@ class ProductResource extends JsonResource
             'state'      => $product->state,
             'created_at' => $product->created_at,
             'updated_at' => $product->updated_at,
+            'images'     => ImageResource::collection($product->images)
         ];
     }
 }

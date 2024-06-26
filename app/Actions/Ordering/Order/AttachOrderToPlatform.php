@@ -34,7 +34,7 @@ class AttachOrderToPlatform extends OrgAction
     public function rules(): array
     {
         return [
-
+            'reference' => 'nullable|string|max:255',
         ];
     }
 

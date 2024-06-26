@@ -26,6 +26,7 @@ return new class () extends Migration {
 
             $table->string('model_type');
             $table->unsignedInteger('model_id');
+            $table->string('reference')->nullable()->index();
 
             $table->timestampsTz();
             $table->index(['model_type','model_id']);

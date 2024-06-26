@@ -34,7 +34,7 @@ class AttachCustomerToPlatform extends OrgAction
     public function rules(): array
     {
         return [
-
+            'reference' => 'nullable|string|max:255',
         ];
     }
 
