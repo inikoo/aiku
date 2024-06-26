@@ -16,6 +16,7 @@ const defaultTrackerId = '179075-204259'
 const searchValue = ref('')
 const _inputRef = ref(null)
 
+const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
 
 const LBInitAutocomplete = () => {
     AutoComplete({
@@ -38,18 +39,23 @@ const LBInitAutocomplete = () => {
         //         }
         //     }
         // },
+        RemoveFields: listFieldsRemoved,
+        type: ['item:5'],
         Types: [
             {
-                type: 'product',
-                size: 7
+                name: "Item",
+                type: "item",
+                size: 7,
             },
             {
-                type: 'query'
+                name: "Query",
+                type: "query",
             },
             {
-                type: 'category'
-            }
-        ]
+                name: "Category",
+                type: "category",
+            },
+        ],
     }, '#inputLuigi')
 }
 
@@ -101,14 +107,124 @@ onUnmounted(() => {
     </div>
 </template>
 
-<style>
+<style lang="scss">
 @import 'https://cdn.luigisbox.com/autocomplete.css'; /* For autocomplete */
+
+$luigiColor1: #4b5058;
+$luigiColor2: #957a65;
+$luigiColor3: #e87928;
 
 /* .lb-result__price{
     visibility: hidden;
 } */
 
-.luigi-ac-footer x {
+.luigi-ac-hero-color {
+    background: $luigiColor2 !important;
+    transition: background 0.05s !important;
+}
+
+.luigi-ac-hero-color:hover {
+    background: color-mix(in srgb, $luigiColor2, 10% black) !important;
+}
+
+.luigi-ac-header {
+    color: $luigiColor1 !important;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+}
+
+.luigi-ac-highlight {
+    background: color-mix(in srgb, $luigiColor2 35%, transparent) !important;
+}
+
+.luigi-ac-button {
+    border-radius: 5px !important;
+}
+
+.luigi-ac-others {
+    background: color-mix(in srgb, $luigiColor2 15%, white) !important;
+}
+
+.luigi-ac-item {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.luigi-ac-item:hover {
+    background: color-mix(in srgb, $luigiColor2 10%, transparent) !important;
+    // background: darken($luigiColor2, 5%) !important;
+    
+}
+
+// ====================================== Search result
+
+.lb-search-text-color-primary {
+    color: $luigiColor3 !important;
+}
+
+.lb-result__title {
+    margin-bottom: 1px !important;
+}
+
+.lb-search .lb-result__description {
+    text-align: justify;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin-bottom: 10px;
+}
+
+.lb-result__actions {
+    display: flex !important;
+    place-items: center !important;
+    justify-content: space-between !important;
+    row-gap: 5px !important;
+}
+
+.lb-result__prices {
+    flex-grow: 1 !important;
+    margin-bottom: 15px !important;
+}
+
+.lb-result__price {
+    display: flex !important;
+    place-content: center !important;
+    text-align: center !important;
+    color: $luigiColor3 !important;
+}
+
+.lb-result__action-buttons {
+    flex-grow: 1 !important;
+}
+
+
+.lb-search .lb-result__action-item {
+    width: 100% !important;
+    margin: 0px !important
+}
+ 
+.lb-search-text-color-primary-clickable {
+    color: $luigiColor2 !important;
+}
+
+.lb-search-bg-color-primary-clickable {
+    background: transparent !important;
+    color: $luigiColor2 !important;
+    border: 1px solid $luigiColor2 !important;
+    border-radius: 4px !important;
+}
+
+.lb-search-bg-color-primary-clickable:hover {
+    background: color-mix(in srgb, $luigiColor2 40%, transparent) !important;
+    
+    // color: $luigiColor1 !important;
+    // border: 1px solid $luigiColor1 !important;
+    // border-radius: 4px !important;
+}
+
+.luigi-ac-footer {
     /* To hide copyright */
     visibility: hidden !important;
 }
