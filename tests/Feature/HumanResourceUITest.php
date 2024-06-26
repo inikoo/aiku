@@ -212,3 +212,12 @@ test('UI Index employees', function () {
             ->has('data');
     });
 });
+
+test('UI create employee', function () {
+    $response = get(route('grp.org.hr.employees.create', [$this->organisation->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
