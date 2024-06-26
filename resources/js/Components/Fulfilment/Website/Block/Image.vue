@@ -21,21 +21,33 @@ const props = defineProps<{
     modelValue: any
     webpageData: any
     web_block : Object
+    id: Number
 }>()
+
+console.log('sss',props)
 
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
 }>()
 
-
 const openGallery = ref(false)
 
 const setImage = (e) => {
     openGallery.value = false
     emits('update:modelValue', { value: e })
-
 }
+
+const onUpload = (e) => {
+    // Assuming e.data contains the files, verify this structure in your context
+    if (e.data && e.data.length <= 1) {
+        openGallery.value = false
+        emits('update:modelValue', { value: e.data[0] });
+    } else {
+        console.error('No files or multiple files detected.');
+    }
+};
+
 
 </script>
 
@@ -55,6 +67,13 @@ const setImage = (e) => {
         </div>
     </div>
 
-    <Gallery :open="openGallery" @on-close="openGallery = false" :uploadRoutes="route(webpageData?.images_upload_route.name,{ modelHasWebBlocks : web_block.id })"  @onPick="setImage"></Gallery>
+    <Gallery 
+        :open="openGallery" 
+        @on-close="openGallery = false" 
+        :uploadRoutes="route(webpageData?.images_upload_route.name,{ modelHasWebBlocks : id })"  
+        @onPick="setImage"
+        @onUpload="onUpload"
+    >
+    </Gallery>
 
 </template>
