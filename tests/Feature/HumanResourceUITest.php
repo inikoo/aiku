@@ -7,11 +7,13 @@
 
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use Inertia\Testing\AssertableInertia;
 
@@ -61,6 +63,17 @@ beforeEach(function () {
         );
     }
     $this->employee = $employee;
+
+    $jobPosition = JobPosition::first();
+    if (!$jobPosition) {
+        data_set($storeData, 'code', 'wrkplcas');
+        data_set($storeData, 'name', 'Kirin');
+        $jobPosition = StoreJobPosition::make()->action(
+            $this->organisation,
+            $storeData
+        );
+    }
+    $this->jobPosition = $jobPosition;
 
 
     Config::set(
@@ -260,22 +273,21 @@ test('UI edit employee', function () {
     });
 });
 
-test('UI Index job positions', function () {
+test('UI show job positions', function () {
     $this->withoutExceptionHandling();
-    $response = $this->get(route('grp.org.hr.job_positions.index', [$this->organisation->slug]));
+    $response = $this->get(route('grp.org.hr.job_positions.show', [$this->organisation->slug, $this->jobPosition->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/HumanResources/JobPositions')
+            ->component('Org/HumanResources/JobPosition')
             ->has('title')
             ->has('breadcrumbs', 3)
-            ->has('pageHead')
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Job positions')
+                        ->where('title', $this->jobPosition->name)
                         ->etc()
             )
-            ->has('data');
+            ->has('tabs');
     });
 });
