@@ -332,9 +332,18 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasOne(CustomerDropshippingStat::class);
     }
 
-    public function platform(): MorphOne
+
+    public function platforms(): MorphToMany
     {
-        return $this->morphOne(Platform::class, 'model');
+        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')->withTimestamps();
+    }
+
+    public function platform(): Platform|null
+    {
+        /** @var Platform $platform */
+        $platform = $this->platforms()->first();
+
+        return $platform;
     }
 
 }

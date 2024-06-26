@@ -132,13 +132,13 @@ test('add image to product', function () {
     expect($this->product)->toBeInstanceOf(Product::class)
         ->and($this->product->images->count())->toBe(0);
 
-        $fakeImage = UploadedFile::fake()->image('hello.jpg');
-        $path = $fakeImage->store('photos', 'public');
+    $fakeImage = UploadedFile::fake()->image('hello.jpg');
+    $path      = $fakeImage->store('photos', 'public');
 
     SaveModelImages::run(
         $this->product,
         [
-            'path' => Storage::disk('public')->path($path),
+            'path'         => Storage::disk('public')->path($path),
             'originalName' => $fakeImage->getClientOriginalName()
 
         ],
@@ -150,20 +150,20 @@ test('add image to product', function () {
 
     expect($this->product)->toBeInstanceOf(Product::class)
         ->and($this->product->images->count())->toBe(1);
-        
+
 });
 
 test('add 2nd image to product', function () {
 
     Storage::fake('public');
-    
+
     $fakeImage1 = UploadedFile::fake()->image('hello.jpg');
-    $path1 = $fakeImage1->store('photos', 'public');
+    $path1      = $fakeImage1->store('photos', 'public');
 
     SaveModelImages::run(
         $this->product,
         [
-            'path' => Storage::disk('public')->path($path1),
+            'path'         => Storage::disk('public')->path($path1),
             'originalName' => $fakeImage1->getClientOriginalName()
         ],
         'photo',
@@ -176,12 +176,12 @@ test('add 2nd image to product', function () {
         ->and($this->product->images->count())->toBe(1);
 
     $fakeImage2 = UploadedFile::fake()->image('hello2.jpg');
-    $path2 = $fakeImage2->store('photos', 'public');
+    $path2      = $fakeImage2->store('photos', 'public');
 
     SaveModelImages::run(
         $this->product,
         [
-            'path' => Storage::disk('public')->path($path2),
+            'path'         => Storage::disk('public')->path($path2),
             'originalName' => $fakeImage2->getClientOriginalName()
         ],
         'photo',

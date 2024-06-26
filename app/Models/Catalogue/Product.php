@@ -196,7 +196,6 @@ class Product extends Model implements Auditable, HasMedia
     public function platforms(): MorphToMany
     {
         return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')->withTimestamps();
-        ;
     }
 
     public function platform(): Platform|null
