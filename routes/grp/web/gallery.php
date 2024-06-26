@@ -7,8 +7,13 @@
 
 use App\Actions\Helpers\Gallery\UI\StockImages\IndexStockImages;
 
+use App\Actions\Helpers\Gallery\UI\UploadedImages\IndexUploadedImages;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('stock-images')->name('stock-images')->group(function () {
     Route::get('', IndexStockImages::class)->name('.index');
+});
+
+Route::prefix('uploaded-images')->name('uploaded-images')->group(function () {
+    Route::get('', IndexUploadedImages::class)->name('.index');
 });

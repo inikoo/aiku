@@ -14,9 +14,10 @@
   import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
   import Upload from './Upload.vue'
   import StockImages from './StockImages.vue'
-  
+  import UploadedImages from "@/Components/Fulfilment/Website/Gallery/UploadedImages.vue";
+
   library.add(faCube, faStar, faImage)
-  
+
   const props = defineProps<{
       open: Boolean
       width?: String,
@@ -24,7 +25,7 @@
   }>()
 
   const layout = inject('layout', layoutStructure)
-  
+
   const emits = defineEmits<{
     (e: 'onClose'): void
     (e: 'onPick', value: Object): void
@@ -48,6 +49,7 @@ const tabs = [
 const getComponent = (componentName: string) => {
   const components: any = {
     'upload': Upload,
+    'images_uploaded': UploadedImages,
     'stock_images' : StockImages
   };
   return components[componentName] ?? null;
@@ -57,9 +59,9 @@ const OnPick = (e) => {
     emits('onPick', e)
 }
 
-  
+
   </script>
-  
+
   <template>
        <Modal :isOpen="open" @onClose="()=>emits('onClose')" width="w-1/2">
         <TabGroup>
