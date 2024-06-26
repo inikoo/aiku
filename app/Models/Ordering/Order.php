@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -210,6 +211,11 @@ class Order extends Model implements HasMedia, Auditable
     public function addresses(): MorphToMany
     {
         return $this->morphToMany(Address::class, 'model', 'model_has_addresses')->withTimestamps();
+    }
+
+    public function platform(): MorphOne
+    {
+        return $this->morphOne(Platform::class, 'model');
     }
 
 

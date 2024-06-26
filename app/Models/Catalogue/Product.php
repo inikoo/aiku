@@ -10,6 +10,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\Goods\TradeUnit;
+use App\Models\Ordering\Platform;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -145,7 +147,7 @@ class Product extends Model implements Auditable, HasMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->code.'-'.$this->shop->cpde;
+                return $this->code.'-'.$this->shop->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
@@ -188,6 +190,11 @@ class Product extends Model implements Auditable, HasMedia
     public function family(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'family_id');
+    }
+
+    public function platform(): MorphOne
+    {
+        return $this->morphOne(Platform::class, 'model');
     }
 
 

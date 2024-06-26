@@ -25,6 +25,7 @@ use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Platform;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -329,4 +330,10 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return $this->hasOne(CustomerDropshippingStat::class);
     }
+
+    public function platform(): MorphOne
+    {
+        return $this->morphOne(Platform::class, 'model');
+    }
+
 }
