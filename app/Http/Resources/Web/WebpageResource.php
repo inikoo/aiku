@@ -36,7 +36,7 @@ class WebpageResource extends JsonResource
                 default                     => ['fal', 'fa-browser']
             },
             'is_dirty'                   => $webpage->is_dirty,
-            'layout'                     => $webpage->unpublishedSnapshot->layout ?: [],
+            'layout'                     => $webpage->unpublishedSnapshot?->layout ?: ['web_blocks' => []],
             'purpose'                    => $webpage->purpose,
             'created_at'                 => $webpage->created_at,
             'updated_at'                 => $webpage->updated_at,
@@ -45,16 +45,20 @@ class WebpageResource extends JsonResource
                 'name'       => 'grp.models.webpage.web_block.store',
                 'parameters' => $webpage->id
             ],
-            'update_web_block_route'        => [
-                'name'       => 'grp.models.web_block.update',
+            'update_model_has_web_blocks_route'        => [
+                'name'       => 'grp.models.model_has_web_block.update',
+            ],
+            'delete_model_has_web_blocks_route'        => [
+                'name'       => 'grp.models.model_has_web_block.delete',
             ],
             'images_upload_route' => [
-                'name'       => 'grp.models.web_block.images.store',
+                'name'       => 'grp.models.model_has_web_block.images.store',
             ],
-            'update_erb_block_positions_route'        => [
-                'name'       => 'grp.models.webpage.web_blocks_positions',
+            'reorder_web_blocks_route'        => [
+                'name'       => 'grp.models.webpage.reorder_web_blocks',
                 'parameters' => $webpage->id
             ],
+
         ];
     }
 }

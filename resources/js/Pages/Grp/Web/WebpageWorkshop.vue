@@ -28,9 +28,9 @@ const props = defineProps<{
   title: string,
   pageHead: PageHeadingTypes,
   webpage: Object
-  webBlockTypes :  {
-        data : Array
-    }
+  webBlockTypes: {
+    data: Array
+  }
 }>();
 
 console.log(props)
@@ -48,42 +48,51 @@ const data = ref({
 const sendNewBlock = async (block) => {
   try {
     const response = await axios.post(
-      route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters), 
-      {web_block_type_id : block.id }
+      route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
+      { web_block_type_id: block.id }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
-    console.log('saved', response);
+    const set = { ...response.data.data }
+    data.value = set
   } catch (error: any) {
     console.error('error', error);
   }
 };
 
-const sendBlockUpdate =  async (block) => {
-	console.log(block)
+const sendBlockUpdate = async (block) => {
+  try {
+    console.log(block)
+    const response = await axios.patch(
+      route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
+      { layout: block.web_block.layout }
+    );
+    const set = { ...response.data.data }
+    data.value = set
+  } catch (error: any) {
+    console.error('error', error);
+  }
 }
 
-const sendOrderBlock =  async (block) => {
-	try {
+const sendOrderBlock = async (block) => {
+  try {
     const response = await axios.post(
-      route(props.webpage.update_erb_block_positions_route.name, props.webpage.update_erb_block_positions_route.parameters), 
-      {web_block_type_id : block }
+      route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
+      { positions: block }
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
+    const set = { ...response.data.data }
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
   }
 }
 
-const sendDeleteBlock =  async (block) => {
-	try {
+const sendDeleteBlock = async (block) => {
+  try {
     const response = await axios.delete(
-      route(props.webpage.delete_web_block_route.name, {webpage : props.webpage.delete_web_block_route.parameters, webBlock : block.id })
+      route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id })
     );
-    const set = {...response.data.data, layout : response.data.data.layout.blocks }
-    data.value = set 
+    const set = { ...response.data.data }
+    data.value = set
     console.log('saved', response);
   } catch (error: any) {
     console.error('error', error);
@@ -91,38 +100,33 @@ const sendDeleteBlock =  async (block) => {
 }
 
 
-/* const debouncedSendUpdate = debounce(sendUpdate, 1000);
+const debouncedSendUpdate = debounce(
+  (block) => sendBlockUpdate(block),
+  1000,
+  { leading: false, trailing: true }
+);
 
-const onUpdated = () => {
-  debouncedSendUpdate();
-}; */
-
+const onUpdatedBlock = (block) => {
+  debouncedSendUpdate(block);
+};
 
 
 const onPickBlock = (block) => {
-	sendNewBlock(block)
-	isModalBlocksList.value = false;
+  sendNewBlock(block)
+  isModalBlocksList.value = false;
 };
 
 const onChangeOrderBlock = (moved) => {
-	let payload = {}
-	data.value.layout.web_blocks.map((item,index)=>{
-		payload[item.id] =  {position : index }
-	})
-	sendOrderBlock(payload)
+  let payload = {}
+  data.value.layout.web_blocks.map((item, index) => {
+    payload[item.web_block.id] = { position: index }
+  })
+  sendOrderBlock(payload)
 }
-
-const deleteBlock = (index) => {
-  data.value.layout.splice(index, 1);
-};
 
 const setData = () => {
   console.log(data.value);
 };
-
-const onUpdatedBlock = (e) => {
-	console.log(e)
-}
 
 
 const onPublish = async (action) => {
@@ -137,7 +141,7 @@ const onPublish = async (action) => {
     // Make sure route and axios are defined and used correctly
     const response = await axios[action.method](route(action.name, action.parameters), {
       comment: comment.value,
-      publishLayout: {blocks : data.value.layout }
+      publishLayout: { blocks: data.value.layout }
     });
 
 
@@ -163,91 +167,76 @@ const onPublish = async (action) => {
 </script>
 
 <template>
-	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
-		<template #button-publish="{ action }">
-			<!--  <Action v-if="action.action" :action="action.action" :dataToSubmit="data" /> -->
-			<Publish
-				:isLoading="isLoading"
-				:is_dirty="data.is_dirty"
-				v-model="comment"
-				@onPublish="onPublish(action.action.route)" />
-		</template>
-	</PageHeading>
 
-	<div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
-		<div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
-			<div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
-				<div v-if="data.layout.web_blocks?.length">
-					<TransitionGroup tag="div" name="zzz" class="relative">
-                        <div v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
-                            :key="activityItem.id" @click="()=>selectedBlock = activityItem"
-                            class="w-full">
-                            <component
-                                :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                                :key="activityItemIdx"
-                                :webpageData="webpage"
-                                v-bind="activityItem?.web_block?.layout?.data?.fieldData"
-                                v-model="activityItem.web_block.layout.data.fieldValue"
-                                @autoSave="()=>onUpdatedBlock" />
-                        </div>
-                    </TransitionGroup>
-				</div>
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead">
+    <template #button-publish="{ action }">
+      <!--  <Action v-if="action.action" :action="action.action" :dataToSubmit="data" /> -->
+      <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
+        @onPublish="onPublish(action.action.route)" />
+    </template>
+  </PageHeading>
 
-                <div v-else
-					class="relative block w-full h-full border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-					<font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
-					<span class="mt-2 block text-sm font-semibold" >You dont have block</span
-					>
-				</div>
-			</div>
-			<div class="col-span-1 h-screen">
-				<div class="border-2 bg-gray-200 p-3 h-full">
-					<div class="flex justify-between">
-						<h2 class="text-sm font-semibold leading-6">Block List</h2>
-						<Button
-                            icon="fas fa-plus"
-							size="xs"
-							@click="() => (isModalBlocksList = true)" />
-					</div>
-                    
-					<draggable v-if="data?.layout?.web_blocks.length > 0"
-						:list="data.layout.web_blocks"
-						@change="onChangeOrderBlock"
-						ghost-class="ghost"
-						group="column"
-						itemKey="column_id"
-						class="mt-2 space-y-1">
-						<template #item="{ element, index }">
+  <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
+    <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
+      <div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
+        <div v-if="data.layout.web_blocks?.length">
+          <TransitionGroup tag="div" name="zzz" class="relative">
+            <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id"
+              @click="() => selectedBlock = activityItem" class="w-full">
+              <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)" :key="activityItemIdx"
+                :webpageData="webpage" v-bind="activityItem" v-model="activityItem.web_block.layout.data.fieldValue"
+                @autoSave="() => onUpdatedBlock(activityItem)" />
+            </section>
+          </TransitionGroup>
+        </div>
 
-                            <div class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
-                                <div class="flex gap-x-2">
-                                    <div class="flex items-center justify-center">
-                                        <FontAwesomeIcon :icon='element.icon' class='' fixed-width aria-hidden='true' />
-                                    </div>
-                                    <h3 class="text-sm font-medium">
-                                        {{ element.web_block.layout.name }}
-                                    </h3>
-                                </div>
-                                
-                                <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
-                                    @click="() => sendDeleteBlock(element)">
-                                    <font-awesome-icon :icon="['fal', 'times']" />
-                                </div>
-                            </div>
-						</template>
-					</draggable>
+        <div v-else
+          class="relative block w-full h-full border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
+          <span class="mt-2 block text-sm font-semibold">You dont have block</span>
+        </div>
+      </div>
+      <div class="col-span-1 h-screen">
+        <div class="border-2 bg-gray-200 p-3 h-full">
+          <div class="flex justify-between">
+            <h2 class="text-sm font-semibold leading-6">Block List</h2>
+            <Button icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
+          </div>
 
-                    <!-- Section: if no blocks selected -->
-					<div v-else
-						class="h-fit mt-4 rounded-lg border-2 p-4 text-center border-gray-300"
-                    >
-						<font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
-						<span class="mt-2 block text-sm font-semibold text-gray-600">You dont have block</span
-						>
-					</div>
+          <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks"
+            @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
+            <template #item="{ element, index }">
 
-                   <!--  <Button
+
+              <div
+                class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
+                <div class="flex gap-x-2">
+                  <div class="flex items-center justify-center">
+                    <!-- <pre>{{element }}</pre> -->
+                    <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs' fixed-width
+                      aria-hidden='true' />
+                  </div>
+                  <h3 class="text-sm font-medium">
+                    {{ element.web_block.layout.name }}
+                  </h3>
+                </div>
+
+                <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
+                  @click="() => sendDeleteBlock(element)">
+                  <font-awesome-icon :icon="['fal', 'times']" />
+                </div>
+              </div>
+            </template>
+          </draggable>
+
+          <!-- Section: if no blocks selected -->
+          <div v-else class="h-fit mt-4 rounded-lg border-2 p-4 text-center border-gray-300">
+            <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
+            <span class="mt-2 block text-sm font-semibold text-gray-600">You dont have block</span>
+          </div>
+
+          <!--  <Button
                         type="dashed"
                         icon="fal fa-plus"
                         label="Add block"
@@ -256,12 +245,12 @@ const onPublish = async (action) => {
                         class="mt-2"
                         @click="() => (isModalBlocksList = true)"
                     /> -->
-				</div>
-			</div>
-		</div>
-	</div>
-	<Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
-		<BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
-	</Modal>
-	<div @click="setData">see data</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
+    <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
+  </Modal>
+  <div @click="setData">see data</div>
 </template>

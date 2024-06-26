@@ -70,6 +70,19 @@ class WarehouseArea extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'warehouse'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name'
+    ];
+
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -79,13 +92,6 @@ class WarehouseArea extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(32);
-    }
-
-    public function generateTags(): array
-    {
-        return [
-            'warehouse'
-        ];
     }
 
     public function locations(): HasMany

@@ -10,7 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCopy, faEye, faEyeSlash,faTimesCircle,faSpinnerThird)
 
 const props = withDefaults(defineProps<{
-    modelValue: string | number
+    modelValue: string | number | null
     placeholder?: string
     readonly?: boolean
     inputName?: string

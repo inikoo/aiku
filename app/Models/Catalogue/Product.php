@@ -10,6 +10,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\Goods\TradeUnit;
+use App\Models\Ordering\Platform;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -73,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Platform> $platforms
  * @property-read \App\Models\Catalogue\ProductVariant|null $productVariant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductVariant> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
@@ -114,6 +117,28 @@ class Product extends Model implements Auditable, HasMedia
         'settings' => '{}',
     ];
 
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+        'status',
+        'state',
+        'price',
+        'currency_id',
+        'units',
+        'unit',
+        'barcode',
+        'rrp',
+        'unit_relationship_type'
+    ];
+
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -123,20 +148,12 @@ class Product extends Model implements Auditable, HasMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->code.'-'.$this->shop->cpde;
+                return $this->code.'-'.$this->shop->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'catalogue',
-        ];
-    }
-
 
     public function stats(): HasOne
     {
@@ -174,6 +191,19 @@ class Product extends Model implements Auditable, HasMedia
     public function family(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'family_id');
+    }
+
+    public function platforms(): MorphToMany
+    {
+        return $this->morphToMany(Platform::class, 'model', 'model_has_platforms')->withTimestamps();
+    }
+
+    public function platform(): Platform|null
+    {
+        /** @var Platform $platform */
+        $platform = $this->platforms()->first();
+
+        return $platform;
     }
 
 

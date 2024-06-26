@@ -13,6 +13,7 @@ use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -49,6 +51,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $activated_at
+ * @property string|null $discontinuing_at
+ * @property string|null $discontinued_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_department_id
@@ -57,6 +62,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ProductCategory> $children
  * @property-read ProductCategory|null $department
  * @property-read Group $group
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read ProductCategory|null $parent
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
@@ -74,7 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ProductCategory withoutTrashed()
  * @mixin Eloquent
  */
-class ProductCategory extends Model implements Auditable
+class ProductCategory extends Model implements Auditable, HasMedia
 {
     use HasSlug;
     use SoftDeletes;
@@ -82,6 +90,7 @@ class ProductCategory extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InShop;
+    use HasImage;
 
     protected $guarded = [];
 
@@ -93,6 +102,19 @@ class ProductCategory extends Model implements Auditable
 
     protected $attributes = [
         'data' => '{}',
+    ];
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
     ];
 
     public function getRouteKeyName(): string
@@ -110,19 +132,6 @@ class ProductCategory extends Model implements Auditable
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'catalogue',
-        ];
-    }
-
-    protected array $auditInclude = [
-        'code',
-        'name',
-        'description',
-    ];
 
     public function stats(): HasOne
     {

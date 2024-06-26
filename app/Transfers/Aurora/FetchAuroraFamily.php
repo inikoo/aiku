@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraFamily extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
         $parent        = null;
@@ -32,10 +34,11 @@ class FetchAuroraFamily extends FetchAurora
 
 
         $this->parsedData['family'] = [
-            'type'             => ProductCategoryTypeEnum::FAMILY,
-            'code'             => $code,
-            'name'             => $this->auroraModelData->{'Category Label'},
-            'source_family_id' => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'type'                   => ProductCategoryTypeEnum::FAMILY,
+            'code'                   => $code,
+            'name'                   => $this->auroraModelData->{'Category Label'},
+            'source_family_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'images'                 => $this->parseImages()
         ];
 
         $createdAt = $this->parseDate($this->auroraModelData->{'Product Category Valid From'});
@@ -44,6 +47,17 @@ class FetchAuroraFamily extends FetchAurora
         }
     }
 
+    private function parseImages(): array
+    {
+        $images = $this->getModelImagesCollection(
+            'Category',
+            $this->auroraModelData->{'Category Key'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+
+        return $images->toArray();
+    }
 
     protected function fetchData($id): object|null
     {

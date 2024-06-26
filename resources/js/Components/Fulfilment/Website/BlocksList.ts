@@ -11,6 +11,7 @@ import Image from '@/Components/Fulfilment/Website/Block/Image.vue'
 import CTA2 from '@/Components/Fulfilment/Website/Block/CTA2.vue'
 import Gallery from '@/Components/Fulfilment/Website/Block/Gallery.vue'
 import Iframe from '@/Components/Fulfilment/Website/Block/Iframe.vue'
+import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 import Action from "@/Components/Forms/Fields/Action.vue"
 
 
@@ -30,5 +31,5 @@ export const getComponent = (componentName: string) => {
         "Iframe": Iframe
     }
 
-    return components[componentName] ?? null
+    return components[componentName] ?? NotFoundComponents
 }

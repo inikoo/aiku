@@ -53,7 +53,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string $cost unit cost
- * @property int $currency_id
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
  * @property array $settings

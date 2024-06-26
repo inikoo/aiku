@@ -11,17 +11,21 @@ use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -41,7 +45,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgStockFamily> $orgStockFamilies
  * @property-read \App\Models\SupplyChain\StockFamilyStats|null $stats
  * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks
@@ -55,11 +63,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|StockFamily withoutTrashed()
  * @mixin Eloquent
  */
-class StockFamily extends Model
+class StockFamily extends Model implements HasMedia, Auditable
 {
     use HasSlug;
     use SoftDeletes;
-
+    use HasImage;
+    use InGroup;
+    use HasHistory;
     use HasUniversalSearch;
     use HasFactory;
 
@@ -74,6 +84,19 @@ class StockFamily extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'goods'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description'
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -99,10 +122,6 @@ class StockFamily extends Model
         return $this->hasOne(StockFamilyStats::class);
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function orgStockFamilies(): HasMany
     {

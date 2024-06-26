@@ -16,6 +16,8 @@ use Illuminate\Support\Str;
 class FetchAuroraStock extends FetchAurora
 {
     use WithAuroraParsers;
+    use WithAuroraImages;
+
 
     protected function parseModel(): void
     {
@@ -83,9 +85,22 @@ class FetchAuroraStock extends FetchAurora
                 'Out_Of_Stock' => 'out-of-stock',
                 'Error'        => 'error',
             },
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
-            'source_slug'     => $sourceSlug
+            'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug'            => $sourceSlug,
+            'images'                 => $this->parseImages()
         ];
+    }
+
+    private function parseImages(): array
+    {
+        $images = $this->getModelImagesCollection(
+            'Part',
+            $this->auroraModelData->{'Part SKU'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+
+        return $images->toArray();
     }
 
     private function getStockFamilyId($sourceID)

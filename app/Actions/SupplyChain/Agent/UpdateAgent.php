@@ -14,7 +14,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\SupplyChain\AgentResource;
 use App\Models\SupplyChain\Agent;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;

@@ -11,7 +11,10 @@
 			"name": "Order reviews",
 			"data": {
 				"component": "Reviews",
-				"icon": ["fal", "stars"]
+				"icon": ["fal", "stars"],
+				"fieldValue": {
+					"value": ""
+				}
 			}
 		},
 		{
@@ -19,7 +22,10 @@
 			"name": "Product review",
 			"data": {
 				"component": "Reviews",
-				"icon": ["fal", "stars"]
+				"icon": ["fal", "stars"],
+				"fieldValue": {
+					"value": ""
+				}
 			}
 		}
 	]

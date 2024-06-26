@@ -23,6 +23,11 @@ class SetGroupLogo
     {
         $media = StoreMediaFromIcon::run($group);
         $this->attachMediaToModel($group, $media, 'logo');
+        $group->updateQuietly(
+            [
+                'image_id' => $media->id
+            ]
+        );
         return $group;
     }
 

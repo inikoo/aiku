@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\OrgAgent\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
-use App\Http\Resources\Procurement\AgentResource;
+use App\Http\Resources\SupplyChain\AgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;

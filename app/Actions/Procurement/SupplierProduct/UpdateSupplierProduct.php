@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\SupplierProduct;
 use App\Actions\GrpAction;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Procurement\SupplierProductResource;
+use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Rules\AlphaDashDotSpaceSlashParenthesis;
 use App\Rules\IUnique;

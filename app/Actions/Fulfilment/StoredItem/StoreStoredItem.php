@@ -52,6 +52,10 @@ class StoreStoredItem extends OrgAction
             return true;
         }
 
+        if ($this->asAction) {
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
@@ -71,6 +75,17 @@ class StoreStoredItem extends OrgAction
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($fulfilmentCustomer->organisation, $request);
+
+        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItem
+    {
+        $this->asAction           = true;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($fulfilmentCustomer->organisation, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }

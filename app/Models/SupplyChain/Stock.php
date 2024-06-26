@@ -18,6 +18,7 @@ use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
@@ -66,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read MediaCollection<int, Media> $attachments
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
  * @property-read Media|null $image
@@ -86,7 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Stock withoutTrashed()
  * @mixin Eloquent
  */
-class Stock extends Model implements HasMedia
+class Stock extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasSlug;
@@ -94,6 +97,7 @@ class Stock extends Model implements HasMedia
     use HasImage;
     use HasFactory;
     use HasAttachments;
+    use HasHistory;
 
     protected $casts = [
         'data'                   => 'array',
@@ -112,6 +116,29 @@ class Stock extends Model implements HasMedia
 
     protected $guarded = [];
 
+
+    public function generateTags(): array
+    {
+        return [
+            'goods'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'state',
+        'description',
+        'trade_unit_composition',
+        'sellable',
+        'raw_material',
+        'units_per_pack',
+        'units_per_carton',
+        'activated_at',
+        'discontinuing_at',
+        'discontinued_at',
+
+    ];
 
     public function getRouteKeyName(): string
     {

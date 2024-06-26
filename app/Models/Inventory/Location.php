@@ -108,19 +108,29 @@ class Location extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'warehouse'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'status',
+        'max_weight',
+        'max_volume',
+        'allow_stocks',
+        'allow_dropshipping',
+        'allow_fulfilment',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom('code')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
-    }
-
-    public function generateTags(): array
-    {
-        return [
-            'warehouse'
-        ];
     }
 
     public function getRouteKeyName(): string

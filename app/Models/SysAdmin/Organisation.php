@@ -210,7 +210,7 @@ class Organisation extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
-    protected $auditInclude = [
+    protected array $auditInclude = [
         'code',
         'name',
         'email',

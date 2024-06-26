@@ -49,6 +49,8 @@ use Inertia\Testing\AssertableInertia;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
+uses()->group('base');
+
 beforeAll(function () {
     loadDB();
 });

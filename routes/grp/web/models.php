@@ -122,10 +122,13 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
-use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
+use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
+use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
+use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
+use App\Actions\Web\ModelHasWebBlocks\UploadImagesToModelHasWebBlocks;
 use App\Actions\Web\Webpage\PublishWebpage;
+use App\Actions\Web\Webpage\ReorderWebBlocks;
 use App\Actions\Web\Webpage\UpdateWebpage;
-use App\Actions\Web\Webpage\UploadImagesToWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
@@ -382,15 +385,14 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 });
 Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
     Route::post('publish', PublishWebpage::class)->name('publish');
-    Route::post('web-block', AttachWebBlockToWebpage::class)->name('web_block.store');
-    Route::post('web-blocks/positions', AttachWebBlockToWebpage::class)->name('web_blocks.positions');
-
+    Route::post('web-block', StoreModelHasWebBlock::class)->name('web_block.store');
+    Route::post('reorder-web-blocks', ReorderWebBlocks::class)->name('reorder_web_blocks');
 });
 
-Route::name('web_block.')->prefix('web-block/{webBlock:id}')->group(function () {
-    Route::patch('', UpdateWebsite::class)->name('update');
-    Route::post('images', UploadImagesToWebpage::class)->name('images.store');
-
+Route::name('model_has_web_block.')->prefix('model-has-web-block/{modelHasWebBlocks:id}')->group(function () {
+    Route::patch('', UpdateModelHasWebBlocks::class)->name('update');
+    Route::delete('', DeleteModelHasWebBlocks::class)->name('delete');
+    Route::post('images', UploadImagesToModelHasWebBlocks::class)->name('images.store');
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');

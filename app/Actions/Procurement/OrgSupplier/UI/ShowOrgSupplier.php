@@ -16,10 +16,10 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgSupplierResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\StockDeliveryResource;
-use App\Http\Resources\Procurement\SupplierProductResource;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
@@ -38,10 +38,10 @@ class ShowOrgSupplier extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('procurement.org_suppliers.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('procurement.org_suppliers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): OrgSupplier
@@ -59,10 +59,10 @@ class ShowOrgSupplier extends OrgAction
         return $this->handle($orgSupplier);
     }
 
-    public function htmlResponse(Supplier $orgSupplier, ActionRequest $request): Response
+    public function htmlResponse(OrgSupplier $orgSupplier, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Procurement/Supplier',
+            'Procurement/OrgSupplier',
             [
                 'title'       => __('supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -250,14 +250,14 @@ class ShowOrgSupplier extends OrgAction
     }
 
 
-    public function jsonResponse(Supplier $orgSupplier): SupplierResource
+    public function jsonResponse(OrgSupplier $orgSupplier): OrgSupplierResource
     {
-        return new SupplierResource($orgSupplier);
+        return new OrgSupplierResource($orgSupplier);
     }
 
-    public function getPrevious(Supplier $orgSupplier, ActionRequest $request): ?array
+    public function getPrevious(OrgSupplier $orgSupplier, ActionRequest $request): ?array
     {
-        $previous = Supplier::where('code', '<', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
+        $previous = OrgSupplier::where('code', '<', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
             if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $orgSupplier->agent_id);
             }
@@ -266,9 +266,9 @@ class ShowOrgSupplier extends OrgAction
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
-    public function getNext(Supplier $orgSupplier, ActionRequest $request): ?array
+    public function getNext(OrgSupplier $orgSupplier, ActionRequest $request): ?array
     {
-        $next = Supplier::where('code', '>', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
+        $next = OrgSupplier::where('code', '>', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
             if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $orgSupplier->agent_id);
             }

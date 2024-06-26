@@ -42,6 +42,9 @@ return new class () extends Migration {
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->dateTimeTz('activated_at')->nullable();
+            $table->dateTimeTz('discontinuing_at')->nullable();
+            $table->dateTimeTz('discontinued_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_slug_inter_org')->index()->nullable();

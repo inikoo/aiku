@@ -55,16 +55,22 @@ function loadDB(): void
     );
 }
 
+function createGroup(): Group
+{
+    $group = Group::first();
+    if (!$group) {
+        $group = StoreGroup::make()->action(Group::factory()->definition());
+    }
+    return $group;
+}
+
 function createOrganisation(): Organisation
 {
     GetDiceBearAvatar::mock()
         ->shouldReceive('handle')
         ->andReturn(Storage::disk('art')->get('icons/shapes.svg'));
 
-    $group = Group::first();
-    if (!$group) {
-        $group = StoreGroup::make()->action(Group::factory()->definition());
-    }
+    $group = createGroup();
 
     $organisation = Organisation::first();
     if (!$organisation) {
@@ -77,6 +83,7 @@ function createOrganisation(): Organisation
 
     return $organisation;
 }
+
 
 function createAdminGuest(Group $group): Guest
 {
@@ -230,6 +237,7 @@ function createProduct(Shop $shop): array
             $familyData
         );
     }
+
 
 
     $product = $shop->products()->first();

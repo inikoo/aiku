@@ -51,8 +51,9 @@ const tabs = {
     } */
 }
 
-const listBlocks = ref(cloneDeep(props.webBlockTypes.data))
-const currentTab = ref(0)
+const listBlocks = ref(cloneDeep(props.webBlockTypes.data.filter((item)=>item.scope == 'webpage')))
+const currentTab = ref('all')
+const handleTabUpdate = (tabSlug) => currentTab.value = tabSlug
 
 /* const filter = (e: string) => {
     if (tabs[e].key != 'all') {
@@ -74,7 +75,7 @@ const currentTab = ref(0)
         </div>
 
         <div class="mb-4">
-            <Tabs :current="currentTab" :navigation="tabs" @update:tab="(tabName: string) => filter(tabName)" />
+            <Tabs :current="currentTab" :navigation="tabs" @update:tab="handleTabUpdate" />
         </div>
 
         <section aria-labelledby="products-heading" class="h-full mx-auto w-full sm:px-6 lg:px-8 overflow-y-auto">

@@ -5,7 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Web\Webpage\AttachWebBlockToWebpage;
+use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
+use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
+use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
@@ -17,6 +19,7 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Helpers\SnapshotStats;
+use App\Models\ModelHasWebBlocks;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
@@ -110,24 +113,39 @@ test('create webpage', function (Website $website) {
 
 })->depends('create b2b website');
 
-test('create add web block', function (Webpage $webpage) {
+test('create model has web block', function (Webpage $webpage) {
 
     /** @var WebBlockType $webBlockType */
     $webBlockType=$webpage->group->webBlockTypes()->where('code', 'text')->first();
     expect($webBlockType)->toBeInstanceOf(WebBlockType::class);
 
-    $webBlock=AttachWebBlockToWebpage::make()->action(
+    $modelHasWebBlock=StoreModelHasWebBlock::make()->action(
         $webpage,
         [
             'web_block_type_id' => $webBlockType->id,
         ]
     );
-    expect($webBlock)->toBeInstanceOf(WebBlock::class);
+
+    expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class)
+        ->and($modelHasWebBlock->webBlock)->toBeInstanceOf(WebBlock::class);
+
     $webpage->refresh();
     expect($webpage->is_dirty)->toBeTrue();
 
+    return $modelHasWebBlock;
+
 })->depends('create webpage');
 
+test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
+
+    $modelHasWebBlock=UpdateModelHasWebBlocks::make()->action($modelHasWebBlock, ['layout' => ['text' => 'Test Text']]);
+    expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
+})->depends('create model has web block');
+
+test('delete model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
+    $modelHasWebBlock= DeleteModelHasWebBlocks::make()->action($modelHasWebBlock, []);
+    expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
+})->depends('create model has web block');
 
 // Fulfilment Website
 
