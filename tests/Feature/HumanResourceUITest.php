@@ -193,3 +193,22 @@ test('UI edit clocking machine', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Index employees', function () {
+    $response = $this->get(route('grp.org.hr.employees.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Employees')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'employees')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
