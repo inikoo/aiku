@@ -12,6 +12,7 @@ use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
+use App\Actions\Catalogue\Product\DeleteImagesFromProduct;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
@@ -240,6 +241,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
 
     Route::post('product/{product:id}/images', UploadImagesToProduct::class)->name('product.images.store')->withoutScopedBindings();
+    Route::delete('product/{product:id}/images/{media:id}/media', DeleteImagesFromProduct::class)->name('product.images.delete')->withoutScopedBindings();
 
     Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update')->withoutScopedBindings();
     Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');

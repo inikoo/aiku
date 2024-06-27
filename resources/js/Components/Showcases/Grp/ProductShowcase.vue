@@ -60,11 +60,13 @@ const OnPickImages = (e) => {
 }
 
 const deleteImage = async (data,index) => {
-    console.log('delete')
-    product.value.images.splice(index,1)
+    console.log(data)
 
-   /*  try {
-        const response = await axios.get(route('grp.gallery.stock-images.index'));
+     try {
+        const response = await axios.delete(route(props.data.deleteImageRoute.name, {
+            ...props.data.deleteImageRoute.parameters, media: data.id
+        }));
+        product.value.images.splice(index,1)
     } catch (error: any) {
         console.log('error', error);
         notify({
@@ -72,7 +74,7 @@ const deleteImage = async (data,index) => {
             text: 'cannot show stock images',
             type: 'error'
         })
-    } */
+    }
 }
 
 
@@ -97,7 +99,7 @@ const deleteImage = async (data,index) => {
                                     </span>
                                     <div :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
                                         aria-hidden="true">
-                                       
+
                                     </div>
                                     <font-awesome-icon :icon="['fas', 'trash']"
                                             class="absolute top-2 right-2 text-red-400 cursor-pointer"

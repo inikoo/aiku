@@ -25,6 +25,14 @@ class GetPhysicalGoodShowcase
                     'product'      => $product->id
                 ]
             ],
+
+            'deleteImageRoute' => [
+                'name'       => 'grp.models.org.product.images.delete',
+                'parameters' => [
+                    'organisation' => $product->organisation_id,
+                    'product'      => $product->id
+                ]
+            ],
             'product' => ProductResource::make($product),
             'stats'   => $product->salesIntervals
         ];
