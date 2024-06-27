@@ -4,22 +4,22 @@ export const navigation = [
 	{
 		label: "New In & Trending",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Offers",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Aromatherapy",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Beauty & Spa",
 		id: uuidv4(),
-    type : 'multiple',
+		type: "multiple",
 		subnavs: [
 			{
 				title: "Beauty Products",
@@ -123,36 +123,36 @@ export const navigation = [
 	{
 		label: "Accessories",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Artisan Tea",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Home Fragrance",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Home & Garden",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Gemstones & Esoteric Gifts",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Incense",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 	{
 		label: "Displays & Packaging",
 		id: uuidv4(),
-    type : 'single'
+		type: "single",
 	},
 ]

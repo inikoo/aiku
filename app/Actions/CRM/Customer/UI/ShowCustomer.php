@@ -229,7 +229,6 @@ class ShowCustomer extends OrgAction
 
         $customer = Customer::where('slug', $routeParameters['customer'])->first();
 
-
         return match ($routeName) {
             'grp.org.customers.show',
             => array_merge(
