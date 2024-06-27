@@ -16,7 +16,7 @@ use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
- use function Pest\Laravel\actingAs;
+use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
 beforeAll(function () {
