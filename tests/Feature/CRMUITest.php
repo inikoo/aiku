@@ -100,3 +100,22 @@ test('UI create customer', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
+
+test('UI show customer', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.crm.customers.show', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/Customer')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
