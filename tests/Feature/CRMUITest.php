@@ -158,6 +158,15 @@ test('UI Index customer clients', function () {
     });
 });
 
+test('UI create customer client', function () {
+    $response = get(route('grp.org.shops.show.crm.customers.show.customer-clients.create', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
 test('UI Index customer portfolios', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.portfolios.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
 
