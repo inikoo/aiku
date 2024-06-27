@@ -356,3 +356,23 @@ test('UI edit workplace', function () {
             ->has('breadcrumbs', 3);
     });
 });
+
+test('UI Index timesheets', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.org.hr.timesheets.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Timesheets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'timesheets')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
