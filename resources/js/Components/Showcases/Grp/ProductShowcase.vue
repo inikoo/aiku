@@ -7,8 +7,10 @@
 <script setup lang="ts">
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 import { useLocaleStore } from '@/Stores/locale'
-import { faCircle } from '@fas'
+import { faCircle, faTrash } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { notify } from '@kyvg/vue3-notification'
 import Image from "@/Components/Image.vue";
 import {
     Tab,
@@ -19,7 +21,8 @@ import {
 } from '@headlessui/vue'
 import { ref } from 'vue'
 import EmptyState from "@/Components/Utils/EmptyState.vue";
-library.add(faCircle)
+import axios from "axios";
+library.add(faCircle, faTrash)
 
 const props = defineProps<{
     data: Object
@@ -28,6 +31,8 @@ const props = defineProps<{
 
 const locale = useLocaleStore()
 const openGallery = ref(false)
+
+console.log(props)
 
 
 const stats = [
@@ -54,6 +59,23 @@ const OnPickImages = (e) => {
     openGallery.value = false
 }
 
+const deleteImage = async (data,index) => {
+    console.log('delete')
+    product.value.images.splice(index,1)
+
+   /*  try {
+        const response = await axios.get(route('grp.gallery.stock-images.index'));
+    } catch (error: any) {
+        console.log('error', error);
+        notify({
+            title: 'Failed',
+            text: 'cannot show stock images',
+            type: 'error'
+        })
+    } */
+}
+
+
 </script>
 
 
@@ -65,7 +87,7 @@ const OnPickImages = (e) => {
                     <TabGroup as="div" class="flex flex-col-reverse p-2.5">
                         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                             <TabList class="grid grid-cols-3 gap-6">
-                                <Tab v-for="image in product.images" :key="image.id"
+                                <Tab v-for="(image,index) in product.images" :key="image.id"
                                     class="relative flex h-24 w-full cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
@@ -73,11 +95,16 @@ const OnPickImages = (e) => {
                                         <Image :src="image.source" alt=""
                                             class="h-full w-full object-cover object-center" />
                                     </span>
-                                    <span
-                                        :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
-                                        aria-hidden="true" />
+                                    <div :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
+                                        aria-hidden="true">
+                                       
+                                    </div>
+                                    <font-awesome-icon :icon="['fas', 'trash']"
+                                            class="absolute top-2 right-2 text-red-400 cursor-pointer"
+                                            @click.stop="deleteImage(image,index)" />
                                 </Tab>
                             </TabList>
+
                         </div>
 
                         <TabPanels class="overflow-hidden duration-300">
@@ -129,8 +156,9 @@ const OnPickImages = (e) => {
 
                     <div class="flex items-center justify-between">
                         <dt class="text-sm text-gray-600">Price</dt>
-                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }} <span
-                                class="font-light">margin (45.0%)</span></dd>
+                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }}
+                            <span class="font-light">margin (45.0%)</span>
+                        </dd>
                     </div>
 
                     <div class="flex items-center justify-between">
