@@ -31,8 +31,7 @@ const props = defineProps<{
 
 const locale = useLocaleStore()
 const openGallery = ref(false)
-
-console.log(props)
+const selectedImage = ref(0)
 
 
 const stats = [
@@ -66,6 +65,7 @@ const deleteImage = async (data,index) => {
         const response = await axios.delete(route(props.data.deleteImageRoute.name, {
             ...props.data.deleteImageRoute.parameters, media: data.id
         }));
+        if(selectedImage.value == index) selectedImage.value = 0
         product.value.images.splice(index,1)
     } catch (error: any) {
         console.log('error', error);
@@ -78,6 +78,11 @@ const deleteImage = async (data,index) => {
 }
 
 
+function changeSelectedImage(index) {
+    selectedImage.value = index
+}
+
+
 </script>
 
 
@@ -86,7 +91,7 @@ const deleteImage = async (data,index) => {
         <div class="p-5 space-y-5">
             <div class="relative">
                 <div class=" h-full aspect-square rounded-lg shadow">
-                    <TabGroup as="div" class="flex flex-col-reverse p-2.5">
+                    <TabGroup as="div" class="flex flex-col-reverse p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
                         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                             <TabList class="grid grid-cols-3 gap-6">
                                 <Tab v-for="(image,index) in product.images" :key="image.id"
