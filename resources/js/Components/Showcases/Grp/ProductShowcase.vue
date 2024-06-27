@@ -65,12 +65,12 @@ const OnPickImages = (e) => {
                 <div class=" h-full aspect-square rounded-lg shadow">
                     <TabGroup as="div" class="flex flex-col-reverse p-2.5">
                         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
-                            <TabList class="grid grid-cols-4 gap-6">
+                            <TabList class="grid grid-cols-3 gap-6">
                                 <Tab v-for="image in product.images" :key="image.id"
-                                    class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
+                                    class="relative flex h-24 w-full cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
-                                    <span class="absolute inset-0 overflow-hidden rounded-md">
+                                    <span class="absolute inset-0 overflow-hidden rounded-md ">
                                         <Image :src="image.source" alt=""
                                             class="h-full w-full object-cover object-center" />
                                     </span>
@@ -86,7 +86,7 @@ const OnPickImages = (e) => {
                             <template v-if="product.images.length > 0">
                                 <TabPanel v-for="image in product.images" :key="image.id">
                                     <div
-                                        class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-[1/1] w-full h-[300px]  relative overflow-hidden">
+                                        class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-[1/1] w-full h-[300px] relative overflow-hidden">
                                         <Image :src="image.source" :alt="image.name" @click="openGallery = true"
                                             class="w-full h-full object-cover object-center" />
                                     </div>
