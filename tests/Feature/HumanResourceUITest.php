@@ -338,3 +338,21 @@ test('UI create workplace', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
+
+test('UI edit workplace', function () {
+    $response = get(route('grp.org.hr.workplaces.edit', [$this->organisation->slug, $this->workplace->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.workplace.update')
+                        ->where('parameters', $this->workplace->id)
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
