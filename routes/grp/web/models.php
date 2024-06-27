@@ -15,6 +15,7 @@ use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
+use App\Actions\Catalogue\Product\UploadImagesToProduct;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\StoreService;
@@ -237,6 +238,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('product.store');
     Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
     Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
+
+    Route::post('product/{product:id}/images', UploadImagesToProduct::class)->name('product.images.store');
 
     Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update')->withoutScopedBindings();
     Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
