@@ -54,10 +54,10 @@ jobs:
         run: cp ../../../../artifacts/aiku.dump tests/datasets/db_dumps/
       - name: Run test with coverage
         if: steps.changed-coverage-files.outputs.any_changed == 'true'
-        run: vendor/bin/pest -d memory_limit=-1 --coverage-clover clover.xml --exclude-group=aurora-fetch
+        run: vendor/bin/pest -d memory_limit=-1 --coverage-clover clover.xml --exclude-group=aurora-fetch --stop-on-defect
       - name: Run test without coverage
         if: steps.changed-coverage-files.outputs.any_changed != 'true'
-        run: vendor/bin/pest --exclude-group=aurora-fetch
+        run: vendor/bin/pest --exclude-group=aurora-fetch --stop-on-defect
       - name: Upload coverage to Codecov
         if: steps.changed-coverage-files.outputs.any_changed == 'true'
         uses: codecov/codecov-action@v4
