@@ -91,3 +91,12 @@ test('UI Index customers', function () {
             ->has('data');
     });
 });
+
+test('UI create customer', function () {
+    $response = get(route('grp.org.shops.show.crm.customers.create', [$this->organisation->slug, $this->shop->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
