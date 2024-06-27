@@ -7,11 +7,13 @@
 
 namespace App\Actions\Ordering\Platform;
 
+use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Ordering\Platform;
+use App\Models\SysAdmin\Group;
 use Illuminate\Validation\Rule;
 
-class UpdatePlatform
+class UpdatePlatform extends GrpAction
 {
     use WithActionUpdate;
 
@@ -31,8 +33,10 @@ class UpdatePlatform
         ];
     }
 
-    public function action(Platform $platform, array $modelData): Platform
+    public function action(Group $group, Platform $platform, array $modelData): Platform
     {
+        $this->initialisation($group, $modelData);
+
         return $this->handle($platform, $modelData);
     }
 }
