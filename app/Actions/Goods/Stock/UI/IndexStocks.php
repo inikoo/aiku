@@ -10,6 +10,7 @@ namespace App\Actions\Goods\Stock\UI;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\GrpAction;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Http\Resources\Goods\StocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Stock;
@@ -19,7 +20,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,6 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexStocks extends GrpAction
 {
     private StockFamily|Group $parent;
+    private string $bucket;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -39,6 +40,43 @@ class IndexStocks extends GrpAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
+        $this->parent = group();
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle($this->parent);
+    }
+
+    public function active(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'active';
+        $this->parent = group();
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle($this->parent);
+    }
+
+    public function inProcess(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'in_process';
+        $this->parent = group();
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle($this->parent);
+    }
+
+    public function discontinuing(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'discontinuing';
+        $this->parent = group();
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle($this->parent);
+    }
+
+    public function discontinued(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'discontinued';
         $this->parent = group();
         $this->initialisation($this->parent, $request);
 
@@ -51,6 +89,24 @@ class IndexStocks extends GrpAction
         $this->parent = $stockFamily;
 
         return $this->handle(parent: $stockFamily);
+    }
+
+    protected function getElementGroups(Group|StockFamily $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    StockStateEnum::labels(),
+                    StockStateEnum::count($parent)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+        ];
     }
 
 
@@ -77,16 +133,25 @@ class IndexStocks extends GrpAction
         }
 
 
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if ($this->bucket == 'active') {
+            $queryBuilder->where('stocks.state', StockStateEnum::ACTIVE);
+        } elseif ($this->bucket == 'discontinuing') {
+            $queryBuilder->where('stocks.state', StockStateEnum::DISCONTINUING);
+        } elseif ($this->bucket == 'discontinued') {
+            $queryBuilder->where('stocks.state', StockStateEnum::DISCONTINUED);
+        } elseif ($this->bucket == 'in_process') {
+            $queryBuilder->where('stocks.state', StockStateEnum::IN_PROCESS);
+        } else {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
-        */
+
 
         return $queryBuilder
             ->defaultSort('stocks.code')
@@ -119,6 +184,15 @@ class IndexStocks extends GrpAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->defaultSort('slug')
                 ->withGlobalSearch()
@@ -172,17 +246,63 @@ class IndexStocks extends GrpAction
         return StocksResource::collection($stocks);
     }
 
+
+    public function getStocksSubNavigation(ActionRequest $request): array
+    {
+        return [
+
+            [
+                'label' => __('Active'),
+                'href'  => [
+                    'name'       => 'grp.goods.active_stocks.index',
+                    'parameters' => []
+                ]
+            ],
+            [
+                'label' => __('In process'),
+                'href'  => [
+                    'name'       => 'grp.goods.in_process_stocks.index',
+                    'parameters' => []
+                ]
+            ],
+            [
+                'label' => __('Discounting'),
+                'href'  => [
+                    'name'       => 'grp.goods.discontinuing_stocks.index',
+                    'parameters' => []
+                ]
+            ],
+            [
+                'label' => __('Discontinued'),
+                'href'  => [
+                    'name'       => 'grp.goods.discontinued_stocks.index',
+                    'parameters' => []
+                ]
+            ],
+            [
+                'label' => __('All SKUs'),
+                'icon'  => 'fal fa-bars',
+                'href'  => [
+                    'name'       => 'grp.goods.stocks.index',
+                    'parameters' => []
+                ]
+            ],
+
+        ];
+    }
+
+
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
-        $container = null;
-        if (class_basename($scope) == 'StockFamily') {
-            $container = [
-                'icon'    => ['fal', 'fa-boxes-alt'],
-                'tooltip' => __('Stock Family'),
-                'label'   => Str::possessive($scope->code)
-            ];
-        }
+        $subNavigation = $this->getStocksSubNavigation($request);
+
+        $title = match ($this->bucket) {
+            'active'        => __('Active SKUs'),
+            'in_process'    => __('In process SKUs'),
+            'discontinuing' => __('Discontinuing SKUs'),
+            'discontinued'  => __('Discontinued SKUs'),
+            default         => __('SKUs')
+        };
 
         return Inertia::render(
             'Goods/Stocks',
@@ -191,15 +311,14 @@ class IndexStocks extends GrpAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __("SKUs"),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title'     => __("SKUs"),
-                    'container' => $container,
-                    'iconRight' => [
+                    'title'         => $title,
+                    'iconRight'     => [
                         'icon'  => ['fal', 'fa-box'],
                         'title' => __('SKU')
                     ],
-                    'actions'   => [
+                    'actions'       => [
                         $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -216,7 +335,8 @@ class IndexStocks extends GrpAction
                                 ]
                             }
                         ] : false,
-                    ]
+                    ],
+                    'subNavigation' => $subNavigation
                 ],
                 'data'        => StocksResource::collection($stocks),
 

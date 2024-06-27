@@ -23,6 +23,38 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', ShowGoodsDashboard::class)->name('dashboard');
 
 
+Route::prefix('active-stocks')->as('active_stocks.')->group(function () {
+    Route::get('/', [IndexStocks::class, 'active'])->name('index');
+    Route::prefix('{stock}')->group(function () {
+        Route::get('', [ShowStock::class, 'active'])->name('show');
+        Route::get('edit', [EditStock::class, 'active'])->name('edit');
+    });
+});
+
+Route::prefix('in-process-stocks')->as('in_process_stocks.')->group(function () {
+    Route::get('/', [IndexStocks::class, 'inProcess'])->name('index');
+    Route::prefix('{stock}')->group(function () {
+        Route::get('', [ShowStock::class, 'inProcess'])->name('show');
+        Route::get('edit', [EditStock::class, 'inProcess'])->name('edit');
+    });
+});
+
+Route::prefix('discontinuing-stocks')->as('discontinuing_stocks.')->group(function () {
+    Route::get('/', [IndexStocks::class, 'discontinuing'])->name('index');
+    Route::prefix('{stock}')->group(function () {
+        Route::get('', [ShowStock::class, 'discontinuing'])->name('show');
+        Route::get('edit', [EditStock::class, 'discontinuing'])->name('edit');
+    });
+});
+
+Route::prefix('discontinued-stocks')->as('discontinued_stocks.')->group(function () {
+    Route::get('/', [IndexStocks::class, 'discontinued'])->name('index');
+    Route::prefix('{stock}')->group(function () {
+        Route::get('', [ShowStock::class, 'discontinued'])->name('show');
+        Route::get('edit', [EditStock::class, 'discontinued'])->name('edit');
+    });
+});
+
 Route::prefix('stocks')->as('stocks.')->group(function () {
     Route::get('/', IndexStocks::class)->name('index');
     Route::get('/export', ExportStocks::class)->name('export');
