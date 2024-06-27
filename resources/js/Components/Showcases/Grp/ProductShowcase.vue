@@ -9,7 +9,7 @@ import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 import { useLocaleStore } from '@/Stores/locale'
 import { faCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { useLayoutStore } from "@/Stores/retinaLayout.js"
+import Image from "@/Components/Image.vue";
 import {
     Tab,
     TabGroup,
@@ -18,16 +18,18 @@ import {
     TabPanels,
 } from '@headlessui/vue'
 import { ref } from 'vue'
+import EmptyState from "@/Components/Utils/EmptyState.vue";
 library.add(faCircle)
 
 const props = defineProps<{
     data: Object
 }>()
 
-const layout = useLayoutStore()
 
 const locale = useLocaleStore()
 const openGallery = ref(false)
+
+console.log(props)
 
 const stats = [
     { name: '2024', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -38,34 +40,19 @@ const stats = [
     { name: '2019', stat: '24.57%', previousStat: '28.62%', change: '4.05%', changeType: 'decrease' },
 ]
 
-const product = {
-    name: 'Zip Tote Basket',
-    price: '$140',
-    rating: 4,
+const product = ref({
     images: props.data.images.data,
-    colors: [
-        { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
-        { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
-        { name: 'Washed Gray', bgColor: 'bg-gray-500', selectedColor: 'ring-gray-500' },
-    ],
-    description: `
-    <p>The Zip Tote Basket is the perfect midpoint between shopping tote and comfy backpack. With convertible straps, you can hand carry, should sling, or backpack this convenient and spacious bag. The zip top and durable canvas construction keeps your goods protected for all-day use.</p>
-  `,
-    details: [
-        {
-            name: 'Features',
-            items: [
-                'Multiple strap configurations',
-                'Spacious interior with top zip',
-                'Leather handle and tabs',
-                'Interior dividers',
-                'Stainless strap loops',
-                'Double stitched construction',
-                'Water-resistant',
-            ],
-        },
-        // More sections...
-    ],
+})
+
+const OnUploadImages = (e) => {
+    product.value.images.push(...e.data)
+    console.log(product.value.images)
+    openGallery.value = false
+}
+
+const OnPickImages = (e) => {
+    product.value.images.push(e)
+    openGallery.value = false
 }
 
 </script>
@@ -83,8 +70,9 @@ const product = {
                                     class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
-                                    <span class="absolute inset-0 overflow-hidden rounded-md" @click="openGallery = true">
-                                        <img :src="image.source.original" alt="" class="h-full w-full object-cover object-center"  />
+                                    <span class="absolute inset-0 overflow-hidden rounded-md">
+                                        <Image :src="image.source" alt=""
+                                            class="h-full w-full object-cover object-center" />
                                     </span>
                                     <span
                                         :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
@@ -93,12 +81,28 @@ const product = {
                             </TabList>
                         </div>
 
-                        <TabPanels class="aspect-h-1 aspect-w-1 w-full">
-                            <TabPanel v-for="image in product.images" :key="image.id">
-                                <img :src="image.source.original" :alt="image.name" @click="openGallery = true"
-                                    class="h-full w-full object-cover object-center sm:rounded-lg" />
-                            </TabPanel>
+                        <TabPanels class="overflow-hidden duration-300">
+                            <!-- Menggunakan v-if pada elemen utama untuk kondisi gambar ada -->
+                            <template v-if="product.images.length > 0">
+                                <TabPanel v-for="image in product.images" :key="image.id">
+                                    <div
+                                        class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-[1/1] w-full h-[300px]  relative overflow-hidden">
+                                        <Image :src="image.source" :alt="image.name" @click="openGallery = true"
+                                            class="w-full h-full object-cover object-center" />
+                                    </div>
+                                </TabPanel>
+                            </template>
+
+                            <!-- Menggunakan template v-else untuk kondisi gambar tidak ada -->
+                            <template v-else>
+                                <TabPanel>
+                                    <EmptyState
+                                        :data="{ title: 'You don\'t have any images', description: 'Click to upload' }"
+                                        @click="openGallery = true" />
+                                </TabPanel>
+                            </template>
                         </TabPanels>
+
                     </TabGroup>
                 </div>
             </div>
@@ -135,38 +139,7 @@ const product = {
                         <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', 2.95) }} <span
                                 class="font-light">margin (66.1%)</span></dd>
                     </div>
-
-                    <!-- <div class="flex items-center justify-between border-t border-gray-200 pt-4">
-                        <dt class="flex items-center text-sm text-gray-600">
-                            <span>Shipping estimate</span>
-                            <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
-                                <span class="sr-only">Learn more about how shipping is calculated</span>
-                                <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
-                            </a>
-                        </dt>
-                        <dd class="text-sm font-medium">$5.00</dd>
-                    </div>
-
-                    <div class="flex items-center justify-between border-t border-gray-200 pt-4">
-                        <dt class="flex text-sm text-gray-600">
-                            <span>Tax estimate</span>
-                            <a href="#" class="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500">
-                            <span class="sr-only">Learn more about how tax is calculated</span>
-                            <QuestionMarkCircleIcon class="h-5 w-5" aria-hidden="true" />
-                            </a>
-                        </dt>
-                        <dd class="text-sm font-medium">$8.32</dd>
-                    </div>
-
-                    <div class="flex items-center justify-between border-t border-gray-200 pt-4">
-                        <dt class="text-base font-medium">Order total</dt>
-                        <dd class="text-base font-medium">$112.32</dd>
-                    </div> -->
                 </dl>
-
-                <!-- <div class="mt-6">
-                    <button type="submit" class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
-                </div> -->
             </section>
         </div>
 
@@ -199,10 +172,8 @@ const product = {
     </div>
 
 
-    <Gallery
-        :open="openGallery"
-        @on-close="openGallery = false"
-        :uploadRoutes="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)"
-    >
+    <Gallery :open="openGallery" @on-close="openGallery = false"
+        :uploadRoutes="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)" @on-upload="OnUploadImages"
+        @on-pick="OnPickImages">
     </Gallery>
 </template>
