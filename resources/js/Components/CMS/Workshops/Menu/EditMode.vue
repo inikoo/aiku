@@ -35,20 +35,20 @@ const changeType = (type: string, data: Object) => {
   if (type == 'multiple') data['subnavs'] = []
 }
 
-const addCard = () =>{
+const addCard = () => {
   props.Navigation[props.selectedNav].subnavs.push(
     {
-				title: "New Navigation",
-				id: uuidv4(),
-				links: [
-					{ label: "New nav", link: "", id: uuidv4() },
-				],
-			},
+      title: "New Navigation",
+      id: uuidv4(),
+      links: [
+        { label: "New nav", link: "", id: uuidv4() },
+      ],
+    },
   )
 }
 
-const deleteNavCard = (data,index) => {
-  props.Navigation[props.selectedNav].subnavs.splice(index,1)
+const deleteNavCard = (data, index) => {
+  props.Navigation[props.selectedNav].subnavs.splice(index, 1)
 }
 
 
@@ -79,7 +79,8 @@ const deleteNavCard = (data,index) => {
       </div>
 
 
-      <div v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'multiple' && Navigation[selectedNav]?.subnavs?.length <= 7"
+      <div
+        v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'multiple' && Navigation[selectedNav]?.subnavs?.length <= 7"
         class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
         <div class="font-bold text-xs mb-3">Action :</div>
         <Button type="create" label="Add Card" size="xs" @click="addCard"></Button>
@@ -92,11 +93,25 @@ const deleteNavCard = (data,index) => {
       class="grid grid-flow-row-dense grid-cols-4 gap-4 p-4 bg-slate-10">
       <template #item="{ element, index }">
         <div class="bg-white h-[26rem] rounded-lg p-4 col-span-1 cursor-grab">
-          <div class="flex justify-between"> 
-            <div class="font-bold text-xs mb-3">{{ element.title }}</div>
-            <div  >
-              <font-awesome-icon v-if="element.links.length < 8" icon="fas fa-plus-circle" @click="() => addLink(element)" class="cursor-pointer text-gray-400 mb-3 mr-3"></font-awesome-icon>
-              <font-awesome-icon icon="fas fa-trash-alt" class="cursor-pointer text-red-400 mb-3" @click="() => deleteNavCard(element,index)"></font-awesome-icon>
+          <div class="flex justify-between">
+
+            <Popover position="">
+              <template #button>
+                <div class="font-bold text-xs mb-3">{{ element.title }}</div>
+              </template>
+
+              <template #content="{ close: closed }">
+                <div class="p-1 my-1">
+                  <div class="font-bold text-xs mb-1">Title :</div>
+                  <PureInput v-model="element.title"></PureInput>
+                </div>
+              </template>
+            </Popover>
+            <div>
+              <font-awesome-icon v-if="element.links.length < 8" icon="fas fa-plus-circle"
+                @click="() => addLink(element)" class="cursor-pointer text-gray-400 mb-3 mr-3"></font-awesome-icon>
+              <font-awesome-icon icon="fas fa-trash-alt" class="cursor-pointer text-red-400 mb-3"
+                @click="() => deleteNavCard(element, index)"></font-awesome-icon>
             </div>
           </div>
 

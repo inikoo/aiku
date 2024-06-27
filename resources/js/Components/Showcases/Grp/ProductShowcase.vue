@@ -49,7 +49,6 @@ const product = ref({
 
 const OnUploadImages = (e) => {
     product.value.images.push(...e.data)
-    console.log(product.value.images)
     openGallery.value = false
 }
 
