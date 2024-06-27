@@ -159,7 +159,7 @@ Route::prefix('workplace/{workplace:id}')->name('workplace.')->group(function ()
 });
 
 
-Route::prefix('position/{workplace:id}')->name('jon_position.')->group(function () {
+Route::prefix('position/{jobPosition:id}')->name('job_position.')->group(function () {
     Route::patch('', UpdateJobPosition::class)->name('update');
     Route::delete('', DeleteJobPosition::class)->name('delete');
 });

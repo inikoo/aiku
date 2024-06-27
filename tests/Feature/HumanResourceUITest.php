@@ -311,3 +311,21 @@ test('UI Index job positions', function () {
             ->has('data');
     });
 });
+
+test('UI edit job position', function () {
+    $response = get(route('grp.org.hr.job_positions.edit', [$this->organisation->slug, $this->jobPosition->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.job_position.update')
+                        ->where('parameters', $this->jobPosition->id)
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
