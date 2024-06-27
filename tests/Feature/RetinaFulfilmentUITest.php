@@ -5,17 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
-use App\Enums\Catalogue\Shop\ShopStateEnum;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\CRM\WebUser;
+use App\Enums\Web\Website\WebsiteStateEnum;
 use Inertia\Testing\AssertableInertia;
-
 use function Pest\Laravel\actingAs;
+
 
 uses()->group('ui');
 
@@ -23,62 +18,41 @@ beforeAll(function () {
     loadDB();
 });
 beforeEach(function () {
+
     $this->organisation      = createOrganisation();
     $this->warehouse         = createWarehouse();
     $this->fulfilment        = createFulfilment($this->organisation);
-    $this->fulfilmentWebsite = createWebsite($this->fulfilment->shop);
-
-    $shop = Shop::first();
-    if (!$shop) {
-        $storeData = Shop::factory()->definition();
-        data_set($storeData, 'type', ShopTypeEnum::FULFILMENT);
-        data_set($storeData, 'warehouses', [$this->warehouse->id]);
-
-        $shop = StoreShop::make()->action(
-            $this->organisation,
-            $storeData
-        );
+    $this->website           = createWebsite($this->fulfilment->shop);
+    if($this->website->state != WebsiteStateEnum::LIVE) {
+        LaunchWebsite::make()->action($this->website);
     }
-    $this->shop = $shop;
-
-    $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
-
-    $this->customer = createCustomer($this->shop);
-
-    $webUser = WebUser::first();
-    if (!$webUser) {
-        data_set($storeData, 'username', 'test');
-        data_set($storeData, 'email', 'test@testmail.com');
-        data_set($storeData, 'password', 'test');
-
-        $webUser = StoreWebUser::make()->action(
-            $this->customer,
-            $storeData
-        );
-    }
-    $this->webUser = $webUser;
-    $website       = $this->fulfilmentWebsite;
+    $this->customer = createCustomer($this->fulfilment->shop);
+    $this->webUser  = createWebUser($this->customer);
 
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Retina')]
     );
-    DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($website);
+    DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($this->website);
 
-    actingAs($this->webUser);
 });
 
-test('UI Index pallets', function () {
-    $this->withoutExceptionHandling();
-    // $this->withoutMix();
-    // $this->withoutVite();
-    $response = $this->get(route('retina.storage.pallets.index'));
-
+test('show log in', function () {
+    $response = $this->get(route('retina.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Storage/RetinaPallets')
-            ->has('title')
-            ->has('pageHead')
-            ->has('breadcrumbs', 3);
+        $page->component('Auth/Login');
     });
-})->todo();
+});
+
+test('show redirect if not logged in', function () {
+    $response = $this->get(route('retina.dashboard.show'));
+    $response->assertRedirect('app/login');
+});
+
+test('show dashboard', function () {
+    actingAs($this->webUser,'retina');
+    $response = $this->get(route('retina.dashboard.show'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Dashboard/Dashboard');
+    });
+});

@@ -8,6 +8,7 @@
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
@@ -24,6 +25,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
@@ -296,5 +298,24 @@ function createWebsite(Shop $shop): Website
         $shop,
         Website::factory()->definition()
     );
+
+}
+
+function createWebUser(Customer $customer): WebUser
+{
+
+    $webUser = $customer->webUsers()->first();
+    if (!$webUser) {
+        data_set($storeData, 'username', 'test');
+        data_set($storeData, 'email', 'test@testmail.com');
+        data_set($storeData, 'password', 'test');
+
+        $webUser = StoreWebUser::make()->action(
+            $customer,
+            $storeData
+        );
+    }
+
+    return $webUser;
 
 }
