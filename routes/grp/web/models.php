@@ -239,7 +239,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
     Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
 
-    Route::post('product/{product:id}/images', UploadImagesToProduct::class)->name('product.images.store');
+    Route::post('product/{product:id}/images', UploadImagesToProduct::class)->name('product.images.store')->withoutScopedBindings();
 
     Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update')->withoutScopedBindings();
     Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');

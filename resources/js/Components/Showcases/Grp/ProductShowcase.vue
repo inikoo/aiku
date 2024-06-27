@@ -225,10 +225,10 @@ const product = {
     </div>
 
 
-    <Gallery 
-        :open="openGallery" 
-        @on-close="openGallery = false" 
-        :uploadRoutes="'taruh sini nanti @artha'"   
+    <Gallery
+        :open="openGallery"
+        @on-close="openGallery = false"
+        :uploadRoutes="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)"
     >
     </Gallery>
 </template>

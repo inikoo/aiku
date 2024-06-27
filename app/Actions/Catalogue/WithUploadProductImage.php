@@ -19,7 +19,6 @@ trait WithUploadProductImage
 {
     use HasWebAuthorisation;
     use WithAttachMediaToModel;
-    use WithAttachMediaToModel;
 
     public function handle(Product $model, string $scope, array $modelData): Collection
     {

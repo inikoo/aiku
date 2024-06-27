@@ -191,6 +191,4 @@ class Product extends Model implements Auditable, HasMedia
     }
 
 
-
-
 }

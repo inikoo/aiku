@@ -10,8 +10,8 @@ namespace App\Actions\Catalogue\Product;
 use App\Actions\Catalogue\WithUploadProductImage;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Product;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -21,20 +21,11 @@ class UploadImagesToProduct extends OrgAction
     use HasWebAuthorisation;
 
 
-    public function asController(Product $product, ActionRequest $request): Collection
+    public function asController(Organisation $organisation, Product $product, ActionRequest $request): Collection
     {
-        if($product->shop->type==ShopTypeEnum::FULFILMENT) {
-            $this->scope = $product->shop->fulfilment;
-            $this->initialisationFromFulfilment($this->scope, $request);
-
-        } else {
-            $this->scope = $product->shop;
-            $this->initialisationFromShop($this->scope, $request);
-
-        }
+        $this->scope = $organisation;
+        $this->initialisation($organisation, $request);
 
         return $this->handle($product, 'image', $this->validatedData);
     }
-
-
 }
