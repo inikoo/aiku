@@ -15,6 +15,7 @@ use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCust
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
+use App\Actions\Ordering\Platform\UpdateModelPlatform;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
@@ -149,6 +150,28 @@ test('add platform to portfolio', function (DropshippingCustomerPortfolio $portf
 
 
 })->depends('add product to customer portfolio');
+
+
+test('change platform from shopify to tiktok', function (DropshippingCustomerPortfolio $portfolio) {
+
+    expect($portfolio->platforms->count())->toBe(0)
+        ->and($portfolio->platform())->toBeNull();
+    $portfolio= UpdateModelPlatform::make()->action(
+        $this->group,
+        $portfolio,
+        Platform::where('type', PlatformTypeEnum::TIKTOK->value)->first(),
+        [
+            'reference' => 'test_update_platform_to_tiktok'
+        ]
+    );
+
+    expect($portfolio->platforms()->first())->toBeInstanceOf(Platform::class)
+        ->and($portfolio->platform()->type)->toBe(PlatformTypeEnum::TIKTOK);
+
+
+
+})->depends('add product to customer portfolio');
+
 
 test('add image to product', function () {
 
