@@ -157,3 +157,23 @@ test('UI Index customer clients', function () {
             ->has('data');
     });
 });
+
+test('UI Index customer portfolios', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.portfolios.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/DropshippingCustomerPortfolios')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'portfolios')
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
