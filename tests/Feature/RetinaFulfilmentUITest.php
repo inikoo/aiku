@@ -9,8 +9,8 @@ use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use Inertia\Testing\AssertableInertia;
-use function Pest\Laravel\actingAs;
 
+use function Pest\Laravel\actingAs;
 
 uses()->group('ui');
 
@@ -50,7 +50,7 @@ test('show redirect if not logged in', function () {
 });
 
 test('show dashboard', function () {
-    actingAs($this->webUser,'retina');
+    actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.dashboard.show'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page->component('Dashboard/Dashboard');
