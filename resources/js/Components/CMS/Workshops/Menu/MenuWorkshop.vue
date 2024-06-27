@@ -16,7 +16,7 @@ import PreviewMode from './PreviewMode.vue';
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars);
 
 const Navigation = ref(navigation)
-const selectedNav = ref(null)
+const selectedNav = ref(0)
 const previewMode = ref(false)
 
 const addNavigation = () => {
@@ -44,10 +44,10 @@ const deleteNavigation = (index) => {
       <draggable :list="Navigation" ghost-class="ghost" group="column" itemKey="id" class="mt-2 space-y-1">
         <template #item="{ element, index }">
           <div @click="selectedNav = index"
-            class="flex-auto rounded-md p-3 ring-1 ring-inset ring-gray-200 bg-white cursor-grab">
+            :class="[selectedNav ==  index  ? 'ring-indigo-500' : 'ring-gray-200', 'flex-auto rounded-md p-3 ring-1 ring-inset  bg-white cursor-grab']">
             <div class="flex justify-between gap-x-4">
-              <div class="py-0.5 text-xs leading-5 text-gray-500">
-                <span class="font-medium text-gray-900">{{ element.label }}</span>
+              <div :class="['py-0.5 text-xs leading-5', selectedNav !=  index  ? 'text-gray-500' : 'text-indigo-500']">
+                <span class="font-medium">{{ element.label }}</span>
               </div>
               <div class="flex-none py-0 text-xs leading-5 text-gray-500 cursor-pointer">
                 <font-awesome-icon :icon="['fal', 'times']" @click="() => deleteNavigation(index)" />
@@ -75,7 +75,7 @@ const deleteNavigation = (index) => {
 
     <div class="col-span-3">
       <EditMode v-if="!previewMode" :Navigation="Navigation" :selectedNav="selectedNav" ></EditMode>
-      <PreviewMode v-if="previewMode"></PreviewMode>
+      <PreviewMode v-if="previewMode" :navigations="Navigation"></PreviewMode>
     </div>
   </div>
 

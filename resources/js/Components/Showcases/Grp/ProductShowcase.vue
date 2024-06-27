@@ -5,31 +5,29 @@
   -->
 
 <script setup lang="ts">
-// import { usePage } from '@inertiajs/vue3'
+import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 import { useLocaleStore } from '@/Stores/locale'
-
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { useLayoutStore } from "@/Stores/retinaLayout.js"
 import {
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
-    RadioGroup,
-    RadioGroupOption,
     Tab,
     TabGroup,
     TabList,
     TabPanel,
     TabPanels,
 } from '@headlessui/vue'
+import { ref } from 'vue'
 library.add(faCircle)
 
 const props = defineProps<{
-    data: {}
+    data: Object
 }>()
 
+const layout = useLayoutStore()
+
 const locale = useLocaleStore()
+const openGallery = ref(false)
 
 const stats = [
     { name: '2024', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -105,15 +103,14 @@ const product = {
             <div class="relative">
                 <div class=" h-full aspect-square rounded-lg shadow">
                     <TabGroup as="div" class="flex flex-col-reverse p-2.5">
-                        <!-- Image selector -->
                         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                             <TabList class="grid grid-cols-4 gap-6">
                                 <Tab v-for="image in product.images" :key="image.id"
                                     class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
-                                    <span class="absolute inset-0 overflow-hidden rounded-md">
-                                        <img :src="image.src" alt="" class="h-full w-full object-cover object-center" />
+                                    <span class="absolute inset-0 overflow-hidden rounded-md" @click="openGallery = true">
+                                        <img :src="image.src" alt="" class="h-full w-full object-cover object-center"  />
                                     </span>
                                     <span
                                         :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
@@ -124,18 +121,12 @@ const product = {
 
                         <TabPanels class="aspect-h-1 aspect-w-1 w-full">
                             <TabPanel v-for="image in product.images" :key="image.id">
-                                <img :src="image.src" :alt="image.alt"
+                                <img :src="image.src" :alt="image.alt" @click="openGallery = true"
                                     class="h-full w-full object-cover object-center sm:rounded-lg" />
                             </TabPanel>
                         </TabPanels>
                     </TabGroup>
                 </div>
-
-               <!--  <div class="absolute bottom-0 left-0 py-4 px-4 w-full text-green-500 ">
-                    <FontAwesomeIcon icon='fas fa-circle' class='animate-pulse' size="xs" fixed-width
-                        aria-hidden='true' />
-                    The product is active
-                </div> -->
             </div>
 
             <!-- Order summary -->
@@ -233,4 +224,11 @@ const product = {
         </div>
     </div>
 
+
+    <Gallery 
+        :open="openGallery" 
+        @on-close="openGallery = false" 
+        :uploadRoutes="'taruh sini nanti @artha'"   
+    >
+    </Gallery>
 </template>

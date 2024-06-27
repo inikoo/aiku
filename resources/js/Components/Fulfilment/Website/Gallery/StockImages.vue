@@ -50,7 +50,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <div class="max-w-full p-4">
+    <div  class="max-w-full p-4">
         <div v-if="!loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div v-for="image in stockImages" :key="image.id" class="overflow-hidden  duration-300" >
                 <div class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200" @click="()=>emits('pick',image)">

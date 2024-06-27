@@ -37,12 +37,12 @@ const deleteLink = (data, index) => {
 <template>
       <div class="bg-slate-100 h-screen overflow-auto">
         <div class="grid grid-flow-row-dense grid-cols-4 gap-4 px-4 pt-4 bg-slate-10">
-          <div v-if="selectedNav" class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
+          <div v-if="Navigation[selectedNav]" class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
             <div class="font-bold text-xs mb-3">Navigation Title :</div>
             <PureInput v-model="Navigation[selectedNav].label"></PureInput>
           </div>
 
-          <div v-if="selectedNav" class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
+          <div v-if="Navigation[selectedNav]" class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
             <div class="font-bold text-xs mb-3">Type :</div>
             <PureMultiselect :required="true" v-model="Navigation[selectedNav].type" label="label" value-prop="value"
               :options="[{ label: 'Single', value: 'single' }, { label: 'Multiple', value: 'multiple' }]">
@@ -50,7 +50,7 @@ const deleteLink = (data, index) => {
           </div>
 
 
-          <div v-if="selectedNav && Navigation[selectedNav].type == 'single'"
+          <div v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'single'"
             class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
             <div class="font-bold text-xs mb-3">link :</div>
             <PureInput v-model="Navigation[selectedNav].label"></PureInput>

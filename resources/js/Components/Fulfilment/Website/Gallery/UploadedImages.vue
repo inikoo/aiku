@@ -12,6 +12,7 @@ import axios from 'axios'
 import Image from '@/Components/Image.vue'
 import { notify } from '@kyvg/vue3-notification'
 import { faSpinnerThird } from '@fad'
+import EmptyState from "@/Components/Utils/EmptyState.vue"
 
 library.add(faSpinnerThird)
 
@@ -53,11 +54,14 @@ onBeforeMount(() => {
 <template>
     <div class="max-w-full p-4">
         <div v-if="!loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div v-for="image in stockImages" :key="image.id" class="overflow-hidden  duration-300" >
+            <div v-if="stockImages.length > 0" v-for="image in stockImages" :key="image.id" class="overflow-hidden  duration-300" >
                 <div class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200" @click="()=>emits('pick',image)">
                     <Image :src="image.thumbnail" class="w-full object-cover object-center group-hover:opacity-75" />
                 </div>
                 <span class="font-bold text-xs">{{ image.name }}</span>
+            </div>
+            <div v-else class="flex justify-center col-span-4">
+                <EmptyState :data="{ title : 'you dont have Image', description : ''}"/>
             </div>
         </div>
         <div v-else class="flex justify-center">
