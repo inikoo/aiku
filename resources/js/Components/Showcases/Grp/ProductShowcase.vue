@@ -42,6 +42,18 @@ const stats = [
 
 const product = ref({
     images: props.data.images.data,
+    name: props.data.product.data.name,
+    price: props.data.product.data.price,
+    created_at: props.data.product.data.created_at,
+    rating: 4,
+    colors: [
+        { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
+        { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
+        { name: 'Washed Gray', bgColor: 'bg-gray-500', selectedColor: 'ring-gray-500' },
+    ],
+    description: `
+    <p>${props.data.product.data.description}</p>
+  `,
 })
 
 const OnUploadImages = (e) => {
@@ -115,7 +127,7 @@ const OnPickImages = (e) => {
                 <dl class="mt-6 space-y-4">
                     <div class="flex items-center justify-between">
                         <dt class="text-sm text-gray-600">Added date</dt>
-                        <dd class="text-sm font-medium">24 Nov 2019</dd>
+                        <dd class="text-sm font-medium">{{ product.created_at }}</dd>
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -130,7 +142,7 @@ const OnPickImages = (e) => {
 
                     <div class="flex items-center justify-between">
                         <dt class="text-sm text-gray-600">Price</dt>
-                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', 13.50) }} <span
+                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }} <span
                                 class="font-light">margin (45.0%)</span></dd>
                     </div>
 

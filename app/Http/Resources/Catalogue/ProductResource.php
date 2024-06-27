@@ -21,14 +21,16 @@ class ProductResource extends JsonResource
         $product = $this;
 
         return [
-            'slug'       => $product->slug,
-            'image_id'   => $product->image_id,
-            'code'       => $product->code,
-            'name'       => $product->name,
-            'state'      => $product->state,
-            'created_at' => $product->created_at,
-            'updated_at' => $product->updated_at,
-            'images'     => ImageResource::collection($product->images)
+            'slug'        => $product->slug,
+            'image_id'    => $product->image_id,
+            'code'        => $product->code,
+            'name'        => $product->name,
+            'price'       => $product->price,
+            'description' => $product->description,
+            'state'       => $product->state,
+            'created_at'  => $product->created_at,
+            'updated_at'  => $product->updated_at,
+            'images'      => ImageResource::collection($product->images)
         ];
     }
 }
