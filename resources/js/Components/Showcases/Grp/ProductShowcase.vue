@@ -42,33 +42,7 @@ const product = {
     name: 'Zip Tote Basket',
     price: '$140',
     rating: 4,
-    images: [
-        {
-            id: 1,
-            name: 'Angled view',
-            src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg',
-            alt: 'Angled front view with bag zipped and handles upright.',
-        },
-        {
-            id: 1,
-            name: 'Angled view',
-            src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg',
-            alt: 'Angled front view with bag zipped and handles upright.',
-        },
-        {
-            id: 1,
-            name: 'Angled view',
-            src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg',
-            alt: 'Angled front view with bag zipped and handles upright.',
-        },
-        {
-            id: 1,
-            name: 'Angled view',
-            src: 'https://tailwindui.com/img/ecommerce-images/product-page-03-product-01.jpg',
-            alt: 'Angled front view with bag zipped and handles upright.',
-        },
-        // More images...
-    ],
+    images: props.data.images.data,
     colors: [
         { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
         { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
@@ -110,7 +84,7 @@ const product = {
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
                                     <span class="absolute inset-0 overflow-hidden rounded-md" @click="openGallery = true">
-                                        <img :src="image.src" alt="" class="h-full w-full object-cover object-center"  />
+                                        <img :src="image.source.original" alt="" class="h-full w-full object-cover object-center"  />
                                     </span>
                                     <span
                                         :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
@@ -121,7 +95,7 @@ const product = {
 
                         <TabPanels class="aspect-h-1 aspect-w-1 w-full">
                             <TabPanel v-for="image in product.images" :key="image.id">
-                                <img :src="image.src" :alt="image.alt" @click="openGallery = true"
+                                <img :src="image.source.original" :alt="image.name" @click="openGallery = true"
                                     class="h-full w-full object-cover object-center sm:rounded-lg" />
                             </TabPanel>
                         </TabPanels>

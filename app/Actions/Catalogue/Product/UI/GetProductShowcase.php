@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Http\Resources\Helpers\ImageResource;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -23,7 +24,8 @@ class GetProductShowcase
                     'organisation' => $product->organisation_id,
                     'product'      => $product->id
                 ]
-            ]
+            ],
+            'images' => ImageResource::collection($product->images)
         ];
     }
 }
