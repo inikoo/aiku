@@ -39,17 +39,18 @@ const stats = [
 ]
 
 const product = {
-    name: 'Zip Tote Basket',
-    price: '$140',
+    name: props.data.product.data.name,
+    price: props.data.product.data.price,
+    created_at: props.data.product.data.created_at,
     rating: 4,
-    images: props.data.images.data,
+    images: props.data.product.data.images,
     colors: [
         { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
         { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
         { name: 'Washed Gray', bgColor: 'bg-gray-500', selectedColor: 'ring-gray-500' },
     ],
     description: `
-    <p>The Zip Tote Basket is the perfect midpoint between shopping tote and comfy backpack. With convertible straps, you can hand carry, should sling, or backpack this convenient and spacious bag. The zip top and durable canvas construction keeps your goods protected for all-day use.</p>
+    <p>${props.data.product.data.description}</p>
   `,
     details: [
         {
@@ -111,7 +112,7 @@ const product = {
                 <dl class="mt-6 space-y-4">
                     <div class="flex items-center justify-between">
                         <dt class="text-sm text-gray-600">Added date</dt>
-                        <dd class="text-sm font-medium">24 Nov 2019</dd>
+                        <dd class="text-sm font-medium">{{ product.created_at }}</dd>
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -126,7 +127,7 @@ const product = {
 
                     <div class="flex items-center justify-between">
                         <dt class="text-sm text-gray-600">Price</dt>
-                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', 13.50) }} <span
+                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }} <span
                                 class="font-light">margin (45.0%)</span></dd>
                     </div>
 
