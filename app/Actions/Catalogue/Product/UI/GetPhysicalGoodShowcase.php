@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -17,7 +18,15 @@ class GetPhysicalGoodShowcase
     public function handle(Product $product): array
     {
         return [
-            []
+            'uploadImageRoute' => [
+                'name'       => 'grp.models.org.product.images.store',
+                'parameters' => [
+                    'organisation' => $product->organisation_id,
+                    'product'      => $product->id
+                ]
+            ],
+            'product' => ProductResource::make($product),
+            'stats'   => $product->salesIntervals
         ];
     }
 }

@@ -88,7 +88,7 @@ const addCard = () =>{
       class="grid grid-flow-row-dense grid-cols-4 gap-4 p-4 bg-slate-10">
       <template #item="{ element, index }">
         <div class="bg-white h-[26rem] rounded-lg p-4 col-span-1 cursor-grab">
-          <div class="flex justify-between">
+          <div class="flex justify-between"> 
             <div class="font-bold text-xs mb-3">{{ element.title }}</div>
             <div v-if="element.links.length < 8"><font-awesome-icon icon="fas fa-plus-circle"
                 @click="() => addLink(element)" class="cursor-pointer text-gray-400 mb-3"></font-awesome-icon></div>
