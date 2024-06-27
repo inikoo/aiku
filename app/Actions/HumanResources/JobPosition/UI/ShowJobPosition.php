@@ -136,6 +136,7 @@ class ShowJobPosition extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
         $jobPosition = JobPosition::where('slug', $routeParameters['jobPosition'])->first();
         return array_merge(
             (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
@@ -146,7 +147,7 @@ class ShowJobPosition extends OrgAction
                         'index' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.job_positions.index',
-                                'parameters' => ['organisation' => $this->organisation->slug]
+                                'parameters' => ['organisation' => $jobPosition->organisation->slug]
                             ],
                             'label' => __('Positions')
                         ],
@@ -154,7 +155,7 @@ class ShowJobPosition extends OrgAction
                             'route' => [
                                 'name'       => 'grp.org.hr.job_positions.show',
                                 'parameters' => [
-                                    'organisation' => $this->organisation->slug,
+                                    'organisation' => $jobPosition->organisation->slug,
                                     'jobPosition'  => $jobPosition->slug
                                 ]
                             ],
@@ -198,7 +199,7 @@ class ShowJobPosition extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $this->organisation->slug,
+                        'organisation' => $jobPosition->organisation->slug,
                         'jobPosition'  => $jobPosition->slug
                     ]
                 ]

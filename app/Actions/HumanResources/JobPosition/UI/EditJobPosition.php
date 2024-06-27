@@ -92,8 +92,8 @@ class EditJobPosition extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.jon_position.update',
-                            'parameters' => $jobPosition->slug
+                            'name'       => 'grp.models.job_position.update',
+                            'parameters' => $jobPosition->id
 
                         ],
                     ]
@@ -108,7 +108,7 @@ class EditJobPosition extends OrgAction
     {
         return ShowJobPosition::make()->getBreadcrumbs([
             'organisation' => $this->organisation->slug,
-            'job_position' => $jobPosition->slug
+            'jobPosition' => $jobPosition->slug
         ], suffix: '('.__('Editing').')');
     }
 }

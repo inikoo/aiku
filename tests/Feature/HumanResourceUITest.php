@@ -8,12 +8,14 @@
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
+use App\Actions\HumanResources\Timesheet\StoreTimesheet;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
 use Inertia\Testing\AssertableInertia;
 
@@ -74,6 +76,16 @@ beforeEach(function () {
         );
     }
     $this->jobPosition = $jobPosition;
+
+    $timesheet = Timesheet::first();
+    if (!$timesheet) {
+        data_set($storeData, 'date', '02-10-2002');
+        $timesheet =StoreTimesheet::make()->action(
+            $this->employee,
+            $storeData
+        );
+    }
+    $this->timesheet = $timesheet;
 
 
     Config::set(
@@ -309,5 +321,89 @@ test('UI Index job positions', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI edit job position', function () {
+    $response = get(route('grp.org.hr.job_positions.edit', [$this->organisation->slug, $this->jobPosition->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.job_position.update')
+                        ->where('parameters', $this->jobPosition->id)
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI create workplace', function () {
+    $response = get(route('grp.org.hr.workplaces.create', [$this->organisation->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
+
+test('UI edit workplace', function () {
+    $response = get(route('grp.org.hr.workplaces.edit', [$this->organisation->slug, $this->workplace->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('pageHead')
+            ->has('formData')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.workplace.update')
+                        ->where('parameters', $this->workplace->id)
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index timesheets', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.org.hr.timesheets.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Timesheets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'timesheets')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI show timesheet', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.org.hr.timesheets.show', [$this->organisation->slug, $this->timesheet->id]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/HumanResources/Timesheet')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->timesheet->date->format('l, j F Y'))
+                        ->etc()
+            )
+            ->has('tabs');
     });
 });
