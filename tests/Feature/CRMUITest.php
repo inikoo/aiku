@@ -43,7 +43,7 @@ beforeEach(function () {
     $shop = Shop::first();
     if (!$shop) {
         $storeData = Shop::factory()->definition();
-        data_set($storeData, 'type', ShopTypeEnum::B2B);
+        data_set($storeData, 'type', ShopTypeEnum::DROPSHIPPING);
         data_set($storeData, 'warehouses', [$this->warehouse->id]);
 
         $shop = StoreShop::make()->action(
