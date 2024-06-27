@@ -29,7 +29,6 @@ const props = defineProps<{
 const locale = useLocaleStore()
 const openGallery = ref(false)
 
-console.log(props)
 
 const stats = [
     { name: '2024', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -41,19 +40,7 @@ const stats = [
 ]
 
 const product = ref({
-    images: props.data.images.data,
-    name: props.data.product.data.name,
-    price: props.data.product.data.price,
-    created_at: props.data.product.data.created_at,
-    rating: 4,
-    colors: [
-        { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
-        { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
-        { name: 'Washed Gray', bgColor: 'bg-gray-500', selectedColor: 'ring-gray-500' },
-    ],
-    description: `
-    <p>${props.data.product.data.description}</p>
-  `,
+    images: props.data.product.data.images,
 })
 
 const OnUploadImages = (e) => {
