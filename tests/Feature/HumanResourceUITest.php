@@ -329,3 +329,12 @@ test('UI edit job position', function () {
             ->has('breadcrumbs', 3);
     });
 });
+
+test('UI create workplace', function () {
+    $response = get(route('grp.org.hr.workplaces.create', [$this->organisation->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
