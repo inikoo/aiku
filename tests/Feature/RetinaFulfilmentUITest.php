@@ -133,7 +133,7 @@ test('index pallet deliveries', function () {
             ->has('pageHead')
             ->has('data');
     });
-}); //authorization problem
+});
 
 test('show pallet delivery (pallet tab)', function () {
     // $this->withoutExceptionHandling();
@@ -200,5 +200,19 @@ test('show sysadmin dashboard', function () {
     $response = $this->get(route('retina.sysadmin.dashboard'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page->component('SysAdmin/SysAdminDashboard');
+    });
+});
+
+test('index pallet returns', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.storage.pallet-returns.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletReturns')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has('pageHead')
+            ->has('data');
     });
 });
