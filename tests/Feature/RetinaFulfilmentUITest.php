@@ -246,3 +246,23 @@ test('show pallet return (pallet tab)', function () {
 
     });
 });
+
+test('show pallet return (stored item tab)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get('/app/storage/pallet-returns/'.$this->palletReturn->slug.'?tab=stored_items');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
