@@ -148,8 +148,9 @@ class EditCustomer extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'    => $customer->shop->slug,
-                        'customer'=> $customer->slug
+                        'organisation' => $customer->organisation->slug,
+                        'shop'         => $customer->shop->slug,
+                        'customer'     => $customer->slug
                     ]
 
                 ]

@@ -36,8 +36,8 @@ Route::name('websites.')->group(function () {
                 ->group(function () {
                     Route::get('', ShowWebsiteWorkshop::class)->name('');
                     Route::get('preview', ShowWebsiteWorkshopPreview::class)->name('.preview');
-                    Route::get('footer', ShowFooter::class)->name('.footer');
-                    Route::get('header', ShowHeader::class)->name('.header');
+                    Route::get('footer', [ShowFooter::class, 'inShop'])->name('.footer');
+                    Route::get('header', [ShowHeader::class, 'inShop'])->name('.header');
                 });
         });
 });

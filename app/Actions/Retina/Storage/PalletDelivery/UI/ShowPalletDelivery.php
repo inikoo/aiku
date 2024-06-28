@@ -135,12 +135,9 @@ class ShowPalletDelivery extends RetinaAction
 
                 'updateRoute' => [
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.timeline.update',
+                        'name'       => 'retina.models.pallet-delivery.update',
                         'parameters' => [
-                            'organisation'       => $palletDelivery->organisation->slug,
-                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletDelivery->slug
+                            'palletDelivery'     => $palletDelivery->id
                         ]
                     ]
                 ],
@@ -187,7 +184,7 @@ class ShowPalletDelivery extends RetinaAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletDeliveryTabsEnum::navigation()
+                    'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
                 'data' => PalletDeliveryResource::make($palletDelivery),

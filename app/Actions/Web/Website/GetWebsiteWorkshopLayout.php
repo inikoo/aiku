@@ -45,7 +45,7 @@ class GetWebsiteWorkshopLayout
                     'name'       => 'grp.org.shops.show.web.websites.workshop.header',
                     'parameters' => [
                         'organisation' => $website->organisation->slug,
-                        'fulfilment'   => $website->shop->slug,
+                        'shop'         => $website->shop->slug,
                         'website'      => $website->slug,
                     ]
                 ],
@@ -53,7 +53,7 @@ class GetWebsiteWorkshopLayout
                     'name'       => 'grp.org.shops.show.web.websites.workshop.footer',
                     'parameters' => [
                         'organisation' => $website->organisation->slug,
-                        'fulfilment'   => $website->shop->slug,
+                        'shop'         => $website->shop->slug,
                         'website'      => $website->slug,
                     ]
                 ]

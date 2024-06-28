@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
@@ -26,6 +27,10 @@ class ShowHeader extends OrgAction
     private Website $website;
 
     private Webpage|Website $parent;
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private Fulfilment|Shop $scope;
 
     public function handle(Website $website): Website
     {
@@ -61,15 +66,33 @@ class ShowHeader extends OrgAction
             return true;
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        if($this->scope instanceof Fulfilment) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        }
+
+        $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->shop->id}.edit");
+
+        return $request->user()->hasPermissionTo("shops.{$this->shop->id}.view");
+
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
         $this->parent = $website;
+        $this->scope  = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $website;
+    }
+
+    public function inShop(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
+    {
+        $this->asAction = true; // @Raul Remove this later, i dont know the permissions (just for make it works temporarily)
+        $this->parent   = $website;
+        $this->scope    = $shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $website;
     }

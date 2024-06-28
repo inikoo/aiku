@@ -7,8 +7,10 @@
 <script setup lang="ts">
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 import { useLocaleStore } from '@/Stores/locale'
-import { faCircle } from '@fas'
+import { faCircle, faTrash } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { notify } from '@kyvg/vue3-notification'
 import Image from "@/Components/Image.vue";
 import {
     Tab,
@@ -19,7 +21,8 @@ import {
 } from '@headlessui/vue'
 import { ref } from 'vue'
 import EmptyState from "@/Components/Utils/EmptyState.vue";
-library.add(faCircle)
+import axios from "axios";
+library.add(faCircle, faTrash)
 
 const props = defineProps<{
     data: Object
@@ -28,8 +31,8 @@ const props = defineProps<{
 
 const locale = useLocaleStore()
 const openGallery = ref(false)
+const selectedImage = ref(0)
 
-console.log(props)
 
 const stats = [
     { name: '2024', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -41,24 +44,11 @@ const stats = [
 ]
 
 const product = ref({
-    images: props.data.images.data,
-    name: props.data.product.data.name,
-    price: props.data.product.data.price,
-    created_at: props.data.product.data.created_at,
-    rating: 4,
-    colors: [
-        { name: 'Washed Black', bgColor: 'bg-gray-700', selectedColor: 'ring-gray-700' },
-        { name: 'White', bgColor: 'bg-white', selectedColor: 'ring-gray-400' },
-        { name: 'Washed Gray', bgColor: 'bg-gray-500', selectedColor: 'ring-gray-500' },
-    ],
-    description: `
-    <p>${props.data.product.data.description}</p>
-  `,
+    images: props.data.product.data.images,
 })
 
 const OnUploadImages = (e) => {
     product.value.images.push(...e.data)
-    console.log(product.value.images)
     openGallery.value = false
 }
 
@@ -66,6 +56,31 @@ const OnPickImages = (e) => {
     product.value.images.push(e)
     openGallery.value = false
 }
+
+const deleteImage = async (data,index) => {
+    console.log(data)
+
+     try {
+        const response = await axios.delete(route(props.data.deleteImageRoute.name, {
+            ...props.data.deleteImageRoute.parameters, media: data.id
+        }));
+        if(selectedImage.value == index) selectedImage.value = 0
+        product.value.images.splice(index,1)
+    } catch (error: any) {
+        console.log('error', error);
+        notify({
+            title: 'Failed',
+            text: 'cannot show stock images',
+            type: 'error'
+        })
+    }
+}
+
+
+function changeSelectedImage(index) {
+    selectedImage.value = index
+}
+
 
 </script>
 
@@ -75,10 +90,10 @@ const OnPickImages = (e) => {
         <div class="p-5 space-y-5">
             <div class="relative">
                 <div class=" h-full aspect-square rounded-lg shadow">
-                    <TabGroup as="div" class="flex flex-col-reverse p-2.5">
+                    <TabGroup as="div" class="flex flex-col-reverse p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
                         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                             <TabList class="grid grid-cols-3 gap-6">
-                                <Tab v-for="image in product.images" :key="image.id"
+                                <Tab v-for="(image,index) in product.images" :key="image.id"
                                     class="relative flex h-24 w-full cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
@@ -86,11 +101,16 @@ const OnPickImages = (e) => {
                                         <Image :src="image.source" alt=""
                                             class="h-full w-full object-cover object-center" />
                                     </span>
-                                    <span
-                                        :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
-                                        aria-hidden="true" />
+                                    <div :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
+                                        aria-hidden="true">
+
+                                    </div>
+                                    <font-awesome-icon :icon="['fas', 'trash']"
+                                            class="absolute top-2 right-2 text-red-400 cursor-pointer"
+                                            @click.stop="deleteImage(image,index)" />
                                 </Tab>
                             </TabList>
+
                         </div>
 
                         <TabPanels class="overflow-hidden duration-300">
@@ -142,8 +162,9 @@ const OnPickImages = (e) => {
 
                     <div class="flex items-center justify-between">
                         <dt class="text-sm text-gray-600">Price</dt>
-                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }} <span
-                                class="font-light">margin (45.0%)</span></dd>
+                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }}
+                            <span class="font-light">margin (45.0%)</span>
+                        </dd>
                     </div>
 
                     <div class="flex items-center justify-between">

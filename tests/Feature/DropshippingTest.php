@@ -8,6 +8,7 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\AttachCustomerToPlatform;
+use App\Actions\CRM\Customer\UpdateCustomerPlatform;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\AttachPortfolioToPlatform;
@@ -21,6 +22,7 @@ use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Helpers\Media;
@@ -127,6 +129,9 @@ test('add platform to customer', function () {
     expect($customer->platforms->first())->toBeInstanceOf(Platform::class)
         ->and($customer->platform())->toBeInstanceOf(Platform::class)
         ->and($customer->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
+
+
+    return $customer;
 });
 
 
@@ -141,14 +146,38 @@ test('add platform to portfolio', function (DropshippingCustomerPortfolio $portf
         ]
     );
 
-    expect($portfolio->platforms()->first())->toBeInstanceOf(Platform::class)
-        ->and($portfolio->platforms()->first()->pivot->reference)->toBe('test_shopify_reference_for_product')
+
+    $platformWithModelHasPlatformsPivotData = $portfolio->platforms()->first();
+
+    expect($platformWithModelHasPlatformsPivotData)->toBeInstanceOf(Platform::class)
+        ->and($platformWithModelHasPlatformsPivotData->pivot->reference)->toBe('test_shopify_reference_for_product')
         ->and($portfolio->platform())->toBeInstanceOf(Platform::class)
         ->and($portfolio->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
 
 
 
 })->depends('add product to customer portfolio');
+
+
+test('change customer platform from shopify to tiktok', function (Customer $customer) {
+
+    expect($customer->platforms->count())->toBe(1)
+        ->and($customer->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
+    $customer= UpdateCustomerPlatform::make()->action(
+        $customer,
+        Platform::where('type', PlatformTypeEnum::TIKTOK->value)->first(),
+        [
+            'reference' => 'test_update_platform_to_tiktok'
+        ]
+    );
+
+    expect($customer->platforms()->first())->toBeInstanceOf(Platform::class)
+        ->and($customer->platform()->type)->toBe(PlatformTypeEnum::TIKTOK);
+
+
+
+})->depends('add platform to customer');
+
 
 test('add image to product', function () {
 

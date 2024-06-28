@@ -8,6 +8,7 @@
 namespace App\Enums\SupplyChain\Stock;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
 
 enum StockStateEnum: string
@@ -62,7 +63,7 @@ enum StockStateEnum: string
         ];
     }
 
-    public static function count(Group $parent): array
+    public static function count(Group|StockFamily $parent): array
     {
         $stats = $parent->inventoryStats;
 

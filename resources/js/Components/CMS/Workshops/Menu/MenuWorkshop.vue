@@ -39,7 +39,7 @@ const deleteNavigation = (index) => {
     <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
-        <Button type="create" label="Add Navigation" size="xs" @click="addNavigation"></Button>
+        <Button type="create" label="Add Navigation" size="xs" v-if="Navigation.length < 8" @click="addNavigation"></Button>
       </div>
       <draggable :list="Navigation" ghost-class="ghost" group="column" itemKey="id" class="mt-2 space-y-1">
         <template #item="{ element, index }">

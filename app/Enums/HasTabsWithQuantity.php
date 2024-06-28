@@ -7,14 +7,15 @@
 
 namespace App\Enums;
 
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 
 trait HasTabsWithQuantity
 {
-    public static function navigation(PalletReturn $palletReturn): array
+    public static function navigation(PalletReturn|PalletDelivery $parent): array
     {
-        return collect(self::cases())->mapWithKeys(function ($case) use ($palletReturn) {
-            return  [$case->value=>$case->blueprint($palletReturn)];
+        return collect(self::cases())->mapWithKeys(function ($case) use ($parent) {
+            return  [$case->value=>$case->blueprint($parent)];
         })->all();
     }
 }
