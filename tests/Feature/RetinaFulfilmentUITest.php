@@ -36,7 +36,6 @@ beforeEach(function () {
     if($this->website->state != WebsiteStateEnum::LIVE) {
         LaunchWebsite::make()->action($this->website);
     }
-
     $this->customer = createCustomer($this->fulfilment->shop);
 
     $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
