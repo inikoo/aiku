@@ -5,20 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RentalAgreement;
 use Inertia\Testing\AssertableInertia;
 
@@ -64,6 +62,19 @@ beforeEach(function () {
     }
 
     $this->palletDelivery = $palletDelivery;
+
+    $palletReturn = PalletReturn::first();
+    if (!$palletReturn) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);
+
+        $palletReturn = StorePalletReturn::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->palletReturn = $palletReturn;
 
     $this->webUser  = createWebUser($this->customer);
 
@@ -214,5 +225,25 @@ test('index pallet returns', function () {
             ->has('breadcrumbs', 2)
             ->has('pageHead')
             ->has('data');
+    });
+});
+
+test('show pallet return (pallet tab)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.storage.pallet-returns.show', [$this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
