@@ -152,3 +152,23 @@ test('show pallet delivery (pallet tab)', function () {
 
     });
 });
+
+test('show pallet delivery (services tab)', function () {
+    $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get('/app/storage/pallet-deliveries/'.$this->palletDelivery->slug.'?tab=services');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
