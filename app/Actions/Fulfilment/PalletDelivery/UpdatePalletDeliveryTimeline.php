@@ -84,5 +84,5 @@ class UpdatePalletDeliveryTimeline extends OrgAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
-    
+
 }
