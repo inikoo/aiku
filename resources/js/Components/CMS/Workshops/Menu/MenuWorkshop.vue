@@ -41,7 +41,7 @@ const deleteNavigation = (index) => {
         <div class="font-bold text-sm">Navigations:</div>
         <Button type="create" label="Add Navigation" size="xs" v-if="Navigation.length < 8" @click="addNavigation"></Button>
       </div>
-      <draggable :list="Navigation" ghost-class="ghost" group="column" itemKey="id" class="mt-2 space-y-1">
+      <draggable :list="Navigation" ghost-class="ghost" group="column" itemKey="id" class="mt-2 space-y-1"  :animation="200">
         <template #item="{ element, index }">
           <div @click="selectedNav = index"
             :class="[selectedNav ==  index  ? 'ring-indigo-500' : 'ring-gray-200', 'flex-auto rounded-md p-3 ring-1 ring-inset  bg-white cursor-grab']">

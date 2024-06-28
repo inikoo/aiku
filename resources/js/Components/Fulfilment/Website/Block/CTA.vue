@@ -33,7 +33,7 @@ const openGallery = ref(false)
 
 const setImage = (e) => {
     openGallery.value = false
-    emits('update:modelValue', { ...props.modelValue, image : e.data[0] });
+    emits('update:modelValue', { ...props.modelValue, image : e });
     emits('autoSave')
 }
 
