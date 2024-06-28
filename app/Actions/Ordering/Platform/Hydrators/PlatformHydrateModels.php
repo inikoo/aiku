@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Platforming\Platform\Hydrators;
+namespace App\Actions\Ordering\Platform\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 
