@@ -8,14 +8,15 @@
 DB_PORT=5432
 DB_COLLATE=C.UTF-8
 PHP=php
+DB_SUFFIX=_base
 
 DB_PORT="${1:-$DB_PORT}"
 DB_COLLATE="${2:-$DB_COLLATE}"
 PHP="${3:-$PHP}"
+DB_SUFFIX="${4:-$DB_SUFFIX}"
 
 DB=aiku
 BACKUP_DB=aiku_elasticserch_backup
-DB_SUFFIX=_base
 
 echo -e "🧼 Cleaning storage"
 rm -rf storage/app/media
@@ -69,14 +70,14 @@ ${PHP} artisan org:attach-agent aroma indo
 
 pg_dump -Fc -f "devops/devel/snapshots/installed.dump" ${DB}
 
-./aurora_procurement_migration.sh
+./aurora_procurement_migration.sh "${PHP}" "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/procurement.dump" ${DB}
 
-./aurora_warehouse_migration.sh
+./aurora_warehouse_migration.sh "${PHP}" "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 
-./aurora_inventory_migration.sh
+./aurora_inventory_migration.sh "${PHP}" "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/inventory.dump" ${DB}
 
-./aurora_catalogue_migration.sh
+./aurora_catalogue_migration.sh "${PHP}" "${DB_SUFFIX}"
 pg_dump -Fc -f "devops/devel/snapshots/catalogue.dump" ${DB}

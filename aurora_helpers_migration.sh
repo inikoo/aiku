@@ -5,7 +5,7 @@
 #
 
 PHP=php
-DB_SUFFIX=
+DB_SUFFIX=_base
 
 PHP="${1:-$PHP}"
 DB_SUFFIX="${2:-$DB_SUFFIX}"
