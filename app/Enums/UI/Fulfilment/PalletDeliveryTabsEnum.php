@@ -9,11 +9,13 @@ namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
+use App\Enums\HasTabsWithQuantity;
+use App\Models\Fulfilment\PalletDelivery;
 
 enum PalletDeliveryTabsEnum: string
 {
     use EnumHelperTrait;
-    use HasTabs;
+    use HasTabsWithQuantity;
 
     case PALLETS        = 'pallets';
     case SERVICES       = 'services';
@@ -22,8 +24,9 @@ enum PalletDeliveryTabsEnum: string
 
     case HISTORY = 'history';
 
-    public function blueprint(): array
+    public function blueprint(PalletDelivery $parent): array
     {
+        $stats = $parent->stats;
         return match ($this) {
             PalletDeliveryTabsEnum::HISTORY => [
                 'title' => __('history'),
@@ -32,15 +35,15 @@ enum PalletDeliveryTabsEnum: string
                 'align' => 'right',
             ],
             PalletDeliveryTabsEnum::PALLETS => [
-                'title' => __('pallets'),
+                'title' => __("pallets ($stats->number_pallets)"),
                 'icon'  => 'fal fa-pallet',
             ],
             PalletDeliveryTabsEnum::SERVICES => [
-                'title' => __('services'),
+                'title' => __("services ($stats->number_services)"),
                 'icon'  => 'fal fa-concierge-bell',
             ],
             PalletDeliveryTabsEnum::PHYSICAL_GOODS => [
-                'title' => __('physical goods'),
+                'title' => __("physical goods ($stats->number_physical_goods)"),
                 'icon'  => 'fal fa-cube',
             ],
         };
