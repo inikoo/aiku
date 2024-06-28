@@ -93,7 +93,7 @@ class IndexPallets extends RetinaAction
         }
 
 
-        return $query->defaultSort('reference')
+        return $query->defaultSort('id')
             ->allowedSorts(['customer_reference', 'reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
