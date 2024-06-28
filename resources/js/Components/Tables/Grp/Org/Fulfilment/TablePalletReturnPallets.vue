@@ -136,7 +136,7 @@ const isUndoLoading = ref(false)
 
         <!-- Column: Location -->
 		<template #cell(location)="{ item: palletDelivery }">
-            {{ palletDelivery.location_slug }}
+            <Tag :label="palletDelivery.location_code" />
 		</template>
 
         <!-- Column: Actions -->

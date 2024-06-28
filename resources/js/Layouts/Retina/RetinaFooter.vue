@@ -28,10 +28,6 @@ library.add(faHeart, faComputerClassic, faDiscord)
 
 <template>
     <footer class="z-20 fixed w-screen bottom-0 left-0  text-white bg-black">
-        <!-- Helper: Product background (close popup purpose) -->
-        <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
-            :class="[isTabActive ? '' : 'hidden']" />
-
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
@@ -55,9 +51,9 @@ library.add(faHeart, faComputerClassic, faDiscord)
             </div> -->
 
             <!-- Right: Tab Section -->
-            <div class="flex items-end flex-row-reverse text-sm">
-                <RetinaFooterActiveUsers v-if="layout.liveUsers.enabled" :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
+            <div class="flex items-end text-sm">
                 <FooterLanguage :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
+                <RetinaFooterActiveUsers v-if="layout.liveUsers.enabled" :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
             </div>
         </div>
     </footer>
