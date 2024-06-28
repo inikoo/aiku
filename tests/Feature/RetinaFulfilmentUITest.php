@@ -69,3 +69,16 @@ test('show profile', function () {
         );
     });
 });
+
+test('index pallets', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.storage.pallets.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPallets')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has('pageHead')
+            ->has('data');
+    });
+});
