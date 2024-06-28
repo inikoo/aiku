@@ -14,6 +14,7 @@ use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -43,6 +44,7 @@ beforeEach(function () {
     $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
     if (!$rentalAgreement) {
         data_set($storeData, 'billing_cycle', RentalAgreementBillingCycleEnum::MONTHLY);
+        data_set($storeData, 'state', RentalAgreementStateEnum::ACTIVE);
         $rentalAgreement = StoreRentalAgreement::make()->action(
             $this->customer->fulfilmentCustomer,
             $storeData
@@ -131,7 +133,7 @@ test('index pallet deliveries', function () {
             ->has('pageHead')
             ->has('data');
     });
-})->todo(); //authorization problem
+}); //authorization problem
 
 test('show pallet delivery (pallet tab)', function () {
     // $this->withoutExceptionHandling();
