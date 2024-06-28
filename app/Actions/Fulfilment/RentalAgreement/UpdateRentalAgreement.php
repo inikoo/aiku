@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\Fulfilment\RentalAgreementClause\RemoveRentalAgreementClause;
@@ -17,8 +18,10 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
+use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\Rule;
@@ -30,9 +33,18 @@ class UpdateRentalAgreement extends OrgAction
     use WithActionUpdate;
 
     private FulfilmentCustomer $parent;
+    private WebUser $webUser;
 
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
+        /** @var WebUser $webUser */
+        $webUser = $rentalAgreement
+            ->fulfilmentCustomer
+            ->customer
+            ->webUsers()
+            ->where('username', Arr::get($modelData, ''))->first();
+        $this->webUser = $webUser;
+
         $oldData = [
             'billing_cycle' => $rentalAgreement->billing_cycle,
             'pallets_limit' => $rentalAgreement->pallets_limit,
@@ -123,8 +135,9 @@ class UpdateRentalAgreement extends OrgAction
                 ]
             );
         }
-        FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
 
+        UpdateWebUser::make()->action($this->webUser, Arr::only($modelData, ['username', 'email']));
+        FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
 
         return $rentalAgreement;
     }
@@ -153,6 +166,34 @@ class UpdateRentalAgreement extends OrgAction
 
             ],
             'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0'],
+            'username'                                => [
+                'sometimes',
+                'required',
+                'string',
+                'max:255',
+                new IUnique(
+                    table: 'web_users',
+                    extraConditions: [
+                        ['column' => 'website_id', 'value' => $this->shop->website->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                        ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+                    ]
+                ),
+            ],
+            'email'      => [
+                'sometimes',
+                'nullable',
+                'max:255',
+                new IUnique(
+                    table: 'web_users',
+                    extraConditions: [
+                        ['column' => 'website_id', 'value' => $this->shop->website->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                        ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+                    ]
+                ),
+
+            ],
         ];
     }
 
