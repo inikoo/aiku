@@ -108,8 +108,8 @@ const sendToServer = async (data) => {
                             </div>
                         </template>
                     </Tag>
-
                 </div>
+
                 <Button v-if="state == 'in-process'" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
             </div>
         </div>

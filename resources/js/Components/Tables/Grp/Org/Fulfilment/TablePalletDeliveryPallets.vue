@@ -174,8 +174,11 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item: item }">
-			<StoredItemProperty :pallet="item" @renderTable="() => emits('renderTableKey')"
+			<StoredItemProperty v-if="item.stored_items?.length" :pallet="item" @renderTable="() => emits('renderTableKey')"
 				:storedItemsRoute="storedItemsRoute" :state="props.state" />
+            <div v-else class="italic text-gray-400 whitespace-nowrap">
+                No stored items
+            </div>
 		</template>
 
 
@@ -204,17 +207,18 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: Rental -->
 		<template #cell(rental)="{ item: pallet }">  
 			<div v-if="props.state == 'booked-in'">{{ pallet.rental_name }}</div>
-			<FieldEditableTable 
-				v-else
-                :options="props.rentalList"
-				:data="pallet"
-				@onSave="onSavedRental" 
-				fieldType="select"
-				fieldName="rental_id"
-				placeholder="Enter rental" 
-				label="name"
-				value-prop="id"
-			 />
+			<div v-else class="w-64">
+                <FieldEditableTable
+                    :options="props.rentalList"
+                    :data="pallet"
+                    @onSave="onSavedRental"
+                    fieldType="select"
+                    fieldName="rental_id"
+                    placeholder="Enter rental"
+                    label="name"
+                    value-prop="id"
+                 />
+            </div>
 		</template>
 
 
