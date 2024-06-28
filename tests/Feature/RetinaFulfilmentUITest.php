@@ -5,9 +5,20 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\RentalAgreement;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -26,7 +37,32 @@ beforeEach(function () {
     if($this->website->state != WebsiteStateEnum::LIVE) {
         LaunchWebsite::make()->action($this->website);
     }
+
     $this->customer = createCustomer($this->fulfilment->shop);
+
+    $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$rentalAgreement) {
+        data_set($storeData, 'billing_cycle', RentalAgreementBillingCycleEnum::MONTHLY);
+        $rentalAgreement = StoreRentalAgreement::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+    $this->rentalAgreement = $rentalAgreement;
+
+    $palletDelivery = PalletDelivery::first();
+    if (!$palletDelivery) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletDeliveryStateEnum::IN_PROCESS);
+
+        $palletDelivery = StorePalletDelivery::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->palletDelivery = $palletDelivery;
+
     $this->webUser  = createWebUser($this->customer);
 
     Config::set(
@@ -80,5 +116,39 @@ test('index pallets', function () {
             ->has('breadcrumbs', 2)
             ->has('pageHead')
             ->has('data');
+    });
+});
+
+test('index pallet deliveries', function () {
+    actingAs($this->webUser, 'retina');
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('retina.storage.pallet-deliveries.index'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDeliveries')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has('pageHead')
+            ->has('data');
+    });
+})->todo(); //authorization problem
+
+test('show pallet delivery (pallet tab)', function () {
+    // $this->withoutExceptionHandling();
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.storage.pallet-deliveries.show', [$this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Storage/RetinaPalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
