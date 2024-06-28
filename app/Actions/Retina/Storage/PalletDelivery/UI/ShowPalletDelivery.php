@@ -186,7 +186,7 @@ class ShowPalletDelivery extends RetinaAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletDeliveryTabsEnum::navigation()
+                    'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
                 'data' => PalletDeliveryResource::make($palletDelivery),
