@@ -312,33 +312,17 @@ class ShowPalletDelivery extends RetinaAction
         }
 
 
-        return match (class_basename($this->parent)) {
-            'Warehouse' => [
-                'label' => $palletDelivery->slug,
+        return match ($routeName) {
+            'retina.storage.pallet-deliveries.show' => [
+                'label' => $palletDelivery->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'   => $palletDelivery->organisation->slug,
-                        'warehouse'      => $palletDelivery->warehouse->slug,
                         'palletDelivery' => $palletDelivery->slug
                     ]
 
                 ]
-            ],
-            'FulfilmentCustomer' => [
-                'label' => $palletDelivery->slug,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation'       => $palletDelivery->organisation->slug,
-                        'fulfilment'         => $palletDelivery->fulfilment->slug,
-                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'     => $palletDelivery->slug
-                    ]
-
-                ]
-            ],
-            default => []
+            ]
         };
     }
 }
