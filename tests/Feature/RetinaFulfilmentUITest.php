@@ -56,3 +56,16 @@ test('show dashboard', function () {
         $page->component('Dashboard/Dashboard');
     });
 });
+
+test('show profile', function () {
+    actingAs($this->webUser, 'retina');
+    $response = $this->get(route('retina.profile.show'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('EditModel')
+        ->has(
+            'formData.args.updateRoute',
+            fn (AssertableInertia $page) => $page
+                    ->where('name', 'retina.models.profile.update')
+        );
+    });
+});
