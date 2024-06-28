@@ -393,7 +393,7 @@ class ShowPalletDelivery extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletDeliveryTabsEnum::navigation()
+                    'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
                 'pallet_limits' => $palletLimits == null ? null : ($palletLimitLeft <= 2 ? [
