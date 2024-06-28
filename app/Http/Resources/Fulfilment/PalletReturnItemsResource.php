@@ -102,21 +102,21 @@ class PalletReturnItemsResource extends JsonResource
             'deleteFromDeliveryRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-delivery.pallet.delete',
-                    'parameters' => [$this->pallet_delivery_id, $this->pallet_id]
+                    'parameters' => [$this->pallet_delivery_id, $this->id]
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_delivery_id, $this->pallet_id]
+                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_delivery_id, $this->id]
                 ]
             },
             'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return.pallet.delete',
-                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
+                    'parameters' => [$this->pallet_return_id, $this->id]
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->pallet_id]
+                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->id]
                 ]
             },
             'notReceivedRoute' => [
