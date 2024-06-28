@@ -8,9 +8,12 @@
 namespace App\Models\Ordering;
 
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
+use App\Models\Catalogue\Product;
+use App\Models\CRM\Customer;
 use App\Models\PlatformStats;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -52,5 +55,23 @@ class Platform extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(PlatformStats::class);
+    }
+
+    public function customers(): MorphToMany
+    {
+        return $this->morphToMany(Customer::class, 'model', 'model_has_platforms')
+            ->withTimestamps();
+    }
+
+    public function products(): MorphToMany
+    {
+        return $this->morphToMany(Product::class, 'model', 'model_has_platforms')
+            ->withTimestamps();
+    }
+
+    public function orders(): MorphToMany
+    {
+        return $this->morphToMany(Order::class, 'model', 'model_has_platforms')
+            ->withTimestamps();
     }
 }
