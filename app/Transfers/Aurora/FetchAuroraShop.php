@@ -21,10 +21,14 @@ class FetchAuroraShop extends FetchAurora
     {
         $this->auroraModelData = $this->fetchData($id);
 
+        if (!$this->auroraModelData) {
+            return null;
+        }
+
         $code     = strtoupper($this->auroraModelData->{'Store Code'});
         $sourceId = $this->organisation->id.':'.$this->auroraModelData->{'Store Key'};
         if (Shop::where('code', $code)->whereNot('source_id', $sourceId)->exists()) {
-            $code = $code.strtolower(Abbreviate::run(string: $this->organisation->slug, maximumLength: 2));
+            $code = $code.strtoupper(Abbreviate::run(string: $this->organisation->slug, maximumLength: 2));
         }
         $this->auroraModelData->code = $code;
         $this->parseModel();

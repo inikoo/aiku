@@ -93,7 +93,7 @@ class IndexPallets extends RetinaAction
         }
 
 
-        return $query->defaultSort('reference')
+        return $query->defaultSort('id')
             ->allowedSorts(['customer_reference', 'reference'])
             ->allowedFilters([$globalSearch, 'customer_reference'])
             ->withPaginator($prefix)
@@ -140,7 +140,7 @@ class IndexPallets extends RetinaAction
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
             }
 
-            if($parent->state != PalletDeliveryStateEnum::IN_PROCESS) {
+            if ($parent->state != PalletDeliveryStateEnum::IN_PROCESS && $parent->state != PalletDeliveryStateEnum::SUBMITTED) {
                 $table->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true);
             }
 
