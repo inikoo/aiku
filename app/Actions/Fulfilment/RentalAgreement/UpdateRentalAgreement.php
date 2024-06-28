@@ -37,14 +37,6 @@ class UpdateRentalAgreement extends OrgAction
 
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
-        /** @var WebUser $webUser */
-        $webUser = $rentalAgreement
-            ->fulfilmentCustomer
-            ->customer
-            ->webUsers()
-            ->where('username', Arr::get($modelData, ''))->first();
-        $this->webUser = $webUser;
-
         $oldData = [
             'billing_cycle' => $rentalAgreement->billing_cycle,
             'pallets_limit' => $rentalAgreement->pallets_limit,
@@ -212,6 +204,14 @@ class UpdateRentalAgreement extends OrgAction
 
     public function action(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
+        /** @var WebUser $webUser */
+        $webUser = $rentalAgreement
+            ->fulfilmentCustomer
+            ->customer
+            ->webUsers()
+            ->first();
+        $this->webUser = $webUser;
+
         $this->asAction = true;
         $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $modelData);
 
@@ -220,6 +220,14 @@ class UpdateRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, ActionRequest $request): RentalAgreement
     {
+        /** @var WebUser $webUser */
+        $webUser = $rentalAgreement
+            ->fulfilmentCustomer
+            ->customer
+            ->webUsers()
+            ->first();
+        $this->webUser = $webUser;
+
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
 
