@@ -293,6 +293,8 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
         [
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
+            'username'      => 'test',
+            'email'         => 'test@testmail.com',
             'clauses'       => [
                 'rentals' => [
                     [
