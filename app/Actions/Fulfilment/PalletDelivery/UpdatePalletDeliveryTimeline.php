@@ -76,4 +76,13 @@ class UpdatePalletDeliveryTimeline extends OrgAction
 
         return $this->handle($palletDelivery, $this->validatedData);
     }
+
+    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+
+        return $this->handle($palletDelivery, $this->validatedData);
+    }
+
+    
 }
