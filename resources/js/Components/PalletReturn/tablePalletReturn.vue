@@ -135,7 +135,7 @@ defineExpose({
 		</div>
 	</div>
     
-	<div class="h-96 overflow-auto ring-1 ring-black/5 sm:rounded-lg py-2 align-middle shadow">
+	<div class="h-96 overflow-auto ring-1 ring-black/5 sm:rounded-lg align-middle shadow">
         <table class="min-w-full border-separate border-spacing-0">
             <thead class="bg-gray-50">
                 <tr>

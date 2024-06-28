@@ -29,6 +29,19 @@ class CreateRentalAgreement extends OrgAction
      */
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
+        $createWebUserFields = !$fulfilmentCustomer->customer->webUsers()->exists() ? [
+            'email' => [
+                'type'        => 'input',
+                'label'       => __('email'),
+                'required'    => true
+            ],
+            'username' => [
+                'type'        => 'input',
+                'label'       => __('username'),
+                'required'    => true
+            ],
+        ] : [];
+
         return Inertia::render(
             'CreateModel',
             [
@@ -62,6 +75,7 @@ class CreateRentalAgreement extends OrgAction
                                         'placeholder' => '0',
                                         'required'    => false
                                     ],
+                                    ...$createWebUserFields,
                                     'clauses' => [
                                         'type'             => 'rental',
                                         'label'            => __(''),

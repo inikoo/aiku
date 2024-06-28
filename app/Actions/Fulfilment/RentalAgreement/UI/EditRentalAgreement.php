@@ -13,6 +13,7 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Http\Resources\Catalogue\OutersResource;
 use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Catalogue\ServicesResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
@@ -43,7 +44,22 @@ class EditRentalAgreement extends OrgAction
         }
 
 
-
+        /** @var WebUser $webUser */
+        $webUser             = $rentalAgreement->fulfilmentCustomer->customer->webUsers()->first();
+        $createWebUserFields = [
+            'email' => [
+                'type'        => 'input',
+                'label'       => __('email'),
+                'required'    => true,
+                'value'       => $webUser->email
+            ],
+            'username' => [
+                'type'        => 'input',
+                'label'       => __('username'),
+                'required'    => true,
+                'value'       => $webUser->username
+            ],
+        ];
 
 
         return Inertia::render(
@@ -77,6 +93,7 @@ class EditRentalAgreement extends OrgAction
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
+                                    ...$createWebUserFields,
                                     'clauses'       => [
                                         'type'           => 'rental',
                                         'label'          => __('Clauses'),

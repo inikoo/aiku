@@ -62,7 +62,8 @@ class ShowPalletDelivery extends RetinaAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletDelivery->reference
                     ],
-                    'edit' => $this->canEdit ? [
+                    'model'     => __('Pallet Delivery'),
+                    'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
@@ -134,12 +135,9 @@ class ShowPalletDelivery extends RetinaAction
 
                 'updateRoute' => [
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.timeline.update',
+                        'name'       => 'retina.models.pallet-delivery.update',
                         'parameters' => [
-                            'organisation'       => $palletDelivery->organisation->slug,
-                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletDelivery->slug
+                            'palletDelivery'     => $palletDelivery->id
                         ]
                     ]
                 ],
@@ -186,7 +184,7 @@ class ShowPalletDelivery extends RetinaAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletDeliveryTabsEnum::navigation()
+                    'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
                 'data' => PalletDeliveryResource::make($palletDelivery),
@@ -314,33 +312,17 @@ class ShowPalletDelivery extends RetinaAction
         }
 
 
-        return match (class_basename($this->parent)) {
-            'Warehouse' => [
-                'label' => $palletDelivery->slug,
+        return match ($routeName) {
+            'retina.storage.pallet-deliveries.show' => [
+                'label' => $palletDelivery->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'   => $palletDelivery->organisation->slug,
-                        'warehouse'      => $palletDelivery->warehouse->slug,
                         'palletDelivery' => $palletDelivery->slug
                     ]
 
                 ]
-            ],
-            'FulfilmentCustomer' => [
-                'label' => $palletDelivery->slug,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation'       => $palletDelivery->organisation->slug,
-                        'fulfilment'         => $palletDelivery->fulfilment->slug,
-                        'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'     => $palletDelivery->slug
-                    ]
-
-                ]
-            ],
-            default => []
+            ]
         };
     }
 }

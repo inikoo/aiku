@@ -8,12 +8,13 @@
 namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
-use App\Enums\HasTabs;
+use App\Enums\HasTabsWithQuantity;
+use App\Models\Fulfilment\PalletDelivery;
 
 enum PalletDeliveryTabsEnum: string
 {
     use EnumHelperTrait;
-    use HasTabs;
+    use HasTabsWithQuantity;
 
     case PALLETS        = 'pallets';
     case SERVICES       = 'services';
@@ -22,25 +23,26 @@ enum PalletDeliveryTabsEnum: string
 
     case HISTORY = 'history';
 
-    public function blueprint(): array
+    public function blueprint(PalletDelivery $parent): array
     {
         return match ($this) {
             PalletDeliveryTabsEnum::HISTORY => [
-                'title' => __('history'),
+                'title' => __('history '),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
             PalletDeliveryTabsEnum::PALLETS => [
-                'title' => __('pallets'),
-                'icon'  => 'fal fa-pallet',
+                'title'     => __("pallets ($parent->number_pallets)"),
+                'icon'      => 'fal fa-pallet',
+                'indicator' => $parent->pallets()->whereNotNull('location_id')->count() < $parent->pallets()->count()
             ],
             PalletDeliveryTabsEnum::SERVICES => [
-                'title' => __('services'),
+                'title' => __("services ({$parent->stats->number_services}"),
                 'icon'  => 'fal fa-concierge-bell',
             ],
             PalletDeliveryTabsEnum::PHYSICAL_GOODS => [
-                'title' => __('physical goods'),
+                'title' => __("physical goods ({$parent->stats->number_physical_goods}"),
                 'icon'  => 'fal fa-cube',
             ],
         };

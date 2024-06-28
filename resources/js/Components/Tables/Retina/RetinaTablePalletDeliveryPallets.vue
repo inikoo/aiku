@@ -17,11 +17,13 @@ import { faTrashAlt, faPaperPlane, faInventory } from "@far"
 import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import ButtonEditTable from "@/Components/ButtonEditTable.vue"
-import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
+// import ButtonEditTable from "@/Components/ButtonEditTable.vue"
+// import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import { routeType } from "@/types/route"
 import { Table as TSTable } from '@/types/Table'
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
+import { inject, ref } from "vue"
+import TagPallet from "@/Components/TagPallet.vue"
 
 library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
 const props = defineProps<{
@@ -35,7 +37,9 @@ const props = defineProps<{
 	}
 }>()
 
-console.log('RetinaPalletDelivery', props)
+const layout = inject('layout', {})
+const isActionLoading = ref<string | boolean>(false)
+
 const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
@@ -97,7 +101,11 @@ const typePallet = [
 
         <!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item }">
-            <FieldEditableTable v-if="state == 'in-process'" :data="item" @onSave="onSaveField" fieldName="customer_reference" placeholder="Enter customer reference" />
+            <FieldEditableTable v-if="state == 'in-process'"
+                :data="item"
+                @onSave="onSaveField"
+                fieldName="customer_reference"
+                placeholder="Enter code 1-64 characters" />
 			<div v-else>{{ item.customer_reference }}</div>
 		</template>
 
@@ -126,11 +134,13 @@ const typePallet = [
 					:href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
 					method="delete"
 					as="div"
+                    :onStart="() => isActionLoading = 'delete' + pallet.id"
 					:onSuccess="() => emits('renderTableKey')"
+                    :onFinish="() => isActionLoading = false"
                     v-tooltip="'Delete this pallet'"
                     class="w-fit"
                 >
-                    <Button icon="far fa-trash-alt" type="negative" />
+                    <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + pallet.id" type="negative" />
 				</Link>
 			</div>
 <!--
@@ -169,14 +179,24 @@ const typePallet = [
 			</div>-->
 		</template>
 
+        <!-- Column: Type -->
 		<template #cell(type)="{ item: pallet }">
-            <div>
-				<FieldEditableTable :data="pallet"  @onSave="onSaveField" :options="typePallet" :fieldType="'select'" fieldName="type" placeholder="Enter customer type" />
+            <div class="w-40">
+				<FieldEditableTable :data="pallet"
+                    @onSave="onSaveField"
+                    :options="typePallet"
+                    :fieldType="'select'"
+                    fieldName="type"
+                    placeholder="Enter customer type"
+                    valueProp="value"
+                />
 			</div>
 		</template>
 
+        <!-- Column: Icon -->
 		<template #cell(type_icon)="{ item: pallet }">
-			<Icon :data="pallet.type_icon" class="px-1" />
+            <TagPallet v-if="layout.app.name === 'retina'" :stateIcon="pallet.type_icon" />
+			<Icon v-else :data="pallet.type_icon" class="px-1" />
 		</template>
 	</Table>
 </template>

@@ -28,8 +28,8 @@ import { notify } from '@kyvg/vue3-notification'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay } from '@fal'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay)
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox } from '@fal'
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox)
 
 const props = defineProps<{
     title: string
@@ -58,7 +58,7 @@ const layout = inject('layout', {})
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-const loading = ref(false)
+const isLoading = ref<string | boolean>(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
@@ -67,7 +67,7 @@ const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 
 // Method: Add single pallet
 const onAddPallet = (data: {}, closedPopover: Function) => {
-    loading.value = true
+    isLoading.value = 'addSinglePallet'
     formAddPallet.post(route(
         data.route.name,
         data.route.parameters
@@ -76,10 +76,10 @@ const onAddPallet = (data: {}, closedPopover: Function) => {
         onSuccess: () => {
             closedPopover()
             formAddPallet.reset('notes', 'customer_reference','type')
-            loading.value = false
+            isLoading.value = false
         },
         onError: (errors) => {
-            loading.value = false
+            isLoading.value = false
             console.error('Error during form submission:', errors)
         },
     })
@@ -105,7 +105,7 @@ const onChangeEstimateDate = async () => {
 
 // Method: Add multiple pallet
 const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
-    loading.value = true
+    isLoading.value = 'addMultiplePallet'
     formMultiplePallet.post(route(
         data.route.name,
         data.route.parameters
@@ -114,18 +114,18 @@ const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
         onSuccess: () => {
             closedPopover()
             formMultiplePallet.reset('number_pallets','type')
-            loading.value = false
+            isLoading.value = false
         },
         onError: (errors) => {
-            loading.value = false
+            isLoading.value = false
             console.error('Error during form submission:', errors)
         },
     })
 }
 
 // Method: Submit pallet
-const onSubmitPallet = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
-    loading.value = true
+const onSubmitPallet = async (action: routeType) => {
+    isLoading.value = 'submitPallet'
     router.post(route(action.name, action.parameters), {}, {
         onError: (e) => {
             console.warn('Error on Submit', e)
@@ -136,7 +136,7 @@ const onSubmitPallet = async (action: { method: any, name: string, parameters: {
         },
         onFinish: (e) => {
             // console.log('11111', e)
-            loading.value = false
+            isLoading.value = false
         }
     })
 }
@@ -236,7 +236,7 @@ const typePallet = [
                             </p>
                         </div>
                         <div class="flex justify-end mt-3">
-                            <Button :style="'save'" :loading="loading" :label="'save'"
+                            <Button :style="'save'" :loading="isLoading === 'addMultiplePallet'" label="save"
                                 @click="() => onAddMultiplePallet(action, closed)" />
                         </div>
                     </div>
@@ -289,8 +289,12 @@ const typePallet = [
                             </div>
 
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'"
-                                    @click="() => onAddPallet(action, closed)" />
+                                <Button
+                                    :style="'save'"
+                                    :loading="isLoading === 'addSinglePallet'"
+                                    :label="'save'"
+                                    @click="() => onAddPallet(action, closed)"
+                                />
                             </div>
                         </div>
                     </template>
@@ -301,7 +305,7 @@ const typePallet = [
         <!-- Button: Submit -->
         <template #button-submit="{ action: action }">
             <Button @click="onSubmitPallet(action.action.route)" :style="action.action.style"
-                :label="action.action.label" :loading="loading" />
+                :label="action.action.label" :loading="isLoading === 'submitPallet'" />
         </template>
     </PageHeading>
 

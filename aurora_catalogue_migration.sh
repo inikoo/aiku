@@ -5,7 +5,7 @@
 #
 
 PHP=php
-DB_SUFFIX=
+DB_SUFFIX=_base
 
 PHP="${1:-$PHP}"
 DB_SUFFIX="${2:-$DB_SUFFIX}"
@@ -13,7 +13,9 @@ DB_SUFFIX="${2:-$DB_SUFFIX}"
 echo -e "🧼 Migrating catalogue models"
 
 ${PHP} artisan fetch:shops -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/cat-shops.dump" ${DB}
 ${PHP} artisan fetch:websites -d "${DB_SUFFIX}"
+pg_dump -Fc -f "devops/devel/snapshots/cat-websites.dump" ${DB}
 ${PHP} artisan fetch:webpages -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:departments -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:families -d "${DB_SUFFIX}"
