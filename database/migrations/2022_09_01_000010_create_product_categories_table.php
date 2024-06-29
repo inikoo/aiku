@@ -21,15 +21,15 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('product_categories', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->string('type')->index();
             $table->string('state')->index()->default(ProductCategoryStateEnum::IN_PROCESS->value);
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedSmallInteger('department_id')->nullable()->index();
-            $table->unsignedSmallInteger('sub_department_id')->nullable()->index();
-            $table->unsignedSmallInteger('parent_id')->nullable()->index();
+            $table->unsignedInteger('department_id')->nullable()->index();
+            $table->unsignedInteger('sub_department_id')->nullable()->index();
+            $table->unsignedInteger('parent_id')->nullable()->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();

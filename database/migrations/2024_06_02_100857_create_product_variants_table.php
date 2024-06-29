@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->boolean('is_main')->default(false);
             $table->decimal('ratio', 9, 3);
 
-            $table->unsignedSmallInteger('product_id')->nullable();
+            $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
 
             $table->boolean('status')->default(false)->index();
