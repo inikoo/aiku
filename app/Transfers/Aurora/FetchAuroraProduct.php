@@ -75,7 +75,7 @@ class FetchAuroraProduct extends FetchAurora
             $created_at = $this->parseDatetime($this->auroraModelData->{'Product First Sold Date'});
         }
 
-        $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
+        $unit_price                  = $this->auroraModelData->{'Product Price'} / $units;
         $data['original_unit_price'] = $unit_price;
 
         $this->parsedData['historic_asset_source_id'] = $this->auroraModelData->{'Product Current Key'};

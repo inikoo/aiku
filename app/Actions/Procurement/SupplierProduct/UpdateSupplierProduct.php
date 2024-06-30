@@ -12,7 +12,6 @@ use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniv
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\SupplyChain\SupplierProduct;
-use App\Rules\AlphaDashDotSpaceSlashParenthesis;
 use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
