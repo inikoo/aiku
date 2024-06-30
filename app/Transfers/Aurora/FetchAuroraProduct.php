@@ -76,7 +76,7 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
-        $data['raw_price'] = $unit_price;
+        $data['original_unit_price'] = $unit_price;
 
         $this->parsedData['historic_asset_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
