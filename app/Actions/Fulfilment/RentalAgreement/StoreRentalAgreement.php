@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\RentalAgreement;
 
 use App\Actions\CRM\WebUser\StoreWebUser;
-use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementSnapshot\StoreRentalAgreementSnapshot;
@@ -31,6 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreRentalAgreement extends OrgAction
 {
+    private FulfilmentCustomer $fulfilmentCustomer;
+
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
@@ -67,24 +68,24 @@ class StoreRentalAgreement extends OrgAction
             }
         }
 
-        $webUser  = $fulfilmentCustomer->customer->webUsers()->where('username', Arr::get($modelData, 'username'))->first();
-        $password = Str::random(8);
+        $password= null;
+        if(
+            $this->shop->website and
+            $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
+            $password = Str::random(8);
 
-        if(!$webUser) {
             $webUser = StoreWebUser::make()->action($fulfilmentCustomer->customer, [
                 'email'    => Arr::get($modelData, 'email'),
                 'username' => Arr::get($modelData, 'username'),
                 'password' => $password,
                 'is_root'  => true
             ]);
+        } else {
+            $webUser=$this->fulfilmentCustomer->customer->webUsers()->first();
         }
 
-        UpdateWebUser::make()->action($webUser, [
-            'email'    => Arr::get($modelData, 'email'),
-            'username' => Arr::get($modelData, 'username')
-        ]);
+        $webUser?->notify(new SendEmailRentalAgreementCreated($password));
 
-        $webUser->notify(new SendEmailRentalAgreementCreated($password));
         StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot: true);
 
 
@@ -96,7 +97,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'billing_cycle'                           => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                           => ['nullable', 'integer', 'min:1', 'max:10000'],
             'clauses'                                 => ['sometimes', 'array'],
@@ -120,7 +121,15 @@ class StoreRentalAgreement extends OrgAction
             'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0'],
             'state'                                   => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
             'created_at'                              => ['sometimes', 'date'],
-            'username'                                => [
+
+        ];
+
+        if (
+            $this->shop->website and
+            $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
+
+
+            $rules['username']=[
                 'required',
                 'string',
                 'max:255',
@@ -131,8 +140,9 @@ class StoreRentalAgreement extends OrgAction
                         ['column' => 'deleted_at', 'operator'=>'notNull'],
                     ]
                 ),
-            ],
-            'email' => [
+            ];
+            $rules['email']=[
+                'nullable',
                 'email',
                 'max:255',
                 new IUnique(
@@ -142,13 +152,18 @@ class StoreRentalAgreement extends OrgAction
                         ['column' => 'deleted_at', 'operator'=>'notNull'],
                     ]
                 ),
-            ]
-        ];
+            ];
+        }
+
+
+        return $rules;
+
     }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         $this->asAction = true;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -169,6 +184,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);

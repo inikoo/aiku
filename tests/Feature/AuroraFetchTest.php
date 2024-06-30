@@ -148,6 +148,31 @@ test('can fetch 1 invoice from aurora', function () {
     expect($invoice->shop->salesStats->number_invoices)->toBe(1);
 });
 
+test('can fetch fulfilment shop', function () {
+
+    $command = join(
+        ' ',
+        [
+            'fetch:shops','-s 14'
+        ]
+    );
+
+    $this->artisan($command)->assertExitCode(0);
+});
+
+test('can fetch websites', function () {
+
+    $command = join(
+        ' ',
+        [
+            'fetch:websites','-s 21'
+        ]
+    );
+
+    $this->artisan($command)->assertExitCode(0);
+});
+
+
 test('can fetch 1 fulfilment invoice from aurora', function () {
 
     $command = join(

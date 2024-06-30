@@ -42,6 +42,11 @@ beforeEach(function () {
     if (!$rentalAgreement) {
         data_set($storeData, 'billing_cycle', RentalAgreementBillingCycleEnum::MONTHLY);
         data_set($storeData, 'state', RentalAgreementStateEnum::ACTIVE);
+        data_set($storeData, 'username', 'test');
+        data_set($storeData, 'email', 'test@aiku.io');
+
+
+
         $rentalAgreement = StoreRentalAgreement::make()->action(
             $this->customer->fulfilmentCustomer,
             $storeData

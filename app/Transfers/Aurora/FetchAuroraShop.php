@@ -7,6 +7,8 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
+use App\Actions\Transfers\Aurora\FetchAuroraWebUsers;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -104,6 +106,18 @@ class FetchAuroraShop extends FetchAurora
 
 
         if ($type == ShopTypeEnum::FULFILMENT) {
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Warehouse Dimension')
+                    ->select('Warehouse Key as source_id')
+                    ->orderBy('source_id')->get() as $shopData
+            ) {
+
+                FetchAuroraWarehouses::run($this->organisationSource, $shopData->source_id);
+            }
+            $this->organisation->refresh();
+
             /** @var Warehouse $warehouse */
             $warehouse                              =$this->organisation->warehouses()->first();
             $this->parsedData['shop']['warehouses'] = [$warehouse->id];

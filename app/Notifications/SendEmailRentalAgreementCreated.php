@@ -11,7 +11,7 @@ class SendEmailRentalAgreementCreated extends Notification implements ShouldQueu
 {
     use Queueable;
 
-    public string $password;
+    public string|null $password;
 
     /**
      * Create a new notification instance.

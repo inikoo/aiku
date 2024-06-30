@@ -19,6 +19,7 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\CRM\Customer;
 use App\Transfers\Aurora\WithAuroraAttachments;
+use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 class FetchAuroraCustomers extends FetchAuroraAction
 {
     use WithAuroraAttachments;
+    use WithAuroraParsers;
 
     public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
@@ -60,7 +62,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     );
 
 
-
                     if($customerData['shop']->type == ShopTypeEnum::FULFILMENT) {
 
                         $sourceData = explode(':', $customer->source_id);
@@ -73,19 +74,40 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
                         if($palletsCount>0) {
 
+                            foreach (
+                                DB::connection('aurora')
+                                    ->table('Website User Dimension')
+                                    ->where('Website User Customer Key', $sourceData[1])
+                                    ->select('Website User Key as source_id')
+                                    ->orderBy('source_id')->get() as $webUserData
+                            ) {
 
-                            $rentalAgreement=StoreRentalAgreement::make()->action(
+                                FetchAuroraWebUsers::run($organisationSource, $webUserData->source_id);
+                            }
+
+                            $rentalAgreementData=[
+                                'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
+                                'state'         => RentalAgreementStateEnum::ACTIVE,
+                                'created_at'    => $customer->created_at,
+                            ];
+
+                            $customer->fulfilmentCustomer->refresh();
+                            if($customer->fulfilmentCustomer->customer->webUsers()->count()==0) {
+
+
+
+
+                                $rentalAgreementData['username']=$customer->email??$customer->reference;
+                                $rentalAgreementData['email']=$customer->email;
+
+                            }
+
+
+                            StoreRentalAgreement::make()->action(
                                 $customer->fulfilmentCustomer,
-                                [
-                                    'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
-                                    'state'         => RentalAgreementStateEnum::ACTIVE,
-                                    'created_at'    => $customer->created_at,
-                                ]
+                                $rentalAgreementData
                             );
 
-                            $palletsCount= DB::connection('aurora')
-                                ->table('Fulfilment Asset Dimension')
-                                ->where('Fulfilment Asset Customer Key', $sourceData[1])->count();
 
 
 
@@ -98,7 +120,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
-
                     return null;
                 }
             }
