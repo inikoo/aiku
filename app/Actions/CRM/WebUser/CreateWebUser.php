@@ -47,11 +47,11 @@ class CreateWebUser extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => '+ ' . __('web user'),
+                'title'    => __('Create web user'),
                 'pageHead' => [
-                    'title' => __('web user'),
+                    'title' => __('Create web user'),
                     'icon'  => [
-                        'icon'  => ['fal', 'fa-globe'],
+                        'icon'  => 'fal fa-terminal',
                         'title' => __('web user')
                     ],
                     'actions' => [

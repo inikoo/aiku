@@ -180,7 +180,8 @@ class IndexWebUsers extends OrgAction
                 )
                 ->withGlobalSearch()
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
-              // ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'created_at', label: __('Created at'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
         };
     }

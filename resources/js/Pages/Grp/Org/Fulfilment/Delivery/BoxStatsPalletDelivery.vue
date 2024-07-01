@@ -212,7 +212,7 @@ onMounted(() => {
 
         <!-- Box: Barcode -->
         <BoxStatPallet class="border-t sm:border-t-0 border-gray-300">
-            <div class="h-full w-full px-2 flex flex-col items-center -mt-2 isolate">
+            <div class="h-full w-full px-2 flex flex-col items-center isolate">
                 <svg id="palletDeliveryBarcode" class="w-full" />
                 <div class="text-xxs md:text-xxs text-gray-500 -mt-1 z-10">
                     pad-{{ route().params.palletDelivery }}

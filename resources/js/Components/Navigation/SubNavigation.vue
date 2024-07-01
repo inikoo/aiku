@@ -1,11 +1,15 @@
 <script setup lang='ts'>
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import { Link } from "@inertiajs/vue3"
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faNarwhal } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faNarwhal)
 
 const layout = inject('layout', layoutStructure)
 

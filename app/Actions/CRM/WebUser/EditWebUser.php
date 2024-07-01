@@ -90,7 +90,7 @@ class EditWebUser extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title'     => __('web user'),
+                    'title'     => __('Edit web user'),
                     'container' => $container,
                     'meta'      => [
                         [

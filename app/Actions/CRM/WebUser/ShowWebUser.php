@@ -81,13 +81,15 @@ class ShowWebUser extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title'         => __('web user'),
+                    'model'         => __('web user'),
+                    'title'         => $webUser->username,
                     'subNavigation' => $subNavigation,
-                    'meta'          => [
-                        [
-                            'name' => $webUser->username
-                        ]
-                    ],
+                'icon'              => 'fal fa-terminal',
+                // 'meta'          => [
+                    //     [
+                    //         'name' => $webUser->username
+                    //     ]
+                    // ],
                     'actions'   => [
                         $this->canEdit ? [
                             'type'  => 'button',

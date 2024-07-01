@@ -89,21 +89,21 @@ const originUrl = location.origin
             <!-- Section: mini Tabs -->
             <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-0.5 text-gray-500 text-xs pt-2">
                 <div v-for="item in data.meta" class="flex items-center">
-                <slot :name="`tabs-${item.key}`" :data="item">
+                    <slot :name="`tabs-${item.key}`" :data="item">
                         <FontAwesomeIcon v-if="item.leftIcon"
                         :title="item.leftIcon.tooltip"
                         fixed-width
                         aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-0.5" />
-                    <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
-                        :class="[
-                            item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
-                            ? 'text-gray-600 font-medium'
-                            : 'underline text-gray-400 hover:text-gray-500'
-                        ]"
-                    >
-                        <MetaLabel :item="item" />
-                    </component>
-                </slot>
+                        <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
+                            :class="[
+                                item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                                ? 'text-gray-600 font-medium'
+                                : 'underline text-gray-400 hover:text-gray-500'
+                            ]"
+                        >
+                            <MetaLabel :item="item" />
+                        </component>
+                    </slot>
                 </div>
             </div>
         </div>

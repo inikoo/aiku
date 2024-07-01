@@ -16,7 +16,8 @@ const defaultTrackerId = '179075-204259'
 const searchValue = ref('')
 const _inputRef = ref(null)
 
-const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
+// const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
+const listFieldsRemoved = undefined
 
 const LBInitAutocomplete = () => {
     AutoComplete({
@@ -119,12 +120,12 @@ $luigiColor3: #e87928;
 } */
 
 .luigi-ac-hero-color {
-    background: $luigiColor2 !important;
+    background: $luigiColor1 !important;
     transition: background 0.05s !important;
 }
 
 .luigi-ac-hero-color:hover {
-    background: color-mix(in srgb, $luigiColor2, 10% black) !important;
+    background: color-mix(in srgb, $luigiColor1, 20% black) !important;
 }
 
 .luigi-ac-header {
@@ -134,7 +135,10 @@ $luigiColor3: #e87928;
 }
 
 .luigi-ac-highlight {
-    background: color-mix(in srgb, $luigiColor2 35%, transparent) !important;
+    background: color-mix(in srgb, $luigiColor3 90%, transparent) !important;
+    color: #fff !important;
+    padding-left: 1px !important;
+    padding-right: 1px !important;
 }
 
 .luigi-ac-button {
@@ -142,7 +146,7 @@ $luigiColor3: #e87928;
 }
 
 .luigi-ac-others {
-    background: color-mix(in srgb, $luigiColor2 15%, white) !important;
+    background: #eeeeee !important;
 }
 
 .luigi-ac-item {
@@ -151,9 +155,17 @@ $luigiColor3: #e87928;
 }
 
 .luigi-ac-item:hover {
-    background: color-mix(in srgb, $luigiColor2 10%, transparent) !important;
+    background: color-mix(in srgb, $luigiColor1 5%, transparent) !important;
     // background: darken($luigiColor2, 5%) !important;
     
+}
+
+.luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-text {
+    padding-top: 0.5rem !important
+}
+
+.luigi-ac-no-result {
+    color: $luigiColor1 !important
 }
 
 // ====================================== Search result
