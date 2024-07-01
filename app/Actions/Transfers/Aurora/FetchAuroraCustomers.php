@@ -98,7 +98,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
 
                                 $rentalAgreementData['username']=$customer->email??$customer->reference;
-                                $rentalAgreementData['email']=$customer->email;
+                                $rentalAgreementData['email']   =$customer->email;
 
                             }
 

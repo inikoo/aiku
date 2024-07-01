@@ -7,14 +7,21 @@
 
 namespace App\Actions\Retina\Storage\PalletReturn\UI;
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\IndexPhysicalGoodInPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
+use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
+use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItems;
+use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItemsInPalletDelivery;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use Inertia\Inertia;
@@ -160,13 +167,40 @@ class ShowPalletReturn extends RetinaAction
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))),
+                    fn () => PalletsResource::collection(IndexPallets::run($palletReturn))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletReturn))),
+
+                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
+                    fn () => StoredItemResource::collection(IndexStoredItemsInPalletDelivery::run($palletReturn))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItemsInPalletDelivery::run($palletReturn))),
+
+                PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
+                    fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
+
+                PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
+                    fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn)))
             ]
         )->table(
-            IndexPalletsInReturn::make()->tableStructure(
+            IndexPallets::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PALLETS->value
+            )
+        )->table(
+            IndexStoredItems::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::STORED_ITEMS->value
+            )
+        )->table(
+            IndexServiceInPalletReturn::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::SERVICES->value
+            )
+        )->table(
+            IndexPhysicalGoodInPalletReturn::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::PHYSICAL_GOODS->value
             )
         );
     }
