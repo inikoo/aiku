@@ -39,6 +39,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -840,6 +841,22 @@ test('confirm pallet return', function (PalletReturn $palletReturn) {
         ->and($confirmedPalletReturn->state)->toBe(PalletReturnStateEnum::CONFIRMED);
 
     return $confirmedPalletReturn;
+})->depends('create pallet return');
+
+test('dispatch pallet return', function (PalletReturn $palletReturn) {
+
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $dispatchedPalletReturn = DispatchedPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $palletReturn,
+        []
+    );
+    $fulfilmentCustomer->refresh();
+    expect($dispatchedPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($dispatchedPalletReturn->state)->toBe(PalletReturnStateEnum::DISPATCHED);
+
+    return $dispatchedPalletReturn;
 })->depends('create pallet return');
 
 test('create pallet no delivery', function (Fulfilment $fulfilment) {
