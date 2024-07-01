@@ -65,7 +65,11 @@ const props = defineProps<{
                     layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
                 ]"
             >
-                <div class="py-1 px-1.5 flex items-center">
+                <div class="px-1.5 flex items-center transition-all"
+                    :class="[
+                        layout.currentRoute.includes(subNav.href?.name) ? `translate-y-1 pb-1` : `py-1`
+                    ]"
+                >
                     <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
                     <MetaLabel :item="subNav" />
                 </div>

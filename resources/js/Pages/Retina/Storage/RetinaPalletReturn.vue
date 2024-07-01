@@ -10,6 +10,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref, watch } from "vue"
+import type { Component } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
@@ -19,11 +20,20 @@ import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
+import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
+import { Tabs as TSTabs } from '@/types/Tabs'
+
+import { faCube, faConciergeBell } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faCube, faConciergeBell)
+
+// import '@/Composables/Icon/PalletStateEnum.ts'
+// import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
+// import '@/Composables/Icon/PalletReturnStateEnum.ts'
 
 const props = defineProps<{
 	title: string
-	tabs: {}
+	tabs: TSTabs
 	pallets?: {}
 	data?: {}
 	history?: {}
@@ -42,7 +52,7 @@ const timeline = ref({ ...props.data.data })
 const openModal = ref(false)
 
 const component = computed(() => {
-	const components = {
+	const components: Component = {
 		pallets: TablePalletReturnsDelivery,
 		history: TableHistories,
 	}
@@ -99,7 +109,7 @@ watch(
     />
 
 	<Modal :isOpen="openModal" @onClose="openModal = false">
-		<div class="min-h-72 max-h-96 px-2 overflow-auto">
+		<div class="p-2 overflow-auto">
 			<TablePalletReturn 
 				:dataRoute="palletRoute.index"
                 :saveRoute="palletRoute.store" 
