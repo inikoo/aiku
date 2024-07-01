@@ -36,6 +36,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
+use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -68,6 +69,7 @@ use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
@@ -807,6 +809,39 @@ test('update pallet return', function (PalletReturn $palletReturn) {
         ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
+
+    return $palletReturn;
+})->depends('create pallet return');
+
+test('Store pallet to return', function (PalletReturn $palletReturn) {
+
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $pallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge([
+            'warehouse_id' => $this->warehouse->id,
+        ], Pallet::factory()->definition())
+    );
+
+
+    $storedPallet = StorePalletToReturn::make()->action(
+        $palletReturn,
+        [
+            'pallets' => [
+                $pallet->id
+            ],
+        ]
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    $firstPallet = $storedPallet->pallets->first();
+    expect($storedPallet)->toBeInstanceOf(PalletReturn::class)
+        ->and($storedPallet->number_pallets)->toBe(1)
+        ->and($firstPallet)->toBeInstanceOf(Pallet::class)
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::STORING)
+        ->and($firstPallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($firstPallet->pallet_return_id)->toBe($palletReturn->id);
 
     return $palletReturn;
 })->depends('create pallet return');
