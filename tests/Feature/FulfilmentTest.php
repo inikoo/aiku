@@ -74,7 +74,6 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -306,8 +305,8 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
         $fulfilment,
         [
-            'state'     => CustomerStateEnum::ACTIVE,
-            'status'    => CustomerStatusEnum::APPROVED,
+            'state'        => CustomerStateEnum::ACTIVE,
+            'status'       => CustomerStatusEnum::APPROVED,
             'contact_name' => 'jacqueline',
             'company_name' => 'ghost.o',
             'interest'     => ['pallets_storage', 'items_storage', 'dropshipping'],
@@ -929,7 +928,7 @@ test('update pallet', function (Pallet $pallet) {
     $updatedPallet = UpdatePallet::make()->action(
         $pallet,
         [
-            'state' => PalletStateEnum::DAMAGED,
+            'state'  => PalletStateEnum::DAMAGED,
             'status' => PalletStatusEnum::INCIDENT,
             'notes'  => 'sorry'
         ]
@@ -940,7 +939,7 @@ test('update pallet', function (Pallet $pallet) {
         ->and($updatedPallet->state)->toBe(PalletStateEnum::DAMAGED)
         ->and($updatedPallet->status)->toBe(PalletStatusEnum::INCIDENT)
         ->and($updatedPallet->notes)->toBe('sorry');
-        
+
     return $updatedPallet;
 })->depends('create pallet no delivery');
 

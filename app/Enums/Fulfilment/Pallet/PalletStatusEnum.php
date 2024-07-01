@@ -29,7 +29,7 @@ enum PalletStatusEnum: string
     case RETURNED     = 'returned';
     case INCIDENT     = 'incident';
 
-    public static function labels(FulfilmentCustomer|Fulfilment|Warehouse|Location|PalletDelivery|null $parent=null): array
+    public static function labels(FulfilmentCustomer|Fulfilment|Warehouse|Location|PalletDelivery|PalletReturn|null $parent=null): array
     {
         $labels = [
             'in-process'   => __('In process'),

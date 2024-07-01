@@ -28,6 +28,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property PlatformTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ordering\Order> $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read PlatformStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|Platform newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Platform newQuery()

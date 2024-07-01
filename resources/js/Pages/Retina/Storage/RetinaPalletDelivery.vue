@@ -6,7 +6,6 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref, watch, inject } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
-import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
 import Timeline from '@/Components/Utils/Timeline.vue'
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -26,6 +25,11 @@ import { useFormatTime } from '@/Composables/useFormatTime';
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 
+import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
+import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
+import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox } from '@fal'
@@ -34,7 +38,6 @@ library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, 
 const props = defineProps<{
     title: string
     tabs: TSTabs
-    pallets?: Table
     data: {
         data: PalletDelivery
     }
@@ -52,6 +55,11 @@ const props = defineProps<{
         store: routeType
     }
     box_stats: PDBoxStats
+
+    pallets?: Table
+    stored_items?: Table
+    services?: Table
+    physical_goods?: Table
 }>()
 
 const layout = inject('layout', {})
@@ -151,6 +159,9 @@ const changeTableKey = () => {
 const component = computed(() => {
     const components = {
         pallets: RetinaTablePalletDeliveryPallets,
+        stored_items: TableStoredItems,
+        services: TableServices,
+        physical_goods: TablePhysicalGoods,
         history: TableHistories
     }
     return components[currentTab.value]

@@ -11,6 +11,8 @@ use App\Actions\GrpAction;
 use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
+use App\Models\Web\Website;
+use App\Rules\IUnique;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\File;
@@ -21,6 +23,8 @@ class UpdateProfile extends GrpAction
 {
     use WithActionUpdate;
 
+    public WebUser $webUser;
+    public Website $website;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
@@ -55,8 +59,6 @@ class UpdateProfile extends GrpAction
 
         data_forget($modelData, 'app_theme');
 
-
-
         $webUser->refresh();
 
         return $this->update($webUser, $modelData);
@@ -67,7 +69,22 @@ class UpdateProfile extends GrpAction
     {
         return [
             'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'       => 'sometimes|required|email|unique:App\Models\CRM\WebUser,email',
+            'email'       => ['sometimes', 'required', 'email', new IUnique(
+                table: 'web_users',
+                extraConditions: [
+                    ['column' => 'website_id', 'value' => $this->website->id],
+                    ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+                ]
+            )],
+            'username'       => ['sometimes', 'required', new IUnique(
+                table: 'web_users',
+                extraConditions: [
+                    ['column' => 'website_id', 'value' => $this->website->id],
+                    ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+                ]
+            )],
             'about'       => 'sometimes|nullable|string|max:255',
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'app_theme'   => ['sometimes', 'required'],
@@ -85,12 +102,12 @@ class UpdateProfile extends GrpAction
 
     public function asController(ActionRequest $request): WebUser
     {
-        $webUser = $request->user();
-        $this->initialisation(app('group'), $request);
+        /** @var WebUser $webUser */
+        $webUser       = $request->user();
+        $this->webUser = $webUser;
+        $this->website = $webUser->website;
+        $this->initialisation($webUser->group, $request);
 
-
-        return $this->handle($webUser, $this->validatedData, );
+        return $this->handle($webUser, $this->validatedData);
     }
-
-
 }

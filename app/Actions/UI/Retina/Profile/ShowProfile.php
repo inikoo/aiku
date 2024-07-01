@@ -39,6 +39,11 @@ class ShowProfile
             "label"  => __("Profile"),
             "icon"   => "fal fa-user-circle",
             "fields" => [
+                "username" => [
+                    "type"  => "input",
+                    "label" => __("username"),
+                    "value" => $webUser->username,
+                ],
                 "email" => [
                     "type"  => "input",
                     "label" => __("email"),
