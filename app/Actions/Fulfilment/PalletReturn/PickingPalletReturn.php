@@ -55,6 +55,9 @@ class PickingPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction){
+            return true;
+        }
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
@@ -66,6 +69,14 @@ class PickingPalletReturn extends OrgAction
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn): PalletReturn
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
 
         return $this->handle($palletReturn, $this->validatedData);
     }

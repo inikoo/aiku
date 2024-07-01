@@ -81,7 +81,7 @@ const onChange = (value : Any) => {
 </script>
 
 <template>
-    <div v-if="fieldType == 'input'">
+    <div v-if="fieldType == 'input'" class="w-full">
         <PureInput v-model="pallet.form[fieldName]"
             @blur="(value) => onSaveInput(value)"
             @onEnter="(value) => onSaveInput(value)"
@@ -127,7 +127,7 @@ const onChange = (value : Any) => {
     </div>
 
 
-    <div v-else-if="fieldType == 'selectQuery'" class="w-60 sm:w-24 md:w-24 lg:w-60 xl:w-60">
+    <div v-else-if="fieldType == 'selectQuery'" class="w-60 sm:w-24 md:w-24 lg:w-60">
         <SelectQuery
             :fieldName="fieldName"
             :placeholder="placeholder"
