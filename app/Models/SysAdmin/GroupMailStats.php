@@ -38,6 +38,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_outboxes_type_registration
  * @property int $number_outboxes_type_registration_approved
  * @property int $number_outboxes_type_registration_rejected
+ * @property int $number_outboxes_type_rental_agreement
+ * @property int $number_outboxes_type_pallet_delivery_processed
+ * @property int $number_outboxes_type_pallet_return_dispatched
  * @property int $number_outboxes_type_test
  * @property int $number_outboxes_state_in_process
  * @property int $number_outboxes_state_active

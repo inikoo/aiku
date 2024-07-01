@@ -8,10 +8,10 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Catalogue\Product\SeedShopOutboxes;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
-use App\Actions\Mail\Outbox\SeedShopOutboxes;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;

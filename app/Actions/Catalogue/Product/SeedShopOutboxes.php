@@ -1,16 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Nov 2023 19:27:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 01 Jul 2024 15:15:12 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Outbox;
+namespace App\Actions\Catalogue\Product;
 
+use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\PostRoom;
-use App\Models\Mail\Outbox;
 use App\Models\Catalogue\Shop;
+use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

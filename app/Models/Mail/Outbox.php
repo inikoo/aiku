@@ -33,6 +33,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $post_room_id
  * @property int|null $shop_id
+ * @property int|null $website_id
+ * @property int|null $fulfilment_id
  * @property string $slug
  * @property OutboxTypeEnum $type
  * @property string $name
@@ -43,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
+ * @property-read Collection<int, \App\Models\Mail\EmailTemplate> $emailTemplates
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\Organisation $organisation

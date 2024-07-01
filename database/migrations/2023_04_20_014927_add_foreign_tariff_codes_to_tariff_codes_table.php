@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::table('tariff_codes', function (Blueprint $table) {
             $table->foreign('parent_id')->references('id')->on('tariff_codes');
@@ -18,7 +18,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::table('tariff_codes', function (Blueprint $table) {
             $table->dropForeign('parent_id_foreign');

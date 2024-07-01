@@ -250,6 +250,9 @@ test('get product 1s1 images', function () {
 test('get product 2nd images and show resized sources', function () {
 
 
+
+
+
     $media2=$this->product->images->last();
     expect($media2)->toBeInstanceOf(Media::class);
 

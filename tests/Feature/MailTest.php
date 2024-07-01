@@ -14,7 +14,6 @@ use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Mail\EmailTemplate\StoreEmailTemplate;
 use App\Actions\Mail\EmailTemplate\UpdateEmailTemplate;
-use App\Actions\Mail\EmailTrackingEvent\StoreEmailTrackingEvent;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Mail\Mailshot;
 use App\Models\Catalogue\Shop;
@@ -44,9 +43,9 @@ test('post rooms seeded correctly', function () {
 
 test('outbox seeded when shop created', function () {
     $shop   = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
-    expect($shop->group->mailStats->number_outboxes)->toBe(22)
-        ->and($shop->organisation->mailStats->number_outboxes)->toBe(22)
-        ->and($shop->mailStats->number_outboxes)->toBe(21);
+    expect($shop->group->mailStats->number_outboxes)->toBe(12)
+        ->and($shop->organisation->mailStats->number_outboxes)->toBe(12)
+        ->and($shop->mailStats->number_outboxes)->toBe(11);
 
     return $shop;
 
@@ -107,7 +106,8 @@ test('update dispatched email', function ($dispatchedEmail) {
 })->depends('create dispatched email in mailshot');
 
 test('store email template', function (Shop $shop) {
-    $outbox = $shop->outboxes()->first();
+    /** @var Outbox $outbox */
+    $outbox        = $shop->outboxes()->first();
     $emailTemplate = StoreEmailTemplate::make()->action(
         $this->organisation,
         $outbox,
@@ -125,11 +125,11 @@ test('update email template', function (EmailTemplate $emailTemplate) {
     $updatedEmailTemplate = UpdateEmailTemplate::make()->action(
         $emailTemplate,
         [
-            'name' => 'tempoo'
+            'name' => 'tmp'
         ]
     );
     expect($updatedEmailTemplate)->toBeInstanceOf(EmailTemplate::class)
-        ->and($updatedEmailTemplate->name)->toBe('tempoo');
+        ->and($updatedEmailTemplate->name)->toBe('tmp');
 
     return $updatedEmailTemplate;
 })->depends('store email template');

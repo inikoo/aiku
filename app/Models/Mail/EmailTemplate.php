@@ -12,7 +12,6 @@ use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\Snapshot;
 use App\Models\Inventory\Warehouse;
-use App\Models\Traits\InOrganisation;
 use App\Models\Traits\InShop;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,26 +29,39 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Mail\EmailTemplate
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
- * @property string $type
+ * @property string|null $type
  * @property string $name
  * @property string $parent_type
  * @property int $parent_id
- * @property array $data
- * @property array $compiled
+ * @property array|null $data
+ * @property array|null $compiled
  * @property int|null $screenshot_id
+ * @property int $outbox_id
+ * @property int|null $shop_id
+ * @property int|null $warehouse_id
+ * @property int|null $website_id
+ * @property int|null $unpublished_snapshot_id
  * @property bool $is_seeded
  * @property bool $is_transactional
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplateCategory> $categories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Snapshot|null $liveSnapshot
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Mail\Outbox $outbox
  * @property-read Model|\Eloquent $parent
  * @property-read Media|null $screenshot
+ * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Snapshot> $snapshots
  * @property-read Snapshot|null $unpublishedSnapshot
+ * @property-read Warehouse|null $warehouse
+ * @property-read Website|null $website
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate query()
