@@ -132,7 +132,6 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
-
 		<!-- Column: type pallet icon -->
 		<template #cell(type_icon)="{ item: pallet }">
 			<Icon :data="pallet.type_icon" class="px-1" />
@@ -146,12 +145,34 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		</template>
 
 
+		<!-- Column: Type pallet -->
+		<template #cell(type)="{ item: pallet }">
+            <div class="w-32">
+                <FieldEditableTable
+                    :data="pallet"
+                    @onSave="onSaved"
+                    :options="typePallet"
+                    :fieldType="'select'"
+                    label="label"
+                    valueProp="value"
+                    fieldName="type"
+                    placeholder="Enter customer type"
+                />
+            </div>
+		</template>
+
+
 		<!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item: item }">
 			<div v-if="state == 'in-process'" class="w-full">
-				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference"
-					placeholder="Enter customer reference" />
+				<FieldEditableTable
+                    :data="item"
+                    @onSave="onSaved"
+                    fieldName="customer_reference"
+					placeholder="Enter customer reference"
+                />
 			</div>
+
 			<div v-else class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
@@ -166,7 +187,12 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: Notes -->
 		<template #cell(notes)="{ item: item }">
 			<div v-if="state == 'in-process'" class="min-w-32">
-				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="notes" placeholder="Enter pallet notes" />
+				<FieldEditableTable
+                    :data="item"
+                    @onSave="onSaved"
+                    fieldName="notes"
+                    placeholder="Enter pallet notes"
+                />
 			</div>
 			<div v-else>{{ item["notes"] }}</div>
 		</template>
@@ -174,33 +200,29 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item: item }">
-			<StoredItemProperty v-if="item.stored_items?.length" :pallet="item" @renderTable="() => emits('renderTableKey')"
-				:storedItemsRoute="storedItemsRoute" :state="props.state" />
-            <div v-else class="italic text-gray-400 whitespace-nowrap">
-                No stored items
-            </div>
+			<StoredItemProperty
+                :pallet="item"
+				:storedItemsRoute="storedItemsRoute"
+                :state="props.state"
+                @renderTable="() => emits('renderTableKey')"
+            />
 		</template>
 
 
 		<!-- Column: Set Location -->
 		<template #cell(location)="{ item: pallet }">
 			<div v-if="pallet.state == 'booked-in' || pallet.state == 'booking-in'" class="flex gap-x-1 gap-y-2 items-center">
-				<LocationFieldDelivery :key="pallet.state" :pallet="pallet"
-					@renderTableKey="() => emits('renderTableKey')" :locationRoute="locationRoute" />
+				<LocationFieldDelivery
+                    :key="pallet.state"
+                    :pallet="pallet"
+					@renderTableKey="() => emits('renderTableKey')"
+                    :locationRoute="locationRoute"
+                />
 			</div>
             
             <template v-else>
                 {{ pallet.location_code }}
             </template>
-		</template>
-
-
-		<!-- Column: Type pallet -->
-		<template #cell(type)="{ item: pallet }">
-            <FieldEditableTable :data="pallet" @onSave="onSaved" :options="typePallet" :fieldType="'select'"
-                label="label"
-                valueProp="value"
-                fieldName="type" placeholder="Enter customer type" />
 		</template>
 
 
@@ -217,7 +239,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
                     placeholder="Enter rental"
                     label="name"
                     value-prop="id"
-                 />
+                />
             </div>
 		</template>
 
