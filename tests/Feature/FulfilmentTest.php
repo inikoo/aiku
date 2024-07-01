@@ -71,7 +71,6 @@ use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;

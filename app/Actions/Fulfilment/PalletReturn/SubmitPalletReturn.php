@@ -68,7 +68,7 @@ class SubmitPalletReturn extends OrgAction
             return true;
         }
 
-        if ($this->asAction){
+        if ($this->asAction) {
             return true;
         }
 

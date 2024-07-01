@@ -11,6 +11,7 @@ use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -131,13 +132,10 @@ class IndexPallets extends RetinaAction
                 ->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-
-            $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
-
-            if($parent->state == PalletDeliveryStateEnum::IN_PROCESS) {
-                $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
-            } else {
+            if($parent->state == PalletDeliveryStateEnum::IN_PROCESS && $parent->state == PalletReturnStateEnum::PICKING) {
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            } else {
+                $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             }
 
             if ($parent->state != PalletDeliveryStateEnum::IN_PROCESS && $parent->state != PalletDeliveryStateEnum::SUBMITTED) {
