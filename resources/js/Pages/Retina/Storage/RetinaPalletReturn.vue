@@ -17,12 +17,12 @@ import Timeline from "@/Components/Utils/Timeline.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import { Tabs as TSTabs } from '@/types/Tabs'
 
+import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
@@ -80,7 +80,6 @@ watch(
 </script>
 
 <template>
-    {{ currentTab }}
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
 		<template #button-add-pallet="{ action: action }">
