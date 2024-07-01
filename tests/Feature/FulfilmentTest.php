@@ -42,6 +42,7 @@ use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -846,26 +847,46 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     return $storedPallet;
 })->depends('create pallet return');
 
-test('picking pallet to return', function (PalletReturn $storedPallet) {
+test('submit pallet return', function (PalletReturn $storedPallet) {
 
     $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
+
+    $submittedPalletReturn = SubmitPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $storedPallet
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    $firstPallet = $submittedPalletReturn->pallets->first();
+    expect($submittedPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($submittedPalletReturn->state)->toBe(PalletReturnStateEnum::CONFIRMED)
+        ->and($firstPallet)->toBeInstanceOf(Pallet::class)
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $submittedPalletReturn;
+})->depends('store pallet to return');
+
+
+
+test('picking pallet to return', function (PalletReturn $submittedPalletReturn) {
+
+    $fulfilmentCustomer = $submittedPalletReturn->fulfilmentCustomer;
 
 
     $pickingPalletReturn = PickingPalletReturn::make()->action(
         $fulfilmentCustomer,
-        $storedPallet,
+        $submittedPalletReturn,
     );
     // dd($storedPallet);
     $fulfilmentCustomer->refresh();
     $firstPallet = $pickingPalletReturn->pallets->first();
     expect($pickingPalletReturn)->toBeInstanceOf(PalletReturn::class)
-        ->and($storedPallet->number_pallets)->toBe(1)
         ->and($firstPallet)->toBeInstanceOf(Pallet::class)
         ->and($firstPallet->status)->toBe(PalletStatusEnum::RETURNING)
         ->and($firstPallet->state)->toBe(PalletStateEnum::PICKING);
 
     return $pickingPalletReturn;
-})->depends('store pallet to return');
+})->depends('submit pallet return');
 
 test('cancel pallet return', function (PalletReturn $palletReturn) {
 
