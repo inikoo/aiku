@@ -14,12 +14,16 @@ use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SyncPhysicalGoodToPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SyncServiceToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SyncPhysicalGoodToPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SyncServiceToPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
@@ -35,6 +39,9 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
     Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
     Route::delete('pallet/{pallet:id}', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete')->withoutScopedBindings();
+
+    Route::post('service', [SyncServiceToPalletReturn::class, 'fromRetina'])->name('service.store');
+    Route::post('physical-goods', [SyncPhysicalGoodToPalletReturn::class, 'fromRetina'])->name('physical_good.store');
 });
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
@@ -45,6 +52,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::patch('update', [UpdatePalletDelivery::class, 'fromRetina'])->name('update');
     Route::patch('update-timeline', [UpdatePalletDeliveryTimeline::class, 'fromRetina'])->name('timeline.update');
 
+    Route::post('service', [SyncServiceToPalletDelivery::class, 'fromRetina'])->name('service.store');
+    Route::post('physical-goods', [SyncPhysicalGoodToPalletDelivery::class, 'fromRetina'])->name('physical_good.store');
 
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });

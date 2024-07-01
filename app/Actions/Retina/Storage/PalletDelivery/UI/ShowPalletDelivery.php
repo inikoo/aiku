@@ -114,6 +114,30 @@ class ShowPalletDelivery extends RetinaAction
                                         ]
                                     ]
                                 ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => 'fal fa-plus',
+                                    'label' => __('add service'),
+                                    'route' => [
+                                        'name'       => 'retina.models.pallet-delivery.service.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'secondary',
+                                    'icon'  => 'fal fa-plus',
+                                    'label' => __('add physical good'),
+                                    'route' => [
+                                        'name'       => 'retina.models.pallet-delivery.physical_good.store',
+                                        'parameters' => [
+                                            'palletDelivery' => $palletDelivery->id
+                                        ]
+                                    ]
+                                ],
                             ]
                         ],
                         ($palletDelivery->pallets()->count() > 0) ? [

@@ -17,7 +17,6 @@ enum PalletReturnTabsEnum: string
     use HasTabsWithQuantity;
 
     case PALLETS      = 'pallets';
-    case STORED_ITEMS = 'stored_items';
 
     case SERVICES       = 'services';
     case PHYSICAL_GOODS = 'physical_goods';
@@ -38,10 +37,6 @@ enum PalletReturnTabsEnum: string
                 'title'     => __("pallets ($parent->number_pallets)"),
                 'icon'      => 'fal fa-pallet',
                 'indicator' => $parent->pallets()->whereNotNull('location_id')->count() < $parent->pallets()->count()
-            ],
-            PalletReturnTabsEnum::STORED_ITEMS => [
-                'title' => __("stored items ($parent->number_stored_items)"),
-                'icon'  => 'fal fa-cube',
             ],
             PalletReturnTabsEnum::SERVICES => [
                 'title' => __("services ({$parent->stats->number_services})"),

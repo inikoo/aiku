@@ -17,7 +17,6 @@ enum PalletDeliveryTabsEnum: string
     use HasTabsWithQuantity;
 
     case PALLETS        = 'pallets';
-    case STORED_ITEMS   = 'stored_items';
     case SERVICES       = 'services';
     case PHYSICAL_GOODS = 'physical_goods';
 
@@ -37,10 +36,6 @@ enum PalletDeliveryTabsEnum: string
                 'title'     => __("pallets ($parent->number_pallets)"),
                 'icon'      => 'fal fa-pallet',
                 'indicator' => $parent->pallets()->whereNotNull('location_id')->count() < $parent->pallets()->count()
-            ],
-            PalletDeliveryTabsEnum::STORED_ITEMS => [
-                'title' => __("services ({$parent->stats->number_stored_items})"),
-                'icon'  => 'fal fa-boxes',
             ],
             PalletDeliveryTabsEnum::SERVICES => [
                 'title' => __("services ({$parent->stats->number_services})"),
