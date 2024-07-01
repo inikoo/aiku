@@ -17,6 +17,7 @@ enum SnapshotScopeEnum: string
     case HEADER  = 'header';
     case FOOTER  = 'footer';
     case BANNER  = 'banner';
+    case EMAIL_TEMPLATE = 'email_template';
 
     public static function labels(): array
     {
@@ -24,7 +25,8 @@ enum SnapshotScopeEnum: string
             'webpage' => __('Webpage'),
             'header'  => __('Header'),
             'footer'  => __('Footer'),
-            'banner'  => __('Banner')
+            'banner'  => __('Banner'),
+            'email_template' => __('Email Template')
         ];
     }
 }
