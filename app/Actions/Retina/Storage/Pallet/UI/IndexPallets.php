@@ -146,6 +146,7 @@ class IndexPallets extends RetinaAction
 
             $table->column(key: 'customer_reference', label: __('pallet name'), canBeHidden: false, searchable: true);
             $table->column(key: 'rental', label: __('rental'), canBeHidden: false, searchable: true);
+            $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');
