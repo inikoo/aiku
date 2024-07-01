@@ -37,6 +37,8 @@ use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -783,6 +785,45 @@ test('create pallet return', function (PalletDelivery $palletDelivery) {
 
     return $palletReturn;
 })->depends('set pallet delivery as booked in');
+
+test('update pallet return', function (PalletReturn $palletReturn) {
+
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $updatedPalletReturn = UpdatePalletReturn::make()->action(
+        $this->organisation,
+        $palletReturn,
+        [
+            'customer_notes' => 'note',
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($updatedPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
+        ->and($palletReturn->customer_notes)->toBe('note')
+        ->and($palletReturn->number_pallets)->toBe(0)
+        ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(1)
+        ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
+        ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
+
+    return $palletReturn;
+})->depends('create pallet return');
+
+test('cancel pallet return', function (PalletReturn $palletReturn) {
+
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $canceledPalletReturn = CancelPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $palletReturn,
+        []
+    );
+    $fulfilmentCustomer->refresh();
+    expect($canceledPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($canceledPalletReturn->state)->toBe(PalletReturnStateEnum::CANCEL);
+
+    return $canceledPalletReturn;
+})->depends('create pallet return');
 
 test('create pallet no delivery', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
