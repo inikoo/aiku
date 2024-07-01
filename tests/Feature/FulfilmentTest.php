@@ -71,7 +71,6 @@ use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
@@ -849,6 +848,9 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 
 test('submit pallet return', function (PalletReturn $storedPallet) {
 
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
     $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
 
     $submittedPalletReturn = SubmitPalletReturn::make()->action(
@@ -870,6 +872,9 @@ test('submit pallet return', function (PalletReturn $storedPallet) {
 
 test('picking pallet to return', function (PalletReturn $submittedPalletReturn) {
 
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
     $fulfilmentCustomer = $submittedPalletReturn->fulfilmentCustomer;
 
 
@@ -890,6 +895,9 @@ test('picking pallet to return', function (PalletReturn $submittedPalletReturn) 
 
 test('cancel pallet return', function (PalletReturn $palletReturn) {
 
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $canceledPalletReturn = CancelPalletReturn::make()->action(
@@ -905,6 +913,9 @@ test('cancel pallet return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 test('confirm pallet return', function (PalletReturn $palletReturn) {
+
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
 
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
@@ -922,6 +933,8 @@ test('confirm pallet return', function (PalletReturn $palletReturn) {
 
 test('dispatch pallet return', function (PalletReturn $palletReturn) {
 
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $dispatchedPalletReturn = DispatchedPalletReturn::make()->action(
