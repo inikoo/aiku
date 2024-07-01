@@ -205,7 +205,7 @@ const onSelectAddress = (selectedAddress) => {
                         <span class="" v-html="dataPalletReturn.delivery_address.formatted_address" />
 
                         <div @click="() => isModalAddress = true"
-                            class="absolute top-1.5 right-2.5 inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                             <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
                             <span>Edit</span>
                         </div>
