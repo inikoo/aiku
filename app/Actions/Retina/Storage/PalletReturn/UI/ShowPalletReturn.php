@@ -59,7 +59,8 @@ class ShowPalletReturn extends RetinaAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference
                     ],
-                    'actions' => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
+                    'model'     => __('pallet return'),
+                    'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                         [
                             'type'  => 'button',
                             'style' => 'secondary',
