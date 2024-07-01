@@ -11,6 +11,10 @@ use App\Actions\Utils\Abbreviate;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\Snapshot;
+use App\Models\Inventory\Warehouse;
+use App\Models\Traits\InOrganisation;
+use App\Models\Traits\InShop;
+use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,6 +60,7 @@ class EmailTemplate extends Model implements HasMedia
     use HasFactory;
     use HasSlug;
     use InteractsWithMedia;
+    use InShop;
 
     protected $guarded = [];
 
@@ -122,5 +127,20 @@ class EmailTemplate extends Model implements HasMedia
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(EmailTemplateCategory::class, 'email_template_pivot_email_categories');
+    }
+
+    public function outbox(): BelongsTo
+    {
+        return $this->belongsTo(Outbox::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    public function website(): BelongsTo
+    {
+        return $this->belongsTo(Website::class);
     }
 }
