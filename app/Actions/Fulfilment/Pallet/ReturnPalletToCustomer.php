@@ -51,6 +51,12 @@ class ReturnPalletToCustomer extends OrgAction
         return $this->handle($pallet);
     }
 
+    public function action(Pallet $pallet): Pallet
+    {
+        $this->pallet = $pallet;
+
+        return $this->handle($pallet);
+    }
     public function jsonResponse(Pallet $pallet): PalletResource
     {
         return new PalletResource($pallet);

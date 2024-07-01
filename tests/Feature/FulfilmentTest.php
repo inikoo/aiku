@@ -33,6 +33,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -65,6 +66,7 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
+use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -828,6 +830,19 @@ test('update pallet', function (Pallet $pallet) {
         ->and($updatedPallet->notes)->toBe('sorry');
         
     return $updatedPallet;
+})->depends('create pallet no delivery');
+
+test('Return pallet to customer', function (Pallet $pallet) {
+
+    $returnedPallet = ReturnPalletToCustomer::make()->action(
+        $pallet,
+    );
+
+    expect($returnedPallet)->toBeInstanceOf(Pallet::class)
+        ->and($returnedPallet->state)->toBe(PalletStateEnum::DISPATCHED)
+        ->and($returnedPallet->status)->toBe(PalletStatusEnum::RETURNED);
+
+    return $returnedPallet;
 })->depends('create pallet no delivery');
 
 test('hydrate fulfilment command', function () {
