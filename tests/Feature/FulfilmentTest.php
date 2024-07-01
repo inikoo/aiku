@@ -33,6 +33,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -808,6 +809,26 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
 
     return $pallet;
 })->depends('create fulfilment shop');
+
+test('update pallet', function (Pallet $pallet) {
+
+    $updatedPallet = UpdatePallet::make()->action(
+        $pallet,
+        [
+            'state' => PalletStateEnum::DAMAGED,
+            'status' => PalletStatusEnum::INCIDENT,
+            'notes'  => 'sorry'
+        ]
+    );
+
+
+    expect($updatedPallet)->toBeInstanceOf(Pallet::class)
+        ->and($updatedPallet->state)->toBe(PalletStateEnum::DAMAGED)
+        ->and($updatedPallet->status)->toBe(PalletStatusEnum::INCIDENT)
+        ->and($updatedPallet->notes)->toBe('sorry');
+        
+    return $updatedPallet;
+})->depends('create pallet no delivery');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
