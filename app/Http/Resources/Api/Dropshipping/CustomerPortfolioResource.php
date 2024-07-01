@@ -7,6 +7,8 @@
 
 namespace App\Http\Resources\Api\Dropshipping;
 
+use App\Http\Resources\Catalogue\ProductResource;
+use App\Models\Catalogue\Product;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -33,6 +35,9 @@ class CustomerPortfolioResource extends JsonResource
 {
     public function toArray($request): array
     {
+
+        $product=Product::find($this->product_id);
+
         return [
             'id'                         => $this->id,
             'customer_product_reference' => $this->reference,
@@ -42,14 +47,7 @@ class CustomerPortfolioResource extends JsonResource
             'product_id'                 => $this->product_id,
             'created_at'                 => $this->created_at,
             'updated_at'                 => $this->updated_at,
-            'product'                    => [
-                'id'         => $this->product_id,
-                'slug'       => $this->product_slug,
-                'code'       => $this->product_reference,
-                'name'       => $this->product_name,
-                'created_at' => $this->product_created_at,
-                'updated_at' => $this->product_updated_at,
-            ]
+            'product'                    => ProductResource::make($product)->getArray()
         ];
     }
 }

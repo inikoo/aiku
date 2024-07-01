@@ -402,7 +402,7 @@ test('api show product', function () {
     $response->assertJsonStructure(['data']);
 });
 
-test('api index products in customer ', function ($shopId) {
+test('api index products in customer (portfolio) ', function ($shopId) {
     Sanctum::actingAs($this->group);
     $response = getJson(
         route(
