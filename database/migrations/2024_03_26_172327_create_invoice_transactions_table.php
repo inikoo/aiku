@@ -36,9 +36,9 @@ return new class () extends Migration {
 
             $table->unsignedInteger('historic_product_variant_id')->index()->nullable();
 
-            $table->unsignedSmallInteger('family_id')->nullable();
+            $table->unsignedInteger('family_id')->nullable();
             $table->foreign('family_id')->references('id')->on('product_categories');
-            $table->unsignedSmallInteger('department_id')->nullable();
+            $table->unsignedInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('product_categories');
 
 

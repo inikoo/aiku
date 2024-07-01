@@ -19,8 +19,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('product_category_stats', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('product_category_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('product_category_id')->index();
             $table->foreign('product_category_id')->references('id')->on('product_categories');
             $table=$this->catalogueFamilyStats($table);
             $table=$this->catalogueProductsStats($table);

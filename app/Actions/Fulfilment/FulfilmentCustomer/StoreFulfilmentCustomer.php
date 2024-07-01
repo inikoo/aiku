@@ -106,4 +106,13 @@ class StoreFulfilmentCustomer extends OrgAction
         return $this->handle($fulfilment, $this->validatedData);
     }
 
+    public function action(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($fulfilment, $modelData);
+        // dd($modelData);
+
+        return $this->handle($fulfilment, $this->validatedData);
+    }
+
 }

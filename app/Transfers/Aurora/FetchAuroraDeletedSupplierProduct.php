@@ -64,7 +64,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             $created_at = $auroraDeletedData->{'Supplier Part From'};
         }
 
-        $data['raw_price'] = $auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0;
+        $data['original_uniy_cost'] = $auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0;
 
 
 

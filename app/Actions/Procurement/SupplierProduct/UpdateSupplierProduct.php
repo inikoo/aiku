@@ -12,7 +12,7 @@ use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniv
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\SupplyChain\SupplierProduct;
-use App\Rules\AlphaDashDotSpaceSlashParenthesis;
+use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 
@@ -48,7 +48,7 @@ class UpdateSupplierProduct extends GrpAction
                 'sometimes',
                 'required',
                 'max:64',
-                new AlphaDashDotSpaceSlashParenthesis(),
+                new AlphaDashDotSpaceSlashParenthesisPlus(),
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'supplier_products',

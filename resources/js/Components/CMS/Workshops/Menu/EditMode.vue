@@ -88,7 +88,7 @@ const deleteNavCard = (data, index) => {
 
     </div>
 
-    <draggable v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'multiple'"
+    <draggable v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'multiple'" :animation="200"
       :list="Navigation[selectedNav].subnavs" ghost-class="ghost" group="subnav" itemKey="id"
       class="grid grid-flow-row-dense grid-cols-4 gap-4 p-4 bg-slate-10">
       <template #item="{ element, index }">
@@ -115,7 +115,7 @@ const deleteNavCard = (data, index) => {
             </div>
           </div>
 
-          <draggable :list="element.links" ghost-class="ghost" group="link" itemKey="id"
+          <draggable :list="element.links" ghost-class="ghost" group="link" itemKey="id" :animation="200"
             class="flex flex-col gap-y-2 p-3 relative">
             <template #item="{ element: link, index: linkIndex }">
 

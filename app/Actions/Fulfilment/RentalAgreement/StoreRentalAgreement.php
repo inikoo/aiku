@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementSnapshot\StoreRentalAgreementSnapshot;
@@ -18,7 +19,10 @@ use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
+use App\Notifications\SendEmailRentalAgreementCreated;
+use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreRentalAgreement extends OrgAction
 {
+    private FulfilmentCustomer $fulfilmentCustomer;
+
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
@@ -48,7 +54,7 @@ class StoreRentalAgreement extends OrgAction
 
 
         /** @var RentalAgreement $rentalAgreement */
-        $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create($modelData);
+        $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create(Arr::except($modelData, ['username', 'is_root', 'email']));
         $rentalAgreement->stats()->create();
         $rentalAgreement->refresh();
 
@@ -62,6 +68,24 @@ class StoreRentalAgreement extends OrgAction
             }
         }
 
+        $password= null;
+        if(
+            $this->shop->website and
+            $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
+            $password = Str::random(8);
+
+            $webUser = StoreWebUser::make()->action($fulfilmentCustomer->customer, [
+                'email'    => Arr::get($modelData, 'email'),
+                'username' => Arr::get($modelData, 'username'),
+                'password' => $password,
+                'is_root'  => true
+            ]);
+        } else {
+            $webUser=$this->fulfilmentCustomer->customer->webUsers()->first();
+        }
+
+        $webUser?->notify(new SendEmailRentalAgreementCreated($password));
+
         StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot: true);
 
 
@@ -73,7 +97,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'billing_cycle'                           => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                           => ['nullable', 'integer', 'min:1', 'max:10000'],
             'clauses'                                 => ['sometimes', 'array'],
@@ -96,13 +120,50 @@ class StoreRentalAgreement extends OrgAction
             ],
             'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0'],
             'state'                                   => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
-            'created_at'                              => ['sometimes', 'date']
+            'created_at'                              => ['sometimes', 'date'],
+
         ];
+
+        if (
+            $this->shop->website and
+            $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
+
+
+            $rules['username']=[
+                'required',
+                'string',
+                'max:255',
+                new IUnique(
+                    table: 'web_users',
+                    extraConditions: [
+                        ['column' => 'website_id', 'value' => $this->shop->website->id],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                    ]
+                ),
+            ];
+            $rules['email']=[
+                'nullable',
+                'email',
+                'max:255',
+                new IUnique(
+                    table: 'web_users',
+                    extraConditions: [
+                        ['column' => 'website_id', 'value' => $this->shop->website->id],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                    ]
+                ),
+            ];
+        }
+
+
+        return $rules;
+
     }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         $this->asAction = true;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -123,6 +184,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);

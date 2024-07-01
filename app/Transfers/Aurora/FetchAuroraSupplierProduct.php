@@ -87,7 +87,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
             $created_at = $this->auroraModelData->{'Supplier Part From'};
         }
 
-        $data['raw_price'] = $this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0;
+        $data['original_unit_cost'] = $this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0;
+        $data['original_code']      = $this->auroraModelData->{'Supplier Part Reference'} ?? '';
 
 
         $stock_quantity_status = match ($auroraPartData->{'Part Stock Status'}) {
