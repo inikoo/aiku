@@ -16,9 +16,11 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
+use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -73,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read Website $website
  * @method static Builder|WebUser newModelQuery()
  * @method static Builder|WebUser newQuery()
  * @method static Builder|WebUser onlyTrashed()
@@ -138,5 +141,8 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
         return $this->hasOne(WebUserStats::class);
     }
 
-
+    public function website(): BelongsTo
+    {
+        return $this->belongsTo(Website::class);
+    }
 }

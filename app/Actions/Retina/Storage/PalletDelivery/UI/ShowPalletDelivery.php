@@ -8,14 +8,18 @@
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexPhysicalGoodInPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\UI\IndexServiceInPalletDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -192,6 +196,14 @@ class ShowPalletDelivery extends RetinaAction
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))),
+
+                PalletDeliveryTabsEnum::SERVICES->value => $this->tab == PalletDeliveryTabsEnum::SERVICES->value ?
+                    fn () => ServicesResource::collection(IndexServiceInPalletDelivery::run($palletDelivery))
+                    : Inertia::lazy(fn () => ServicesResource::collection(IndexServiceInPalletDelivery::run($palletDelivery))),
+
+                PalletDeliveryTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletDeliveryTabsEnum::PHYSICAL_GOODS->value ?
+                    fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery))
+                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery))),
             ]
         )->table(
             IndexPallets::make()->tableStructure(

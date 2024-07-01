@@ -36,10 +36,12 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
+use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -68,11 +70,11 @@ use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -304,8 +306,8 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
         $fulfilment,
         [
-            'state'     => CustomerStateEnum::ACTIVE,
-            'status'    => CustomerStatusEnum::APPROVED,
+            'state'        => CustomerStateEnum::ACTIVE,
+            'status'       => CustomerStatusEnum::APPROVED,
             'contact_name' => 'jacqueline',
             'company_name' => 'ghost.o',
             'interest'     => ['pallets_storage', 'items_storage', 'dropshipping'],
@@ -811,6 +813,60 @@ test('update pallet return', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('create pallet return');
 
+test('store pallet to return', function (PalletReturn $palletReturn) {
+
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
+
+    $pallet = StorePallet::make()->action(
+        $fulfilmentCustomer,
+        array_merge([
+            'warehouse_id' => $this->warehouse->id,
+        ], Pallet::factory()->definition())
+    );
+
+
+    $storedPallet = StorePalletToReturn::make()->action(
+        $palletReturn,
+        [
+            'pallets' => [
+                $pallet->id
+            ],
+        ]
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    $firstPallet = $storedPallet->pallets->first();
+    expect($storedPallet)->toBeInstanceOf(PalletReturn::class)
+        ->and($storedPallet->number_pallets)->toBe(1)
+        ->and($firstPallet)->toBeInstanceOf(Pallet::class)
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::STORING)
+        ->and($firstPallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($firstPallet->pallet_return_id)->toBe($palletReturn->id);
+
+    return $storedPallet;
+})->depends('create pallet return');
+
+test('picking pallet to return', function (PalletReturn $storedPallet) {
+
+    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
+
+
+    $pickingPalletReturn = PickingPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $storedPallet,
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    $firstPallet = $pickingPalletReturn->pallets->first();
+    expect($pickingPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($storedPallet->number_pallets)->toBe(1)
+        ->and($firstPallet)->toBeInstanceOf(Pallet::class)
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::RETURNING)
+        ->and($firstPallet->state)->toBe(PalletStateEnum::PICKING);
+
+    return $pickingPalletReturn;
+})->depends('store pallet to return');
+
 test('cancel pallet return', function (PalletReturn $palletReturn) {
 
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
@@ -894,7 +950,7 @@ test('update pallet', function (Pallet $pallet) {
     $updatedPallet = UpdatePallet::make()->action(
         $pallet,
         [
-            'state' => PalletStateEnum::DAMAGED,
+            'state'  => PalletStateEnum::DAMAGED,
             'status' => PalletStatusEnum::INCIDENT,
             'notes'  => 'sorry'
         ]
@@ -905,7 +961,7 @@ test('update pallet', function (Pallet $pallet) {
         ->and($updatedPallet->state)->toBe(PalletStateEnum::DAMAGED)
         ->and($updatedPallet->status)->toBe(PalletStatusEnum::INCIDENT)
         ->and($updatedPallet->notes)->toBe('sorry');
-        
+
     return $updatedPallet;
 })->depends('create pallet no delivery');
 

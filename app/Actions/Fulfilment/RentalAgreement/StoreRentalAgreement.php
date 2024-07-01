@@ -162,7 +162,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
-        $this->asAction = true;
+        $this->asAction           = true;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
