@@ -60,25 +60,25 @@ const warehouseChange = (value) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-create-delivery="{ action: action }">
-            <div v-if="action.action.options.warehouses.data.length > 1" class="relative">
+            <div v-if="action.options.warehouses.data.length > 1" class="relative">
                 <Popover :width="'w-full'" ref="_popover">
                     <template #button>
-                        <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-                            :iconRight="action.action.iconRight"
-                            :key="`ActionButton${action.action.label}${action.action.style}`"
-                            :tooltip="action.action.tooltip" />
+                        <Button :style="action.style" :label="action.label" :icon="action.icon"
+                            :iconRight="action.iconRight"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip" />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <Multiselect v-model="warehouseValue" :searchable="true" :object="true" valueProp="id"
-                                :options="action.action.options.warehouses.data" track-by="name" label="name"
+                                :options="action.options.warehouses.data" track-by="name" label="name"
                                 @change="(value) => warehouseChange(value)" :mode="'single'" ref="multiselect"
                                 placeholder="select a warehouse" class="w-full" />
                             <p v-if="errorMessage" class="mt-2 text-sm text-red-600" id="email-error">
                                 {{ errorMessage }}
                             </p>
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :label="'save'" @click="() => sendWarehouse(action.action)" />
+                                <Button :style="'save'" :label="'save'" @click="() => sendWarehouse(action)" />
                             </div>
 
                         </div>
@@ -86,11 +86,11 @@ const warehouseChange = (value) => {
                 </Popover>
             </div>
             <div v-else>
-                <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'"
+                <Link :href="route(action.route?.name, action.route?.parameters)" :method="'post'"
                     :as="'button'">
-                    <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-                        :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
-                        :tooltip="action.action.tooltip" />
+                    <Button :style="action.style" :label="action.label" :icon="action.icon"
+                        :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
+                        :tooltip="action.tooltip" />
                 </Link>
             </div>
 

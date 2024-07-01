@@ -86,9 +86,9 @@ const onSubmitAddItem = async (url: string, close: Function, idProduct: number) 
                 <template #button>
                     <Button
                         @click="() => (portfoliosList.length ? '' : getPortfoliosList())"
-                        :type="action.action.style"
-                        :tooltip="action.action.tooltip"
-                        :label="action.action.label"
+                        :type="action.style"
+                        :tooltip="action.tooltip"
+                        :label="action.label"
                     />
                 </template>
 
@@ -116,7 +116,7 @@ const onSubmitAddItem = async (url: string, close: Function, idProduct: number) 
                         
                         <div class="flex justify-end mt-4">
                             <Button
-                                @click="() => action.action.route?.name ? onSubmitAddItem(route(action.action.route?.name, action.action.route?.parameters), close, selectedPortfolio) : false"
+                                @click="() => action.route?.name ? onSubmitAddItem(route(action.route?.name, action.route?.parameters), close, selectedPortfolio) : false"
                                 type="primary"
                                 tooltip="Move pallet"
                                 :loading="isLoadingSubmit"

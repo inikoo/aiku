@@ -315,8 +315,8 @@ const typePallet = [
 
         <!-- Button: Submit -->
         <template #button-submit="{ action: action }">
-            <Button @click="onSubmitPallet(action.action.route)" :style="action.action.style"
-                :label="action.action.label" :loading="isLoading === 'submitPallet'" />
+            <Button @click="onSubmitPallet(action.route)" :style="action.style"
+                :label="action.label" :loading="isLoading === 'submitPallet'" />
         </template>
     </PageHeading>
 
