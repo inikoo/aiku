@@ -189,11 +189,11 @@ const checkVerification = async () => {
                 <!-- Button: Save -->
                 <template v-if="fieldData.noSaveButton" />
                 <span v-else class="ml-2 flex-shrink-0">
-                    <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
-                        <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
-                            :style="{
-                                '--fa-secondary-color': 'rgb(0, 255, 4)'
-                            }" aria-hidden="true" />
+                    <button v-if="!fieldData.verification" class="h-9 align-bottom text-center" :disabled="form.processing || !form.isDirty" type="submit">
+                        <template v-if="form.isDirty">
+                            <FontAwesomeIcon v-if="form.processing" icon='fad fa-spinner-third' class='text-2xl animate-spin' fixed-width aria-hidden='true' />
+                            <FontAwesomeIcon v-else icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                        </template>
                         <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                     </button>
 

@@ -158,9 +158,14 @@ const onSelectSubmitChange = (value) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template v-if="formData?.submitPosition == 'top'" #button>
-            <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
-                <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing" :style="'primary'"
-                    size="m" icon="fas fa-save" @click="handleFormSubmit">
+            <div class="qwezxc flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
+                <Button v-if="!formData.submitButton"
+                    type="submit"
+                    :disabled="form.processing"
+                    :style="'primary'"
+                    size="m"
+                    icon="fas fa-save"
+                    @click="handleFormSubmit">
                     {{ trans('Save') }}
                 </Button>
 
@@ -287,10 +292,15 @@ const onSelectSubmitChange = (value) => {
 
                 <!-- Button -->
                 <div v-if="!formData?.submitPosition || formData?.submitPosition != 'top'" class="pt-5 flex justify-end">
-                    <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing" :style="'primary'"
-                        size="m" icon="fas fa-save" @click="handleFormSubmit">
-                        {{ trans('Save') }}
-                    </Button>
+                    <Button
+                        v-if="!formData.submitButton"
+                        :loading="form.processing"
+                        type="submit"
+                        size="m"
+                        icon="fas fa-save"
+                        label="Save"
+                        @click="handleFormSubmit"
+                    />
 
                     <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
                         <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
