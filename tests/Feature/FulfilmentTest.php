@@ -35,6 +35,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
+use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -861,6 +862,23 @@ test('Set pallet as damaged', function (Pallet $pallet) {
         ->and($damagedPallet->status)->toBe(PalletStatusEnum::INCIDENT);
 
     return $damagedPallet;
+})->depends('create pallet no delivery')->skip('request()->user()->id didnt work with the acting as');
+
+test('Set pallet as lost', function (Pallet $pallet) {
+    $user = $this->adminGuest->user;
+    $this->actingAs($user);
+    $lostPallet = SetPalletAsLost::make()->action(
+        $pallet,
+        [
+            'message' => 'ehe',
+        ]
+    );
+
+    expect($lostPallet)->toBeInstanceOf(Pallet::class)
+        ->and($lostPallet->state)->toBe(PalletStateEnum::LOST)
+        ->and($lostPallet->status)->toBe(PalletStatusEnum::INCIDENT);
+
+    return $lostPallet;
 })->depends('create pallet no delivery')->skip('request()->user()->id didnt work with the acting as');
 
 test('hydrate fulfilment command', function () {
