@@ -31,6 +31,7 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -412,6 +413,24 @@ test('update rental agreement cause', function (RentalAgreement $rentalAgreement
 
     return $rentalAgreement;
 })->depends('create rental agreement');
+
+
+test('Fetch new webhook fulfilment customer', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $webhook = FetchNewWebhookFulfilmentCustomer::make()->action(
+        $this->organisation,
+        $fulfilmentCustomer->fulfilment,
+        $fulfilmentCustomer,
+        []
+    );
+
+    expect($webhook)->toHaveKey('webhook_access_key')
+        ->and($webhook['webhook_access_key'])->toBeString()
+        ->and(strlen($webhook['webhook_access_key']))->toBe(64);
+    $updatedFulfilmentCustomer = FulfilmentCustomer::find($fulfilmentCustomer->id);
+    expect($updatedFulfilmentCustomer->webhook_access_key)->toBe($webhook['webhook_access_key']);
+
+    return $webhook;
+})->depends('create fulfilment customer');
 
 
 test('create pallet delivery', function ($fulfilmentCustomer) {
