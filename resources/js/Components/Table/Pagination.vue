@@ -1,12 +1,12 @@
 <template>
     <nav v-if="!hasData || pagination.total < 1 || exportLinks?.export?.route || hasPagination && meta?.total > 15"
         class="bg-white px-4 py-3 flex items-center space-x-2 justify-between border-t border-gray-200 sm:px-4">
-        <p v-if="!hasData || pagination.total < 1">
-            {{ translations.no_results_found }}
+        <p v-if="!hasData || pagination.total < 1" class="mx-auto">
+            {{ trans('No result found') }}
         </p>
 
         <!-- Button: Download Table -->
-         <slot name="tableDownload" class="">
+        <slot name="tableDownload" class="">
             <TableDownload v-if="exportLinks?.export?.route" :exportLinks="exportLinks" />
         </slot>
 
@@ -115,6 +115,7 @@ import { computed } from "vue"
 import TableDownload from '@/Components/Table/TableDownload.vue'
 import { getTranslations } from "./translations.js"
 import { routeType } from "@/types/route"
+import { trans } from 'laravel-vue-i18n'
 
 const translations = getTranslations()
 

@@ -23,6 +23,10 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import { Tabs as TSTabs } from '@/types/Tabs'
 
+import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
+import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+
 import { faCube, faConciergeBell } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCube, faConciergeBell)
@@ -34,7 +38,6 @@ library.add(faCube, faConciergeBell)
 const props = defineProps<{
 	title: string
 	tabs: TSTabs
-	pallets?: {}
 	data?: {}
 	history?: {}
 	pageHead: PageHeadingTypes
@@ -44,6 +47,10 @@ const props = defineProps<{
 		index : routeType,
 		store : routeType
 	}
+	pallets?: {}
+    stored_items: {}
+    services: {}
+    physical_goods: {}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -54,6 +61,9 @@ const openModal = ref(false)
 const component = computed(() => {
 	const components: Component = {
 		pallets: TablePalletReturnsDelivery,
+        stored_items: TableStoredItems,
+        services: TableServices,
+        physical_goods: TablePhysicalGoods,
 		history: TableHistories,
 	}
 	return components[currentTab.value]
@@ -70,6 +80,7 @@ watch(
 </script>
 
 <template>
+    {{ currentTab }}
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
 		<template #button-add-pallet="{ action: action }">
