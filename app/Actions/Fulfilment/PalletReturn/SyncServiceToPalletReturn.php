@@ -52,6 +52,13 @@ class SyncServiceToPalletReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
+    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    {
+        $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
+
+        return $this->handle($palletReturn, $this->validatedData);
+    }
+
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();

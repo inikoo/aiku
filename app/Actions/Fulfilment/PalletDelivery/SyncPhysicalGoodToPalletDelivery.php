@@ -52,6 +52,13 @@ class SyncPhysicalGoodToPalletDelivery extends OrgAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
+    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+
+        return $this->handle($palletDelivery, $this->validatedData);
+    }
+
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
