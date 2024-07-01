@@ -77,6 +77,30 @@ class ShowPalletReturn extends RetinaAction
                                 ]
                             ]
                         ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add service'),
+                            'route' => [
+                                'name'       => 'retina.models.pallet-return.pallet.store',
+                                'parameters' => [
+                                    'palletReturn'       => $palletReturn->slug
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'secondary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add physical good'),
+                            'route' => [
+                                'name'       => 'retina.models.pallet-return.physical_good.store',
+                                'parameters' => [
+                                    'palletReturn'       => $palletReturn->slug
+                                ]
+                            ]
+                        ],
                         $palletReturn->pallets()->count() > 0 ? [
                             'type'    => 'button',
                             'style'   => 'save',
