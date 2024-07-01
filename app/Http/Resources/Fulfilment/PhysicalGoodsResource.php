@@ -46,7 +46,7 @@ class PhysicalGoodsResource extends JsonResource
             'state_label'            => $this->state->labels()[$this->state->value],
             'state_icon'             => $this->state->stateIcon()[$this->state->value],
             'quantity'               => $this->quantity,
-            'total'                  => $this->quantity * $this->price,
+            'total'                  => $this->quantity * $this->price
         ];
     }
 }
