@@ -41,6 +41,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -812,7 +813,7 @@ test('update pallet return', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('create pallet return');
 
-test('Store pallet to return', function (PalletReturn $palletReturn) {
+test('store pallet to return', function (PalletReturn $palletReturn) {
 
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
@@ -842,8 +843,29 @@ test('Store pallet to return', function (PalletReturn $palletReturn) {
         ->and($firstPallet->state)->toBe(PalletStateEnum::IN_PROCESS)
         ->and($firstPallet->pallet_return_id)->toBe($palletReturn->id);
 
-    return $palletReturn;
+    return $storedPallet;
 })->depends('create pallet return');
+
+test('picking pallet to return', function (PalletReturn $storedPallet) {
+
+    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
+
+
+    $pickingPalletReturn = PickingPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $storedPallet,
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    $firstPallet = $pickingPalletReturn->pallets->first();
+    expect($pickingPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($storedPallet->number_pallets)->toBe(1)
+        ->and($firstPallet)->toBeInstanceOf(Pallet::class)
+        ->and($firstPallet->status)->toBe(PalletStatusEnum::RETURNING)
+        ->and($firstPallet->state)->toBe(PalletStateEnum::PICKING);
+
+    return $pickingPalletReturn;
+})->depends('store pallet to return');
 
 test('cancel pallet return', function (PalletReturn $palletReturn) {
 
