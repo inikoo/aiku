@@ -11,35 +11,15 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk, faChevronDown } from '@fas'
 import { faPhone } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import Input from '@/Components/Forms/Fields/Input.vue'
-import SenderEmail from '@/Components/Forms/Fields/SenderEmail.vue'
-import Select from '@/Components/Forms/Fields/Select.vue'
-import Phone from '@/Components/Forms/Fields/Phone.vue'
-import Date from '@/Components/Forms/Fields/Date.vue'
 import { trans } from "laravel-vue-i18n"
-import Address from "@/Components/Forms/Fields/Address.vue"
-import Radio from '@/Components/Forms/Fields/Radio.vue'
-import Country from "@/Components/Forms/Fields/Country.vue"
-import Currency from "@/Components/Forms/Fields/Currency.vue"
-import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
-import Password from "@/Components/Forms/Fields/Password.vue"
-import CustomerRoles from '@/Components/Forms/Fields/CustomerRoles.vue'
-import JobPosition from '@/Components/Forms/Fields/JobPosition.vue'
-import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
-import Interest from '@/Components/Forms/Fields/Interest.vue'
-import Toggle from '@/Components/Forms/Fields/Toggle.vue'
-import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
-import Rental from '@/Components/Rental/Rental.vue'
-import Agreement from '@/Components/Rental/Agreement.vue'
 import { isArray } from 'lodash'
 
 import { ref, onMounted } from 'vue'
-import Textarea from "@/Components/Forms/Fields/Textarea.vue"
-import TextEditor from "@/Components/Forms/Fields/TextEditor.vue"
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
+import { getComponent } from '@/Composables/Listing/FieldFormList'  // Fieldform list
 
 library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone, faChevronDown)
 
@@ -62,33 +42,6 @@ const props = defineProps<{
         };
     }
 }>()
-
-
-const getComponent = (componentName: string) => {
-    const components: any = {
-        'input': Input,
-        'inputWithAddOn': InputWithAddOn,
-        'phone': Phone,
-        'date': Date,
-        'select': Select,
-        'address': Address,
-        'radio': Radio,
-        'country': Country,
-        'currency': Currency,
-        'password': Password,
-        'customerRoles': CustomerRoles,
-        'textarea': Textarea,
-        'textEditor': TextEditor,
-        'toggle': Toggle,
-        'jobPosition': JobPosition,
-        'senderEmail': SenderEmail,
-        'employeePosition': EmployeePosition,
-        'interest': Interest,
-        'rental': Agreement,
-        'webRegistrations': WebRegistrations
-    }
-    return components[componentName] ?? null
-}
 
 let fields: any = {}
 Object.entries(props.formData.blueprint).forEach(([, val]) => {

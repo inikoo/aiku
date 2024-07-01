@@ -7,41 +7,10 @@
 <script setup lang="ts">
 
 import { useForm } from '@inertiajs/vue3'
-import { useLayoutStore } from '@/Stores/layout'
 import { routeType } from '@/types/route'
 import { ref, computed } from 'vue'
 import axios from 'axios'
-import type { Component } from 'vue'
-
-import Toggle from '@/Components/Forms/Fields/Toggle.vue'
-import Input from '@/Components/Forms/Fields/Input.vue'
-import Phone from '@/Components/Forms/Fields/Phone.vue'
-import Date from '@/Components/Forms/Fields/Date.vue'
-import Theme from '@/Components/Forms/Fields/Theme.vue'
-import ColorMode from '@/Components/Forms/Fields/ColorMode.vue'
-import Avatar from '@/Components/Forms/Fields/Avatar.vue'
-import Password from '@/Components/Forms/Fields/Password.vue'
-import Textarea from '@/Components/Forms/Fields/Textarea.vue'
-import Select from '@/Components/Forms/Fields/Select.vue'
-import Radio from '@/Components/Forms/Fields/Radio.vue'
-import TextEditor from '@/Components/Forms/Fields/TextEditor.vue'
-import Address from "@/Components/Forms/Fields/Address.vue"
-import Country from "@/Components/Forms/Fields/Country.vue"
-import Currency from "@/Components/Forms/Fields/Currency.vue"
-import Language from "@/Components/Forms/Fields/Language.vue"
-import Permissions from "@/Components/Forms/Fields/Permissions.vue"
-import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
-import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
-import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
-import EmployeeState from '@/Components/Forms/Fields/Employee/EmployeeState.vue'
-import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
-import Interest from '@/Components/Forms/Fields/Interest.vue'
-import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
-import GoogleSearch from '@/Components/Forms/Fields/GoogleSearch.vue'
-import Action from '@/Components/Forms/Fields/Action.vue'
-import Rental from '@/Components/Rental/Rental.vue'
-import Agreement from '@/Components/Rental/Agreement.vue'
-
+import { getComponent } from '@/Composables/Listing/FieldFormList'  // Fieldform list
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave as fadSave, } from '@fad'
@@ -72,42 +41,8 @@ const props = defineProps<{
     }
 }>()
 
-const layout = useLayoutStore()
 const updateRoute = props.fieldData.updateRoute || props.args['updateRoute']
 
-const components: {[key: string]: Component} = {
-    'select': Select,
-    'toggle': Toggle,
-    'input': Input,
-    'action': Action,
-    'inputWithAddOn': InputWithAddOn,
-    'phone': Phone,
-    'date': Date,
-    'theme': Theme,
-    'colorMode': ColorMode,
-    'password': Password,
-    'avatar': Avatar,
-    'textarea': Textarea,
-    'radio': Radio,
-    'textEditor': TextEditor,
-    'address': Address,
-    'country': Country,
-    'currency': Currency,
-    'language': Language,
-    'permissions': Permissions,
-    'checkbox': Checkbox,
-    'employeePosition': EmployeePosition,
-    'app_theme': AppTheme,
-    'interest': Interest,
-    'webRegistrations': WebRegistrations,
-    'googleSearch': GoogleSearch,
-    'rental' : Agreement,
-    'employeeState': EmployeeState,
-}
-
-const getComponent = (componentName: string) => {
-    return components[componentName] ?? null
-}
 
 let formFields = {
     [props.field]: props.fieldData.value,
