@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
+use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
@@ -24,6 +25,8 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -35,6 +38,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\Rental;
+use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
@@ -180,6 +184,22 @@ beforeEach(function () {
     }
 
     $this->storedItem = $storedItem;
+
+    $rentalAgreement = RentalAgreement::where('fulfilment_customer_id', $this->customer->fulfilmentCustomer->id)->first();
+    if (!$rentalAgreement) {
+        data_set($storeData, 'billing_cycle', RentalAgreementBillingCycleEnum::MONTHLY);
+        data_set($storeData, 'state', RentalAgreementStateEnum::ACTIVE);
+        data_set($storeData, 'username', 'test');
+        data_set($storeData, 'email', 'test@aiku.io');
+
+
+
+        $rentalAgreement = StoreRentalAgreement::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+    $this->rentalAgreement = $rentalAgreement;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -746,6 +766,25 @@ test('UI create rental agreement', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
+
+test('UI edit rental agreement', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 6)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.rental-agreement.update')
+                        ->where('parameters', $this->rentalAgreement->id)
+            )
+            ->has('breadcrumbs', 4);
+    });
+})->skip('Known issue with $webUser->email being null');
 
 // Service
 

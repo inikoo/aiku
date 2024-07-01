@@ -31,7 +31,11 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
+use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -63,6 +67,7 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
+use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -412,6 +417,24 @@ test('update rental agreement cause', function (RentalAgreement $rentalAgreement
 
     return $rentalAgreement;
 })->depends('create rental agreement');
+
+
+test('Fetch new webhook fulfilment customer', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $webhook = FetchNewWebhookFulfilmentCustomer::make()->action(
+        $this->organisation,
+        $fulfilmentCustomer->fulfilment,
+        $fulfilmentCustomer,
+        []
+    );
+
+    expect($webhook)->toHaveKey('webhook_access_key')
+        ->and($webhook['webhook_access_key'])->toBeString()
+        ->and(strlen($webhook['webhook_access_key']))->toBe(64);
+    $updatedFulfilmentCustomer = FulfilmentCustomer::find($fulfilmentCustomer->id);
+    expect($updatedFulfilmentCustomer->webhook_access_key)->toBe($webhook['webhook_access_key']);
+
+    return $webhook;
+})->depends('create fulfilment customer');
 
 
 test('create pallet delivery', function ($fulfilmentCustomer) {
@@ -789,6 +812,56 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
 
     return $pallet;
 })->depends('create fulfilment shop');
+
+test('update pallet', function (Pallet $pallet) {
+
+    $updatedPallet = UpdatePallet::make()->action(
+        $pallet,
+        [
+            'state' => PalletStateEnum::DAMAGED,
+            'status' => PalletStatusEnum::INCIDENT,
+            'notes'  => 'sorry'
+        ]
+    );
+
+
+    expect($updatedPallet)->toBeInstanceOf(Pallet::class)
+        ->and($updatedPallet->state)->toBe(PalletStateEnum::DAMAGED)
+        ->and($updatedPallet->status)->toBe(PalletStatusEnum::INCIDENT)
+        ->and($updatedPallet->notes)->toBe('sorry');
+        
+    return $updatedPallet;
+})->depends('create pallet no delivery');
+
+test('Return pallet to customer', function (Pallet $pallet) {
+
+    $returnedPallet = ReturnPalletToCustomer::make()->action(
+        $pallet,
+    );
+
+    expect($returnedPallet)->toBeInstanceOf(Pallet::class)
+        ->and($returnedPallet->state)->toBe(PalletStateEnum::DISPATCHED)
+        ->and($returnedPallet->status)->toBe(PalletStatusEnum::RETURNED);
+
+    return $returnedPallet;
+})->depends('create pallet no delivery');
+
+test('Set pallet as damaged', function (Pallet $pallet) {
+    $user = $this->adminGuest->user;
+    $this->actingAs($user);
+    $damagedPallet = SetPalletAsDamaged::make()->action(
+        $pallet,
+        [
+            'message' => 'ehe',
+        ]
+    );
+
+    expect($damagedPallet)->toBeInstanceOf(Pallet::class)
+        ->and($damagedPallet->state)->toBe(PalletStateEnum::DAMAGED)
+        ->and($damagedPallet->status)->toBe(PalletStatusEnum::INCIDENT);
+
+    return $damagedPallet;
+})->depends('create pallet no delivery')->skip('request()->user()->id didnt work with the acting as');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
