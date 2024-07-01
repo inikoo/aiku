@@ -127,6 +127,7 @@ class IndexServiceInPalletReturn extends OrgAction
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'action', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('code');
         };
     }

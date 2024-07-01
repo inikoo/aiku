@@ -50,6 +50,8 @@ use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DetachPhysicalGoodFromPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DetachServiceFromPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
@@ -62,6 +64,8 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
+use App\Actions\Fulfilment\PalletReturn\DetachPhysicalGoodFromPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DetachServiceFromPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
@@ -266,12 +270,18 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('service', SyncServiceToPalletDelivery::class)->name('service.store');
     Route::post('physical-goods', SyncPhysicalGoodToPalletDelivery::class)->name('physical_good.store');
 
+    Route::delete('service', DetachServiceFromPalletDelivery::class)->name('service.delete');
+    Route::delete('physical-goods', DetachPhysicalGoodFromPalletDelivery::class)->name('physical_good.delete');
+
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('service', SyncServiceToPalletReturn::class)->name('service.store');
     Route::post('physical-goods', SyncPhysicalGoodToPalletReturn::class)->name('physical_good.store');
+
+    Route::delete('service', DetachServiceFromPalletReturn::class)->name('service.delete');
+    Route::delete('physical-goods', DetachPhysicalGoodFromPalletReturn::class)->name('physical_good.delete');
 
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');

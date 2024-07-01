@@ -278,6 +278,20 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ],
 
+                'deleteServiceRoute' => [
+                    'name'       => 'org.models.pallet-return.service.delete',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ],
+
+                'deletePhysicalGoodRoute' => [
+                    'name'       => 'org.models.pallet-return.physical_good.delete',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->id
+                    ]
+                ],
+
                 'upload' => [
                     'event'   => 'action-progress',
                     'channel' => 'grp.personal.' . $this->organisation->id

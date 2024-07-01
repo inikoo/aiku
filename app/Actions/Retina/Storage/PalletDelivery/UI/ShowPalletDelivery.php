@@ -170,6 +170,20 @@ class ShowPalletDelivery extends RetinaAction
                     ]
                 ],
 
+                'deleteServiceRoute' => [
+                    'name'       => 'retina.models.pallet-delivery.service.delete',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->id
+                    ]
+                ],
+
+                'deletePhysicalGoodRoute' => [
+                    'name'       => 'retina.models.pallet-delivery.physical_good.delete',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->id
+                    ]
+                ],
+
                 'uploadRoutes' => [
                     'history' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',

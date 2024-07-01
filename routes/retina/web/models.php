@@ -12,6 +12,8 @@ use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\PalletDelivery\DetachPhysicalGoodFromPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DetachServiceFromPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SyncPhysicalGoodToPalletDelivery;
@@ -20,6 +22,8 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
+use App\Actions\Fulfilment\PalletReturn\DetachPhysicalGoodFromPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\DetachServiceFromPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SyncPhysicalGoodToPalletReturn;
@@ -42,6 +46,9 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
     Route::post('service', [SyncServiceToPalletReturn::class, 'fromRetina'])->name('service.store');
     Route::post('physical-goods', [SyncPhysicalGoodToPalletReturn::class, 'fromRetina'])->name('physical_good.store');
+
+    Route::delete('service', [DetachServiceFromPalletReturn::class, 'fromRetina'])->name('service.delete');
+    Route::delete('physical-goods', [DetachPhysicalGoodFromPalletReturn::class, 'fromRetina'])->name('physical_good.delete');
 });
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
@@ -54,6 +61,9 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
     Route::post('service', [SyncServiceToPalletDelivery::class, 'fromRetina'])->name('service.store');
     Route::post('physical-goods', [SyncPhysicalGoodToPalletDelivery::class, 'fromRetina'])->name('physical_good.store');
+
+    Route::delete('service', [DetachServiceFromPalletDelivery::class, 'fromRetina'])->name('service.delete');
+    Route::delete('physical-goods', [DetachPhysicalGoodFromPalletDelivery::class, 'fromRetina'])->name('physical_good.delete');
 
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });

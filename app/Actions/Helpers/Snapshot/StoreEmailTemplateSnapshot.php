@@ -7,6 +7,7 @@
 
 namespace App\Actions\Helpers\Snapshot;
 
+use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Mail\EmailTemplate;
 use Illuminate\Support\Arr;
@@ -19,6 +20,7 @@ class StoreEmailTemplateSnapshot
     public function handle(EmailTemplate $emailTemplate, array $modelData): Snapshot
     {
         data_set($modelData, 'layout', $emailTemplate->compiled);
+        data_set($modelData, 'scope', SnapshotScopeEnum::EMAIL_TEMPLATE);
         data_set(
             $modelData,
             'checksum',

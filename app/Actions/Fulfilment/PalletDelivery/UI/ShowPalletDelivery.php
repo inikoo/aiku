@@ -331,6 +331,20 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
+                'deleteServiceRoute' => [
+                    'name'       => 'org.models.pallet-delivery.service.delete',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->id
+                    ]
+                ],
+
+                'deletePhysicalGoodRoute' => [
+                    'name'       => 'org.models.pallet-delivery.physical_good.delete',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->id
+                    ]
+                ],
+
                 'upload' => [
                     'event'   => 'action-progress',
                     'channel' => 'grp.personal.' . $this->organisation->id
