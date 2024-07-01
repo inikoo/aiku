@@ -31,6 +31,7 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -42,6 +43,7 @@ use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
@@ -252,7 +254,7 @@ test('create fulfilment website', function (Fulfilment $fulfilment) {
 })->depends('create fulfilment shop');
 
 
-test('create fulfilment customer', function (Fulfilment $fulfilment) {
+test('create fulfilment customer from customer', function (Fulfilment $fulfilment) {
     $customerData = Customer::factory()->definition();
 
     $customer = StoreCustomer::make()->action(
@@ -285,6 +287,46 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
         ->and($fulfilment->stats->number_customers_interest_dropshipping)->toBe(0);
 
     return $customer->fulfilmentCustomer;
+})->depends('create fulfilment shop');
+
+test('create fulfilment customer', function (Fulfilment $fulfilment) {
+
+    $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
+        $fulfilment,
+        [
+            'state'     => CustomerStateEnum::ACTIVE,
+            'status'    => CustomerStatusEnum::APPROVED,
+            'contact_name' => 'jacqueline',
+            'company_name' => 'ghost.o',
+            'interest'     => ['pallets_storage', 'items_storage', 'dropshipping'],
+        ]
+    );
+
+    UpdateFulfilmentCustomer::make()->action(
+        $fulfilmentCustomer,
+        [
+            'pallets_storage' => true,
+            'items_storage'   => true,
+        ]
+    );
+
+    $fulfilment->refresh();
+
+    expect($fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($fulfilmentCustomer->customer)->toBeInstanceOf(Customer::class)
+        ->and($fulfilmentCustomer->customer->status)->toBe(CustomerStatusEnum::APPROVED)
+        ->and($fulfilmentCustomer->customer->state)->toBe(CustomerStateEnum::ACTIVE)
+        ->and($fulfilmentCustomer->customer->is_fulfilment)->toBeTrue()
+        ->and($fulfilmentCustomer->pallets_storage)->toBeTrue()
+        ->and($fulfilmentCustomer->items_storage)->toBeTrue()
+        ->and($fulfilmentCustomer->dropshipping)->toBeTrue()
+        ->and($fulfilmentCustomer->number_pallets)->toBe(0)
+        ->and($fulfilmentCustomer->number_stored_items)->toBe(0)
+        ->and($fulfilment->stats->number_customers_interest_items_storage)->toBe(2)
+        ->and($fulfilment->stats->number_customers_interest_pallets_storage)->toBe(2)
+        ->and($fulfilment->stats->number_customers_interest_dropshipping)->toBe(1);
+
+    return $fulfilmentCustomer;
 })->depends('create fulfilment shop');
 
 test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer) {
