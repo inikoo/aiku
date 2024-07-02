@@ -408,7 +408,7 @@ class ShowPalletDelivery extends OrgAction
                         'fulfilment'   => $palletDelivery->fulfilment->slug
                     ]
                 ],
-                'physicalGoodLists'   => [
+                'physicalGoodListsRoute'   => [
                     'name'       => 'grp.org.fulfilments.show.assets.outers.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,

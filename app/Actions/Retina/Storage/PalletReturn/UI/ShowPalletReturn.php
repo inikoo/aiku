@@ -140,8 +140,21 @@ class ShowPalletReturn extends RetinaAction
                     ],
                 ],
 
-                'service_lists'             => [],  // TODO
-                'physical_good_lists'       => [],  // TODO
+
+                'serviceListsRoute'   => [
+                    'name'       => 'grp.org.fulfilments.show.assets.services.index',
+                    'parameters' => [
+                        'organisation' => $palletReturn->organisation->slug,
+                        'fulfilment'   => $palletReturn->fulfilment->slug
+                    ]
+                ],
+                'physicalGoodListsRoute'   => [
+                    'name'       => 'grp.org.fulfilments.show.assets.outers.index',
+                    'parameters' => [
+                        'organisation' => $palletReturn->organisation->slug,
+                        'fulfilment'   => $palletReturn->fulfilment->slug
+                    ]
+                ],
 
                 'updateRoute' => [
                     'route' => [

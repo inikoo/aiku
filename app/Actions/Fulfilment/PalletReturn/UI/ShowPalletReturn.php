@@ -396,7 +396,7 @@ class ShowPalletReturn extends OrgAction
                         'fulfilment'   => $palletReturn->fulfilment->slug
                     ]
                 ],
-                'physicalGoodLists'   => [
+                'physicalGoodListsRoute'   => [
                     'name'       => 'grp.org.fulfilments.show.assets.outers.index',
                     'parameters' => [
                         'organisation' => $palletReturn->organisation->slug,
