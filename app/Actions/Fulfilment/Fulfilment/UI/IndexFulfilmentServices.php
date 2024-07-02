@@ -127,7 +127,7 @@ class IndexFulfilmentServices extends OrgAction
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
-        $this->handle($this->fulfilment, $this->validatedData);
+        $this->handle($this->fulfilment, ServicesTabsEnum::SERVICES->value);
     }
 
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
