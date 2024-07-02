@@ -61,14 +61,14 @@ const dataCompany = [
             <div class="col-span-2 ">
                 <dt class="font-medium">Username</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <PureInput :modelValue="props.data.username" :rows="5" :placeholder="trans('No email.')" disabled />
+                    <PureInput :modelValue="props.data.username" :rows="5" :placeholder="trans('No Username.')" disabled copyButton />
                 </dd>
             </div>
 
             <div class="col-span-2 ">
                 <dt class="font-medium">Email</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <PureInput :modelValue="props.data.email" :rows="5" :placeholder="trans('No email.')" disabled />
+                    <PureInput :modelValue="props.data.email" :rows="5" :placeholder="trans('No email.')" disabled copyButton />
                 </dd>
             </div>
 
