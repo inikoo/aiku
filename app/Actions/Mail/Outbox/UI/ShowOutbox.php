@@ -135,43 +135,29 @@ class ShowOutbox extends OrgAction
     {
         $headCrumb = function (Outbox $outbox, array $routeParameters, $suffix) {
             return [
-
                 [
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('Outboxes')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $outbox->slug,
-                        ],
-                    ],
-                    'suffix'         => $suffix,
-
-                ],
-
-            ];
-        };
+                   'type'   => 'simple',
+                   'simple' => [
+                       'route' => $routeParameters,
+                       'label' => $outbox->slug,
+                   ],
+           ],
+        ];
+    };
 
         $outbox = Outbox::where('slug', $routeParameters['outbox'])->first();
 
         return match ($routeName) {
             'grp.org.shops.show.mail.outboxes.show' =>
             array_merge(
-                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.mail.outboxes', $routeParameters['organisation']),
+                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.mail.outboxes', $routeParameters),
                 $headCrumb(
-                    $routeParameters['outbox'],
+                    $outbox,
                     [
-                        'index' => [
-                            'name'       => 'grp.org.shops.show.mail.outboxes',
-                            'parameters' => $routeParameters
-                        ],
-                        'model' => [
+             
                             'name'       => 'grp.org.shops.show.mail.outboxes.show',
                             'parameters' => $routeParameters
-                        ]
+                        
                     ],
                     $suffix
                 )
