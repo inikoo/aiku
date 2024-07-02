@@ -140,11 +140,13 @@ onMounted(() => {
                         aria-hidden='true' />
                 </dt>
 
-                <div
-                    v-if="(boxStats.delivery_status.tooltip === 'Received' || boxStats.delivery_status.tooltip === 'Booking in' || boxStats.delivery_status.tooltip == 'Booked In')">
+                <div v-if="dataPalletDelivery.state !== 'in-process'">
                     <dd class="text-xs text-gray-500">
-                        {{ dataPalletDelivery.estimated_delivery_date ? useFormatTime(dataPalletDelivery?.estimated_delivery_date) :
-                            'Not Set' }}
+                        {{
+                            dataPalletDelivery.estimated_delivery_date
+                            ? useFormatTime(dataPalletDelivery?.estimated_delivery_date)
+                            : 'Not Set'
+                        }}
                     </dd>
                 </div>
 
@@ -170,8 +172,7 @@ onMounted(() => {
                             inline auto-apply
                             :disabled-dates="disableBeforeToday"
                             :enable-time-picker="false"
-                        >
-                        </DatePicker>
+                        />
                     </template>
                 </Popover>
             </div>

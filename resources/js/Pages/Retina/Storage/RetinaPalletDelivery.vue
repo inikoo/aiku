@@ -21,7 +21,7 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime } from '@/Composables/useFormatTime'
+import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
 import { notify } from '@kyvg/vue3-notification'
 import type { Component } from 'vue'
 
@@ -309,12 +309,17 @@ const typePallet = [
                         </div>
                         <span class="text-xs px-1 my-2">Number of pallets : </span>
                         <div>
-                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1-100" type="number"
-                                :minValue="1" :maxValue="100" autofocus
+                            <PureInput
+                                v-model="formMultiplePallet.number_pallets"
+                                placeholder="1-100"
+                                type="number"
+                                :minValue="1"
+                                :maxValue="100"
+                                autofocus
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
-                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action, closed) : ''" />
-                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])"
-                                class="mt-2 text-sm text-red-600">
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action, closed) : ''"
+                            />
+                            <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])" class="mt-2 text-sm text-red-500">
                                 {{ formMultiplePallet.errors.number_pallets }}
                             </p>
                         </div>
@@ -548,13 +553,21 @@ const typePallet = [
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']"  :class='box_stats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <div v-if="(box_stats.delivery_status.tooltip == 'Received' || box_stats.delivery_status.tooltip == 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
-                    <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
-                </div>
-                <Popover v-else position="">
+                
+                <Popover v-if="data?.data.state === 'in-process'" position="">
                     <template #button>
-                        <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
+                        <div v-if="data.data.estimated_delivery_date"
+                            v-tooltip="useDaysLeftFromToday(data.data.estimated_delivery_date)"
+                            class="group text-xs text-gray-500">
+                            {{ useFormatTime(data.data.estimated_delivery_date) }}
+                            <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
+                        </div>
+
+                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
+                            {{ trans('Set estimated date') }}
+                        </div>
                     </template>
+
                     <template #content="{ close: closed }">
                         <div>
                             <DatePicker
@@ -568,6 +581,11 @@ const typePallet = [
                         </div>
                     </template>
                 </Popover>
+
+                <div v-else>
+                    <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
+                </div>
+
             </div>
         </BoxStatPallet>
 
