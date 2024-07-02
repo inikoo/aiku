@@ -6,6 +6,8 @@
  */
 
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
@@ -45,3 +47,6 @@ Route::prefix('stored-item-returns')->as('stored-item-returns.')->group(function
     Route::get('{storedItemReturn}', ShowStoredItemReturn::class)->name('show');
     Route::post('{storedItemReturn}/stored-item', [StoreStoredItemToStoredItemReturn::class, 'fromRetina'])->name('stored-item.store');
 });
+
+Route::get('services', [IndexFulfilmentServices::class, 'fromRetina'])->name('services.index');
+Route::get('physical-goods', [IndexFulfilmentPhysicalGoods::class, 'fromRetina'])->name('outers.index');

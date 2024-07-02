@@ -7,8 +7,6 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
@@ -77,9 +75,6 @@ class ShowPalletReturn extends OrgAction
 
 
         $actions = [];
-
-        $servicesList      = ServicesResource::collection(IndexFulfilmentServices::run($palletReturn->fulfilment))->toArray($request);
-        $physicalGoodsList = PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($palletReturn->fulfilment))->toArray($request);
 
         if($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
@@ -394,8 +389,20 @@ class ShowPalletReturn extends OrgAction
                     ],
                 ],
 
-                'service_lists'                        => $servicesList,
-                'physical_good_lists'                  => $physicalGoodsList,
+                'service_list_route'   => [
+                    'name'       => 'grp.org.fulfilments.show.assets.services.index',
+                    'parameters' => [
+                        'organisation' => $palletReturn->organisation->slug,
+                        'fulfilment'   => $palletReturn->fulfilment->slug
+                    ]
+                ],
+                'physical_good_list_route'   => [
+                    'name'       => 'grp.org.fulfilments.show.assets.outers.index',
+                    'parameters' => [
+                        'organisation' => $palletReturn->organisation->slug,
+                        'fulfilment'   => $palletReturn->fulfilment->slug
+                    ]
+                ],
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))

@@ -7,9 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
@@ -287,9 +285,6 @@ class ShowPalletDelivery extends OrgAction
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
 
-        $servicesList      = ServicesResource::collection(IndexFulfilmentServices::run($palletDelivery->fulfilment))->toArray($request);
-        $physicalGoodsList = PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($palletDelivery->fulfilment))->toArray($request);
-
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -405,6 +400,22 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
+                'rental_lists'         => $rentalList,
+                'service_list_route'   => [
+                    'name'       => 'grp.org.fulfilments.show.assets.services.index',
+                    'parameters' => [
+                        'organisation' => $palletDelivery->organisation->slug,
+                        'fulfilment'   => $palletDelivery->fulfilment->slug
+                    ]
+                ],
+                'physical_good_list_route'   => [
+                    'name'       => 'grp.org.fulfilments.show.assets.outers.index',
+                    'parameters' => [
+                        'organisation' => $palletDelivery->organisation->slug,
+                        'fulfilment'   => $palletDelivery->fulfilment->slug
+                    ]
+                ],
+
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
@@ -444,9 +455,6 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
 
-                'rental_list'                          => $rentalList,
-                'service_lists'                        => $servicesList,
-                'physical_good_lists'                  => $physicalGoodsList,
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),

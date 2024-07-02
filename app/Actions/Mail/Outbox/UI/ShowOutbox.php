@@ -69,7 +69,7 @@ class ShowOutbox extends OrgAction
         return $this->handle($outbox);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment,  Outbox $outbox, ActionRequest $request): Outbox
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
     {
 
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -87,7 +87,7 @@ class ShowOutbox extends OrgAction
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
         $this->canEdit = true;
-        $actions = $this->workshopActions($request);
+        $actions       = $this->workshopActions($request);
         return Inertia::render(
             'Mail/Outbox',
             [
@@ -168,10 +168,10 @@ class ShowOutbox extends OrgAction
                 $headCrumb(
                     $outbox,
                     [
-             
+
                             'name'       => 'grp.org.shops.show.web.websites.outboxes.show',
                             'parameters' => $routeParameters
-                        
+
                     ],
                     $suffix
                 )

@@ -274,9 +274,14 @@ watch(() => props.data, (newValue) => {
             <div class="relative" v-if="currentTab === 'pallets'">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.style" :label="action.label" :icon="action.icon"
+                        <Button
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
-                            :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
+                            :tooltip="action.tooltip"
+                            class="rounded-l-none rounded-r border-none"
+                        />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
@@ -325,12 +330,17 @@ watch(() => props.data, (newValue) => {
 
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
-                <div class="relative" v-if="currentTab === 'services'">
-                    <Popover width="w-full">
-                        <template #button>
-                            <Button :style="action.style" :label="action.label" :icon="action.icon"
-                                :key="`ActionButton${action.label}${action.style}`"
-                                :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
+            <div class="relative" v-if="currentTab === 'services'">
+                <Popover width="w-full">
+                    <template #button>
+                        <Button
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                            class="rounded-l-none rounded-r border-none"
+                        />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
@@ -372,9 +382,14 @@ watch(() => props.data, (newValue) => {
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.style" :label="action.label" :icon="action.icon"
+                        <Button
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
-                            :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
+                            :tooltip="action.tooltip"
+                            class="rounded-l-none rounded-r border-none"
+                        />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">

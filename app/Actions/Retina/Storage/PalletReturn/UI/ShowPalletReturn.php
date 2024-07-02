@@ -140,8 +140,12 @@ class ShowPalletReturn extends RetinaAction
                     ],
                 ],
 
-                'service_lists'             => [],  // TODO
-                'physical_good_lists'       => [],  // TODO
+                'service_list_route'   => [
+                    'name'       => 'retina.storage.services.index'
+                ],
+                'physical_good_list_route'   => [
+                    'name'       => 'retina.storage.outers.index'
+                ],
 
                 'updateRoute' => [
                     'route' => [
