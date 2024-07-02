@@ -4,6 +4,10 @@ export default {
     key : 'pallets',
     column : [
         {
+            label : "",
+            key   : 'type_icon'
+        },
+        {
             label : "Reference",
             key   : 'reference'
         },

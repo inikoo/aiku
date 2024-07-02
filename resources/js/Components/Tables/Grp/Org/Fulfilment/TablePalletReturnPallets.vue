@@ -34,7 +34,6 @@ const props = defineProps<{
     data: {}
     tab?: string
     state?: string
-    app?: string // 'retina'
 }>()
 
 // Not Picked
@@ -74,7 +73,7 @@ const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNo
             errorNotPicked.notes = null
             closePopup()
         },
-        onError: (error) => {
+        onError: (error: {}) => {
             console.error('hehehe', error)
         },
         onFinish: () => {
@@ -97,24 +96,28 @@ const isUndoLoading = ref(false)
 		<template #cell(type_icon)="{ item: palletDelivery }">
 
             <!-- Icon: Type -->
-            <div v-if="app == 'retina'" class="px-3" />
+            <div v-if="layout.app.name == 'retina'" class="px-3">
+                <TagPallet :stateIcon="palletDelivery.type_icon" />
+            </div>
             <FontAwesomeIcon v-else v-tooltip="palletDelivery.type_icon.tooltip" :icon='palletDelivery.type_icon.icon' :class='palletDelivery.type_icon.class' fixed-width aria-hidden='true' />
 
-           <!-- Icon: State -->
-            <div v-if="app == 'retina'" class="px-3">
+            <!-- Icon: State -->
+            <div v-if="layout.app.name == 'retina'" class="px-3">
                 <TagPallet :stateIcon="palletDelivery.state_icon" />
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 
 		</template>
 
+
         <!-- Column: State -->
 		<!-- <template #cell(state)="{ item: palletDelivery }">
-            <div v-if="app == 'retina'" class="px-3">
+            <div v-if="layout.app.name == 'retina'" class="px-3">
                 <TagPallet :stateIcon="palletDelivery.state_icon" />
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 		</template> -->
+        
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
@@ -130,14 +133,16 @@ const isUndoLoading = ref(false)
             </div>
 
             <div v-else class="text-gray-400 text-xs italic">
-                No items in this pallet
+                {{ trans('No items')}}
             </div>
         </template>
+
 
         <!-- Column: Location -->
 		<template #cell(location)="{ item: palletDelivery }">
             <Tag :label="palletDelivery.location_code" />
 		</template>
+
 
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">

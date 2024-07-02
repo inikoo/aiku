@@ -1,9 +1,9 @@
 <script setup lang='ts'>
 import Tag from '@/Components/Tag.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble } from '@fal'
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faSortSizeUp } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble)
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faSortSizeUp)
     
 defineProps<{
     stateIcon: {
@@ -24,7 +24,7 @@ const getClass = (colorName: string) => {
     <Tag :label="stateIcon.tooltip" :class="getClass(stateIcon.color)">
         <template #label>
             <FontAwesomeIcon :icon='stateIcon.icon' class='' fixed-width aria-hidden='true' />
-            <span class="whitespace-nowrap">{{ stateIcon.tooltip }}</span>
+            <span class="whitespace-nowrap capitalize">{{ stateIcon.tooltip }}</span>
         </template>
     </Tag>
 </template>
