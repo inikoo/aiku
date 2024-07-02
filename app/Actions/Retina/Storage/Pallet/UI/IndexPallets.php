@@ -133,9 +133,9 @@ class IndexPallets extends RetinaAction
                 ->withModelOperations($modelOperations);
 
             if($parent->state == PalletDeliveryStateEnum::IN_PROCESS && $parent->state == PalletReturnStateEnum::PICKING) {
-                $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            } else {
                 $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
             }
 
             if ($parent->state != PalletDeliveryStateEnum::IN_PROCESS && $parent->state != PalletDeliveryStateEnum::SUBMITTED) {
