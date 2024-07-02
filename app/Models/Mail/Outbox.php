@@ -131,13 +131,13 @@ class Outbox extends Model
         return $this->hasMany(EmailTemplate::class);
     }
 
-    public function website() : BelongsTo 
+    public function website(): BelongsTo
     {
-        return $this->belongsTo(Website::class);    
+        return $this->belongsTo(Website::class);
     }
 
-    public function fulfilment() : BelongsTo 
+    public function fulfilment(): BelongsTo
     {
-        return $this->belongsTo(Fulfilment::class);    
+        return $this->belongsTo(Fulfilment::class);
     }
 }
