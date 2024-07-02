@@ -164,7 +164,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 		<!-- Column: Customer Reference -->
-		<template #cell(customer_reference)="{ item: item }">
+		<template #cell(customer_reference)="{ item }">
 			<div v-if="state == 'in-process'" class="w-full">
 				<FieldEditableTable
                     :data="item"
@@ -186,7 +186,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 		<!-- Column: Notes -->
-		<template #cell(notes)="{ item: item }">
+		<template #cell(notes)="{ item }">
 			<div v-if="state == 'in-process'" class="min-w-32">
 				<FieldEditableTable
                     :data="item"
@@ -200,19 +200,23 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 		<!-- Column: Stored Items -->
-		<template #cell(stored_items)="{ item: item }">
+		<template #cell(stored_items)="{ item }">
 			<StoredItemProperty
+                v-if="item.stored_items?.length"
                 :pallet="item"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
                 @renderTable="() => emits('renderTableKey')"
             />
+            <div v-else class="pl-2.5 text-gray-400">
+                -
+            </div>
 		</template>
 
 
 		<!-- Column: Set Location -->
 		<template #cell(location)="{ item: pallet }">
-			<div v-if="pallet.state == 'booked-in' || pallet.state == 'booking-in'" class="flex gap-x-1 gap-y-2 items-center">
+			<div v-if="pallet.state == 'received' || pallet.state == 'booked-in' || pallet.state == 'booking-in'" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery
                     :key="pallet.state"
                     :pallet="pallet"
