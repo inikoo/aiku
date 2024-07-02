@@ -9,7 +9,6 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
-use App\Actions\Mail\Outbox\SeedOrganisationOutboxes;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
