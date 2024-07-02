@@ -140,6 +140,9 @@ class ShowPalletReturn extends RetinaAction
                     ],
                 ],
 
+                'service_lists'             => [],  // TODO
+                'physical_good_lists'       => [],  // TODO
+
                 'updateRoute' => [
                     'route' => [
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.timeline.update',

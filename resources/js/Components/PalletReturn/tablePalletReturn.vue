@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { get, defaultTo } from "lodash"
 import axios from "axios"
-import { onMounted, ref } from "vue"
+import { inject, onMounted, ref } from "vue"
 import { useForm,router } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
@@ -11,8 +11,13 @@ import { faSpinnerThird, faSearch } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { routeType } from "@/types/route"
 import debounce from 'lodash/debounce'
+import Tag from '@/Components/Tag.vue'
+import { trans } from 'laravel-vue-i18n'
+import TagPallet from '@/Components/TagPallet.vue'
 
 library.add(faSpinnerThird, faSearch)
+
+const layout = inject('layout', {})
 
 const props = defineProps<{
 	dataRoute: routeType
@@ -50,6 +55,7 @@ const getData = debounce(async () => {
 		let finaldata = response.data.data
 		if(props.onFilterDatalist) finaldata = props.onFilterDatalist(finaldata)
 		dataList.value = finaldata
+    console.log('dd', dataList.value)
 		loading.value = false
 	} catch (error) {
 		loading.value = false
@@ -61,7 +67,7 @@ const getData = debounce(async () => {
 	}
 }, 500)
 
-const selectAll = () => {
+const onSelectAllPallets = () => {
 	const value = []
 	if (!checkedAll.value) {
 		dataList.value.forEach((item) => value.push(item.id))
@@ -70,7 +76,7 @@ const selectAll = () => {
 	form[props.descriptor.key] = value
 }
 
-const onChecked = (value) => {
+const onSelectPallet = (value) => {
 	if (form.data()[props.descriptor.key].length > dataList.value.length && form.data()[props.descriptor.key].length != 0)
 		checkedAll.value = false
 	if (form.data()[props.descriptor.key].length == dataList.value.length && form.data()[props.descriptor.key].length != 0)
@@ -111,6 +117,10 @@ defineExpose({
 </script>
 
 <template>
+    <div class="mb-4 text-center text-xl font-medium">
+        {{ trans('Select pallet')}}
+    </div>
+
 	<div class="flex items-center justify-between gap-x-6 mb-4">
         <div class="w-full md:w-1/4">
             <PureInput
@@ -137,33 +147,67 @@ defineExpose({
     
 	<div class="h-96 overflow-auto ring-1 ring-black/5 sm:rounded-lg align-middle shadow">
         <table class="min-w-full border-separate border-spacing-0">
-            <thead class="bg-gray-50">
+            <thead class="sticky top-0 z-10 bg-gray-100">
                 <tr>
                     <th scope="col"
-                        class="sticky top-0 z-10 border-b border-gray-300 bg-white py-3.5 pl-4 pr-3 text-left text-sm font-semibold backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
-                        <input type="checkbox" :checked="checkedAll" @change="selectAll"
-                            class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
+                        class="border-b border-gray-300 py-3.5 pl-4 text-left text-sm font-semibold backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
+                        <input
+                            type="checkbox"
+                            :checked="checkedAll"
+                            @change="onSelectAllPallets"
+                            class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 focus:ring-gray-600"
+                            :style="{
+                                color: layout.app.theme[0] 
+                            }"
+                        />
                     </th>
+                    
                     <th v-for="(item, index) in descriptor.column" :key="`header-${item.key}`" scope="col"
-                        class="sticky top-0 z-10 border-b border-gray-300 bg-white px-3 py-3.5 text-left text-sm font-semibold backdrop-blur backdrop-filter sm:table-cell">
+                        class="sticky top-0 z-10 border-b border-gray-300 px-3 py-3.5 text-left text-sm font-semibold backdrop-blur backdrop-filter sm:table-cell">
                         <slot :name="`head-${item.key}`" :data="{ headData : item , index : index }">
                             {{ item.label }}
                         </slot>
                     </th>
                 </tr>
             </thead>
+            
             <tbody v-if="!loading">
                 <tr v-for="(pallet, index) in dataList" :key="pallet.id">
-                    <td
-                        :class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6 lg:pl-8']">
-                        <input type="checkbox" :id="pallet.id" :value="pallet.id" v-model="form[props.descriptor.key]"
-                            @change="onChecked"
-                            class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
+                    <td :class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-4 pl-4 text-sm font-medium sm:pl-6 lg:pl-8']">
+                        <input
+                            v-model="form[props.descriptor.key]"
+                            type="checkbox"
+                            :id="pallet.id"
+                            :value="pallet.id"
+                            @change="onSelectPallet"
+                            class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 focus:ring-gray-600"
+                            :style="{
+                                color: layout.app.theme[0] 
+                            }"
+                        />
                     </td>
+
                     <td v-for="(column, columnIndex) in descriptor.column" :key="`column-${pallet.id}`"
                         :class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap px-3 py-4 text-sm text-gray-500 sm:table-cell']">
                         <slot :name="`column-${column.key}`" :data="{ columnData : pallet, index : columnIndex }">
-                            {{ defaultTo(get(pallet, [column.key]), "-") }}
+                            <template v-if="column.key === 'type_icon'">
+                                <div class="text-center">
+                                    <TagPallet :stateIcon="pallet[column.key]" />
+                                </div>
+                            </template>
+                            <template v-else-if="column.key === 'stored_items'">
+                                <div v-if="get(pallet, [column.key], []).length">
+                                    <Tag v-for="item in pallet[column.key]">
+                                        <template #label>
+                                            {{ item.reference }} ({{ item.quantity }})
+                                        </template>
+                                    </Tag>
+                                </div>
+                                <div v-else>
+                                    -
+                                </div>
+                            </template>
+                            <template v-else>{{ defaultTo(get(pallet, [column.key]), "-") }}</template>
                         </slot>
                         
                     </td>

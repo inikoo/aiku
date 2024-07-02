@@ -89,21 +89,21 @@ class UpdatePalletDelivery extends OrgAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
-    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
-    {
-        $routeName = $request->route()->getName();
+    // public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
+    // {
+    //     $routeName = $request->route()->getName();
 
-        return match ($routeName) {
-            'grp.models.pallet-delivery.update' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
-                'organisation'           => $palletDelivery->organisation->slug,
-                'fulfilment'             => $palletDelivery->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletDelivery->slug
-            ])),
-            default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
-                'palletDelivery'         => $palletDelivery->slug
-            ]))
-        };
-    }
+    //     return match ($routeName) {
+    //         'grp.models.pallet-delivery.update' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
+    //             'organisation'           => $palletDelivery->organisation->slug,
+    //             'fulfilment'             => $palletDelivery->fulfilment->slug,
+    //             'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+    //             'palletDelivery'         => $palletDelivery->slug
+    //         ])),
+    //         default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
+    //             'palletDelivery'         => $palletDelivery->slug
+    //         ]))
+    //     };
+    // }
 
 }

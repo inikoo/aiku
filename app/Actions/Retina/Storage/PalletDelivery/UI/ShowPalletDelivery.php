@@ -140,11 +140,12 @@ class ShowPalletDelivery extends RetinaAction
                                 ],
                             ]
                         ],
-                        ($palletDelivery->pallets()->count() > 0) ? [
+                        [
                             'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('submit'),
+                            'icon'    => 'fad fa-save',
+                            'tooltip' => ($palletDelivery->pallets()->count() > 0) ? __('Submit Delivery') : __('Add pallet to submit Delivery'),
                             'label'   => __('submit'),
+                            'disabled'=> ($palletDelivery->pallets()->count() > 0) ? false : true,
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
@@ -153,13 +154,17 @@ class ShowPalletDelivery extends RetinaAction
                                     'palletDelivery' => $palletDelivery->id
                                 ]
                             ]
-                        ] : [],
+                        ],
                     ] : []
                 ],
 
                 'box_stats'        => [
                     'delivery_status'   => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                 ],
+
+                'service_lists'         => [],      // TODO
+                'physical_good_lists'   => [],  // TODO
+
 
                 'updateRoute' => [
                     'route' => [
