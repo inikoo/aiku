@@ -8,7 +8,6 @@
 namespace App\Actions\Mail\Outbox\UI;
 
 use App\Actions\Mail\ShowMailDashboard;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
@@ -46,7 +45,7 @@ class IndexOutboxes extends OrgAction
         }
 
         $queryBuilder=QueryBuilder::for(Outbox::class);
-       
+
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'PostRoom') {

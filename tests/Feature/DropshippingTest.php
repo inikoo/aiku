@@ -11,9 +11,9 @@ use App\Actions\CRM\Customer\AttachCustomerToPlatform;
 use App\Actions\CRM\Customer\UpdateCustomerPlatform;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
-use App\Actions\Dropshipping\DropshippingCustomerPortfolio\AttachPortfolioToPlatform;
-use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
-use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
+use App\Actions\Dropshipping\Portfolio\AttachPortfolioToPlatform;
+use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -24,7 +24,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Helpers\Media;
 use App\Models\Ordering\Platform;
 use App\Models\PlatformStats;
@@ -97,13 +97,13 @@ test('update customer client', function ($customerClient) {
 })->depends('create customer client');
 
 test('add product to customer portfolio', function () {
-    $dropshippingCustomerPortfolio = StoreDropshippingCustomerPortfolio::make()->action(
+    $dropshippingCustomerPortfolio = StorePortfolio::make()->action(
         $this->customer,
         [
             'product_id' => $this->product->id
         ]
     );
-    expect($dropshippingCustomerPortfolio)->toBeInstanceOf(DropshippingCustomerPortfolio::class);
+    expect($dropshippingCustomerPortfolio)->toBeInstanceOf(Portfolio::class);
 
     return $dropshippingCustomerPortfolio;
 });
@@ -135,7 +135,7 @@ test('add platform to customer', function () {
 });
 
 
-test('add platform to portfolio', function (DropshippingCustomerPortfolio $portfolio) {
+test('add platform to portfolio', function (Portfolio $portfolio) {
 
     expect($portfolio->platforms->count())->toBe(0)
         ->and($portfolio->platform())->toBeNull();
@@ -267,8 +267,8 @@ test('get product 2nd images and show resized sources', function () {
 })->depends('add 2nd image to product');
 
 
-test('update customer portfolio', function (DropshippingCustomerPortfolio $dropshippingCustomerPortfolio) {
-    $dropshippingCustomerPortfolio = UpdateDropshippingCustomerPortfolio::make()->action(
+test('update customer portfolio', function (Portfolio $dropshippingCustomerPortfolio) {
+    $dropshippingCustomerPortfolio = UpdatePortfolio::make()->action(
         $dropshippingCustomerPortfolio,
         [
             'reference' => 'new_reference'

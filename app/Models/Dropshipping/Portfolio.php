@@ -40,13 +40,13 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Platform> $platforms
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \App\Models\Dropshipping\DropshippingCustomerPortfolioStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio query()
+ * @property-read \App\Models\Dropshipping\PortfolioStats|null $stats
+ * @method static \Illuminate\Database\Eloquent\Builder|Portfolio newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Portfolio newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Portfolio query()
  * @mixin \Eloquent
  */
-class DropshippingCustomerPortfolio extends Model
+class Portfolio extends Model
 {
     use InCustomer;
 
@@ -77,7 +77,7 @@ class DropshippingCustomerPortfolio extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(DropshippingCustomerPortfolioStats::class);
+        return $this->hasOne(PortfolioStats::class);
     }
 
     public function platforms(): MorphToMany

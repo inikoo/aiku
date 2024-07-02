@@ -22,7 +22,7 @@ class UpdateCustomerPlatform extends OrgAction
         $customer->platforms()->detach($currentPlatform->id);
         $customer=AttachCustomerToPlatform::make()->action($customer, $platform, $modelData);
 
-        foreach ($customer->dropshippingCustomerPortfolios as $dropshippingCustomerPortfolio) {
+        foreach ($customer->portfolios as $dropshippingCustomerPortfolio) {
             $customer->platforms()->detach($dropshippingCustomerPortfolio->platform());
         }
 

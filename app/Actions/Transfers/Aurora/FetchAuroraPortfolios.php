@@ -7,9 +7,9 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
-use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -18,17 +18,17 @@ class FetchAuroraPortfolios extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:portfolios {organisations?*} {--s|source_id=} {--d|db_suffix=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new} ';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DropshippingCustomerPortfolio
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Portfolio
     {
         if ($portfolioData = $organisationSource->fetchPortfolio($organisationSourceId)) {
 
-            if ($dropshippingCustomerPortfolio = DropshippingCustomerPortfolio::where('source_id', $portfolioData['portfolio']['source_id'])->first()) {
-                $dropshippingCustomerPortfolio = UpdateDropshippingCustomerPortfolio::make()->action(
+            if ($dropshippingCustomerPortfolio = Portfolio::where('source_id', $portfolioData['portfolio']['source_id'])->first()) {
+                $dropshippingCustomerPortfolio = UpdatePortfolio::make()->action(
                     dropshippingCustomerPortfolio: $dropshippingCustomerPortfolio,
                     modelData: $portfolioData['portfolio']
                 );
             } else {
-                $dropshippingCustomerPortfolio = StoreDropshippingCustomerPortfolio::make()->action(
+                $dropshippingCustomerPortfolio = StorePortfolio::make()->action(
                     customer: $portfolioData['customer'],
                     modelData: $portfolioData['portfolio'],
                 );

@@ -14,7 +14,7 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     public function up(): void
     {
-        Schema::create('dropshipping_customer_portfolios', function (Blueprint $table) {
+        Schema::create('portfolios', function (Blueprint $table) {
 
             $table->id();
             $table=$this->groupOrgRelationship($table);
@@ -40,6 +40,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('dropshipping_customer_portfolios');
+        Schema::dropIfExists('portfolios');
     }
 };

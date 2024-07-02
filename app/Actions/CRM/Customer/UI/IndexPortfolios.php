@@ -8,11 +8,11 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\CRM\DropshippingCustomerPortfolioResource;
+use App\Http\Resources\CRM\PortfolioResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -23,7 +23,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexDropshippingCustomerPortfolios extends OrgAction
+class IndexPortfolios extends OrgAction
 {
     // private bool $canCreateShop = false;
     use WithCustomerSubNavigation;
@@ -51,7 +51,7 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
         // dd($parent->type);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('dropshipping_customer_portfolios.reference', $value);
+                $query->whereAnyWordStartWith('portfolios.reference', $value);
             });
         });
 
@@ -59,11 +59,11 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(DropshippingCustomerPortfolio::class);
+        $queryBuilder = QueryBuilder::for(Portfolio::class);
 
 
         if (class_basename($parent) == 'Customer') {
-            $queryBuilder->where('dropshipping_customer_portfolios.customer_id', $parent->id);
+            $queryBuilder->where('portfolios.customer_id', $parent->id);
         }
 
 
@@ -80,18 +80,18 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('dropshipping_customer_portfolios.reference')
+            ->defaultSort('portfolios.reference')
             ->select([
-                'dropshipping_customer_portfolios.reference',
-                'dropshipping_customer_portfolios.status',
-                'dropshipping_customer_portfolios.id',
-                'dropshipping_customer_portfolios.organisation_id',
-                'dropshipping_customer_portfolios.shop_id',
-                'dropshipping_customer_portfolios.customer_id',
+                'portfolios.reference',
+                'portfolios.status',
+                'portfolios.id',
+                'portfolios.organisation_id',
+                'portfolios.shop_id',
+                'portfolios.customer_id',
                 'products.code as product_code',
                 'products.name as product_name',
                 'products.slug as slug',
-                'dropshipping_customer_portfolios.created_at'
+                'portfolios.created_at'
             ])
             ->leftJoin('products', 'products.id', 'product_id')
             ->allowedSorts(['reference', 'created_at'])
@@ -192,7 +192,7 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $portfolio): AnonymousResourceCollection
     {
-        return DropshippingCustomerPortfolioResource::collection($portfolio);
+        return PortfolioResource::collection($portfolio);
     }
 
     public function htmlResponse(LengthAwarePaginator $portfolio, ActionRequest $request): Response
@@ -206,7 +206,7 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Shop/CRM/DropshippingCustomerPortfolios',
+            'Org/Shop/CRM/Portfolios',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -238,7 +238,7 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'data'        => DropshippingCustomerPortfolioResource::collection($portfolio),
+                'data'        => PortfolioResource::collection($portfolio),
 
             ]
         )->table($this->tableStructure($this->parent));

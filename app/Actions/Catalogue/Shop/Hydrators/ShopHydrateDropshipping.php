@@ -32,8 +32,8 @@ class ShopHydrateDropshipping
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_dropshipping_customer_portfolios'            => $shop->dropshippingCustomerPortfolios()->count(),
-            'number_current_dropshipping_customer_portfolios'    => $shop->dropshippingCustomerPortfolios()->where('status', true)->count(),
+            'number_portfolios'                                  => $shop->portfolios()->count(),
+            'number_current_portfolios'                          => $shop->portfolios()->where('status', true)->count(),
             'number_products'                                    => $shop->products()->count(),
             'number_current_products'                            => $shop->products()->where('status', true)->count(),
         ];
