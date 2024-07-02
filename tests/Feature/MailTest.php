@@ -14,7 +14,6 @@ use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Mail\EmailTemplate\StoreEmailTemplate;
 use App\Actions\Mail\EmailTemplate\UpdateEmailTemplate;
-use App\Actions\Mail\EmailTrackingEvent\StoreEmailTrackingEvent;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Mail\Mailshot;
 use App\Models\Catalogue\Shop;
@@ -107,7 +106,7 @@ test('update dispatched email', function ($dispatchedEmail) {
 })->depends('create dispatched email in mailshot');
 
 test('store email template', function (Shop $shop) {
-    $outbox = $shop->outboxes()->first();
+    $outbox        = $shop->outboxes()->first();
     $emailTemplate = StoreEmailTemplate::make()->action(
         $this->organisation,
         $outbox,

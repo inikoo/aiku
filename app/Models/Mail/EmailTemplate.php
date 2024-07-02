@@ -12,7 +12,6 @@ use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\Snapshot;
 use App\Models\Inventory\Warehouse;
-use App\Models\Traits\InOrganisation;
 use App\Models\Traits\InShop;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -18,7 +18,6 @@ class GetShopNavigation
     public function handle(Shop $shop, User $user): array
     {
         $navigation = [];
-
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
