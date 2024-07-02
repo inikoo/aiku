@@ -109,11 +109,6 @@ class EmailTemplate extends Model implements HasMedia
         return $this->morphMany(Deployment::class, 'model');
     }
 
-    public function outboxes(): BelongsTo
-    {
-        return $this->belongsTo(Outbox::class);
-    }
-
     public function outbox(): BelongsTo
     {
         return $this->belongsTo(Outbox::class);
