@@ -13,6 +13,7 @@ use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -66,6 +67,13 @@ class ShowOutbox extends OrgAction
     {
 
         $this->initialisationFromShop($shop, $request);
+        return $this->handle($outbox);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment,  Outbox $outbox, ActionRequest $request): Outbox
+    {
+
+        $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($outbox);
     }
 

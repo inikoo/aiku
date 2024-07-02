@@ -184,12 +184,24 @@ class IndexOutboxes extends OrgAction
             // ),
             'grp.org.shops.show.mail.outboxes' =>
             array_merge(
-                ShowMailDashboard::make()->getBreadcrumbs(
+                ShowMailDashboard::make()->getBreadcrumbs( 'grp.org.shops.show.mail.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.mail.outboxes',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.fulfilments.show.mail.outboxes' =>
+            array_merge(
+                ShowMailDashboard::make()->getBreadcrumbs( 'grp.org.fulfilments.show.mail.dashboard',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.mail.outboxes',
                         'parameters' => $routeParameters
                     ]
                 )

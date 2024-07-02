@@ -153,6 +153,38 @@ class GetFulfilmentNavigation
                 ]
 
             ];
+            $navigation["mails"] = [
+                "root"  => "grp.org.fulfilments.show.mail.",
+                "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
+                "label" => __("Mail"),
+                "route" => [
+                    "name"       => 'grp.org.fulfilments.show.mail.dashboard',
+                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("mail dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.fulfilments.show.mail.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.fulfilments.show.mail.dashboard',
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("outboxes"),
+                            "tooltip" => __("outboxes"),
+                            "icon"    => ["fal", "fa-comment-dollar"],
+                            'root'    => 'grp.org.fulfilments.show.mail.outboxes',
+                            "route"   => [
+                                "name"       => "grp.org.fulfilments.show.mail.outboxes",
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
 
 
             if ($fulfilment->shop->website) {

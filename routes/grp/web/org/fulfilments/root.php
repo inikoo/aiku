@@ -29,4 +29,8 @@ Route::prefix('{fulfilment}')->name('show.')
             ->name("web.")
             ->group(__DIR__."/websites.php");
 
+        Route::prefix("mail")
+            ->name("mail.")
+            ->group(__DIR__."/mails.php");
+
     });
