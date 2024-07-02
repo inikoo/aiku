@@ -26,6 +26,7 @@ import { Table as TSTable } from "@/types/Table"
 
 import '@/Composables/Icon/PalletStateEnum'
 import { trans } from "laravel-vue-i18n"
+import { ref } from "vue"
 
 library.add(faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faSortSizeUp)
 
@@ -43,7 +44,7 @@ const props = defineProps<{
     }
 }>()
 
-
+const isLoading = ref<string | boolean>(false)
 
 const emits = defineEmits<{
 	(e: 'renderTableKey'): void
@@ -246,11 +247,16 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
-			<!-- State: in process -->
+			<!-- State: Delete Pallet (in_process) -->
 			<div v-if="props.state == 'in-process'">
-				<Link :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)" method="delete" as="div"
-					:onSuccess="() => emits('renderTableKey')" v-tooltip="'Delete this pallet'" class="w-fit">
-				<Button icon="far fa-trash-alt" type="negative" />
+				<Link
+                    :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
+                    method="delete"
+                    as="div"
+                    @start="() => isLoading = 'delete' + pallet.id"
+                    v-tooltip="'Delete this pallet'"
+                >
+                    <Button icon="far fa-trash-alt" :loading="isLoading === 'delete' + pallet.id" type="negative" />
 				</Link>
 			</div>
 

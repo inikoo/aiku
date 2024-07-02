@@ -55,8 +55,8 @@ const props = defineProps<{
 		index : routeType,
 		store : routeType
 	}
-    service_lists: {}
-    physical_good_lists: {}
+    service_lists: {}[]
+    physical_good_lists: {}[]
 	pallets?: {}
     stored_items?: {}
     services?: {}
@@ -67,7 +67,7 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
-const isLoading = ref(false)
+const isLoading = ref<string | boolean>(false)
 
 const formAddService = useForm({ service_id: '', quantity: 1 })
 const formAddPhysicalGood = useForm({ pgood_id: '', quantity: 1 })
@@ -86,7 +86,7 @@ const component = computed(() => {
 
 // Method: Add single service
 const handleFormSubmitAddService = (data: Action, closedPopover: Function) => {
-    isLoading.value = true
+    isLoading.value = 'addService'
     formAddService.post(
         route( data.route?.name, data.route?.parameters),
         {
@@ -106,7 +106,7 @@ const handleFormSubmitAddService = (data: Action, closedPopover: Function) => {
 
 // Method: Add single service
 const handleFormSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
-    isLoading.value = true
+    isLoading.value = 'addPGood'
     formAddPhysicalGood.post(
         route( data.route?.name, data.route?.parameters ),
         {
@@ -152,7 +152,7 @@ watch(
             <div v-else></div>
         </template>
 
-        <!-- Button: Add service (single) -->
+        <!-- Button: Add services -->
         <template #button-group-add-service="{ action }">
             <div class="relative" v-if="currentTab === 'services'">
                 <Popover width="w-full">
@@ -163,7 +163,6 @@ watch(
                             :icon="action.icon"
                             :tooltip="action.tooltip"
                             :key="`ActionButton${action.label}${action.style}`"
-                            
                         />
                     </template>
 
@@ -187,10 +186,13 @@ watch(
                                 </p>
                             </div>
                             <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
-                                <PureInput v-model="formAddService.quantity" placeholder="Qty"
-                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
-                                <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
+                                <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
+                                <PureInput
+                                    v-model="formAddService.quantity"
+                                    placeholder="Quantity"
+                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                                />
+                                <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.quantity }}
                                 </p>
                             </div>
@@ -198,7 +200,7 @@ watch(
                                 <Button
                                     :key="'submitAddService' + isLoading"
                                     :style="'save'"
-                                    :loading="isLoading"
+                                    :loading="isLoading === 'addService'"
                                     full
                                     :label="'save'"
                                     @click="() => handleFormSubmitAddService(action, closed)"
@@ -208,7 +210,7 @@ watch(
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
+            <div v-else />
         </template>
 
 
@@ -239,25 +241,25 @@ watch(
                                     valueProp="id"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'pgood_id'])"
-                                    class="mt-2 text-sm text-red-600">
+                                    class="mt-2 text-sm text-red-500">
                                     {{ formAddPhysicalGood.errors.pgood_id }}
                                 </p>
                             </div>
                             <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddPhysicalGood.quantity"
                                     placeholder="Quantity"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
-                                    class="mt-2 text-sm text-red-600">
+                                    class="mt-2 text-sm text-red-500">
                                     {{ formAddPhysicalGood.errors.quantity }}
                                 </p>
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button
                                     :style="'save'"
-                                    :loading="isLoading"
+                                    :loading="isLoading === 'addPGood'"
                                     label="save"
                                     @click="() => handleFormSubmitAddPhysicalGood(action, closed)"
                                 />
@@ -266,13 +268,16 @@ watch(
                     </template>
                 </Popover>
             </div>
-            <div v-else></div>
+            <div v-else />
         </template>
     </PageHeading>
 
     <div class="border-b border-gray-200">
-        <Timeline :options="timeline.timeline" :state="timeline.state"
-            :slidesPerView="Object.entries(timeline.timeline).length" />
+        <Timeline
+            :options="timeline.timeline"
+            :state="timeline.state"
+            :slidesPerView="Object.entries(timeline.timeline).length"
+        />
     </div>
 
     <!-- Todo -->

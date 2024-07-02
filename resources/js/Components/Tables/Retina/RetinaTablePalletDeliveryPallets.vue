@@ -101,17 +101,19 @@ const typePallet = [
 
         <!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item }">
-            <FieldEditableTable v-if="state == 'in-process'"
-                :data="item"
-                @onSave="onSaveField"
-                fieldName="customer_reference"
-                placeholder="Enter code 1-64 characters" />
+            <div v-if="state == 'in-process'" class="min-w-48">
+                <FieldEditableTable
+                    :data="item"
+                    @onSave="onSaveField"
+                    fieldName="customer_reference"
+                    placeholder="Enter code 1-64 characters" />
+            </div>
 			<div v-else>{{ item.customer_reference }}</div>
 		</template>
 
         <!-- Column: Notes -->
 		<template #cell(notes)="{ item }">
-			<div v-if="state == 'in-process'" class="">
+			<div v-if="state == 'in-process'" class="min-w-40">
 				<FieldEditableTable :data="item" @onSave="onSaveField" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
 			<div v-else>{{ item.notes }}</div>
