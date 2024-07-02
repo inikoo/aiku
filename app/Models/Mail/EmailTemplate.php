@@ -45,7 +45,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Mail\Outbox $outbox
- * @property-read \App\Models\Mail\Outbox|null $outboxes
  * @property-read Model|\Eloquent $parent
  * @property-read Media|null $screenshot
  * @property-read \App\Models\Catalogue\Shop|null $shop

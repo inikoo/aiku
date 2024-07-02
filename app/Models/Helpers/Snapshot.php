@@ -9,20 +9,15 @@ namespace App\Models\Helpers;
 
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
-use App\Models\Web\Webpage;
-use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Helpers\Snapshot
  *
  * @property int $id
- * @property string|null $slug
  * @property SnapshotScopeEnum $scope
  * @property string|null $publisher_type
  * @property int|null $publisher_id
@@ -50,8 +45,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Snapshot extends Model
 {
-    use HasSlug;
-
     protected $dateFormat  = 'Y-m-d H:i:s P';
     protected array $dates = ['published_at', 'published_until'];
 
@@ -66,30 +59,6 @@ class Snapshot extends Model
     ];
 
     protected $guarded = [];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                /** @var Webpage|Website $parent */
-                $parent = $this->parent;
-                $slug   = $parent->slug;
-                if ($this->scope) {
-                    $slug .= " ".$this->scope->value;
-                }
-
-                return $slug;
-            })
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnCreate()
-            ->doNotGenerateSlugsOnUpdate();
-    }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
 
     public function parent(): MorphTo
     {

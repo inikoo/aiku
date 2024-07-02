@@ -32,7 +32,6 @@ class StoreEmailTemplateSnapshot
 
         $snapshot=Snapshot::create($modelData);
         $emailTemplate->snapshots()->save($snapshot);
-        $snapshot->generateSlug();
         $snapshot->saveQuietly();
         $snapshot->stats()->create();
 
