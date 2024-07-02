@@ -59,7 +59,7 @@ const warehouseChange = (value) => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-create-delivery="{ action: action }">
+        <template #button-create-delivery="{ action }">
             <div v-if="action.options.warehouses.data.length > 1" class="relative">
                 <Popover :width="'w-full'" ref="_popover">
                     <template #button>

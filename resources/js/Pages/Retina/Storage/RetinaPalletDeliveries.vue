@@ -63,9 +63,9 @@ const handleClick = (action: Action) => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-new-delivery="{ action : linkButton }">
-           <Button :style="linkButton.action.style" :icon="linkButton.action.icon" :label="linkButton.action.label" size="l"
-                :loading="loading" @click="() => handleClick(linkButton.action)" /> 
+        <template #button-new-delivery="{ action }">
+           <Button :style="action.style" :icon="action.icon" :label="action.label" size="l"
+                :loading="loading" @click="() => handleClick(action)" /> 
         </template>
     </PageHeading>
 

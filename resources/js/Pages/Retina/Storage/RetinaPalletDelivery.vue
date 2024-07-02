@@ -256,7 +256,7 @@ const typePallet = [
         </template>
 
         <!-- Button: Add pallet (single) -->
-        <template #button-group-add-pallet="{ action: action }">
+        <template #button-group-add-pallet="{ action }">
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
@@ -314,7 +314,7 @@ const typePallet = [
         </template>
 
         <!-- Button: Submit -->
-        <template #button-submit="{ action: action }">
+        <template #button-submit="{ action }">
             <Button @click="onSubmitPallet(action.route)" :style="action.style"
                 :label="action.label" :loading="isLoading === 'submitPallet'" />
         </template>
