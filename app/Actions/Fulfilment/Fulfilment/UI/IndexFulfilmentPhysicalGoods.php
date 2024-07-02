@@ -115,14 +115,14 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         return $this->handle($fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
     }
 
-    public function fromRetina(ActionRequest $request): void
+    public function fromRetina(ActionRequest $request): LengthAwarePaginator
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
-        $this->handle($this->fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
+        return $this->handle($this->fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
     }
 
     public function htmlResponse(LengthAwarePaginator $physicalGoods, ActionRequest $request): Response

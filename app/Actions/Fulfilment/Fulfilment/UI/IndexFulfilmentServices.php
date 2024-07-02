@@ -66,8 +66,6 @@ class IndexFulfilmentServices extends OrgAction
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
-
-
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -120,14 +118,14 @@ class IndexFulfilmentServices extends OrgAction
         return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
     }
 
-    public function fromRetina(ActionRequest $request): void
+    public function fromRetina(ActionRequest $request): LengthAwarePaginator
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
-        $this->handle($this->fulfilment, ServicesTabsEnum::SERVICES->value);
+        return $this->handle($this->fulfilment, ServicesTabsEnum::SERVICES->value);
     }
 
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response
