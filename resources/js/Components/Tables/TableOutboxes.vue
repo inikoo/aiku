@@ -17,11 +17,12 @@ const props = defineProps<{
 
 function outboxRoute(outbox: Outbox) {
     switch (route().current()) {
-        case "mail.post_rooms.show.outboxes.index":
-            return [outbox["post_room_slug"], outbox.slug];
-
+        case 'grp.org.shops.show.mail.outboxes':
+        return route(
+                'grp.org.shops.show.mail.outboxes.show',
+                [route().params['organisation'], route().params['shop'], outbox.slug])
         default:
-            return [outbox.slug];
+            return null
     }
 }
 

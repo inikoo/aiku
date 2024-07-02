@@ -1,15 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 Nov 2023 22:26:23 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 02 Jul 2024 10:38:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Outbox;
+namespace App\Actions\SysAdmin\Organisation;
 
+use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
@@ -22,7 +23,7 @@ class SeedOrganisationOutboxes
     public function handle(Organisation $organisation): void
     {
         foreach (OutboxTypeEnum::cases() as $case) {
-            if ($case->scope() == 'organisation') {
+            if ($case->scope() == 'Organisation') {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
                 if (!Outbox::where('type', $case)->exists()) {

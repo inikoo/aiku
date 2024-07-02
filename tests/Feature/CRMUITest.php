@@ -172,7 +172,7 @@ test('UI Index customer portfolios', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Shop/CRM/DropshippingCustomerPortfolios')
+            ->component('Org/Shop/CRM/Portfolios')
             ->has('title')
             ->has('breadcrumbs', 4)
             ->has('pageHead')

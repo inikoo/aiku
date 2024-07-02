@@ -5,22 +5,22 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
+namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateDropshippingCustomerPortfolio extends OrgAction
+class UpdatePortfolio extends OrgAction
 {
     use WithActionUpdate;
 
 
-    private DropshippingCustomerPortfolio $dropshippingCustomerPortfolio;
+    private Portfolio $dropshippingCustomerPortfolio;
 
-    public function handle(DropshippingCustomerPortfolio $dropshippingCustomerPortfolio, array $modelData): DropshippingCustomerPortfolio
+    public function handle(Portfolio $dropshippingCustomerPortfolio, array $modelData): Portfolio
     {
         $dropshippingCustomerPortfolio = $this->update($dropshippingCustomerPortfolio, $modelData, ['data']);
 
@@ -47,7 +47,7 @@ class UpdateDropshippingCustomerPortfolio extends OrgAction
         return [
             'reference' => ['sometimes', 'nullable','string', 'max:255',
                             new IUnique(
-                                table: 'dropshipping_customer_portfolios',
+                                table: 'portfolios',
                                 extraConditions: [
                                     ['column' => 'customer_id', 'value' => $this->shop->id],
                                     ['column' => 'status', 'value' => true],
@@ -65,7 +65,7 @@ class UpdateDropshippingCustomerPortfolio extends OrgAction
 
 
 
-    public function action(DropshippingCustomerPortfolio $dropshippingCustomerPortfolio, array $modelData): DropshippingCustomerPortfolio
+    public function action(Portfolio $dropshippingCustomerPortfolio, array $modelData): Portfolio
     {
         $this->asAction                      = true;
         $this->dropshippingCustomerPortfolio = $dropshippingCustomerPortfolio;

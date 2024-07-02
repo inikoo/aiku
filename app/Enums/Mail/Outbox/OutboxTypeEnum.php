@@ -75,7 +75,7 @@ enum OutboxTypeEnum: string
     }
 
 
-    public function sampleEmail(): string
+    public function layout(): string
     {
         return match ($this) {
             OutboxTypeEnum::BASKET_LOW_STOCK           => 'Low stock in basket',
@@ -109,7 +109,7 @@ enum OutboxTypeEnum: string
     public function scope(): string
     {
         return match ($this) {
-            OutboxTypeEnum::TEST => 'organisation',
+            OutboxTypeEnum::TEST => 'Organisation',
             OutboxTypeEnum::PASSWORD_REMINDER,
             OutboxTypeEnum::BASKET_LOW_STOCK,
             OutboxTypeEnum::BASKET_REMINDER_1,
@@ -120,13 +120,42 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::REGISTRATION,
             OutboxTypeEnum::REGISTRATION_APPROVED,
             OutboxTypeEnum::REGISTRATION_REJECTED,
-            => 'website',
+            => 'Website',
             OutboxTypeEnum::RENTAL_AGREEMENT,
             OutboxTypeEnum::PALLET_DELIVERY_PROCESSED,
             OutboxTypeEnum::PALLET_RETURN_DISPATCHED => 'Fulfillment',
-            default                                  => 'shop'
+            default                                  => 'Shop'
         };
     }
+
+    public function shopTypes(): array
+    {
+        return match ($this) {
+            OutboxTypeEnum::INVOICE_DELETED,
+            OutboxTypeEnum::MARKETING,
+            OutboxTypeEnum::NEWSLETTER,
+            OutboxTypeEnum::PASSWORD_REMINDER => ['b2b', 'b2c', 'dropshipping', 'fulfilment'],
+            OutboxTypeEnum::BASKET_LOW_STOCK,
+            OutboxTypeEnum::BASKET_REMINDER_1,
+            OutboxTypeEnum::BASKET_REMINDER_2,
+            OutboxTypeEnum::BASKET_REMINDER_3,
+            OutboxTypeEnum::ABANDONED_CART,
+            OutboxTypeEnum::REORDER_REMINDER,
+            OutboxTypeEnum::REGISTRATION,
+            OutboxTypeEnum::REGISTRATION_APPROVED,
+            OutboxTypeEnum::SHOP_PROSPECT,
+            OutboxTypeEnum::REGISTRATION_REJECTED => ['b2b', 'dropshipping', 'fulfilment'],
+            OutboxTypeEnum::NEW_CUSTOMER,
+            OutboxTypeEnum::NEW_ORDER,
+            OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED,
+            OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            OutboxTypeEnum::DELIVERY_CONFIRMATION,
+            OutboxTypeEnum::ORDER_CONFIRMATION => ['b2b', 'b2c', 'dropshipping'],
+            OutboxTypeEnum::OOS_NOTIFICATION   => ['b2b', 'dropshipping'],
+            default                            => []
+        };
+    }
+
 
     public function defaultState(): OutboxStateEnum
     {

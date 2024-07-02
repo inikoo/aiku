@@ -38,15 +38,15 @@ trait WithCustomerSubNavigation
                 ]
             ],
             [
-                'label'    => __('Portofolios'),
-                'number'   => $customer->dropshippingCustomerPortfolios->count(),
+                'label'    => __('Portfolios'),
+                'number'   => $customer->portfolios()->count(),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.portfolios.index',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-folder'],
-                    'tooltip' => __('portofolios')
+                    'tooltip' => __('portfolios')
                 ]
             ],
         ];

@@ -24,7 +24,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Deals\OfferCampaign;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
@@ -119,7 +119,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
- * @property-read LaravelCollection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
  * @property-read \App\Models\Catalogue\ShopDropshippingStat|null $dropshippingStats
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
@@ -138,6 +137,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
@@ -449,9 +449,9 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopDropshippingStat::class);
     }
 
-    public function dropshippingCustomerPortfolios(): HasMany
+    public function portfolios(): HasMany
     {
-        return $this->hasMany(DropshippingCustomerPortfolio::class);
+        return $this->hasMany(Portfolio::class);
     }
 
     public function clients(): HasMany

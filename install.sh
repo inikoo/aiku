@@ -21,10 +21,10 @@ BACKUP_DB=aiku_elasticserch_backup
 echo -e "🧼 Cleaning storage"
 rm -rf storage/app/media
 echo -e "✨ Resetting databases ${DB}"
-dropdb --force --if-exists ${DB}
-createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
-dropdb --force --if-exists ${BACKUP_DB}
-createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
+dropdb -p "${DB_PORT}" --force --if-exists ${DB}
+createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
+dropdb -p "${DB_PORT}" --force --if-exists ${BACKUP_DB}
+createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
 echo -e "✨ Resetting elasticsearch"
 ${PHP} artisan es:refresh
 ./restart_elasticsearch.sh

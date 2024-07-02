@@ -5,12 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
+namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
@@ -18,19 +18,19 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreDropshippingCustomerPortfolio extends OrgAction
+class StorePortfolio extends OrgAction
 {
     private Customer $customer;
 
-    public function handle(Customer $customer, array $modelData): DropshippingCustomerPortfolio
+    public function handle(Customer $customer, array $modelData): Portfolio
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->organisation_id);
 
 
-        /** @var DropshippingCustomerPortfolio $dropshippingCustomerPortfolio */
-        $dropshippingCustomerPortfolio = $customer->dropshippingCustomerPortfolios()->create($modelData);
+        /** @var Portfolio $dropshippingCustomerPortfolio */
+        $dropshippingCustomerPortfolio = $customer->portfolios()->create($modelData);
         $dropshippingCustomerPortfolio->stats()->create();
 
 
@@ -66,7 +66,7 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
                 'string',
                 'max:255',
                 new IUnique(
-                    table: 'dropshipping_customer_portfolios',
+                    table: 'portfolios',
                     extraConditions: [
                         ['column' => 'customer_id', 'value' => $this->customer->id],
                         ['column' => 'status', 'value' => true],
@@ -82,7 +82,7 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
     }
 
 
-    public function action(Customer $customer, array $modelData): DropshippingCustomerPortfolio
+    public function action(Customer $customer, array $modelData): Portfolio
     {
         $this->asAction = true;
         $this->customer = $customer;

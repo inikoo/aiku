@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Api\Dropshipping\CustomerPortfolioResource;
 use App\Models\CRM\Customer;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -44,22 +44,22 @@ class IndexCustomerPortfolio extends GrpAction
 
     public function handle(Customer $customer): LengthAwarePaginator
     {
-        $queryBuilder = QueryBuilder::for(DropshippingCustomerPortfolio::class);
+        $queryBuilder = QueryBuilder::for(Portfolio::class);
         $queryBuilder->where('customer_id', $customer->id);
-        $queryBuilder->leftJoin('products', 'products.id', '=', 'dropshipping_customer_portfolios.product_id');
+        $queryBuilder->leftJoin('products', 'products.id', '=', 'portfolios.product_id');
 
 
         return $queryBuilder
             ->defaultSort('products.slug')
             ->select([
-                'dropshipping_customer_portfolios.id',
-                'dropshipping_customer_portfolios.reference',
-                'dropshipping_customer_portfolios.customer_id',
-                'dropshipping_customer_portfolios.status',
-                'dropshipping_customer_portfolios.last_added_at',
-                'dropshipping_customer_portfolios.last_removed_at',
-                'dropshipping_customer_portfolios.created_at',
-                'dropshipping_customer_portfolios.updated_at',
+                'portfolios.id',
+                'portfolios.reference',
+                'portfolios.customer_id',
+                'portfolios.status',
+                'portfolios.last_added_at',
+                'portfolios.last_removed_at',
+                'portfolios.created_at',
+                'portfolios.updated_at',
                 'products.name as product_name',
                 'products.slug as product_slug',
                 'products.id as product_id',

@@ -11,7 +11,6 @@ import TablePortfolios from '@/Components/Tables/Grp/Org/CRM/TablePortfolios.vue
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import Popover from "@/Components/Popover.vue"
-import Multiselect from "@vueform/multiselect"
 import { inject, ref } from 'vue'
 import axios from 'axios'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
