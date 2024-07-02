@@ -41,6 +41,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
@@ -892,6 +893,27 @@ test('picking pallet to return', function (PalletReturn $submittedPalletReturn) 
 
     return $pickingPalletReturn;
 })->depends('submit pallet return');
+
+test('picked pallet to return', function (PalletReturn $pickingPalletReturn) {
+
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $pickingPalletReturn->fulfilmentCustomer;
+
+
+    $pickedPalletReturn = PickedPalletReturn::make()->action(
+        $fulfilmentCustomer,
+        $pickingPalletReturn,
+    );
+    // dd($storedPallet);
+    $fulfilmentCustomer->refresh();
+    expect($pickedPalletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($pickedPalletReturn->state)->toBe(PalletReturnStateEnum::PICKED);
+
+
+    return $pickedPalletReturn;
+})->depends('picking pallet to return');
 
 test('cancel pallet return', function (PalletReturn $palletReturn) {
 
