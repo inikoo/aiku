@@ -64,10 +64,10 @@ const props = defineProps<{
     stored_items?: Table
 
     services?: Table
-    service_lists: {}[]
+    service_list_route: routeType
 
     physical_goods?: Table
-    physical_good_lists: {}[]
+    physical_good_list_route: routeType
 }>()
 
 const layout = inject('layout', {})
@@ -118,7 +118,7 @@ const onAddPallet = (data: {}, closedPopover: Function) => {
 }
 
 
-
+// Method: On change estimated date
 const onChangeEstimateDate = async () => {
     try {
         router.patch(
@@ -243,6 +243,30 @@ const handleFormSubmitAddPhysicalGood = (data: Action, closedPopover: Function) 
                 isLoading.value = false
                 console.error('Error during form submission:', errors)
             },
+        }
+    )
+}
+
+// Method: On open modal list
+const isLoadingData = ref<string | boolean>(false)
+const onOpenModalAddService = async () => {
+
+    router.get(
+        route(props.service_list_route.name, props.service_list_route.parameters),
+        { },
+        {
+            onStart: () => isLoadingData.value = 'addService',
+            onSuccess: () => isLoadingData.value = false
+        }
+    )
+}
+const onOpenModalAddPGood = async () => {
+    router.get(
+        route(props.physical_good_list_route.name, props.physical_good_list_route.parameters),
+        { },
+        {
+            onStart: () => isLoadingData.value = 'addPGood',
+            onSuccess: () => isLoadingData.value = false
         }
     )
 }
@@ -409,6 +433,7 @@ const typePallet = [
                 <Popover width="w-full">
                     <template #button>
                         <Button
+                            @click="() => onOpenModalAddService()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -454,6 +479,11 @@ const typePallet = [
                                     @click="() => handleFormSubmitAddService(action, closed)"
                                 />
                             </div>
+
+                            <!-- Loading: fetching service list -->
+                            <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
+                            </div>
                         </div>
                     </template>
                 </Popover>
@@ -467,6 +497,7 @@ const typePallet = [
                 <Popover width="w-full">
                     <template #button>
                         <Button
+                            @click="() => onOpenModalAddPGood()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -510,6 +541,11 @@ const typePallet = [
                                     label="save"
                                     @click="() => handleFormSubmitAddPhysicalGood(action, closed)"
                                 />
+                            </div>
+
+                            <!-- Loading: fetching service list -->
+                            <div v-if="isLoadingData === 'addPGood'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
                         </div>
                     </template>

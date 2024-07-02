@@ -162,8 +162,8 @@ class ShowPalletDelivery extends RetinaAction
                     'delivery_status'   => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                 ],
 
-                'service_lists'         => [],      // TODO
-                'physical_good_lists'   => [],  // TODO
+                // 'service_lists'         => [],      // TODO
+                // 'physical_good_lists'   => [],  // TODO
 
 
                 'updateRoute' => [
@@ -229,10 +229,10 @@ class ShowPalletDelivery extends RetinaAction
                     ]
                 ],
 
-                'serviceListsRoute'   => [
+                'service_list_route'   => [
                     'name'       => 'retina.storage.services.index'
                 ],
-                'physicalGoodListsRoute'   => [
+                'physical_good_list_route'   => [
                     'name'       => 'retina.storage.outers.index'
                 ],
 
