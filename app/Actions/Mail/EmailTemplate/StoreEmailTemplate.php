@@ -25,7 +25,7 @@ class StoreEmailTemplate extends OrgAction
 
 
         /** @var EmailTemplate $emailTemplate */
-        $emailTemplate = $outbox->emailTemplates()->create($modelData);
+        $emailTemplate = $outbox->emailTemplate()->create($modelData);
 
         $snapshot = StoreEmailTemplateSnapshot::run(
             $emailTemplate,
