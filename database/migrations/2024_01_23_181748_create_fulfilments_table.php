@@ -27,11 +27,18 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
         });
-    }
 
+        Schema::table('outboxes', function (Blueprint $table) {
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+        });
+
+    }
 
     public function down(): void
     {
+        Schema::table('fulfilments', function (Blueprint $table) {
+            $table->dropForeign('fulfilment_id_foreign');
+        });
         Schema::dropIfExists('fulfilments');
     }
 };

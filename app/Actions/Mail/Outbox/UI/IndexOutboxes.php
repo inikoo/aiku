@@ -7,14 +7,16 @@
 
 namespace App\Actions\Mail\Outbox\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
+use App\Actions\Mail\ShowMailDashboard;
+use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\Website;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -24,29 +26,34 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexOutboxes extends InertiaAction
+class IndexOutboxes extends OrgAction
 {
-    public function handle(PostRoom|Organisation $parent, $prefix=null): LengthAwarePaginator
+    private Shop|Organisation|PostRoom|Website $parent;
+
+    public function handle(Shop|Organisation|PostRoom|Website $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('outboxes.name', '~*', "\y$value\y")
+                $query->whereAnyWordStartWith('outboxes.name', $value)
                     ->orWhere('outboxes.data', '=', $value);
             });
         });
+
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
         $queryBuilder=QueryBuilder::for(Outbox::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+
+        if (class_basename($parent) == 'Shop') {
+            $queryBuilder->where('outboxes.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'PostRoom') {
+            $queryBuilder->where('outboxes.post_room_id', $parent->id);
+        } elseif (class_basename($parent) == 'Website') {
+            $queryBuilder->where('outboxes.website_id', $parent->id);
+        } else {
+            $queryBuilder->where('outboxes.organisation_id', $parent->id);
         }
 
         return $queryBuilder
@@ -80,14 +87,14 @@ class IndexOutboxes extends InertiaAction
             $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
-    public function authorize(ActionRequest $request): bool
-    {
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('mail.view')
-            );
-    }
+    // public function authorize(ActionRequest $request): bool
+    // {
+    //     return
+    //         (
+    //             $request->user()->tokenCan('root') or
+    //             $request->user()->hasPermissionTo('mail.view')
+    //         );
+    // }
 
 
     public function jsonResponse(LengthAwarePaginator $outboxes): AnonymousResourceCollection
@@ -98,67 +105,83 @@ class IndexOutboxes extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request): Response
     {
-        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
+        $scope     = $this->parent;
+        // dd($outboxes);
         return Inertia::render(
             'Mail/Outboxes',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('outboxes '),
                 'pageHead'    => [
                     'title'   => __('outboxes'),
                 ],
-                'outboxes' => OutboxResource::collection($outboxes),
+                'data' => OutboxResource::collection($outboxes),
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
 
 
-    public function inShop(ActionRequest $request): LengthAwarePaginator
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($shop);
+    }
 
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $website;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($website);
     }
 
     /** @noinspection PhpUnused */
-    public function inPostRoom(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-        return $this->handle($postRoom);
-    }
+    // public function inPostRoom(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator
+    // {
+    //     $this->initialisation($request);
+    //     return $this->handle($postRoom);
+    // }
 
-    public function getBreadcrumbs(string $routeName, PostRoom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+        $headCrumb = function (array $routeParameters = []) {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('Outbox')
-                    ]
+                     [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => $routeParameters,
+                            'label' => __('Outboxes'),
+                            'icon'  => 'fal fa-bars'
+                        ],
                 ],
             ];
         };
 
         return match ($routeName) {
-            'mail.outboxes.index' =>
+            // 'mail.outboxes.index' =>
+            // array_merge(
+            //     (new MarketingHub())->getBreadcrumbs(
+            //         $routeName,
+            //         $request->route()->originalParameters()
+            //     ),
+            //     $headCrumb()
+            // ),
+            'grp.org.shops.show.mail.outboxes' =>
             array_merge(
-                (new MarketingHub())->getBreadcrumbs(
-                    $routeName,
-                    $request->route()->originalParameters()
+                ShowMailDashboard::make()->getBreadcrumbs(
+                    $routeParameters
                 ),
-                $headCrumb()
-            ),
-            'mail.post_rooms.show.outboxes.index' =>
-            array_merge(
-                (new ShowPostRoom())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.mail.outboxes',
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
             default => []
         };

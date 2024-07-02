@@ -114,8 +114,8 @@ const originUrl = location.origin
                 <template v-for="(action, actIndex) in data.actions">
                     <template v-if="action">
                         <!-- Button -->
-                        <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
-                            <slot :name="`button-index-${actIndex}`" :action="{ action }">
+                        <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="action">
+                            <slot :name="`button-index-${actIndex}`" :action="action">
                                 <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit" />
                             </slot>
                         </slot>

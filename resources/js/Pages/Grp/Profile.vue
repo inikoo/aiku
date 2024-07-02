@@ -160,7 +160,7 @@ onMounted(async () => {
     <PageHeading v-if="dataProfile?.pageHead" :data="dataProfile?.pageHead">
         <template #button-edit-profile="{ action }">
             <Button @click="() => layout.stackedComponents.push({ component: EditProfile })" :label="action.action.label"
-                :style="action.action.style" />
+                :style="action.style" />
         </template>
     </PageHeading>
 

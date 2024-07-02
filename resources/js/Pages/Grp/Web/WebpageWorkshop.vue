@@ -171,9 +171,9 @@ const onPublish = async (action) => {
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
     <template #button-publish="{ action }">
-      <!--  <Action v-if="action.action" :action="action.action" :dataToSubmit="data" /> -->
+      <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
       <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
-        @onPublish="onPublish(action.action.route)" />
+        @onPublish="onPublish(action.route)" />
     </template>
   </PageHeading>
 

@@ -30,7 +30,6 @@ function outboxRoute(outbox: Outbox) {
 </script>
 
 <template>
-
     <Table :resource="data" :name="tab" class="mt-5">
 
 

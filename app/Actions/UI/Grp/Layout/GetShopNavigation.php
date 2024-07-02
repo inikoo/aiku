@@ -191,6 +191,40 @@ class GetShopNavigation
             ];
         }
         if ($user->hasPermissionTo("products.$shop->id.view")) {
+            $navigation["mails"] = [
+                "root"  => "grp.org.shops.show.mail.",
+                "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
+                "label" => __("Mail"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.mail.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("mail dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.mail.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.mail.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("outboxes"),
+                            "tooltip" => __("outboxes"),
+                            "icon"    => ["fal", "fa-comment-dollar"],
+                            'root'    => 'grp.org.shops.show.mail.outboxes',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.mail.outboxes",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["marketing"] = [
                 "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
@@ -279,6 +313,16 @@ class GetShopNavigation
 
                                 "route"   => [
                                     "name"       => "grp.org.shops.show.web.webpages.index",
+                                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                                ],
+                            ],
+                            [
+                                "label"   => __("outboxes"),
+                                "tooltip" => __("outboxes"),
+                                "icon"    => ["fal", "fa-comment-dollar"],
+                                'root'    => 'grp.org.shops.show.mail.website.outboxes',
+                                "route"   => [
+                                    "name"       => "grp.org.shops.show.mail.website.outboxes",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],

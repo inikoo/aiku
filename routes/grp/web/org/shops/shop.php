@@ -26,6 +26,9 @@ Route::prefix('{shop}')->name('show.')
         Route::name("assets.")->prefix('assets')
             ->group(__DIR__."/assets.php");
 
+        Route::name("mail.")->prefix('mail')
+            ->group(__DIR__."/mails.php");
+
         Route::name("crm.")->prefix('crm')->group(
             function () {
                 Route::get('', ShowDummyDashboard::class)->name('dashboard');
