@@ -5,10 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Mail\Outbox\UI;
+namespace App\Actions\Mail\Outbox\UI;
 
 use App\Actions\CRM\Prospect\UI\IndexProspects;
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Http\Resources\Mail\EmailTemplateResource;

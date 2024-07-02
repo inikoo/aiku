@@ -16,7 +16,7 @@ use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
-use App\Http\Resources\Catalogue\ServicesResource;
+use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;

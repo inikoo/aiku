@@ -15,7 +15,7 @@ class EmailTemplateResource extends JsonResource
 {
     use HasSelfCall;
 
-    
+
     public function toArray($request): array
     {
         $emailTemplate = $this;
