@@ -70,7 +70,7 @@ class IndexWebUsers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('username')
-            ->select(['username', 'web_users.id', 'web_users.email', 'web_users.slug'])
+            ->select(['web_users.username', 'web_users.id', 'web_users.email', 'web_users.slug', 'web_users.created_at'])
             ->allowedSorts(['email', 'username'])
             ->allowedFilters([$globalSearch])
             ->paginate($this->perPage ?? config('ui.table.records_per_page'))
@@ -258,7 +258,7 @@ class IndexWebUsers extends OrgAction
             'grp.org.shops.show.web.websites.show.web-users.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(
-                    routeName: $routeName,
+                    scope: $routeName,
                     routeParameters: $routeParameters
                 ),
                 $headCrumb(

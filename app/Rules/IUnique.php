@@ -68,7 +68,6 @@ class IUnique implements ValidationRule
                     $count = $count->whereIn($columnCollection['column'], $columnCollection['value']);
                     continue;
                 }
-
                 $count->where($columnCollection['column'], $columnCollection['operator'], $columnCollection['value']);
             }
         }

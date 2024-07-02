@@ -53,6 +53,8 @@ class StoreWebsite extends OrgAction
         $website->webStats()->create();
         $website->refresh();
 
+        SeedWebsiteOutboxes::run($website);
+
         $headerSnapshot = StoreWebsiteSnapshot::run(
             $website,
             [

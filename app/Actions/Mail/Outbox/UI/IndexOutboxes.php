@@ -7,10 +7,8 @@
 
 namespace App\Actions\Mail\Outbox\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\InertiaAction;
-use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
 use App\Actions\Mail\ShowMailDashboard;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
