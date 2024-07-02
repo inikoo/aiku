@@ -260,6 +260,16 @@ class ShowPalletDelivery extends RetinaAction
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )
+        )->table(
+            IndexServiceInPalletDelivery::make()->tableStructure(
+                $palletDelivery,
+                prefix: PalletDeliveryTabsEnum::SERVICES->value
+            )
+        )->table(
+            IndexPhysicalGoodInPalletDelivery::make()->tableStructure(
+                $palletDelivery,
+                prefix: PalletDeliveryTabsEnum::PHYSICAL_GOODS->value
+            )
         );
     }
 
