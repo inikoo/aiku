@@ -13,7 +13,9 @@ use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Service;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -101,6 +103,10 @@ class IndexFulfilmentServices extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
         $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
@@ -112,6 +118,16 @@ class IndexFulfilmentServices extends OrgAction
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ServicesTabsEnum::values());
 
         return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
+    }
+
+    public function fromRetina(ActionRequest $request): void
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        $this->handle($this->fulfilment, $this->validatedData);
     }
 
     public function htmlResponse(LengthAwarePaginator $services, ActionRequest $request): Response

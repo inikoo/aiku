@@ -230,18 +230,10 @@ class ShowPalletDelivery extends RetinaAction
                 ],
 
                 'serviceListsRoute'   => [
-                    'name'       => 'grp.org.fulfilments.show.assets.services.index',
-                    'parameters' => [
-                        'organisation' => $palletDelivery->organisation->slug,
-                        'fulfilment'   => $palletDelivery->fulfilment->slug
-                    ]
+                    'name'       => 'retina.storage.services.index'
                 ],
                 'physicalGoodListsRoute'   => [
-                    'name'       => 'grp.org.fulfilments.show.assets.outers.index',
-                    'parameters' => [
-                        'organisation' => $palletDelivery->organisation->slug,
-                        'fulfilment'   => $palletDelivery->fulfilment->slug
-                    ]
+                    'name'       => 'retina.storage.outers.index'
                 ],
 
                 'tabs' => [
