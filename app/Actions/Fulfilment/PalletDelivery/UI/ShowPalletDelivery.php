@@ -400,15 +400,15 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
-                'rental_lists'        => $rentalList,
-                'serviceListsRoute'   => [
+                'rental_lists'         => $rentalList,
+                'service_list_route'   => [
                     'name'       => 'grp.org.fulfilments.show.assets.services.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
                         'fulfilment'   => $palletDelivery->fulfilment->slug
                     ]
                 ],
-                'physicalGoodListsRoute'   => [
+                'physical_good_list_route'   => [
                     'name'       => 'grp.org.fulfilments.show.assets.outers.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,

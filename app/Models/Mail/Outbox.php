@@ -126,9 +126,9 @@ class Outbox extends Model
         return $this->hasMany(DispatchedEmail::class);
     }
 
-    public function emailTemplates(): HasMany
+    public function emailTemplate(): HasOne
     {
-        return $this->hasMany(EmailTemplate::class);
+        return $this->hasOne(EmailTemplate::class);
     }
 
     public function website(): BelongsTo

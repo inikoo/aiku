@@ -45,10 +45,12 @@ const layout = useLayoutStore()
                             <p class="flex flex-col items-start">
                                 <span class="capitalize text-xs font-bold">{{ dataUser?.username }}</span>
 
-                                <span v-if="dataUser.current_page?.label" class="capitalize opacity-70">
-                                    {{ useTruncate(dataUser?.current_page?.label, 17) }}
-                                </span>
-                                <span v-else class="capitalize text-gray-500 italic opacity-60">Unknown</span>
+                                <Transition name="spin-to-down">
+                                    <span v-if="dataUser.current_page?.label" :key="dataUser.current_page?.label" class="capitalize opacity-70">
+                                        {{ useTruncate(dataUser?.current_page?.label, 17) }}
+                                    </span>
+                                    <span v-else class="capitalize text-gray-500 italic opacity-60">Unknown</span>
+                                </Transition>
                             </p>
                             <!-- <span v-if="dataUser.loggedIn" class="text-gray-800">{{ dataUser.route?.name ? trans(dataUser.route.label ?? '') : '' }}</span>
                                     <span v-else-if="getAwayStatus(dataUser.last_active)" class="text-gray-800">{{ getAwayStatus(dataUser.last_active) ? 'Away' : '' }}</span> -->
