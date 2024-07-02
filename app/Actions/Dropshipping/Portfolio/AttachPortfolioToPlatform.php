@@ -5,18 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
+namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\OrgAction;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachPortfolioToPlatform extends OrgAction
 {
-    private DropshippingCustomerPortfolio $portfolio;
+    private Portfolio $portfolio;
 
-    public function handle(DropshippingCustomerPortfolio $portfolio, array $pivotData): DropshippingCustomerPortfolio
+    public function handle(Portfolio $portfolio, array $pivotData): Portfolio
     {
 
         $platform=$portfolio->customer->platform();
@@ -48,7 +48,7 @@ class AttachPortfolioToPlatform extends OrgAction
         }
     }
 
-    public function action(DropshippingCustomerPortfolio $portfolio, array $modelData): DropshippingCustomerPortfolio
+    public function action(Portfolio $portfolio, array $modelData): Portfolio
     {
         $this->portfolio = $portfolio;
         $this->initialisation($portfolio->organisation, $modelData);
@@ -56,7 +56,7 @@ class AttachPortfolioToPlatform extends OrgAction
         return $this->handle($portfolio, $this->validatedData);
     }
 
-    public function asController(Organisation $organisation, DropshippingCustomerPortfolio $portfolio, ActionRequest $request): void
+    public function asController(Organisation $organisation, Portfolio $portfolio, ActionRequest $request): void
     {
         $this->initialisation($organisation, $request);
         $this->handle($portfolio, $this->validatedData);

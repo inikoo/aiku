@@ -5,24 +5,24 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio\Hydrators;
+namespace App\Actions\Dropshipping\Portfolio\Hydrators;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class HydrateDropshippingCustomerPortfolio extends OrgAction
+class HydratePortfolio extends OrgAction
 {
     use AsAction;
     use WithEnumStats;
 
 
-    private DropshippingCustomerPortfolio $dropshippingCustomerPortfolio;
+    private Portfolio $dropshippingCustomerPortfolio;
 
-    public function __construct(DropshippingCustomerPortfolio $dropshippingCustomerPortfolio)
+    public function __construct(Portfolio $dropshippingCustomerPortfolio)
     {
         $this->dropshippingCustomerPortfolio = $dropshippingCustomerPortfolio;
     }
@@ -33,7 +33,7 @@ class HydrateDropshippingCustomerPortfolio extends OrgAction
     }
 
 
-    public function handle(DropshippingCustomerPortfolio $dropshippingCustomerPortfolio): void
+    public function handle(Portfolio $dropshippingCustomerPortfolio): void
     {
         $stats = [
             'amount'                  => $dropshippingCustomerPortfolio->customer->orders()->sum('net'),

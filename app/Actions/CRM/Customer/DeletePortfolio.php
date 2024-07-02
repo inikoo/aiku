@@ -10,7 +10,7 @@ namespace App\Actions\CRM\Customer;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -18,13 +18,13 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteDropshippingCustomerPortfolio extends OrgAction
+class DeletePortfolio extends OrgAction
 {
     use AsController;
     use WithAttributes;
 
 
-    public function handle(DropshippingCustomerPortfolio $portfolio): DropshippingCustomerPortfolio
+    public function handle(Portfolio $portfolio): Portfolio
     {
         if ($portfolio->stats()->exists()) {
             $portfolio->stats()->delete();
@@ -34,7 +34,7 @@ class DeleteDropshippingCustomerPortfolio extends OrgAction
         return $portfolio;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Customer $customer, DropshippingCustomerPortfolio $portfolio, ActionRequest $request): DropshippingCustomerPortfolio
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, Portfolio $portfolio, ActionRequest $request): Portfolio
     {
         $this->initialisationFromShop($shop, $request);
         $request->validate();
@@ -44,7 +44,7 @@ class DeleteDropshippingCustomerPortfolio extends OrgAction
 
 
 
-    public function htmlResponse(DropshippingCustomerPortfolio $portfolio): RedirectResponse
+    public function htmlResponse(Portfolio $portfolio): RedirectResponse
     {
         return Redirect::route('grp.org.shops.show.crm.customers.show.portfolios.index', [$portfolio->organisation->slug, $portfolio->shop->slug, $portfolio->customer->slug]);
     }

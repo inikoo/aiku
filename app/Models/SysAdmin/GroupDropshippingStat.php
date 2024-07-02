@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $group_id
  * @property int $number_customer_clients
  * @property int $number_current_customer_clients
- * @property int $number_dropshipping_customer_portfolios
- * @property int $number_current_dropshipping_customer_portfolios
+ * @property int $number_portfolios
+ * @property int $number_current_portfolios
  * @property int $number_products
  * @property int $number_current_products
  * @property int $number_products_state_in_process

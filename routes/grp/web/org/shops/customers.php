@@ -11,7 +11,7 @@ use App\Actions\CRM\Customer\UI\CreateCustomerClient;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomerClients;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\CRM\Customer\UI\IndexDropshippingCustomerPortfolios;
+use App\Actions\CRM\Customer\UI\IndexPortfolios;
 use App\Actions\CRM\Customer\UI\IndexFilteredProducts;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
@@ -44,7 +44,7 @@ Route::prefix('{customer}')->as('show')->group(function () {
         });
     });
     Route::prefix('portfolios')->as('.portfolios')->group(function () {
-        Route::get('', [IndexDropshippingCustomerPortfolios::class, 'inCustomer'])->name('.index');
+        Route::get('', [IndexPortfolios::class, 'inCustomer'])->name('.index');
         Route::get('products', IndexFilteredProducts::class)->name('.filtered-products');
         // Route::get('create', [CreateCustomerClient::class, 'inCustomer'])->name('.create');
         // Route::prefix('{customerClient}')->group(function () {

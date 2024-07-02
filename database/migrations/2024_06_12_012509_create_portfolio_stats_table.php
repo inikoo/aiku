@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('dropshipping_customer_portfolio_stats', function (Blueprint $table) {
+        Schema::create('portfolio_stats', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedInteger('dropshipping_customer_portfolio_id')->index();
-            $table->foreign('dropshipping_customer_portfolio_id')->references('id')->on('dropshipping_customer_portfolios');
+            $table->unsignedInteger('portfolio_id')->index();
+            $table->foreign('portfolio_id')->references('id')->on('portfolios');
 
             $table->unsignedSmallInteger('amount')->default(0);
             $table->unsignedSmallInteger('number_orders')->default(0);
@@ -25,6 +25,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('dropshipping_customer_portfolio_stats');
+        Schema::dropIfExists('portfolio_stats');
     }
 };

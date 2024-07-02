@@ -31,8 +31,8 @@ class OrganisationHydrateDropshipping
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_dropshipping_customer_portfolios'            => $organisation->dropshippingCustomerPortfolios()->count(),
-            'number_current_dropshipping_customer_portfolios'    => $organisation->dropshippingCustomerPortfolios()->where('status', true)->count(),
+            'number_portfolios'                                  => $organisation->portfolios()->count(),
+            'number_current_portfolios'                          => $organisation->portfolios()->where('status', true)->count(),
             'number_products'                                    => $organisation->products()->count(),
             'number_current_products'                            => $organisation->products()->where('status', true)->count(),
         ];

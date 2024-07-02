@@ -31,8 +31,8 @@ class GroupHydrateDropshipping
     public function handle(Group $group): void
     {
         $stats = [
-            'number_dropshipping_customer_portfolios'            => $group->dropshippingCustomerPortfolios()->count(),
-            'number_current_dropshipping_customer_portfolios'    => $group->dropshippingCustomerPortfolios()->where('status', true)->count(),
+            'number_portfolios'                                  => $group->portfolios()->count(),
+            'number_current_portfolios'                          => $group->portfolios()->where('status', true)->count(),
             'number_products'                                    => $group->products()->count(),
             'number_current_products'                            => $group->products()->where('status', true)->count(),
         ];

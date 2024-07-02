@@ -26,7 +26,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatching\Shipper;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
@@ -119,7 +119,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
- * @property-read LaravelCollection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
  * @property-read \App\Models\SysAdmin\OrganisationDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
@@ -152,6 +151,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
@@ -603,9 +603,9 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasMany(Outbox::class);
     }
 
-    public function dropshippingCustomerPortfolios(): HasMany
+    public function portfolios(): HasMany
     {
-        return $this->hasMany(DropshippingCustomerPortfolio::class);
+        return $this->hasMany(Portfolio::class);
     }
 
     public function clients(): HasMany
