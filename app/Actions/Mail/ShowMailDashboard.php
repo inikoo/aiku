@@ -1,10 +1,11 @@
 <?php
 
- namespace App\Actions\Mail\Outbox\UI;
+ namespace App\Actions\Mail;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\UI\Dropshipping\AssetsTabsEnum;
+use App\Enums\UI\Mail\MailDashboardTabsEnum;
 use App\Enums\UI\Mail\OutboxDashboardTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Inventory\Warehouse;
@@ -13,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOutboxDashboard extends OrgAction
+class ShowMailDashboard extends OrgAction
 {
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
@@ -26,24 +27,24 @@ class ShowOutboxDashboard extends OrgAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Mail/OutboxDashboard',
+            'Mail/MailDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'        => __('outboxes'),
+                'title'        => __('mail'),
                 'pageHead'     => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-ballot'],
-                        'title' => __('outbox')
+                        'title' => __('mail')
                     ],
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-chart-network'],
-                        'title' => __('outbox')
+                        'title' => __('mail')
                     ],
-                    'title' => __('outbox dashboard'),
+                    'title' => __('mail dashboard'),
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => OutboxDashboardTabsEnum::navigation()
+                    'navigation' => MailDashboardTabsEnum::navigation()
                 ],
 
 
@@ -61,10 +62,10 @@ class ShowOutboxDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.outbox.dashboard',
+                                'name'       => 'grp.org.shops.show.mail.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('Outbox')
+                            'label' => __('Mail')
                         ]
                     ]
                 ]
