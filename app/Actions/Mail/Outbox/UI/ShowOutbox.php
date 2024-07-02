@@ -9,6 +9,7 @@ namespace App\Actions\Mail\Outbox\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
+use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
@@ -25,8 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowOutbox extends OrgAction
 {
     //use HasUIOutbox;
-
-
+    use HasWorkshopAction;
     public function handle(Outbox $outbox): Outbox
     {
         return $outbox;
@@ -71,6 +71,8 @@ class ShowOutbox extends OrgAction
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
+        $this->canEdit = true;
+        $actions = $this->workshopActions($request);
         return Inertia::render(
             'Mail/Outbox',
             [
@@ -91,24 +93,7 @@ class ShowOutbox extends OrgAction
                             'icon'  => ['fal', 'fa-cube'],
                             'title' => __('outbox')
                         ],
-                    // 'actions' => [
-                    //     $this->canEdit ? [
-                    //         'type'  => 'button',
-                    //         'style' => 'edit',
-                    //         'route' => [
-                    //             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                    //             'parameters' => $request->route()->originalParameters()
-                    //         ]
-                    //     ] : false,
-                    //     $this->canDelete ? [
-                    //         'type'  => 'button',
-                    //         'style' => 'delete',
-                    //         'route' => [
-                    //             'name'       => 'shops.show.products.remove',
-                    //             'parameters' => $request->route()->originalParameters()
-                    //         ]
-                    //     ] : false
-                    // ]
+                'actions' => $actions,
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
