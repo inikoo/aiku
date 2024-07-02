@@ -7,7 +7,6 @@
 
 namespace App\Actions\Mail\Outbox\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Mail\OutboxTabsEnum;
@@ -144,7 +143,7 @@ class ShowOutbox extends OrgAction
                    ],
            ],
         ];
-    };
+        };
 
         $outbox = Outbox::where('slug', $routeParameters['outbox'])->first();
 
@@ -155,10 +154,10 @@ class ShowOutbox extends OrgAction
                 $headCrumb(
                     $outbox,
                     [
-             
+
                             'name'       => 'grp.org.shops.show.mail.outboxes.show',
                             'parameters' => $routeParameters
-                        
+
                     ],
                     $suffix
                 )

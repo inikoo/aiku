@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Mail\Outbox\OutboxStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -27,7 +28,8 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
             $table->string('name');
-            $table->string('state')->index()->default('in-process');
+            $table->string('blueprint')->index();
+            $table->string('state')->index()->default(OutboxStateEnum::IN_PROCESS->value);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

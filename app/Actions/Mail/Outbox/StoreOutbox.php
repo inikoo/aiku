@@ -8,9 +8,12 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
+use App\Actions\Mail\EmailTemplate\StoreEmailTemplate;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
+use App\Enums\Mail\Outbox\OutboxBlueprintEnum;
+use App\Enums\Mail\Outbox\OutboxStateEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -18,19 +21,16 @@ use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
+use Arr;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreOutbox extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-
     public function handle(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
     {
+        $layout = Arr::get($modelData, 'layout', []);
+        data_forget($modelData, 'layout');
+
         data_set($modelData, 'group_id', $parent->group_id);
 
         if ($parent instanceof Shop) {
@@ -44,14 +44,27 @@ class StoreOutbox extends OrgAction
             data_set($modelData, 'organisation_id', $parent->organisation_id);
             data_set($modelData, 'shop_id', $parent->shop_id);
             data_set($modelData, 'fulfilment_id', $parent->id);
-
         } else {
             data_set($modelData, 'organisation_id', $parent->id);
         }
 
+        if (Arr::get($modelData, 'blueprint') == OutboxBlueprintEnum::MAILSHOT) {
+            data_set($modelData, 'state', OutboxStateEnum::ACTIVE);
+        } else {
+            data_set($modelData, 'state', OutboxStateEnum::IN_PROCESS);
+        }
+
+
         /** @var Outbox $outbox */
         $outbox = $postRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
+
+        if ($outbox->blueprint == OutboxBlueprintEnum::EMAIL_TEMPLATE) {
+            StoreEmailTemplate::make()->action($outbox, [
+                'layout' => $layout
+            ]);
+        }
+
         GroupHydrateOutboxes::run($outbox->group);
         OrganisationHydrateOutboxes::run($outbox->organisation);
         if ($outbox->shop_id) {
@@ -61,30 +74,24 @@ class StoreOutbox extends OrgAction
         return $outbox;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("mail.edit");
-    }
 
     public function rules(): array
     {
         return [
-            'type' => ['required', Rule::enum(OutboxTypeEnum::class)],
-            'name' => ['required', 'max:250', 'string'],
+            'type'      => ['required', Rule::enum(OutboxTypeEnum::class)],
+            'name'      => ['required', 'max:250', 'string'],
+            'blueprint' => ['required', Rule::enum(OutboxBlueprintEnum::class)],
+            'layout'    => ['sometimes', 'array']
         ];
     }
 
-    public function action(PostRoom $postRoom, Organisation|Shop $parent, array $modelData): Outbox
+    public function action(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
     {
         $this->asAction = true;
-        if ($parent instanceof Shop) {
-            $organisation = $parent->organisation;
-        } else {
+        if ($parent instanceof Organisation) {
             $organisation = $parent;
+        } else {
+            $organisation = $parent->organisation;
         }
         $this->initialisation($organisation, $modelData);
 

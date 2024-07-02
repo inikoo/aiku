@@ -19,7 +19,6 @@ class StoreEmailTemplateSnapshot
 
     public function handle(EmailTemplate $emailTemplate, array $modelData): Snapshot
     {
-        data_set($modelData, 'layout', $emailTemplate->compiled);
         data_set($modelData, 'scope', SnapshotScopeEnum::EMAIL_TEMPLATE);
         data_set(
             $modelData,

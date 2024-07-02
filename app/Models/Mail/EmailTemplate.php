@@ -7,7 +7,7 @@
 
 namespace App\Models\Mail;
 
-use App\Actions\Utils\Abbreviate;
+use App\Enums\Mail\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\Snapshot;
@@ -17,13 +17,10 @@ use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Mail\EmailTemplate
@@ -31,30 +28,24 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $slug
  * @property string|null $type
- * @property string $name
- * @property string $parent_type
- * @property int $parent_id
  * @property array|null $data
- * @property array|null $compiled
  * @property int|null $screenshot_id
  * @property int $outbox_id
- * @property int|null $shop_id
- * @property int|null $warehouse_id
- * @property int|null $website_id
+ * @property EmailTemplateStateEnum $state
  * @property int|null $unpublished_snapshot_id
- * @property bool $is_seeded
- * @property bool $is_transactional
+ * @property int|null $live_snapshot_id
+ * @property array $published_layout
+ * @property \Illuminate\Support\Carbon|null $live_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplateCategory> $categories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Snapshot|null $liveSnapshot
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Mail\Outbox $outbox
+ * @property-read \App\Models\Mail\Outbox|null $outboxes
  * @property-read Model|\Eloquent $parent
  * @property-read Media|null $screenshot
  * @property-read \App\Models\Catalogue\Shop|null $shop
@@ -70,41 +61,23 @@ use Spatie\Sluggable\SlugOptions;
 class EmailTemplate extends Model implements HasMedia
 {
     use HasFactory;
-    use HasSlug;
     use InteractsWithMedia;
     use InShop;
 
     protected $guarded = [];
 
     protected $casts = [
-        'data'     => 'array',
-        'compiled' => 'array',
+        'data'             => 'array',
+        'published_layout' => 'array',
+        'state'            => EmailTemplateStateEnum::class,
+        'live_at'          => 'datetime',
     ];
 
     protected $attributes = [
-        'data'     => '{}',
-        'compiled' => '{}',
+        'data'             => '{}',
+        'published_layout' => '{}',
     ];
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                if(mb_strlen($this->name)>=8) {
-                    return Abbreviate::run($this->name);
-                } else {
-                    return  $this->name;
-                }
-            })
-            ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(12)
-            ->doNotGenerateSlugsOnUpdate();
-    }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 
     public function parent(): MorphTo
     {
@@ -136,9 +109,9 @@ class EmailTemplate extends Model implements HasMedia
         return $this->morphMany(Deployment::class, 'model');
     }
 
-    public function categories(): BelongsToMany
+    public function outboxes(): BelongsTo
     {
-        return $this->belongsToMany(EmailTemplateCategory::class, 'email_template_pivot_email_categories');
+        return $this->belongsTo(Outbox::class);
     }
 
     public function outbox(): BelongsTo

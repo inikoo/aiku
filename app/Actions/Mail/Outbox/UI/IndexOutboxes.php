@@ -100,7 +100,6 @@ class IndexOutboxes extends OrgAction
     //         );
     // }
 
-
     public function jsonResponse(LengthAwarePaginator $outboxes): AnonymousResourceCollection
     {
         return OutboxResource::collection($outboxes);

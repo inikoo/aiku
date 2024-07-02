@@ -128,6 +128,16 @@ enum OutboxTypeEnum: string
         };
     }
 
+    public function blueprint(): OutboxBlueprintEnum
+    {
+        return match ($this) {
+            OutboxTypeEnum::MARKETING,
+            OutboxTypeEnum::SHOP_PROSPECT,
+            OutboxTypeEnum::NEWSLETTER => OutboxBlueprintEnum::MAILSHOT,
+            default                    => OutboxBlueprintEnum::EMAIL_TEMPLATE
+        };
+    }
+
     public function shopTypes(): array
     {
         return match ($this) {

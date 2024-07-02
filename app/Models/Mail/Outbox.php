@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property OutboxTypeEnum $type
  * @property string $name
+ * @property string $blueprint
  * @property OutboxStateEnum $state
  * @property array $data
  * @property Carbon|null $created_at
