@@ -48,10 +48,10 @@ class StoreOutbox extends OrgAction
             data_set($modelData, 'organisation_id', $parent->id);
         }
 
-        if (Arr::get($modelData, 'blueprint') == OutboxBlueprintEnum::MAILSHOT) {
-            data_set($modelData, 'state', OutboxStateEnum::ACTIVE);
-        } else {
+        if (Arr::get($modelData, 'blueprint') == OutboxBlueprintEnum::EMAIL_TEMPLATE) {
             data_set($modelData, 'state', OutboxStateEnum::IN_PROCESS);
+        } else {
+            data_set($modelData, 'state', OutboxStateEnum::ACTIVE);
         }
 
 

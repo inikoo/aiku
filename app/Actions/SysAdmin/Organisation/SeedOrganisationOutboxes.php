@@ -9,7 +9,6 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -26,7 +25,7 @@ class SeedOrganisationOutboxes
             if ($case->scope() == 'Organisation') {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
-                if (!Outbox::where('type', $case)->exists()) {
+                if (!$organisation->outboxes()->where('type', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
                         $organisation,
@@ -43,10 +42,19 @@ class SeedOrganisationOutboxes
         }
     }
 
-    public string $commandSignature = 'org:seed-outboxes {organisation : The organisation slug}';
+    public string $commandSignature = 'org:seed-outboxes {organisation? : The organisation slug}';
 
     public function asCommand(Command $command): int
     {
+
+        if($command->argument('organisation') == null) {
+            $organisations = Organisation::all();
+            foreach($organisations as $organisation) {
+                $this->handle($organisation);
+            }
+            return 0;
+        }
+
         try {
             $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         } catch (Exception $e) {

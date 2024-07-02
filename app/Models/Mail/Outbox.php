@@ -99,7 +99,7 @@ class Outbox extends Model
                 if ($this->type == 'reorder-reminder') {
                     $abbreviation = 'ror';
                 } else {
-                    $abbreviation = Abbreviate::run($this->type->value);
+                    $abbreviation = Abbreviate::run(string:$this->type->value, maximumLength:6);
                 }
                 if ($this->shop_id) {
                     $abbreviation .= ' '.$this->shop->slug;

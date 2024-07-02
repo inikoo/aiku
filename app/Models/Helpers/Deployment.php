@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * App\Models\Helpers\Deployment
  *
  * @property int $id
- * @property string|null $slug
  * @property string $model_type
  * @property int $model_id
  * @property string|null $scope
