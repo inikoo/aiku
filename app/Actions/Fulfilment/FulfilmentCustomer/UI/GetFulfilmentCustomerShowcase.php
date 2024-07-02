@@ -14,6 +14,7 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Catalogue\RentalAgreementResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -41,9 +42,12 @@ class GetFulfilmentCustomerShowcase
             ],
             'pieData'               => $this->getDashboardData($fulfilmentCustomer),
             'warehouse_summary'     => [
-                'pallets_stored'    => 111,
-                'total_items'       => 222,
-                'unique_items'      => 333
+                'pallets_stored'    => $fulfilmentCustomer->fulfilment->warehouses->sum(function (Warehouse $warehouse) {
+                    return $warehouse->stats->number_pallets;
+                }),
+                'total_items'       => $fulfilmentCustomer->fulfilment->warehouses->sum(function (Warehouse $warehouse) {
+                    return $warehouse->stats->number_stored_items;
+                })
             ],
             'webhook'               => [
                 'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key,
