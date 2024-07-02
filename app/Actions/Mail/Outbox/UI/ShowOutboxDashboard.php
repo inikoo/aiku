@@ -61,10 +61,10 @@ class ShowOutboxDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.outboxes.dashboard',
+                                'name'       => 'grp.org.shops.show.outbox.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('Outboxes')
+                            'label' => __('Outbox')
                         ]
                     ]
                 ]

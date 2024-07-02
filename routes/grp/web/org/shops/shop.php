@@ -26,7 +26,7 @@ Route::prefix('{shop}')->name('show.')
         Route::name("assets.")->prefix('assets')
             ->group(__DIR__."/assets.php");
 
-        Route::name("outboxes.")->prefix('outboxes')
+        Route::name("outbox.")->prefix('outbox')
             ->group(__DIR__."/outboxes.php");
 
         Route::name("crm.")->prefix('crm')->group(

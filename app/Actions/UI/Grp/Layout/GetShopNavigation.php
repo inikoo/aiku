@@ -193,11 +193,11 @@ class GetShopNavigation
         }
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["outboxes"] = [
-                "root"  => "grp.org.shops.show.outboxes.",
+                "root"  => "grp.org.shops.show.outbox.",
                 "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
                 "label" => __("Outbox"),
                 "route" => [
-                    "name"       => 'grp.org.shops.show.outboxes.dashboard',
+                    "name"       => 'grp.org.shops.show.outbox.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
@@ -205,9 +205,9 @@ class GetShopNavigation
                         [
                             "tooltip" => __("outbox dashboard"),
                             "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.shops.show.outboxes.dashboard',
+                            'root'    => 'grp.org.shops.show.outbox.dashboard',
                             "route"   => [
-                                "name"       => 'grp.org.shops.show.outboxes.dashboard',
+                                "name"       => 'grp.org.shops.show.outbox.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -215,9 +215,9 @@ class GetShopNavigation
                             "label"   => __("outboxes"),
                             "tooltip" => __("outboxes"),
                             "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.shops.show.offers.campaigns.',
+                            'root'    => 'grp.org.shops.show.outbox.index',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.offers.campaigns.index",
+                                "name"       => "grp.org.shops.show.outbox.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
