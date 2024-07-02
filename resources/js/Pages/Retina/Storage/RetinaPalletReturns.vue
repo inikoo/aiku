@@ -76,43 +76,43 @@ const warehouseChange = (value) => {
     warehouseValue.value = value
 }
 
-function palletReturnRoute(palletReturn: PalletDelivery) {
-    switch (route().current()) {
-        case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
-            return route(
-                'grp.org.warehouses.show.fulfilment.pallet-returns.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    palletReturn.slug
-                ]);
-        case 'grp.org.fulfilments.show.operations.pallet-returns.index':
-            return route(
-                'grp.org.fulfilments.show.operations.pallet-returns.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    palletReturn.slug
-                ]);
-        default:
-            return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    route().params['fulfilmentCustomer'],
-                    palletReturn.slug
-                ]);
-    }
-}
-console.log(props)
+// function palletReturnRoute(palletReturn: PalletDelivery) {
+//     switch (route().current()) {
+//         case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
+//             return route(
+//                 'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['warehouse'],
+//                     palletReturn.slug
+//                 ]);
+//         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
+//             return route(
+//                 'grp.org.fulfilments.show.operations.pallet-returns.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['fulfilment'],
+//                     palletReturn.slug
+//                 ]);
+//         default:
+//             return route(
+//                 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['fulfilment'],
+//                     route().params['fulfilmentCustomer'],
+//                     palletReturn.slug
+//                 ]);
+//     }
+// }
+
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <!-- <pre>{{ usePage().props.data }}</pre> -->
     <PageHeading :data="pageHead">
-        <template #button-create-delivery="{ action: action }">
+        <template #button-create-delivery="{ action }">
             <div v-if="action.options.warehouses.data.length > 1" class="relative">
                 <Popover :width="'w-full'" ref="_popover">
                     <template #button>

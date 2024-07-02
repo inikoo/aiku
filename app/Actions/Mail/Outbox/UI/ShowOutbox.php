@@ -8,12 +8,14 @@
 namespace App\Actions\Mail\Outbox\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,8 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowOutbox extends OrgAction
 {
     //use HasUIOutbox;
-
-
+    use HasWorkshopAction;
     public function handle(Outbox $outbox): Outbox
     {
         return $outbox;
@@ -60,6 +61,13 @@ class ShowOutbox extends OrgAction
         return $this->handle($outbox);
     }
 
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
+    {
+
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($outbox);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     // public function inPostRoomInShop(PostRoom $postRoom, Outbox $outbox, ActionRequest $request): Outbox
     // {
@@ -70,6 +78,8 @@ class ShowOutbox extends OrgAction
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
+        $this->canEdit = true;
+        $actions = $this->workshopActions($request);
         return Inertia::render(
             'Mail/Outbox',
             [
@@ -90,24 +100,7 @@ class ShowOutbox extends OrgAction
                             'icon'  => ['fal', 'fa-cube'],
                             'title' => __('outbox')
                         ],
-                    // 'actions' => [
-                    //     $this->canEdit ? [
-                    //         'type'  => 'button',
-                    //         'style' => 'edit',
-                    //         'route' => [
-                    //             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                    //             'parameters' => $request->route()->originalParameters()
-                    //         ]
-                    //     ] : false,
-                    //     $this->canDelete ? [
-                    //         'type'  => 'button',
-                    //         'style' => 'delete',
-                    //         'route' => [
-                    //             'name'       => 'shops.show.products.remove',
-                    //             'parameters' => $request->route()->originalParameters()
-                    //         ]
-                    //     ] : false
-                    // ]
+                'actions' => $actions,
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
@@ -161,6 +154,20 @@ class ShowOutbox extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.shops.show.web.websites.outboxes.show' =>
+            array_merge(
+                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.web.websites.outboxes', $routeParameters),
+                $headCrumb(
+                    $outbox,
+                    [
+             
+                            'name'       => 'grp.org.shops.show.web.websites.outboxes.show',
+                            'parameters' => $routeParameters
+                        
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }
@@ -192,6 +199,19 @@ class ShowOutbox extends OrgAction
                     'parameters'=> [
                         'organisation'   => $this->organisation->slug,
                         'shop'           => $outbox->shop->slug,
+                        'outbox'         => $outbox->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.shops.show.web.websites.outboxes.show'=> [
+                'label'=> $outbox->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'   => $this->organisation->slug,
+                        'shop'           => $outbox->shop->slug,
+                        'website'        => $outbox->website->slug,
                         'outbox'         => $outbox->slug
                     ]
 

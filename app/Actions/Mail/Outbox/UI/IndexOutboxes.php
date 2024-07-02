@@ -10,9 +10,11 @@ namespace App\Actions\Mail\Outbox\UI;
 use App\Actions\Mail\ShowMailDashboard;
 use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
+use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\Mail\OutboxResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -28,9 +30,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOutboxes extends OrgAction
 {
-    private Shop|Organisation|PostRoom|Website $parent;
+    private Shop|Organisation|PostRoom|Website|Fulfilment $parent;
 
-    public function handle(Shop|Organisation|PostRoom|Website $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Shop|Organisation|PostRoom|Website|Fulfilment $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -52,6 +54,8 @@ class IndexOutboxes extends OrgAction
             $queryBuilder->where('outboxes.post_room_id', $parent->id);
         } elseif (class_basename($parent) == 'Website') {
             $queryBuilder->where('outboxes.website_id', $parent->id);
+        } elseif (class_basename($parent) == 'Fulfilment') {
+            $queryBuilder->where('outboxes.fulfilment_id', $parent->id);
         } else {
             $queryBuilder->where('outboxes.organisation_id', $parent->id);
         }
@@ -139,6 +143,13 @@ class IndexOutboxes extends OrgAction
         return $this->handle($website);
     }
 
+    public function inFulfilment(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($fulfilment);
+    }
+
     /** @noinspection PhpUnused */
     // public function inPostRoom(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator
     // {
@@ -178,6 +189,18 @@ class IndexOutboxes extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.mail.outboxes',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.web.websites.outboxes' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs('Shop',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.web.websites.outboxes',
                         'parameters' => $routeParameters
                     ]
                 )

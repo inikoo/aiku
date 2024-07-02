@@ -2,12 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useCopyText } from '@/Composables/useCopyText'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCopy } from '@fal'
+import { faCopy, faCheck } from '@fal'
 import {faEye, faEyeSlash} from '@far'
 import {faTimesCircle,} from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCopy, faEye, faEyeSlash,faTimesCircle,faSpinnerThird)
+library.add(faCopy, faCheck, faEye, faEyeSlash,faTimesCircle,faSpinnerThird)
 
 const props = withDefaults(defineProps<{
     modelValue: string | number | null
@@ -73,10 +73,20 @@ defineExpose({
     _inputRef
 })
 
+// Method: On recently copied
+const isRecentlyCopied = ref(false)
+const onClickCopyButton = async (text: string) => {
+    useCopyText(text)
+    isRecentlyCopied.value = true
+    setTimeout(() => {
+        isRecentlyCopied.value = false
+    }, 2000)
+}
+
 </script>
 
 <template>
-    <div class="bg-white w-full flex group relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
+    <div class="bg-white w-full flex relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
         <div class="relative w-full">
             <input
                 ref="_inputRef"
@@ -110,16 +120,13 @@ defineExpose({
                 ]"
             />
             <slot v-if="copyButton" name="copyButton">
-            <div 
-                class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
-                @click="useCopyText(modelValue)"
-            >
-         
-                <FontAwesomeIcon icon="fal fa-copy"
-                    class="text-lg leading-none"
-                    aria-hidden="true" />
-            </div>
-        </slot>
+                <div class="group flex justify-center items-center absolute inset-y-0 right-0 gap-x-1">
+                    <Transition name="spin-to-down">
+                        <FontAwesomeIcon v-if="isRecentlyCopied" icon='fal fa-check' class='text-green-500 px-3 h-full text-xxs leading-none ' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon v-else @click="() => onClickCopyButton(modelValue)" icon="fal fa-copy" class="px-3 h-full text-xxs leading-none opacity-20 group-hover:opacity-75 group-active:opacity-100 cursor-pointer" fixed-width aria-hidden="true" />
+                    </Transition>
+                </div>
+            </slot>
 
         <slot v-if="suffix" name="suffix">
             <div 

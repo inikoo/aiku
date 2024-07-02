@@ -320,9 +320,9 @@ class GetShopNavigation
                                 "label"   => __("outboxes"),
                                 "tooltip" => __("outboxes"),
                                 "icon"    => ["fal", "fa-comment-dollar"],
-                                'root'    => 'grp.org.shops.show.mail.website.outboxes',
+                                'root'    => 'grp.org.shops.show.web.websites.outboxes',
                                 "route"   => [
-                                    "name"       => "grp.org.shops.show.mail.website.outboxes",
+                                    "name"       => "grp.org.shops.show.web.websites.outboxes",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],

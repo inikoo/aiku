@@ -24,6 +24,7 @@ import { Table as TSTable } from '@/types/Table'
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 import { inject, ref } from "vue"
 import TagPallet from "@/Components/TagPallet.vue"
+import { trans } from 'laravel-vue-i18n'
 
 library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
 const props = defineProps<{
@@ -101,20 +102,36 @@ const typePallet = [
 
         <!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item }">
-            <FieldEditableTable v-if="state == 'in-process'"
-                :data="item"
-                @onSave="onSaveField"
-                fieldName="customer_reference"
-                placeholder="Enter code 1-64 characters" />
-			<div v-else>{{ item.customer_reference }}</div>
+            <div v-if="state == 'in-process'" class="min-w-48">
+                <FieldEditableTable
+                    :data="item"
+                    @onSave="onSaveField"
+                    fieldName="customer_reference"
+                    placeholder="Enter code 1-64 characters" />
+            </div>
+			<div v-else>
+                <div v-if="item.customer_reference">
+                    {{ item.customer_reference }}
+                </div>
+                <div v-else class="italic text-sm text-gray-400">
+                    {{ trans('No reference') }}
+                </div>
+            </div>
 		</template>
 
         <!-- Column: Notes -->
 		<template #cell(notes)="{ item }">
-			<div v-if="state == 'in-process'" class="">
+			<div v-if="state == 'in-process'" class="min-w-40">
 				<FieldEditableTable :data="item" @onSave="onSaveField" fieldName="notes" placeholder="Enter pallet notes"/>
 			</div>
-			<div v-else>{{ item.notes }}</div>
+			<div v-else>
+                <div v-if="item.notes">
+                    {{ item.notes }}
+                </div>
+                <div v-else class="italic text-sm text-gray-400">
+                    {{ trans('No notes') }}
+                </div>
+            </div>
 		</template>
 
         <!-- Column: Stored Items -->
@@ -181,8 +198,9 @@ const typePallet = [
 
         <!-- Column: Type -->
 		<template #cell(type)="{ item: pallet }">
-            <div class="w-40">
-				<FieldEditableTable :data="pallet"
+            <div v-if="props.state == 'in-process'" class="w-40">
+				<FieldEditableTable
+                    :data="pallet"
                     @onSave="onSaveField"
                     :options="typePallet"
                     :fieldType="'select'"
@@ -191,6 +209,7 @@ const typePallet = [
                     valueProp="value"
                 />
 			</div>
+            <TagPallet v-else :stateIcon="pallet.type_icon" />
 		</template>
 
         <!-- Column: Icon -->

@@ -30,7 +30,7 @@ const form = useForm({ pallet: [] })
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-new-delivery="{ action: action }">
+        <template #button-new-delivery="{ action }">
             <div v-if="form.pallet.length > 0">
                 <Action v-if="action" :action="action" />
             </div>

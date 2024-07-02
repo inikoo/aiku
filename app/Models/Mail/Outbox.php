@@ -11,12 +11,15 @@ use App\Actions\Utils\Abbreviate;
 use App\Enums\Mail\Outbox\OutboxStateEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Traits\InShop;
+use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -126,5 +129,15 @@ class Outbox extends Model
     public function emailTemplates(): HasMany
     {
         return $this->hasMany(EmailTemplate::class);
+    }
+
+    public function website() : BelongsTo 
+    {
+        return $this->belongsTo(Website::class);    
+    }
+
+    public function fulfilment() : BelongsTo 
+    {
+        return $this->belongsTo(Fulfilment::class);    
     }
 }
