@@ -31,10 +31,10 @@ class SeedFulfilmentOutboxes
                         $postRoom,
                         $fulfilment,
                         [
-                            'name'  => $case->label(),
-                            'type'  => $case,
-                            'state' => $case->defaultState()
-
+                            'name'      => $case->label(),
+                            'type'      => $case,
+                            'state'     => $case->defaultState(),
+                            'blueprint' => $case->blueprint(),
                         ]
                     );
                 }

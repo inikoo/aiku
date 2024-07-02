@@ -2,7 +2,6 @@
 
 use App\Actions\Mail\Outbox\UI\IndexOutboxes;
 use App\Actions\Mail\Outbox\UI\ShowOutbox;
-use App\Actions\Mail\Outbox\UI\ShowOutboxDashboard;
 use App\Actions\Mail\ShowMailDashboard;
 use Illuminate\Support\Facades\Route;
 

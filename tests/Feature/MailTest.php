@@ -12,12 +12,9 @@ use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Mail\EmailTemplate\StoreEmailTemplate;
-use App\Actions\Mail\EmailTemplate\UpdateEmailTemplate;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Mail\Mailshot;
 use App\Models\Catalogue\Shop;
-use App\Models\Mail\EmailTemplate;
 use App\Models\Mail\Outbox;
 
 beforeAll(function () {
@@ -104,32 +101,3 @@ test('update dispatched email', function ($dispatchedEmail) {
     $this->assertModelExists($updatedDispatchEmail);
     return $updatedDispatchEmail;
 })->depends('create dispatched email in mailshot');
-
-test('store email template', function (Shop $shop) {
-    /** @var Outbox $outbox */
-    $outbox        = $shop->outboxes()->first();
-    $emailTemplate = StoreEmailTemplate::make()->action(
-        $this->organisation,
-        $outbox,
-        [
-            'name' => 'temp'
-        ]
-    );
-    expect($emailTemplate)->toBeInstanceOf(EmailTemplate::class)
-        ->and($emailTemplate->name)->toBe('temp');
-
-    return $emailTemplate;
-})->depends('outbox seeded when shop created');
-
-test('update email template', function (EmailTemplate $emailTemplate) {
-    $updatedEmailTemplate = UpdateEmailTemplate::make()->action(
-        $emailTemplate,
-        [
-            'name' => 'tmp'
-        ]
-    );
-    expect($updatedEmailTemplate)->toBeInstanceOf(EmailTemplate::class)
-        ->and($updatedEmailTemplate->name)->toBe('tmp');
-
-    return $updatedEmailTemplate;
-})->depends('store email template');

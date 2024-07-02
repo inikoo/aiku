@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 02 Jul 2024 10:38:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 02 Jul 2024 13:59:20 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -31,9 +31,10 @@ class SeedOrganisationOutboxes
                         $postRoom,
                         $organisation,
                         [
-                            'name'  => $case->label(),
-                            'type'  => $case,
-                            'state' => $case->defaultState()
+                            'name'      => $case->label(),
+                            'type'      => $case,
+                            'state'     => $case->defaultState(),
+                            'blueprint' => $case->blueprint(),
 
                         ]
                     );

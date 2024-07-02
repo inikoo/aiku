@@ -31,9 +31,10 @@ class SeedWebsiteOutboxes
                         $postRoom,
                         $website,
                         [
-                            'name'    => $case->label(),
-                            'type'    => $case,
-                            'state'   => $case->defaultState()
+                            'name'      => $case->label(),
+                            'type'      => $case,
+                            'state'     => $case->defaultState(),
+                            'blueprint' => $case->blueprint(),
 
                         ]
                     );
