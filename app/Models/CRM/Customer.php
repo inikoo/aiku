@@ -16,7 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
@@ -101,7 +101,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Address|null $deliveryAddress
- * @property-read Collection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
  * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
@@ -114,6 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Platform> $platforms
+ * @property-read Collection<int, Portfolio> $portfolios
  * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\CustomerStats|null $stats
@@ -322,9 +322,9 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->belongsTo(Address::class);
     }
 
-    public function dropshippingCustomerPortfolios(): HasMany
+    public function portfolios(): HasMany
     {
-        return $this->hasMany(DropshippingCustomerPortfolio::class);
+        return $this->hasMany(Portfolio::class);
     }
 
     public function dropshippingStats(): HasOne

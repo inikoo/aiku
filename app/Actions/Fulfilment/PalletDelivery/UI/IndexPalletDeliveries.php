@@ -122,6 +122,7 @@ class IndexPalletDeliveries extends OrgAction
             'pallet_deliveries.reference',
             'pallet_deliveries.customer_reference',
             'pallet_deliveries.number_pallets',
+            'pallet_deliveries.estimated_delivery_date',
             'pallet_deliveries.state',
             'pallet_deliveries.slug'
         );
@@ -225,9 +226,9 @@ class IndexPalletDeliveries extends OrgAction
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'delivery_date', label: __('delivery date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'estimated_delivery_date', label: __('estimated delivery date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

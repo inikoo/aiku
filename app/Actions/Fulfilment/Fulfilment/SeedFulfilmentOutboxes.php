@@ -1,40 +1,39 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 01 Jul 2024 18:25:06 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 02 Jul 2024 11:19:37 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Product;
+namespace App\Actions\Fulfilment\Fulfilment;
 
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SeedShopOutboxes
+class SeedFulfilmentOutboxes
 {
     use AsAction;
 
-    public function handle(Shop $shop): void
+    public function handle(Fulfilment $fulfilment): void
     {
         foreach (OutboxTypeEnum::cases() as $case) {
-            if ($case->scope() == 'shop') {
+            if ($case->scope() == 'Fulfilment') {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
-
-                if (!Outbox::where('shop_id', $shop->id)->where('type', $case)->exists()) {
+                if (!Outbox::where('type', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
-                        $shop,
+                        $fulfilment,
                         [
-                            'name'    => $case->label(),
-                            'type'    => $case,
-                            'state'   => $case->defaultState()
+                            'name'  => $case->label(),
+                            'type'  => $case,
+                            'state' => $case->defaultState()
 
                         ]
                     );
@@ -43,19 +42,18 @@ class SeedShopOutboxes
         }
     }
 
-    public string $commandSignature = 'shop:seed-outboxes {shop : The shop slug}';
+    public string $commandSignature = 'fulfilment:seed-outboxes {fulfilment : The fulfilment slug}';
 
     public function asCommand(Command $command): int
     {
         try {
-            $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+            $fulfilment = Fulfilment::where('slug', $command->argument('fulfilment'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
-
             return 1;
         }
 
-        $this->handle($shop);
+        $this->handle($fulfilment);
 
         return 0;
     }

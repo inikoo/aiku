@@ -51,7 +51,7 @@ class IndexFilteredProducts extends OrgAction
             $queryBuilder->where('products.shop_id', $parent->shop_id)
             ->whereNotIn('products.id', function ($subQuery) use ($parent) {
                 $subQuery->select('product_id')
-                    ->from('dropshipping_customer_portfolios')
+                    ->from('portfolios')
                     ->where('customer_id', $parent->id);
             });
         }

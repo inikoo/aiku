@@ -13,9 +13,11 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\Website;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,13 +29,22 @@ class StoreOutbox extends OrgAction
     use WithAttributes;
 
 
-    public function handle(PostRoom $postRoom, Organisation|Shop $parent, array $modelData): Outbox
+    public function handle(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
     {
         data_set($modelData, 'group_id', $parent->group_id);
 
         if ($parent instanceof Shop) {
             data_set($modelData, 'organisation_id', $parent->organisation_id);
             data_set($modelData, 'shop_id', $parent->id);
+        } elseif ($parent instanceof Website) {
+            data_set($modelData, 'organisation_id', $parent->organisation_id);
+            data_set($modelData, 'shop_id', $parent->shop_id);
+            data_set($modelData, 'website_id', $parent->id);
+        } elseif ($parent instanceof Fulfilment) {
+            data_set($modelData, 'organisation_id', $parent->organisation_id);
+            data_set($modelData, 'shop_id', $parent->shop_id);
+            data_set($modelData, 'fulfilment_id', $parent->id);
+
         } else {
             data_set($modelData, 'organisation_id', $parent->id);
         }

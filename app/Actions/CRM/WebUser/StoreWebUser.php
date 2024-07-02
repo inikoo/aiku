@@ -83,8 +83,7 @@ class StoreWebUser extends OrgAction
                 new IUnique(
                     table: 'web_users',
                     extraConditions: [
-                        ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'website_id', 'value' => $this->shop->website->id]
                     ]
                 ),
             ],
@@ -115,11 +114,9 @@ class StoreWebUser extends OrgAction
             new IUnique(
                 table: 'web_users',
                 extraConditions: [
-                    ['column' => 'website_id', 'value' => $this->shop->website->id],
-                    ['column' => 'deleted_at', 'operator'=>'notNull'],
+                    ['column' => 'website_id', 'value' => $this->shop->website->id]
                 ]
             ),
-
         ];
 
         if ($this->customer->hasUsers()) {

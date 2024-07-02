@@ -18,12 +18,12 @@ class WebUsersResource extends JsonResource
         $webUser = $this;
 
         return [
-            'slug'     => $webUser->slug,
-            'username' => $webUser->email,
-            'status'   => $webUser->status,
-            'email'    => $webUser->email,
-            'is_root'  => $webUser->is_root
-
+            'slug'        => $webUser->slug,
+            'username'    => $webUser->username,
+            'status'      => $webUser->status,
+            'email'       => $webUser->email,
+            'is_root'     => $webUser->is_root,
+            'created_at'  => $webUser->created_at
         ];
     }
 }

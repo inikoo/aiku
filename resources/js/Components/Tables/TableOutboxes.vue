@@ -17,11 +17,16 @@ const props = defineProps<{
 
 function outboxRoute(outbox: Outbox) {
     switch (route().current()) {
-        case "mail.post_rooms.show.outboxes.index":
-            return [outbox["post_room_slug"], outbox.slug];
-
+        case 'grp.org.shops.show.mail.outboxes':
+        return route(
+                'grp.org.shops.show.mail.outboxes.show',
+                [route().params['organisation'], route().params['shop'], outbox.slug])
+        case 'grp.org.shops.show.web.websites.outboxes':
+        return route(
+                'grp.org.shops.show.web.websites.outboxes.show',
+                [route().params['organisation'], route().params['shop'], route().params['website'], outbox.slug])
         default:
-            return [outbox.slug];
+            return null
     }
 }
 
@@ -30,7 +35,6 @@ function outboxRoute(outbox: Outbox) {
 </script>
 
 <template>
-
     <Table :resource="data" :name="tab" class="mt-5">
 
 

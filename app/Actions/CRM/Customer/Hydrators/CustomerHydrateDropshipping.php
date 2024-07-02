@@ -28,8 +28,8 @@ class CustomerHydrateDropshipping
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_dropshipping_customer_portfolios'            => $customer->dropshippingCustomerPortfolios()->count(),
-            'number_current_dropshipping_customer_portfolios'    => $customer->dropshippingCustomerPortfolios()->where('status', true)->count(),
+            'number_portfolios'                                  => $customer->portfolios()->count(),
+            'number_current_portfolios'                          => $customer->portfolios()->where('status', true)->count(),
             'number_products'                                    => $customer->products()->count(),
             'number_current_products'                            => $customer->products()->where('status', true)->count(),
         ];

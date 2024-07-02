@@ -16,8 +16,8 @@ trait HasDropshippingStats
     {
         $table->unsignedSmallInteger('number_customer_clients')->default(0);
         $table->unsignedSmallInteger('number_current_customer_clients')->default(0);
-        $table->unsignedSmallInteger('number_dropshipping_customer_portfolios')->default(0);
-        $table->unsignedSmallInteger('number_current_dropshipping_customer_portfolios')->default(0);
+        $table->unsignedSmallInteger('number_portfolios')->default(0);
+        $table->unsignedSmallInteger('number_current_portfolios')->default(0);
         $table->unsignedSmallInteger('number_products')->default(0);
         $table->unsignedSmallInteger('number_current_products')->default(0);
 

@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property int $number_current_clients
  */
-class DropshippingCustomerPortfolioResource extends JsonResource
+class PortfolioResource extends JsonResource
 {
     use HasSelfCall;
 

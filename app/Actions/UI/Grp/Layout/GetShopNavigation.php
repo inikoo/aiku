@@ -18,7 +18,6 @@ class GetShopNavigation
     public function handle(Shop $shop, User $user): array
     {
         $navigation = [];
-
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
@@ -192,22 +191,22 @@ class GetShopNavigation
             ];
         }
         if ($user->hasPermissionTo("products.$shop->id.view")) {
-            $navigation["outboxes"] = [
-                "root"  => "grp.org.shops.show.outboxes.",
+            $navigation["mails"] = [
+                "root"  => "grp.org.shops.show.mail.",
                 "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
-                "label" => __("Outbox"),
+                "label" => __("Mail"),
                 "route" => [
-                    "name"       => 'grp.org.shops.show.outboxes.dashboard',
+                    "name"       => 'grp.org.shops.show.mail.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
                     "subSections" => [
                         [
-                            "tooltip" => __("outbox dashboard"),
+                            "tooltip" => __("mail dashboard"),
                             "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.shops.show.outboxes.dashboard',
+                            'root'    => 'grp.org.shops.show.mail.dashboard',
                             "route"   => [
-                                "name"       => 'grp.org.shops.show.outboxes.dashboard',
+                                "name"       => 'grp.org.shops.show.mail.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -215,9 +214,9 @@ class GetShopNavigation
                             "label"   => __("outboxes"),
                             "tooltip" => __("outboxes"),
                             "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.shops.show.offers.campaigns.',
+                            'root'    => 'grp.org.shops.show.mail.outboxes',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.offers.campaigns.index",
+                                "name"       => "grp.org.shops.show.mail.outboxes",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -314,6 +313,16 @@ class GetShopNavigation
 
                                 "route"   => [
                                     "name"       => "grp.org.shops.show.web.webpages.index",
+                                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                                ],
+                            ],
+                            [
+                                "label"   => __("outboxes"),
+                                "tooltip" => __("outboxes"),
+                                "icon"    => ["fal", "fa-comment-dollar"],
+                                'root'    => 'grp.org.shops.show.web.websites.outboxes',
+                                "route"   => [
+                                    "name"       => "grp.org.shops.show.web.websites.outboxes",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],

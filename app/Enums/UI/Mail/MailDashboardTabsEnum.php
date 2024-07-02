@@ -10,7 +10,7 @@ namespace App\Enums\UI\Mail;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum OutboxDashboardTabsEnum: string
+enum MailDashboardTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -27,7 +27,7 @@ enum OutboxDashboardTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            OutboxDashboardTabsEnum::DASHBOARD => [
+            MailDashboardTabsEnum::DASHBOARD => [
                 'title' => __('dashboard'),
                 'icon'  => 'fal fa-tachometer-alt-fast',
             ],

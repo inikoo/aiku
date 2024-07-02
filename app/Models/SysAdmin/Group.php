@@ -23,7 +23,7 @@ use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
@@ -105,7 +105,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
- * @property-read LaravelCollection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
@@ -132,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, Platform> $platforms
+ * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, PostRoom> $postRooms
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
@@ -537,9 +537,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupDropshippingStat::class);
     }
 
-    public function dropshippingCustomerPortfolios(): HasMany
+    public function portfolios(): HasMany
     {
-        return $this->hasMany(DropshippingCustomerPortfolio::class);
+        return $this->hasMany(Portfolio::class);
     }
 
     public function clients(): HasMany
