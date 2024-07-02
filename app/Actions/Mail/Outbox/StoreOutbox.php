@@ -43,6 +43,8 @@ class StoreOutbox extends OrgAction
         } elseif ($parent instanceof Fulfilment) {
             data_set($modelData, 'organisation_id', $parent->organisation_id);
             data_set($modelData, 'shop_id', $parent->shop_id);
+            data_set($modelData, 'fulfilment_id', $parent->id);
+
         } else {
             data_set($modelData, 'organisation_id', $parent->id);
         }
