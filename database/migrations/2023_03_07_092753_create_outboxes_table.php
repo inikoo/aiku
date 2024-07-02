@@ -21,6 +21,9 @@ return new class () extends Migration {
             $table->foreign('post_room_id')->references('id')->on('post_rooms');
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('website_id')->nullable();
+            $table->foreign('website_id')->references('id')->on('websites');
+            $table->unsignedSmallInteger('fulfilment_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
             $table->string('name');

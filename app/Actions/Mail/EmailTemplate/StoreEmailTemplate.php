@@ -7,13 +7,11 @@ use App\Actions\OrgAction;
 use App\Models\Mail\EmailTemplate;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreEmailTemplate extends OrgAction
 {
-
     use AsAction;
 
     public function handle(Outbox $outbox, array $modelData): EmailTemplate
@@ -26,7 +24,7 @@ class StoreEmailTemplate extends OrgAction
 
         data_set($modelData, 'parent_type', get_class($outbox));
         data_set($modelData, 'parent_id', $outbox->id);
-        
+
         $emailTemplate = $outbox->emailTemplates()->create($modelData);
 
         $snapshot = StoreEmailTemplateSnapshot::run(

@@ -13,19 +13,19 @@ enum SnapshotScopeEnum: string
 {
     use EnumHelperTrait;
 
-    case WEBPAGE = 'webpage';
-    case HEADER  = 'header';
-    case FOOTER  = 'footer';
-    case BANNER  = 'banner';
+    case WEBPAGE        = 'webpage';
+    case HEADER         = 'header';
+    case FOOTER         = 'footer';
+    case BANNER         = 'banner';
     case EMAIL_TEMPLATE = 'email_template';
 
     public static function labels(): array
     {
         return [
-            'webpage' => __('Webpage'),
-            'header'  => __('Header'),
-            'footer'  => __('Footer'),
-            'banner'  => __('Banner'),
+            'webpage'        => __('Webpage'),
+            'header'         => __('Header'),
+            'footer'         => __('Footer'),
+            'banner'         => __('Banner'),
             'email_template' => __('Email Template')
         ];
     }
