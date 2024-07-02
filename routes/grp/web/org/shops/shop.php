@@ -26,6 +26,9 @@ Route::prefix('{shop}')->name('show.')
         Route::name("assets.")->prefix('assets')
             ->group(__DIR__."/assets.php");
 
+        Route::name("outboxes.")->prefix('outboxes')
+            ->group(__DIR__."/outboxes.php");
+
         Route::name("crm.")->prefix('crm')->group(
             function () {
                 Route::get('', ShowDummyDashboard::class)->name('dashboard');

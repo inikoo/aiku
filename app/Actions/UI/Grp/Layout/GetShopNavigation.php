@@ -192,6 +192,40 @@ class GetShopNavigation
             ];
         }
         if ($user->hasPermissionTo("products.$shop->id.view")) {
+            $navigation["outboxes"] = [
+                "root"  => "grp.org.shops.show.outboxes.",
+                "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
+                "label" => __("Outbox"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.outboxes.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("outbox dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.outboxes.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.outboxes.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("outboxes"),
+                            "tooltip" => __("outboxes"),
+                            "icon"    => ["fal", "fa-comment-dollar"],
+                            'root'    => 'grp.org.shops.show.offers.campaigns.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.offers.campaigns.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["marketing"] = [
                 "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
