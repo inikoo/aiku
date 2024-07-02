@@ -10,8 +10,6 @@ namespace App\Models\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Helpers\Deployment
@@ -35,24 +33,10 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Deployment extends Model
 {
-    use HasSlug;
-
     protected $dateFormat  = 'Y-m-d H:i:s P';
     protected array $dates = ['published_at'];
 
     protected $guarded = [];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-
-                return $this->snapshot->slug.'-'.now()->isoFormat('YYMMDD');
-            })
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnCreate()
-            ->doNotGenerateSlugsOnUpdate();
-    }
 
     public function model(): MorphTo
     {
