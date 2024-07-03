@@ -129,9 +129,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         ];
 
         }
-        // dd(RentalAgreementClausesResource::collection(IndexRentalAgreementClauses::run($fulfilmentCustomer, 'agreed_prices')));
-        // dd(IndexRentalAgreementClauses::run($fulfilmentCustomer));
-        // dd(IndexRentalAgreementClauses::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::AGREED_PRICES->value));
+
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomer',
             [
