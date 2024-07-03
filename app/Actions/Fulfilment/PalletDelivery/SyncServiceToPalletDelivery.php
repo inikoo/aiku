@@ -59,21 +59,21 @@ class SyncServiceToPalletDelivery extends OrgAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
-    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): RedirectResponse
-    {
-        $routeName = $request->route()->getName();
+    // public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): RedirectResponse
+    // {
+    //     $routeName = $request->route()->getName();
 
-        return match ($routeName) {
-            'grp.models.pallet-delivery.service.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
-                'organisation'           => $palletDelivery->organisation->slug,
-                'fulfilment'             => $palletDelivery->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletDelivery->slug,
-                'tab'                    => PalletDeliveryTabsEnum::SERVICES->value
-            ]),
-            default => Redirect::route('retina.storage.pallet-deliveries.show', [
-                'palletDelivery'     => $palletDelivery->slug
-            ])
-        };
-    }
+    //     return match ($routeName) {
+    //         'grp.models.pallet-delivery.service.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
+    //             'organisation'           => $palletDelivery->organisation->slug,
+    //             'fulfilment'             => $palletDelivery->fulfilment->slug,
+    //             'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+    //             'palletDelivery'         => $palletDelivery->slug,
+    //             'tab'                    => PalletDeliveryTabsEnum::SERVICES->value
+    //         ]),
+    //         default => Redirect::route('retina.storage.pallet-deliveries.show', [
+    //             'palletDelivery'     => $palletDelivery->slug
+    //         ])
+    //     };
+    // }
 }
