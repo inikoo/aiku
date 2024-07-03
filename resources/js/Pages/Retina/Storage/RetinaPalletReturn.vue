@@ -70,7 +70,7 @@ const openModal = ref(false)
 const isLoading = ref<string | boolean>(false)
 
 const formAddService = useForm({ service_id: '', quantity: 1 })
-const formAddPhysicalGood = useForm({ pgood_id: '', quantity: 1 })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 
 const component = computed(() => {
 	const components: Component = {
@@ -113,7 +113,7 @@ const handleFormSubmitAddPhysicalGood = (data: Action, closedPopover: Function) 
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddPhysicalGood.reset('quantity', 'pgood_id')
+                formAddPhysicalGood.reset('quantity', 'outer_id')
                 isLoading.value = false
             },
             onError: (errors) => {
@@ -233,16 +233,16 @@ watch(
                             <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>
                             <div>
                                 <PureMultiselect
-                                    v-model="formAddPhysicalGood.pgood_id"
+                                    v-model="formAddPhysicalGood.outer_id"
                                     autofocus
                                     placeholder="Physical Goods"
                                     :options="props.physical_good_lists"
                                     label="name"
                                     valueProp="id"
                                 />
-                                <p v-if="get(formAddPhysicalGood, ['errors', 'pgood_id'])"
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
                                     class="mt-2 text-sm text-red-500">
-                                    {{ formAddPhysicalGood.errors.pgood_id }}
+                                    {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
                             </div>
                             <div class="mt-3">
