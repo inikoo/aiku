@@ -32,9 +32,9 @@ function serviceRoute(service: {}) {
     console.log(route().current())
     switch (route().current()) {
 
-        case "grp.org.fulfilments.show.assets.services.index":
+        case "grp.org.fulfilments.show.billables.services.index":
             return route(
-                'grp.org.fulfilments.show.assets.services.show',
+                'grp.org.fulfilments.show.billables.services.show',
                 [route().params['organisation'], route().params['fulfilment'], service.slug])
         default:
             return null

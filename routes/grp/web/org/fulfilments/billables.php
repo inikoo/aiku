@@ -21,16 +21,13 @@ use App\Actions\Fulfilment\Rental\UI\EditRental;
 use App\Actions\Fulfilment\Rental\UI\ShowRental;
 use App\Stubs\UIDummies\IndexDummies;
 
-Route::get('assets', IndexFulfilmentAssets::class)->name('index');
-Route::get('assets/{product}', [ShowProduct::class, 'inFulfilment'])->name('show');
+Route::get('billables', IndexFulfilmentAssets::class)->name('index');
+Route::get('billables/{product}', [ShowProduct::class, 'inFulfilment'])->name('show');
 
 Route::get('rentals', IndexFulfilmentRentals::class)->name('rentals.index');
 Route::get('rentals/create', CreateRental::class)->name('rentals.create');
 Route::get('rentals/{rental}', [ShowRental::class, 'inFulfilment'])->name('rentals.show');
 Route::get('rentals/{rental}/edit', [EditRental::class, 'inFulfilment'])->name('rentals.edit');
-// Route::get('services', IndexFulfilmentAssets::class)->name('services.index');
-// Route::get('goods', IndexFulfilmentAssets::class)->name('goods.index');
-
 
 
 Route::get('services', IndexFulfilmentServices::class)->name('services.index');

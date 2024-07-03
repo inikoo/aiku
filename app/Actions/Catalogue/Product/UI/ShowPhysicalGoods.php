@@ -202,18 +202,18 @@ class ShowPhysicalGoods extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.assets.outers.show' =>
+            'grp.org.fulfilments.show.billables.outers.show' =>
             array_merge(
                 (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $product,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.outers.index',
+                            'name'       => 'grp.org.fulfilments.show.billables.outers.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.outers.show',
+                            'name'       => 'grp.org.fulfilments.show.billables.outers.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -264,7 +264,7 @@ class ShowPhysicalGoods extends OrgAction
                     ],
                 ],
             ],
-            'grp.org.fulfilments.show.assets.show' => [
+            'grp.org.fulfilments.show.billables.show' => [
                 'label' => $product->name,
                 'route' => [
                     'name'       => $routeName,

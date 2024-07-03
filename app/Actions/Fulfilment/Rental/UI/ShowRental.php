@@ -201,18 +201,18 @@ class ShowRental extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.assets.rentals.show' =>
+            'grp.org.fulfilments.show.billables.rentals.show' =>
             array_merge(
                 (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $rental,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
+                            'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.rentals.show',
+                            'name'       => 'grp.org.fulfilments.show.billables.rentals.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -243,7 +243,7 @@ class ShowRental extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.assets.rentals.show' => [
+            'grp.org.fulfilments.show.billables.rentals.show' => [
                 'label' => $rental->name,
                 'route' => [
                     'name'       => $routeName,

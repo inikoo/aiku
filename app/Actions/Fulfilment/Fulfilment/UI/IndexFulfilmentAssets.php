@@ -122,7 +122,6 @@ class IndexFulfilmentAssets extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $assets, ActionRequest $request): Response
     {
-        // dd(FulfilmentProductsResource::collection($assets));
         return Inertia::render(
             'Org/Fulfilment/Products',
             [
@@ -133,9 +132,9 @@ class IndexFulfilmentAssets extends OrgAction
                 'pageHead'    => [
                     'icon'      => [
                         'icon'  => ['fal', 'fa-ballot'],
-                        'title' => __('Assets')
+                        'title' => __('Billables')
                     ],
-                    'title' => __('Assets'),
+                    'title' => __('Billables'),
                 ],
 
                 'tabs' => [
@@ -216,7 +215,7 @@ class IndexFulfilmentAssets extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Assets'),
+                        'label' => __('Billables'),
                         'icon'  => $icon
                     ],
                     'suffix' => $suffix
@@ -229,7 +228,7 @@ class IndexFulfilmentAssets extends OrgAction
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.assets.index',
+                        'name'       => 'grp.org.fulfilments.show.billables.index',
                         'parameters' => $routeParameters
                     ]
                 )

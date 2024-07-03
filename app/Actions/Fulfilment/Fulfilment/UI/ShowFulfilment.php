@@ -60,7 +60,7 @@ class ShowFulfilment extends OrgAction
                         'name'  => __('Products'),
                         'icon'  => ['fal', 'fa-cube'],
                         'href'  => [
-                            'name'       => 'grp.org.fulfilments.show.assets.index',
+                            'name'       => 'grp.org.fulfilments.show.billables.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
