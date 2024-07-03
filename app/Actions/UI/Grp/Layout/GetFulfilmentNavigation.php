@@ -20,6 +20,21 @@ class GetFulfilmentNavigation
         $navigation = [];
 
         if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
+            $navigation['dashboard'] = [
+                'root'  => 'grp.org.fulfilments.show.dashboard',
+                'label' => __('Dashboard'),
+                'icon'  => ['fal', 'fa-chart-line'],
+
+                'route' => [
+                    'name'       => 'grp.org.fulfilments.show.dashboard',
+                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                ],
+
+                'topMenu' => [
+                    'subSections' => []
+                ]
+
+            ];
             $navigation['assets'] = [
                 'root'  => 'grp.org.fulfilments.show.assets.',
                 'label' => __('Billables'),
@@ -153,40 +168,6 @@ class GetFulfilmentNavigation
                 ]
 
             ];
-            $navigation["mails"] = [
-                "root"  => "grp.org.fulfilments.show.mail.",
-                "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
-                "label" => __("Mail"),
-                "route" => [
-                    "name"       => 'grp.org.fulfilments.show.mail.dashboard',
-                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
-                ],
-                "topMenu" => [
-                    "subSections" => [
-                        [
-                            "tooltip" => __("mail dashboard"),
-                            "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.fulfilments.show.mail.dashboard',
-                            "route"   => [
-                                "name"       => 'grp.org.fulfilments.show.mail.dashboard',
-                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
-                            ],
-                        ],
-                        [
-                            "label"   => __("outboxes"),
-                            "tooltip" => __("outboxes"),
-                            "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.fulfilments.show.mail.outboxes',
-                            "route"   => [
-                                "name"       => "grp.org.fulfilments.show.mail.outboxes",
-                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
-                            ],
-                        ],
-                    ],
-                ],
-            ];
-
-
             if ($fulfilment->shop->website) {
                 $navigation['web'] = [
                     'root'    => 'grp.org.fulfilments.show.web.',
@@ -291,6 +272,38 @@ class GetFulfilmentNavigation
                     ]
                 ]
 
+            ];
+            $navigation['setting'] = [
+                "root"  => "grp.org.fulfilments.show.setting.",
+                "icon"  => ["fal", "fa-sliders-h"], //TODO: Need icon for this
+                "label" => __("Setting"),
+                "route" => [
+                    "name"       => 'grp.org.fulfilments.show.setting.dashboard',
+                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("mail dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.fulfilments.show.mail.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.fulfilments.show.mail.dashboard',
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("outboxes"),
+                            "tooltip" => __("outboxes"),
+                            "icon"    => ["fal", "fa-comment-dollar"],
+                            'root'    => 'grp.org.fulfilments.show.mail.outboxes',
+                            "route"   => [
+                                "name"       => "grp.org.fulfilments.show.mail.outboxes",
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                            ],
+                        ],
+                    ],
+                ],
             ];
         }
 
