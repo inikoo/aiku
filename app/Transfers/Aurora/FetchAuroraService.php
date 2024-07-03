@@ -114,8 +114,62 @@ class FetchAuroraService extends FetchAurora
             $this->parsedData['service']['auto_assign_asset']      = $autoAssignAsset;
             $this->parsedData['service']['auto_assign_asset_type'] = $autoAssignAssetType;
         } else {
+
+            $serviceAutomationData=$this->getAutomationData();
+            if($serviceAutomationData['is_auto_assign']) {
+                $this->parsedData['service']['is_auto_assign']           = $serviceAutomationData['is_auto_assign'];
+                $this->parsedData['service']['auto_assign_trigger']      = $serviceAutomationData['auto_assign_trigger'];
+                $this->parsedData['service']['auto_assign_subject']      = $serviceAutomationData['auto_assign_subject'];
+                $this->parsedData['service']['auto_assign_subject_type'] = $serviceAutomationData['auto_assign_subject_type'];
+
+                $this->parsedData['service']['auto_assign_status']      = $serviceAutomationData['auto_assign_status'];
+            }
+
             $this->parsedData['service']['unit']    = 'service';
         }
+    }
+
+    protected function getAutomationData(): array
+    {
+        $automationData = [
+            'is_auto_assign'        => false,
+        ];
+
+        if($this->auroraModelData->{'Product Code'}=='AWSF-04') {
+            $automationData['is_auto_assign']           = true;
+            $automationData['auto_assign_trigger']      = 'PalletDelivery';
+            $automationData['auto_assign_subject']      = 'Pallet';
+            $automationData['auto_assign_subject_type'] = 'pallet';
+            $automationData['auto_assign_status']       = true;
+        }
+
+        if($this->auroraModelData->{'Product Code'}=='AWSF-05') {
+            $automationData['is_auto_assign']           = true;
+            $automationData['auto_assign_trigger']      = 'PalletReturn';
+            $automationData['auto_assign_subject']      = 'Pallet';
+            $automationData['auto_assign_subject_type'] = 'pallet';
+            $automationData['auto_assign_status']       = true;
+        }
+
+        if($this->auroraModelData->{'Product Code'}=='AWSF-06') {
+            $automationData['is_auto_assign']           = true;
+            $automationData['auto_assign_trigger']      = 'PalletDelivery';
+            $automationData['auto_assign_subject']      = 'Pallet';
+            $automationData['auto_assign_subject_type'] = 'box';
+            $automationData['auto_assign_status']       = true;
+        }
+
+        if($this->auroraModelData->{'Product Code'}=='AWSF-07') {
+            $automationData['is_auto_assign']           = true;
+            $automationData['auto_assign_trigger']      = 'PalletReturn';
+            $automationData['auto_assign_subject']      = 'Pallet';
+            $automationData['auto_assign_subject_type'] = 'box';
+            $automationData['auto_assign_status']       = true;
+        }
+
+
+        return $automationData;
+
     }
 
 

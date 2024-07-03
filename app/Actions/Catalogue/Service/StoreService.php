@@ -100,15 +100,18 @@ class StoreService extends OrgAction
                     ]
                 ),
             ],
-            'name'                    => ['required', 'max:250', 'string'],
-            'price'                   => ['required', 'numeric', 'min:0'],
-            'unit'                    => ['required', 'string'],
-            'state'                   => ['sometimes', 'required', Rule::enum(ServiceStateEnum::class)],
-            'data'                    => ['sometimes', 'array'],
-            'created_at'              => ['sometimes', 'date'],
-            'source_id'               => ['sometimes', 'string', 'max:63'],
-            'auto_assign_action'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
-            'auto_assign_action_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
+            'name'                     => ['required', 'max:250', 'string'],
+            'price'                    => ['required', 'numeric', 'min:0'],
+            'unit'                     => ['required', 'string'],
+            'state'                    => ['sometimes', 'required', Rule::enum(ServiceStateEnum::class)],
+            'data'                     => ['sometimes', 'array'],
+            'created_at'               => ['sometimes', 'date'],
+            'source_id'                => ['sometimes', 'string', 'max:63'],
+            'is_auto_assign'           => ['sometimes', 'required', 'boolean'],
+            'auto_assign_trigger'      => ['sometimes','nullable', 'string', 'in:PalletDelivery,PalletReturn'],
+            'auto_assign_subject'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_subject_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
+            'auto_assign_status'       => ['sometimes', 'required', 'boolean'],
 
         ];
     }

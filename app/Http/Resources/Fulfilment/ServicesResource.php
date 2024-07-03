@@ -24,44 +24,75 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $state
  * @property int $quantity
  * @property int $pallet_delivery_id
+ * @property mixed $auto_assign_trigger
+ * @property mixed $auto_assign_subject
+ * @property mixed $auto_assign_subject_type
+ * @property bool $auto_assign_status
+ * @property mixed $is_auto_assign
  */
 class ServicesResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $autoLabel = '';
+        if ($this->is_auto_assign) {
+            $trigger = match ($this->auto_assign_trigger) {
+                'PalletDelivery' => __('Delivery'),
+                'PalletReturn'   => __('Return'),
+                default          => $this->auto_assign_trigger
+            };
+            $autoLabel = $trigger;
+            if($this->auto_assign_subject=='Pallet') {
+                $autoLabel.= ' : '.match ($this->auto_assign_subject_type) {
+                    'pallet'   => __('Pallet'),
+                    'box'      => __('Box'),
+                    'oversize' => __('Oversize'),
+                    default    => $this->auto_assign_trigger
+                };
+            }
+
+
+
+        }
+
+
         return [
-            'id'                     => $this->id,
-            'slug'                   => $this->slug,
-            'code'                   => $this->code,
-            'name'                   => $this->name,
-            'price'                  => $this->price,
-            'currency_code'          => $this->currency_code,
-            'unit'                   => $this->unit,
+            'id'                       => $this->id,
+            'slug'                     => $this->slug,
+            'code'                     => $this->code,
+            'name'                     => $this->name,
+            'price'                    => $this->price,
+            'currency_code'            => $this->currency_code,
+            'unit'                     => $this->unit,
             // 'unit_abbreviation'      => $this->unit ? $this->unit->abbreviations()[$this->unit->value] : 's',
             // 'unit_label'             => $this->unit ? $this->unit->labels()[$this->unit->value] : __('service'),
-            'unit_abbreviation'      => 's',
-            'unit_label'             => __('service'),
-            'description'            => $this->description,
-            'quantity'               => $this->quantity,
-            'total'                  => $this->quantity * $this->price,
-            'auto_assign_asset_type' => $this->auto_assign_asset_type,
-            'auto_assign_asset'      => $this->auto_assign_asset,
-            'state_label'            => $this->state->labels()[$this->state->value],
-            'state_icon'             => $this->state->stateIcon()[$this->state->value],
-            'deleteServiceRoute'     => match (request()->routeIs('retina.*')) {
+            'unit_abbreviation'        => 's',
+            'unit_label'               => __('service'),
+            'description'              => $this->description,
+            'quantity'                 => $this->quantity,
+            'total'                    => $this->quantity * $this->price,
+            'state_label'              => $this->state->labels()[$this->state->value],
+            'state_icon'               => $this->state->stateIcon()[$this->state->value],
+            'deleteServiceRoute'       => match (request()->routeIs('retina.*')) {
                 true => [
-                        'name'       => 'retina.models.pallet-delivery.service.delete',
-                        'parameters' => [
-                            'palletDelivery' => $this->pallet_delivery_id,
-                            'service'        => $this->id
-                        ]
+                    'name'       => 'retina.models.pallet-delivery.service.delete',
+                    'parameters' => [
+                        'palletDelivery' => $this->pallet_delivery_id,
+                        'service'        => $this->id
+                    ]
 
                 ],
                 default => [
                     'name'       => 'retina.models.pallet-delivery.service.delete',
                     'parameters' => $this->id
                 ]
-            }
+            },
+            'is_auto_assign'           => $this->is_auto_assign,
+            'auto_assign_trigger'      => $this->auto_assign_trigger,
+            'auto_assign_subject'      => $this->auto_assign_subject,
+            'auto_assign_subject_type' => $this->auto_assign_subject_type,
+            'auto_assign_status'       => $this->auto_assign_status,
+            'auto_label'               => $autoLabel
         ];
     }
 }

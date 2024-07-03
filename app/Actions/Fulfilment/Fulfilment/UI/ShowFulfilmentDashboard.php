@@ -5,13 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Fulfilment\Fulfilment\UI;
+namespace App\Actions\Fulfilment\Fulfilment\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -59,7 +56,7 @@ class ShowFulfilmentDashboard extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return 
+        return
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [
@@ -76,7 +73,7 @@ class ShowFulfilmentDashboard extends OrgAction
                     ]
                 ]
             );
-        
+
     }
 
 

@@ -26,8 +26,9 @@ return new class () extends Migration {
             $table->unsignedInteger('asset_id')->nullable();
             $table->foreign('asset_id')->references('id')->on('assets');
             $table->boolean('is_auto_assign')->default(false)->index();
-            $table->string('auto_assign_action')->nullable()->comment('Used for auto assign this service to a action');
-            $table->string('auto_assign_action_type')->nullable()->comment('Used for auto assign this service to an action type');
+            $table->string('auto_assign_trigger')->nullable()->comment('What trigger this automation');
+            $table->string('auto_assign_subject')->nullable()->comment('Used for auto assign this service to a action');
+            $table->string('auto_assign_subject_type')->nullable()->comment('Used for auto assign this service to an action type');
             $table->boolean('auto_assign_status')->default(false);
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(ServiceStateEnum::IN_PROCESS)->index();
