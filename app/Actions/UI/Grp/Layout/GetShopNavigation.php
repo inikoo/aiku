@@ -18,7 +18,32 @@ class GetShopNavigation
     public function handle(Shop $shop, User $user): array
     {
         $navigation = [];
+
+        $number = rand(-100, 100);
+
+        if ($number > 0) {
+            $icon = ['fal', 'fa-chart-line']; 
+        } else {
+            $icon = ['fal', 'fa-chart-line-down'];
+        }
+
+        $navigation['dashboard'] = [
+            'root'  => 'grp.org.shops.show.dashboard',
+            'label' => __('Dashboard'),
+            'icon'  => $icon,
+
+            'route' => [
+                'name'       => 'grp.org.shops.show.dashboard',
+                'parameters' => [$shop->organisation->slug, $shop->slug]
+            ],
+
+            'topMenu' => [
+                'subSections' => []
+            ]
+
+        ];
         if ($user->hasPermissionTo("products.$shop->id.view")) {
+
             $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
                 "icon"  => ["fal", "fa-cube"],
@@ -183,40 +208,6 @@ class GetShopNavigation
                             'root'    => 'grp.org.shops.show.offers.offers.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.offers.offers.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
-                    ],
-                ],
-            ];
-        }
-        if ($user->hasPermissionTo("products.$shop->id.view")) {
-            $navigation["mails"] = [
-                "root"  => "grp.org.shops.show.mail.",
-                "icon"  => ["fal", "fa-envelope-square"], //TODO: Need icon for this
-                "label" => __("Mail"),
-                "route" => [
-                    "name"       => 'grp.org.shops.show.mail.dashboard',
-                    "parameters" => [$shop->organisation->slug, $shop->slug],
-                ],
-                "topMenu" => [
-                    "subSections" => [
-                        [
-                            "tooltip" => __("mail dashboard"),
-                            "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.shops.show.mail.dashboard',
-                            "route"   => [
-                                "name"       => 'grp.org.shops.show.mail.dashboard',
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
-                        [
-                            "label"   => __("outboxes"),
-                            "tooltip" => __("outboxes"),
-                            "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.shops.show.mail.outboxes',
-                            "route"   => [
-                                "name"       => "grp.org.shops.show.mail.outboxes",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -453,6 +444,29 @@ class GetShopNavigation
                 ],
             ];
         }
+        $navigation['setting'] = [
+            "root"  => "grp.org.shops.show.setting.",
+            "icon"  => ["fal", "fa-sliders-h"], //TODO: Need icon for this
+            "label" => __("Setting"),
+            "route" => [
+                "name"       => 'grp.org.shops.show.setting.dashboard',
+                "parameters" => [$shop->organisation->slug, $shop->slug],
+            ],
+            "topMenu" => [
+                "subSections" => [
+                    [
+                        "label"   => __("outboxes"),
+                        "tooltip" => __("outboxes"),
+                        "icon"    => ["fal", "fa-comment-dollar"],
+                        'root'    => 'grp.org.shops.show.mail.outboxes',
+                        "route"   => [
+                            "name"       => "grp.org.shops.show.mail.outboxes",
+                            "parameters" => [$shop->organisation->slug, $shop->slug],
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
         return $navigation;
     }

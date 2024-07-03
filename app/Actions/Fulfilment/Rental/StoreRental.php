@@ -103,12 +103,16 @@ class StoreRental extends OrgAction
             'price'                  => ['required', 'numeric', 'min:0'],
             'unit'                   => ['required', 'string'],
 
-            'state'                  => ['sometimes', 'required', Rule::enum(RentalStateEnum::class)],
-            'data'                   => ['sometimes', 'array'],
-            'created_at'             => ['sometimes', 'date'],
-            'source_id'              => ['sometimes', 'string', 'max:63'],
-            'auto_assign_asset'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
-            'auto_assign_asset_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
+            'state'                    => ['sometimes', 'required', Rule::enum(RentalStateEnum::class)],
+            'data'                     => ['sometimes', 'array'],
+            'created_at'               => ['sometimes', 'date'],
+            'source_id'                => ['sometimes', 'string', 'max:63'],
+            'is_auto_assign'           => ['sometimes', 'required', 'boolean'],
+            'auto_assign_trigger'      => ['sometimes','nullable', 'string', 'in:PalletDelivery,PalletReturn'],
+            'auto_assign_subject'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_subject_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
+            'auto_assign_status'       => ['sometimes', 'required', 'boolean'],
+
         ];
     }
 

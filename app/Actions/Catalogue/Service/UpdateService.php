@@ -28,10 +28,10 @@ class UpdateService extends OrgAction
 
     public function handle(Service $service, array $modelData): Service
     {
-        $service  = $this->update($service, $modelData);
-        $changed  = $service->getChanges();
+        $service = $this->update($service, $modelData);
+        $changed = $service->getChanges();
 
-        if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
+        if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
             $historicAsset = StoreHistoricAsset::run($service);
             $service->updateQuietly(
                 [
@@ -49,7 +49,6 @@ class UpdateService extends OrgAction
 
 
         return $service;
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -64,7 +63,7 @@ class UpdateService extends OrgAction
     public function rules(): array
     {
         return [
-            'code'        => [
+            'code'                     => [
                 'sometimes',
                 'required',
                 'max:32',
@@ -73,35 +72,42 @@ class UpdateService extends OrgAction
                     table: 'services',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ['column' => 'id', 'value' => $this->service->id, 'operator' => '!=']
                     ]
                 ),
             ],
-            'name'                       => ['sometimes', 'required', 'max:250', 'string'],
-            'price'                      => ['sometimes', 'required', 'numeric', 'min:0'],
-            'description'                => ['sometimes', 'required', 'max:1500'],
-            'data'                       => ['sometimes', 'array'],
-            'settings'                   => ['sometimes', 'array'],
-            'status'                     => ['sometimes','required','boolean'],
-            'state'                      => ['sometimes','required',Rule::enum(ServiceStateEnum::class)],
+            'name'                     => ['sometimes', 'required', 'max:250', 'string'],
+            'price'                    => ['sometimes', 'required', 'numeric', 'min:0'],
+            'description'              => ['sometimes', 'required', 'max:1500'],
+            'data'                     => ['sometimes', 'array'],
+            'settings'                 => ['sometimes', 'array'],
+            'status'                   => ['sometimes', 'required', 'boolean'],
+            'state'                    => ['sometimes', 'required', Rule::enum(ServiceStateEnum::class)],
+            'is_auto_assign'           => ['sometimes', 'required', 'boolean'],
+            'auto_assign_trigger'      => ['sometimes','nullable', 'string', 'in:PalletDelivery,PalletReturn'],
+            'auto_assign_subject'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_subject_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
+            'auto_assign_status'       => ['sometimes', 'required', 'boolean'],
 
         ];
     }
 
     public function asController(Service $service, ActionRequest $request): Service
     {
-        $this->service=$service;
+        $this->service = $service;
         $this->initialisationFromShop($service->shop, $request);
+
         return $this->handle($service, $this->validatedData);
     }
 
     public function action(Service $service, array $modelData, int $hydratorsDelay = 0): Service
     {
         $this->asAction       = true;
-        $this->service        =$service;
+        $this->service        = $service;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($service->shop, $modelData);
+
         return $this->handle($service, $this->validatedData);
     }
 

@@ -9,7 +9,7 @@
 return [
 
     'table'=> [
-        'records_per_page'=> 25
+        'records_per_page'=> 50
 
     ]
 

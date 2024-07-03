@@ -7,6 +7,7 @@
 
 use App\Actions\Fulfilment\Fulfilment\UI\CreateFulfilment;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilments;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', IndexFulfilments::class)->name('index');
@@ -15,6 +16,7 @@ Route::get('create', CreateFulfilment::class)->name('create');
 
 Route::prefix('{fulfilment}')->name('show.')
     ->group(function () {
+        Route::get('dashboard', ShowFulfilmentDashboard::class)->name('dashboard');
 
         Route::name("operations.")
             ->group(__DIR__."/operations.php");
@@ -32,5 +34,9 @@ Route::prefix('{fulfilment}')->name('show.')
         Route::prefix("mail")
             ->name("mail.")
             ->group(__DIR__."/mails.php");
+
+        Route::prefix("setting")
+            ->name("setting.")
+            ->group(__DIR__."/settings.php");
 
     });

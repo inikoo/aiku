@@ -90,10 +90,11 @@ class IndexFulfilmentServices extends OrgAction
                 'assets.code',
                 'services.description',
                 'currencies.code as currency_code',
-                'services.auto_assign_action',
-                'services.auto_assign_action_type',
-//                'services.is_auto_assign',
-//                'services.auto_assign_status',
+                'services.is_auto_assign',
+                'services.auto_assign_trigger',
+                'services.auto_assign_subject',
+                'services.auto_assign_subject_type',
+                'services.auto_assign_status',
             ]);
 
 

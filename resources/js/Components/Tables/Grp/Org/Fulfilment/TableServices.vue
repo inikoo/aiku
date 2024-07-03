@@ -78,9 +78,9 @@ function serviceRoute(service: {}) {
 
         <!-- Column: Workflow -->
         <template #cell(workflow)="{ item: service }">
-            <template v-if="service['auto_assign_asset']">
+            <template v-if="service['is_auto_assign']">
                 <FontAwesomeIcon icon='fal fa-robot' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                {{ service['auto_assign_asset'] }}: {{ service['auto_assign_asset_type'] }}
+                {{ service['auto_label'] }}
             </template>
         </template>
         <template #cell(actions)="{ item: service }">
