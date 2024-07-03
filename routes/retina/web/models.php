@@ -62,8 +62,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('service', [SyncServiceToPalletDelivery::class, 'fromRetina'])->name('service.store');
     Route::post('physical-goods', [SyncPhysicalGoodToPalletDelivery::class, 'fromRetina'])->name('physical_good.store');
 
-    Route::delete('service', [DetachServiceFromPalletDelivery::class, 'fromRetina'])->name('service.delete');
-    Route::delete('physical-goods', [DetachPhysicalGoodFromPalletDelivery::class, 'fromRetina'])->name('physical_good.delete');
+    Route::delete('service/{service:id}', [DetachServiceFromPalletDelivery::class, 'fromRetina'])->name('service.delete')->withoutScopedBindings();
+    Route::delete('physical-goods/{outer:id}', [DetachPhysicalGoodFromPalletDelivery::class, 'fromRetina'])->name('physical_good.delete')->withoutScopedBindings();
 
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });

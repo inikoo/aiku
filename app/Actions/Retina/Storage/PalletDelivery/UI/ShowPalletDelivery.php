@@ -162,30 +162,12 @@ class ShowPalletDelivery extends RetinaAction
                     'delivery_status'   => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                 ],
 
-                // 'service_lists'         => [],      // TODO
-                // 'physical_good_lists'   => [],  // TODO
-
-
                 'updateRoute' => [
                     'route' => [
                         'name'       => 'retina.models.pallet-delivery.update',
                         'parameters' => [
                             'palletDelivery'     => $palletDelivery->id
                         ]
-                    ]
-                ],
-
-                'deleteServiceRoute' => [
-                    'name'       => 'retina.models.pallet-delivery.service.delete',
-                    'parameters' => [
-                        'palletDelivery' => $palletDelivery->id
-                    ]
-                ],
-
-                'deletePhysicalGoodRoute' => [
-                    'name'       => 'retina.models.pallet-delivery.physical_good.delete',
-                    'parameters' => [
-                        'palletDelivery' => $palletDelivery->id
                     ]
                 ],
 
