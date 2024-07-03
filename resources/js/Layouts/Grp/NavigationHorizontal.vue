@@ -168,13 +168,14 @@ const isShowHorizontal = () => {
 
 // Route for label 'UK (Shop)'
 const routeLabelHorizontal = () => {
-    if(currentNavigation()?.type === 'fulfilment') {
-        return route('grp.org.fulfilments.show.operations.dashboard', [layout.currentParams.organisation, currentNavigation()?.key])
-    } else if (currentNavigation()?.type === 'shop'){
-        return route('grp.org.shops.show', [layout.currentParams.organisation, currentNavigation()?.key])
-    } else {
-        return '#'
-    }
+    return '#'
+    // if(currentNavigation()?.type === 'fulfilment') {
+    //     return route('grp.org.fulfilments.show.operations.dashboard', [layout.currentParams.organisation, currentNavigation()?.key])
+    // } else if (currentNavigation()?.type === 'shop'){
+    //     return route('grp.org.shops.show', [layout.currentParams.organisation, currentNavigation()?.key])
+    // } else {
+    //     return '#'
+    // }
 }
 
 </script>
