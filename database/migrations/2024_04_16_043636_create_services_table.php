@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 03 Jul 2024 12:34:13 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Stubs\Migrations\HasAssetModel;
@@ -20,15 +25,13 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('asset_id')->nullable();
             $table->foreign('asset_id')->references('id')->on('assets');
-
+            $table->boolean('is_auto_assign')->default(false)->index();
             $table->string('auto_assign_action')->nullable()->comment('Used for auto assign this service to a action');
             $table->string('auto_assign_action_type')->nullable()->comment('Used for auto assign this service to an action type');
-
+            $table->boolean('auto_assign_status')->default(false);
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(ServiceStateEnum::IN_PROCESS)->index();
-
             $table=$this->assetModelFields($table);
-
             $table->timestampsTz();
             $table->softDeletes();
             $table->string('source_id')->nullable()->unique();

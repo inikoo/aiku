@@ -650,8 +650,8 @@ test('undo pallet state to received', function (PalletDelivery $palletDelivery) 
     UndoPalletStateToReceived::make()->action($pallet);
     $pallet->refresh();
 
-        expect($pallet)->toBeInstanceOf(Pallet::class)
-        ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+    ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
 
     return $pallet;
 })->depends('start booking-in pallet delivery');
@@ -879,14 +879,14 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 test('update pallet item', function (PalletReturn $storedPallet) {
 
     $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
-    $pallet = $storedPallet->pallets->first()->pivot;
+    $pallet             = $storedPallet->pallets->first()->pivot;
 
     $palletReturnItemId = $pallet->id;
-    $palletReturnItem = PalletReturnItem::find($palletReturnItemId);
+    $palletReturnItem   = PalletReturnItem::find($palletReturnItemId);
     // dd($palletReturnItem);
     $updatedPalletItem = UpdatePalletItem::make()->action(
         $palletReturnItem,
-       ['state' => PalletReturnItemStateEnum::CONFIRMED]
+        ['state' => PalletReturnItemStateEnum::CONFIRMED]
     );
     $fulfilmentCustomer->refresh();
     expect($updatedPalletItem)->toBeInstanceOf(PalletReturnItem::class)

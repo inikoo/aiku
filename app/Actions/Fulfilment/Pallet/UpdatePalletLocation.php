@@ -69,7 +69,7 @@ class UpdatePalletLocation extends OrgAction
     public function action(Location $location, Pallet $pallet): Pallet
     {
         $this->asAction = true;
-        $this->pallet = $pallet;
+        $this->pallet   = $pallet;
         $this->initialisationFromFulfilment($pallet->fulfilment, []);
 
         return $this->handle($location, $pallet);
