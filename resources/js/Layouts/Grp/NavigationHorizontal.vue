@@ -192,7 +192,7 @@ const routeLabelHorizontal = () => {
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <Link :href="routeLabelHorizontal()" class="relative flex gap-x-1.5 items-center pt-1  hover:text-gray-100">
+            <div :href="routeLabelHorizontal()" class="relative flex gap-x-1.5 items-center pt-1 select-none cursor-default">
                 <Transition name="spin-to-down">
                     <FontAwesomeIcon v-if="currentNavigation()?.value.type === 'b2b'" icon="fal fa-store-alt" class='text-xs' fixed-width aria-hidden='true' />
                     <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xs' fixed-width aria-hidden='true' />
@@ -214,7 +214,7 @@ const routeLabelHorizontal = () => {
                         </Transition>
                     </div>
                 </Transition>
-            </Link>
+            </div>
 
             
             <!-- Section: Arrow left-right -->
