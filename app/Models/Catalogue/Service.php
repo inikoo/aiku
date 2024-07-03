@@ -28,8 +28,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $asset_id
+ * @property bool $is_auto_assign
  * @property string|null $auto_assign_action Used for auto assign this service to a action
  * @property string|null $auto_assign_action_type Used for auto assign this service to an action type
+ * @property bool $auto_assign_status
  * @property bool $status
  * @property ServiceStateEnum $state
  * @property string $slug

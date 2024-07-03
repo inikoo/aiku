@@ -23,13 +23,11 @@ class DetachServiceFromPalletReturn extends OrgAction
 
     public Customer $customer;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): true
+    public function handle(PalletReturn $palletReturn, array $modelData): void
     {
         $palletReturn->services()->detach([$modelData['service_id']]);
 
         PalletReturnHydrateServices::dispatch($palletReturn);
-
-        return true;
     }
 
     public function rules(): array
@@ -40,17 +38,17 @@ class DetachServiceFromPalletReturn extends OrgAction
         ];
     }
 
-    public function asController(PalletReturn $palletReturn, ActionRequest $request): true
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): void
     {
         $this->initialisation($palletReturn->organisation, $request->all());
 
-        return $this->handle($palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): true
+    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): void
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 }
