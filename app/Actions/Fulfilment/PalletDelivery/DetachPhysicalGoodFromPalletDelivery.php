@@ -23,13 +23,11 @@ class DetachPhysicalGoodFromPalletDelivery extends OrgAction
 
     public Customer $customer;
 
-    public function handle(PalletDelivery $palletDelivery, Product $outer, array $modelData = []): PalletDelivery
+    public function handle(PalletDelivery $palletDelivery, Product $outer, array $modelData = []): void
     {
         $palletDelivery->physicalGoods()->detach([$outer->id]);
 
         PalletDeliveryHydratePhysicalGoods::dispatch($palletDelivery);
-
-        return $palletDelivery;
     }
 
     public function rules(): array
@@ -39,17 +37,17 @@ class DetachPhysicalGoodFromPalletDelivery extends OrgAction
         ];
     }
 
-    public function asController(PalletDelivery $palletDelivery, Product $outer, ActionRequest $request): PalletDelivery
+    public function asController(PalletDelivery $palletDelivery, Product $outer, ActionRequest $request): void
     {
         $this->initialisation($palletDelivery->organisation, $request->all());
 
-        return $this->handle($palletDelivery, $outer, $this->validatedData);
+        $this->handle($palletDelivery, $outer, $this->validatedData);
     }
 
-    public function fromRetina(PalletDelivery $palletDelivery, Product $outer, ActionRequest $request): PalletDelivery
+    public function fromRetina(PalletDelivery $palletDelivery, Product $outer, ActionRequest $request): void
     {
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
-        return $this->handle($palletDelivery, $outer, $this->validatedData);
+        $this->handle($palletDelivery, $outer, $this->validatedData);
     }
 }

@@ -375,7 +375,7 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'rentalRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                     'parameters' => [
                         'organisation'  => $palletDelivery->organisation->slug,
                         'fulfilment'    => $palletDelivery->fulfilment->slug
@@ -402,14 +402,14 @@ class ShowPalletDelivery extends OrgAction
 
                 'rental_lists'         => $rentalList,
                 'service_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.assets.services.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.services.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
                         'fulfilment'   => $palletDelivery->fulfilment->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.assets.outers.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.outers.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
                         'fulfilment'   => $palletDelivery->fulfilment->slug

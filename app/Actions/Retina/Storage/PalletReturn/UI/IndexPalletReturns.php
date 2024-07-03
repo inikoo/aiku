@@ -132,7 +132,7 @@ class IndexPalletReturns extends RetinaAction
                         'title' => __('return')
                     ],
                     'actions' => [
-                        [
+                        $this->customer->fulfilmentCustomer->number_pallets_status_storing ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'label'   => __('New Return'),
@@ -141,7 +141,7 @@ class IndexPalletReturns extends RetinaAction
                                 'name'       => 'retina.models.pallet-return.store',
                                 'parameters' => []
                             ]
-                        ]
+                        ] : false
                     ]
                 ],
                 'data' => PalletReturnsResource::collection($customers),

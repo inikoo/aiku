@@ -205,36 +205,36 @@ class ShowService extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.assets.show' =>
+            'grp.org.fulfilments.show.billables.show' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $service,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.index',
+                            'name'       => 'grp.org.fulfilments.show.billables.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.show',
+                            'name'       => 'grp.org.fulfilments.show.billables.show',
                             'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.assets.services.show' =>
+            'grp.org.fulfilments.show.billables.services.show' =>
             array_merge(
                 (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $service,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.services.index',
+                            'name'       => 'grp.org.fulfilments.show.billables.services.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.services.show',
+                            'name'       => 'grp.org.fulfilments.show.billables.services.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -265,7 +265,7 @@ class ShowService extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.assets.services.show' => [
+            'grp.org.fulfilments.show.billables.services.show' => [
                 'label' => $service->name,
                 'route' => [
                     'name'       => $routeName,

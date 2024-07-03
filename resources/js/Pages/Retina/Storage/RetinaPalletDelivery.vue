@@ -32,10 +32,11 @@ import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStored
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox } from '@fal'
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil } from '@fal'
 import { Action } from '@/types/Action'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox)
+import axios from 'axios'
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
 
 const props = defineProps<{
     title: string
@@ -81,7 +82,7 @@ const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const formAddService = useForm({ service_id: '', quantity: 1 })
-const formAddPhysicalGood = useForm({ pgood_id: '', quantity: 1 })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 
 
 const component = computed(() => {
@@ -96,26 +97,8 @@ const component = computed(() => {
 
 })
 
+const isLoadingData = ref<string | boolean>(false)
 
-// Method: Add single pallet
-const onAddPallet = (data: {}, closedPopover: Function) => {
-    isLoading.value = 'addSinglePallet'
-    formAddPallet.post(route(
-        data.route.name,
-        data.route.parameters
-    ), {
-        preserveScroll: true,
-        onSuccess: () => {
-            closedPopover()
-            formAddPallet.reset('notes', 'customer_reference','type')
-            isLoading.value = false
-        },
-        onError: (errors) => {
-            isLoading.value = false
-            console.error('Error during form submission:', errors)
-        },
-    })
-}
 
 
 // Method: On change estimated date
@@ -162,7 +145,53 @@ const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
     })
 }
 
-// Method: Submit pallet
+
+// To re-render Table after click Submit (so the Table retrieve the new props)
+const tableKey = ref(1)
+const changeTableKey = () => {
+    tableKey.value = tableKey.value + 1
+}
+
+
+
+const changePalletType=(form,fieldName,value)=>{
+    form[fieldName] = value
+}
+
+const disableBeforeToday=(date)=>{
+      const today = new Date();
+      // Set time to 00:00:00 for comparison purposes
+      today.setHours(0, 0, 0, 0);
+      return date < today;
+    }
+
+
+
+
+
+// Tabs: Pallet
+const onUploadOpen = (action) => {
+    dataModal.value.isModalOpen = true
+    dataModal.value.uploadRoutes = action.route
+}
+const onAddPallet = (data: {}, closedPopover: Function) => {
+    isLoading.value = 'addSinglePallet'
+    formAddPallet.post(route(
+        data.route.name,
+        data.route.parameters
+    ), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closedPopover()
+            formAddPallet.reset('notes', 'customer_reference','type')
+            isLoading.value = false
+        },
+        onError: (errors) => {
+            isLoading.value = false
+            console.error('Error during form submission:', errors)
+        },
+    })
+}
 const onSubmitPallet = async (action: routeType) => {
     isLoading.value = 'submitPallet'
     router.post(route(action.name, action.parameters), {}, {
@@ -180,35 +209,57 @@ const onSubmitPallet = async (action: routeType) => {
     })
 }
 
-// To re-render Table after click Submit (so the Table retrieve the new props)
-const tableKey = ref(1)
-const changeTableKey = () => {
-    tableKey.value = tableKey.value + 1
-}
 
 
-
-// Method: Open modal upload
-const onUploadOpen = (action) => {
-    dataModal.value.isModalOpen = true
-    dataModal.value.uploadRoutes = action.route
-}
-
-const changePalletType=(form,fieldName,value)=>{
-    form[fieldName] = value
-}
-
-const disableBeforeToday=(date)=>{
-      const today = new Date();
-      // Set time to 00:00:00 for comparison purposes
-      today.setHours(0, 0, 0, 0);
-      return date < today;
+// Tabs: Physical Goods
+const dataPGoodList = ref([])
+const onOpenModalAddPGood = async () => {
+    isLoadingData.value = 'addPGood'
+    try {
+        const xxx = await axios.get(
+            route(props.physical_good_list_route.name, props.physical_good_list_route.parameters)
+        )
+        dataPGoodList.value = xxx.data.data
+    } catch (error) {
+        
     }
+    isLoadingData.value = false
+}
+const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
+    isLoading.value = 'addPGood'
+    formAddPhysicalGood.post(
+        route( data.route?.name, data.route?.parameters ),
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                closedPopover()
+                formAddPhysicalGood.reset('quantity', 'outer_id')
+                isLoading.value = false
+            },
+            onError: (errors) => {
+                isLoading.value = false
+                console.error('Error during form submission:', errors)
+            },
+        }
+    )
+}
 
 
-
-// Method: Add single service
-const handleFormSubmitAddService = (data: Action, closedPopover: Function) => {
+// Tabs: Services
+const dataServiceList = ref([])
+const onOpenModalAddService = async () => {
+    isLoadingData.value = 'addService'
+    try {
+        const xxx = await axios.get(
+            route(props.service_list_route.name, props.service_list_route.parameters)
+        )
+        dataServiceList.value = xxx.data.data
+    } catch (error) {
+        
+    }
+    isLoadingData.value = false
+}
+const onSubmitAddService = (data: Action, closedPopover: Function) => {
     isLoading.value = 'addService'
     formAddService.post(
         route( data.route?.name, data.route?.parameters),
@@ -227,49 +278,6 @@ const handleFormSubmitAddService = (data: Action, closedPopover: Function) => {
     )
 }
 
-// Method: Add single service
-const handleFormSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
-    isLoading.value = 'addPGood'
-    formAddPhysicalGood.post(
-        route( data.route?.name, data.route?.parameters ),
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                closedPopover()
-                formAddPhysicalGood.reset('quantity', 'pgood_id')
-                isLoading.value = false
-            },
-            onError: (errors) => {
-                isLoading.value = false
-                console.error('Error during form submission:', errors)
-            },
-        }
-    )
-}
-
-// Method: On open modal list
-const isLoadingData = ref<string | boolean>(false)
-const onOpenModalAddService = async () => {
-
-    router.get(
-        route(props.service_list_route.name, props.service_list_route.parameters),
-        { },
-        {
-            onStart: () => isLoadingData.value = 'addService',
-            onSuccess: () => isLoadingData.value = false
-        }
-    )
-}
-const onOpenModalAddPGood = async () => {
-    router.get(
-        route(props.physical_good_list_route.name, props.physical_good_list_route.parameters),
-        { },
-        {
-            onStart: () => isLoadingData.value = 'addPGood',
-            onSuccess: () => isLoadingData.value = false
-        }
-    )
-}
 
 
 watch(() => props.data, (newValue) => {
@@ -450,11 +458,12 @@ const typePallet = [
                                     v-model="formAddService.service_id"
                                     autofocus
                                     caret
+                                    required
                                     placeholder="Services"
-                                    :options="props.service_lists"
+                                    :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                                    @keydown.enter="() => onSubmitAddService(action, closed)"
                                 />
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
                                     class="mt-2 text-sm text-red-500">
@@ -463,8 +472,7 @@ const typePallet = [
                             </div>
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
-                                <PureInput v-model="formAddService.quantity" placeholder="Quantity"
-                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
+                                <PureInput v-model="formAddService.quantity" placeholder="Quantity" @keydown.enter="() => onSubmitAddService(action, closed)" />
                                 <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddService.errors.quantity }}
                                 </p>
@@ -476,7 +484,7 @@ const typePallet = [
                                     :loading="isLoading === 'addService'"
                                     full
                                     :label="'save'"
-                                    @click="() => handleFormSubmitAddService(action, closed)"
+                                    @click="() => onSubmitAddService(action, closed)"
                                 />
                             </div>
 
@@ -511,16 +519,17 @@ const typePallet = [
                             <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>
                             <div>
                                 <PureMultiselect
-                                    v-model="formAddPhysicalGood.pgood_id"
+                                    v-model="formAddPhysicalGood.outer_id"
                                     autofocus
+                                    caret
                                     placeholder="Physical Goods"
-                                    :options="props.physical_good_lists"
+                                    :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
                                 />
-                                <p v-if="get(formAddPhysicalGood, ['errors', 'pgood_id'])"
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
                                     class="mt-2 text-sm text-red-600">
-                                    {{ formAddPhysicalGood.errors.pgood_id }}
+                                    {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
                             </div>
                             <div class="mt-3">
@@ -539,7 +548,7 @@ const typePallet = [
                                     :style="'save'"
                                     :loading="isLoading === 'addPGood'"
                                     label="save"
-                                    @click="() => handleFormSubmitAddPhysicalGood(action, closed)"
+                                    @click="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                             </div>
 
@@ -563,10 +572,12 @@ const typePallet = [
         </template>
     </PageHeading>
 
+
     <!-- Section: Timeline -->
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
+
 
     <!-- Box: Stats -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">

@@ -7,6 +7,8 @@
 
 namespace App\Enums;
 
+use App\Actions\Utils\Abbreviate;
+
 trait EnumHelperTrait
 {
     public static function values(): array
@@ -18,4 +20,15 @@ trait EnumHelperTrait
     {
         return preg_replace('/-/', '_', $this->value);
     }
+
+    public static function shortLabels(): array
+    {
+        $shortLabels=[];
+        foreach (self::cases() as $case) {
+            $shortLabels[$case->value] = Abbreviate::run($case->value);
+        }
+
+        return $shortLabels;
+    }
+
 }

@@ -30,13 +30,15 @@ class IndexFulfilmentServices extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
+
         return [
 
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent->shop)
+                    ServicestateEnum::count($parent->shop),
+                    ServicestateEnum::shortLabels(),
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -86,13 +88,16 @@ class IndexFulfilmentServices extends OrgAction
                 'services.unit',
                 'assets.name',
                 'assets.code',
-                'assets.price',
                 'services.description',
                 'currencies.code as currency_code',
+                'services.auto_assign_action',
+                'services.auto_assign_action_type',
+//                'services.is_auto_assign',
+//                'services.auto_assign_status',
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id','price','name','state'])
+        return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -150,7 +155,7 @@ class IndexFulfilmentServices extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create service'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.assets.services.create',
+                                'name'       => 'grp.org.fulfilments.show.billables.services.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -213,7 +218,7 @@ class IndexFulfilmentServices extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false)
                 ->defaultSort('code');
         };
     }
@@ -246,7 +251,7 @@ class IndexFulfilmentServices extends OrgAction
                 IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.assets.services.index',
+                        'name'       => 'grp.org.fulfilments.show.billables.services.index',
                         'parameters' => $routeParameters
                     ]
                 )
