@@ -33,11 +33,14 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
+use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
@@ -625,6 +628,31 @@ test('set location of first pallet in the pallet delivery', function (PalletDeli
     return $palletDelivery;
 })->depends('start booking-in pallet delivery');
 
+test('update location of first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    /** @var Location $location */
+    $location = $this->warehouse->locations->skip(1)->first();
+
+    UpdatePalletLocation::make()->action($location, $pallet);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id);
+
+    return $palletDelivery;
+})->depends('set location of first pallet in the pallet delivery');
+
+test('undo pallet state to received', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+
+    UndoPalletStateToReceived::make()->action($pallet);
+    $pallet->refresh();
+
+        expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
+
+    return $pallet;
+})->depends('start booking-in pallet delivery');
+
 test('set rental to first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
     $rental = $palletDelivery->fulfilment->rentals->last();
@@ -748,18 +776,16 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-    expect($recurringBill->stats->number_transactions)->toBe(2)
-        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
+    expect($recurringBill->stats->number_transactions)->toBe(1)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
     $firstPallet  = $palletDelivery->pallets->first();
     $secondPallet = $palletDelivery->pallets->skip(1)->first();
     $thirdPallet  = $palletDelivery->pallets->last();
 
-    expect($firstPallet->state)->toBe(PalletStateEnum::NOT_RECEIVED)
-        ->and($secondPallet->state)->toBe(PalletStateEnum::STORING)
-        ->and($secondPallet->storing_at)->toBeInstanceOf(Carbon::class)
-        ->and($secondPallet->currentRecurringBill)->toBeInstanceOf(RecurringBill::class)
+    expect($firstPallet->state)->toBe(PalletStateEnum::RECEIVED)
+        ->and($secondPallet->state)->toBe(PalletStateEnum::NOT_RECEIVED)
         ->and($thirdPallet->state)->toBe(PalletStateEnum::STORING);
 
 
@@ -1020,6 +1046,22 @@ test('update pallet', function (Pallet $pallet) {
 
     return $updatedPallet;
 })->depends('create pallet no delivery');
+
+test('delete pallet', function (Pallet $pallet) {
+
+    DeletePallet::make()->action(
+        $pallet,
+        []
+    );
+
+
+    $palletDeleted = !Pallet::find($pallet->id);
+
+    expect($palletDeleted)->toBeTrue();
+
+
+    return 'OK';
+})->depends('add pallet to pallet delivery');
 
 test('Return pallet to customer', function (Pallet $pallet) {
 

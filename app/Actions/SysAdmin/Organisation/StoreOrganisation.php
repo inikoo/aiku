@@ -53,11 +53,12 @@ class StoreOrganisation
         $organisation = $group->organisations()->create($modelData);
         $organisation->refresh();
 
-        SetOrganisationLogo::dispatch($organisation);
 
+
+        SetOrganisationLogo::dispatch($organisation);
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
-        SeedOrganisationOutboxes::run($organisation);
+
 
         $organisation = $this->addAddressToModel($organisation, $addressData);
 
@@ -93,13 +94,11 @@ class StoreOrganisation
         $organisation->inventoryStats()->create();
         $organisation->accountingStats()->create();
         $organisation->dropshippingStats()->create();
-
-
         $organisation->webStats()->create();
-
+        $organisation->mailStats()->create();
 
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
-            $organisation->mailStats()->create();
+
             $organisation->crmStats()->create();
             $organisation->salesStats()->create();
             $organisation->salesIntervals()->create();
@@ -125,6 +124,8 @@ class StoreOrganisation
                 StoreOrgPartner::make()->action($organisation, $otherOrganisation);
             }
         }
+
+        SeedOrganisationOutboxes::run($organisation);
 
         return $organisation;
     }

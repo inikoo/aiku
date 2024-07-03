@@ -47,10 +47,18 @@ class SeedShopOutboxes
         }
     }
 
-    public string $commandSignature = 'shop:seed-outboxes {shop : The shop slug}';
+    public string $commandSignature = 'shop:seed-outboxes {shop? : The shop slug}';
 
     public function asCommand(Command $command): int
     {
+
+        if($command->argument('shop') == null) {
+            $shops = Shop::all();
+            foreach($shops as $shop) {
+                $this->handle($shop);
+            }
+            return 0;
+        }
         try {
             $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
         } catch (Exception $e) {

@@ -18,7 +18,6 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $organisation_id
- * @property int $number_post_rooms
  * @property int $number_outboxes
  * @property int $number_outboxes_type_basket_low_stock
  * @property int $number_outboxes_type_basket_reminder_1

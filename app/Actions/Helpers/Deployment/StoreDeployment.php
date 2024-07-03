@@ -23,7 +23,6 @@ class StoreDeployment
 
         /** @var Deployment $deployment */
         $deployment=$model->deployments()->create($modelData);
-        $deployment->generateSlug();
         $deployment->saveQuietly();
 
         if($deployment->model_type=='Webpage') {

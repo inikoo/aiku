@@ -56,7 +56,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::INVOICE_DELETED            => 'Invoice deleted',
             OutboxTypeEnum::NEW_ORDER                  => 'New order',
             OutboxTypeEnum::ABANDONED_CART             => 'Abandoned cart',
-            OutboxTypeEnum::DELIVERY_CONFIRMATION      => 'Delivery conformation',
+            OutboxTypeEnum::DELIVERY_CONFIRMATION      => 'Delivery confirmation',
             OutboxTypeEnum::REORDER_REMINDER           => 'Reorder reminder',
             OutboxTypeEnum::SHOP_PROSPECT              => __('prospect'),
             OutboxTypeEnum::MARKETING                  => 'Deals',
@@ -134,6 +134,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::MARKETING,
             OutboxTypeEnum::SHOP_PROSPECT,
             OutboxTypeEnum::NEWSLETTER => OutboxBlueprintEnum::MAILSHOT,
+            OutboxTypeEnum::TEST       => OutboxBlueprintEnum::TEST,
             default                    => OutboxBlueprintEnum::EMAIL_TEMPLATE
         };
     }

@@ -14,7 +14,6 @@ return new class () extends Migration {
     {
         Schema::create('deployments', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique()->nullable()->collation('und_ns');
             $table->string('model_type');
             $table->unsignedInteger('model_id');
             $table->string('scope')->nullable()->index();
