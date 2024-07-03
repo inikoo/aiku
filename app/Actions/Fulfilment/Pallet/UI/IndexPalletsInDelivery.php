@@ -157,6 +157,7 @@ class IndexPalletsInDelivery extends OrgAction
                     ($palletDelivery instanceof PalletDelivery and in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::RECEIVED])) or
                     ($palletDelivery instanceof PalletReturn and ($palletDelivery->state == PalletReturnStateEnum::DISPATCHED or $palletDelivery->state == PalletReturnStateEnum::CANCEL))
                 )
+                    and $palletDelivery->fulfilmentCustomer->items_storage
             ) {
                 $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
                 $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
