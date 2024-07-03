@@ -23,6 +23,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $unit
  * @property mixed $state
  * @property int $quantity
+ * @property int $pallet_delivery_id
  */
 class PhysicalGoodsResource extends JsonResource
 {
@@ -38,15 +39,29 @@ class PhysicalGoodsResource extends JsonResource
             'unit'                   => $this->unit,
             // 'unit_abbreviation'      => $this->unit ? $this->unit->abbreviations()[$this->unit->value] : 's',
             // 'unit_label'             => $this->unit ? $this->unit->labels()[$this->unit->value] : __('service'),
-            'unit_abbreviation'      => 's',
-            'unit_label'             => __('service'),
-            'description'            => $this->description,
-            'auto_assign_asset_type' => $this->auto_assign_asset_type,
-            'auto_assign_asset'      => $this->auto_assign_asset,
-            'state_label'            => $this->state->labels()[$this->state->value],
-            'state_icon'             => $this->state->stateIcon()[$this->state->value],
-            'quantity'               => $this->quantity,
-            'total'                  => $this->quantity * $this->price
+            'unit_abbreviation'       => 's',
+            'unit_label'              => __('service'),
+            'description'             => $this->description,
+            'auto_assign_asset_type'  => $this->auto_assign_asset_type,
+            'auto_assign_asset'       => $this->auto_assign_asset,
+            'state_label'             => $this->state->labels()[$this->state->value],
+            'state_icon'              => $this->state->stateIcon()[$this->state->value],
+            'quantity'                => $this->quantity,
+            'total'                   => $this->quantity * $this->price,
+            'deletePhysicalGoodRoute' => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet-delivery.physical_good.delete',
+                    'parameters' => [
+                        'palletDelivery' => $this->pallet_delivery_id,
+                        'outer'          => $this->id
+                    ]
+
+                ],
+                default => [
+                    'name'       => 'retina.models.pallet-delivery.physical_good.delete',
+                    'parameters' => $this->id
+                ]
+            },
         ];
     }
 }

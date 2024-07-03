@@ -40,6 +40,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -60,6 +61,7 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
@@ -75,6 +77,7 @@ use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
@@ -872,6 +875,25 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 
     return $storedPallet;
 })->depends('create pallet return');
+
+test('update pallet item', function (PalletReturn $storedPallet) {
+
+    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
+    $pallet = $storedPallet->pallets->first()->pivot;
+
+    $palletReturnItemId = $pallet->id;
+    $palletReturnItem = PalletReturnItem::find($palletReturnItemId);
+    // dd($palletReturnItem);
+    $updatedPalletItem = UpdatePalletItem::make()->action(
+        $palletReturnItem,
+       ['state' => PalletReturnItemStateEnum::CONFIRMED]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($updatedPalletItem)->toBeInstanceOf(PalletReturnItem::class)
+        ->and($updatedPalletItem->state)->toBe(PalletReturnItemStateEnum::CONFIRMED);
+
+    return $storedPallet;
+})->depends('store pallet to return');
 
 test('submit pallet return', function (PalletReturn $storedPallet) {
 

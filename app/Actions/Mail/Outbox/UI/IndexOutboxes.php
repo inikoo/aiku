@@ -48,8 +48,6 @@ class IndexOutboxes extends OrgAction
 
         $queryBuilder=QueryBuilder::for(Outbox::class);
 
-
-
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'PostRoom') {

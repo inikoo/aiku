@@ -23,6 +23,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $unit
  * @property mixed $state
  * @property int $quantity
+ * @property int $pallet_delivery_id
  */
 class ServicesResource extends JsonResource
 {
@@ -47,6 +48,20 @@ class ServicesResource extends JsonResource
             'auto_assign_asset'      => $this->auto_assign_asset,
             'state_label'            => $this->state->labels()[$this->state->value],
             'state_icon'             => $this->state->stateIcon()[$this->state->value],
+            'deleteServiceRoute'     => match (request()->routeIs('retina.*')) {
+                true => [
+                        'name'       => 'retina.models.pallet-delivery.service.delete',
+                        'parameters' => [
+                            'palletDelivery' => $this->pallet_delivery_id,
+                            'service'        => $this->id
+                        ]
+
+                ],
+                default => [
+                    'name'       => 'retina.models.pallet-delivery.service.delete',
+                    'parameters' => $this->id
+                ]
+            }
         ];
     }
 }
