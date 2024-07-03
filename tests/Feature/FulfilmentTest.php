@@ -40,6 +40,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
@@ -626,6 +627,19 @@ test('set location of first pallet in the pallet delivery', function (PalletDeli
 
     return $palletDelivery;
 })->depends('start booking-in pallet delivery');
+
+test('update location of first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    /** @var Location $location */
+    $location = $this->warehouse->locations->skip(1)->first();
+
+    UpdatePalletLocation::make()->action($location, $pallet);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id);
+
+    return $palletDelivery;
+})->depends('set location of first pallet in the pallet delivery');
 
 test('undo pallet state to received', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
