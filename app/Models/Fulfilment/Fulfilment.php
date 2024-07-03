@@ -118,5 +118,10 @@ class Fulfilment extends Model
         return $this->hasMany(FulfilmentCustomer::class);
     }
 
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(PalletDelivery::class);
+    }
+
 
 }

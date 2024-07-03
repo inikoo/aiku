@@ -7,12 +7,8 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -60,7 +56,7 @@ class ShowShopDashboard extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return 
+        return
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
@@ -77,7 +73,7 @@ class ShowShopDashboard extends OrgAction
                     ]
                 ]
             );
-        
+
     }
 
 
