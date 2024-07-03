@@ -33,6 +33,7 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
@@ -1020,6 +1021,22 @@ test('update pallet', function (Pallet $pallet) {
 
     return $updatedPallet;
 })->depends('create pallet no delivery');
+
+test('delete pallet', function (Pallet $pallet) {
+
+    DeletePallet::make()->action(
+        $pallet,
+        []
+    );
+
+
+    $palletDeleted = !Pallet::find($pallet->id);
+
+    expect($palletDeleted)->toBeTrue();
+
+
+    return 'OK';
+})->depends('add pallet to pallet delivery');
 
 test('Return pallet to customer', function (Pallet $pallet) {
 
