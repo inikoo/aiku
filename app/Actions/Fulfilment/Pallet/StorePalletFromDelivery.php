@@ -47,7 +47,7 @@ class StorePalletFromDelivery extends OrgAction
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
-        PalletDeliveryHydratePallets::dispatch($palletDelivery);
+        PalletDeliveryHydratePallets::run($palletDelivery);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         return $pallet;

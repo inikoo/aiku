@@ -49,7 +49,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         ];
 
-        if($fulfilmentCustomer->pallets_storage) {
+        if($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->exists()) {
             $subNavigation[]=[
                 'href' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
@@ -101,7 +101,8 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
-        if($fulfilmentCustomer->pallets_storage || $fulfilmentCustomer->dropshipping) {
+        if (($fulfilmentCustomer->pallets_storage || $fulfilmentCustomer->dropshipping) && $fulfilmentCustomer->palletDeliveries()->exists()) {
+
 
             $subNavigation[]=[
                 'href' => [
