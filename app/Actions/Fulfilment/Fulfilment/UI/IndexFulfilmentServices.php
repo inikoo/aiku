@@ -30,13 +30,15 @@ class IndexFulfilmentServices extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
+
         return [
 
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent->shop)
+                    ServicestateEnum::count($parent->shop),
+                    ServicestateEnum::shortLabels(),
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -89,6 +91,10 @@ class IndexFulfilmentServices extends OrgAction
                 'assets.price',
                 'services.description',
                 'currencies.code as currency_code',
+                //'services.auto_assign_action',
+                //'services.auto_assign_action_type',
+                //'services.is_auto_assign',
+                //'services.auto_assign_status',
             ]);
 
 
