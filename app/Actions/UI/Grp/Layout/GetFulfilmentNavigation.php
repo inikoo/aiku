@@ -18,12 +18,19 @@ class GetFulfilmentNavigation
     public function handle(Fulfilment $fulfilment, User $user): array
     {
         $navigation = [];
+        $number = rand(-100, 100);
+
+        if ($number > 0) {
+            $icon = ['fal', 'fa-chart-line']; 
+        } else {
+            $icon = ['fal', 'fa-chart-line-down'];
+        }
 
         if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
             $navigation['dashboard'] = [
                 'root'  => 'grp.org.fulfilments.show.dashboard',
                 'label' => __('Dashboard'),
-                'icon'  => ['fal', 'fa-chart-line'],
+                'icon'  => $icon,
 
                 'route' => [
                     'name'       => 'grp.org.fulfilments.show.dashboard',
