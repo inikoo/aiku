@@ -879,14 +879,14 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 test('update pallet item', function (PalletReturn $storedPallet) {
 
     $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
-    $pallet = $storedPallet->pallets->first()->pivot;
+    $pallet             = $storedPallet->pallets->first()->pivot;
 
     $palletReturnItemId = $pallet->id;
-    $palletReturnItem = PalletReturnItem::find($palletReturnItemId);
+    $palletReturnItem   = PalletReturnItem::find($palletReturnItemId);
     // dd($palletReturnItem);
     $updatedPalletItem = UpdatePalletItem::make()->action(
         $palletReturnItem,
-       ['state' => PalletReturnItemStateEnum::CONFIRMED]
+        ['state' => PalletReturnItemStateEnum::CONFIRMED]
     );
     $fulfilmentCustomer->refresh();
     expect($updatedPalletItem)->toBeInstanceOf(PalletReturnItem::class)
