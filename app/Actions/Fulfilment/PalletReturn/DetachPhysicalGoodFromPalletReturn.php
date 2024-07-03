@@ -9,11 +9,8 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePhysicalGoods;
 use App\Actions\OrgAction;
-use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,13 +23,13 @@ class DetachPhysicalGoodFromPalletReturn extends OrgAction
 
     public Customer $customer;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, array $modelData): true
     {
         $palletReturn->physicalGoods()->detach([$modelData['outer_id']]);
 
         PalletReturnHydratePhysicalGoods::dispatch($palletReturn);
 
-        return $palletReturn;
+        return true;
     }
 
     public function rules(): array
@@ -43,35 +40,17 @@ class DetachPhysicalGoodFromPalletReturn extends OrgAction
         ];
     }
 
-    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): true
     {
         $this->initialisation($palletReturn->organisation, $request->all());
 
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): true
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
         return $this->handle($palletReturn, $this->validatedData);
-    }
-
-    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
-    {
-        $routeName = $request->route()->getName();
-
-        return match ($routeName) {
-            'grp.models.pallet-return.physical_good.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
-                'organisation'           => $palletReturn->organisation->slug,
-                'fulfilment'             => $palletReturn->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->slug,
-                'tab'                    => PalletReturnTabsEnum::PHYSICAL_GOODS->value
-            ]),
-            default => Redirect::route('retina.storage.pallet-returns.show', [
-                'palletReturn'     => $palletReturn->slug
-            ])
-        };
     }
 }

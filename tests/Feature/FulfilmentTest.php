@@ -647,8 +647,8 @@ test('undo pallet state to received', function (PalletDelivery $palletDelivery) 
     UndoPalletStateToReceived::make()->action($pallet);
     $pallet->refresh();
 
-        expect($pallet)->toBeInstanceOf(Pallet::class)
-        ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+    ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
 
     return $pallet;
 })->depends('start booking-in pallet delivery');

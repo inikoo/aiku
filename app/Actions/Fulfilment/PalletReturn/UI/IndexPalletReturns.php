@@ -163,28 +163,17 @@ class IndexPalletReturns extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title'       => __('No pallet returns found for this shop'),
-                            'count'       => $parent->stats->number_pallet_returns
+                            'count'       => $parent->stats->number_pallets_state_storing
                         ],
                         'Warehouse' => [
                             'title'       => __('No pallet returns found for this warehouse'),
                             'description' => __('This warehouse has not received any pallet returns yet'),
-                            'count'       => $parent->stats->number_pallet_returns
+                            'count'       => $parent->stats->number_pallets_state_storing
                         ],
                         'FulfilmentCustomer' => [
                             'title'       => __('No pallet returns found for this customer'),
                             'description' => __('This customer has not received any pallet returns yet'),
-                            'count'       => $parent->number_pallet_returns,
-                            'action'      => [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new pallet return'),
-                                'label'   => __('Pallet return'),
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                    'parameters' => [$parent->id]
-                                ]
-                            ]
+                            'count'       => $parent->number_pallets_state_storing
                         ]
                     }
                 )
@@ -224,7 +213,7 @@ class IndexPalletReturns extends OrgAction
                         'title' => __('returns')
                     ],
                     'actions' => [
-                        [
+                        $this->parent->number_pallets_state_storing ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('Create new pallet return'),
@@ -234,7 +223,7 @@ class IndexPalletReturns extends OrgAction
                                 'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                                 'parameters' => [$this->parent->id]
                             ]
-                        ]
+                        ] : false
                     ]
                 ],
                 'data'        => PalletReturnsResource::collection($customers),
