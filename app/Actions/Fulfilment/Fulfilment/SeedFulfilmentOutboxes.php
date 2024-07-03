@@ -42,10 +42,19 @@ class SeedFulfilmentOutboxes
         }
     }
 
-    public string $commandSignature = 'fulfilment:seed-outboxes {fulfilment : The fulfilment slug}';
+    public string $commandSignature = 'fulfilment:seed-outboxes {fulfilment? : The fulfilment slug}';
 
     public function asCommand(Command $command): int
     {
+
+        if($command->argument('fulfilment') == null) {
+            $fulfilments = Fulfilment::all();
+            foreach($fulfilments as $fulfilment) {
+                $this->handle($fulfilment);
+            }
+            return 0;
+        }
+
         try {
             $fulfilment = Fulfilment::where('slug', $command->argument('fulfilment'))->firstOrFail();
         } catch (Exception $e) {

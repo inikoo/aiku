@@ -63,13 +63,8 @@ class IndexOutboxes extends OrgAction
         return $queryBuilder
             ->defaultSort('outboxes.name')
             ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'post_rooms.id as post_rooms_id'])
-            ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')
-            ->leftJoin('post_rooms', 'post_room_id', 'post_rooms.id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Mail') {
-                    $query->where('outboxes.post_room_id', $parent->id);
-                }
-            })
+            ->leftJoin('outbox_stats', 'outbox_stats.outbox_id', 'outboxes.id')
+           ->leftJoin('post_rooms', 'post_room_id', 'post_rooms.id')
             ->allowedSorts(['name', 'data'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -88,7 +83,6 @@ class IndexOutboxes extends OrgAction
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
     // public function authorize(ActionRequest $request): bool

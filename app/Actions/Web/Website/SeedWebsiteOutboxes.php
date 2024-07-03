@@ -43,10 +43,19 @@ class SeedWebsiteOutboxes
         }
     }
 
-    public string $commandSignature = 'website:seed-outboxes {website : The website slug}';
+    public string $commandSignature = 'website:seed-outboxes {website? : The website slug}';
 
     public function asCommand(Command $command): int
     {
+
+        if($command->argument('website') == null) {
+            $websites = Website::all();
+            foreach($websites as $website) {
+                $this->handle($website);
+            }
+            return 0;
+        }
+
         try {
             $website = Website::where('slug', $command->argument('website'))->firstOrFail();
         } catch (Exception $e) {

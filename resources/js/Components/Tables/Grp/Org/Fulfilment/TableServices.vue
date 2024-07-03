@@ -12,12 +12,20 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import Button from "@/Components/Elements/Buttons/Button.vue";
+import {ref} from "vue";
 
 library.add(faRobot)
 
-defineProps<{
+const props = defineProps<{
     data: {}
+    state: string
     tab?: string
+}>()
+
+const isActionLoading = ref<string | boolean>(false)
+const emits = defineEmits<{
+    (e: 'renderTableKey'): void
 }>()
 
 function serviceRoute(service: {}) {
@@ -74,6 +82,22 @@ function serviceRoute(service: {}) {
                 <FontAwesomeIcon icon='fal fa-robot' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 {{ service['auto_assign_asset'] }}: {{ service['auto_assign_asset_type'] }}
             </template>
+        </template>
+        <template #cell(actions)="{ item: service }">
+            <div v-if="props.state == 'in-process'">
+                <Link
+                    :href="route(service.deleteServiceRoute.name, service.deleteServiceRoute.parameters)"
+                    method="delete"
+                    as="div"
+                    :onStart="() => isActionLoading = 'delete' + service.id"
+                    :onSuccess="() => emits('renderTableKey')"
+                    :onFinish="() => isActionLoading = false"
+                    v-tooltip="'Delete this pallet'"
+                    class="w-fit"
+                >
+                    <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
+                </Link>
+            </div>
         </template>
     </Table>
 </template>

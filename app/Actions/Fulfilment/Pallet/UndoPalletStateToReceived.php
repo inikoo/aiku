@@ -51,7 +51,7 @@ class UndoPalletStateToReceived extends OrgAction
     }
 
 
-    public function action(Pallet $pallet, $state, int $hydratorsDelay = 0): Pallet
+    public function action(Pallet $pallet, int $hydratorsDelay = 0): Pallet
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;

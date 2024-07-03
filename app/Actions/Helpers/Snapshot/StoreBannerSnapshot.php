@@ -34,7 +34,6 @@ class StoreBannerSnapshot
 
         $snapshot=Snapshot::create($modelData);
         $banner->snapshots()->save($snapshot);
-        $snapshot->generateSlug();
         $snapshot->saveQuietly();
         $snapshot->stats()->create();
 

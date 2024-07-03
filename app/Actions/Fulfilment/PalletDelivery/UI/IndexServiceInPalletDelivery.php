@@ -78,7 +78,8 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'assets.price',
                 'services.description',
                 'currencies.code as currency_code',
-                'pallet_delivery_services.quantity'
+                'pallet_delivery_services.quantity',
+                'pallet_delivery_services.pallet_delivery_id'
             ]);
 
 
@@ -126,7 +127,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-                ->column(key: 'action', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+                ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('code');
         };
     }

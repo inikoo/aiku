@@ -49,12 +49,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
- * @property-read Collection<int, \App\Models\Mail\EmailTemplate> $emailTemplates
+ * @property-read \App\Models\Mail\EmailTemplate|null $emailTemplate
+ * @property-read Fulfilment|null $fulfilment
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
+ * @property-read Website|null $website
  * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
  * @method static Builder|Outbox newModelQuery()
  * @method static Builder|Outbox newQuery()
@@ -97,7 +99,7 @@ class Outbox extends Model
                 if ($this->type == 'reorder-reminder') {
                     $abbreviation = 'ror';
                 } else {
-                    $abbreviation = Abbreviate::run($this->type->value);
+                    $abbreviation = Abbreviate::run(string:$this->type->value, maximumLength:6);
                 }
                 if ($this->shop_id) {
                     $abbreviation .= ' '.$this->shop->slug;

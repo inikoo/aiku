@@ -52,7 +52,6 @@ class SnapshotResource extends JsonResource
 
 
         return [
-            'slug'             => $snapshot->slug,
             'published_at'     => $snapshot->published_at,
             'published_until'  => $snapshot->published_until,
             'first_commit'     => $snapshot->first_commit,
