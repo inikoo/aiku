@@ -121,3 +121,18 @@
 	box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(42, 42, 42, 0.188)) !important;
 	/* box-shadow: 4px 0 0 0 calc(4px + 4px) rgba(42, 42, 42, 1); */
 }
+
+.multiselect-dropdown {
+    max-height: 250px !important;
+}
+.multiselect-tags-search {
+    @apply focus:outline-none focus:ring-0
+}
+
+.multiselect-tags {
+    @apply m-0.5
+}
+
+.multiselect-tag-remove-icon {
+    @apply text-lime-800
+}

@@ -1,6 +1,12 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 04 Jul 2024 15:06:27 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 return [
+
 
     /*
     |--------------------------------------------------------------------------
@@ -45,8 +51,30 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
+
+        'mailhog' => [
+            'transport' => 'smtp',
+            'host'      => 'mailhog',
+            'port'      => 1025,
+            'encryption' => null,
+            'username'   => null,
+            'password'   => null,
+            'timeout'    => null,
+        ],
+
         'ses' => [
             'transport' => 'ses',
+
+        ],
+
+        'alibaba' => [
+            'transport' => 'smtp',
+            'host'         => env('ALIBABA_MAIL_HOST', 'smtpdm-ap-southeast-1.aliyun.com'),
+            'port'         => env('ALIBABA_MAIL_PORT', 465),
+            'encryption'   => env('ALIBABA_MAIL_ENCRYPTION', 'tls'),
+            'username'     => env('ALIBABA_MAIL_USERNAME'),
+            'password'     => env('ALIBABA_MAIL_PASSWORD'),
+            'timeout'      => null,
         ],
 
         'mailgun' => [
@@ -114,5 +142,8 @@ return [
             resource_path('views/vendor/mail'),
         ],
     ],
+
+    'testing_mail_to' => env('TESTING_MAIL_TO','test@test.com'),
+
 
 ];
