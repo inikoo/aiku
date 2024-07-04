@@ -213,7 +213,6 @@ const onSubmitPallet = async (action: routeType) => {
 // Tabs: Services
 const dataServiceList = ref([])
 const onOpenModalAddService = async () => {
-    console.log('popo', props.service_list_route.name)
     isLoadingData.value = 'addService'
     try {
         const xxx = await axios.get(
@@ -440,9 +439,9 @@ const typePallet = [
         <template #button-group-add-service="{ action }">
             <div class="relative" v-if="currentTab === 'services'">
                 <Popover width="w-full">
-                    <template #button>
+                    <template #button="{ open }">
                         <Button
-                            @click="() => onOpenModalAddService()"
+                            @click="() => open ? false : onOpenModalAddService()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -504,9 +503,9 @@ const typePallet = [
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
-                    <template #button>
+                    <template #button="{ open }">
                         <Button
-                            @click="() => onOpenModalAddPGood()"
+                            @click="() => open ? false : onOpenModalAddPGood()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -523,11 +522,20 @@ const typePallet = [
                                     v-model="formAddPhysicalGood.outer_id"
                                     autofocus
                                     caret
+                                    required
                                     placeholder="Physical Goods"
                                     :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
-                                />
+                                >
+                                    <template #label="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-gray-400">({{ value.code }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                    </template>
+                                </PureMultiselect>
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.outer_id }}

@@ -96,10 +96,10 @@ function physicalGoodsRoute(product: {}) {
                     :onStart="() => isActionLoading = 'delete' + service.id"
                     :onSuccess="() => emits('renderTableKey')"
                     :onFinish="() => isActionLoading = false"
-                    v-tooltip="'Delete this pallet'"
+                    v-tooltip="'Unselect this physical good'"
                     class="w-fit"
                 >
-                    <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
+                    <Button :key="'physicalGoodsDelete' + (isActionLoading == 'delete' + service.id)" icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
                 </Link>
             </div>
         </template>

@@ -54,7 +54,13 @@ const onInput = (keyOption : any) => {
             :label="label"
             :valueProp="valueProp"
         >
-            <!-- <template #singlelabel :option="{ option }">{{option}}</template> -->
+            <template #singlelabel="{ value }">
+                <slot name="label" :value />
+            </template>
+
+            <template #option="{option, isSelected, isPointed, search}">
+                <slot name="option" :option :isSelected="isSelected(option)" :isPointed="isPointed(option)" :search />
+            </template>
         </Multiselect>
     </div>
 </template>

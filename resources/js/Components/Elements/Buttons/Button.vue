@@ -59,7 +59,7 @@ else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-400 text-gray-700 hover:bg-black/10'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
-else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 disabled:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'positive' || props.type == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
 
 else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-white hover:bg-gray-300 text-gray-600'
@@ -154,7 +154,7 @@ const getActionIcon = (icon: any) => {
 
 <template>
     <button type="button"
-        class="leading-4 inline-flex items-center gap-x-2 font-medium focus:outline-none"
+        class="leading-4 inline-flex items-center gap-x-2 font-medium focus:outline-none disabled:cursor-not-allowed"
         :class="[
             // icon ? 'px-2 sm:px-4' : 'px-3 sm:px-5 ',
             full ? 'w-full justify-center' : 'min-w-max',
@@ -196,7 +196,6 @@ const getActionIcon = (icon: any) => {
 
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 50%, grey)`') !important;
-        cursor: not-allowed;
     }
 }
 
@@ -216,7 +215,6 @@ const getActionIcon = (icon: any) => {
 
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 70%, black)`') !important;
-        cursor: not-allowed;
     }
 }
 </style>
