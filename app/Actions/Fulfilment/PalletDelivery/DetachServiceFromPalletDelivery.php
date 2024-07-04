@@ -27,7 +27,7 @@ class DetachServiceFromPalletDelivery extends OrgAction
     {
         $palletDelivery->services()->detach([$service->id]);
 
-        PalletDeliveryHydrateServices::dispatch($palletDelivery);
+        PalletDeliveryHydrateServices::run($palletDelivery);
     }
 
     public function rules(): array
