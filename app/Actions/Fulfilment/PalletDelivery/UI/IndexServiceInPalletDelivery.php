@@ -53,8 +53,7 @@ class IndexServiceInPalletDelivery extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for($parent->services());
-        $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
-        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('currencies', 'services.currency_id', '=', 'currencies.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -70,20 +69,24 @@ class IndexServiceInPalletDelivery extends OrgAction
             ->select([
                 'services.id',
                 'services.state',
-                'services.created_at',
+                'services.code',
+                'services.name',
                 'services.price',
-                'services.unit',
-                'assets.name',
-                'assets.code',
-                'assets.price',
-                'services.description',
-                'currencies.code as currency_code',
                 'pallet_delivery_services.quantity',
-                'pallet_delivery_services.pallet_delivery_id'
+                // 'services.created_at',
+                // 'services.price',
+                // 'services.unit',
+                // 'assets.name',
+                // 'assets.code',
+                // 'assets.price',
+                // 'services.description',
+                'currencies.code as currency_code',
+                // 'pallet_delivery_services.quantity',
+                // 'pallet_delivery_services.pallet_delivery_id'
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id','price','name','state'])
+        return $queryBuilder->allowedSorts(['id','name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -126,9 +129,9 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-                ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-                ->defaultSort('code');
+                // ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+                // ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+                ->defaultSort('id');
         };
     }
 
