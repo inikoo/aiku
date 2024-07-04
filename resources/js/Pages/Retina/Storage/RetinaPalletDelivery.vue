@@ -459,6 +459,7 @@ const typePallet = [
                                     autofocus
                                     caret
                                     required
+                                    searchable
                                     placeholder="Services"
                                     :options="dataServiceList"
                                     label="name"
