@@ -58,8 +58,11 @@ class PhysicalGoodsResource extends JsonResource
 
                 ],
                 default => [
-                    'name'       => 'retina.models.pallet-delivery.physical_good.delete',
-                    'parameters' => $this->id
+                    'name'       => 'grp.models.pallet-delivery.physical_good.delete',
+                    'parameters' => [
+                        'palletDelivery' => $this->pallet_delivery_id,
+                        'outer'   => $this->id
+                    ]
                 ]
             },
         ];

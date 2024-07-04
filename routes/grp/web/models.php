@@ -270,8 +270,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('service', SyncServiceToPalletDelivery::class)->name('service.store');
     Route::post('physical-goods', SyncPhysicalGoodToPalletDelivery::class)->name('physical_good.store');
 
-    Route::delete('{service:id}', DetachServiceFromPalletDelivery::class)->name('service.delete');
-    Route::delete('physical-goods', DetachPhysicalGoodFromPalletDelivery::class)->name('physical_good.delete');
+    Route::delete('service/{service:id}', DetachServiceFromPalletDelivery::class)->name('service.delete');
+    Route::delete('physical-goods/{outer:id}', DetachPhysicalGoodFromPalletDelivery::class)->name('physical_good.delete')->withoutScopedBindings();
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });

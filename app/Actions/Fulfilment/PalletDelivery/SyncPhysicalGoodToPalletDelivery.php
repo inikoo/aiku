@@ -29,7 +29,7 @@ class SyncPhysicalGoodToPalletDelivery extends OrgAction
             $modelData['outer_id'] => ['quantity' => $modelData['quantity']]
         ]);
 
-        PalletDeliveryHydratePhysicalGoods::dispatch($palletDelivery);
+        PalletDeliveryHydratePhysicalGoods::run($palletDelivery);
     }
 
     public function rules(): array

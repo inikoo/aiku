@@ -27,7 +27,7 @@ class DetachPhysicalGoodFromPalletDelivery extends OrgAction
     {
         $palletDelivery->physicalGoods()->detach([$outer->id]);
 
-        PalletDeliveryHydratePhysicalGoods::dispatch($palletDelivery);
+        PalletDeliveryHydratePhysicalGoods::run($palletDelivery);
     }
 
     public function rules(): array
