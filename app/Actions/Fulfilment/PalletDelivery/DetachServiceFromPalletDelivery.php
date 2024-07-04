@@ -44,6 +44,13 @@ class DetachServiceFromPalletDelivery extends OrgAction
         $this->handle($palletDelivery, $service, $this->validatedData);
     }
 
+    public function action(PalletDelivery $palletDelivery, Service $service): void
+    {
+        $this->initialisation($palletDelivery->organisation, []);
+
+        $this->handle($palletDelivery, $service, $this->validatedData);
+    }
+
     public function fromRetina(PalletDelivery $palletDelivery, Service $service, ActionRequest $request): void
     {
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
