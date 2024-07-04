@@ -103,6 +103,7 @@ const onSaveError = (errorValue: any) => {
                             tooltip="Save location"
                             :key="pallet.index"
                             :size="'xs'"
+                            full
                             :disabled="!location.location_id"
                             @onError="onSaveError"
                             :dataToSubmit="{ location_id: location.data().location_id}"

@@ -29,7 +29,7 @@ const emits = defineEmits<{
 }>()
 
 function serviceRoute(service: {}) {
-    console.log(route().current())
+    // console.log(route().current())
     switch (route().current()) {
 
         case "grp.org.fulfilments.show.billables.services.index":
@@ -92,7 +92,7 @@ function serviceRoute(service: {}) {
                     :onStart="() => isActionLoading = 'delete' + service.id"
                     :onSuccess="() => emits('renderTableKey')"
                     :onFinish="() => isActionLoading = false"
-                    v-tooltip="'Delete this pallet'"
+                    v-tooltip="'Unselect this service'"
                     class="w-fit"
                 >
                     <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />

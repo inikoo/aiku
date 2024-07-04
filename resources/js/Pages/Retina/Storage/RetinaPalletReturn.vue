@@ -33,15 +33,19 @@ import Popover from "@/Components/Popover.vue"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSpinnerThird } from '@fad'
 import { faCube, faConciergeBell } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCube, faConciergeBell)
+library.add(faCube, faConciergeBell, faSpinnerThird)
 
 // import '@/Composables/Icon/PalletStateEnum.ts'
 // import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
 // import '@/Composables/Icon/PalletReturnStateEnum.ts'
 import { trans } from 'laravel-vue-i18n'
 import { get } from 'lodash'
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
 
 const props = defineProps<{
 	title: string
@@ -55,12 +59,14 @@ const props = defineProps<{
 		index : routeType,
 		store : routeType
 	}
-    service_lists: {}[]
-    physical_good_lists: {}[]
+
 	pallets?: {}
     stored_items?: {}
     services?: {}
+    service_list_route: routeType
+
     physical_goods?: {}
+    physical_good_list_route?: routeType
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -68,6 +74,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
 const isLoading = ref<string | boolean>(false)
+const isLoadingData = ref<string | boolean>(false)
 
 const formAddService = useForm({ service_id: '', quantity: 1 })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
@@ -84,8 +91,21 @@ const component = computed(() => {
 })
 
 
-// Method: Add single service
-const handleFormSubmitAddService = (data: Action, closedPopover: Function) => {
+// Tabs: Services
+const dataServiceList = ref([])
+const onOpenModalAddService = async () => {
+    isLoadingData.value = 'addService'
+    try {
+        const xxx = await axios.get(
+            route(props.service_list_route.name, props.service_list_route.parameters)
+        )
+        dataServiceList.value = xxx.data.data
+    } catch (error) {
+        
+    }
+    isLoadingData.value = false
+}
+const onSubmitAddService = (data: Action, closedPopover: Function) => {
     isLoading.value = 'addService'
     formAddService.post(
         route( data.route?.name, data.route?.parameters),
@@ -104,8 +124,26 @@ const handleFormSubmitAddService = (data: Action, closedPopover: Function) => {
     )
 }
 
-// Method: Add single service
-const handleFormSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
+
+// Tabs: Physical Goods
+const dataPGoodList = ref([])
+const onOpenModalAddPGood = async () => {
+    isLoadingData.value = 'addPGood'
+    try {
+        const xxx = await axios.get(
+            route(props.physical_good_list_route.name, props.physical_good_list_route.parameters)
+        )
+        dataPGoodList.value = xxx.data.data
+    } catch (error) {
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Physical Good list',
+            type: 'error',
+        })
+    }
+    isLoadingData.value = false
+}
+const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     isLoading.value = 'addPGood'
     formAddPhysicalGood.post(
         route( data.route?.name, data.route?.parameters ),
@@ -158,11 +196,13 @@ watch(
                 <Popover width="w-full">
                     <template #button>
                         <Button
+                            @click="() => onOpenModalAddService()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
+                            :disabled="isLoadingData == 'addService'"
                             :tooltip="action.tooltip"
-                            :key="`ActionButton${action.label}${action.style}`"
+                            :key="`ActionButton${action.label}${action.style}${isLoadingData == 'addService'}`"
                         />
                     </template>
 
@@ -174,11 +214,12 @@ watch(
                                     v-model="formAddService.service_id"
                                     autofocus
                                     caret
+                                    required
                                     placeholder="Services"
-                                    :options="props.service_lists"
+                                    :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                                    @keydown.enter="() => onSubmitAddService(action, closed)"
                                 />
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
                                     class="mt-2 text-sm text-red-500">
@@ -190,7 +231,7 @@ watch(
                                 <PureInput
                                     v-model="formAddService.quantity"
                                     placeholder="Quantity"
-                                    @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                                    @keydown.enter="() => onSubmitAddService(action, closed)"
                                 />
                                 <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.quantity }}
@@ -203,8 +244,13 @@ watch(
                                     :loading="isLoading === 'addService'"
                                     full
                                     :label="'save'"
-                                    @click="() => handleFormSubmitAddService(action, closed)"
+                                    @click="() => onSubmitAddService(action, closed)"
                                 />
+                            </div>
+                            
+                            <!-- Loading: fetching service list -->
+                            <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
                         </div>
                     </template>
@@ -220,6 +266,7 @@ watch(
                 <Popover width="w-full">
                     <template #button>
                         <Button
+                            @click="() => onOpenModalAddPGood()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -235,8 +282,10 @@ watch(
                                 <PureMultiselect
                                     v-model="formAddPhysicalGood.outer_id"
                                     autofocus
+                                    caret
+                                    required
                                     placeholder="Physical Goods"
-                                    :options="props.physical_good_lists"
+                                    :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
                                 />
@@ -261,8 +310,13 @@ watch(
                                     :style="'save'"
                                     :loading="isLoading === 'addPGood'"
                                     label="save"
-                                    @click="() => handleFormSubmitAddPhysicalGood(action, closed)"
+                                    @click="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
+                            </div>
+                            
+                            <!-- Loading: fetching service list -->
+                            <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
                         </div>
                     </template>

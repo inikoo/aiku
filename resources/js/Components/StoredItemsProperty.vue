@@ -119,8 +119,12 @@ const sendToServer = async (data) => {
                 {{ trans('Add stored item') }}
             </div>
             <div class="space-y-4">
-                <CreateStoredItems :storedItemsRoute="storedItemsRoute" :form="form" @onSave="sendToServer"
-                    :stored_items="pallet.stored_items" />
+                <CreateStoredItems
+                    :storedItemsRoute="storedItemsRoute"
+                    :form="form"
+                    @onSave="sendToServer"
+                    :stored_items="pallet.stored_items"
+                />
             </div>
         </Modal>
     </div>

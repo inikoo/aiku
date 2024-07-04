@@ -165,7 +165,8 @@ defineExpose({
         :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
         :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
-        :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
+        :mode="props.mode"
+        :on-create="props.onCreate" :create-option="props.createOption"
 
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
         @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
@@ -191,6 +192,10 @@ defineExpose({
 
 .multiselect-option.is-selected.is-disabled {
 	@apply bg-gray-200 text-white;
+}
+
+.multiselect-dropdown {
+    max-height: 250px !important;
 }
 
 .multiselect.is-active {
