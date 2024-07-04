@@ -69,6 +69,7 @@ const props = defineProps<{
     physical_good_list_route?: routeType
 }>()
 
+
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })

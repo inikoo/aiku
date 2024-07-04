@@ -522,6 +522,7 @@ const typePallet = [
                                     v-model="formAddPhysicalGood.outer_id"
                                     autofocus
                                     caret
+                                    searchable
                                     required
                                     placeholder="Physical Goods"
                                     :options="dataPGoodList"
