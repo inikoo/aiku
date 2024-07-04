@@ -29,6 +29,8 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Notifications\Notification;
+
 
 /**
  * App\Models\CRM\WebUser
@@ -145,4 +147,14 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsTo(Website::class);
     }
+
+    public function routeNotificationForMail(Notification $notification): array|string
+    {
+        if(!app()->isProduction()){
+            return config('mail.testing_mail_to');
+        }
+        return $this->email;
+
+    }
+
 }
