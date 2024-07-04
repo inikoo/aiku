@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Catalogue\Service\AutoAssignServices;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -28,6 +29,7 @@ class DeletePallet extends OrgAction
         $pallet->delete();
 
         PalletDeliveryHydratePallets::run($pallet->palletDelivery);
+        AutoAssignServices::run($pallet->palletDelivery, $pallet);
 
         return $pallet;
     }

@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateServices;
 use App\Actions\OrgAction;
+use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Validation\Rule;
@@ -23,9 +24,9 @@ class DetachServiceFromPalletReturn extends OrgAction
 
     public Customer $customer;
 
-    public function handle(PalletReturn $palletReturn, array $modelData): void
+    public function handle(PalletReturn $palletReturn, Service $service, array $modelData = []): void
     {
-        $palletReturn->services()->detach([$modelData['service_id']]);
+        $palletReturn->services()->detach([$service->id]);
 
         PalletReturnHydrateServices::dispatch($palletReturn);
     }
@@ -33,22 +34,22 @@ class DetachServiceFromPalletReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'service_id' => ['required', 'integer', Rule::exists('services', 'id')],
-            'quantity'   => ['required', 'integer', 'min:1']
+            'quantity'   => ['sometimes', 'integer', 'min:1']
         ];
     }
 
-    public function asController(PalletReturn $palletReturn, ActionRequest $request): void
+
+    public function asController(PalletReturn $palletReturn, Service $service, ActionRequest $request): void
     {
         $this->initialisation($palletReturn->organisation, $request->all());
 
-        $this->handle($palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $service, $this->validatedData);
     }
 
-    public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): void
+    public function fromRetina(PalletReturn $palletReturn, Service $service, ActionRequest $request): void
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
-        $this->handle($palletReturn, $this->validatedData);
+        $this->handle($palletReturn, $service, $this->validatedData);
     }
 }

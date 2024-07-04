@@ -162,6 +162,10 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
             'unit'  => 'job',
             'code'  => 'Ser-01',
             'name'  => 'Service 1',
+            'is_auto_assign' => true,
+            'auto_assign_trigger' => 'PalletDelivery',
+            'auto_assign_subject' => 'Pallet',
+            'auto_assign_subject_type' => 'box'
         ]
     );
     $service2 = StoreService::make()->action(
@@ -171,6 +175,10 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
             'unit'  => 'job',
             'code'  => 'Ser-02',
             'name'  => 'Service 2',
+            'is_auto_assign' => true,
+            'auto_assign_trigger' => 'PalletDelivery',
+            'auto_assign_subject' => 'Pallet',
+            'auto_assign_subject_type' => 'pallet'
         ]
     );
 
@@ -503,16 +511,17 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
         $palletDelivery,
         [
             'customer_reference' => 'C00001',
-            'type'               => PalletTypeEnum::OVERSIZE->value,
+            'type'               => PalletTypeEnum::BOX->value,
             'notes'              => 'note A',
         ]
     );
 
     $palletDelivery->refresh();
     expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($palletDelivery->stats->number_services)->toBe(1)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
         ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
-        ->and($pallet->type)->toBe(PalletTypeEnum::OVERSIZE)
+        ->and($pallet->type)->toBe(PalletTypeEnum::BOX)
         ->and($pallet->notes)->toBe('note A')
         ->and($pallet->source_id)->toBeNull()
         ->and($pallet->customer_reference)->toBeString()
@@ -521,7 +530,7 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
         ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
         ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
         ->and($palletDelivery->number_pallets)->toBe(1)
-        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1);
 
 
     return $pallet;
@@ -541,7 +550,7 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
 
     expect($palletDelivery->number_pallets)->toBe(4)
         ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(3)
-        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
         ->and($palletDelivery->number_stored_items)->toBe(0);
 
@@ -557,7 +566,8 @@ test('remove a pallet from pallet delivery', function (PalletDelivery $palletDel
 
     expect($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(2)
-        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(2)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
         ->and($palletDelivery->number_stored_items)->toBe(0);
 
