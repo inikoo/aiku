@@ -84,16 +84,40 @@ class Service extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
-        'state'                  => ServiceStateEnum::class,
-        'status'                 => 'boolean',
-        'data'                   => 'array',
-        'settings'               => 'array',
+        'price'    => 'decimal:2',
+        'state'    => ServiceStateEnum::class,
+        'status'   => 'boolean',
+        'data'     => 'array',
+        'settings' => 'array',
     ];
 
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+        'status',
+        'state',
+        'price',
+        'currency_id',
+        'units',
+        'unit',
+        'barcode',
+        'rrp',
+        'unit_relationship_type'
+    ];
+
 
     public function getRouteKeyName(): string
     {
@@ -104,7 +128,7 @@ class Service extends Model implements Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->shop->slug . '-' . $this->code;
+                return $this->shop->slug.'-'.$this->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()

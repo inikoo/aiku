@@ -93,6 +93,25 @@ class ProductVariant extends Model implements Auditable
         'unit_relationship_type' => ProductVariantUnitRelationshipType::class
     ];
 
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'unit',
+        'units',
+        'price',
+        'ratio',
+        'state',
+        'status'
+    ];
+
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

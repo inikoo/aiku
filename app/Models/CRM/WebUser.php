@@ -13,6 +13,7 @@ use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
@@ -23,14 +24,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Sluggable\SlugOptions;
-use Illuminate\Notifications\Notification;
-
 
 /**
  * App\Models\CRM\WebUser
@@ -92,7 +90,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
 {
     use IsUserable;
     use HasPermissions;
-    use Notifiable;
+    use HasEmail;
     use HasImage;
     use InCustomer;
 
@@ -147,14 +145,4 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsTo(Website::class);
     }
-
-    public function routeNotificationForMail(Notification $notification): array|string
-    {
-        if(!app()->isProduction()){
-            return config('mail.testing_mail_to');
-        }
-        return $this->email;
-
-    }
-
 }

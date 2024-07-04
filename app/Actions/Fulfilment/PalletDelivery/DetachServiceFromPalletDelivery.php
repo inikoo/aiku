@@ -27,7 +27,7 @@ class DetachServiceFromPalletDelivery extends OrgAction
     {
         $palletDelivery->services()->detach([$service->id]);
 
-        PalletDeliveryHydrateServices::dispatch($palletDelivery);
+        PalletDeliveryHydrateServices::run($palletDelivery);
     }
 
     public function rules(): array
@@ -40,6 +40,13 @@ class DetachServiceFromPalletDelivery extends OrgAction
     public function asController(PalletDelivery $palletDelivery, Service $service, ActionRequest $request): void
     {
         $this->initialisation($palletDelivery->organisation, $request->all());
+
+        $this->handle($palletDelivery, $service, $this->validatedData);
+    }
+
+    public function action(PalletDelivery $palletDelivery, Service $service): void
+    {
+        $this->initialisation($palletDelivery->organisation, []);
 
         $this->handle($palletDelivery, $service, $this->validatedData);
     }
