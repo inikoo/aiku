@@ -183,29 +183,3 @@ defineExpose({
 
 <style src="@vueform/multiselect/themes/default.css"></style>
 
-<style>
-/* Style for multiselect globally */
-.multiselect-option.is-selected,
-.multiselect-option.is-selected.is-pointed {
-	@apply bg-gray-500 text-white;
-}
-
-.multiselect-option.is-selected.is-disabled {
-	@apply bg-gray-200 text-white;
-}
-
-.multiselect-dropdown {
-    max-height: 250px !important;
-}
-
-.multiselect.is-active {
-	border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid
-		var(--ms-border-color-active, var(--ms-border-color, #787878)) !important;
-	box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(42, 42, 42, 0.188)) !important;
-	/* box-shadow: 4px 0 0 0 calc(4px + 4px) rgba(42, 42, 42, 1); */
-}
-
-/* .multiselect-option.is-open {
-	@apply outline-none border-none ring-transparent;
-} */
-</style>

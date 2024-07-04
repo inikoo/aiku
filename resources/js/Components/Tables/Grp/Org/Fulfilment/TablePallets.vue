@@ -181,29 +181,3 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
 
 <style src="../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
 
-<style lang="scss">
-.multiselect-tags-search {
-    @apply focus:outline-none focus:ring-0
-}
-
-.multiselect.is-active {
-    @apply shadow-none
-}
-
-// .multiselect-tag {
-//     @apply bg-gradient-to-r from-lime-300 to-lime-200 hover:bg-lime-400 ring-1 ring-lime-500 text-lime-600
-// }
-
-.multiselect-tags {
-    @apply m-0.5
-}
-
-.multiselect-tag-remove-icon {
-    @apply text-lime-800
-}
-
-.multiselect-dropdown {
-    min-height: fit-content;
-    max-height: 120px !important;
-}
-</style>

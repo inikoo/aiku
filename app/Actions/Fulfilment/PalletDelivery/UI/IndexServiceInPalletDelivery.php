@@ -73,6 +73,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'services.name',
                 'services.price',
                 'pallet_delivery_services.quantity',
+                'pallet_delivery_services.pallet_delivery_id',
                 // 'services.created_at',
                 // 'services.price',
                 // 'services.unit',
@@ -130,7 +131,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 // ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-                // ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+                ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('id');
         };
     }
