@@ -210,6 +210,41 @@ const onSubmitPallet = async (action: routeType) => {
 }
 
 
+// Tabs: Services
+const dataServiceList = ref([])
+const onOpenModalAddService = async () => {
+    console.log('popo', props.service_list_route.name)
+    isLoadingData.value = 'addService'
+    try {
+        const xxx = await axios.get(
+            route(props.service_list_route.name, props.service_list_route.parameters)
+        )
+        dataServiceList.value = xxx.data.data
+    } catch (error) {
+        
+    }
+    isLoadingData.value = false
+}
+const onSubmitAddService = (data: Action, closedPopover: Function) => {
+    isLoading.value = 'addService'
+    formAddService.post(
+        route( data.route?.name, data.route?.parameters),
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                closedPopover()
+                formAddService.reset('quantity', 'service_id')
+                isLoading.value = false
+            },
+            onError: (errors) => {
+                isLoading.value = false
+                console.error('Error during form submission:', errors)
+            },
+        }
+    )
+}
+
+
 
 // Tabs: Physical Goods
 const dataPGoodList = ref([])
@@ -234,40 +269,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddPhysicalGood.reset('quantity', 'outer_id')
-                isLoading.value = false
-            },
-            onError: (errors) => {
-                isLoading.value = false
-                console.error('Error during form submission:', errors)
-            },
-        }
-    )
-}
-
-
-// Tabs: Services
-const dataServiceList = ref([])
-const onOpenModalAddService = async () => {
-    isLoadingData.value = 'addService'
-    try {
-        const xxx = await axios.get(
-            route(props.service_list_route.name, props.service_list_route.parameters)
-        )
-        dataServiceList.value = xxx.data.data
-    } catch (error) {
-        
-    }
-    isLoadingData.value = false
-}
-const onSubmitAddService = (data: Action, closedPopover: Function) => {
-    isLoading.value = 'addService'
-    formAddService.post(
-        route( data.route?.name, data.route?.parameters),
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                closedPopover()
-                formAddService.reset('quantity', 'service_id')
                 isLoading.value = false
             },
             onError: (errors) => {

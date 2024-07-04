@@ -111,7 +111,7 @@ const onSelectSubmitChange = (value) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template v-if="formData?.submitPosition == 'top'" #button>
-            <div class="qwezxc flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
+            <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
                 <Button v-if="!formData.submitButton"
                     type="submit"
                     :disabled="form.processing"
@@ -141,7 +141,9 @@ const onSelectSubmitChange = (value) => {
                             leave-from-class="transform scale-100 opacity-100"
                             leave-to-class="transform scale-95 opacity-0">
                             <MenuItems
-                                class="absolute top-[-90px] right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                class="absolute z-50 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/10 focus:outline-none"
+                                :class="formData.submitPosition === 'top' ? 'top-full' : 'top-[90px]'"    
+                            >
                                 <div class="px-1 py-1">
                                     <div v-for="(item, index) in formData.route">
                                         <MenuItem>
