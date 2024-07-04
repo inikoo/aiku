@@ -77,7 +77,7 @@ class ShowPalletReturn extends RetinaAction
                                     'route' => [
                                         'name'       => 'retina.models.pallet-return.pallet.store',
                                         'parameters' => [
-                                            'palletReturn'       => $palletReturn->slug
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ]
                                 ],
@@ -89,7 +89,7 @@ class ShowPalletReturn extends RetinaAction
                                     'route' => [
                                         'name'       => 'retina.models.pallet-return.pallet.store',
                                         'parameters' => [
-                                            'palletReturn'       => $palletReturn->slug
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ]
                                 ],
@@ -101,7 +101,7 @@ class ShowPalletReturn extends RetinaAction
                                     'route' => [
                                         'name'       => 'retina.models.pallet-return.physical_good.store',
                                         'parameters' => [
-                                            'palletReturn'       => $palletReturn->slug
+                                            'palletReturn'       => $palletReturn->id
                                         ]
                                     ]
                                 ],
@@ -141,10 +141,16 @@ class ShowPalletReturn extends RetinaAction
                 ],
 
                 'service_list_route'   => [
-                    'name'       => 'retina.storage.services.index'
+                    'name'       => 'retina.storage.return.services.index',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->slug,
+                    ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'retina.storage.outers.index'
+                    'name'       => 'retina.storage.return.outers.index',
+                    'parameters' => [
+                        'palletReturn' => $palletReturn->slug,
+                    ]
                 ],
 
                 'updateRoute' => [
