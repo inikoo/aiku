@@ -61,32 +61,31 @@ class ServicesResource extends JsonResource
             'slug'                     => $this->slug,
             'code'                     => $this->code,
             'name'                     => $this->name,
-            'price'                    => $this->price,
+            'price'                    => $this->price * ($this->quantity ?? 1),
             'currency_code'            => $this->currency_code,
             'unit'                     => $this->unit,
             // 'unit_abbreviation'      => $this->unit ? $this->unit->abbreviations()[$this->unit->value] : 's',
             // 'unit_label'             => $this->unit ? $this->unit->labels()[$this->unit->value] : __('service'),
             'unit_abbreviation'        => 's',
             'unit_label'               => __('service'),
-            'description'              => $this->description,
             'quantity'                 => $this->quantity,
             'total'                    => $this->quantity * $this->price,
             'state_label'              => $this->state->labels()[$this->state->value],
             'state_icon'               => $this->state->stateIcon()[$this->state->value],
-            'deleteServiceRoute'       => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet-delivery.service.delete',
-                    'parameters' => [
-                        'palletDelivery' => $this->pallet_delivery_id,
-                        'service'        => $this->id
-                    ]
+            // 'deleteServiceRoute'       => match (request()->routeIs('retina.*')) {
+            //     true => [
+            //         'name'       => 'retina.models.pallet-delivery.service.delete',
+            //         'parameters' => [
+            //             'palletDelivery' => $this->pallet_delivery_id,
+            //             'service'        => $this->id
+            //         ]
 
-                ],
-                default => [
-                    'name'       => 'retina.models.pallet-delivery.service.delete',
-                    'parameters' => $this->id
-                ]
-            },
+            //     ],
+            //     default => [
+            //         'name'       => 'retina.models.pallet-delivery.service.delete',
+            //         'parameters' => $this->id
+            //     ]
+            // }, //UNFINISHED
             'is_auto_assign'           => $this->is_auto_assign,
             'auto_assign_trigger'      => $this->auto_assign_trigger,
             'auto_assign_subject'      => $this->auto_assign_subject,

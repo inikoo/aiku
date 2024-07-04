@@ -29,7 +29,7 @@ class SyncServiceToPalletDelivery extends OrgAction
             $modelData['service_id'] => ['quantity' => $modelData['quantity']]
         ]);
 
-        PalletDeliveryHydrateServices::dispatch($palletDelivery);
+        PalletDeliveryHydrateServices::run($palletDelivery);
     }
 
     public function rules(): array
