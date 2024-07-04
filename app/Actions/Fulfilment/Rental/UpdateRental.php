@@ -28,6 +28,14 @@ class UpdateRental extends OrgAction
     public function handle(Rental $rental, array $modelData): Rental
     {
 
+        if(Arr::exists($modelData, 'state')) {
+            $status = false;
+            if (Arr::get($modelData, 'state') == RentalStateEnum::ACTIVE) {
+                $status = true;
+            }
+            data_set($modelData, 'status', $status);
+        }
+
         $rental  = $this->update($rental, $modelData);
         $changed = $rental->getChanges();
 
@@ -85,8 +93,8 @@ class UpdateRental extends OrgAction
             'settings'               => ['sometimes', 'array'],
             'status'                 => ['sometimes', 'required', 'boolean'],
             'state'                  => ['sometimes', 'required', Rule::enum(RentalStateEnum::class)],
-            'auto_assign_asset'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
-            'auto_assign_asset_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
+            'auto_assign_asset'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_asset_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
         ];
     }
 

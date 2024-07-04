@@ -68,7 +68,15 @@ const onInput = (keyOption : any) => {
 <style src="@vueform/multiselect/themes/default.css"></style>
 
 <style>
-/* Style for multiselect globally */
+.multiselect-single-label {
+    padding-right: calc(0.25rem + var(--ms-px, .035rem)*3) !important;
+}
+
+.multiselect-search {
+    background: transparent !important;
+}
+
+/* For Multiselect */
 .multiselect-option.is-selected,
 .multiselect-option.is-selected.is-pointed {
 	@apply bg-gray-500 text-white;
@@ -85,11 +93,18 @@ const onInput = (keyOption : any) => {
 	/* box-shadow: 4px 0 0 0 calc(4px + 4px) rgba(42, 42, 42, 1); */
 }
 
-.multiselect-single-label {
-    padding-right: calc(0.25rem + var(--ms-px, .035rem)*3) !important;
+.multiselect-dropdown {
+    max-height: 250px !important;
+}
+.multiselect-tags-search {
+    @apply focus:outline-none focus:ring-0
 }
 
-/* .multiselect-option.is-open {
-	@apply outline-none border-none ring-transparent;
-} */
+.multiselect-tags {
+    @apply m-0.5
+}
+
+.multiselect-tag-remove-icon {
+    @apply text-lime-800
+}
 </style>

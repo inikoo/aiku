@@ -71,6 +71,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'products.id',
                 'products.name',
                 'products.code',
+                'pallet_delivery_physical_goods.pallet_delivery_id',
                 'assets.price',
                 'products.description',
                 'currencies.code as currency_code',

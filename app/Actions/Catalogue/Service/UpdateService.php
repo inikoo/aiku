@@ -28,6 +28,15 @@ class UpdateService extends OrgAction
 
     public function handle(Service $service, array $modelData): Service
     {
+
+        if(Arr::exists($modelData, 'state')) {
+            $status = false;
+            if (Arr::get($modelData, 'state') == ServiceStateEnum::ACTIVE) {
+                $status = true;
+            }
+            data_set($modelData, 'status', $status);
+        }
+
         $service = $this->update($service, $modelData);
         $changed = $service->getChanges();
 
