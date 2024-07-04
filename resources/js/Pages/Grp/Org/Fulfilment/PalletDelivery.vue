@@ -383,13 +383,13 @@ watch(() => props.data, (newValue) => {
                                 <PureMultiselect
                                     v-model="formAddService.service_id"
                                     autofocus
+                                    caret
+                                    required
+                                    searchable
                                     placeholder="Select service"
                                     :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
-                                    caret
-                                    required
-                                    searchable
                                     @keydown.enter="() => onSubmitAddService(action, closed)" />
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
                                     class="mt-2 text-sm text-red-500">
@@ -453,6 +453,7 @@ watch(() => props.data, (newValue) => {
                                     autofocus
                                     caret
                                     required
+                                    searchable
                                     placeholder="Physical Goods"
                                     :options="dataPGoodList"
                                     label="name"
