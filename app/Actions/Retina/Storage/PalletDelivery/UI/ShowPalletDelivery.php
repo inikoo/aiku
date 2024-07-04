@@ -212,10 +212,16 @@ class ShowPalletDelivery extends RetinaAction
                 ],
 
                 'service_list_route'   => [
-                    'name'       => 'retina.storage.services.index'
+                    'name'       => 'retina.storage.services.index',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->slug,
+                    ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'retina.storage.outers.index'
+                    'name'       => 'retina.storage.outers.index',
+                    'parameters' => [
+                        'palletDelivery' => $palletDelivery->slug,
+                    ]
                 ],
 
                 'tabs' => [
