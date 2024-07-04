@@ -6,23 +6,31 @@ import LoadingText from '@/Components/Utils/LoadingText.vue'
 const luigiTrackerId = import.meta.env.VITE_LUIGI_TRACKER_ID
 const defaultTrackerId = '179075-204259'
     
-const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
+// const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
+const listFieldsRemoved = ['price', 'price_amount']
 
 const LBInitSearch = async () => {
     await Luigis.Search({
         TrackerId: luigiTrackerId,
         Locale: 'en',
+        PriceFilter: {
+            decimals: 2,
+            locale: 'en',
+            prefixed: true,
+            symbol: '£'
+        },
         Theme: 'boo',
         Size: 10,
         // QuicksearchTypes: ['category', 'brand'],
-        Facets: ['brand', 'category', 'color'],
         DefaultFilters: {
-            type: 'item'
+            type: 'item'  // Search query only looking from item (category not included)
         },
+        Facets: ['price_amount', 'brand', 'category', 'color'],
+        // hit_fields: ['description', 'formatted_price'],
         UrlParamName: {
             QUERY: 'q',
         },
-        RemoveFields: listFieldsRemoved
+        // RemoveFields: listFieldsRemoved
     }, '#inputLuigi', '#search-ui')
 }
 

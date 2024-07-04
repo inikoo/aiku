@@ -17,36 +17,32 @@ const searchValue = ref('')
 const _inputRef = ref(null)
 
 // const listFieldsRemoved = ['price', 'formatted_price', 'price_amount']
-const listFieldsRemoved = undefined
+const listFieldsRemoved = ['price']
 
 const LBInitAutocomplete = () => {
     AutoComplete({
         Layout: 'heromobile',
         TrackerId: luigiTrackerId,
         Locale: 'en',
-        // Translations: {
-        //     en: {
-        //         types: {
-        //             item: {
-        //                 name: "Products",
-        //                 heroName: "Top product"
-        //             },
-        //             query: {
-        //                 name: "Searches"
-        //             },
-        //             category: {
-        //                 name: "Categories"
-        //             }
-        //         }
-        //     }
-        // },
+        Translations: {
+            en: {
+                showBuyTitle: 'Shop Today', // Top Product: Button label
+                priceFilter: {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                    locale: 'en',
+                    prefixed: true,
+                    symbol: '£'
+                }
+            }
+        },
         RemoveFields: listFieldsRemoved,
-        type: ['item:5'],
         Types: [
             {
                 name: "Item",
                 type: "item",
-                size: 7,
+                size: 7,  // Item list will appear 7 items
+                attributes: ['product_code', 'formatted_price'],
             },
             {
                 name: "Query",
@@ -57,6 +53,24 @@ const LBInitAutocomplete = () => {
                 type: "category",
             },
         ],
+        Actions: [
+            {
+                forRow: function(row) {
+                    // console.log('row', row)
+                    // if(row['data-autocomplete-id'] == 1 && row.type === 'item') {
+                    //     console.log('aaaa', row.attributes['title.untouched'])
+                    // }
+                    return row['data-autocomplete-id'] == 1 && row.type === 'item'
+                },
+                iconUrl: 'https://cdn-icons-png.freepik.com/256/275/275790.png',
+                title: "Visit product's page",
+                // action: function(e, result) {
+                //     console.log(e, result)
+                //     e.preventDefault();
+                //     alert("Product added to cart");
+                // }
+            }
+        ]
     }, '#inputLuigi')
 }
 
@@ -115,25 +129,24 @@ $luigiColor1: #4b5058;
 $luigiColor2: #957a65;
 $luigiColor3: #e87928;
 
-/* .lb-result__price{
-    visibility: hidden;
-} */
+.luigi-ac-ribbon {
+    /* Border top of the Autocomplete */
+    background: $luigiColor1 !important;
+}
 
+
+/* Styling for Layout: Hero */
 .luigi-ac-hero-color {
     background: $luigiColor1 !important;
-    transition: background 0.05s !important;
 }
-
-.luigi-ac-hero-color:hover {
-    background: color-mix(in srgb, $luigiColor1, 20% black) !important;
+.luigi-ac-others {
+    background: #F3F7FA !important;
 }
-
 .luigi-ac-header {
     color: $luigiColor1 !important;
     font-size: 1.2rem !important;
     font-weight: bold !important;
 }
-
 .luigi-ac-highlight {
     background: color-mix(in srgb, $luigiColor3 90%, transparent) !important;
     color: #fff !important;
@@ -141,34 +154,92 @@ $luigiColor3: #e87928;
     padding-right: 1px !important;
 }
 
-.luigi-ac-button {
-    border-radius: 5px !important;
-}
-
-.luigi-ac-others {
-    background: #eeeeee !important;
-}
-
 .luigi-ac-item {
     padding-top: 5px !important;
     padding-bottom: 5px !important;
 }
 
-.luigi-ac-item:hover {
-    background: color-mix(in srgb, $luigiColor1 5%, transparent) !important;
-    // background: darken($luigiColor2, 5%) !important;
-    
+.luigi-ac-item.active, .luigi-ac-active {
+    background: #F3F7FA !important;
+}
+
+.luigi-ac-item:hover, .luigi-ac-other:hover {
+    background: color-mix(in srgb, $luigiColor1 10%, transparent) !important;
+}
+/* End of styling for Layout: Hero */
+
+.luigi-ac-button-buy {
+    background: $luigiColor1 !important;
+    border-radius: 5px;
+}
+
+.luigi-ac-button-buy:hover {
+    background: color-mix(in srgb, $luigiColor1 75%, black) !important;
+}
+
+
+
+.luigi-ac-button {
+    background: transparent !important;
+    transition: background 0.05s !important;
+    border-radius: 5px !important;
+    border: 1px solid $luigiColor1 !important;
+    color: $luigiColor1 !important;
+}
+
+.luigi-ac-button:hover {
+    background: color-mix(in srgb, $luigiColor1 10%, transparent) !important;
 }
 
 .luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-text {
-    padding-top: 0.5rem !important
+    padding-top: 0px !important;
 }
 
-.luigi-ac-no-result {
-    color: $luigiColor1 !important
+.luigi-ac-heromobile .luigi-ac-name {
+    height: fit-content !important;
 }
 
-// ====================================== Search result
+/* Copyright */
+.luigi-ac-footer {
+    visibility: hidden !important;
+}
+
+.luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-item .luigi-ac-attrs {
+    overflow: visible !important;
+}
+
+.luigi-ac-first-main .luigi-ac-attr--formatted_price {
+    margin-top: 5px;
+    font-size: 1.05rem !important;
+    display: block !important;
+    color: $luigiColor1 !important;
+}
+
+.luigi-ac-first-main .luigi-ac-button-buy {
+    padding: 5px 20px !important;
+}
+
+.luigi-ac-rest-main .luigi-ac-attr--formatted_price {
+    display: block !important;
+    color: $luigiColor1 !important;
+}
+
+.luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-action-primary {
+    margin-top: 20px;
+    position: inherit !important;
+    width: 100% !important;
+}
+
+.luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-item .luigi-ac-attrs {
+    max-height: 900px !important;
+    display: block !important;
+}
+
+.luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-item {
+    padding: .4em 0.8em;
+}
+
+/* ====================================== Search result */
 
 .lb-search-text-color-primary {
     color: $luigiColor3 !important;
@@ -176,6 +247,18 @@ $luigiColor3: #e87928;
 
 .lb-result__title {
     margin-bottom: 1px !important;
+}
+
+.lb-search .lb-search__aside.is-active {
+    padding: 70px 20px 100px 20px !important;
+}
+
+.lb-search .lb-search__close-filter {
+    top: -47px !important;
+}
+
+.lb-search .lb-checkbox__text {
+    margin-left: 25px;
 }
 
 .lb-search .lb-result__description {
@@ -186,6 +269,10 @@ $luigiColor3: #e87928;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     margin-bottom: 10px;
+}
+
+.lb-search .lb-checkbox__text {
+    margin-left: 20px !important; 
 }
 
 .lb-result__actions {
@@ -216,28 +303,22 @@ $luigiColor3: #e87928;
     width: 100% !important;
     margin: 0px !important
 }
- 
+
 .lb-search-text-color-primary-clickable {
     color: $luigiColor2 !important;
 }
 
 .lb-search-bg-color-primary-clickable {
     background: transparent !important;
-    color: $luigiColor2 !important;
-    border: 1px solid $luigiColor2 !important;
+    color: $luigiColor1 !important;
+    border: 1px solid $luigiColor1 !important;
     border-radius: 4px !important;
 }
 
 .lb-search-bg-color-primary-clickable:hover {
-    background: color-mix(in srgb, $luigiColor2 40%, transparent) !important;
+    background: color-mix(in srgb, $luigiColor1 20%, transparent) !important;
     
-    // color: $luigiColor1 !important;
-    // border: 1px solid $luigiColor1 !important;
-    // border-radius: 4px !important;
 }
 
-.luigi-ac-footer {
-    /* To hide copyright */
-    visibility: hidden !important;
-}
+
 </style>
