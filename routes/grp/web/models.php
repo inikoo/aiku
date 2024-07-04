@@ -270,7 +270,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('service', SyncServiceToPalletDelivery::class)->name('service.store');
     Route::post('physical-goods', SyncPhysicalGoodToPalletDelivery::class)->name('physical_good.store');
 
-    Route::delete('service', DetachServiceFromPalletDelivery::class)->name('service.delete');
+    Route::delete('{service:id}', DetachServiceFromPalletDelivery::class)->name('service.delete');
     Route::delete('physical-goods', DetachPhysicalGoodFromPalletDelivery::class)->name('physical_good.delete');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
