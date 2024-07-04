@@ -142,4 +142,9 @@ class Outbox extends Model
     {
         return $this->belongsTo(Fulfilment::class);
     }
+
+    public function postRoom(): BelongsTo
+    {
+        return $this->belongsTo(PostRoom::class);
+    }
 }

@@ -12,7 +12,9 @@ use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Enums\Mail\Outbox\OutboxBlueprintEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Mail\Mailshot;
@@ -149,3 +151,26 @@ test('update dispatched email', function ($dispatchedEmail) {
     $this->assertModelExists($updatedDispatchEmail);
     return $updatedDispatchEmail;
 })->depends('create dispatched email in mailshot');
+
+test('test postroom hydrator', function($shop) {
+    $postRoom = $this->group->postRooms()->first();
+
+    $outbox = StoreOutbox::make()->action(
+        $postRoom,
+        $shop,
+        [
+            'type' => OutboxTypeEnum::NEWSLETTER,
+            'name' => 'Test',
+            'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
+            'layout' => []
+        ]
+    );
+
+    expect($outbox)->toBeInstanceOf(Outbox::class)
+        ->and($outbox->postRoom->stats->number_outboxes)->toBe(7)
+        ->and($outbox->postRoom->stats->number_outboxes_type_newsletter)->toBe(3);
+
+    return $outbox;
+
+    
+})->depends('outbox seeded when shop created');

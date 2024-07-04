@@ -9,6 +9,7 @@ namespace App\Actions\Mail\Outbox;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
 use App\Actions\Mail\EmailTemplate\StoreEmailTemplate;
+use App\Actions\Mail\PostRoom\Hydrators\PostRoomHydrateOutboxes;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
@@ -70,6 +71,7 @@ class StoreOutbox extends OrgAction
         if ($outbox->shop_id) {
             ShopHydrateOutboxes::run($outbox->shop);
         }
+        PostRoomHydrateOutboxes::run($outbox->postRoom);
 
         return $outbox;
     }
