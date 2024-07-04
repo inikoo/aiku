@@ -22,7 +22,7 @@ class GetShopNavigation
         $number = rand(-100, 100);
 
         if ($number > 0) {
-            $icon = ['fal', 'fa-chart-line']; 
+            $icon = ['fal', 'fa-chart-line'];
         } else {
             $icon = ['fal', 'fa-chart-line-down'];
         }
