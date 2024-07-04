@@ -159,26 +159,26 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     $service1 = StoreService::make()->action(
         $fulfilment->shop,
         [
-            'price' => 100,
-            'unit'  => 'job',
-            'code'  => 'Ser-01',
-            'name'  => 'Service 1',
-            'is_auto_assign' => true,
-            'auto_assign_trigger' => 'PalletDelivery',
-            'auto_assign_subject' => 'Pallet',
+            'price'                    => 100,
+            'unit'                     => 'job',
+            'code'                     => 'Ser-01',
+            'name'                     => 'Service 1',
+            'is_auto_assign'           => true,
+            'auto_assign_trigger'      => 'PalletDelivery',
+            'auto_assign_subject'      => 'Pallet',
             'auto_assign_subject_type' => 'box'
         ]
     );
     $service2 = StoreService::make()->action(
         $fulfilment->shop,
         [
-            'price' => 111,
-            'unit'  => 'job',
-            'code'  => 'Ser-02',
-            'name'  => 'Service 2',
-            'is_auto_assign' => true,
-            'auto_assign_trigger' => 'PalletDelivery',
-            'auto_assign_subject' => 'Pallet',
+            'price'                    => 111,
+            'unit'                     => 'job',
+            'code'                     => 'Ser-02',
+            'name'                     => 'Service 2',
+            'is_auto_assign'           => true,
+            'auto_assign_trigger'      => 'PalletDelivery',
+            'auto_assign_subject'      => 'Pallet',
             'auto_assign_subject_type' => 'pallet'
         ]
     );

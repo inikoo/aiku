@@ -14,6 +14,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
+use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasRoles;
 use App\Models\Traits\IsUserable;
@@ -23,7 +24,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\SlugOptions;
@@ -100,7 +100,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class User extends Authenticatable implements HasMedia, Auditable
 {
-    use Notifiable;
+    use HasEmail;
     use HasRoles;
     use WithPushNotifications;
     use IsUserable;

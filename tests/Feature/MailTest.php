@@ -152,17 +152,17 @@ test('update dispatched email', function ($dispatchedEmail) {
     return $updatedDispatchEmail;
 })->depends('create dispatched email in mailshot');
 
-test('test postroom hydrator', function($shop) {
+test('test postroom hydrator', function ($shop) {
     $postRoom = $this->group->postRooms()->first();
 
     $outbox = StoreOutbox::make()->action(
         $postRoom,
         $shop,
         [
-            'type' => OutboxTypeEnum::NEWSLETTER,
-            'name' => 'Test',
+            'type'      => OutboxTypeEnum::NEWSLETTER,
+            'name'      => 'Test',
             'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
-            'layout' => []
+            'layout'    => []
         ]
     );
 
@@ -172,5 +172,5 @@ test('test postroom hydrator', function($shop) {
 
     return $outbox;
 
-    
+
 })->depends('outbox seeded when shop created');

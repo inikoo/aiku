@@ -5,14 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Mail\PostRoom\Hydrators;
+namespace App\Actions\Mail\PostRoom\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Mail\Outbox\OutboxStateEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
