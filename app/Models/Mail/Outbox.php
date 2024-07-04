@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Mail\PostRoom|null $postRoom
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
  * @property-read Website|null $website

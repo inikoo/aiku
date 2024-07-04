@@ -41,15 +41,10 @@ class StoreAsset extends OrgAction
         $asset->stats()->create();
         $asset->salesIntervals()->create();
 
-
-
         AssetHydrateHistoricAssets::dispatch($asset);
-
-
         ShopHydrateAssets::dispatch($asset->shop);
         OrganisationHydrateAssets::dispatch($asset->organisation);
         GroupHydrateAssets::dispatch($asset->group);
-
         AssetHydrateUniversalSearch::dispatch($asset);
 
         return $asset;

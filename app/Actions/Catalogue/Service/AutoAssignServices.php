@@ -18,7 +18,7 @@ use App\Models\Fulfilment\PalletReturn;
 
 class AutoAssignServices extends OrgAction
 {
-    public function handle (PalletDelivery|PalletReturn $parent, $subject)
+    public function handle(PalletDelivery|PalletReturn $parent, $subject)
     {
         $service = Service::where([
             ['is_auto_assign', true],
@@ -32,21 +32,18 @@ class AutoAssignServices extends OrgAction
         data_set($modelData, 'service_id', $service->id);
         data_set($modelData, 'quantity', $quantity);
 
-       if($parent instanceof PalletDelivery)
-       {
+        if($parent instanceof PalletDelivery) {
             SyncServiceToPalletDelivery::run($parent, $modelData);
-            if($quantity == 0)
-            {
+            if($quantity == 0) {
                 DetachServiceFromPalletDelivery::run($parent, $service);
             }
-       } else {
+        } else {
             SyncServiceToPalletReturn::run($parent, $modelData);
-            if($quantity == 0)
-            {
+            if($quantity == 0) {
                 DetachServiceFromPalletReturn::run($parent, $service);
             }
-       }
+        }
 
-       return $parent;
+        return $parent;
     }
 }

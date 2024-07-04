@@ -107,11 +107,9 @@ class StoreRental extends OrgAction
             'data'                     => ['sometimes', 'array'],
             'created_at'               => ['sometimes', 'date'],
             'source_id'                => ['sometimes', 'string', 'max:63'],
-            'is_auto_assign'           => ['sometimes', 'required', 'boolean'],
-            'auto_assign_trigger'      => ['sometimes','nullable', 'string', 'in:PalletDelivery,PalletReturn'],
-            'auto_assign_subject'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
-            'auto_assign_subject_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
-            'auto_assign_status'       => ['sometimes', 'required', 'boolean'],
+
+            'auto_assign_asset'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_asset_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
 
         ];
     }

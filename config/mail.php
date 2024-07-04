@@ -53,9 +53,9 @@ return [
 
 
         'mailhog' => [
-            'transport' => 'smtp',
-            'host'      => 'mailhog',
-            'port'      => 1025,
+            'transport'  => 'smtp',
+            'host'       => 'mailhog',
+            'port'       => 1025,
             'encryption' => null,
             'username'   => null,
             'password'   => null,
@@ -68,7 +68,7 @@ return [
         ],
 
         'alibaba' => [
-            'transport' => 'smtp',
+            'transport'    => 'smtp',
             'host'         => env('ALIBABA_MAIL_HOST', 'smtpdm-ap-southeast-1.aliyun.com'),
             'port'         => env('ALIBABA_MAIL_PORT', 465),
             'encryption'   => env('ALIBABA_MAIL_ENCRYPTION', 'tls'),
@@ -143,7 +143,7 @@ return [
         ],
     ],
 
-    'testing_mail_to' => env('TESTING_MAIL_TO','test@test.com'),
+    'testing_mail_to' => env('TESTING_MAIL_TO', 'test@test.com'),
 
 
 ];

@@ -24,7 +24,7 @@ class SendEmailRentalAgreementCreated extends Notification implements ShouldQueu
     }
 
 
-    public function via($notifiable):array
+    public function via($notifiable): array
     {
         return ['mail'];
     }
@@ -42,7 +42,7 @@ class SendEmailRentalAgreementCreated extends Notification implements ShouldQueu
     }
 
 
-    public function toArray($notifiable):array
+    public function toArray($notifiable): array
     {
         return [
             //

@@ -60,6 +60,28 @@ class Snapshot extends Model
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'helpers',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+        'status',
+        'state',
+        'price',
+        'currency_id',
+        'units',
+        'unit',
+        'barcode',
+        'rrp',
+        'unit_relationship_type'
+    ];
+
     public function parent(): MorphTo
     {
         return $this->morphTo();
