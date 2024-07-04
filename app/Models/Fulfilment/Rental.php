@@ -82,6 +82,7 @@ class Rental extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
+        'price'    => 'decimal:2',
         'state'    => RentalStateEnum::class,
         'type'     => RentalTypeEnum::class,
         'unit'     => RentalUnitEnum::class,
@@ -94,6 +95,29 @@ class Rental extends Model implements Auditable
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue','fulfilment'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+        'status',
+        'state',
+        'price',
+        'currency_id',
+        'units',
+        'unit',
+        'is_auto_assign',
+        'auto_assign_asset',
+        'auto_assign_asset_type',
+    ];
+
 
     public function getRouteKeyName(): string
     {

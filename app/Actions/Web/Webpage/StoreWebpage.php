@@ -95,6 +95,23 @@ class StoreWebpage extends OrgAction
     public function rules(): array
     {
         $rules = [
+            'url' => [
+                'sometimes',
+                'required',
+                'ascii',
+                'lowercase',
+                'max:255',
+                new AlphaDashSlash(),
+                new IUnique(
+                    table: 'webpages',
+                    extraConditions: [
+                        [
+                            'column' => 'website_id',
+                            'value'  => $this->website->id
+                        ],
+                    ]
+                ),
+            ],
             'code'      => [
                 'required',
                 'ascii',

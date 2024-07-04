@@ -151,13 +151,7 @@ class StoreProduct extends OrgAction
             ]
         );
 
-
-
-
-
-
-
-        GroupHydrateProducts::dispatch($product->group);
+        GroupHydrateProducts::dispatch($product->group)->delay($this->hydratorsDelay);
         OrganisationHydrateProducts::dispatch($product->organisation);
         ShopHydrateProducts::dispatch($product->shop);
         if($product->department_id) {

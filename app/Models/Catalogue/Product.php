@@ -102,6 +102,8 @@ class Product extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
+        'price'                  => 'decimal:2',
+        'rrp'                    => 'decimal:2',
         'data'                   => 'array',
         'settings'               => 'array',
         'status'                 => 'boolean',
@@ -128,12 +130,15 @@ class Product extends Model implements Auditable, HasMedia
         'status',
         'state',
         'price',
+        'rrp',
         'currency_id',
         'units',
         'unit',
-        'barcode',
-        'rrp',
-        'unit_relationship_type'
+        'is_auto_assign',
+        'auto_assign_trigger',
+        'auto_assign_subject',
+        'auto_assign_subject_type',
+        'auto_assign_status'
     ];
 
     public function getRouteKeyName(): string

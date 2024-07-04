@@ -53,6 +53,23 @@ class HistoricProductVariant extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'unit',
+        'units',
+        'price',
+        'ratio',
+    ];
+
+
     public function stats(): HasOne
     {
         return $this->hasOne(HistoricProductVariantStats::class);
