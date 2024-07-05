@@ -24,6 +24,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $state
  * @property int $quantity
  * @property int $pallet_delivery_id
+ * @property mixed $historic_asset_id
  */
 class PhysicalGoodsResource extends JsonResource
 {
@@ -48,23 +49,8 @@ class PhysicalGoodsResource extends JsonResource
             'state_icon'              => $this->state->stateIcon()[$this->state->value],
             'quantity'                => $this->quantity,
             'total'                   => $this->quantity * $this->price,
-            'deletePhysicalGoodRoute' => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet-delivery.physical_good.delete',
-                    'parameters' => [
-                        'palletDelivery' => $this->pallet_delivery_id,
-                        'outer'          => $this->id
-                    ]
+            'historic_asset_id'       => $this->historic_asset_id,
 
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet-delivery.physical_good.delete',
-                    'parameters' => [
-                        'palletDelivery' => $this->pallet_delivery_id,
-                        'outer'          => $this->id
-                    ]
-                ]
-            },
         ];
     }
 }

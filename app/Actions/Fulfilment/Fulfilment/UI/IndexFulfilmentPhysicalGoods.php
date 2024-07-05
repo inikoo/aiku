@@ -62,6 +62,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->where('products.shop_id', $parent->shop_id);
+        $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
 
@@ -86,6 +87,8 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 'products.price',
                 'products.unit',
                 'currencies.code as currency_code',
+                'assets.current_historic_asset_id as historic_asset_id',
+
             ]);
 
 
