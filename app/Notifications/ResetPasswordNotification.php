@@ -13,35 +13,31 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     use Queueable;
 
     public string $url;
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
+
     public function __construct(string $url)
     {
         $this->url = $url;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function via($notifiable)
+
+    public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
-    public function toMail($notifiable)
+
+    public function toMail($notifiable): MailMessage
     {
+
+        // all thi data should come from outboxes->email_template->published_layout
+
+        $data=[
+                'subject'=>'Reset Password Notification',
+                'header'=>'You are receiving this email because we received a password reset request for your account.',
+                'action'=>'Reset Password',
+                'footer'=>'This password reset link will expire in :count minutes.',
+        ];
+
         return (new MailMessage())
             ->subject(Lang::get('Reset Password Notification'))
             ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))
