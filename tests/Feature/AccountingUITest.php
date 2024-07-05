@@ -28,7 +28,7 @@ beforeEach(function () {
     $this->group        = $this->organisation->group;
     $this->adminGuest   = createAdminGuest($this->organisation->group);
 
-    
+
 
     $paymentServiceProvider = PaymentServiceProvider::first();
     if (!$paymentServiceProvider) {
@@ -413,4 +413,3 @@ test('UI show list invoices', function () {
             ->has('data');
     });
 });
-
