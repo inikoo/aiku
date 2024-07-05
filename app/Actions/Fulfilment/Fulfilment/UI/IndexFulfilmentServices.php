@@ -88,6 +88,7 @@ class IndexFulfilmentServices extends OrgAction
                 'services.unit',
                 'assets.name',
                 'assets.code',
+                'assets.current_historic_asset_id as historic_asset_id',
                 'services.description',
                 'currencies.code as currency_code',
                 'services.is_auto_assign',

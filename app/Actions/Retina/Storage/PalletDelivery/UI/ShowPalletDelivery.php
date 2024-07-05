@@ -119,7 +119,7 @@ class ShowPalletDelivery extends RetinaAction
                                     'icon'  => 'fal fa-plus',
                                     'label' => __('add service'),
                                     'route' => [
-                                        'name'       => 'retina.models.pallet-delivery.service.store',
+                                        'name'       => 'retina.models.pallet-delivery.transaction.store',
                                         'parameters' => [
                                             'palletDelivery' => $palletDelivery->id
                                         ]
@@ -131,7 +131,7 @@ class ShowPalletDelivery extends RetinaAction
                                     'icon'  => 'fal fa-plus',
                                     'label' => __('add physical good'),
                                     'route' => [
-                                        'name'       => 'retina.models.pallet-delivery.physical_good.store',
+                                        'name'       => 'retina.models.pallet-delivery.transaction.store',
                                         'parameters' => [
                                             'palletDelivery' => $palletDelivery->id
                                         ]

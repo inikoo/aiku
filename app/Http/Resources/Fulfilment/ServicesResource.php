@@ -29,6 +29,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $auto_assign_subject_type
  * @property bool $auto_assign_status
  * @property mixed $is_auto_assign
+ * @property mixed $historic_asset_id
  */
 class ServicesResource extends JsonResource
 {
@@ -36,49 +37,47 @@ class ServicesResource extends JsonResource
     {
         $autoLabel = '';
         if ($this->is_auto_assign) {
-            $trigger = match ($this->auto_assign_trigger) {
+            $trigger   = match ($this->auto_assign_trigger) {
                 'PalletDelivery' => __('Delivery'),
                 'PalletReturn'   => __('Return'),
                 default          => $this->auto_assign_trigger
             };
             $autoLabel = $trigger;
-            if($this->auto_assign_subject=='Pallet') {
-                $autoLabel.= ' : '.match ($this->auto_assign_subject_type) {
+            if ($this->auto_assign_subject == 'Pallet') {
+                $autoLabel .= ' : '.match ($this->auto_assign_subject_type) {
                     'pallet'   => __('Pallet'),
                     'box'      => __('Box'),
                     'oversize' => __('Oversize'),
                     default    => $this->auto_assign_trigger
                 };
             }
-
-
-
         }
 
 
         return [
-            'id'                       => $this->id,
-            'slug'                     => $this->slug,
-            'code'                     => $this->code,
-            'name'                     => $this->name,
-            'price'                    => $this->price * ($this->quantity ?? 1),
-            'currency_code'            => $this->currency_code,
-            'unit'                     => $this->unit,
+            'id'                => $this->id,
+            'slug'              => $this->slug,
+            'code'              => $this->code,
+            'name'              => $this->name,
+            'price'             => $this->price * ($this->quantity ?? 1),
+            'currency_code'     => $this->currency_code,
+            'unit'              => $this->unit,
             // 'unit_abbreviation'      => $this->unit ? $this->unit->abbreviations()[$this->unit->value] : 's',
             // 'unit_label'             => $this->unit ? $this->unit->labels()[$this->unit->value] : __('service'),
-            'unit_abbreviation'        => 's',
-            'unit_label'               => __('service'),
-            'quantity'                 => $this->quantity,
-            'total'                    => $this->quantity * $this->price,
-            'state_label'              => $this->state->labels()[$this->state->value],
-            'state_icon'               => $this->state->stateIcon()[$this->state->value],
+            'unit_abbreviation' => 's',
+            'unit_label'        => __('service'),
+            'quantity'          => $this->quantity,
+            'total'             => $this->quantity * $this->price,
+            'state_label'       => $this->state->labels()[$this->state->value],
+            'state_icon'        => $this->state->stateIcon()[$this->state->value],
 
             'is_auto_assign'           => $this->is_auto_assign,
             'auto_assign_trigger'      => $this->auto_assign_trigger,
             'auto_assign_subject'      => $this->auto_assign_subject,
             'auto_assign_subject_type' => $this->auto_assign_subject_type,
             'auto_assign_status'       => $this->auto_assign_status,
-            'auto_label'               => $autoLabel
+            'auto_label'               => $autoLabel,
+            'historic_asset_id'        => $this->historic_asset_id,
         ];
     }
 }

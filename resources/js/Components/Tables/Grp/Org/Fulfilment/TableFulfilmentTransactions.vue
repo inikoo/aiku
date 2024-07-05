@@ -42,6 +42,9 @@ function serviceRoute(service: {}) {
 }
 
 
+//         <!-- Column: Shop Code -->
+
+
 // <!-- Column: Code -->
 //         <template #cell(code)="{ item: service }">
 //             <component :is="serviceRoute(service) ? Link : 'div'" :href="serviceRoute(service) || '#'" :class="serviceRoute(service) ? 'primaryLink' : ''">
@@ -100,5 +103,9 @@ function serviceRoute(service: {}) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+
+               <template #cell(name)="{ item: transaction }">
+                  {{transaction['asset_name']}} ({{useLocaleStore().currencyFormat(transaction['currency_code'], transaction['asset_price'])}}/{{  transaction['unit_abbreviation']  }})
+               </template>
     </Table>
 </template>

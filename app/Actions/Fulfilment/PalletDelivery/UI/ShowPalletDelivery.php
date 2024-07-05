@@ -161,7 +161,7 @@ class ShowPalletDelivery extends OrgAction
                                 'label'   => __('add service'),
                                 'tooltip' => __('Add single service'),
                                 'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.service.store',
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
                                     'parameters' => [
                                         'palletDelivery' => $palletDelivery->id
                                     ]
@@ -174,7 +174,7 @@ class ShowPalletDelivery extends OrgAction
                                 'label'   => __('add physical good'),
                                 'tooltip' => __('Add physical good'),
                                 'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.physical_good.store',
+                                    'name'       => 'grp.models.pallet-delivery.transaction.store',
                                     'parameters' => [
                                         'palletDelivery' => $palletDelivery->id
                                     ]

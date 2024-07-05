@@ -26,15 +26,14 @@ class FulfilmentTransactionResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /*
         if ($this->asset_type == 'service') {
-            $unitAbbreviation = $this->asset_unit ? $this->asset_unit->abbreviations()[$this->asset_unit->value] : 's';
-            $unitLabel        = $this->asset_unit ? $this->asset_unit->labels()[$this->asset_unit->value] : __('service');
+            $unitAbbreviation = 's';
+            $unitLabel        = __('service');
         } else {
-            $unitAbbreviation = $this->asset_unit ? $this->asset_unit->abbreviations()[$this->asset_unit->value] : 'u';
-            $unitLabel        = $this->asset_unit ? $this->asset_unit->labels()[$this->asset_unit->value] : __('unit');
+            $unitAbbreviation = 'u';
+            $unitLabel        = __('unit');
         }
-*/
+
 
         return [
             'id'                => $this->id,
@@ -47,8 +46,8 @@ class FulfilmentTransactionResource extends JsonResource
             'asset_unit'        => $this->asset_unit,
             'asset_units'       => $this->asset_units,
             'currency_code'     => $this->currency_code,
-        //    'unit_abbreviation' => $unitAbbreviation,
-        //    'unit_label'        => $unitLabel,
+            'unit_abbreviation' => $unitAbbreviation,
+            'unit_label'        => $unitLabel,
             'quantity'          => $this->quantity,
             'total'             => 99
 
