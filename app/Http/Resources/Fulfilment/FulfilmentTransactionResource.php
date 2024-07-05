@@ -50,7 +50,7 @@ class FulfilmentTransactionResource extends JsonResource
         //    'unit_abbreviation' => $unitAbbreviation,
         //    'unit_label'        => $unitLabel,
             'quantity'          => $this->quantity,
-            'total'             => $this->quantity * $this->price,
+            'total'             => 99
 
 
         ];

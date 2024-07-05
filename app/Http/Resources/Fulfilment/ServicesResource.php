@@ -72,23 +72,7 @@ class ServicesResource extends JsonResource
             'total'                    => $this->quantity * $this->price,
             'state_label'              => $this->state->labels()[$this->state->value],
             'state_icon'               => $this->state->stateIcon()[$this->state->value],
-            'deleteServiceRoute'       => match (request()->routeIs('retina.*')) {
-                true => [
-                    'name'       => 'retina.models.pallet-delivery.service.delete',
-                    'parameters' => [
-                        'palletDelivery' => $this->pallet_delivery_id,
-                        'service'        => $this->id
-                    ]
 
-                ],
-                default => [
-                    'name'       => 'grp.models.pallet-delivery.service.delete',
-                    'parameters' => [
-                        'palletDelivery' => $this->pallet_delivery_id,
-                        'service'        => $this->id
-                    ]
-                ]
-            }, //UNFINISHED
             'is_auto_assign'           => $this->is_auto_assign,
             'auto_assign_trigger'      => $this->auto_assign_trigger,
             'auto_assign_subject'      => $this->auto_assign_subject,
