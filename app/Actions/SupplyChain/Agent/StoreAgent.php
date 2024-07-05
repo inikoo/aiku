@@ -85,7 +85,7 @@ class StoreAgent extends GrpAction
         return [
             'code'        => [
                 'required',
-                'max:9',
+                'max:12',
                 'alpha_dash',
                 new IUnique(
                     table: 'organisations',
