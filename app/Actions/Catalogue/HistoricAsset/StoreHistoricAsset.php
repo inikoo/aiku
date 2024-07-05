@@ -33,6 +33,8 @@ class StoreHistoricAsset
         data_set($historicAssetData, 'code', $assetModel->code);
         data_set($historicAssetData, 'name', $assetModel->name);
         data_set($historicAssetData, 'price', $assetModel->price);
+        data_set($historicAssetData, 'units', $assetModel->units);
+        data_set($historicAssetData, 'unit', $assetModel->unit);
 
 
         if (Arr::get($modelData, 'created_at')) {
