@@ -47,9 +47,9 @@ function serviceRoute(service: {}) {
 
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
-const onUpdateQuantity = (idAsset: number, value: number) => {
+const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
     router.patch(
-        route('grp.models.pallet-delivery.transaction.update', {...layout.currentParams, fulfilmentTransaction: idAsset}),
+        route('grp.models.fulfilment-transaction.update', {fulfilmentTransaction: idFulfilmentTransaction}),
         {
             quantity: value
         },
@@ -59,9 +59,9 @@ const onUpdateQuantity = (idAsset: number, value: number) => {
         }
     )
 }
-const onDeleteTransaction = (idTransaction: number) => {
+const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     router.delete(
-        route('grp.models.pallet-delivery.transaction.delete', {...layout.currentParams, fulfilmentTransaction: idTransaction}),
+        route('grp.models.fulfilment-transaction.delete', {fulfilmentTransaction: idFulfilmentTransaction}),
         {
             onStart: () => isLoading.value = 'buttonReset',
             onFinish: () => isLoading.value = false
@@ -72,8 +72,14 @@ const onDeleteTransaction = (idTransaction: number) => {
 </script>
 
 <template>
-    <pre>{{ data.data[0] }}</pre>
+    <!-- <pre>{{ data.data[0] }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Code -->
+        <template #cell(code)="{ item }">
+            {{ item.asset_code }}
+        </template>
+
+        <!-- Column: Name -->
         <template #cell(name)="{ item }">
             {{ item['asset_name'] }} ({{ useLocaleStore().currencyFormat(item['currency_code'],
                 item['asset_price'])}}/{{ item['unit_abbreviation'] }})

@@ -53,7 +53,7 @@ class FulfilmentTransactionResource extends JsonResource
             'quantity'          => (int) $this->quantity,
             'total'             => 99,
             'is_auto_assign'    => $this->is_auto_assign,
-            'historic_assets_id'=> $this->historic_assets_id
+            // 'historic_assets_id'=> $this->historic_assets_id
 
 
 

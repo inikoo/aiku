@@ -77,7 +77,10 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="flex items-center flex-col w-full overflow-auto min-h-11 max-h-96">
-        <div v-if="layout.user.notifications.some(notif => !notif.read)" @click="() => setAllToRead()" class="place-self-end text-gray-500 hover:text-indigo-500 cursor-pointer text-sm">
+        <div @click="() => layout.user.notifications.every(notif => notif.read) ? false : setAllToRead()"
+            class="place-self-end  text-sm select-none"
+            :class="layout.user.notifications.every(notif => notif.read) ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-500 hover:text-indigo-500 cursor-pointer'"    
+        >
             {{ trans('Marks all as read') }}
         </div>
         
