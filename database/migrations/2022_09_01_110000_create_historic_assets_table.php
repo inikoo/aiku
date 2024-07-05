@@ -27,6 +27,7 @@ return new class () extends Migration {
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
             $table->decimal('units', 12, 3)->nullable()->comment('units in outer');
+            $table->string('unit')->nullable()->comment('mirror of asset model');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();

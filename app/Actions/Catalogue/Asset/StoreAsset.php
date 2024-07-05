@@ -22,7 +22,6 @@ class StoreAsset extends OrgAction
 {
     public function handle(Product|Rental|Service $parent, array $modelData): Asset
     {
-
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
@@ -35,6 +34,10 @@ class StoreAsset extends OrgAction
         data_set($modelData, 'status', $parent->status);
         data_set($modelData, 'created_at', $parent->created_at);
         data_set($modelData, 'currency_id', $parent->currency_id);
+
+        data_set($modelData, 'model_type', $parent->getMorphClass());
+        data_set($modelData, 'model_id', $parent->id);
+
 
         /** @var Asset $asset */
         $asset = $parent->asset()->create($modelData);
@@ -49,12 +52,6 @@ class StoreAsset extends OrgAction
 
         return $asset;
     }
-
-
-
-
-
-
 
 
 }

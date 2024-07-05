@@ -61,7 +61,7 @@ class PhysicalGoodsResource extends JsonResource
                     'name'       => 'grp.models.pallet-delivery.physical_good.delete',
                     'parameters' => [
                         'palletDelivery' => $this->pallet_delivery_id,
-                        'outer'   => $this->id
+                        'outer'          => $this->id
                     ]
                 ]
             },

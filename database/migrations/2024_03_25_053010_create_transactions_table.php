@@ -8,6 +8,7 @@
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasOrderFields;
 use App\Stubs\Migrations\HasSalesTransactionParents;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasSalesTransactionParents;
     use HasGroupOrganisationRelationship;
+    use HasOrderFields;
 
     public function up(): void
     {
@@ -32,8 +34,6 @@ return new class () extends Migration {
 
             $table->dateTimeTz('settled_at')->nullable();
 
-
-
             $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
             $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
 
@@ -46,21 +46,8 @@ return new class () extends Migration {
 
 
             $table->decimal('discounts', 16)->default(0);
+            $table= $this->orderMoneyFields($table);
 
-            $table->decimal('net', 16)->default(0);
-            $table->decimal('group_net_amount', 16)->default(0);
-            $table->decimal('org_net_amount', 16)->default(0);
-
-
-            $table->decimal('tax_rate', 16)->default(0);
-
-
-            //$table->unsignedSmallInteger('tax_band_id')->nullable()->index();
-            //$table->foreign('tax_band_id')->references('id')->on('tax_bands');
-
-
-            $table->decimal('group_exchange', 16, 4)->default(1);
-            $table->decimal('org_exchange', 16, 4)->default(1);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

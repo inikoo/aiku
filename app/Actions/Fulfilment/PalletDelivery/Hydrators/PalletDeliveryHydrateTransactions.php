@@ -9,16 +9,18 @@ namespace App\Actions\Fulfilment\PalletDelivery\Hydrators;
 
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PalletDeliveryHydratePhysicalGoods extends HydrateModel
+class PalletDeliveryHydrateTransactions extends HydrateModel
 {
     use AsAction;
     use WithEnumStats;
 
     private PalletDelivery $palletDelivery;
+
     public function __construct(PalletDelivery $palletDelivery)
     {
         $this->palletDelivery = $palletDelivery;
@@ -32,9 +34,14 @@ class PalletDeliveryHydratePhysicalGoods extends HydrateModel
     public function handle(PalletDelivery $palletDelivery): void
     {
         $stats = [
-            'number_physical_goods' => $palletDelivery->physicalGoods()->count()
+            'number_transactions'   => $palletDelivery->transactions()->count(),
+            'number_services'       => $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->count(),
+            'number_physical_goods' => $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->count()
         ];
 
+
+
         $palletDelivery->stats()->update($stats);
+
     }
 }

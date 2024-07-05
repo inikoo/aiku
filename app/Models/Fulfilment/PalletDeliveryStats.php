@@ -96,6 +96,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_stored_items_status_damaged
  * @property int $number_stored_items_status_lost
  * @property int $number_stored_items_status_returned
+ * @property int $number_transactions
  * @property int $number_services
  * @property int $number_physical_goods
  * @property \Illuminate\Support\Carbon|null $created_at

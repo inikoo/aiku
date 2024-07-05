@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('pallet_delivery_id');
             $table->foreign('pallet_delivery_id')->references('id')->on('pallet_deliveries')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->fulfilmentAssetsStats($table);
+            $table->unsignedInteger('number_transactions')->default(0);
             $table->unsignedInteger('number_services')->default(0);
             $table->unsignedInteger('number_physical_goods')->default(0);
             $table->timestampsTz();

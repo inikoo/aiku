@@ -9,8 +9,10 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
 use Closure;
@@ -20,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexServiceInPalletReturn extends OrgAction
 {
-    protected function getElementGroups(PalletReturn $parent): array
+    protected function getElementGroups(PalletReturn $palletReturn): array
     {
         return [
 
@@ -28,7 +30,7 @@ class IndexServiceInPalletReturn extends OrgAction
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent->fulfilment->shop)
+                    ServicestateEnum::count($palletReturn->fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -39,7 +41,7 @@ class IndexServiceInPalletReturn extends OrgAction
         ];
     }
 
-    public function handle(PalletReturn $parent, $prefix = null): LengthAwarePaginator
+    public function handle(PalletReturn $palletReturn, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -52,11 +54,20 @@ class IndexServiceInPalletReturn extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for($parent->services());
-        $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
-        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
+        $queryBuilder = QueryBuilder::for(FulfilmentTransaction::class);
+        $queryBuilder->where('fulfilment_transactions.parent_type', class_basename($palletReturn));
+        $queryBuilder->where('fulfilment_transactions.parent_id', $palletReturn->id);
+        $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
+        $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+        $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->join('services', 'assets.model_id', '=', 'services.id');
+        $queryBuilder->join('currencies', 'services.currency_id', '=', 'currencies.id');
+
+
+
+
+        foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -78,7 +89,7 @@ class IndexServiceInPalletReturn extends OrgAction
                 'assets.price',
                 'services.description',
                 'currencies.code as currency_code',
-                'pallet_return_services.quantity'
+                'fulfilment_transactions.quantity'
             ]);
 
 
@@ -89,12 +100,12 @@ class IndexServiceInPalletReturn extends OrgAction
     }
 
     public function tableStructure(
-        PalletReturn $parent,
+        PalletReturn $palletReturn,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
     ): Closure {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+        return function (InertiaTable $table) use ($palletReturn, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -105,18 +116,11 @@ class IndexServiceInPalletReturn extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
-                        'Fulfilment' => [
-                            'title' => __("No services found"),
-                            'count' => $parent->fulfilment->shop->stats->number_services_state_active,
-                        ],
-                        'PalletReturn' => [
-                            'icons' => ['fal fa-concierge-bell'],
-                            'title' => '',
-                            'count' => $parent->stats->number_services,
-                        ],
-                        default => null
-                    }
+                    [
+                        'icons' => ['fal fa-concierge-bell'],
+                        'title' => '',
+                        'count' => $palletReturn->stats->number_services,
+                    ]
                 );
 
             $table

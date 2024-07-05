@@ -6,18 +6,16 @@
  */
 
 use App\Actions\CRM\Customer\UpdateCustomerSettings;
+use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\PalletDelivery\DetachPhysicalGoodFromPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\DetachServiceFromPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\SyncPhysicalGoodToPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\SyncServiceToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
@@ -59,11 +57,10 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::patch('update', [UpdatePalletDelivery::class, 'fromRetina'])->name('update');
     Route::patch('update-timeline', [UpdatePalletDeliveryTimeline::class, 'fromRetina'])->name('timeline.update');
 
-    Route::post('service', [SyncServiceToPalletDelivery::class, 'fromRetina'])->name('service.store');
-    Route::post('physical-goods', [SyncPhysicalGoodToPalletDelivery::class, 'fromRetina'])->name('physical_good.store');
 
-    Route::delete('service/{service:id}', [DetachServiceFromPalletDelivery::class, 'fromRetina'])->name('service.delete')->withoutScopedBindings();
-    Route::delete('physical-goods/{outer:id}', [DetachPhysicalGoodFromPalletDelivery::class, 'fromRetina'])->name('physical_good.delete')->withoutScopedBindings();
+    Route::post('transaction/{historicAsset:id}', [StoreFulfilmentTransaction::class,'fromRetina'])->name('transaction.store');
+    Route::delete('transaction/{fulfilmentTransaction:id}', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('transaction.delete');
+
 
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });

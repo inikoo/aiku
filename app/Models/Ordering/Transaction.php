@@ -116,8 +116,6 @@ class Transaction extends Model
         return $this->belongsTo(Order::class);
     }
 
-
-
     /** @noinspection PhpUnused */
     public function setQuantityAttribute($val): void
     {

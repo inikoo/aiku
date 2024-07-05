@@ -7,8 +7,8 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Catalogue\Service\AutoAssignServices;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
@@ -48,7 +48,8 @@ class StorePalletFromDelivery extends OrgAction
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
-        AutoAssignServices::run($palletDelivery, $pallet);
+
+        AutoAssignServicesToPalletDelivery::run($palletDelivery, $pallet);
 
         PalletDeliveryHydratePallets::run($palletDelivery);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);

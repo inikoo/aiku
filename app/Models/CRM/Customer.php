@@ -110,6 +110,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, Media> $media
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments

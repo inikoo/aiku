@@ -34,6 +34,8 @@ use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
@@ -50,16 +52,13 @@ use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
-use App\Actions\Fulfilment\PalletDelivery\DetachPhysicalGoodFromPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\DetachServiceFromPalletDelivery;
+
 use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\SyncPhysicalGoodToPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\SyncServiceToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -267,11 +266,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
-    Route::post('service', SyncServiceToPalletDelivery::class)->name('service.store');
-    Route::post('physical-goods', SyncPhysicalGoodToPalletDelivery::class)->name('physical_good.store');
-
-    Route::delete('service/{service:id}', DetachServiceFromPalletDelivery::class)->name('service.delete');
-    Route::delete('physical-goods/{outer:id}', DetachPhysicalGoodFromPalletDelivery::class)->name('physical_good.delete')->withoutScopedBindings();
+    Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store');
+    Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });

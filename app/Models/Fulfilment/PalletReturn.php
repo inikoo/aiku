@@ -8,8 +8,6 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
@@ -22,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -72,10 +71,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Asset> $physicalGoods
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newModelQuery()
@@ -166,19 +164,11 @@ class PalletReturn extends Model
         return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
     }
 
-    public function services(): BelongsToMany
+    public function transactions(): MorphMany
     {
-        return $this->belongsToMany(Service::class, 'pallet_return_services')
-            ->withPivot('quantity')
-            ->withTimestamps();
+        return $this->morphMany(FulfilmentTransaction::class, 'parent');
     }
 
-    public function physicalGoods(): BelongsToMany
-    {
-        return $this->belongsToMany(Asset::class, 'pallet_return_physical_goods', 'pallet_return_id', 'outer_id')
-            ->withPivot('quantity')
-            ->withTimestamps();
-    }
 
     public function deliveryAddress(): BelongsTo
     {
