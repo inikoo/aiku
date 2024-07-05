@@ -8,6 +8,7 @@
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
@@ -42,7 +43,6 @@ use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
-use App\Actions\Fulfilment\PalletDelivery\DetachServiceFromPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
@@ -52,6 +52,7 @@ use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
@@ -68,6 +69,7 @@ use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
@@ -576,10 +578,16 @@ test('remove a pallet from pallet delivery', function (PalletDelivery $palletDel
 })->depends('add multiple pallets to pallet delivery');
 
 test('remove a service from pallet delivery', function (PalletDelivery $palletDelivery) {
-    DetachServiceFromPalletDelivery::make()->action(
-        $palletDelivery,
-        $palletDelivery->services->first()
+
+
+    /** @var FulfilmentTransaction $serviceTransaction */
+    $serviceTransaction= $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->first();
+
+    DeleteFulfilmentTransaction::make()->action(
+        $serviceTransaction
     );
+
+
 
     $palletDelivery->refresh();
 

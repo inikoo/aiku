@@ -8,8 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePhysicalGoods;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateServices;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Support\Collection;
@@ -22,8 +21,7 @@ class HydratePalletDelivery extends HydrateModel
     public function handle(PalletDelivery $palletDelivery): void
     {
         PalletDeliveryHydratePallets::run($palletDelivery);
-        PalletDeliveryHydratePhysicalGoods::run($palletDelivery);
-        PalletDeliveryHydrateServices::run($palletDelivery);
+        PalletDeliveryHydrateTransactions::run($palletDelivery);
     }
 
     protected function getModel(string $slug): PalletDelivery

@@ -11,15 +11,14 @@ use App\Models\Helpers\Currency;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait InAssetModel
 {
     use InShop;
 
-    public function asset(): MorphOne
+    public function asset(): BelongsTo
     {
-        return $this->morphOne(Asset::class, 'model');
+        return $this->belongsTo(Asset::class);
     }
 
     public function historicAssets(): MorphMany

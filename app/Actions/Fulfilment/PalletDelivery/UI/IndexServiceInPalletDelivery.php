@@ -9,8 +9,10 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Services\QueryBuilder;
 use Closure;
@@ -20,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexServiceInPalletDelivery extends OrgAction
 {
-    protected function getElementGroups(PalletDelivery $parent): array
+    protected function getElementGroups(PalletDelivery $palletDelivery): array
     {
         return [
 
@@ -28,7 +30,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent->fulfilment->shop)
+                    ServicestateEnum::count($palletDelivery->fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -39,7 +41,7 @@ class IndexServiceInPalletDelivery extends OrgAction
         ];
     }
 
-    public function handle(PalletDelivery $parent, $prefix = null): LengthAwarePaginator
+    public function handle(PalletDelivery $palletDelivery, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -52,10 +54,16 @@ class IndexServiceInPalletDelivery extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for($parent->services());
+        $queryBuilder = QueryBuilder::for(FulfilmentTransaction::class);
+        $queryBuilder->where('fulfilment_transactions.parent_type', class_basename($palletDelivery));
+        $queryBuilder->where('fulfilment_transactions.parent_id', $palletDelivery->id);
+        $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
+        $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->join('services', 'assets.model_id', '=', 'services.id');
         $queryBuilder->join('currencies', 'services.currency_id', '=', 'currencies.id');
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+
+        foreach ($this->getElementGroups($palletDelivery) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -72,18 +80,10 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'services.code',
                 'services.name',
                 'services.price',
-                'pallet_delivery_services.quantity',
-                'pallet_delivery_services.pallet_delivery_id',
-                // 'services.created_at',
-                // 'services.price',
-                // 'services.unit',
-                // 'assets.name',
-                // 'assets.code',
-                // 'assets.price',
-                // 'services.description',
+                'fulfilment_transactions.quantity',
+                'fulfilment_transactions.parent_id  pallet_delivery_id',
                 'currencies.code as currency_code',
-                // 'pallet_delivery_services.quantity',
-                // 'pallet_delivery_services.pallet_delivery_id'
+
             ]);
 
 
@@ -94,12 +94,12 @@ class IndexServiceInPalletDelivery extends OrgAction
     }
 
     public function tableStructure(
-        PalletDelivery $parent,
+        PalletDelivery $palletDelivery,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
     ): Closure {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+        return function (InertiaTable $table) use ($palletDelivery, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -110,15 +110,15 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
+                    match (class_basename($palletDelivery)) {
                         'Fulfilment' => [
                             'title' => __("No services found"),
-                            'count' => $parent->fulfilment->shop->stats->number_services_state_active,
+                            'count' => $palletDelivery->fulfilment->shop->stats->number_services_state_active,
                         ],
                         'PalletDelivery' => [
                             'icons' => ['fal fa-concierge-bell'],
                             'title' => 'No service selected',
-                            'count' => $parent->stats->number_services,
+                            'count' => $palletDelivery->stats->number_services,
                         ],
                         default => null
                     }

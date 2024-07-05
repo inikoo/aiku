@@ -9,8 +9,10 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
 use Closure;
@@ -20,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPhysicalGoodInPalletReturn extends OrgAction
 {
-    protected function getElementGroups(PalletReturn $parent): array
+    protected function getElementGroups(PalletReturn $palletReturn): array
     {
         return [
 
@@ -28,7 +30,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     AssetStateEnum::labels(),
-                    AssetStateEnum::count($parent->fulfilment->shop)
+                    AssetStateEnum::count($palletReturn->fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -39,7 +41,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
         ];
     }
 
-    public function handle(PalletReturn $parent, $prefix = null): LengthAwarePaginator
+    public function handle(PalletReturn $palletReturn, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -52,10 +54,16 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for($parent->physicalGoods());
-        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
+        $queryBuilder = QueryBuilder::for(FulfilmentTransaction::class);
+        $queryBuilder->where('fulfilment_transactions.parent_type', class_basename($palletReturn));
+        $queryBuilder->where('fulfilment_transactions.parent_id', $palletReturn->id);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+        $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::PRODUCT->value);
+        $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->join('products', 'assets.model_id', '=', 'products.id');
+        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+
+        foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -76,7 +84,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
                 'assets.price',
                 'assets.unit',
                 'currencies.code as currency_code',
-                'pallet_return_physical_goods.quantity'
+                'fulfilment_transactions.quantity'
             ]);
 
         return $queryBuilder->allowedSorts(['id','price','name','state'])
@@ -86,12 +94,12 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
     }
 
     public function tableStructure(
-        PalletReturn $parent,
+        PalletReturn $palletReturn,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
     ): Closure {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+        return function (InertiaTable $table) use ($palletReturn, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -102,15 +110,15 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
+                    match (class_basename($palletReturn)) {
                         'Fulfilment' => [
                             'title' => __("No physical goods found"),
-                            'count' => $parent->fulfilment->shop->stats->number_assets_type_product,
+                            'count' => $palletReturn->fulfilment->shop->stats->number_assets_type_product,
                         ],
                         'PalletReturn' => [
                             'icons' => ['fal fa-cube'],
                             'title' => '',
-                            'count' => $parent->stats->number_physical_goods,
+                            'count' => $palletReturn->stats->number_physical_goods,
                         ],
                         default => null
                     }

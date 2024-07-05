@@ -654,8 +654,8 @@ test('UI Index pallet returns', function () {
 });
 
 test('UI show pallet return', function () {
-    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
 
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/PalletReturn')

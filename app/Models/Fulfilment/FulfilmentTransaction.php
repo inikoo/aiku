@@ -1,0 +1,79 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 09 Jun 2024 13:39:14 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Models\Fulfilment;
+
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Models\Catalogue\Asset;
+use App\Models\Traits\InFulfilment;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+
+/**
+ *
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property string $parent_type
+ * @property int $parent_id
+ * @property int|null $fulfilment_id
+ * @property int|null $fulfilment_customer_id
+ * @property FulfilmentTransactionTypeEnum $type
+ * @property int $asset_id
+ * @property int $historic_asset_id
+ * @property string $quantity
+ * @property string $net
+ * @property string $group_net_amount
+ * @property string $org_net_amount
+ * @property string $tax_rate
+ * @property string $group_exchange
+ * @property string $org_exchange
+ * @property bool $is_auto_assign
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Asset $asset
+ * @property-read \App\Models\Fulfilment\Fulfilment|null $fulfilment
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read Model|\Eloquent $parent
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentTransaction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentTransaction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentTransaction query()
+ * @mixin \Eloquent
+ */
+class FulfilmentTransaction extends Model
+{
+    use HasFactory;
+    use InFulfilment;
+
+
+    protected $casts = [
+        'data'             => 'array',
+        'quantity_ordered' => 'decimal:3',
+        'type'             => FulfilmentTransactionTypeEnum::class
+    ];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
+    protected $guarded = [];
+
+    public function parent(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function asset(): BelongsTo
+    {
+        return $this->belongsTo(Asset::class);
+    }
+}

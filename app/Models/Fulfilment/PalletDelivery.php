@@ -8,8 +8,6 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -17,9 +15,9 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -67,10 +65,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $physicalGoods
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
  * @property-read \App\Models\Fulfilment\PalletDeliveryStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
@@ -151,17 +148,11 @@ class PalletDelivery extends Model
         return $this->hasOne(PalletDeliveryStats::class);
     }
 
-    public function services(): BelongsToMany
+    public function transactions(): MorphMany
     {
-        return $this->belongsToMany(Service::class, 'pallet_delivery_services')
-            ->withTimestamps();
+        return $this->morphMany(FulfilmentTransaction::class, 'parent');
     }
 
-    public function physicalGoods(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'pallet_delivery_physical_goods', 'pallet_delivery_id', 'outer_id')
-            ->withTimestamps();
-    }
 
     public function recurringBills(): MorphToMany
     {
