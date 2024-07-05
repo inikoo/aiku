@@ -34,16 +34,16 @@ class StoreFulfilmentTransaction extends OrgAction
             data_set($modelData, 'type', FulfilmentTransactionTypeEnum::SERVICE);
         }
 
-        /** @var FulfilmentTransaction $palletDeliveryTransaction */
-        $palletDeliveryTransaction= $parent->transactions()->create($modelData);
+        /** @var FulfilmentTransaction $fulfilmentTransaction */
+        $fulfilmentTransaction= $parent->transactions()->create($modelData);
 
-        if($palletDeliveryTransaction->parent_type=='PalletDelivery') {
-            PalletDeliveryHydrateTransactions::run($palletDeliveryTransaction->parent);
+        if($fulfilmentTransaction->parent_type=='PalletDelivery') {
+            PalletDeliveryHydrateTransactions::run($fulfilmentTransaction->parent);
         } else {
-            PalletReturnHydrateTransactions::run($palletDeliveryTransaction->parent);
+            PalletReturnHydrateTransactions::run($fulfilmentTransaction->parent);
         }
 
-        return $palletDeliveryTransaction;
+        return $fulfilmentTransaction;
     }
 
     public function rules(): array
@@ -53,28 +53,28 @@ class StoreFulfilmentTransaction extends OrgAction
         ];
     }
 
-    public function fromRetina(PalletDelivery $palletDelivery, HistoricAsset $historicAsset, ActionRequest $request): void
+    public function fromRetina(PalletDelivery|PalletReturn $parent, HistoricAsset $historicAsset, ActionRequest $request): void
     {
-        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+        $this->initialisationFromFulfilment($parent->fulfilment, $request);
 
-        $this->handle($palletDelivery, $historicAsset, $this->validatedData);
+        $this->handle($parent, $historicAsset, $this->validatedData);
     }
 
-    public function asController(PalletDelivery $palletDelivery, HistoricAsset $historicAsset, ActionRequest $actionRequest): void
+    public function asController(PalletDelivery|PalletReturn $parent, HistoricAsset $historicAsset, ActionRequest $actionRequest): void
     {
-        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $actionRequest);
+        $this->initialisationFromFulfilment($parent->fulfilment, $actionRequest);
 
-        $this->handle($palletDelivery, $historicAsset, $this->validatedData);
+        $this->handle($parent, $historicAsset, $this->validatedData);
     }
 
 
 
-    public function action(PalletDelivery $palletDelivery, HistoricAsset $historicAsset, array $modelData): FulfilmentTransaction
+    public function action(PalletDelivery|PalletReturn $parent, HistoricAsset $historicAsset, array $modelData): FulfilmentTransaction
     {
         $this->asAction = true;
 
-        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
-        return $this->handle($palletDelivery, $historicAsset, $this->validatedData);
+        $this->initialisationFromFulfilment($parent->fulfilment, $modelData);
+        return $this->handle($parent, $historicAsset, $this->validatedData);
     }
 
 

@@ -64,16 +64,12 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachPhysicalGoodFromPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachServiceFromPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SyncPhysicalGoodToPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SyncServiceToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
@@ -268,18 +264,18 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
     Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
-    Route::patch('transaction/{historicAsset:id}', UpdateFulfilmentTransaction::class)->name('transaction.update')->withoutScopedBindings();
+    Route::patch('transaction/{fulfilmentTransaction:id}', UpdateFulfilmentTransaction::class)->name('transaction.update')->withoutScopedBindings();
     Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete')->withoutScopedBindings();
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
-    Route::post('service', SyncServiceToPalletReturn::class)->name('service.store');
-    Route::post('physical-goods', SyncPhysicalGoodToPalletReturn::class)->name('physical_good.store');
 
-    Route::delete('service', DetachServiceFromPalletReturn::class)->name('service.delete');
-    Route::delete('physical-goods', DetachPhysicalGoodFromPalletReturn::class)->name('physical_good.delete');
+    Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
+    Route::patch('transaction/{fulfilmentTransaction:id}', UpdateFulfilmentTransaction::class)->name('transaction.update')->withoutScopedBindings();
+    Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete')->withoutScopedBindings();
+
 
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
