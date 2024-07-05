@@ -179,6 +179,16 @@ class Customer extends Model implements HasMedia, Auditable
         return $tags;
     }
 
+    protected array $auditInclude = [
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+        'contact_website',
+        'reference',
+        'identity_document_type',
+        'identity_document_number',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -238,14 +248,6 @@ class Customer extends Model implements HasMedia, Auditable
             }
         });
     }
-
-    protected array $auditInclude = [
-        'contact_name',
-        'company_name',
-        'email',
-        'phone',
-        'contact_website'
-    ];
 
     public function clients(): HasMany
     {

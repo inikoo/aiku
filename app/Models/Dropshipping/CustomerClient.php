@@ -102,6 +102,7 @@ class CustomerClient extends Model implements Auditable
         'company_name',
         'email',
         'phone',
+        'reference',
     ];
 
     public function getSlugOptions(): SlugOptions
