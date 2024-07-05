@@ -23,12 +23,12 @@ class PalletReturnHydrateTransactions extends HydrateModel
 
     public function __construct(PalletReturn $palletReturn)
     {
-        $this->PalletReturn = $palletReturn;
+        $this->palletReturn = $palletReturn;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->PalletReturn->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->palletReturn->id))->dontRelease()];
     }
 
     public function handle(PalletReturn $palletReturn): void
