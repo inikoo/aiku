@@ -42,62 +42,63 @@ function serviceRoute(service: {}) {
 }
 
 
+// <!-- Column: Code -->
+//         <template #cell(code)="{ item: service }">
+//             <component :is="serviceRoute(service) ? Link : 'div'" :href="serviceRoute(service) || '#'" :class="serviceRoute(service) ? 'primaryLink' : ''">
+//                 {{ service['code'] }}
+//             </component>
+//         </template>
+
+//         <!-- Column: Shop Code -->
+//         <template #cell(shop_code)="{ item: service }">
+//             <Link v-if="service['shop_slug']" :href="serviceRoute(service)" class="secondaryLink">
+//                 {{ service['shop_slug'] }}
+//             </Link>
+//         </template>
+
+//         <!-- Column: Icon -->
+//         <template #cell(state)="{ item: service }">
+//             <Icon :data="service['state_icon']" />
+//         </template>
+
+//         <!-- Column: Price -->
+//         <template #cell(price)="{ item: service }">
+//             {{ useLocaleStore().currencyFormat(service['currency_code'], service['price']) }} /{{
+//                 service['unit_abbreviation'] }}
+//         </template>
+
+//         <!-- Column: Total -->
+//         <template #cell(total)="{ item: service }">
+//             {{ useLocaleStore().currencyFormat(service['currency_code'], service['total']) }}
+//         </template>
+
+//         <!-- Column: Workflow -->
+//         <template #cell(workflow)="{ item: service }">
+//             <template v-if="service['is_auto_assign']">
+//                 <FontAwesomeIcon icon='fal fa-robot' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+//                 {{ service['auto_label'] }}
+//             </template>
+//         </template>
+//         <template #cell(actions)="{ item: service }">
+//             <div v-if="props.state == 'in-process'">
+//                 <Link
+//                     :href="route(service.deleteServiceRoute.name, service.deleteServiceRoute.parameters)"
+//                     method="delete"
+//                     as="div"
+//                     :onStart="() => isActionLoading = 'delete' + service.id"
+//                     :onSuccess="() => emits('renderTableKey')"
+//                     :onFinish="() => isActionLoading = false"
+//                     v-tooltip="'Unselect this service'"
+//                     class="w-fit"
+//                 >
+//                     <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
+//                 </Link>
+//             </div>
+//         </template>
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <!-- Column: Code -->
-        <template #cell(code)="{ item: service }">
-            <component :is="serviceRoute(service) ? Link : 'div'" :href="serviceRoute(service) || '#'" :class="serviceRoute(service) ? 'primaryLink' : ''">
-                {{ service['code'] }}
-            </component>
-        </template>
-
-        <!-- Column: Shop Code -->
-        <template #cell(shop_code)="{ item: service }">
-            <Link v-if="service['shop_slug']" :href="serviceRoute(service)" class="secondaryLink">
-                {{ service['shop_slug'] }}
-            </Link>
-        </template>
-
-        <!-- Column: Icon -->
-        <template #cell(state)="{ item: service }">
-            <Icon :data="service['state_icon']" />
-        </template>
-
-        <!-- Column: Price -->
-        <template #cell(price)="{ item: service }">
-            {{ useLocaleStore().currencyFormat(service['currency_code'], service['price']) }} /{{
-                service['unit_abbreviation'] }}
-        </template>
-
-        <!-- Column: Total -->
-        <template #cell(total)="{ item: service }">
-            {{ useLocaleStore().currencyFormat(service['currency_code'], service['total']) }}
-        </template>
-
-        <!-- Column: Workflow -->
-        <template #cell(workflow)="{ item: service }">
-            <template v-if="service['is_auto_assign']">
-                <FontAwesomeIcon icon='fal fa-robot' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                {{ service['auto_label'] }}
-            </template>
-        </template>
-        <template #cell(actions)="{ item: service }">
-            <div v-if="props.state == 'in-process'">
-                <Link
-                    :href="route(service.deleteServiceRoute.name, service.deleteServiceRoute.parameters)"
-                    method="delete"
-                    as="div"
-                    :onStart="() => isActionLoading = 'delete' + service.id"
-                    :onSuccess="() => emits('renderTableKey')"
-                    :onFinish="() => isActionLoading = false"
-                    v-tooltip="'Unselect this service'"
-                    class="w-fit"
-                >
-                    <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
-                </Link>
-            </div>
-        </template>
     </Table>
 </template>

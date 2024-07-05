@@ -12,8 +12,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import {ref} from "vue";
+// import Button from "@/Components/Elements/Buttons/Button.vue";
+// import {ref} from "vue";
 
 library.add(faRobot)
 
@@ -23,7 +23,7 @@ const props = defineProps<{
     tab?: string
 }>()
 
-const isActionLoading = ref<string | boolean>(false)
+// const isActionLoading = ref<string | boolean>(false)
 const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
@@ -54,11 +54,11 @@ function serviceRoute(service: {}) {
         </template>
 
         <!-- Column: Shop Code -->
-        <template #cell(shop_code)="{ item: service }">
+        <!-- <template #cell(shop_code)="{ item: service }">
             <Link v-if="service['shop_slug']" :href="serviceRoute(service)" class="secondaryLink">
                 {{ service['shop_slug'] }}
             </Link>
-        </template>
+        </template> -->
 
         <!-- Column: Icon -->
         <template #cell(state)="{ item: service }">
@@ -72,9 +72,9 @@ function serviceRoute(service: {}) {
         </template>
 
         <!-- Column: Total -->
-        <template #cell(total)="{ item: service }">
+        <!-- <template #cell(total)="{ item: service }">
             {{ useLocaleStore().currencyFormat(service['currency_code'], service['total']) }}
-        </template>
+        </template> -->
 
         <!-- Column: Workflow -->
         <template #cell(workflow)="{ item: service }">
@@ -83,7 +83,8 @@ function serviceRoute(service: {}) {
                 {{ service['auto_label'] }}
             </template>
         </template>
-        <template #cell(actions)="{ item: service }">
+
+        <!-- <template #cell(actions)="{ item: service }">
             <div v-if="props.state == 'in-process'">
                 <Link
                     :href="route(service.deleteServiceRoute.name, service.deleteServiceRoute.parameters)"
@@ -98,6 +99,6 @@ function serviceRoute(service: {}) {
                     <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
                 </Link>
             </div>
-        </template>
+        </template> -->
     </Table>
 </template>
