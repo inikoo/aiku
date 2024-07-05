@@ -106,6 +106,11 @@ class PaymentAccount extends Model implements Auditable
         ];
     }
 
+    protected array $auditInclude = [
+        'code',
+        'name',
+    ];
+
     public function paymentServiceProvider(): BelongsTo
     {
         return $this->belongsTo(PaymentServiceProvider::class);

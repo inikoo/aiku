@@ -89,7 +89,10 @@ class Payment extends Model implements Auditable
         'state'             => PaymentStateEnum::class,
         'status'            => PaymentStatusEnum::class,
         'subsequent_status' => PaymentSubsequentStatusEnum::class,
-        'type'              => PaymentTypeEnum::class
+        'type'              => PaymentTypeEnum::class,
+        'amount'            => 'decimal:2',
+        'group_amount'      => 'decimal:2',
+        'org_amount'        => 'decimal:2',
     ];
 
     protected $attributes = [
@@ -104,6 +107,13 @@ class Payment extends Model implements Auditable
             'accounting',
         ];
     }
+
+    protected array $auditInclude = [
+        'reference',
+        'status',
+        'state',
+        'amount',
+    ];
 
     protected static function booted(): void
     {
