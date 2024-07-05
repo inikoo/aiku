@@ -3,7 +3,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import { Link } from "@inertiajs/vue3"
-import { inject } from "vue"
+import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -25,6 +25,8 @@ const props = defineProps<{
     }[]
 }>()
 
+const isLoading = ref<string | boolean | number>(false)
+
 // const originUrl = location.origin
 </script>
 
@@ -40,6 +42,8 @@ const props = defineProps<{
             <component :is="dataNavigation[0].href?.name ? Link : 'div'" 
                 class="flex items-center py-1.5 px-3 rounded transition-all"
                 :href="dataNavigation[0].href.name ? route(dataNavigation[0].href.name, dataNavigation[0].href.parameters) : '#'"
+                @start="() => isLoading = 'home'"
+                @finish="() => isLoading = false"
                 :class="[
                     layout.currentRoute === dataNavigation[0].href.name ? `` : `bg-gray-100 hover:bg-gray-200 text-gray-600`
                 ]"
@@ -48,7 +52,11 @@ const props = defineProps<{
                     color: layout.currentRoute === dataNavigation[0].href.name ? `color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)` : ''
                 }"
             >
-                <FontAwesomeIcon v-if="dataNavigation[0].leftIcon" :icon="dataNavigation[0].leftIcon.icon" v-tooltip="capitalize(dataNavigation[0].leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
+                <div v-if="dataNavigation[0].leftIcon" class="pr-1">
+                    <FontAwesomeIcon v-if="isLoading === 'home'" icon="fad fa-spinner-third" v-tooltip="capitalize(dataNavigation[0].leftIcon.tooltip)" fixed-width aria-hidden="true" class="animate-spin" />
+                    <FontAwesomeIcon v-else :icon="dataNavigation[0].leftIcon.icon" v-tooltip="capitalize(dataNavigation[0].leftIcon.tooltip)" fixed-width aria-hidden="true" class="" />
+                </div>
+
                 <MetaLabel :item="dataNavigation[0]" />
             </component>
         </div>
@@ -60,6 +68,8 @@ const props = defineProps<{
                 :key="'subNav' + itemIdx"
                 :is="subNav.href?.name ? Link : 'div'"
                 :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
+                @start="() => isLoading = itemIdx"
+                @finish="() => isLoading = false"
                 class="py-1.5 flex items-center transition-all"
                 :class="[
                     layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
@@ -70,7 +80,11 @@ const props = defineProps<{
                         layout.currentRoute.includes(subNav.href?.name) ? `translate-y-1 pb-1` : `py-1`
                     ]"
                 >
-                    <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
+                    <div v-if="subNav.leftIcon" class="pr-1">
+                        <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="animate-spin" />
+                        <FontAwesomeIcon v-else :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="" />
+                    </div>
+                
                     <MetaLabel :item="subNav" />
                 </div>
             </component>
