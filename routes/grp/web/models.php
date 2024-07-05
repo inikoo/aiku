@@ -250,6 +250,12 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/payment-service-provider/{paymentServiceProvider:id}/account', StoreOrgPaymentServiceProviderAccount::class)->name('payment-service-provider-account.store')->withoutScopedBindings();
 });
 
+Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {
+    Route::patch('', UpdateFulfilmentTransaction::class)->name('update');
+    Route::delete('', DeleteFulfilmentTransaction::class)->name('delete');
+
+});
+
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
     Route::patch('/', UpdatePalletDelivery::class)->name('update');
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
@@ -264,8 +270,6 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
     Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
-    Route::patch('transaction/{fulfilmentTransaction:id}', UpdateFulfilmentTransaction::class)->name('transaction.update')->withoutScopedBindings();
-    Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete')->withoutScopedBindings();
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
@@ -273,10 +277,6 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
     Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
-    Route::patch('transaction/{fulfilmentTransaction:id}', UpdateFulfilmentTransaction::class)->name('transaction.update')->withoutScopedBindings();
-    Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete')->withoutScopedBindings();
-
-
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
 });
