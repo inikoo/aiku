@@ -148,27 +148,31 @@ const onOpenModalAddService = async () => {
         const xxx = await axios.get(
             route(props.service_list_route.name, props.service_list_route.parameters)
         )
-        dataServiceList.value = xxx.data.data
+        dataServiceList.value = xxx?.data?.data || []
     } catch (error) {
         
     }
     isLoadingData.value = false
 }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
+    const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
+    // console.log('vvv', vvv)
+    
     isLoadingButton.value = 'addService'
     formAddService.post(
-        route( data.route?.name, data.route?.parameters),
+        route(data.route?.name, {...data.route?.parameters, historicAsset: selectedHistoricAssetId}),
         {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
                 formAddService.reset('quantity', 'service_id')
-                isLoadingButton.value = false
             },
             onError: (errors) => {
-                isLoadingButton.value = false
                 console.error('Error during form submission:', errors)
             },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
         }
     )
 }
@@ -244,7 +248,7 @@ watch(() => props.data, (newValue) => {
 
 <template>
     <!-- <pre>{{ data.data }}</pre> -->
-
+<!-- {{ props.service_list_route.name }} -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->

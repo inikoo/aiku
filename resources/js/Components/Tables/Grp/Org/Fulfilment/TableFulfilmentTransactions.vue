@@ -12,8 +12,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import {ref} from "vue";
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { ref } from "vue"
 
 library.add(faRobot)
 
@@ -103,9 +103,9 @@ function serviceRoute(service: {}) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-
-               <template #cell(name)="{ item: transaction }">
-                  {{transaction['asset_name']}} ({{useLocaleStore().currencyFormat(transaction['currency_code'], transaction['asset_price'])}}/{{  transaction['unit_abbreviation']  }})
-               </template>
+        <template #cell(name)="{ item: transaction }">
+            {{ transaction['asset_name'] }} ({{ useLocaleStore().currencyFormat(transaction['currency_code'],
+                transaction['asset_price'])}}/{{ transaction['unit_abbreviation'] }})
+        </template>
     </Table>
 </template>
