@@ -47,9 +47,9 @@ function serviceRoute(service: {}) {
 
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
-const onUpdateQuantity = (idHistoric: number, value: number) => {
+const onUpdateQuantity = (idAsset: number, value: number) => {
     router.patch(
-        route('grp.models.pallet-delivery.transaction.update', {...layout.currentParams, historicAsset: idHistoric}),
+        route('grp.models.pallet-delivery.transaction.update', {...layout.currentParams, fulfilmentTransaction: idAsset}),
         {
             quantity: value
         },
