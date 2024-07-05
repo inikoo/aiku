@@ -1,25 +1,25 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Jun 2024 20:10:39 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 06 Jul 2024 00:45:46 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\AuditResolvers;
+namespace App\Audits\Resolvers;
 
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Contracts\Resolver;
 
-class AuditWebsiteResolver implements Resolver
+class AuditOrganisationResolver implements Resolver
 {
     public static function resolve(Auditable $auditable)
     {
 
-        if($auditable->website_id) {
-            return $auditable->website_id;
+        if($auditable->organisation_id) {
+            return $auditable->organisation_id;
         }
 
-        if(class_basename($auditable)=='Website') {
+        if(class_basename($auditable)=='Organisation') {
             return $auditable->id;
         }
 

@@ -8,6 +8,7 @@
 namespace App\Models\CRM;
 
 use App\Actions\CRM\WebUser\SendLinkResetPassword;
+use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -94,6 +95,42 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     use HasImage;
     use InCustomer;
 
+    protected $casts = [
+
+        'data'      => 'array',
+        'settings'  => 'array',
+        'state'     => WebUserTypeEnum::class,
+        'auth_type' => WebUserAuthTypeEnum::class,
+    ];
+
+    protected $attributes = [
+        'data'     => '{}',
+        'settings' => '{}',
+    ];
+
+    protected $guarded = [
+    ];
+
+    public function generateTags(): array
+    {
+        return ['crm','websites'];
+    }
+
+    protected array $auditInclude = [
+        'username',
+        'email',
+        'password',
+    ];
+
+    protected array $attributeModifiers = [
+        'password' => PasswordRedactor::class,
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -109,32 +146,10 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
     }
 
-    protected $guarded = [
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-
-        'data'      => 'array',
-        'settings'  => 'array',
-        'state'     => WebUserTypeEnum::class,
-        'auth_type' => WebUserAuthTypeEnum::class,
-    ];
-
-    protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}',
-    ];
-
     public function sendPasswordResetNotification($token): void
     {
         SendLinkResetPassword::run($token, $this);
     }
-
 
     public function stats(): HasOne
     {
