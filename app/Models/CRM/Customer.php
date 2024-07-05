@@ -180,14 +180,15 @@ class Customer extends Model implements HasMedia, Auditable
     }
 
     protected array $auditInclude = [
+        'reference',
         'contact_name',
         'company_name',
         'email',
         'phone',
         'contact_website',
-        'reference',
         'identity_document_type',
         'identity_document_number',
+
     ];
 
     public function getSlugOptions(): SlugOptions

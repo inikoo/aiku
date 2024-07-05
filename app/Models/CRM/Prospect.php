@@ -20,6 +20,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Tags\HasTags;
@@ -99,7 +101,7 @@ use Spatie\Tags\Tag;
  * @method static Builder|Prospect withoutTrashed()
  * @mixin Eloquent
  */
-class Prospect extends Model
+class Prospect extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
@@ -109,6 +111,7 @@ class Prospect extends Model
     use InCustomer;
     use HasAddress;
     use HasAddresses;
+    use HasHistory;
 
     protected $casts = [
         'data'                 => 'array',
@@ -134,6 +137,25 @@ class Prospect extends Model
         'location' => '{}',
     ];
 
+    protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'crm'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+        'contact_website',
+        'identity_document_type',
+        'identity_document_number',
+    ];
+
 
     protected static function booted(): void
     {
@@ -153,8 +175,6 @@ class Prospect extends Model
         });
     }
 
-    protected $guarded = [];
-
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -164,25 +184,24 @@ class Prospect extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-
-                $slug='';
-                if($this->email) {
-                    $tmp=explode('@', $this->email);
-                    if(!empty($tmp[0])) {
-                        $slug=substr($tmp[0], 0, 8);
+                $slug = '';
+                if ($this->email) {
+                    $tmp = explode('@', $this->email);
+                    if (!empty($tmp[0])) {
+                        $slug = substr($tmp[0], 0, 8);
                     }
                 }
 
 
-                $name=$this->company_name ? ' '.Abbreviate::run(string: $this->company_name, maximumLength: 4) : ''  ;
-                if($name=='') {
-                    $name=$this->contact_name ? ' '.Abbreviate::run(string: $this->contact_name, maximumLength: 4) : '';
+                $name = $this->company_name ? ' '.Abbreviate::run(string: $this->company_name, maximumLength: 4) : '';
+                if ($name == '') {
+                    $name = $this->contact_name ? ' '.Abbreviate::run(string: $this->contact_name, maximumLength: 4) : '';
                 }
-                $slug.=$name;
+                $slug .= $name;
 
 
                 if ($slug == '') {
-                    $slug=ReadableRandomStringGenerator::run();
+                    $slug = ReadableRandomStringGenerator::run();
                 }
 
                 return $slug;
@@ -191,7 +210,6 @@ class Prospect extends Model
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(64);
     }
-
 
 
 }
