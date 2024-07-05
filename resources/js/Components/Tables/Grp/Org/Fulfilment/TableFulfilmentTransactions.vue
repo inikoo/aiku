@@ -83,17 +83,16 @@ const onDeleteTransaction = (idTransaction: number) => {
         <template #cell(quantity)="{ item }">
             <PureInput
                 v-model="item.quantity"
-                @blur="(e: number) => onUpdateQuantity(item.historic_asset_id, e)"
-                @onEnter="(e: number) => onUpdateQuantity(item.historic_asset_id, e)"
+                @blur="(e: number) => onUpdateQuantity(item.id, e)"
                 :isLoading="isLoading === 'quantity' + item.quantity"
                 type="number"
                 :readonly="item.is_auto_assign"
             />
         </template>
 
-        <!-- Column: Total -->
+        <!-- Column: Net -->
         <template #cell(net)="{ item }">
-            {{ item.total }}
+            {{ useLocaleStore().currencyFormat(item.currency_code, item.total) }}
         </template>
 
         <!-- Column: Action -->

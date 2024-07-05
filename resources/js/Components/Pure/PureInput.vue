@@ -150,9 +150,11 @@ const onClickCopyButton = async (text: string) => {
         </div>
 
         <!-- Slot: for icon error/success/loading in field edit -->
-        <div class="align-middle flex items-center px-1">
+        <div class="align-middle flex items-center">
             <Transition name="headlessui">
-                <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin text-xl' fixed-width aria-hidden='true' />
+                <div class="px-1">
+                    <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin text-xl' fixed-width aria-hidden='true' />
+                </div>
             </Transition>
 
             <slot name="stateIcon"/>
