@@ -357,8 +357,8 @@ class ShowPalletReturn extends OrgAction
                         'number_services'              => $palletReturn->stats->number_services,
                         'number_physical_goods'        => $palletReturn->stats->number_physical_goods,
                         'pallets_price'                => 0,
-                        'physical_goods_price'         => $palletReturn->physicalGoods->pluck('price'),
-                        'services_price'               => $palletReturn->physicalGoods->pluck('price'),
+                        'physical_goods_price'         => 0,// todo
+                        'services_price'               => 0,// todo
                         'total_pallets_price'          => 0,
                         'total_services_price'         => $palletReturn->stats->total_services_price,
                         'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,

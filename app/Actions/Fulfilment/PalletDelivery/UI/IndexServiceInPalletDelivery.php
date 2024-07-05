@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Http\Resources\Fulfilment\ServicesResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletDelivery;
@@ -59,6 +59,8 @@ class IndexServiceInPalletDelivery extends OrgAction
         $queryBuilder->where('fulfilment_transactions.parent_id', $palletDelivery->id);
         $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
         $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->join('historic_assets', 'fulfilment_transactions.historic_asset_id', '=', 'historic_assets.id');
+
         $queryBuilder->join('services', 'assets.model_id', '=', 'services.id');
         $queryBuilder->join('currencies', 'services.currency_id', '=', 'currencies.id');
 
@@ -75,30 +77,32 @@ class IndexServiceInPalletDelivery extends OrgAction
         $queryBuilder
             ->defaultSort('services.id')
             ->select([
-                'services.id',
-                'services.state',
-                'services.code',
-                'services.name',
-                'services.price',
+                'fulfilment_transactions.id',
+                'fulfilment_transactions.asset_id',
+                'fulfilment_transactions.type as asset_type',
+
+                'services.slug as asset_slug',
+                'historic_assets.code as asset_code',
+                'historic_assets.name as asset_name',
+                'historic_assets.price as asset_price',
+                'historic_assets.unit as asset_unit',
+                'historic_assets.units as asset_units',
+
                 'fulfilment_transactions.quantity',
-                'fulfilment_transactions.parent_id  pallet_delivery_id',
+                'fulfilment_transactions.parent_id  as pallet_delivery_id',
                 'currencies.code as currency_code',
 
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id','name'])
+        return $queryBuilder->allowedSorts(['id', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(
-        PalletDelivery $palletDelivery,
-        ?array $modelOperations = null,
-        $prefix = null,
-        $canEdit = false
-    ): Closure {
+    public function tableStructure(PalletDelivery $palletDelivery, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    {
         return function (InertiaTable $table) use ($palletDelivery, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
@@ -110,18 +114,11 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($palletDelivery)) {
-                        'Fulfilment' => [
-                            'title' => __("No services found"),
-                            'count' => $palletDelivery->fulfilment->shop->stats->number_services_state_active,
-                        ],
-                        'PalletDelivery' => [
-                            'icons' => ['fal fa-concierge-bell'],
-                            'title' => 'No service selected',
-                            'count' => $palletDelivery->stats->number_services,
-                        ],
-                        default => null
-                    }
+                    [
+                        'icons' => ['fal fa-concierge-bell'],
+                        'title' => 'No service selected',
+                        'count' => $palletDelivery->stats->number_services,
+                    ]
                 );
 
             $table
@@ -130,7 +127,6 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                // ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('id');
         };
@@ -139,6 +135,6 @@ class IndexServiceInPalletDelivery extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
     {
-        return ServicesResource::collection($services);
+        return FulfilmentTransactionResource::collection($services);
     }
 }

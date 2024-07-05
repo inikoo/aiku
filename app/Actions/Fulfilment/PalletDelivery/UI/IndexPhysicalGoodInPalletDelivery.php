@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -137,6 +138,6 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection
     {
-        return PhysicalGoodsResource::collection($physicalGoods);
+        return FulfilmentTransactionResource::collection($physicalGoods);
     }
 }
