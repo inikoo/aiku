@@ -32,19 +32,21 @@ use Illuminate\Support\Facades\Route;
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update');
 
+Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {
+    Route::patch('', [UpdateFulfilmentTransaction::class,'inRetina'])->name('update');
+    Route::delete('', [DeleteFulfilmentTransaction::class,'inRetina'])->name('delete');
+});
+
 Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('pallet', [StorePalletToReturn::class, 'fromRetina'])->name('pallet.store');
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
     Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
     Route::delete('pallet/{pallet:id}', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete')->withoutScopedBindings();
-
     Route::post('transaction/{historicAsset:id}', [StoreFulfilmentTransaction::class,'fromRetina'])->name('transaction.store');
-    Route::patch('transaction/{fulfilmentTransaction:id}', [UpdateFulfilmentTransaction::class,'fromRetina'])->name('transaction.update')->withoutScopedBindings();
-    Route::delete('transaction/{fulfilmentTransaction:id}', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('transaction.delete')->withoutScopedBindings();
-
-
 });
+
+
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
@@ -53,13 +55,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('multiple-pallet', [StoreMultiplePalletsFromDelivery::class, 'fromRetina'])->name('multiple-pallets.store');
     Route::patch('update', [UpdatePalletDelivery::class, 'fromRetina'])->name('update');
     Route::patch('update-timeline', [UpdatePalletDeliveryTimeline::class, 'fromRetina'])->name('timeline.update');
-
-
     Route::post('transaction/{historicAsset:id}', [StoreFulfilmentTransaction::class,'fromRetina'])->name('transaction.store');
-    Route::patch('transaction/{fulfilmentTransaction:id}', [UpdateFulfilmentTransaction::class,'fromRetina'])->name('transaction.update')->withoutScopedBindings();
-    Route::delete('transaction/{fulfilmentTransaction:id}', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('transaction.delete')->withoutScopedBindings();
-
-
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });
 
