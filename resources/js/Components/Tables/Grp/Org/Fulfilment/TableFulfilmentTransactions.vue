@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -13,7 +13,9 @@ import { faRobot } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref } from "vue"
+import { inject, ref } from "vue"
+import PureInput from '@/Components/Pure/PureInput.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faRobot)
 
@@ -28,6 +30,8 @@ const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
 
+const layout = inject('layout', layoutStructure)
+
 function serviceRoute(service: {}) {
     // console.log(route().current())
     switch (route().current()) {
@@ -41,71 +45,60 @@ function serviceRoute(service: {}) {
     }
 }
 
-
-//         <!-- Column: Shop Code -->
-
-
-// <!-- Column: Code -->
-//         <template #cell(code)="{ item: service }">
-//             <component :is="serviceRoute(service) ? Link : 'div'" :href="serviceRoute(service) || '#'" :class="serviceRoute(service) ? 'primaryLink' : ''">
-//                 {{ service['code'] }}
-//             </component>
-//         </template>
-
-//         <!-- Column: Shop Code -->
-//         <template #cell(shop_code)="{ item: service }">
-//             <Link v-if="service['shop_slug']" :href="serviceRoute(service)" class="secondaryLink">
-//                 {{ service['shop_slug'] }}
-//             </Link>
-//         </template>
-
-//         <!-- Column: Icon -->
-//         <template #cell(state)="{ item: service }">
-//             <Icon :data="service['state_icon']" />
-//         </template>
-
-//         <!-- Column: Price -->
-//         <template #cell(price)="{ item: service }">
-//             {{ useLocaleStore().currencyFormat(service['currency_code'], service['price']) }} /{{
-//                 service['unit_abbreviation'] }}
-//         </template>
-
-//         <!-- Column: Total -->
-//         <template #cell(total)="{ item: service }">
-//             {{ useLocaleStore().currencyFormat(service['currency_code'], service['total']) }}
-//         </template>
-
-//         <!-- Column: Workflow -->
-//         <template #cell(workflow)="{ item: service }">
-//             <template v-if="service['is_auto_assign']">
-//                 <FontAwesomeIcon icon='fal fa-robot' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-//                 {{ service['auto_label'] }}
-//             </template>
-//         </template>
-//         <template #cell(actions)="{ item: service }">
-//             <div v-if="props.state == 'in-process'">
-//                 <Link
-//                     :href="route(service.deleteServiceRoute.name, service.deleteServiceRoute.parameters)"
-//                     method="delete"
-//                     as="div"
-//                     :onStart="() => isActionLoading = 'delete' + service.id"
-//                     :onSuccess="() => emits('renderTableKey')"
-//                     :onFinish="() => isActionLoading = false"
-//                     v-tooltip="'Unselect this service'"
-//                     class="w-fit"
-//                 >
-//                     <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + service.id" type="negative" />
-//                 </Link>
-//             </div>
-//         </template>
+// Section: Quantity
+const isLoading = ref<string | boolean>(false)
+const onUpdateQuantity = (idHistoric: number, value: number) => {
+    router.patch(
+        route('grp.models.pallet-delivery.transaction.update', {...layout.currentParams, historicAsset: idHistoric}),
+        {
+            quantity: value
+        },
+        {
+            onStart: () => isLoading.value = 'quantity' + value,
+            onFinish: () => isLoading.value = false
+        }
+    )
+}
+const onDeleteTransaction = (idTransaction: number) => {
+    router.delete(
+        route('grp.models.pallet-delivery.transaction.delete', {...layout.currentParams, fulfilmentTransaction: idTransaction}),
+        {
+            onStart: () => isLoading.value = 'buttonReset',
+            onFinish: () => isLoading.value = false
+        }
+    )
+}
 
 </script>
 
 <template>
+    <pre>{{ data.data[0] }}</pre>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(name)="{ item: transaction }">
-            {{ transaction['asset_name'] }} ({{ useLocaleStore().currencyFormat(transaction['currency_code'],
-                transaction['asset_price'])}}/{{ transaction['unit_abbreviation'] }})
+        <template #cell(name)="{ item }">
+            {{ item['asset_name'] }} ({{ useLocaleStore().currencyFormat(item['currency_code'],
+                item['asset_price'])}}/{{ item['unit_abbreviation'] }})
+        </template>
+
+        <!-- Column: Quantity -->
+        <template #cell(quantity)="{ item }">
+            <PureInput
+                v-model="item.quantity"
+                @blur="(e: number) => onUpdateQuantity(item.historic_asset_id, e)"
+                @onEnter="(e: number) => onUpdateQuantity(item.historic_asset_id, e)"
+                :isLoading="isLoading === 'quantity' + item.quantity"
+                type="number"
+                :readonly="item.is_auto_assign"
+            />
+        </template>
+
+        <!-- Column: Total -->
+        <template #cell(net)="{ item }">
+            {{ item.total }}
+        </template>
+
+        <!-- Column: Action -->
+        <template #cell(actions)="{ item }">
+            <Button @click="() => onDeleteTransaction(item.id)" :loading="isLoading === 'buttonReset'" icon="fal fa-times" type="negative" v-tooltip="'Reset quantity'" />
         </template>
     </Table>
 </template>

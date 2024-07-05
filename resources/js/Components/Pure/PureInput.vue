@@ -29,13 +29,14 @@ const props = withDefaults(defineProps<{
     clear?:boolean
     suffix?: boolean
     step?: number
+    isLoading?: boolean
 }>(), {
     caret: true,
     type: 'text'
 })
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: string): void
+    (e: 'update:modelValue', value: string | number): void
     (e: 'blur', value: string): void
     (e: 'onEnter', value: string): void
     (e: 'input', value: string): void
@@ -128,14 +129,14 @@ const onClickCopyButton = async (text: string) => {
                 </div>
             </slot>
 
-        <slot v-if="suffix" name="suffix">
-            <div 
-                class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
-                @click="useCopyText(modelValue)"
-            >
-               suffix
-            </div>
-        </slot>
+            <slot v-if="suffix" name="suffix">
+                <div 
+                    class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
+                    @click="useCopyText(modelValue)"
+                >
+                suffix
+                </div>
+            </slot>
 
 
             <div v-if="clear && modelValue.length"
@@ -149,7 +150,11 @@ const onClickCopyButton = async (text: string) => {
         </div>
 
         <!-- Slot: for icon error/success/loading in field edit -->
-        <div class="align-middle">
+        <div class="align-middle flex items-center px-1">
+            <Transition name="headlessui">
+                <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin text-xl' fixed-width aria-hidden='true' />
+            </Transition>
+
             <slot name="stateIcon"/>
         </div>
 
