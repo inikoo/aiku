@@ -38,10 +38,9 @@ import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvel
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
 
-import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue";
-import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue";
 import axios from 'axios'
 import { Action } from '@/types/Action'
+import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
 
@@ -226,8 +225,8 @@ const changePalletType=(form,fieldName,value)=>{
 const component = computed(() => {
     const components: Component = {
         pallets: TablePalletDeliveryPallets,
-        services: TableServices,
-        physical_goods: TablePhysicalGoods,
+        services: TableFulfilmentTransactions,
+        physical_goods: TableFulfilmentTransactions,
         history: TableHistories
     }
     return components[currentTab.value]
