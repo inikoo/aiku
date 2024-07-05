@@ -36,6 +36,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
@@ -266,8 +267,9 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
-    Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store');
-    Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete');
+    Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
+    Route::patch('transaction/{historicAsset:id}', UpdateFulfilmentTransaction::class)->name('transaction.update')->withoutScopedBindings();
+    Route::delete('transaction/{fulfilmentTransaction:id}', DeleteFulfilmentTransaction::class)->name('transaction.delete')->withoutScopedBindings();
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });

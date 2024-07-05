@@ -21,6 +21,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $currency_code
  * @property mixed $quantity
  * @property mixed $id
+ * @property mixed $is_auto_assign
  */
 class FulfilmentTransactionResource extends JsonResource
 {
@@ -49,7 +50,8 @@ class FulfilmentTransactionResource extends JsonResource
             'unit_abbreviation' => $unitAbbreviation,
             'unit_label'        => $unitLabel,
             'quantity'          => $this->quantity,
-            'total'             => 99
+            'total'             => 99,
+            'is_auto_assign'    => $this->is_auto_assign,
 
 
         ];

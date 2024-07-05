@@ -91,6 +91,8 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'fulfilment_transactions.quantity',
                 'fulfilment_transactions.parent_id  as pallet_delivery_id',
                 'currencies.code as currency_code',
+                'fulfilment_transactions.is_auto_assign',
+
 
             ]);
 
