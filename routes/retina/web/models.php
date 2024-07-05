@@ -8,6 +8,7 @@
 use App\Actions\CRM\Customer\UpdateCustomerSettings;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
+use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
@@ -20,12 +21,8 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachPhysicalGoodFromPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DetachServiceFromPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SyncPhysicalGoodToPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SyncServiceToPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
@@ -42,11 +39,11 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
     Route::delete('pallet/{pallet:id}', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete')->withoutScopedBindings();
 
-    Route::post('service', [SyncServiceToPalletReturn::class, 'fromRetina'])->name('service.store');
-    Route::post('physical-goods', [SyncPhysicalGoodToPalletReturn::class, 'fromRetina'])->name('physical_good.store');
+    Route::post('transaction/{historicAsset:id}', [StoreFulfilmentTransaction::class,'fromRetina'])->name('transaction.store');
+    Route::patch('transaction/{fulfilmentTransaction:id}', [UpdateFulfilmentTransaction::class,'fromRetina'])->name('transaction.update')->withoutScopedBindings();
+    Route::delete('transaction/{fulfilmentTransaction:id}', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('transaction.delete')->withoutScopedBindings();
 
-    Route::delete('service', [DetachServiceFromPalletReturn::class, 'fromRetina'])->name('service.delete');
-    Route::delete('physical-goods', [DetachPhysicalGoodFromPalletReturn::class, 'fromRetina'])->name('physical_good.delete');
+
 });
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
@@ -59,7 +56,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 
     Route::post('transaction/{historicAsset:id}', [StoreFulfilmentTransaction::class,'fromRetina'])->name('transaction.store');
-    Route::delete('transaction/{fulfilmentTransaction:id}', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('transaction.delete');
+    Route::patch('transaction/{fulfilmentTransaction:id}', [UpdateFulfilmentTransaction::class,'fromRetina'])->name('transaction.update')->withoutScopedBindings();
+    Route::delete('transaction/{fulfilmentTransaction:id}', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('transaction.delete')->withoutScopedBindings();
 
 
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
