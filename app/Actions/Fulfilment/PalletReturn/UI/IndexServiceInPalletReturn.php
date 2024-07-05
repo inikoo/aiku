@@ -89,7 +89,8 @@ class IndexServiceInPalletReturn extends OrgAction
                 'assets.price',
                 'services.description',
                 'currencies.code as currency_code',
-                'fulfilment_transactions.quantity'
+                'fulfilment_transactions.quantity',
+                'fulfilment_transactions.historic_asset_id',
             ]);
 
 

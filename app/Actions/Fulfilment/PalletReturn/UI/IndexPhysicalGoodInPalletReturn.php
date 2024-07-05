@@ -84,7 +84,8 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
                 'assets.price',
                 'assets.unit',
                 'currencies.code as currency_code',
-                'fulfilment_transactions.quantity'
+                'fulfilment_transactions.quantity',
+                'fulfilment_transactions.historic_asset_id',
             ]);
 
         return $queryBuilder->allowedSorts(['id','price','name','state'])

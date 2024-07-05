@@ -83,7 +83,8 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'products.description',
                 'currencies.code as currency_code',
                 'fulfilment_transactions.quantity',
-                'fulfilment_transactions.parent_id  pallet_delivery_id'
+                'fulfilment_transactions.parent_id  pallet_delivery_id',
+                'fulfilment_transactions.historic_asset_id',
             ]);
 
         return $queryBuilder->allowedSorts(['id','price','name','state'])

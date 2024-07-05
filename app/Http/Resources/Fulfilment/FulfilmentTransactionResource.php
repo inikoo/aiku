@@ -22,6 +22,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $quantity
  * @property mixed $id
  * @property mixed $is_auto_assign
+ * @property mixed $historic_assets_id
  */
 class FulfilmentTransactionResource extends JsonResource
 {
@@ -52,7 +53,8 @@ class FulfilmentTransactionResource extends JsonResource
             'quantity'          => (int) $this->quantity,
             'total'             => 99,
             'is_auto_assign'    => $this->is_auto_assign,
-            'historic_asset_id' => 111111111111111111111111, // TODO
+            'historic_assets_id'=> $this->historic_assets_id
+
 
 
         ];
