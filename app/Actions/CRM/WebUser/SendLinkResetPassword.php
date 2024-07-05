@@ -28,6 +28,8 @@ class SendLinkResetPassword
         $webUser->notify(new ResetPasswordNotification($url));
     }
 
+    // to delete
+    /*
     public function getEmailData(string $subject, string $sender, string $email, string $html, string $url): array
     {
         if (preg_match_all("/{{(.*?)}}/", $html, $matches)) {
@@ -46,6 +48,7 @@ class SendLinkResetPassword
 
         return SendSesEmail::make()->getEmailData($subject, $sender, $email, $html);
     }
+    */
 
     private function replaceMergeTags($placeholder, $url): string
     {
