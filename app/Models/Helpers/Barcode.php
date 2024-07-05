@@ -10,6 +10,7 @@ namespace App\Models\Helpers;
 use App\Models\Catalogue\Asset;
 use App\Models\Goods\TradeUnit;
 use App\Models\SupplyChain\Stock;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -48,11 +50,12 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Barcode withoutTrashed()
  * @mixin Eloquent
  */
-class Barcode extends Model
+class Barcode extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use InGroup;
+    use HasHistory;
 
     protected $casts = [
         'data' => 'array',
@@ -63,6 +66,19 @@ class Barcode extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'helpers',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'number',
+        'note',
+        'assigned_at',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
