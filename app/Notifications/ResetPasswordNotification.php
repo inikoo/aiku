@@ -32,10 +32,10 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
         // all thi data should come from outboxes->email_template->published_layout
 
         $data=[
-                'subject'=>'Reset Password Notification',
-                'header'=>'You are receiving this email because we received a password reset request for your account.',
-                'action'=>'Reset Password',
-                'footer'=>'This password reset link will expire in :count minutes.',
+                'subject'=> 'Reset Password Notification',
+                'header' => 'You are receiving this email because we received a password reset request for your account.',
+                'action' => 'Reset Password',
+                'footer' => 'This password reset link will expire in :count minutes.',
         ];
 
         return (new MailMessage())
