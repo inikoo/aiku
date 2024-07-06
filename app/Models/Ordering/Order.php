@@ -145,6 +145,17 @@ class Order extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return ['ordering'];
+    }
+
+    protected array $auditInclude = [
+        'number',
+        'handing_type',
+    ];
+
+
     public function getRouteKeyName(): string
     {
         return 'slug';
