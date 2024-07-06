@@ -15,7 +15,7 @@ return new class () extends Migration {
     {
         Schema::create('stock_family_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('stock_family_id')->index();
+            $table->unsignedInteger('stock_family_id')->index();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
             $table->unsignedInteger('number_stocks')->default(0);
             foreach (StockStateEnum::cases() as $stockState) {

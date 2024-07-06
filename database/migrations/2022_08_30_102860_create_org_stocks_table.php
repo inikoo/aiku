@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('stock_id')->index()->nullable();
             $table->foreign('stock_id')->references('id')->on('stocks')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('org_stock_family_id')->index()->nullable();
+            $table->unsignedInteger('org_stock_family_id')->index()->nullable();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
 
 

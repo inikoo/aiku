@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('customer_dropshipping_stats', function (Blueprint $table) {
             $table->id();
-            $table->unsignedSmallInteger('customer_id');
+            $table->unsignedInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
             $this->dropshippingStats($table);
             $table->timestampsTz();

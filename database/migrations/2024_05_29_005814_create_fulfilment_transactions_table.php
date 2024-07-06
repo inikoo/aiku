@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('type')->idnex();
-            $table->unsignedSmallInteger('asset_id');
+            $table->unsignedInteger('asset_id');
             $table->foreign('asset_id')->references('id')->on('assets')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('historic_asset_id');
             $table->foreign('historic_asset_id')->references('id')->on('historic_assets')->onUpdate('cascade')->onDelete('cascade');

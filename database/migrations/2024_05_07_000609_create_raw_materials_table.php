@@ -26,7 +26,7 @@ return new class () extends Migration {
             $table->string('state')->default(RawMaterialStateEnum::IN_PROCESS->value);
             $table->unsignedSmallInteger('production_id')->index();
             $table->foreign('production_id')->references('id')->on('productions');
-            $table->unsignedSmallInteger('stock_id')->index()->nullable();
+            $table->unsignedInteger('stock_id')->index()->nullable();
             $table->string('code', 64)->index()->collation('und_ns');
             $table->string('description');
             $table->string('unit')->default(RawMaterialUnitEnum::UNIT->value);

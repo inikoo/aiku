@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
-            $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
+            $table->unsignedInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
             $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();

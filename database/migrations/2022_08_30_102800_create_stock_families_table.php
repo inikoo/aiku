@@ -16,7 +16,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('stock_families', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');

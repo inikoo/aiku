@@ -23,11 +23,11 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('production_id')->index();
             $table->foreign('production_id')->references('id')->on('productions')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('stock_id')->nullable()->index();
+            $table->unsignedInteger('stock_id')->nullable()->index();
             $table->foreign('stock_id')->references('id')->on('stocks')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
-            $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
+            $table->unsignedInteger('stock_family_id')->index()->nullable();
 
             $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
 

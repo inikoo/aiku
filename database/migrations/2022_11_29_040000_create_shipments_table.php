@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('shipper_id')->index()->nullable();
             $table->foreign('shipper_id')->references('id')->on('shippers');
-            $table->unsignedSmallInteger('customer_id')->index()->nullable();
+            $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
 
             $table->string('status')->default('processing')->index();

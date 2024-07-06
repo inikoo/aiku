@@ -20,7 +20,7 @@ return new class () extends Migration {
         Schema::create('org_stock_family_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table = $this->groupOrgRelationship($table);
-            $table->unsignedSmallInteger('org_stock_family_id')->index();
+            $table->unsignedInteger('org_stock_family_id')->index();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
             $table->unsignedInteger('number_org_stocks')->default(0);
             foreach (OrgStockStateEnum::cases() as $stockState) {
