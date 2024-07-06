@@ -19,9 +19,6 @@ class FetchAuroraOrder extends FetchAurora
     protected function parseModel(): void
     {
 
-
-
-
         $deliveryData = [];
 
         if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
@@ -154,6 +151,11 @@ class FetchAuroraOrder extends FetchAurora
             prefix: "Order Invoice",
             auAddressData: $this->auroraModelData,
         );
+
+        if(!$billingAddressData['country_id']){
+            $billingAddressData['country_id']=$parent->addresses->first()->country_id;
+        }
+
         $this->parsedData['order']["billing_address"] = new Address($billingAddressData);
 
         if ($handingType == OrderHandingTypeEnum::SHIPPING) {
