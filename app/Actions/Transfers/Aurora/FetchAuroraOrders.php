@@ -25,6 +25,8 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments attachments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
+    private bool $errorReported=false;
+
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Order
     {
         if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
@@ -32,7 +34,10 @@ class FetchAuroraOrders extends FetchAuroraAction
 
 
             if (!$order) {
-                print "Error order could not process $organisationSourceId\n";
+
+                if(!$this->errorReported) {
+                    $this->recordFetchError($organisationSource, $orderData, 'Order', 'fetching');
+                }
 
                 return null;
             }
@@ -87,6 +92,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                 $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
+                $this->errorReported=true;
             }
         } elseif ($orderData['parent']) {
             try {
@@ -97,9 +103,8 @@ class FetchAuroraOrders extends FetchAuroraAction
                     hydratorsDelay: $this->hydrateDelay
                 );
             } catch (Exception $e) {
-                //dd($e->getMessage());
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
-
+                $this->errorReported=true;
                 return null;
             }
         }

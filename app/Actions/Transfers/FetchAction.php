@@ -154,6 +154,21 @@ class FetchAction
 
     }
 
+    public function recordFetchError($organisationSource, $modelData, $modelType = null, $errorOn = null): void
+    {
+
+        $this->number_errors++;
+        UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
+        $organisationSource->fetch->records()->create([
+            'model_data' => $modelData,
+            'type'       => FetchRecordTypeEnum::FETCH_ERROR,
+            'source_id'  => $modelData['source_id'],
+            'model_type' => $modelType,
+            'error_on'   => $errorOn
+        ]);
+
+    }
+
     public function recordChange($organisationSource, $wasChanged): void
     {
         if ($wasChanged) {
