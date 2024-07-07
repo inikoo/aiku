@@ -152,7 +152,7 @@ class FetchAuroraOrder extends FetchAurora
             auAddressData: $this->auroraModelData,
         );
 
-        if(!$billingAddressData['country_id']){
+        if(!$billingAddressData['country_id']) {
             $billingAddressData['country_id']=$parent->addresses->first()->country_id;
         }
 
@@ -164,7 +164,7 @@ class FetchAuroraOrder extends FetchAurora
                 auAddressData: $this->auroraModelData,
             );
 
-            if(!$deliveryAddressData['country_id']){
+            if(!$deliveryAddressData['country_id']) {
                 $deliveryAddressData['country_id']=$parent->addresses->first()->country_id;
             }
 

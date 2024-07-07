@@ -25,7 +25,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomerClients extends OrgAction
 {
-    // private bool $canCreateShop = false;
     use WithCustomerSubNavigation;
     private Customer $parent;
 
@@ -82,19 +81,19 @@ class IndexCustomerClients extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customer_clients.slug')
+            ->defaultSort('customer_clients.reference')
             ->select([
                 'customer_clients.location',
                 'customer_clients.reference',
                 'customer_clients.id',
                 'customer_clients.name',
-                'customer_clients.slug',
+                'customer_clients.ulid',
                 'customers.reference as customer_reference',
                 'customers.slug as customer_slug',
                 'customer_clients.created_at'
             ])
             ->leftJoin('customers', 'customers.id', 'customer_id')
-            ->allowedSorts(['reference', 'name', 'slug', 'created_at'])
+            ->allowedSorts(['reference', 'name', 'created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -182,7 +181,6 @@ class IndexCustomerClients extends OrgAction
                     ]
                     */
                 )
-                ->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
                 ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);

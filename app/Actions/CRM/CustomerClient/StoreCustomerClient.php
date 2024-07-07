@@ -17,6 +17,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreCustomerClient extends OrgAction
@@ -28,6 +29,7 @@ class StoreCustomerClient extends OrgAction
         $address = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
+        data_set($modelData, 'ulid', Str::ulid());
 
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);

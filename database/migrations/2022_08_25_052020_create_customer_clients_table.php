@@ -17,7 +17,6 @@ return new class () extends Migration {
         Schema::create('customer_clients', function (Blueprint $table) {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
-            $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->nullable()->index();
             $table->boolean('status')->default(true)->index();
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
@@ -32,7 +31,7 @@ return new class () extends Migration {
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
-
+            $table->ulid()->index();
             $table->dateTimeTz('deactivated_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();

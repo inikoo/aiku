@@ -47,7 +47,7 @@ class IndexCustomers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('customers.id')
-            ->allowedSorts(['name', 'slug', 'id'])
+            ->allowedSorts(['name', 'id'])
             ->withPaginator(null)
             ->withQueryString();
     }

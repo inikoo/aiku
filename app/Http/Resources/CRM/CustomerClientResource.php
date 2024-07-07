@@ -11,7 +11,7 @@ use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $slug
+ * @property string $ulid
  * @property string $reference
  * @property string $name
  * @property string $contact_name
@@ -28,7 +28,7 @@ class CustomerClientResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'                   => $this->slug,
+            'ulid'                   => $this->ulid,
             'reference'              => $this->reference,
             'name'                   => $this->name,
             'contact_name'           => $this->contact_name,

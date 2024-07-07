@@ -26,8 +26,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Dropshipping\CustomerClient
@@ -35,7 +33,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $slug
  * @property string|null $reference
  * @property bool $status
  * @property int|null $shop_id
@@ -47,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property int|null $address_id
  * @property array $location
+ * @property string $ulid
  * @property Carbon|null $deactivated_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -72,7 +70,6 @@ use Spatie\Sluggable\SlugOptions;
 class CustomerClient extends Model implements Auditable
 {
     use SoftDeletes;
-    use HasSlug;
     use HasAddress;
     use HasAddresses;
     use HasUniversalSearch;
@@ -105,21 +102,9 @@ class CustomerClient extends Model implements Auditable
         'reference',
     ];
 
-    public function getSlugOptions(): SlugOptions
+    public function getRouteKeyName(): string
     {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                $slug = $this->reference;
-
-                if ($slug == '') {
-                    $slug = $this->customer->reference;
-                }
-
-                return $slug;
-            })
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(36);
+        return 'ulid';
     }
 
     protected static function booted(): void
