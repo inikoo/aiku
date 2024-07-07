@@ -52,12 +52,12 @@ class FetchAuroraOrder extends FetchAurora
             );
         }
 
-        if($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
+        $this->parsedData["parent"] = $parent;
+        if (!$parent) {
             return;
         }
 
-        $this->parsedData["parent"] = $parent;
-        if (!$parent) {
+        if($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
             return;
         }
 
@@ -163,10 +163,17 @@ class FetchAuroraOrder extends FetchAurora
                 prefix: "Order Delivery",
                 auAddressData: $this->auroraModelData,
             );
+
+            if(!$deliveryAddressData['country_id']){
+                $deliveryAddressData['country_id']=$parent->addresses->first()->country_id;
+            }
+
             $this->parsedData['order']["delivery_address"] = new Address(
                 $deliveryAddressData,
             );
         }
+
+
     }
 
     protected function fetchData($id): object|null
