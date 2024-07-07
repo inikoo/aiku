@@ -71,9 +71,7 @@ class FetchAuroraShop extends FetchAurora
             'address_link' => 'Organisation:default'
         ];
 
-        if ($this->auroraModelData->{'Store Can Collect'} === 'Yes') {
-            $settings['collect_address_link'] = 'Organisation:default';
-        }
+        $settings['collect_address_link'] = 'Organisation:default';
 
 
         $this->parsedData['shop'] = [
@@ -105,24 +103,20 @@ class FetchAuroraShop extends FetchAurora
 
 
         if ($type == ShopTypeEnum::FULFILMENT) {
-
             foreach (
                 DB::connection('aurora')
                     ->table('Warehouse Dimension')
                     ->select('Warehouse Key as source_id')
                     ->orderBy('source_id')->get() as $shopData
             ) {
-
                 FetchAuroraWarehouses::run($this->organisationSource, $shopData->source_id);
             }
             $this->organisation->refresh();
 
             /** @var Warehouse $warehouse */
-            $warehouse                              =$this->organisation->warehouses()->first();
+            $warehouse                              = $this->organisation->warehouses()->first();
             $this->parsedData['shop']['warehouses'] = [$warehouse->id];
         }
-
-
     }
 
 

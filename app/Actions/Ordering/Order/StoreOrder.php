@@ -167,6 +167,17 @@ class StoreOrder extends OrgAction
         return $rules;
     }
 
+    public function prepareForValidation(): void
+    {
+        if($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collection_address_id) {
+            abort(400, 'Collection orders require a collection address');
+        }
+
+        if($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collectionAddress->country_id) {
+            abort(400, 'Invalid collection address');
+        }
+
+    }
 
     public function action(
         Shop|Customer|CustomerClient $parent,
