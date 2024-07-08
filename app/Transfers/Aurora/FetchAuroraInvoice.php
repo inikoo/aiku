@@ -15,12 +15,11 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoice extends FetchAurora
 {
-    protected function parseModel(): void
+    protected function parseInvoiceModel($forceWithTransactions): void
     {
 
 
         $shop= $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Invoice Store Key'});
-
 
         if($shop->type!=ShopTypeEnum::FULFILMENT) {
 
@@ -35,7 +34,7 @@ class FetchAuroraInvoice extends FetchAurora
             }
 
 
-            $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Order Key'});
+            $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Order Key'}, forceTransactions: $forceWithTransactions);
 
 
 
@@ -96,4 +95,16 @@ class FetchAuroraInvoice extends FetchAurora
             ->table('Invoice Dimension')
             ->where('Invoice Key', $id)->first();
     }
+
+    public function fetchInvoice(int $id, bool $forceWithTransactions=true): ?array
+    {
+        $this->auroraModelData = $this->fetchData($id);
+
+        if ($this->auroraModelData) {
+            $this->parseInvoiceModel($forceWithTransactions);
+        }
+
+        return $this->parsedData;
+    }
+
 }

@@ -50,7 +50,7 @@ class UpdateInvoice extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'number'           => [
                 'sometimes',
                 'string',
@@ -71,13 +71,20 @@ class UpdateInvoice extends OrgAction
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
 
         ];
+
+        if (!$this->strict) {
+            $rules['number'] = ['required', 'max:64', 'string'];
+        }
+
+        return $rules;
     }
 
-    public function action(Invoice $invoice, array $modelData, int $hydratorsDelay = 0): Invoice
+    public function action(Invoice $invoice, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->invoice        = $invoice;
+        $this->strict         = $strict;
 
         $this->initialisationFromShop($invoice->shop, $modelData);
 

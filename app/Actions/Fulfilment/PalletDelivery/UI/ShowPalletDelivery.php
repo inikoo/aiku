@@ -401,17 +401,19 @@ class ShowPalletDelivery extends OrgAction
 
                 'rental_lists'         => $rentalList,
                 'service_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.services.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.pallet-delivery.services.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
-                        'fulfilment'   => $palletDelivery->fulfilment->slug
+                        'fulfilment'   => $palletDelivery->fulfilment->slug,
+                        'palletDelivery' => $palletDelivery->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.pallet-delivery.physical-goods.index',
                     'parameters' => [
                         'organisation' => $palletDelivery->organisation->slug,
-                        'fulfilment'   => $palletDelivery->fulfilment->slug
+                        'fulfilment'   => $palletDelivery->fulfilment->slug,
+                        'palletDelivery' => $palletDelivery->slug
                     ]
                 ],
 

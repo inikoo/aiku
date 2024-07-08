@@ -37,6 +37,9 @@ import PureInput from "@/Components/Pure/PureInput.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import Popover from "@/Components/Popover.vue"
 import { Tabs as TSTabs } from "@/types/Tabs"
+import { Action } from "@/types/Action"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import axios from "axios"
 
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
@@ -46,9 +49,10 @@ const props = defineProps<{
     pallets?: {}
     stored_items?: {}
     services?: {}
-    service_lists?: {}
-    physical_good_lists?: {}
+    // service_lists?: {}
+    service_list_route: routeType
     physical_goods?: {}
+    physical_good_list_route: routeType
     data: {
         data: PalletReturn
     }
@@ -71,9 +75,11 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
 const loading = ref(false)
+const isLoadingButton = ref<string | boolean>(false)
+const isLoadingData = ref<string | boolean>(false)
 
-const formAddService = useForm({ service_id: '', quantity: 1 })
-const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
+const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 
 const component = computed(() => {
     const components: Component = {
@@ -94,6 +100,8 @@ watch(
     },
     { deep: true }
 )
+
+
 
 
 // Method: Add single service
@@ -136,6 +144,86 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
     })
 }
 
+
+// Tabs: Services
+const dataServiceList = ref([])
+const onOpenModalAddService = async () => {
+    isLoadingData.value = 'addService'
+    try {
+        const xxx = await axios.get(
+            route(props.service_list_route.name, props.service_list_route.parameters)
+        )
+        dataServiceList.value = xxx?.data?.data || []
+    } catch (error) {
+        console.log('error on open add service', error)
+    }
+    isLoadingData.value = false
+}
+const onSubmitAddService = (data: Action, closedPopover: Function) => {
+    const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
+    console.log('vvv', data.route?.name)
+    console.log('vvv', dataServiceList.value.filter(service => service.id == formAddService.service_id)[0])
+    
+    formAddService.historic_asset_id = selectedHistoricAssetId
+    isLoadingButton.value = 'addService'
+
+    formAddService.post(
+        route(data.route?.name, {...data.route?.parameters }),
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                closedPopover()
+                formAddService.reset()
+            },
+            onError: (errors) => {
+                console.error('Error during form submission:', errors)
+            },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
+        }
+    )
+}
+
+
+// Tabs: Physical Goods
+const dataPGoodList = ref([])
+const onOpenModalAddPGood = async () => {
+    isLoadingData.value = 'addPGood'
+    try {
+        const xxx = await axios.get(
+            route(props.physical_good_list_route.name, props.physical_good_list_route.parameters)
+        )
+        dataPGoodList.value = xxx.data.data
+    } catch (error) {
+        
+    }
+    isLoadingData.value = false
+}
+const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
+    const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
+    console.log('vvv', data.route?.name)
+    console.log('vvv', dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0])
+    formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
+
+    isLoadingButton.value = 'addPGood'
+    formAddPhysicalGood.post(
+        route( data.route?.name, data.route?.parameters ),
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                closedPopover()
+                formAddPhysicalGood.reset()
+                isLoadingButton.value = false
+            },
+            onError: (errors) => {
+                isLoadingButton.value = false
+                console.error('Error during form submission:', errors)
+            },
+        }
+    )
+}
+
 </script>
 
 <template>
@@ -160,8 +248,9 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
             <Popover v-if="currentTab === 'services'" width="w-full">
-                <template #button>
+                <template #button="{ open }">
                     <Button
+                        @click="() => open ? false : onOpenModalAddService()"
                         :style="action.style"
                         :label="action.label"
                         :icon="action.icon"
@@ -177,11 +266,14 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                             <PureMultiselect
                                 v-model="formAddService.service_id"
                                 autofocus
+                                caret
+                                required
+                                searchable
                                 placeholder="Services"
-                                :options="props.service_lists"
+                                :options="dataServiceList"
                                 label="name"
                                 valueProp="id"
-                                @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                                @keydown.enter="() => onSubmitAddService(action, closed)"
                             />
                             <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                 {{ formAddService.errors.service_id }}
@@ -192,7 +284,7 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                             <PureInput
                                 v-model="formAddService.quantity"
                                 placeholder="Qty"
-                                @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                                @keydown.enter="() => onSubmitAddService(action, closed)"
                             />
                             <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
                                 {{ formAddService.errors.quantity }}
@@ -201,11 +293,16 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                         <div class="flex justify-end mt-3">
                             <Button
                                 :style="'save'"
-                                :loading="loading"
+                                :loading="isLoadingButton == 'addService'"
                                 :label="'save'"
                                 full
-                                @click="() => handleFormSubmitAddService(action, closed)"
+                                @click="() => onSubmitAddService(action, closed)"
                             />
+                        </div>
+                            
+                        <!-- Loading: fetching service list -->
+                        <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                            <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                         </div>
                     </div>
                 </template>
@@ -217,8 +314,9 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
-                    <template #button>
+                    <template #button="{ open }">
                         <Button
+                            @click="open ? false : onOpenModalAddPGood()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -234,22 +332,33 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                                 <PureMultiselect
                                     v-model="formAddPhysicalGood.outer_id"
                                     autofocus
+                                    caret
+                                    required
+                                    searchable
                                     placeholder="Physical Goods"
-                                    :options="props.physical_good_lists"
+                                    :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action, closed)" />
-                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
-                                   class="mt-2 text-sm text-red-600">
+                                    @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)" 
+                                >
+                                    <template #label="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-gray-400">({{ value.code }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                    </template>
+                                </PureMultiselect>
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
                             </div>
                             <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddPhysicalGood.quantity"
                                     placeholder="Qty"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action, closed)"
+                                    @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.quantity }}
@@ -258,11 +367,16 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                             <div class="flex justify-end mt-3">
                                 <Button
                                     :style="'save'"
-                                    :loading="loading"
+                                    :loading="isLoadingButton == 'addPGood'"
                                     :label="'save'"
                                     full
-                                    @click="() => handleFormSubmitAddPhysicalGood(action, closed)"
+                                    @click="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
+                            </div>
+
+                            <!-- Loading: fetching pgood list -->
+                            <div v-if="isLoadingData === 'addPGood'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
                         </div>
                     </template>

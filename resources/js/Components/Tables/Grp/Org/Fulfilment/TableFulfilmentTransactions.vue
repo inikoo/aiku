@@ -30,20 +30,20 @@ const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
 
-const layout = inject('layout', layoutStructure)
+// const layout = inject('layout', layoutStructure)
 
-function serviceRoute(service: {}) {
-    // console.log(route().current())
-    switch (route().current()) {
+// function serviceRoute(service: {}) {
+//     // console.log(route().current())
+//     switch (route().current()) {
 
-        case "grp.org.fulfilments.show.billables.services.index":
-            return route(
-                'grp.org.fulfilments.show.billables.services.show',
-                [route().params['organisation'], route().params['fulfilment'], service.slug])
-        default:
-            return null
-    }
-}
+//         case "grp.org.fulfilments.show.billables.services.index":
+//             return route(
+//                 'grp.org.fulfilments.show.billables.services.show',
+//                 [route().params['organisation'], route().params['fulfilment'], service.slug])
+//         default:
+//             return null
+//     }
+// }
 
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
@@ -54,7 +54,7 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
             quantity: value
         },
         {
-            onStart: () => isLoading.value = 'quantity' + value,
+            onStart: () => isLoading.value = 'quantity' + idFulfilmentTransaction,
             onFinish: () => isLoading.value = false
         }
     )
@@ -91,7 +91,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
                 v-if="state === 'in-process'"
                 v-model="item.quantity"
                 @blur="(e: number) => onUpdateQuantity(item.id, e)"
-                :isLoading="isLoading === 'quantity' + item.quantity"
+                :isLoading="isLoading === 'quantity' + item.id"
                 type="number"
                 :readonly="item.is_auto_assign"
             />
@@ -107,6 +107,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">
             <Button
+                v-if="!item.is_auto_assign"
                 @click="() => onDeleteTransaction(item.id)"
                 :loading="isLoading === 'buttonReset' + item.id"
                 icon="fal fa-times"
