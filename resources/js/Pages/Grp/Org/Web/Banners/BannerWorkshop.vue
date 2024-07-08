@@ -11,7 +11,7 @@ import {ref, reactive, onBeforeMount, watch, onBeforeUnmount, computed} from "vu
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import {capitalize} from "@/Composables/capitalize"
 import {library} from "@fortawesome/fontawesome-svg-core"
-/* import BannerWorkshopComponent from '@/Components/Workshop/BannerWorkshopComponent.vue' */
+import BannerWorkshopComponent from '@/Components/Banners/BannerWorkshopComponent.vue'
 import {useLayoutStore} from "@/Stores/layout"
 import {cloneDeep} from "lodash"
 
@@ -47,8 +47,8 @@ const comment = ref('')
 const loadingState = ref(false)
 const isSetData = ref(false)
 
+
 const routeExit = props.pageHead.actions.find((item) => item.style == "exit")
-const dbPath = 'customers' + '/' + useLayoutStore().user.customer.ulid + '/banner_workshop/' + props.banner.slug
 const data = reactive(cloneDeep(props.bannerLayout))
 let timeoutId: any
 
@@ -68,12 +68,6 @@ const sendDataToServer = async () => {
     form.patch(
         route(props.publishRoute['name'], props.publishRoute['parameters']), {
             onSuccess: async () => {
-                try {
-                    await set(getDbRef(dbPath), {published_hash: compCurrentHash.value})
-                } catch (error) {
-                    console.log("============")
-                    console.log(error)
-                }
                 isLoading.value = false
                 router.visit(route(routeExit['route']['name'], routeExit['route']['parameters']))
                 notify({
@@ -98,19 +92,9 @@ const fetchInitialData = async () => {
     try {
         isSetData.value = true
         loadingState.value = true
-
-        const snapshot = await get(getDbRef(dbPath))
-
         Object.assign(data, newData)
-
-        await set(getDbRef(dbPath), {...[], ...newData})
-
-
     } catch (error) {
-
         Object.assign(data, cloneDeep(props.bannerLayout))
-
-
     } finally {
         isSetData.value = false
         loadingState.value = false
@@ -138,33 +122,8 @@ const handleKeyDown = () => {
     clearTimeout(timeoutId)
 }
 
-const updateData = async () => {
-    try {
-        handleKeyDown()
-        if (data && isSetData.value === false) {
-            const snapshot = await get(getDbRef(dbPath))
-            if (snapshot.exists()) {
-                const firebaseData = snapshot.val()
-                await set(getDbRef(dbPath), {...firebaseData, ...data})
-                if (props.banner.state == 'unpublished') {
-                    clearTimeout(timeoutId)
-                    timeoutId = setTimeout(() => {
-                        autoSave()
-                    }, 5000)
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Error updating data:', error)
-    }
-}
 
-onValue(getDbRef(dbPath), (snapshot) => {
-    if (snapshot.exists()) {
-        const firebaseData = snapshot.val()
-        Object.assign(data, {...data, ...firebaseData})
-    }
-})
+
 
 const autoSave = () => {
     const form = useForm(deleteUser());
@@ -177,13 +136,8 @@ const autoSave = () => {
         })
 }
 
-watch(data, updateData, {deep: true})
+/* watch(data, {deep: true}) */
 
-
-// const validationState=()=>{
-//     if(props.banner.state !== 'live') sendDataToServer()
-//     else isPopoverOpen.value = true
-// }
 
 const intervalAutoSave = ref(null)
 
@@ -209,17 +163,8 @@ const compIsDataFirstTimeCreated = computed(() => {
     return compCurrentHash.value == "fd186208ae9dab06d40e49141f34bef9"
 })
 
-const setDataBeforeleaves=()=>{
-    const newData = deleteUser()
-    Object.assign(data,newData)
-    updateData()
-
-}
-
-window.addEventListener('beforeunload', setDataBeforeleaves())
 
 onBeforeUnmount(() => {
-    setDataBeforeleaves()
     stopInterval()
 })
 
@@ -228,9 +173,8 @@ onBeforeUnmount(() => {
 
 <template layout="CustomerApp">
     <Head :title="capitalize(title)"/>
-    <!-- <pre>{{ props.banner.type }}</pre> -->
     <PageHeading :data="pageHead">
-        <template #other="{ dataPageHead: head }">
+       <!--  <template #other="{ dataPageHead: head }">
             <Publish
                 v-if="data.components.length > 0"
                 v-model="comment"
@@ -240,7 +184,7 @@ onBeforeUnmount(() => {
                 :saveFunction="sendDataToServer"
                 :firstPublish="banner.state == 'unpublished'"
             />
-        </template>
+        </template> -->
     </PageHeading>
 
     <section>
@@ -249,12 +193,12 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-else>
-         <!--    <BannerWorkshopComponent
+            <BannerWorkshopComponent
                 :data="data"
                 :imagesUploadRoute="imagesUploadRoute"
                 :user="user.username"
                 :banner="banner"
-            /> -->
+            />
         </div>
     </section>
 </template>

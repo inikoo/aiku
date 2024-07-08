@@ -7,9 +7,9 @@
 <script setup lang="ts">
 import { ref, watch, computed, toRef, onMounted } from 'vue'
 import { get } from 'lodash'
-import SlideCorner from "@/Components/Slider/SlideCorner.vue"
+/* import SlideCorner from "@/Components/Slider/SlideCorner.vue" */
 import Image from "@/Components/Image.vue"
-import CentralStage from "@/Components/Slider/CentralStage.vue"
+/* import CentralStage from "@/Components/Slider/CentralStage.vue" */
 import { breakpointType } from '@/Composables/useWindowSize'
 import { useRemoveHttps } from '@/Composables/useRemoveHttps'
 import { useWindowSize } from '@vueuse/core'
@@ -26,7 +26,7 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import SlideControls from '@/Components/Slider/Corners/SlideControls.vue'
+/* import SlideControls from '@/Components/Slider/Corners/SlideControls.vue' */
 
 
 
@@ -118,85 +118,8 @@ const compWidthBanner = computed(() => {
 </script>
 
 <template>
-    <div class="h-full max-h-full max-w-full relative shadow overflow-hidden mx-auto transition-all duration-200 ease-in-out" :style="{
-        backgroundColor: props.data.common.spaceColor,
-        aspectRatio:
-            $props.view == 'mobile' ? '1/1'
-            : $props.view == 'tablet' ? compHandleBannerLessSlide.length >= 3 ? '3/1' : `${compHandleBannerLessSlide.length}/1`
-            : $props.view == 'desktop' ? compHandleBannerLessSlide.length >= 4 ? '4/1' : `${compHandleBannerLessSlide.length}/1`
-            : `${compWidthBanner}/1`
-        }">
-        <Swiper ref="swiperRef"
-            :key="'banner' + intSwiperKey"
-            :slideToClickedSlide="false"
-            :spaceBetween="get(data,['common','spaceBetween']) ? data.common.spaceBetween : 0"
-            :slidesPerView="compSlidesPerView"
-            :centeredSlides="false"
-            :loop="compHandleBannerLessSlide.length > compSlidesPerView"
-            :autoplay="{
-                delay: data.delay,
-                disableOnInteraction: false,
-            }"
-            :pagination="get(data, ['navigation', 'bottomNav', 'value'], false) && get(data, ['navigation', 'bottomNav', 'type'], false) == 'bullets' ? {  // Render Navigation (bullet)
-                clickable: true,
-                renderBullet: (index, className) => {
-                    return `<span class='${className}'></span>`
-                },
-            } : false"
-            :navigation="!data.navigation || data.navigation?.sideNav?.value"
-            :modules="[Autoplay, Pagination, Navigation]"
-            class="mySwiper h-full w-full"
-        >
-            <SwiperSlide v-for="component in compHandleBannerLessSlide" :key="component.id"
-                class="h-full overflow-hidden aspect-square">
-
-                <!-- Section: image or background -->
-                <div v-if="get(component, ['layout', 'backgroundType', 'desktop'], 'image') === 'image'"
-                    class="relative w-full h-full">
-                    <Image :src="get(component, ['image', 'desktop', 'source'], null)"
-                        alt="Wowsbar" />
-                </div>
-                <div v-else
-                    :style="{ background: get(component, ['layout', 'background', 'desktop'], 'gray') }"
-                    class="w-full h-full" />
-
-                <!-- Section: Not Visible (for workshop) -->
-                <div v-if="get(component, ['visibility'], true) === false"
-                    class="absolute h-full w-full bg-gray-800/50 z-10 " />
-                <div class="z-[11] absolute left-7 flex flex-col gap-y-2">
-                    <FontAwesomeIcon v-if="get(component, ['visibility'], true) === false" icon='fas fa-eye-slash'
-                        class=' text-orange-400 text-4xl' aria-hidden='true' />
-                    <span v-if="get(component, ['visibility'], true) === false"
-                        class="text-orange-400/60 text-sm italic select-none" aria-hidden='true'>
-                        <FontAwesomeIcon icon='far fa-exclamation-triangle' class='' aria-hidden='true' />
-                        Not visible
-                    </span>
-                </div>
-
-                <!-- <FontAwesomeIcon v-if="!!component?.layout?.link" icon='far fa-external-link' class='text-gray-300/50 text-xl absolute top-2 right-2' aria-hidden='true' /> -->
-                <a target="_top" v-if="!!component?.layout?.link" :href="`https://${useRemoveHttps(component?.layout?.link)}`" class="absolute bg-transparent w-full h-full" />
-
-                <SlideCorner v-for="(slideCorner, position) in filteredNulls(component?.layout?.corners)"
-                    :position="position" :corner="slideCorner" />
-
-                <!-- CentralStage: slide-centralstage (prioritize) and common-centralStage -->
-                <CentralStage
-                    v-if="component?.layout?.centralStage?.title?.length > 0 || component?.layout?.centralStage?.subtitle?.length > 0"
-                    :data="component?.layout?.centralStage" />
-                <CentralStage
-                    v-else-if="data.common?.centralStage?.title?.length > 0 || data.common?.centralStage?.subtitle?.length > 0"
-                    :data="data.common?.centralStage" />
-            </SwiperSlide>
-
-            <div v-if="data.navigation?.bottomNav?.value && data.navigation?.bottomNav?.type == 'buttons'" class="absolute bottom-1 left-1/2 -translate-x-1/2 z-10">
-                <SlideControls :dataBanner="data" :swiperRef="swiperRef" />
-            </div>
-        </Swiper>
-
-        <!-- Reserved Corner: Button Controls -->
-        <SlideCorner class="z-10" v-for="(corner, position) in filteredNulls(data.common?.corners)" :position="position"
-            :corner="corner" :swiperRef="swiperRef" />
-    </div>
+   
+   sdfsdf
 </template>
 
 <style lang="scss" scoped>
