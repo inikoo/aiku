@@ -116,6 +116,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
+ * @property int $number_transactions
  * @property int $number_services
  * @property int $number_physical_goods
  * @property string $total_physical_goods_price
