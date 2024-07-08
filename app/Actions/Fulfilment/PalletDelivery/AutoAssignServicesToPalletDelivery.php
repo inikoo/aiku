@@ -55,14 +55,17 @@ class AutoAssignServicesToPalletDelivery extends OrgAction
             if($transaction->historic_asset_id!=$asset->current_historic_asset_id) {
 
                 DeleteFulfilmentTransaction::run($transaction);
-                StoreFulfilmentTransaction::make()->action($palletDelivery, $asset->historicAsset, $modelData);
+                data_set($modelData,'historic_asset_id',$asset->current_historic_asset_id);
+                StoreFulfilmentTransaction::make()->action($palletDelivery,  $modelData);
             } else {
                 UpdateFulfilmentTransaction::make()->action($transaction, $modelData);
             }
 
 
         } else {
-            StoreFulfilmentTransaction::make()->action($palletDelivery, $asset->historicAsset, $modelData);
+            data_set($modelData,'historic_asset_id',$asset->current_historic_asset_id);
+
+            StoreFulfilmentTransaction::make()->action($palletDelivery, $modelData);
 
         }
 
