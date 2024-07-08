@@ -7,24 +7,31 @@
 <script setup lang="ts">
 import { ref, watch, toRef, computed, nextTick, onMounted } from 'vue'
 import { get } from 'lodash'
-import SlideCorner from "@/Components/Slider/SlideCorner.vue"
+
+
 import Image from "@/Components/Image.vue"
-import CentralStage from "@/Components/Slider/CentralStage.vue"
 import { BannerWorkshop, CornersData } from '@/types/BannerWorkshop'
 import { useRemoveHttps } from '@/Composables/useRemoveHttps'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faEyeSlash } from '@fas'
-import { faExternalLink, faExclamationTriangle } from '@far'
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faExternalLink, faEyeSlash, faExclamationTriangle)
 
+import { library } from '@fortawesome/fontawesome-svg-core'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import SlideControls from '@/Components/Slider/Corners/SlideControls.vue'
+
+import SlideControls from '@/Components/Banners/Slider/Corners/SlideControls.vue'
+import CentralStage from "@/Components/Banners/Slider/CentralStage.vue"
+import SlideCorner from "@/Components/Banners/Slider/SlideCorner.vue"
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faEyeSlash } from '@fas'
+import { faExternalLink, faExclamationTriangle } from '@far'
+
+library.add(faExternalLink, faEyeSlash, faExclamationTriangle)
+
+
 
 const props = defineProps<{
     production?: boolean

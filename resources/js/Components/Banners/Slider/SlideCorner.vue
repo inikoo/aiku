@@ -8,10 +8,10 @@
 
 import { computed } from 'vue'
 // import SlideControls from "@/Components/Slider/Corners/SlideControls.vue";
-import LinkButton from "@/Components/Slider/Corners/LinkButton.vue";
-import CornerText from "@/Components/Slider/Corners/CornerText.vue";
-import CornerFooter from "@/Components/Slider/Corners/CornerFooter.vue";
-import Ribbon from "@/Components/Slider/Corners/Ribbon.vue";
+import LinkButton from "@/Components/Banners/Slider/Corners/LinkButton.vue";
+import CornerText from "@/Components/Banners/Slider/Corners/CornerText.vue";
+import CornerFooter from "@/Components/Banners/Slider/Corners/CornerFooter.vue";
+import Ribbon from "@/Components/Banners/Slider/Corners/Ribbon.vue";
 import { get } from 'lodash'
 import { CornerData } from '@/types/BannerWorkshop'
 

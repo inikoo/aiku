@@ -38,7 +38,7 @@
 
       <Table :resource="data" :name="tab" class="mt-5">
           <template #cell(name)="{ item: banner }">
-              <Link :href="bannerRoute(banner)" :id="banner['slug']" class="specialUnderlineCustomer py-4 px-2 whitespace-nowrap">
+              <Link :href="bannerRoute(banner)" :id="banner['slug']" class="primaryLink">
                   {{ banner['name'] }}
               </Link>
           </template>
