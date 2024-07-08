@@ -101,7 +101,7 @@ class IndexPalletsInReturn extends OrgAction
                 'title' => '',
                 'count' => match (class_basename($palletReturn)) {
                     'FulfilmentCustomer' => $palletReturn->number_pallets,
-                    default => $palletReturn->stats->number_pallets
+                    default              => $palletReturn->stats->number_pallets
                 }
             ];
 
