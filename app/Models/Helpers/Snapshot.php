@@ -9,10 +9,14 @@ namespace App\Models\Helpers;
 
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Http\Resources\Web\SlideResource;
+use App\Models\Web\Slide;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Arr;
 
 /**
  * App\Models\Helpers\Snapshot
@@ -97,6 +101,26 @@ class Snapshot extends Model
         return $this->hasOne(SnapshotStats::class);
     }
 
+    public function slides(): HasMany
+    {
+        return $this->hasMany(Slide::class);
+    }
 
+    public function compiledLayout(): array|string
+    {
+        switch (class_basename($this->parent)) {
+            case 'Banner':
+                $slides         = $this->slides()->where('visibility', true)->get();
+                $compiledLayout = $this->layout;
+                data_set($compiledLayout, 'components', json_decode(SlideResource::collection($slides)->toJson(), true));
+                data_set($compiledLayout, 'type', $this->parent->type);
 
+                return $compiledLayout;
+            case 'Website':
+            case 'Webpage':
+                return Arr::get($this->layout, 'html');
+            default:
+                return [];
+        }
+    }
 }

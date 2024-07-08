@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilmentTransaction extends OrgAction
 {
-    public function handle(PalletDelivery|PalletReturn $parent,  array $modelData): FulfilmentTransaction
+    public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction
     {
         $historicAsset= HistoricAsset::find($modelData['historic_asset_id']);
 

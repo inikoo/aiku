@@ -9,6 +9,9 @@ use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Mail\Outbox\UI\IndexOutboxes;
 use App\Actions\Mail\Outbox\UI\ShowOutbox;
+use App\Actions\Web\Banner\UI\CreateBanner;
+use App\Actions\Web\Banner\UI\IndexBanners;
+use App\Actions\Web\Banner\UI\ShowBannerWorkshop;
 use App\Actions\Web\Webpage\UI\CreateWebpage;
 use App\Actions\Web\Webpage\UI\EditWebpage;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
@@ -63,4 +66,10 @@ Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
 Route::prefix('{website}/web-users')->name('web_users.')->group(function () {
     Route::get('', IndexWebUsers::class)->name('index');
     Route::get('{webUser}', ShowWebUser::class)->name('show');
+});
+
+Route::prefix('{website}/banners')->name('banners.')->group(function () {
+    Route::get('', IndexBanners::class)->name('index');
+    Route::get('/create', CreateBanner::class)->name('create');
+    Route::get('/{banner}/workshop', ShowBannerWorkshop::class)->name('workshop');
 });

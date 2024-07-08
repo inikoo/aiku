@@ -14,46 +14,39 @@
   import Image from "@/Components/Image.vue"
   import {useFormatTime} from '@/Composables/useFormatTime'
   import {useLocaleStore} from '@/Stores/locale'
-  
-  
+
+
   const locale = useLocaleStore()
-  
+
   library.add(faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter)
-  
+
   const props = defineProps<{
       data: object,
       tab?: string
   }>()
-  
-  
+
+
   function bannerRoute(banner: Banner) {
       return route(
-          'customer.banners.banners.show',
-          [banner.slug]);
+          'grp.org.shops.show.web.banners.workshop',
+          [route().params['organisation'], route().params['shop'], route().params['website'], banner.slug]);
   }
-  
-  function websiteRoute(banner: Banner, slug) {
-      return route(
-          'customer.banners.websites.show',
-          [slug]);
-  }
-  
-  
+
   </script>
-  
+
   <template>
-  
+
       <Table :resource="data" :name="tab" class="mt-5">
           <template #cell(name)="{ item: banner }">
               <Link :href="bannerRoute(banner)" :id="banner['slug']" class="specialUnderlineCustomer py-4 px-2 whitespace-nowrap">
                   {{ banner['name'] }}
               </Link>
           </template>
-  
+
           <template #cell(state)="{ item: banner }">
               <Icon :data="banner['state_icon']" class="px-1"/>
           </template>
-  
+
           <template #cell(image_thumbnail)="{ item: banner }">
               <div class="h-11 overflow-hidden aspect-[4/1]">
                   <Image v-if="banner['image_thumbnail']"  :src="banner['image_thumbnail']"/>
@@ -65,14 +58,14 @@
                       </defs>
                       <rect width="100%" height="100%" fill="url(#pattern_mQij)" :opacity="0.4" />
                   </svg>
-  
+
               </div>
           </template>
-  
+
           <template #cell(websites)="{ item: banner }">
               <Link v-for="website in banner['websites']" :href="websiteRoute(banner,website.slug)"  class="specialUnderlineCustomer py-4 px-2 mr-2" >{{website.name}}</Link>
           </template>
-  
+
           <template #cell(date)="{ item:banner }">
               <div class="text-gray-500">
                   {{ useFormatTime(banner['date'], { localeCode: locale.language.code, formatTime: 'hm' }) }}
@@ -80,9 +73,8 @@
               </div>
           </template>
       </Table>
-  
-  
+
+
   </template>
-  
-  
-  
+
+

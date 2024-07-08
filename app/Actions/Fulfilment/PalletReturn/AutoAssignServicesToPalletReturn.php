@@ -5,48 +5,47 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDelivery;
+namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Service;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\FulfilmentTransaction;
+use App\Models\Fulfilment\PalletReturn;
 
-class AutoAssignServicesToPalletDelivery extends OrgAction
+class AutoAssignServicesToPalletReturn extends OrgAction
 {
-    public function handle(PalletDelivery  $palletDelivery, $subject): PalletDelivery
+    public function handle(PalletReturn  $palletReturn, $subject): PalletReturn
     {
-
-
+        // dd($subject->type);
         /** @var Service $service */
-        $service=$palletDelivery->fulfilment->shop->services()->where([
+        $service=$palletReturn->fulfilment->shop->services()->where([
             ['is_auto_assign', true],
-            ['auto_assign_trigger', class_basename($palletDelivery)],
+            ['auto_assign_trigger', class_basename($palletReturn)],
             ['auto_assign_subject', class_basename($subject)],
             ['auto_assign_subject_type', $subject->type]
         ])->first();
 
         if(!$service) {
-            return $palletDelivery;
+            return $palletReturn;
         }
 
         $asset    =$service->asset;
-        $quantity = $palletDelivery->pallets()->where('type', $subject->type)->count();
+        $quantity = $palletReturn->pallets()->where('type', $subject->type)->count();
         data_set($modelData, 'quantity', $quantity);
 
 
         /** @var FulfilmentTransaction $transaction */
-        $transaction=$palletDelivery->transactions()->where('asset_id', $asset->id)->first();
+        $transaction=$palletReturn->transactions()->where('asset_id', $asset->id)->first();
 
         if($quantity == 0) {
             if($transaction) {
                 DeleteFulfilmentTransaction::run($transaction);
             }
 
-            return $palletDelivery;
+            return $palletReturn;
         }
 
 
@@ -55,24 +54,24 @@ class AutoAssignServicesToPalletDelivery extends OrgAction
             if($transaction->historic_asset_id!=$asset->current_historic_asset_id) {
 
                 DeleteFulfilmentTransaction::run($transaction);
-                data_set($modelData, 'historic_asset_id', $asset->current_historic_asset_id);
-                StoreFulfilmentTransaction::make()->action($palletDelivery, $modelData);
+                data_set($modelData,'historic_asset_id',$asset->current_historic_asset_id);
+                StoreFulfilmentTransaction::make()->action($palletReturn,  $modelData);
             } else {
                 UpdateFulfilmentTransaction::make()->action($transaction, $modelData);
             }
 
 
         } else {
-            data_set($modelData, 'historic_asset_id', $asset->current_historic_asset_id);
+            data_set($modelData,'historic_asset_id',$asset->current_historic_asset_id);
 
-            StoreFulfilmentTransaction::make()->action($palletDelivery, $modelData);
+            StoreFulfilmentTransaction::make()->action($palletReturn, $modelData);
 
         }
 
 
 
 
-        return $palletDelivery;
+        return $palletReturn;
     }
 
 

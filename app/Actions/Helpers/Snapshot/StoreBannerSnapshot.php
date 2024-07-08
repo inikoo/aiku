@@ -7,9 +7,9 @@
 
 namespace App\Actions\Helpers\Snapshot;
 
-use App\Actions\Portfolio\Slide\StoreSlide;
+use App\Actions\Web\Slide\StoreSlide;
 use App\Models\Helpers\Snapshot;
-use App\Models\Portfolio\Banner;
+use App\Models\Web\Banner;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,7 +19,6 @@ class StoreBannerSnapshot
 
     public function handle(Banner $banner, array $modelData, ?array $slides): Snapshot
     {
-
         data_set(
             $modelData,
             'checksum',
@@ -30,7 +29,7 @@ class StoreBannerSnapshot
             )
         );
 
-        data_set($modelData, 'customer_id', $banner->customer_id);
+        data_set($modelData, 'scope', 'banner');
 
         $snapshot=Snapshot::create($modelData);
         $banner->snapshots()->save($snapshot);
