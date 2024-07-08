@@ -114,22 +114,23 @@ class Employee extends Model implements HasMedia, Auditable
     use InOrganisation;
 
     protected $casts = [
-        'data'                => 'array',
-        'errors'              => 'array',
-        'salary'              => 'array',
-        'working_hours'       => 'array',
-        'date_of_birth'       => 'datetime:Y-m-d',
-        'gender'              => GenderEnum::class,
-        'state'               => EmployeeStateEnum::class,
-        'type'                => EmployeeTypeEnum::class
+        'week_working_hours' => 'decimal:2',
+        'data'               => 'array',
+        'errors'             => 'array',
+        'salary'             => 'array',
+        'working_hours'      => 'array',
+        'date_of_birth'      => 'datetime:Y-m-d',
+        'gender'             => GenderEnum::class,
+        'state'              => EmployeeStateEnum::class,
+        'type'               => EmployeeTypeEnum::class
 
     ];
 
     protected $attributes = [
-        'data'                => '{}',
-        'errors'              => '{}',
-        'salary'              => '{}',
-        'working_hours'       => '{}',
+        'data'          => '{}',
+        'errors'        => '{}',
+        'salary'        => '{}',
+        'working_hours' => '{}',
     ];
 
     protected $guarded = [];
@@ -157,10 +158,10 @@ class Employee extends Model implements HasMedia, Auditable
         'employment_end_at',
         'emergency_contact',
         'pin'
-        ];
+    ];
 
     protected array $attributeModifiers = [
-        'password' => EmployeePinRedactor::class,
+        'pin' => EmployeePinRedactor::class,
     ];
 
 
@@ -168,10 +169,10 @@ class Employee extends Model implements HasMedia, Auditable
     {
         parent::boot();
 
-        if (app('app.scope')=='han') {
+        if (app('app.scope') == 'han') {
             static::addGlobalScope('han', function ($builder) {
                 /** @var ClockingMachine $clockingMachine */
-                $clockingMachine= Auth::user();
+                $clockingMachine = Auth::user();
                 $builder->where('organisation_id', $clockingMachine->organisation_id);
             });
         }
@@ -191,8 +192,8 @@ class Employee extends Model implements HasMedia, Auditable
     public function jobPositions(): MorphToMany
     {
         return $this->morphToMany(JobPosition::class, 'job_positionable')->using(JobPositionable::class)
-                    ->withPivot(['share', 'scopes'])
-                    ->withTimestamps();
+            ->withPivot(['share', 'scopes'])
+            ->withTimestamps();
     }
 
     public function user(): MorphOne

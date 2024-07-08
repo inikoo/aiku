@@ -48,15 +48,15 @@ class StoreEmployee extends OrgAction
 
         Arr::forget($modelData, ['username', 'password', 'reset_password']);
 
-        $positions=Arr::get($modelData, 'positions', []);
+        $positions = Arr::get($modelData, 'positions', []);
         data_forget($modelData, 'positions');
 
         /** @var Employee $employee */
         $employee = $parent->employees()->create($modelData);
         $employee->stats()->create();
 
-        if(in_array($employee->state, [EmployeeStateEnum::LEAVING, EmployeeStateEnum::WORKING])) {
-            SetEmployeePin::run($employee);
+        if (in_array($employee->state, [EmployeeStateEnum::LEAVING, EmployeeStateEnum::WORKING])) {
+            SetEmployeePin::make()->action($employee, updateQuietly: true);
         }
 
 
@@ -119,7 +119,7 @@ class StoreEmployee extends OrgAction
     public function rules(): array
     {
         return [
-            'worker_number'       => [
+            'worker_number'                         => [
                 'required',
                 'max:64',
                 'alpha_dash',
@@ -131,8 +131,8 @@ class StoreEmployee extends OrgAction
                 ),
 
             ],
-            'employment_start_at' => ['sometimes', 'nullable', 'date'],
-            'work_email'          => [
+            'employment_start_at'                   => ['sometimes', 'nullable', 'date'],
+            'work_email'                            => [
                 'sometimes',
                 'nullable',
                 'email',
@@ -143,7 +143,7 @@ class StoreEmployee extends OrgAction
                     ]
                 )
             ],
-            'alias'               => [
+            'alias'                                 => [
                 'required',
                 'string',
                 'max:24',
@@ -157,13 +157,13 @@ class StoreEmployee extends OrgAction
             'contact_name'                          => ['required', 'string', 'max:256'],
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'                                 => ['required',  Rule::enum(EmployeeStateEnum::class)],
+            'state'                                 => ['required', Rule::enum(EmployeeStateEnum::class)],
             'positions'                             => ['sometimes', 'array'],
             'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug') ->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug') ->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug') ->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
             'username'                              => [
                 'nullable',
@@ -175,10 +175,10 @@ class StoreEmployee extends OrgAction
                     ]
                 )
             ],
-            'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'      => ['exclude_if:username,null', 'sometimes', 'boolean'],
-            'source_id'           => ['sometimes', 'string', 'max:64'],
-            'deleted_at'          => ['sometimes', 'nullable', 'date'],
+            'password'                              => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'reset_password'                        => ['exclude_if:username,null', 'sometimes', 'boolean'],
+            'source_id'                             => ['sometimes', 'string', 'max:64'],
+            'deleted_at'                            => ['sometimes', 'nullable', 'date'],
         ];
     }
 
@@ -201,6 +201,7 @@ class StoreEmployee extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation, $this->validatedData);
     }
 

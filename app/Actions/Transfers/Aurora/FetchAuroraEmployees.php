@@ -58,11 +58,14 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
             if (Arr::has($employeeData, 'user')) {
                 if ($employee->user) {
+
+
+
                     try {
                         UpdateUser::make()->action(
                             $employee->user,
                             [
-                                'legacy_password' => (string)Arr::get($employeeData, 'user.password'),
+                                'legacy_password' => (string)Arr::get($employeeData, 'user.legacy_password'),
                                 'status'          => Arr::get($employeeData, 'user.status'),
                             ]
                         );

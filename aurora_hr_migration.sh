@@ -14,7 +14,7 @@ DB_SUFFIX="${2:-$DB_SUFFIX}"
 
 echo -e "🧼 Migrating human resources models"
 
-${PHP} artisan fetch:clocking-machines -d _base "${DB_SUFFIX}"
+${PHP} artisan fetch:clocking-machines -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:employees  -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:wow-employees
 ${PHP} artisan fetch:deleted-employees  -d "${DB_SUFFIX}"

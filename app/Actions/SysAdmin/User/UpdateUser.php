@@ -15,6 +15,7 @@ use App\Http\Resources\SysAdmin\UsersResource;
 use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,6 +29,12 @@ class UpdateUser extends GrpAction
 
     public function handle(User $user, array $modelData): User
     {
+
+
+
+        if(Arr::exists($modelData, 'password')) {
+            $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
+        }
 
 
         $user= $this->update($user, $modelData, ['profile', 'settings']);
@@ -94,15 +101,6 @@ class UpdateUser extends GrpAction
             'status'          => ['sometimes', 'boolean'],
             'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
         ];
-    }
-
-    public function prepareForValidation(): void
-    {
-
-        if(!$this->has('auth_type')) {
-            $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
-        }
-
     }
 
     public function asController(User $user, ActionRequest $request): User

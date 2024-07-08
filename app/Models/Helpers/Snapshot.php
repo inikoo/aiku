@@ -41,6 +41,7 @@ use Illuminate\Support\Arr;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $parent
  * @property-read Model|\Eloquent $publisher
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Slide> $slides
  * @property-read \App\Models\Helpers\SnapshotStats|null $stats
  * @method static Builder|Snapshot newModelQuery()
  * @method static Builder|Snapshot newQuery()

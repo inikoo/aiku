@@ -37,7 +37,7 @@ return new class () extends Migration {
             $table->string('emergency_contact', 1024)->nullable()->collation('und_ns');
             $table->jsonb('salary')->nullable();
             $table->jsonb('working_hours')->nullable();
-            $table->decimal('week_working_hours', 4)->default(0);
+            $table->decimal('week_working_hours', 5, 2)->default(0);
             $table->jsonb('data');
             $table->jsonb('errors');
             $table->string('pin')->nullable()->unique();

@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $fetch_id
  * @property FetchRecordTypeEnum $type
  * @property string|null $error_on
- * @property string $source_id
+ * @property string|null $source_id
  * @property string|null $model_type
  * @property string|null $model_id
  * @property array $model_data

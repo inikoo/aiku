@@ -176,7 +176,7 @@ class UpdateEmployee extends OrgAction
 
             ];
             $rules['password']  = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
-            $rules['auth_type'] = ['sometimes', Rule::enum(UserAuthTypeEnum::class)];
+
         }
 
 

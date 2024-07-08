@@ -164,6 +164,7 @@ class FetchAuroraEmployee extends FetchAurora
                 $legacyPassword = hash('sha256', 'hello');
             }
 
+
             if ($auroraUserData->aiku_alt_username) {
                 $username = $auroraUserData->aiku_alt_username;
             } else {
