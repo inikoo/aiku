@@ -63,7 +63,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     router.delete(
         route('grp.models.fulfilment-transaction.delete', {fulfilmentTransaction: idFulfilmentTransaction}),
         {
-            onStart: () => isLoading.value = 'buttonReset',
+            onStart: () => isLoading.value = 'buttonReset' + idFulfilmentTransaction,
             onFinish: () => isLoading.value = false
         }
     )
@@ -88,12 +88,15 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <!-- Column: Quantity -->
         <template #cell(quantity)="{ item }">
             <PureInput
+                v-if="state === 'in-process'"
                 v-model="item.quantity"
                 @blur="(e: number) => onUpdateQuantity(item.id, e)"
                 :isLoading="isLoading === 'quantity' + item.quantity"
                 type="number"
                 :readonly="item.is_auto_assign"
             />
+
+            <div v-else>{{ item.quantity }}</div>
         </template>
 
         <!-- Column: Net -->
@@ -103,7 +106,13 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">
-            <Button @click="() => onDeleteTransaction(item.id)" :loading="isLoading === 'buttonReset'" icon="fal fa-times" type="negative" v-tooltip="'Reset quantity'" />
+            <Button
+                @click="() => onDeleteTransaction(item.id)"
+                :loading="isLoading === 'buttonReset' + item.id"
+                icon="fal fa-times"
+                type="negative"
+                v-tooltip="'Reset quantity'"
+            />
         </template>
     </Table>
 </template>

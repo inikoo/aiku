@@ -88,7 +88,7 @@ const isLoadingData = ref<string | boolean>(false)
 const timeline = ref({ ...props.data?.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
-const formAddService = useForm({ service_id: '', quantity: 1 })
+const formAddService = useForm({ service_id: '', quantity: 1, historicAsset: null })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
@@ -110,7 +110,7 @@ const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
         preserveScroll: true,
         onSuccess: () => {
             closedPopover()
-            formAddPallet.reset('notes', 'customer_reference','type')
+            formAddPallet.reset()
             isLoadingButton.value = false
         },
         onError: (errors) => {
@@ -130,7 +130,7 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
         preserveScroll: true,
         onSuccess: () => {
             closedPopover()
-            formMultiplePallet.reset('number_pallets','type')
+            formMultiplePallet.reset()
             isLoadingButton.value = false
         },
         onError: (errors) => {
@@ -156,16 +156,19 @@ const onOpenModalAddService = async () => {
 }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
-    // console.log('vvv', vvv)
+    console.log('vvv', data.route?.name)
+    console.log('vvv', dataServiceList.value.filter(service => service.id == formAddService.service_id)[0])
     
+    formAddService.historicAsset = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
+
     formAddService.post(
-        route(data.route?.name, {...data.route?.parameters, historicAsset: selectedHistoricAssetId}),
+        route(data.route?.name, {...data.route?.parameters, historicAsset: selectedHistoricAssetId }),
         {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddService.reset('quantity', 'service_id')
+                formAddService.reset()
             },
             onError: (errors) => {
                 console.error('Error during form submission:', errors)
@@ -200,7 +203,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddPhysicalGood.reset('quantity', 'outer_id')
+                formAddPhysicalGood.reset()
                 isLoadingButton.value = false
             },
             onError: (errors) => {
@@ -296,9 +299,14 @@ watch(() => props.data, (newValue) => {
                         </div>
 
                         <div class="flex justify-end mt-3">
-                            <Button :style="'save'" :loading="isLoadingButton" :disabled="!formMultiplePallet.number_pallets"
+                            <Button
+                                :style="'save'"
+                                :loading="isLoadingButton"
+                                :disabled="!formMultiplePallet.number_pallets"
                                 :key="formMultiplePallet.number_pallets"
-                                @click="() => handleFormSubmitAddMultiplePallet(action, closed)" />
+                                full
+                                @click="() => handleFormSubmitAddMultiplePallet(action, closed)"
+                            />
                         </div>
                     </div>
                 </template>
@@ -354,8 +362,13 @@ watch(() => props.data, (newValue) => {
                                 </p>
                             </div>
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="isLoadingButton" :label="'save'"
-                                    @click="() => handleFormSubmitAddPallet(action, closed)" />
+                                <Button
+                                    :style="'save'"
+                                    :loading="isLoadingButton"
+                                    full
+                                    :label="'save'"
+                                    @click="() => handleFormSubmitAddPallet(action, closed)"
+                                />
                             </div>
                         </div>
                     </template>
@@ -393,9 +406,9 @@ watch(() => props.data, (newValue) => {
                                     :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => onSubmitAddService(action, closed)" />
-                                <p v-if="get(formAddService, ['errors', 'service_id'])"
-                                    class="mt-2 text-sm text-red-500">
+                                    @keydown.enter="() => onSubmitAddService(action, closed)"
+                                />
+                                <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
                                 </p>
                             </div>

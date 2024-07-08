@@ -42,6 +42,7 @@ const LBInitAutocomplete = () => {
                 name: "Item",
                 type: "item",
                 size: 7,  // Item list will appear 7 items
+                // attributes: ['product_code', 'description', 'formatted_price.last'],
                 attributes: ['product_code', 'formatted_price'],
             },
             {
@@ -208,6 +209,11 @@ $luigiColor3: #e87928;
     overflow: visible !important;
 }
 
+.luigi-ac-no-result {
+    color: $luigiColor3 !important;
+}
+
+// Top Product styling (luigi-ac-first-main)
 .luigi-ac-first-main .luigi-ac-attr--formatted_price {
     margin-top: 5px;
     font-size: 1.05rem !important;
@@ -215,19 +221,25 @@ $luigiColor3: #e87928;
     color: $luigiColor1 !important;
 }
 
+.luigi-ac-first-main .luigi-ac-attr--description {
+    text-align: justify !important;
+    display: -webkit-box !important;
+    margin-top: 5px !important;
+    font-size: 0.7rem !important;
+    -webkit-line-clamp: 4 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    // color: $luigiColor1 !important;
+}
+
+.luigi-ac-first-main .luigi-ac-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2 !important;
+}
+
 .luigi-ac-first-main .luigi-ac-button-buy {
-    padding: 5px 20px !important;
-}
-
-.luigi-ac-rest-main .luigi-ac-attr--formatted_price {
-    display: block !important;
-    color: $luigiColor1 !important;
-}
-
-.luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-action-primary {
-    margin-top: 20px;
-    position: inherit !important;
-    width: 100% !important;
+    padding: 6px 20px !important;
 }
 
 .luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-item .luigi-ac-attrs {
@@ -238,6 +250,29 @@ $luigiColor3: #e87928;
 .luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-item {
     padding: .4em 0.8em;
 }
+
+
+
+// Products styling
+.luigi-ac-rest-main .luigi-ac-attrs {
+    -webkit-line-clamp: 3 !important;
+    max-height: 60px !important;
+}
+
+.luigi-ac-rest-main .luigi-ac-attr--formatted_price {
+    display: block !important;
+    color: $luigiColor1 !important;
+}
+
+.luigi-ac-rest-main .luigi-ac-attr--description {
+    display: none !important;
+}
+
+// .luigi-ac-heromobile .luigi-ac-first-main .luigi-ac-action-primary {
+    // margin-top: 20px;
+    // position: inherit !important;
+    // width: 100% !important;
+// }
 
 /* ====================================== Search result */
 
