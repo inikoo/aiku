@@ -88,7 +88,7 @@ const isLoadingData = ref<string | boolean>(false)
 const timeline = ref({ ...props.data?.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
-const formAddService = useForm({ service_id: '', quantity: 1, historicAsset: null })
+const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
@@ -159,11 +159,11 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
     console.log('vvv', data.route?.name)
     console.log('vvv', dataServiceList.value.filter(service => service.id == formAddService.service_id)[0])
     
-    formAddService.historicAsset = selectedHistoricAssetId
+    formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
 
     formAddService.post(
-        route(data.route?.name, {...data.route?.parameters, historicAsset: selectedHistoricAssetId }),
+        route(data.route?.name, {...data.route?.parameters }),
         {
             preserveScroll: true,
             onSuccess: () => {
