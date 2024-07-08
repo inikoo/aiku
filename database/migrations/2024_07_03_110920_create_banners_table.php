@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedInteger('web_block_id');
+            $table->unsignedInteger('web_block_id')->nullable()->index();
             $table->foreign('web_block_id')->references('id')->on('web_blocks')->onUpdate('cascade')->onDelete('cascade');
 
 

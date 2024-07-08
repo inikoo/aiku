@@ -268,14 +268,14 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
 
-    Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
+    Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletDelivery'])->name('transaction.store');
 
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
-    Route::post('transaction/{historicAsset:id}', StoreFulfilmentTransaction::class)->name('transaction.store')->withoutScopedBindings();
+    Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
 });
