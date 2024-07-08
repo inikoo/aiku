@@ -101,7 +101,7 @@ class Workplace extends Model implements Auditable
         ];
     }
 
-    protected $auditInclude = [
+    protected array $auditInclude = [
         'name',
         'type',
     ];

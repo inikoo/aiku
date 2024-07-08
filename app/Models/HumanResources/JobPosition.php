@@ -68,6 +68,20 @@ class JobPosition extends Model implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'hr'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'team',
+        'department',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -81,20 +95,6 @@ class JobPosition extends Model implements Auditable
     {
         return 'slug';
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'hr'
-        ];
-    }
-
-    protected $auditInclude = [
-        'code',
-        'name',
-        'team',
-        'department',
-    ];
 
     public function employees(): MorphToMany
     {

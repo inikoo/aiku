@@ -95,6 +95,25 @@ class Guest extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'sysadmin'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'alias',
+        'status',
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+        'identity_document_type',
+        'identity_document_number',
+        'date_of_birth',
+        'gender',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -104,14 +123,6 @@ class Guest extends Model implements HasMedia, Auditable
             ->slugsShouldBeNoLongerThan(16)
             ->doNotGenerateSlugsOnUpdate();
     }
-
-    public function generateTags(): array
-    {
-        return [
-            'sysadmin'
-        ];
-    }
-
 
     public function user(): MorphOne
     {

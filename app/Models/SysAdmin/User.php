@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Actions\SysAdmin\User\SendLinkResetPassword;
+use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -128,20 +129,28 @@ class User extends Authenticatable implements HasMedia, Auditable
         'settings' => '{}',
     ];
 
-    protected array $auditExclude = [
-        'number_authorised_organisations',
-        'number_authorised_fulfilments',
-        'number_authorised_shops',
-        'number_authorised_warehouses',
-        'number_authorised_productions'
-    ];
-
     public function generateTags(): array
     {
         return [
             'sysadmin'
         ];
     }
+
+    protected array $auditInclude = [
+        'status',
+        'username',
+        'password',
+        'type',
+        'auth_type',
+        'contact_name',
+        'email',
+        'about',
+        'language_id'
+    ];
+
+    protected array $attributeModifiers = [
+        'password' => PasswordRedactor::class,
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -181,7 +190,6 @@ class User extends Authenticatable implements HasMedia, Auditable
     {
         return $this->hasOne(UserStats::class);
     }
-
 
     public function authorisedOrganisations(): MorphToMany
     {
@@ -223,7 +231,7 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->morphedByMany(Production::class, 'model', 'user_has_authorised_models')->withTimestamps();
     }
 
-    public function tasks()
+    public function tasks(): MorphToMany
     {
         return $this->morphToMany(Task::class, 'taskable', 'users_has_tasks');
     }

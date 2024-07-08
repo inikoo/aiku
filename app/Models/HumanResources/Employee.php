@@ -7,6 +7,7 @@
 
 namespace App\Models\HumanResources;
 
+use App\Audits\Redactors\EmployeePinRedactor;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
@@ -132,6 +133,36 @@ class Employee extends Model implements HasMedia, Auditable
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['hr'];
+    }
+
+    protected array $auditInclude = [
+        'alias',
+        'work_email',
+        'contact_name',
+        'email',
+        'phone',
+        'identity_document_type',
+        'identity_document_number',
+        'date_of_birth',
+        'gender',
+        'worker_number',
+        'job_title',
+        'type',
+        'state',
+        'employment_start_at',
+        'employment_end_at',
+        'emergency_contact',
+        'pin'
+        ];
+
+    protected array $attributeModifiers = [
+        'password' => EmployeePinRedactor::class,
+    ];
+
 
     public static function boot(): void
     {

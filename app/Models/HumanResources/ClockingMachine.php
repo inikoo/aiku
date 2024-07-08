@@ -85,6 +85,20 @@ class ClockingMachine extends Authenticatable implements Auditable
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return [
+            'hr'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'name',
+        'type',
+        'status',
+        'device_name'
+    ];
+
     public function getRouteKeyName(): string
     {
         return 'slug';
