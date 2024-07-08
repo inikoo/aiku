@@ -22,7 +22,7 @@ class StoreFulfilmentTransaction extends OrgAction
 {
     public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction
     {
-        $historicAsset= HistoricAsset::find($modelData['historic_asset_id']);
+        $historicAsset = HistoricAsset::find($modelData['historic_asset_id']);
 
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
@@ -52,6 +52,7 @@ class StoreFulfilmentTransaction extends OrgAction
     public function rules(): array
     {
         return [
+            'is_auto_assign'    => ['sometimes', 'boolean'],
             'quantity'          => ['required', 'numeric', 'min:0'],
             'historic_asset_id' => [
                 'required',
