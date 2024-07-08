@@ -209,12 +209,13 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             onSuccess: () => {
                 closedPopover()
                 formAddPhysicalGood.reset()
-                isLoadingButton.value = false
             },
             onError: (errors) => {
-                isLoadingButton.value = false
                 console.error('Error during form submission:', errors)
             },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
         }
     )
 }
@@ -489,8 +490,7 @@ watch(() => props.data, (newValue) => {
                                         <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
                                 </PureMultiselect>
-                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
-                                    class="mt-2 text-sm text-red-600">
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
                             </div>
@@ -515,7 +515,7 @@ watch(() => props.data, (newValue) => {
                                 />
                             </div>
 
-                            <!-- Loading: fetching service list -->
+                            <!-- Loading: fetching pgood list -->
                             <div v-if="isLoadingData === 'addPGood'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
