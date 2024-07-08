@@ -144,50 +144,72 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
     <PageHeading :data="pageHead">
         <template #button-group-add-pallet="{ action }">
         <!-- {{ action }} -->
-            <Button :style="action.style" :label="action.label" :icon="action.icon"
-                :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
-                :tooltip="action.tooltip" @click="() => (openModal = true)" />
+            <Button
+                v-if="currentTab === 'pallets'"
+                :style="action.style"
+                :label="action.label"
+                :icon="action.icon"
+                :iconRight="action.iconRight"
+                :key="`ActionButton${action.label}${action.style}`"
+                :tooltip="action.tooltip"
+                @click="() => (openModal = true)"
+            />
+            <div v-else />
         </template>
 
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
-            <div class="relative" v-if="currentTab === 'services'">
-                <Popover width="w-full">
-                    <template #button>
-                        <Button :style="action.style" :label="action.label" :icon="action.icon"
-                                :key="`ActionButton${action.label}${action.style}`"
-                                :tooltip="action.tooltip" class="rounded-l-none border-transparent " />
-                    </template>
-                    <template #content="{ close: closed }">
-                        <div class="w-[350px]">
-                            <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
-                            <div class="">
-                                <PureMultiselect v-model="formAddService.service_id" autofocus placeholder="Services" :options="props.service_lists"
-                                                 label="name"
-                                                 valueProp="id"
-                                                 @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
-                                <p v-if="get(formAddService, ['errors', 'service_id'])"
-                                   class="mt-2 text-sm text-red-500">
-                                    {{ formAddService.errors.service_id }}
-                                </p>
-                            </div>
-                            <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
-                                <PureInput v-model="formAddService.quantity" placeholder="Qty"
-                                           @keydown.enter="() => handleFormSubmitAddService(action, closed)" />
-                                <p v-if="get(formAddService, ['errors', 'quantity'])"
-                                   class="mt-2 text-sm text-red-600">
-                                    {{ formAddService.errors.quantity }}
-                                </p>
-                            </div>
-                            <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'"
-                                        @click="() => handleFormSubmitAddService(action, closed)" />
-                            </div>
+            <Popover v-if="currentTab === 'services'" width="w-full">
+                <template #button>
+                    <Button
+                        :style="action.style"
+                        :label="action.label"
+                        :icon="action.icon"
+                        :key="`ActionButton${action.label}${action.style}`"
+                        :tooltip="action.tooltip"
+                        class="rounded-l-none border-transparent "
+                    />
+                </template>
+                <template #content="{ close: closed }">
+                    <div class="w-[350px]">
+                        <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
+                        <div class="">
+                            <PureMultiselect
+                                v-model="formAddService.service_id"
+                                autofocus
+                                placeholder="Services"
+                                :options="props.service_lists"
+                                label="name"
+                                valueProp="id"
+                                @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                            />
+                            <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
+                                {{ formAddService.errors.service_id }}
+                            </p>
                         </div>
-                    </template>
-                </Popover>
-            </div>
+                        <div class="mt-3">
+                            <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                            <PureInput
+                                v-model="formAddService.quantity"
+                                placeholder="Qty"
+                                @keydown.enter="() => handleFormSubmitAddService(action, closed)"
+                            />
+                            <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
+                                {{ formAddService.errors.quantity }}
+                            </p>
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            <Button
+                                :style="'save'"
+                                :loading="loading"
+                                :label="'save'"
+                                full
+                                @click="() => handleFormSubmitAddService(action, closed)"
+                            />
+                        </div>
+                    </div>
+                </template>
+            </Popover>
             <div v-else></div>
         </template>
 
@@ -196,9 +218,14 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.style" :label="action.label" :icon="action.icon"
-                                :key="`ActionButton${action.label}${action.style}`"
-                                :tooltip="action.tooltip" class="rounded-l-none rounded-r border-transparent " />
+                        <Button
+                            :style="action.style"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :key="`ActionButton${action.label}${action.style}`"
+                            :tooltip="action.tooltip"
+                            class="rounded-l-none rounded-r border-transparent "
+                        />
                     </template>
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
@@ -219,16 +246,23 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                             </div>
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
-                                <PureInput v-model="formAddPhysicalGood.quantity" placeholder="Qty"
-                                           @keydown.enter="() => handleFormSubmitAddPallet(action, closed)" />
-                                <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
-                                   class="mt-2 text-sm text-red-600">
+                                <PureInput
+                                    v-model="formAddPhysicalGood.quantity"
+                                    placeholder="Qty"
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action, closed)"
+                                />
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.quantity }}
                                 </p>
                             </div>
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'"
-                                        @click="() => handleFormSubmitAddPhysicalGood(action, closed)" />
+                                <Button
+                                    :style="'save'"
+                                    :loading="loading"
+                                    :label="'save'"
+                                    full
+                                    @click="() => handleFormSubmitAddPhysicalGood(action, closed)"
+                                />
                             </div>
                         </div>
                     </template>
