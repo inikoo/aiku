@@ -31,7 +31,17 @@ const listTemplate = [
     <div class="grid grid-flow-row-dense grid-cols-4">
         <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
             <div class="flex justify-between">
-                <div class="font-bold text-sm">Header :</div>
+                <div class="font-bold text-sm">
+                    <Switch @click="previewMode = !previewMode"
+                        class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                        <span aria-hidden="true"
+                            :class="previewMode ? 'translate-x-6 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
+                            class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
+                    </Switch>
+                    <div class="text-xs leading-none font-medium cursor-pointer select-none"
+                        :class="previewMode ? 'text-indigo-500' : ' text-gray-400'">
+                        Login            Mode
+                    </div></div>
                 <Button type="Primary" label="Pick Template" size="xs" @click="isModalOpen = true"></Button>
             </div>
             <div class="p-4">

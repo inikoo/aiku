@@ -47,7 +47,7 @@ const createPallet = async (option, select) => {
 		return response.data
 	} catch (error: any) {
 		console.log(error)
-		props.form.errors.id = error.response.data.message
+		/* props.form.errors.id = error.response.data.message */
 		notify({
 			title: "Failed to add new stored items",
 			text: error,
@@ -99,6 +99,7 @@ const onSaved = async () => {
 				:fieldName="'id'"
 				:createOption="true"
 				:onCreate="createPallet"
+				@afterCreate="(value,option) => form['id'] = value"
                 @updateVModel="() => form.errors.id = ''"
             />
 		</div>
