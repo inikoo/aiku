@@ -108,18 +108,11 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($palletDelivery)) {
-                        'Fulfilment' => [
-                            'title' => __("No physical goods found"),
-                            'count' => $palletDelivery->fulfilment->shop->stats->number_assets_type_product,
-                        ],
-                        'PalletDelivery' => [
-                            'icons' => ['fal fa-cube'],
-                            'title' => __('No physical goods selected'),
-                            'count' => $palletDelivery->stats->number_physical_goods,
-                        ],
-                        default => null
-                    }
+                    [
+                        'icons' => ['fal fa-cube'],
+                        'title' => __('No physical goods selected'),
+                        'count' => $palletDelivery->stats->number_physical_goods,
+                    ]
                 );
 
             $table
