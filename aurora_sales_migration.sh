@@ -10,7 +10,7 @@ DB_SUFFIX=_base
 PHP="${1:-$PHP}"
 DB_SUFFIX="${2:-$DB_SUFFIX}"
 
-echo -e "🧼 Migrating procurement models"
+echo -e "🧼 Migrating sales models"
 
 ${PHP} artisan fetch:payment-service-providers -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:payment-accounts -d "${DB_SUFFIX}"
