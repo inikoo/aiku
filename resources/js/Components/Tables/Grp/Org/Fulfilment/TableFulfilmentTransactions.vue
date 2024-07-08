@@ -73,7 +73,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 
 <template>
     <!-- <pre>{{ data.data[0] }}</pre> -->
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :key="tab" :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item }">
             {{ item.asset_code }}
