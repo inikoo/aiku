@@ -72,7 +72,8 @@ const props = defineProps<{
         status: string
         message: string
     }
-    rental_list?: [],
+    rental_lists?: [],
+    
     service_lists?: [],
     service_list_route: routeType
 
@@ -573,7 +574,7 @@ watch(() => props.data, (newValue) => {
         :locationRoute="locationRoute"
         :storedItemsRoute="storedItemsRoute"
         :rentalRoute="rentalRoute"
-        :rentalList="props.rental_list"
+        :rentalList="props.rental_lists"
     />
 
     <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
