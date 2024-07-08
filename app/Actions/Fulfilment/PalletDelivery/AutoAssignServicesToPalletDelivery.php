@@ -36,6 +36,7 @@ class AutoAssignServicesToPalletDelivery extends OrgAction
         $asset    =$service->asset;
         $quantity = $palletDelivery->pallets()->where('type', $subject->type)->count();
         data_set($modelData, 'quantity', $quantity);
+        data_set($modelData, 'is_auto_assign', true);
 
 
         /** @var FulfilmentTransaction $transaction */
