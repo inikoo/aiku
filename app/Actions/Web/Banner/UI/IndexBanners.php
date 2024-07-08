@@ -66,9 +66,6 @@ class IndexBanners extends OrgAction
             'banners.date'
         );
 
-        $queryBuilder->join('banner_stats', 'banner_stats.banner_id', 'banners.id')
-            ->addSelect('banner_stats.number_views');
-
         /*        foreach ($this->getElementGroups() as $key => $elementGroup) {
                     $queryBuilder->whereElementGroup(
                         prefix: $prefix,
@@ -127,7 +124,6 @@ class IndexBanners extends OrgAction
                 ->withExportLinks($exportLinks)
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'name', label: __('name'), sortable: true)
-                ->column(key: 'number_views', label: __('views'), sortable: true)
                 ->column(key: 'image_thumbnail', label: ['fal', 'fa-image']);
 
             $table->column(key: 'date', label: __('date'), sortable: true)
