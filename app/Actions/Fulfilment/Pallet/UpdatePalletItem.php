@@ -39,6 +39,7 @@ class UpdatePalletItem extends OrgAction
         data_forget($modelData, 'state');
 
         UpdatePallet::run($palletReturnItem->pallet, $modelData);
+        
 
         return $palletReturnItem;
     }

@@ -60,8 +60,8 @@ class IndexPalletsInReturn extends OrgAction
 
         $query->defaultSort('pallets.id')
             ->select(
-                //                'pallet_return_items.id',
-                'pallets.id',
+                'pallet_return_items.id',
+                'pallets.id as pallet_id',
                 'pallets.slug',
                 'pallets.reference',
                 'pallets.customer_reference',
@@ -101,7 +101,7 @@ class IndexPalletsInReturn extends OrgAction
                 'title' => '',
                 'count' => match (class_basename($palletReturn)) {
                     'FulfilmentCustomer' => $palletReturn->number_pallets,
-                    default              => $palletReturn->stats->number_pallets
+                    default => $palletReturn->stats->number_pallets
                 }
             ];
 
@@ -153,7 +153,8 @@ class IndexPalletsInReturn extends OrgAction
         return $request->user()->hasAnyPermission(
             [
                 'org-supervisor.'.$this->organisation->id,
-                'warehouses-view.'.$this->organisation->id]
+                'warehouses-view.'.$this->organisation->id
+            ]
         );
     }
 
