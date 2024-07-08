@@ -37,7 +37,7 @@ class StorePalletToReturn extends OrgAction
         $palletIds = Arr::get($modelData, 'pallets');
 
         $palletReturn->pallets()->syncWithoutDetaching($palletIds);
-        
+
         $pallets = Pallet::findOrFail($palletIds);
 
         Pallet::whereIn('id', $palletIds)->update([
@@ -51,7 +51,7 @@ class StorePalletToReturn extends OrgAction
         foreach ($pallets as $pallet) {
             AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
         }
-        
+
         HydratePalletReturns::run($palletReturn);
 
         return $palletReturn;

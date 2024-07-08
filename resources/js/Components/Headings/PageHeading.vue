@@ -19,6 +19,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { faNarwhal } from "@fas"
 import { faLayerPlus } from "@far"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import { ref } from "vue"
 
 library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
 
@@ -27,6 +28,8 @@ const props = defineProps<{
     dataToSubmit?: any
     dataToSubmitIsDirty?: any
 }>()
+
+const isButtonLoading = ref<boolean | string>(false)
 
 if (props.dataToSubmit && props.data.actionActualMethod) {
     props.dataToSubmit["_method"] = props.data.actionActualMethod
@@ -128,11 +131,16 @@ const originUrl = location.origin
                                         <component :is="button.route?.name ? Link : 'div'"
                                             :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
                                             :method="button.route?.method || 'get'"
+                                            @start="() => isButtonLoading = 'buttonGroup' + index"
+                                            @finish="() => isButtonLoading = false"
                                             :as="button.target ? 'a' : 'div'"
                                             :target="button.target"
                                         >
-                                            <Button :style="button.style" :label="button.label"
+                                            <Button
+                                                :style="button.style"
+                                                :label="button.label"
                                                 :icon="button.icon"
+                                                :loading="isButtonLoading === 'buttonGroup' + index"
                                                 :iconRight="action.iconRight"
                                                 :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
                                                 class="inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"

@@ -21,7 +21,12 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
     {
-        if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId)) {
+        $doTransactions=false;
+        if (in_array('transactions', $this->with) or $forceWithTransactions) {
+            $doTransactions=true;
+        }
+
+        if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId, $doTransactions)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
                 try {
@@ -29,16 +34,16 @@ class FetchAuroraInvoices extends FetchAuroraAction
                         invoice: $invoice,
                         modelData: $invoiceData['invoice'],
                         hydratorsDelay: 60,
+                        strict: false
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $invoiceData['product'], 'Invoice', 'update');
+                    $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
 
                     return null;
                 }
 
 
-
-                if (in_array('transactions', $this->with) or $forceWithTransactions) {
+                if ($doTransactions) {
                     $this->fetchInvoiceTransactions($organisationSource, $invoice);
                 }
 

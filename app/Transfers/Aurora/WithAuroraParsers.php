@@ -442,7 +442,7 @@ trait WithAuroraParsers
         return $location;
     }
 
-    public function parseOrder($sourceId): ?Order
+    public function parseOrder($sourceId, $forceTransactions=true): ?Order
     {
         if (!$sourceId) {
             return null;
@@ -452,7 +452,7 @@ trait WithAuroraParsers
         if (!$order) {
 
             $sourceData= explode(':', $sourceId);
-            $order     = FetchAuroraOrders::run($this->organisationSource, $sourceData[1], forceWithTransactions: true);
+            $order     = FetchAuroraOrders::run($this->organisationSource, $sourceData[1], forceWithTransactions: $forceTransactions);
         }
 
         return $order;

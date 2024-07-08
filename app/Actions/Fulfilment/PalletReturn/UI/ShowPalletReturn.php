@@ -19,8 +19,6 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
-use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
-use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -105,7 +103,7 @@ class ShowPalletReturn extends OrgAction
                             'label'   => __('add service'),
                             'tooltip' => __('Add single service'),
                             'route'   => [
-                                'name'       => 'grp.models.pallet-return.service.store',
+                                'name'       => 'grp.models.pallet-return.transaction.store',
                                 'parameters' => [
                                     'palletReturn' => $palletReturn->id
                                 ]
@@ -118,7 +116,7 @@ class ShowPalletReturn extends OrgAction
                             'label'   => __('add physical good'),
                             'tooltip' => __('Add physical good'),
                             'route'   => [
-                                'name'       => 'grp.models.pallet-return.physical_good.store',
+                                'name'       => 'grp.models.pallet-return.transaction.store',
                                 'parameters' => [
                                     'palletReturn' => $palletReturn->id
                                 ]
@@ -391,17 +389,19 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 'service_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.services.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.pallet-return.services.index',
                     'parameters' => [
                         'organisation' => $palletReturn->organisation->slug,
-                        'fulfilment'   => $palletReturn->fulfilment->slug
+                        'fulfilment'   => $palletReturn->fulfilment->slug,
+                        'palletReturn' => $palletReturn->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.pallet-return.physical-goods.index',
                     'parameters' => [
                         'organisation' => $palletReturn->organisation->slug,
-                        'fulfilment'   => $palletReturn->fulfilment->slug
+                        'fulfilment'   => $palletReturn->fulfilment->slug,
+                        'palletReturn' => $palletReturn->slug
                     ]
                 ],
 

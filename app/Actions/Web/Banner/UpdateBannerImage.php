@@ -5,9 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
-use App\Actions\Web\Banner\HasBannerCommand;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Models\Web\Banner;
 use Illuminate\Console\Command;

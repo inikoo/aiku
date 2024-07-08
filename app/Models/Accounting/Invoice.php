@@ -16,6 +16,7 @@ use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -86,13 +88,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Invoice withoutTrashed()
  * @mixin Eloquent
  */
-class Invoice extends Model
+class Invoice extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasHistory;
 
     protected $casts = [
         'type'             => InvoiceTypeEnum::class,
@@ -105,6 +108,23 @@ class Invoice extends Model
         'data' => '{}',
     ];
 
+    protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['accounting'];
+    }
+
+    protected array $auditInclude = [
+        'number',
+        'type',
+        'net_amount',
+        'currency_id',
+        'group_exchange',
+        'org_exchange',
+        'total_amount',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -112,10 +132,6 @@ class Invoice extends Model
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }
-
-
-    protected $guarded = [];
-
 
     public function currency(): BelongsTo
     {

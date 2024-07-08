@@ -87,6 +87,7 @@ class ProductVariant extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
+        'price'                  => 'decimal:2',
         'data'                   => 'array',
         'status'                 => 'boolean',
         'state'                  => ProductVariantStateEnum::class,
