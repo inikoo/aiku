@@ -11,7 +11,7 @@ import {ref, reactive, onBeforeMount, watch, onBeforeUnmount, computed} from "vu
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import {capitalize} from "@/Composables/capitalize"
 import {library} from "@fortawesome/fontawesome-svg-core"
-import BannerWorkshopComponent from '@/Components/Workshop/BannerWorkshopComponent.vue'
+/* import BannerWorkshopComponent from '@/Components/Workshop/BannerWorkshopComponent.vue' */
 import {useLayoutStore} from "@/Stores/layout"
 import {cloneDeep} from "lodash"
 
@@ -249,12 +249,12 @@ onBeforeUnmount(() => {
         </div>
 
         <div v-else>
-            <BannerWorkshopComponent
+         <!--    <BannerWorkshopComponent
                 :data="data"
                 :imagesUploadRoute="imagesUploadRoute"
                 :user="user.username"
                 :banner="banner"
-            />
+            /> -->
         </div>
     </section>
 </template>

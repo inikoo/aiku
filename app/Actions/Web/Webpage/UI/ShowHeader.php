@@ -40,7 +40,7 @@ class ShowHeader extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Web/HeaderWorkshop',
+            'Org/Web/Header/HeaderWorkshop',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
