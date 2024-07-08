@@ -34,19 +34,18 @@ class DeleteFulfilmentTransaction extends OrgAction
     }
 
     //todo authorisation
-
-    public function fromRetina(FulfilmentTransaction $palletDeliveryTransaction, ActionRequest $request): void
+    public function fromRetina(FulfilmentTransaction $fulfilmentTransaction, ActionRequest $request): void
     {
-        $this->initialisationFromFulfilment($palletDeliveryTransaction->fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilmentTransaction->fulfilment, $request);
 
-        $this->handle($palletDeliveryTransaction);
+        $this->handle($fulfilmentTransaction);
     }
 
-    public function asController(FulfilmentTransaction $palletDeliveryTransaction, ActionRequest $actionRequest): void
+    public function asController(FulfilmentTransaction $fulfilmentTransaction, ActionRequest $actionRequest): void
     {
-        $this->initialisationFromFulfilment($palletDeliveryTransaction->fulfilment, $actionRequest);
+        $this->initialisationFromFulfilment($fulfilmentTransaction->fulfilment, $actionRequest);
 
-        $this->handle($palletDeliveryTransaction);
+        $this->handle($fulfilmentTransaction);
     }
 
 
