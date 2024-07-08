@@ -12,5 +12,7 @@ DB_SUFFIX="${2:-$DB_SUFFIX}"
 
 echo -e "🧼 Migrating procurement models"
 
-${PHP} artisan fetch:orders -d "${DB_SUFFIX}" -w full
+${PHP} artisan fetch:payment-service-providers -d "${DB_SUFFIX}"
+${PHP} artisan fetch:payment-accounts -d "${DB_SUFFIX}"
+${PHP} artisan fetch:invoices -d "${DB_SUFFIX}"
 
