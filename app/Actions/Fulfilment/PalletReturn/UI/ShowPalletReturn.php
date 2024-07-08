@@ -389,17 +389,19 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 'service_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.services.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.pallet-return.services.index',
                     'parameters' => [
                         'organisation' => $palletReturn->organisation->slug,
-                        'fulfilment'   => $palletReturn->fulfilment->slug
+                        'fulfilment'   => $palletReturn->fulfilment->slug,
+                        'palletReturn' => $palletReturn->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.pallet-return.physical-goods.index',
                     'parameters' => [
                         'organisation' => $palletReturn->organisation->slug,
-                        'fulfilment'   => $palletReturn->fulfilment->slug
+                        'fulfilment'   => $palletReturn->fulfilment->slug,
+                        'palletReturn' => $palletReturn->slug
                     ]
                 ],
 
