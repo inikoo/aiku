@@ -124,7 +124,12 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Banner\DeleteBanner;
+use App\Actions\Web\Banner\PublishBanner;
 use App\Actions\Web\Banner\StoreBanner;
+use App\Actions\Web\Banner\UpdateBanner;
+use App\Actions\Web\Banner\UpdateBannerState;
+use App\Actions\Web\Banner\UploadImagesToBanner;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
@@ -359,6 +364,20 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     });
 
     Route::post('website/{website:id}/banner', StoreBanner::class)->name('banner.store')->withoutScopedBindings();
+});
+
+Route::prefix('/banner')->name('banner.')->group(function () {
+    Route::post('from-gallery', [StoreBanner::class, 'fromGallery'])->name('store.from-gallery');
+
+    Route::prefix('{banner:id}')->group(function () {
+        Route::patch('', UpdateBanner::class)->name('update');
+        Route::patch('publish', PublishBanner::class)->name('publish');
+        Route::post('images', UploadImagesToBanner::class)->name('images.store');
+        Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
+        Route::delete('', DeleteBanner::class)->name('delete');
+        Route::patch('shutdown', PublishBanner::class)->name('shutdown');
+        Route::patch('switch-on', PublishBanner::class)->name('switch-on');
+    });
 });
 
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {

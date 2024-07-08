@@ -19,8 +19,6 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
-use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
-use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;

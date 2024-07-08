@@ -5,17 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBanners;
-use App\Actions\Portfolio\Banner\Hydrators\BannerHydrateUniversalSearch;
-use App\Actions\Portfolio\PortfolioWebsite\Hydrators\PortfolioWebsiteHydrateBanners;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Portfolio\BannerResource;
-use App\Models\Portfolio\Banner;
+use App\Actions\Web\Banner\Hydrators\BannerHydrateUniversalSearch;
+use App\Http\Resources\Web\BannerResource;
+use App\Models\Web\Banner;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateBanner
+class UpdateBanner extends OrgAction
 {
     use WithActionUpdate;
 
@@ -26,11 +25,6 @@ class UpdateBanner
         $this->update($banner, $modelData, ['data']);
 
         BannerHydrateUniversalSearch::dispatch($banner);
-        CustomerHydrateBanners::dispatch(customer());
-
-        foreach($banner->portfolioWebsites as $portfolioWebsite) {
-            PortfolioWebsiteHydrateBanners::run($portfolioWebsite);
-        }
 
         return $banner;
     }
@@ -47,17 +41,16 @@ class UpdateBanner
     public function rules(): array
     {
         return [
-            'name'                 => ['sometimes', 'required','string','max:255'],
-            'portfolio_website_id' => ['nullable']
+            'name' => ['sometimes', 'required','string','max:255']
         ];
     }
 
 
     public function asController(Banner $banner, ActionRequest $request): Banner
     {
-        $request->validate();
+        $this->initialisation();
 
-        return $this->handle($banner, $request->validated());
+        return $this->handle($banner, $this->validatedData);
     }
 
     public function action(Banner $banner, $modelData): Banner
@@ -69,8 +62,8 @@ class UpdateBanner
         return $this->handle($banner, $validatedData);
     }
 
-    public function jsonResponse(Banner $website): BannerResource
+    public function jsonResponse(Banner $banner): BannerResource
     {
-        return new BannerResource($website);
+        return new BannerResource($banner);
     }
 }

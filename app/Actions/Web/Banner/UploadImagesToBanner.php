@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
-use App\Actions\CRM\Customer\AttachImageToCustomer;
-use App\Enums\Portfolio\Banner\BannerStateEnum;
-use App\Http\Resources\Gallery\ImageResource;
-use App\Models\Portfolio\Banner;
-use App\Models\Portfolio\PortfolioWebsite;
+use App\Actions\Web\WithUploadWebImage;
+use App\Enums\Web\Banner\BannerStateEnum;
+use App\Http\Resources\Helpers\ImageResource;
+use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Exception;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Collection;
@@ -25,9 +25,10 @@ class UploadImagesToBanner
 {
     use AsAction;
     use WithAttributes;
+    use WithUploadWebImage;
 
 
-    private PortfolioWebsite|null $portfolioWebsite = null;
+    private Website $website;
 
 
     public function handle(Banner $banner, array $imageFiles): Collection
