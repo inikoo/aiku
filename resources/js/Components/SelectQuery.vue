@@ -54,6 +54,7 @@ const props = withDefaults(defineProps<{
 
 const emits = defineEmits<{
     (e: 'updateVModel'): void
+    (e: 'afterCreate', value: object): void
 }>()
 
 let timeoutId: any
@@ -123,6 +124,20 @@ const onScrollMultiselect = () => {
     }
 }
 
+const onCreate = (option, select) => {
+    return props.onCreate(option, select).then(create => {
+        props.value[props.fieldName] = create; // Assign the result to the specified field
+        getOptions(); // Call getOptions after the value is set
+        emits('afterCreate', { value : create[props.fieldName] , option : optionData})
+        return create // Return false as specified
+    }).catch(error => {
+        console.error('Error in onCreate:', error);
+        // Handle the error as needed
+    });
+};
+
+
+
 
 onMounted(() => {
     // If not selected yet, then auto focus the Multiselect
@@ -165,8 +180,8 @@ defineExpose({
         :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
         :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
-        :mode="props.mode"
-        :on-create="props.onCreate" :create-option="props.createOption"
+        :mode="props.mode" :appendNewOption="false"
+        :on-create="onCreate" :create-option="props.createOption"
 
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
         @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"

@@ -202,13 +202,13 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item }">
 			<StoredItemProperty
-                v-if="item.stored_items?.length"
+          		v-if="item.state == 'in-process'"
                 :pallet="item"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
                 @renderTable="() => emits('renderTableKey')"
             />
-            <div v-else class="pl-2.5 text-gray-400">
+			<div v-else class="pl-2.5 text-gray-400">
                 -
             </div>
 		</template>
