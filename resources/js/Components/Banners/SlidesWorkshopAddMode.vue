@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { ulid } from "ulid"
-/* import Modal from '@/Components/Utils/Modal.vue'
-import CropImage from "./CropImage/CropImage.vue"
-import GalleryImages from "@/Components/Workshop/GalleryImages.vue" */
+import Modal from '@/Components/Utils/Modal.vue'
+import CropImage from "@/Components/CropImage/CropImage.vue" 
+import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 import SlideAddMode from '@/Components/Banners/SlideAddMode.vue'
 import { useBannerBackgroundColor, useHeadlineText } from '@/Composables/useStockList'
 import { CommonData, SlideWorkshopData } from "@/types/BannerWorkshop"
@@ -19,11 +19,14 @@ const props = defineProps<{
     imagesUploadRoute: routeType
 }>()
 
+
+console.log(props)
+
 const isOpenModalCrop = ref(false)
 const addedFiles = ref([])
 const isOpenGalleryImages = ref(false)
 
-const closeModal = () => {
+const closeModalCrop = () => {
     addedFiles.value.files = null
     isOpenModalCrop.value = false
 }
@@ -65,6 +68,28 @@ const uploadImageRespone = (res) => {
             visibility: true,
         })
     }
+    const newFiles = [...setData]
+    props.data.components = [...props.data.components, ...newFiles]
+    isOpenModalCrop.value = false
+}
+
+const onPick = (image) =>{
+    let setData = []
+        setData.push({
+            id: null,
+            ulid: ulid(),
+            layout: {
+                imageAlt: image.name,
+                backgroundType: {
+                    desktop: 'image'
+                },
+            },
+            image: {
+                desktop: image,
+            },
+            visibility: true,
+        })
+    
     const newFiles = [...setData]
     props.data.components = [...props.data.components, ...newFiles]
     isOpenModalCrop.value = false
@@ -137,22 +162,23 @@ const onClickQuickStart = () => {
 </script>
 
 <template>
-   <!--  <Modal :isOpen="isOpenModalCrop" @onClose="closeModal">
+    <Modal :isOpen="isOpenModalCrop" @onClose="closeModalCrop">
         <div>
             <CropImage :ratio="data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}" :data="addedFiles" :imagesUploadRoute="props.imagesUploadRoute" :response="uploadImageRespone" />
         </div>
-    </Modal> -->
+    </Modal>
+
+    <Gallery 
+        :open="isOpenGalleryImages" 
+        @on-close="isOpenGalleryImages = false" 
+        :uploadRoutes="''"  
+        @onPick="onPick"
+        :tabs="['images_uploaded','stock_images']"
+        @onUpload="e => console.log(e)"
+    >
+    </Gallery>
     
-  <!--   <Modal :isOpen="isOpenGalleryImages" @onClose="()=>isOpenGalleryImages = false">
-        <div>
-            <GalleryImages
-                :imagesUploadRoute="imagesUploadRoute"
-                :addImage="uploadImageRespone"
-                :closeModal="()=>isOpenGalleryImages = false"
-                :ratio="data.type === 'square' ? {w : 1, h : 1} : undefined"
-            />
-        </div>
-    </Modal> -->
+    
     
     <div class="col-span-full p-3" >
         <SlideAddMode

@@ -18,11 +18,14 @@
 
   library.add(faCube, faStar, faImage)
 
-  const props = defineProps<{
+  const props = withDefaults(defineProps<{
       open: Boolean
       width?: String,
       uploadRoutes: String
-  }>()
+      tabs?: Array
+    }>(), {
+        tabs: ['upload','images_uploaded','stock_images'],
+})
 
 const layout = inject('layout', layoutStructure)
 const selectedTab = ref(0)
@@ -39,7 +42,7 @@ function changeTab(index) {
     selectedTab.value = index
 }
 
-const tabs = [
+const tabsData = [
     {
         label: "Upload",
         key: 'upload',
@@ -52,9 +55,11 @@ const tabs = [
         label: "Stock Images",
         key: 'stock_images',
     },
-]
+].filter((item) => props.tabs.includes(item.key))
+
 
 const getComponent = (componentName: string) => {
+    console.log(componentName)
   const components: any = {
     'upload': Upload,
     'images_uploaded': UploadedImages,
@@ -80,7 +85,7 @@ const onUpload = (e) => {
     <Modal :isOpen="open" @onClose="() => emits('onClose')" width="w-1/2">
         <TabGroup :selectedIndex="selectedTab" @change="changeTab">
             <TabList class="flex space-x-8 border-b-2">
-                <Tab v-for="tab in tabs" as="template" :key="tab.key" v-slot="{ selected }">
+                <Tab v-for="tab in tabsData" as="template" :key="tab.key" v-slot="{ selected }">
                     <button
                         :style="selected ? { color: layout.app.theme[0], borderBottomColor: layout.app.theme[0] } : {}"
                         :class="[
@@ -95,7 +100,7 @@ const onUpload = (e) => {
             </TabList>
 
             <TabPanels class="mt-2">
-                <TabPanel v-for="(tab, idx) in tabs" :key="idx" :class="[
+                <TabPanel v-for="(tab, idx) in tabsData" :key="idx" :class="[
                     'rounded-xl bg-white p-3 h-96 overflow-auto',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
