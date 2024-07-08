@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletReturn;
@@ -73,16 +73,13 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('assets.id')
+            ->defaultSort('products.id')
             ->select([
-                'assets.id',
-                'assets.slug',
-                'assets.name',
-                'assets.code',
-                'assets.state',
-                'assets.created_at',
+                'products.id',
+                'products.name',
+                'products.code',
                 'assets.price',
-                'assets.unit',
+                'products.description',
                 'currencies.code as currency_code',
                 'fulfilment_transactions.quantity',
                 'fulfilment_transactions.historic_asset_id',
@@ -140,6 +137,6 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection
     {
-        return PhysicalGoodsResource::collection($physicalGoods);
+        return FulfilmentTransactionResource::collection($physicalGoods);
     }
 }

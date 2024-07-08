@@ -13,6 +13,7 @@ import { Link, router } from '@inertiajs/vue3'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { notify } from '@kyvg/vue3-notification'
 import { routeType } from '@/types/route'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 const props = defineProps<{
     dataPalletDelivery: PalletDelivery
@@ -29,7 +30,7 @@ const disableBeforeToday = (date: Date) => {
 }
 
 const isLoadingSetEstimatedDate = ref(false)
-const onChangeEstimateDate = async () => {
+const onChangeEstimateDate = async (close: Function) => {
     router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
     {
         estimated_delivery_date : props.dataPalletDelivery.estimated_delivery_date
@@ -43,7 +44,7 @@ const onChangeEstimateDate = async () => {
                 type: "error",
             })
         },
-        onSuccess: () => console.log('success'),
+        onSuccess: () => close(),
         onFinish: () => isLoadingSetEstimatedDate.value = false,
     })
 }
@@ -168,11 +169,14 @@ onMounted(() => {
                     <template #content="{ close }">
                         <DatePicker
                             v-model="dataPalletDelivery.estimated_delivery_date"
-                            @update:modelValue="() => onChangeEstimateDate()"
+                            @update:modelValue="() => onChangeEstimateDate(close)"
                             inline auto-apply
                             :disabled-dates="disableBeforeToday"
                             :enable-time-picker="false"
                         />
+                        <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
+                            <LoadingIcon class="text-5xl" />
+                        </div>
                     </template>
                 </Popover>
             </div>

@@ -78,12 +78,10 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'products.id',
                 'products.name',
                 'products.code',
-                'pallet_delivery_physical_goods.pallet_delivery_id',
                 'assets.price',
                 'products.description',
                 'currencies.code as currency_code',
                 'fulfilment_transactions.quantity',
-                'fulfilment_transactions.parent_id  pallet_delivery_id',
                 'fulfilment_transactions.historic_asset_id',
             ]);
 
@@ -110,18 +108,11 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($palletDelivery)) {
-                        'Fulfilment' => [
-                            'title' => __("No physical goods found"),
-                            'count' => $palletDelivery->fulfilment->shop->stats->number_assets_type_product,
-                        ],
-                        'PalletDelivery' => [
-                            'icons' => ['fal fa-cube'],
-                            'title' => __('No physical goods selected'),
-                            'count' => $palletDelivery->stats->number_physical_goods,
-                        ],
-                        default => null
-                    }
+                    [
+                        'icons' => ['fal fa-cube'],
+                        'title' => __('No physical goods selected'),
+                        'count' => $palletDelivery->stats->number_physical_goods,
+                    ]
                 );
 
             $table
