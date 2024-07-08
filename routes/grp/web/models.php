@@ -124,6 +124,7 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
@@ -356,6 +357,8 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
         Route::patch('', [UpdateWebpage::class, 'inShop'])->name('update')->withoutScopedBindings();
     });
+
+    Route::post('website/{website:id}/banner', StoreBanner::class)->name('banner.store')->withoutScopedBindings();
 });
 
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {

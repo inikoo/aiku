@@ -1,7 +1,7 @@
 <!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 02 Oct 2023 03:25:31 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Author: Artha <artha@aw-advantage.com>
+  - Created: Mon, 08 Jul 2024 14:22:45 Central Indonesia Time, Sanur, Bali, Indonesia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -14,8 +14,6 @@ import {library} from "@fortawesome/fontawesome-svg-core"
 import BannerWorkshopComponent from '@/Components/Workshop/BannerWorkshopComponent.vue'
 import {useLayoutStore} from "@/Stores/layout"
 import {cloneDeep} from "lodash"
-import {set, onValue, get} from "firebase/database"
-import {getDbRef} from '@/Composables/firebase'
 
 import {useBannerHash} from "@/Composables/useBannerHash"
 import Publish from "@/Components/Utils/Publish.vue"
@@ -102,12 +100,10 @@ const fetchInitialData = async () => {
         loadingState.value = true
 
         const snapshot = await get(getDbRef(dbPath))
-        const firebaseData = snapshot.exists() ? snapshot.val() : null
 
-        const newData = {...(firebaseData || cloneDeep(props.bannerLayout))}
         Object.assign(data, newData)
 
-        await set(getDbRef(dbPath), {...firebaseData, ...newData})
+        await set(getDbRef(dbPath), {...[], ...newData})
 
 
     } catch (error) {

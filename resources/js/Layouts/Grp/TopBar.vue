@@ -15,9 +15,50 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { faChevronDown } from "@far"
-import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus, faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
-  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox,faStream,
-  faShippingFast,faChessClock,faHouseDamage
+import {
+    faTerminal,
+    faUserAlien,
+    faCog,
+    faCity,
+    faBuilding,
+    faNetworkWired,
+    faUserHardHat,
+    faCalendar,
+    faStopwatch,
+    faStoreAlt,
+    faWarehouseAlt,
+    faChartNetwork,
+    faFolderTree,
+    faFolder,
+    faCube,
+    faUserPlus,
+    faBox,
+    faBoxesAlt,
+    faMoneyCheckAlt,
+    faCashRegister,
+    faCoins,
+    faFileInvoiceDollar,
+    faReceipt,
+    faPersonDolly,
+    faPeopleArrows,
+    faConciergeBell,
+    faGarage,
+    faHamsa,
+    faCodeMerge,
+    faSortShapesDownAlt,
+    faHatChef,
+    faTags,
+    faCommentDollar,
+    faNewspaper,
+    faMailBulk,
+    faBell,
+    faLaptopHouse,
+    faHandHoldingBox,
+    faStream,
+    faShippingFast,
+    faChessClock,
+    faHouseDamage,
+    faSign
 } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
@@ -28,7 +69,7 @@ import { faBallot } from "@fas"
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,faStream,
     faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox,
-  faShippingFast,faChessClock,faBallot,faHouseDamage
+  faShippingFast,faChessClock,faBallot,faHouseDamage, faSign
 );
 
 defineProps<{
@@ -134,7 +175,7 @@ const label = {
                                             : layoutStore.group?.label
                                     "
                                 />
-                                
+
                                 <transition>
                                     <MenuItems
                                         class="px-1 py-1 space-y-2.5 min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">

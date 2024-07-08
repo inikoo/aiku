@@ -317,6 +317,16 @@ class GetShopNavigation
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],
+                            [
+                                "label"   => __("banners"),
+                                "tooltip" => __("banners"),
+                                "icon"    => ["fal", "fa-sign"],
+                                'root'    => 'grp.org.shops.show.web.banners.index',
+                                "route"   => [
+                                    "name"       => "grp.org.shops.show.web.banners.index",
+                                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                                ],
+                            ],
                         ],
                     ],
                 ];
