@@ -89,7 +89,7 @@ const timeline = ref({ ...props.data?.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
-const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 const typePallet = [
@@ -196,6 +196,11 @@ const onOpenModalAddPGood = async () => {
     isLoadingData.value = false
 }
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
+    const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
+    console.log('vvv', data.route?.name)
+    console.log('vvv', dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0])
+    formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
+
     isLoadingButton.value = 'addPGood'
     formAddPhysicalGood.post(
         route( data.route?.name, data.route?.parameters ),
