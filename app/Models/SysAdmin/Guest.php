@@ -144,16 +144,6 @@ class Guest extends Model implements HasMedia, Auditable
         return $this->belongsTo(Group::class);
     }
 
-    public function getGroup(): Group
-    {
-        return $this->group;
-    }
-
-    public function getGroupId(): int
-    {
-        return $this->group_id;
-    }
-
     public function stats(): HasOne
     {
         return $this->hasOne(GuestStats::class);

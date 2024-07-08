@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -132,7 +131,6 @@ class Employee extends Model implements HasMedia, Auditable
         'working_hours'       => '{}',
     ];
 
-
     protected $guarded = [];
 
     public static function boot(): void
@@ -147,7 +145,6 @@ class Employee extends Model implements HasMedia, Auditable
             });
         }
     }
-
 
     public function getSlugOptions(): SlugOptions
     {
@@ -187,21 +184,6 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->belongsToMany(Workplace::class)->withTimestamps();
     }
 
-    public function getGroup(): Group
-    {
-        return $this->group;
-    }
-
-    public function getGroupId(): int
-    {
-        return $this->group_id;
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
     public function stats(): HasOne
     {
         return $this->hasOne(EmployeeStats::class);
@@ -222,7 +204,7 @@ class Employee extends Model implements HasMedia, Auditable
         return $this->morphMany(Clocking::class, 'subject');
     }
 
-    public function tasks()
+    public function tasks(): MorphMany
     {
         return $this->morphMany(Task::class, 'assigner');
     }

@@ -163,7 +163,7 @@ class FetchAction
         $organisationSource->fetch->records()->create([
             'model_data' => $modelData,
             'type'       => FetchRecordTypeEnum::FETCH_ERROR,
-            'source_id'  => Arr::get($modelData,'source_id'),
+            'source_id'  => Arr::get($modelData, 'source_id'),
             'model_type' => $modelType,
             'error_on'   => $errorOn
         ]);
