@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->foreign('fetch_id')->references('id')->on('fetches')->onUpdate('cascade')->onDelete('cascade');
             $table->string('type')->index();
             $table->string('error_on')->nullable()->index();
-            $table->string('source_id')->index();
+            $table->string('source_id')->nullable()->index();
             $table->string('model_type')->nullable()->index();
             $table->string('model_id')->nullable()->index();
             $table->jsonb('model_data');
