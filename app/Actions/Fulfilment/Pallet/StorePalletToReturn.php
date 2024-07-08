@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -36,14 +37,21 @@ class StorePalletToReturn extends OrgAction
         $palletIds = Arr::get($modelData, 'pallets');
 
         $palletReturn->pallets()->syncWithoutDetaching($palletIds);
+        
+        $pallets = Pallet::findOrFail($palletIds);
 
         Pallet::whereIn('id', $palletIds)->update([
-            'pallet_return_id' => $palletReturn->id,
-            'status'           => PalletStatusEnum::STORING,
-            'state'            => PalletStateEnum::IN_PROCESS
-        ]);
+                    'pallet_return_id' => $palletReturn->id,
+                    'status'           => PalletStatusEnum::STORING,
+                    'state'            => PalletStateEnum::IN_PROCESS
+                ]);
 
         $palletReturn->refresh();
+
+        foreach ($pallets as $pallet) {
+            AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
+        }
+        
         HydratePalletReturns::run($palletReturn);
 
         return $palletReturn;

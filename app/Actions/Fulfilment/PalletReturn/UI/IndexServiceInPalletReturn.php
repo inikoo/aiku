@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -58,9 +59,9 @@ class IndexServiceInPalletReturn extends OrgAction
         $queryBuilder->where('fulfilment_transactions.parent_type', class_basename($palletReturn));
         $queryBuilder->where('fulfilment_transactions.parent_id', $palletReturn->id);
         $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
-        $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
-
         $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->join('historic_assets', 'fulfilment_transactions.historic_asset_id', '=', 'historic_assets.id');
+
         $queryBuilder->join('services', 'assets.model_id', '=', 'services.id');
         $queryBuilder->join('currencies', 'services.currency_id', '=', 'currencies.id');
 
@@ -79,22 +80,26 @@ class IndexServiceInPalletReturn extends OrgAction
         $queryBuilder
             ->defaultSort('services.id')
             ->select([
-                'services.id',
-                'services.state',
-                'services.created_at',
-                'services.price',
-                'services.unit',
-                'assets.name',
-                'assets.code',
-                'assets.price',
-                'services.description',
-                'currencies.code as currency_code',
-                'fulfilment_transactions.quantity',
+                'fulfilment_transactions.id',
+                'fulfilment_transactions.asset_id',
+                'fulfilment_transactions.type as asset_type',
                 'fulfilment_transactions.historic_asset_id',
+                'services.slug as asset_slug',
+                'historic_assets.code as asset_code',
+                'historic_assets.name as asset_name',
+                'historic_assets.price as asset_price',
+                'historic_assets.unit as asset_unit',
+                'historic_assets.units as asset_units',
+
+                'fulfilment_transactions.quantity',
+                'fulfilment_transactions.parent_id  as pallet_delivery_id',
+                'currencies.code as currency_code',
+                'fulfilment_transactions.is_auto_assign',
+
+
             ]);
 
-
-        return $queryBuilder->allowedSorts(['id','price','name','state'])
+        return $queryBuilder->allowedSorts(['id', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -125,21 +130,18 @@ class IndexServiceInPalletReturn extends OrgAction
                 );
 
             $table
-                ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-                ->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'action', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-                ->defaultSort('code');
+            ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+            ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+            ->defaultSort('id');
         };
     }
 
 
     public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
     {
-        return ServicesResource::collection($services);
+        return FulfilmentTransactionResource::collection($services);
     }
 }

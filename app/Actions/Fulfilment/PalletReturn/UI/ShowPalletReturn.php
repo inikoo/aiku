@@ -26,6 +26,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -409,12 +410,12 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
-                    fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
+                    fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
 
                 PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
-                    fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
+                    fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
             ]
         )->table(
             IndexPalletsInReturn::make()->tableStructure(
