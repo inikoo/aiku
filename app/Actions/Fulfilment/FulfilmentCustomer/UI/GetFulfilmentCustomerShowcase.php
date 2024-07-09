@@ -26,13 +26,13 @@ class GetFulfilmentCustomerShowcase
     {
         $irisDomain = $fulfilmentCustomer->fulfilment->shop?->website?->domain;
 
-        $recurringBillData= [];
+        $recurringBillData= null;
 
         if ($fulfilmentCustomer->currentRecurringBill) {
             $recurringBillData = [
                 'route'      => [
                     'name'             => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-                    'parameters' => [
+                    'parameters'       => [
                         'organisation'       => $fulfilmentCustomer->organisation->slug,
                         'fulfilment'         => $fulfilmentCustomer->fulfilment->slug,
                         'fulfilmentCustomer' => $fulfilmentCustomer->slug,
@@ -41,9 +41,9 @@ class GetFulfilmentCustomerShowcase
                     ],
                 'label'         => 'Recurring Bills',
                 'start_date'    => $fulfilmentCustomer->currentRecurringBill->start_date ?? '',
-                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date ?? '', 
+                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date   ?? '',
                 'currency_code' => 'usd',
-                'status'        => $fulfilmentCustomer->currentRecurringBill->status ?? '' 
+                'status'        => $fulfilmentCustomer->currentRecurringBill->status ?? ''
             ];
         }
 
@@ -57,7 +57,7 @@ class GetFulfilmentCustomerShowcase
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
             ],
-            'recurring_bill'      => $recurringBillData,
+            'recurring_bill'               => $recurringBillData,
             'updateRoute'                  => [
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
