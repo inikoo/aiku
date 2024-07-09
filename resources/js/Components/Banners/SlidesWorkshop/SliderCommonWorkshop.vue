@@ -19,10 +19,10 @@ import SelectFont from './Fields/SelectFont.vue'
 import GradientColor from './Fields/GradientColor.vue'
 import BannerNavigation from '@/Components/Banners/SlidesWorkshop/Fields/BannerNavigation.vue'
 
-/* import Toogle from '@/Components/Forms/Fields/Primitive/PrimitiveToggle.vue'
-import PrimitiveInput from '@/Components/Forms/Fields/Primitive/PrimitiveInput.vue'
-import Select from '@/Components/Forms/Fields/Primitive/PrimitiveSelect.vue'
-import Radio from '@/Components/Forms/Fields/Primitive/PrimitiveRadio.vue' */
+import Toogle from './Fields/PrimitiveToggle.vue'
+import PrimitiveInput from './Fields/PrimitiveInput.vue'
+import Select from './Fields/PrimitiveSelect.vue'
+import Radio from './Fields/PrimitiveRadio.vue'
 
 library.add(faImage, faExpandArrows, faAlignCenter, faTrash, faStopwatch)
 const props = defineProps<{
@@ -34,18 +34,18 @@ const props = defineProps<{
 
 const getComponent = (componentName: string) => {
     const components = {
-       /*  'text': PrimitiveInput, */
+        'text': PrimitiveInput,
         'corners': Corners,
         'range': Range,
         'colorpicker': Colorpicker,
-        /* 'select': Select, */
-       /*  'radio': Radio, */
+        'select': Select,
+        'radio': Radio,
         'textAlign': TextAlign,
         'selectFont': SelectFont,
-       /*  'toogle':Toogle, */
+        'toogle':Toogle,
         'gradientColor' : GradientColor,
         'bannerNavigation' : BannerNavigation,
-      /*   'number' : PrimitiveInput, */
+        'number' : PrimitiveInput,
     };
     return components[componentName]
 };

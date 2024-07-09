@@ -59,7 +59,6 @@ const tabsData = [
 
 
 const getComponent = (componentName: string) => {
-    console.log(componentName)
   const components: any = {
     'upload': Upload,
     'images_uploaded': UploadedImages,
