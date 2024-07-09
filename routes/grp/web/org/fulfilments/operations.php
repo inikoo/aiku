@@ -17,6 +17,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
+use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 
 Route::get('', ShowFulfilment::class)->name('dashboard');
 
@@ -36,7 +37,7 @@ Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-retu
 
 Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('', IndexRecurringBills::class)->name('.index');
-    Route::get('{recurringBill}', ShowInvoice::class)->name('.show');
+    Route::get('{recurringBill}', ShowRecurringBill::class)->name('.show');
 });
 
 Route::prefix('invoices')->as('invoices')->group(function () {

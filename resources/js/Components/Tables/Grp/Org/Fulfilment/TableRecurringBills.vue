@@ -29,6 +29,14 @@ function recurringBillRoute(bill) {
                     route().params["fulfilmentCustomer"],
                     bill.slug
                 ]);
+        case "grp.org.fulfilments.show.operations.recurring_bills.index":
+            return route(
+                "grp.org.fulfilments.show.operations.recurring_bills.show",
+                [
+                    route().params["organisation"],
+                    route().params["fulfilment"],
+                    bill.slug
+                ]);
 
         default:
             return [];

@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\RecurringBill\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
@@ -26,6 +27,8 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use Checkout\Sessions\Recurring;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -42,7 +45,7 @@ class ShowRecurringBill extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
@@ -68,7 +71,10 @@ class ShowRecurringBill extends OrgAction
             'Org/Fulfilment/RecurringBill',
             [
                 'title'       => __('recurring bill'),
-                'breadcrumbs' => $this->getBreadcrumbs($recurringBill),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -120,36 +126,66 @@ class ShowRecurringBill extends OrgAction
         return new RecurringBillResource($recurringBill);
     }
 
-    public function getBreadcrumbs(RecurringBill $recurringBill, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
     {
-        //  TODO: Fix this @kirin
-        return [];
-        return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
-            [
+        $headCrumb = function (RecurringBill $recurringBill, array $routeParameters, string $suffix) {
+            return [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
-                                'parameters' => [
-                                    array_values(request()->route()->originalParameters())
-                                ]
-                            ],
-                            'label' => __('recurring bills')
+                            'route' => $routeParameters['index'],
+                            'label' => __('Recurring bills')
                         ],
                         'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => $recurringBill->slug,
+                            'route' => $routeParameters['model'],
+                            'label' => $recurringBill->reference,
                         ],
+
                     ],
-                    'suffix' => $suffix,
+                    'suffix' => $suffix
                 ],
-            ]
-        );
+            ];
+        };
+
+        $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
+
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show' => array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
+                $headCrumb(
+                    $recurringBill,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'recurringBill'])
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.fulfilments.show.operations.recurring_bills.show' => array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment'])),
+                $headCrumb(
+                    $recurringBill,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
 }
