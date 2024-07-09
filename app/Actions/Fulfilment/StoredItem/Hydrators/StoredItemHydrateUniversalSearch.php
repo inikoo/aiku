@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoredItemHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(StoredItem $storedItem): void
     {

@@ -119,11 +119,10 @@ class Invoice extends Model implements Auditable
     protected array $auditInclude = [
         'number',
         'type',
-        'net_amount',
-        'currency_id',
-        'group_exchange',
-        'org_exchange',
-        'total_amount',
+        'state',
+        'status',
+        'email',
+        'phone',
     ];
 
     public function getSlugOptions(): SlugOptions

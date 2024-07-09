@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SupplierProductHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(SupplierProduct $supplierProduct): void
     {

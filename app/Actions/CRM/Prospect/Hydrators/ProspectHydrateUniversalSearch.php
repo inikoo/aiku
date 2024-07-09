@@ -14,6 +14,7 @@ class ProspectHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Prospect $prospect): void
     {

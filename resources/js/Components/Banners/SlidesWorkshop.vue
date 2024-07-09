@@ -46,6 +46,7 @@ const props = defineProps<{
     isOpen?:Object
 }>()
 
+
 const emits = defineEmits<{
     (e: "jumpToIndex", id: string): void;
 }>()
@@ -396,9 +397,16 @@ onMounted(() => {
         </div>
 
         <!-- Modal: Gallery -->
-        <Gallery :open="isOpenGalleryImages" @on-close="() => isOpenGalleryImages = false"  @onUpload="route(imagesUploadRoute.name,imagesUploadRoute.parameters)"
-            :tabs="['upload','images_uploaded', 'stock_images']" @onPick="onPickImageGalery" >
-        </Gallery>
+        <Gallery 
+            :open="isOpenGalleryImages" 
+            @on-close="() => isOpenGalleryImages = false"  
+            :uploadRoutes="route(imagesUploadRoute.name,imagesUploadRoute.parameters)"
+            :tabs="['upload','images_uploaded', 'stock_images']" 
+            @onPick="onPickImageGalery" 
+            @on-upload="uploadImageRespone"
+            :use-crop="true" 
+            :crop-props="{ratio: data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}}" 
+        />
 
 
         <!-- Modal: Crop (add slide) -->

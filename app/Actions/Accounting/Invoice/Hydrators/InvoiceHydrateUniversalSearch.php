@@ -14,6 +14,7 @@ class InvoiceHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Invoice $invoice): void
     {

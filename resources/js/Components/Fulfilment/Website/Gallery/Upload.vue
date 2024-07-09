@@ -35,7 +35,8 @@ const emits = defineEmits<{
 
 
 const onUpload = async () => {
-    try {
+    if(!props.useCrop){
+        try {
         // Create a new FormData object
         const formData = new FormData();
 
@@ -60,12 +61,15 @@ const onUpload = async () => {
             type: "error"
         })
     }
+    }else{
+        isOpenModalCrop.value = true
+    }
+   
 };
 
 
 const addComponent = (element) => {
     uploadedFilesList.value = element.target.files;
-    console.log(uploadedFilesList)
     onUpload()
 }
 
@@ -103,10 +107,10 @@ const drop = (e) => {
     <Modal :isOpen="isOpenModalCrop" @onClose="isOpenModalCrop = false">
         <div>
             <CropImage 
-            v-bind="cropProps" 
-            :data="[]" 
-            :imagesUploadRoute="uploadRoutes" 
-            :response="(e) => console.log(e)" 
+                v-bind="cropProps" 
+                :data="uploadedFilesList" 
+                :imagesUploadRoute="uploadRoutes" 
+                :response="(e) => emits('onUpload', e)" 
             />
         </div>
     </Modal>

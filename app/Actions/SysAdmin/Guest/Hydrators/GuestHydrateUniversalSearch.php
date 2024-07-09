@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GuestHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(Guest $guest): void
     {

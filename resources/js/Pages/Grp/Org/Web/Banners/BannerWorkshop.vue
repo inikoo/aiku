@@ -127,7 +127,7 @@ const handleKeyDown = () => {
 
 const autoSave = () => {
     const form = useForm(deleteUser());
-    form.patch(
+   form.patch(
         route(props.autoSaveRoute.name, props.autoSaveRoute.parameters), {
             preserveScroll: true,
             onError: (errors: any) => {
@@ -136,7 +136,7 @@ const autoSave = () => {
         })
 }
 
-/* watch(data, {deep: true}) */
+watch(data,autoSave,{deep: true})
 
 
 const intervalAutoSave = ref(null)
@@ -174,7 +174,7 @@ onBeforeUnmount(() => {
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
-       <!--  <template #other="{ dataPageHead: head }">
+        <template #other="{ dataPageHead: head }">
             <Publish
                 v-if="data.components.length > 0"
                 v-model="comment"
@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
                 :saveFunction="sendDataToServer"
                 :firstPublish="banner.state == 'unpublished'"
             />
-        </template> -->
+        </template>
     </PageHeading>
 
     <section>
@@ -201,6 +201,6 @@ onBeforeUnmount(() => {
             />
         </div>
 
-        <div @click="(e)=>console.log(data)">see data</div>
+        <!-- <div @click="(e)=>console.log(data)">see data</div> -->
     </section>
 </template>

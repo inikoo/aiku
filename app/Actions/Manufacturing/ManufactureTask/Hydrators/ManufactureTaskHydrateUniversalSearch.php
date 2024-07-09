@@ -8,7 +8,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ManufactureTaskHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(ManufactureTask $manufactureTask): void
     {
