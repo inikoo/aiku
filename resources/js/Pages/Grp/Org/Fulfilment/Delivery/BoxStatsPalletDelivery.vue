@@ -122,6 +122,13 @@ onMounted(() => {
 
         <!-- Box: Status -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletDelivery.state)" icon="fal fa-truck-couch">
+            <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
+                <svg id="palletDeliveryBarcode" class="w-full h-full" />
+                <div class="text-xxs text-gray-500">
+                    pad-{{ route().params.palletDelivery }}
+                </div>
+            </div>
+            
             <!-- <pre>{{ dataPalletDelivery }}</pre> -->
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
@@ -180,49 +187,88 @@ onMounted(() => {
                     </template>
                 </Popover>
             </div>
-        </BoxStatPallet>
 
-
-        <!-- Box: Stats -->
-        <BoxStatPallet class="py-1 sm:py-2 px-3 border-t sm:border-t-0 border-gray-300" :percentage="0">
-            <div v-tooltip="trans('Total Pallet')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ dataPalletDelivery.number_pallets || 0 }}</dd>
-            </div>
-
-            <div v-tooltip="trans('Total Services')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Services</span>
-                    <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletDelivery.number_services }}</dd>
-            </div>
-
-            <div v-tooltip="trans('Total Physical Goods')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Physical Goods</span>
-                    <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletDelivery.number_physical_goods }}</dd>
-            </div>
-
-        </BoxStatPallet>
-
-
-        <!-- Box: Barcode -->
-        <BoxStatPallet class="border-t sm:border-t-0 border-gray-300">
-            <div class="h-full w-full px-2 flex flex-col items-center isolate">
-                <svg id="palletDeliveryBarcode" class="w-full" />
-                <div class="text-xxs md:text-xxs text-gray-500 -mt-1 z-10">
-                    pad-{{ route().params.palletDelivery }}
+            <!-- Stats: count Pallets, Services, Physical Goods -->
+            <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
+                <div v-tooltip="trans('Count of pallets')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_pallets }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_pallets > 1 ? trans('Pallets') : trans('Pallet') }}</span></dd>
+                </div>
+                <div v-tooltip="trans('Count of services')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_services }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_pallets > 1 ? trans('Services') : trans('Service') }}</span></dd>
+                </div>
+                <div v-tooltip="trans('Count of physical goods')" class="w-fit flex items-center gap-x-3">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_physical_goods }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_pallets > 1 ? trans('Physical goods') : trans('Physical good') }}</span></dd>
                 </div>
             </div>
+        </BoxStatPallet>
+
+
+        <!-- Box: Order summary -->
+        <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
+            <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
+                <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2>
+
+                <dl class="mt-2 space-y-2">
+                    <div class="flex flex-col gap-y-2">
+                        <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
+                            <dt class="text-sm text-gray-600">Pallets</dt>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary?.number_pallets || 0}}</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary?.pallets_price || 0 }}</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary?.total_pallets_price || 0 }}</dd>
+                        </div>
+                        <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
+                            <dt class="text-sm text-gray-600">Services</dt>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary?.number_services || 0}}</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary?.services_price || 0 }}</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary?.total_services_price || 0 }}</dd>
+                        </div>
+                        <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
+                            <dt class="text-sm text-gray-600">Physical Goods</dt>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary?.number_physical_goods || 0}}</dd>
+                            <dd class="place-self-end text-sm">{{ boxStats.order_summary?.physical_goods_price || 0 }}</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary?.total_physical_goods_price || 0 }}</dd>
+                        </div>
+                    </div>
+
+                    <!-- Field: Shipping estimate & Tax estimate -->
+                    <!-- <div class="flex flex-col justify-center gap-y-2 border-t border-gray-200 pt-2">
+                        <div class="flex items-center justify-between">
+                            <dt class="flex items-center text-sm text-gray-600">
+                                <span>Shipping estimate</span>
+                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="'Estimated Shipping'" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                            </dt>
+                            <dd class="text-sm text-green-600 animate-pulse">Free</dd>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <dt class="flex items-center text-sm text-gray-600">
+                                <span>Tax estimate</span>
+                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="'Tax estimate'" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                            </dt>
+                            <dd class="text-sm font-medium">$8.32</dd>
+                        </div>
+                    </div> -->
+
+                    <div class="flex items-center justify-between border-t border-gray-200 pt-3">
+                        <dt class="text-base font-medium">Order total</dt>
+                        <dd class="text-base font-medium">{{ boxStats.order_summary?.total_price || 0 }}</dd>
+                    </div>
+                </dl>
+
+                <!-- <div class="mt-6">
+                    <button type="submit"
+                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
+                </div> -->
+            </section>
         </BoxStatPallet>
     </div>
 </template>

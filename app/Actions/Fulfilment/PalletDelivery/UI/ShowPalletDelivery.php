@@ -431,6 +431,18 @@ class ShowPalletDelivery extends OrgAction
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'order_summary'                => [
+                        'number_pallets'               => $palletDelivery->number_pallets,
+                        'number_services'              => $palletDelivery->stats->number_services,
+                        'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
+                        'pallets_price'                => 0,
+                        'physical_goods_price'         => 0,// todo
+                        'services_price'               => 0,// todo
+                        'total_pallets_price'          => 0,
+                        'total_services_price'         => $palletDelivery->stats->total_services_price,
+                        'total_physical_goods_price'   => $palletDelivery->stats->total_physical_goods_price,
+                        'total_price'                  => $palletDelivery->stats->total_price
+                    ]
                 ],
                 'notes_data'             => [
                     [

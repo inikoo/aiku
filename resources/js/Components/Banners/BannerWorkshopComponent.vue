@@ -4,7 +4,7 @@ import SlidesWorkshop from "@/Components/Banners/SlidesWorkshop.vue"
 import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
 /* import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue" */
 import SlidesWorkshopAddMode from "@/Components/Banners/SlidesWorkshopAddMode.vue"
-/* import ScreenView from "@/Components/ScreenView.vue" */
+import ScreenView from "@/Components/ScreenView.vue"
 
 
 const props = defineProps<{
@@ -22,20 +22,21 @@ const screenView = ref("")
 <template>
     <div v-if="data.components.filter((item: any) => item.ulid != null).length > 0" class="w-full">
         <!-- Button: Screen -->
-   <!--      <div class="flex justify-end pr-2">
+        <div class="flex justify-end pr-2">
             <ScreenView @screenView="(val) => (screenView = val)" />
-        </div -->
+        </div>
 
         <!-- Banner: Square or Landscape -->
         <div class="flex pr-0.5"
             :class="[data.type === 'square' ? 'justify-start 2xl:justify-center' : 'justify-center']"
         >
-           <!--  <div v-if="data.type === 'square'"
+            <div v-if="data.type === 'square'"
                 class="w-full min-h-[250px] max-h-[400px]"
             >
                 <SliderSquare :data="data" :jumpToIndex="jumpToIndex" :view="screenView" />
-            </div> -->
-            <SliderLandscape  :data="data" :jumpToIndex="jumpToIndex" :view="screenView" />
+            </div>
+
+            <SliderLandscape v-else :data="data" :jumpToIndex="jumpToIndex" :view="screenView" />
         </div>
         
         <!-- Editor -->

@@ -18,13 +18,13 @@ library.add(faExclamation, faSpinnerThird)
 
 import { trans } from "laravel-vue-i18n"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import CropComponents from "@/Components/CropImage/CropComponents.vue"
+import CropComponents from "./CropComponents.vue"
 import { routeType } from '@/types/route'
 
 
 const props = withDefaults(defineProps<{
     data: File[];
-    imagesUploadRoute: routeType
+    imagesUploadRoute: string
     response : Function
     ratio?:  {
         w: number
@@ -41,6 +41,7 @@ const emits = defineEmits<{
 const setData2 = () => {
     const data = []
     for (const set of props.data) {
+        console.log('ss',set)
         data.push({
             originalFile: set,
         })
@@ -102,10 +103,7 @@ const addComponent = async () => {
 
     try {
         const response = await axios.post(
-            route(
-                props.imagesUploadRoute.name,
-                props.imagesUploadRoute.parameters
-            ),
+            props.imagesUploadRoute,
             { images: SendData },
             {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -186,7 +184,7 @@ const generateGif = (file: File) => {
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .swiper {
     @apply w-full h-full;
 }

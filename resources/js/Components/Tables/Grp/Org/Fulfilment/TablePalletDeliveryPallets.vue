@@ -150,7 +150,9 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: Type pallet -->
 		<template #cell(type)="{ item: pallet }">
             <div class="w-32">
+            <!-- <pre>{{ pallet.id }}</pre> -->
                 <FieldEditableTable
+                    :key="'typePallet' + pallet.id"
                     :data="pallet"
                     @onSave="onSaved"
                     :options="typePallet"

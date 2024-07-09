@@ -22,9 +22,15 @@
       open: Boolean
       width?: String,
       uploadRoutes: String
-      tabs?: Array
+      tabs?: Array,
+      useCrop? : Bollean,
+      cropProps? : Object
     }>(), {
         tabs: ['upload','images_uploaded','stock_images'],
+        useCrop : false,
+        cropProps : {
+            ratio :  { w: 1, h: 1 } 
+        }
 })
 
 const layout = inject('layout', layoutStructure)
@@ -104,7 +110,7 @@ const onUpload = (e) => {
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
                     <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick"
-                        @onUpload="onUpload" />
+                        @onUpload="onUpload"  :useCrop="useCrop" :cropProps="cropProps"/>
 
                 </TabPanel>
             </TabPanels>

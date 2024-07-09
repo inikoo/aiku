@@ -16,7 +16,6 @@ export const useBannerBackgroundColor = () => {
 export const useSolidColor = [
     'rgb(147, 51, 234)', // Purple
     'rgb(239, 68, 68)', // Orange
-
     'rgb(41, 37, 36)', // Stone
     'rgb(255, 255, 255)', // White
     'rgb(245, 158, 11)', // Amber
