@@ -283,14 +283,14 @@ watch(() => props.data, (newValue) => {
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
                         <span class="text-xs  my-2">{{ trans('Type') }}: </span>
-                        <div class="flex items-center">
+                        <div class="flex items-center gap-x-2">
                             <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx"
-                                class="relative py-3 mr-4 flex items-center">
+                                class="relative py-2 px-1 flex items-center">
                                 <input type="checkbox" :id="typeData.value" :value="typeData.value"
                                     :checked="formMultiplePallet.type == typeData.value"
                                     @input="changePalletType(formMultiplePallet,'type',typeData.value)"
                                     class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
-                                <label :for="typeData.value" class="ml-2 cursor-pointer">{{ typeData.label }}</label>
+                                <label :for="typeData.value" class="pl-2 cursor-pointer select-none">{{ typeData.label }}</label>
                             </div>
                         </div>
                         <span class="text-xs  my-2">Number of pallets: </span>
@@ -512,6 +512,7 @@ watch(() => props.data, (newValue) => {
                                     :style="'save'"
                                     :loading="isLoadingButton == 'addPGood'"
                                     :label="'save'"
+                                    full
                                     @click="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                             </div>

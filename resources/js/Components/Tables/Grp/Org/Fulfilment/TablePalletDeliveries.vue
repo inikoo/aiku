@@ -13,11 +13,12 @@ import { faPlus } from "@fas"
 import { faCheckDouble, faShare, faCross } from "@fal"
 import Modal from "@/Components/Utils/Modal.vue"
 import { ref } from 'vue'
-import EmptyState from '@/Components/Utils/EmptyState.vue'
+// import EmptyState from '@/Components/Utils/EmptyState.vue'
 
 
 import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
+import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
 
 library.add(faPlus, faCheckDouble, faShare, faCross)
 
@@ -119,20 +120,40 @@ const handleClick = (action: Action) => {
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletDelivery }">
             <Link :href="palletDeliveryRoute(palletDelivery)" class="primaryLink">
-            {{ palletDelivery['reference'] }}
+                {{ palletDelivery['reference'] }}
             </Link>
         </template>
 
         <!-- Column: Customer -->
         <template #cell(customer_name)="{ item: palletDelivery }">
             <Link :href="customerRoute(palletDelivery)" class="secondaryLink">
-            {{ palletDelivery['customer_name'] }}
+                {{ palletDelivery['customer_name'] }}
             </Link>
+        </template>
+
+        <!-- Column: Customer -->
+        <template #cell(customer_reference)="{ item: palletDelivery }">
+            <Link v-if="palletDelivery.customer_reference" :href="customerRoute(palletDelivery)" class="secondaryLink">
+                {{ palletDelivery.customer_reference }}
+            </Link>
+            <div v-else class="text-gray-400">
+                -
+            </div>
         </template>
 
         <!-- Column: State -->
         <template #cell(state)="{ item: palletDelivery }">
             <Icon :data="palletDelivery['state_icon']" class="px-1" />
+        </template>
+
+        <!-- Column: Estiamted Delivery Date -->
+        <template #cell(estimated_delivery_date)="{ item: palletDelivery }">
+            <div>
+                {{ useFormatTime (palletDelivery.estimated_delivery_date) }}
+                <span v-if="palletDelivery.state === 'in-process' || palletDelivery.state === 'submitted' || palletDelivery.state === 'confirmed'" class="text-gray-400">
+                    ({{useDaysLeftFromToday(palletDelivery.estimated_delivery_date)}})
+                </span>
+            </div>
         </template>
 
         <!-- <template #buttondeliveries="{ linkButton: linkButton }">
