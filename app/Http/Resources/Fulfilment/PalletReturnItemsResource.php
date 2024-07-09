@@ -66,7 +66,7 @@ class PalletReturnItemsResource extends JsonResource
                     'parameters' => $this->id
                 ],
                 default => [
-                    'name'       => 'grp.models.pallet.pallet-return-item.update',
+                    'name'       => 'grp.models.pallet.pallet-return-item.sync',
                     'parameters' => $this->id
                 ]
             },

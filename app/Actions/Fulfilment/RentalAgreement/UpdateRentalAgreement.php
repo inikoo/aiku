@@ -218,7 +218,7 @@ class UpdateRentalAgreement extends OrgAction
         return $this->handle($rentalAgreement, $this->validatedData);
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, ActionRequest $request): RentalAgreement
+    public function asController(RentalAgreement $rentalAgreement, ActionRequest $request): RentalAgreement
     {
         /** @var WebUser $webUser */
         $webUser = $rentalAgreement
@@ -227,7 +227,7 @@ class UpdateRentalAgreement extends OrgAction
             ->webUsers()
             ->first();
         $this->webUser = $webUser;
-
+        $fulfilmentCustomer = $rentalAgreement->fulfilmentCustomer;
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
 

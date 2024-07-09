@@ -20,7 +20,7 @@ const props = defineProps<{
 }>()
 
 
-console.log(props)
+
 
 const isOpenModalCrop = ref(false)
 const addedFiles = ref([])
@@ -174,7 +174,7 @@ const onClickQuickStart = () => {
         :uploadRoutes="''"  
         @onPick="onPick"
         :tabs="['images_uploaded','stock_images']"
-        @onUpload="e => console.log(e)"
+        @onUpload="route(imagesUploadRoute.name,imagesUploadRoute.parameters)"
     >
     </Gallery>
     

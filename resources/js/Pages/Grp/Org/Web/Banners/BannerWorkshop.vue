@@ -200,5 +200,7 @@ onBeforeUnmount(() => {
                 :banner="banner"
             />
         </div>
+
+        <div @click="(e)=>console.log(data)">see data</div>
     </section>
 </template>

@@ -12,10 +12,10 @@ import TextAlign from './Fields/TextAlign.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { trans } from "laravel-vue-i18n"
 
-/* import Toogle from '@/Components/Forms/Fields/Primitive/PrimitiveToggle.vue'
-import PrimitiveInput from '@/Components/Forms/Fields/Primitive/PrimitiveInput.vue'
-import Select from '@/Components/Forms/Fields/Primitive/PrimitiveSelect.vue'
-import Radio from '@/Components/Forms/Fields/Primitive/PrimitiveRadio.vue' */
+import Toogle from './Fields/PrimitiveToggle.vue'
+import PrimitiveInput from './Fields/PrimitiveInput.vue'
+import Select from './Fields/PrimitiveSelect.vue'
+import Radio from './Fields/PrimitiveRadio.vue'
 /* import SlideBackground from "@/Components/Banners/SlidesWorkshop/Fields/SlideBackground.vue" */
 import Corners from "@/Components/Banners/SlidesWorkshop/Fields/Corners/Corners.vue"
 import Colorpicker from '@/Components/Banners/SlidesWorkshop/Fields/ColorPicker.vue'
@@ -33,15 +33,15 @@ const props = defineProps<{
 
 const getComponent = (componentName: string) => {
     const components: any = {
- /*        'text': PrimitiveInput,
-        'radio': Radio, */
+        'text': PrimitiveInput,
+        'radio': Radio,
         /* 'slideBackground': SlideBackground, */
         'corners': Corners,
         'colorpicker' : Colorpicker,
-       /*  'select': Select, */
+        'select': Select,
         'selectFont': SelectFont,
         'textAlign': TextAlign,
-      /*   'toogle':Toogle */
+        'toogle':Toogle
     };
     return components[componentName]
 };

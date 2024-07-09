@@ -21,8 +21,8 @@ import { get, isNull } from "lodash"
 import SliderCommonWorkshop from "@/Components/Banners/SlidesWorkshop/SliderCommonWorkshop.vue"
 import SlideWorkshop from "@/Components/Banners/SlidesWorkshop/SlideWorkshop.vue"
 import Modal from '@/Components/Utils/Modal.vue'
-/* import GalleryImages from "@/Components/Workshop/GalleryImages.vue"
-import CropImage from "@/Components/Workshop/CropImage/CropImage.vue" */
+import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
+import CropImage from "@/Components/CropImage/CropImage.vue" 
 import Image from "@/Components/Image.vue"
 import { BannerWorkshop, SlideWorkshopData } from '@/types/BannerWorkshop'
 import { routeType } from '@/types/route'
@@ -618,6 +618,30 @@ const duplicateSlide = (selectedSlide: SlideWorkshopData) => {
 
 const backgroundColorList = useBannerBackgroundColor() // Fetch color list from Composables
 
+const onPickImageGalery = (image) => {
+    let setData = [];
+    setData.push({
+        id:  null,
+        ulid: ulid(),
+        layout: {
+            imageAlt: image.name,
+        },
+        image: {
+            desktop: image,
+        },
+        backgroundType: {
+            desktop: 'image'
+        },
+        visibility: true,
+    });
+    const newFiles = [...setData];
+    props.data.components = [...props.data.components, ...newFiles];
+    isOpenCropModal.value = false;
+    isOpenGalleryImages.value = false
+    commonEditActive.value = false
+    currentComponentBeenEdited.value = props.data.components[ props.data.components.length - 1 ]
+}
+
 onMounted(() => {
     commonEditActive.value = true
 })
@@ -627,16 +651,15 @@ onMounted(() => {
 <template>
     <!-- <pre>{{ commonEditActive }}</pre> -->
     <div class="flex flex-grow gap-2.5">
-        <div class="p-2.5 border rounded h-fit shadow w-1/4"
-            v-if="data.components" @dragover="dragover" @dragleave="dragleave" @drop="drop">
+        <div class="p-2.5 border rounded h-fit shadow w-1/4" v-if="data.components" @dragover="dragover"
+            @dragleave="dragleave" @drop="drop">
             <!-- Common Properties -->
             <div :class="[
                 'p-2 mb-4 md:pl-3 cursor-pointer space-x-3 md:space-x-2 ring-1 ring-gray-300 flex flex-row items-center md:block',
                 commonEditActive
                     ? 'navigationActiveCustomer bg-gray-200/60 font-medium'
                     : 'navigationCustomer hover:bg-gray-100 border-gray-300',
-                ]" @click="setCommonEdit"
-            >
+                ]" @click="setCommonEdit">
                 <FontAwesomeIcon v-if="props.data.common?.user == props.user || !props.data.common?.user"
                     icon="fal fa-cog" class="text-xl md:text-base text-gray-500" aria-hidden="true" />
                 <FontAwesomeIcon :name="props.data.common?.user" v-else="
@@ -646,11 +669,12 @@ onMounted(() => {
             </div>
 
             <!-- Slides/Drag area -->
-            <div class="text-lg font-medium leading-none">{{ trans("Slides") }} <span class='text-dase'>({{ data.components.length }})</span></div>
-            <draggable :list="data.components" group="slide " item-key="ulid" handle=".handle" class="max-h-96 overflow-auto p-0.5">
+            <div class="text-lg font-medium leading-none">{{ trans("Slides") }} <span class='text-dase'>({{
+                    data.components.length }})</span></div>
+            <draggable :list="data.components" group="slide " item-key="ulid" handle=".handle"
+                class="max-h-96 overflow-auto p-0.5">
                 <template #item="{ element: slide }">
-                    <div @mousedown="selectComponentForEdition(slide)"
-                        v-if="slide.ulid" :class="[
+                    <div @mousedown="selectComponentForEdition(slide)" v-if="slide.ulid" :class="[
                             'grid grid-flow-col relative sm:py-1 mb-2 items-center justify-between ring-1 ring-gray-300',
                             slide.ulid == get(currentComponentBeenEdited, 'ulid')
                                 ? 'navigationSecondActiveCustomer font-medium'
@@ -658,8 +682,7 @@ onMounted(() => {
                             slide.user != props.user && slide.user
                                 ? 'border-l-gray-500 border-l-4 bg-gray-200/60 text-gray-600 font-medium cursor-not-allowed'
                                 : 'cursor-pointer',
-                        ]"
-                    >
+                        ]">
                         <!-- Slide -->
                         <div class="grid grid-flow-col gap-x-1 lg:gap-x-0 ssm:py-1 lg:py-0">
                             <!-- Icon: Bars, class 'handle' to grabable -->
@@ -669,20 +692,30 @@ onMounted(() => {
                             <!-- Image slide: if Image is selected in SlideBackground -->
                             <div v-if="data.type === 'square'" class="">
                                 <!-- If Banner Square -->
-                                <Image v-if="get(slide, ['layout', 'backgroundType', 'desktop'], 'image') === 'image'" :src="get(slide, ['image', 'desktop', 'thumbnail'], get(slide, ['image', 'desktop', 'thumbnail']))" class="h-full w-10 sm:w-10 flex items-center justify-center py-1"/>
+                                <Image v-if="get(slide, ['layout', 'backgroundType', 'desktop'], 'image') === 'image'"
+                                    :src="get(slide, ['image', 'desktop', 'thumbnail'], get(slide, ['image', 'desktop', 'thumbnail']))"
+                                    class="h-full w-10 sm:w-10 flex items-center justify-center py-1" />
 
                                 <!-- If the slide is color -->
-                                <div v-else :style="{ background: get(slide, ['layout', 'background', 'desktop'], 'gray')}" class="h-full w-10 sm:w-10 flex items-center justify-center py-1"/>
+                                <div v-else
+                                    :style="{ background: get(slide, ['layout', 'background', 'desktop'], 'gray')}"
+                                    class="h-full w-10 sm:w-10 flex items-center justify-center py-1" />
                             </div>
                             <div v-else>
-                                <Image v-if="get(slide, ['layout', 'backgroundType', screenView ], get(slide, ['layout', 'backgroundType', 'desktop'], 'image')) === 'image'" :src="get(slide, ['image', screenView, 'thumbnail'], get(slide, ['image','desktop', 'thumbnail'], false))" class="h-full w-10 sm:w-10 flex items-center justify-center py-1"/>
+                                <Image
+                                    v-if="get(slide, ['layout', 'backgroundType', screenView ], get(slide, ['layout', 'backgroundType', 'desktop'], 'image')) === 'image'"
+                                    :src="get(slide, ['image', screenView, 'thumbnail'], get(slide, ['image','desktop', 'thumbnail'], false))"
+                                    class="h-full w-10 sm:w-10 flex items-center justify-center py-1" />
 
                                 <!-- If the slide is color -->
-                                <div v-else :style="{ background: get(slide, ['layout', 'background', screenView], get(slide, ['layout', 'background','desktop'], 'gray'))}" class="h-full w-10 sm:w-10 flex items-center justify-center py-1"/>
+                                <div v-else
+                                    :style="{ background: get(slide, ['layout', 'background', screenView], get(slide, ['layout', 'background','desktop'], 'gray'))}"
+                                    class="h-full w-10 sm:w-10 flex items-center justify-center py-1" />
                             </div>
 
                             <!-- Label slide -->
-                            <div class="hidden lg:inline-flex overflow-hidden whitespace-nowrap overflow-ellipsis pl-2 leading-tight flex-auto items-center">
+                            <div
+                                class="hidden lg:inline-flex overflow-hidden whitespace-nowrap overflow-ellipsis pl-2 leading-tight flex-auto items-center">
                                 <div class="overflow-hidden whitespace-nowrap overflow-ellipsis lg:text-xs xl:text-sm">
                                     {{ slide?.layout?.imageAlt ?? "Image " + slide.id }}
                                 </div>
@@ -690,12 +723,12 @@ onMounted(() => {
                         </div>
 
                         <!-- Button: Show/hide, delete slide -->
-                        <div class="flex justify-center items-center pr-2 justify-self-end"  v-if="slide.user == props.user || !slide.user">
-                            <button v-if="!slide.visibility" class="px-2 py-1 bg-grays-500 text-red-500/60 hover:text-red-500" type="button"
-                                @click="(e)=>{ e.stopPropagation()
-                                    removeComponent(slide)}"
-                                title="Delete this slide">
-                                <FontAwesomeIcon :icon="['fal', 'fa-trash-alt']"  class="text-xs sm:text-sm" />
+                        <div class="flex justify-center items-center pr-2 justify-self-end"
+                            v-if="slide.user == props.user || !slide.user">
+                            <button v-if="!slide.visibility"
+                                class="px-2 py-1 bg-grays-500 text-red-500/60 hover:text-red-500" type="button" @click="(e)=>{ e.stopPropagation()
+                                    removeComponent(slide)}" title="Delete this slide">
+                                <FontAwesomeIcon :icon="['fal', 'fa-trash-alt']" class="text-xs sm:text-sm" />
                             </button>
                             <button class="qwezxcpx-2 py-1 text-gray-400 hover:text-gray-500" type="button"
                                 @click="changeVisibility(slide)" title="Show/hide this slide">
@@ -721,7 +754,9 @@ onMounted(() => {
 
             <!-- Button: Add slide, Gallery -->
             <div class="flex flex-wrap md:flex-row gap-x-2 gap-y-1 lg:gap-y-0 w-full justify-between">
-                <Button @click="isOpenGalleryImages = true" :style="`tertiary`" icon="fal fa-photo-video" label="Gallery" size="xs" class="relative w-full flex justify-center lg:w-fit lg:inline space-x-2" id="gallery" />
+                <Button @click="isOpenGalleryImages = true" :style="`tertiary`" icon="fal fa-photo-video"
+                    label="Gallery" size="xs" class="relative w-full flex justify-center lg:w-fit lg:inline space-x-2"
+                    id="gallery" />
 
                 <!-- <Button :style="`secondary`" size="xs" class="relative w-full flex justify-center lg:w-fit lg:inline space-x-2">
                     <FontAwesomeIcon icon='fas fa-plus' class='' aria-hidden='true' />
@@ -732,7 +767,8 @@ onMounted(() => {
                         accept="image/*" class="absolute cursor-pointer rounded-md border-gray-300 sr-only" />
                 </Button> -->
 
-                <Button :style="`secondary`" size="xs" @click="addNewSlide" class="relative w-full flex justify-center lg:w-fit lg:inline space-x-2">
+                <Button :style="`secondary`" size="xs" @click="addNewSlide"
+                    class="relative w-full flex justify-center lg:w-fit lg:inline space-x-2">
                     <FontAwesomeIcon icon='fas fa-plus' class='' aria-hidden='true' />
                     <span>{{ trans("Add slide") }}</span>
                 </Button>
@@ -745,29 +781,27 @@ onMounted(() => {
 
         <!-- The Editor: Common Properties -->
         <div class="border border-gray-300 w-3/4 rounded-md" v-if="commonEditActive">
-            <SliderCommonWorkshop ref="_SlideWorkshop" :currentComponentBeenEdited="props.data" :blueprint="CommonBlueprint" />
+            <SliderCommonWorkshop ref="_SlideWorkshop" :currentComponentBeenEdited="props.data"
+                :blueprint="CommonBlueprint" />
         </div>
 
         <!-- The Editor: Slide -->
         <div class="border border-gray-300 w-3/4 rounded-md" v-if="currentComponentBeenEdited != null">
-            <SlideWorkshop ref="_SlideWorkshop" :bannerType="data.type" :common="data.common" :currentComponentBeenEdited="currentComponentBeenEdited"
-                :blueprint="ComponentsBlueprint" :remove="removeComponent" />
+            <SlideWorkshop ref="_SlideWorkshop" :bannerType="data.type" :common="data.common"
+                :currentComponentBeenEdited="currentComponentBeenEdited" :blueprint="ComponentsBlueprint"
+                :remove="removeComponent" />
         </div>
 
         <!-- Modal: Gallery -->
-       <!--  <Modal :isOpen="isOpenGalleryImages" @onClose="isOpenGalleryImages = false">
-            <div>
-                <GalleryImages
-                    :addImage="uploadImageRespone"
-                    :closeModal="() => isOpenGalleryImages = false"
-                    :imagesUploadRoute="props.imagesUploadRoute"
-                    :ratio="data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}"
-                />
-            </div>
-        </Modal> -->
+
+
+        <Gallery :open="isOpenGalleryImages" @on-close="() => isOpenGalleryImages = false" :uploadRoutes="''"
+            :tabs="['images_uploaded', 'stock_images']" @onPick="onPickImageGalery" >
+        </Gallery>
+
 
         <!-- Modal: Crop (add slide) -->
-       <!--  <Modal :isOpen="isOpenCropModal" @onClose="closeCropModal">
+        <!--  <Modal :isOpen="isOpenCropModal" @onClose="closeCropModal">
             <div>
                 <CropImage
                     :ratio="data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}"

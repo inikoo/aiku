@@ -11,7 +11,6 @@ const props = defineProps<{
     data: any
 }>()
 
-console.log('button',props)
 </script>
 
 <template>
