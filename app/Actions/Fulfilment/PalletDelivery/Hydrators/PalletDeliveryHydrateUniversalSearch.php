@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class PalletDeliveryHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(PalletDelivery $palletDelivery): void
     {

@@ -16,12 +16,14 @@ import { PalletCustomer, PieCustomer } from '@/types/Pallet'
 import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faLink} from '@far'
-import { faSync, faCalendarAlt, faEnvelope, faPhone } from '@fal'
+import { faLink, faLongArrowRight } from '@far'
+import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone)
+import Tag from '@/Components/Tag.vue'
+import { useLocaleStore } from '@/Stores/locale'
+library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faLongArrowRight)
 
 const props = defineProps<{
     data: {
@@ -62,11 +64,21 @@ const props = defineProps<{
             }
             createRoute: routeType
         }
+        recurring_bill: {
+            route: routeType
+            status: string  // 'former' and 'current'
+            start_date: string
+            end_date: string
+            total: number
+            currency_code: string
+        }
     },
     tab: string
 }>()
 
 // console.log(props.data)
+
+const locale = useLocaleStore()
 
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
@@ -88,6 +100,7 @@ const optionRadio = [
 ]
 
 const isLoadingButtonRentalAgreement = ref(false)
+const isLoading = ref<string | boolean>(false)
 
 </script>
 
@@ -178,6 +191,56 @@ const isLoadingButtonRentalAgreement = ref(false)
 
         <!-- Section: Rental Agreement box -->
         <div class="w-full max-w-full md:max-w-96">
+            <!-- Section: Recurring Bills -->
+            <div v-if="data.recurring_bill" class="block group relative w-full gap-x-2 bg-slate-50d border border-gray-200 px-4 py-4 rounded-lg mb-4">
+                <!-- <FontAwesomeIcon icon='fal fa-receipt' class='text-3xl text-gray-400' fixed-width aria-hidden='true' /> -->
+                <div class="border-l-4 border-indigo-500 pl-2 leading-none text-lg">
+                    <div class="block text-xl font-semibold">Recurring Bills</div>
+                    <div class="text-sm flex items-center gap-x-1">
+                        {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0) }}
+                    </div>
+                </div>
+
+                <!-- State Date & End Date -->
+                <div class="pl-1 mt-4 w-80 grid grid-cols-9 gap-x-3">
+                    <div class="col-span-4 text-sm">
+                        <div class="text-gray-400">Start date</div>
+                        <div class="font-semibold">{{ useFormatTime(data.recurring_bill.start_date) }}</div>
+                    </div>
+                    <div class="flex justify-center items-center">
+                        <FontAwesomeIcon icon='fal fa-chevron-right' class='text-xs' fixed-width aria-hidden='true' />
+                    </div>
+                    <div class="col-span-4 text-sm">
+                        <div class="text-gray-400">End date</div>
+                        <div class="font-semibold">{{ useFormatTime(data.recurring_bill.end_date) }}</div>
+                    </div>
+                </div>
+
+                <div class="pl-1 mt-4 w-full flex items-end justify-between">
+                    <div class="flex h-fit">
+                        <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
+                            <template #label>
+                                <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'" icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width aria-hidden='true' />
+                                <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' : 'Past' }}</span>
+                            </template>
+                        </Tag>
+                    </div>
+
+                    <Link :href="route(data.recurring_bill.route.name, data.recurring_bill.route.parameters)"
+                        @start="() => isLoading = 'loadingVisitRecurring'"
+                        @error="() => isLoading = false"
+                    >
+                        <Button
+                            :type="'tertiary'"
+                            :loading="isLoading === 'loadingVisitRecurring'"
+                            size="s"
+                            label="See details"
+                            iconRight="fal fa-external-link"
+                        />
+                    </Link>
+                </div>
+            </div>
+
             <div class="rounded-lg ring-1 ring-gray-200">
                 <div class="bg-slate-100 border-b border-gray-300 py-4 px-4 flex justify-between">
                     <div class="font-semibold text-2xl">{{ trans('Rental Agreement') }}</div>

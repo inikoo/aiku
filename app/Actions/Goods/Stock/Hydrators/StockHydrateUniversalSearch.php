@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StockHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(Stock $stock): void
     {

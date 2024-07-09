@@ -18,6 +18,8 @@ class GroupHydrateSales
     use AsAction;
     use WithIntervalsAggregators;
 
+    public string $jobQueue = 'sales';
+
     private Group $group;
 
     public function __construct(Group $group)

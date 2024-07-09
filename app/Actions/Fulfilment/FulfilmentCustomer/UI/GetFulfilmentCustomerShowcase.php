@@ -42,6 +42,8 @@ class GetFulfilmentCustomerShowcase
                 'label'         => 'Recurring Bills',
                 'start_date'    => $fulfilmentCustomer->currentRecurringBill->start_date ?? '',
                 'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date ?? '', 
+                'currency_code' => 'usd',
+                'status'        => $fulfilmentCustomer->currentRecurringBill->status ?? '' 
             ];
         }
 

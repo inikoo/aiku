@@ -19,6 +19,7 @@ use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -99,7 +101,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|DeliveryNote withoutTrashed()
  * @mixin Eloquent
  */
-class DeliveryNote extends Model
+class DeliveryNote extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
@@ -107,6 +109,7 @@ class DeliveryNote extends Model
     use HasFactory;
     use InCustomer;
     use HasAddresses;
+    use HasHistory;
 
     protected $casts = [
         'data'   => 'array',
@@ -131,6 +134,21 @@ class DeliveryNote extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['dispatching'];
+    }
+
+    protected array $auditInclude = [
+        'number',
+        'type',
+        'net_amount',
+        'currency_id',
+        'group_exchange',
+        'org_exchange',
+        'total_amount',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {

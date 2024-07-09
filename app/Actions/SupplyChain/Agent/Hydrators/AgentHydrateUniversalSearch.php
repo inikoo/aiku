@@ -14,6 +14,7 @@ class AgentHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Agent $agent): void
     {
