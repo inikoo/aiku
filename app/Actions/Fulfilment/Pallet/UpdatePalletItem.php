@@ -36,7 +36,7 @@ class UpdatePalletItem extends OrgAction
         $this->update($palletReturnItem, $modelData);
 
         data_forget($modelData, 'picked_from_location_id');
-        
+
         UpdatePallet::run($palletReturnItem->pallet, $modelData);
 
 

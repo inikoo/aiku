@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -102,7 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Website withoutTrashed()
  * @mixin Eloquent
  */
-class Website extends Model implements Auditable
+class Website extends Model implements Auditable, HasMedia
 {
     use HasSlug;
     use SoftDeletes;
@@ -110,6 +112,7 @@ class Website extends Model implements Auditable
     use HasUniversalSearch;
     use HasFactory;
     use InShop;
+    use InteractsWithMedia;
 
     protected $casts = [
         'type'               => WebsiteTypeEnum::class,
