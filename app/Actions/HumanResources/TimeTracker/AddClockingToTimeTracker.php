@@ -18,7 +18,7 @@ class AddClockingToTimeTracker
     use AsAction;
 
 
-    public function handle(Timesheet $timesheet, Clocking $clocking): TimeTracker
+    public function handle(Timesheet $timesheet, Clocking $clocking, int $hydratorsDelay = 0): TimeTracker
     {
         /** @var TimeTracker $timeTracker */
         $timeTracker = $timesheet->timeTrackers()->where('status', TimeTrackerStatusEnum::OPEN)->first();
@@ -28,10 +28,8 @@ class AddClockingToTimeTracker
                 $clocking,
                 []
             );
-
-
         } else {
-            CloseTimeTracker::make()->action($timeTracker, $clocking, []);
+            CloseTimeTracker::make()->action($timeTracker, $clocking, [], $hydratorsDelay);
         }
 
         $clocking->update(

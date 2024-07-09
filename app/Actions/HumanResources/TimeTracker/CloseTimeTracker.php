@@ -23,8 +23,6 @@ class CloseTimeTracker extends OrgAction
 
     public function handle(TimeTracker $timeTracker, Clocking $clocking, array $modelData): TimeTracker
     {
-
-
         data_set($modelData, 'status', TimeTrackerStatusEnum::CLOSED);
         data_set($modelData, 'ends_at', $clocking->clocked_at);
         data_set($modelData, 'end_clocking_id', $clocking->id);
@@ -42,13 +40,13 @@ class CloseTimeTracker extends OrgAction
         );
 
 
-        if($timeTracker->subject_type === 'Employee') {
-            EmployeeHydrateTimeTracker::dispatch($timeTracker->subject);
+        if ($timeTracker->subject_type === 'Employee') {
+            EmployeeHydrateTimeTracker::dispatch($timeTracker->subject)->delay($this->hydratorsDelay);
         } else {
-            GuestHydrateTimeTracker::dispatch($timeTracker->subject);
+            GuestHydrateTimeTracker::dispatch($timeTracker->subject)->delay($this->hydratorsDelay);
         }
 
-        TimesheetHydrateTimeTrackers::dispatch($timeTracker->timesheet);
+        TimesheetHydrateTimeTrackers::dispatch($timeTracker->timesheet)->delay($this->hydratorsDelay);
 
 
         return $timeTracker;
@@ -72,9 +70,10 @@ class CloseTimeTracker extends OrgAction
     }
 
 
-    public function action(TimeTracker $timeTracker, Clocking $clocking, $modelData): TimeTracker
+    public function action(TimeTracker $timeTracker, Clocking $clocking, $modelData, int $hydratorsDelay = 0): TimeTracker
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($timeTracker->timesheet->organisation, $modelData);
 
         return $this->handle($timeTracker, $clocking, $this->validatedData);
