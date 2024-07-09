@@ -136,7 +136,7 @@ const autoSave = () => {
         })
 }
 
-/* watch(data, {deep: true}) */
+watch(data,autoSave,{deep: true})
 
 
 const intervalAutoSave = ref(null)

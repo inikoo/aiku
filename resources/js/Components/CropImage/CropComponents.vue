@@ -47,7 +47,7 @@ const generateThumbnail = (fileOrUrl) => {
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .cropper {
     height: 200px;
     width: 400px;
