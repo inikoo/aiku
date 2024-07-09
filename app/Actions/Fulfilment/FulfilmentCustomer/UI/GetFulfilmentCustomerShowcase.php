@@ -26,17 +26,22 @@ class GetFulfilmentCustomerShowcase
     {
         $irisDomain = $fulfilmentCustomer->fulfilment->shop?->website?->domain;
 
-        $recurringBillRoute = [];
+        $recurringBillData= [];
 
         if ($fulfilmentCustomer->currentRecurringBill) {
-            $recurringBillRoute = [
-                'name'             => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-                'parameters' => [
-                    'organisation'             => $fulfilmentCustomer->organisation->slug,
-                    'fulfilment'                 => $fulfilmentCustomer->fulfilment->slug,
-                    'fulfilmentCustomer' => $fulfilmentCustomer->slug,
-                    'recurringBill'           => $fulfilmentCustomer->currentRecurringBill->slug,
-                ],
+            $recurringBillData = [
+                'route'      => [
+                    'name'             => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                    'parameters' => [
+                        'organisation'       => $fulfilmentCustomer->organisation->slug,
+                        'fulfilment'         => $fulfilmentCustomer->fulfilment->slug,
+                        'fulfilmentCustomer' => $fulfilmentCustomer->slug,
+                        'recurringBill'      => $fulfilmentCustomer->currentRecurringBill->slug,
+                        ]
+                    ],
+                'label'         => 'Recurring Bills',
+                'start_date'    => $fulfilmentCustomer->currentRecurringBill->start_date ?? '',
+                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date ?? '', 
             ];
         }
 
@@ -50,12 +55,7 @@ class GetFulfilmentCustomerShowcase
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
             ],
-            'recurring_bill'      => [
-                'route'         => $recurringBillRoute,
-                'label'         => 'Recurring Bills',
-                'start_date'    => $fulfilmentCustomer->currentRecurringBill->start_date ?? '',
-                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date ?? '', 
-            ],
+            'recurring_bill'      => $recurringBillData,
             'updateRoute'                  => [
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
