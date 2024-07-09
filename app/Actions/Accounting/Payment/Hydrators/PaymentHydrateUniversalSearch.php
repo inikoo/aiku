@@ -14,6 +14,7 @@ class PaymentHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Payment $payment): void
     {

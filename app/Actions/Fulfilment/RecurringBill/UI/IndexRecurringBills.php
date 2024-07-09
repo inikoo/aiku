@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\RecurringBill\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\RecurringBillsTabsEnum;
@@ -21,6 +22,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -134,6 +136,7 @@ class IndexRecurringBills extends OrgAction
             'Org/Fulfilment/RecurringBills',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('recurring bills'),
@@ -164,7 +167,7 @@ class IndexRecurringBills extends OrgAction
         );
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
@@ -172,24 +175,38 @@ class IndexRecurringBills extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('customers'),
+                        'label' => __('Recurring bills'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
             ];
         };
 
+        return match ($routeName) {
 
-        return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(
-                $routeParameters
+            'grp.org.fulfilments.show.operations.recurring_bills.index'=> array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
             ),
-            $headCrumb(
-                [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.index',
-                    'parameters' => $routeParameters
-                ]
-            )
-        );
+
+            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index'=> array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
+                        'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
+                    ]
+                )
+            ),
+        };
     }
 }

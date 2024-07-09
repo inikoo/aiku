@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ClockingMachineHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(ClockingMachine $clockingMachine): void
     {

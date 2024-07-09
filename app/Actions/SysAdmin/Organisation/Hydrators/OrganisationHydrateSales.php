@@ -18,6 +18,7 @@ class OrganisationHydrateSales
     use AsAction;
     use WithIntervalsAggregators;
 
+    public string $jobQueue = 'sales';
 
     private Organisation $organisation;
 

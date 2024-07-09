@@ -14,6 +14,8 @@ class TagHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
+
     public function handle(Tag $tag): void
     {
         $tag->universalSearch()->updateOrCreate(

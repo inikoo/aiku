@@ -14,6 +14,7 @@ class ProductCategoryHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(ProductCategory $productCategory): void
     {

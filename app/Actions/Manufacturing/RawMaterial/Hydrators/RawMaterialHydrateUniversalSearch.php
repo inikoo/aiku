@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class RawMaterialHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(RawMaterial $rawMaterial): void
     {

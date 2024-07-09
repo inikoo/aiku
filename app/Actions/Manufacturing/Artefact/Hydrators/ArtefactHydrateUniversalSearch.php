@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ArtefactHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(Artefact $artefact): void
     {
