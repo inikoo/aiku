@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Validator::extend('iunique', function ($attribute, $value, $parameters, $validator) {
             if (isset($parameters[1])) {
-                [$connection] = $validator->parseTable($parameters[0]);
+                [$connection]  = $validator->parseTable($parameters[0]);
                 $wrapped       = DB::connection($connection)->getQueryGrammar()->wrap($parameters[1]);
                 $parameters[1] = DB::raw("lower($wrapped)");
             }

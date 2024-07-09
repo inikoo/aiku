@@ -364,6 +364,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
     });
 
     Route::post('website/{website:id}/banner', StoreBanner::class)->name('banner.store')->withoutScopedBindings();
+    Route::post('website/{website:id}/banner/{banner:id}/images', UploadImagesToBanner::class)->name('website.banner.images.store')->withoutScopedBindings();
 });
 
 Route::prefix('/banner')->name('banner.')->group(function () {
@@ -372,7 +373,6 @@ Route::prefix('/banner')->name('banner.')->group(function () {
     Route::prefix('{banner:id}')->group(function () {
         Route::patch('', UpdateBanner::class)->name('update');
         Route::patch('publish', PublishBanner::class)->name('publish');
-        Route::post('images', UploadImagesToBanner::class)->name('images.store');
         Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
         Route::delete('', DeleteBanner::class)->name('delete');
         Route::patch('shutdown', PublishBanner::class)->name('shutdown');

@@ -30,12 +30,13 @@ const screenView = ref("")
         <div class="flex pr-0.5"
             :class="[data.type === 'square' ? 'justify-start 2xl:justify-center' : 'justify-center']"
         >
-           <!--  <div v-if="data.type === 'square'"
+            <div v-if="data.type === 'square'"
                 class="w-full min-h-[250px] max-h-[400px]"
             >
                 <SliderSquare :data="data" :jumpToIndex="jumpToIndex" :view="screenView" />
-            </div> -->
-            <SliderLandscape  :data="data" :jumpToIndex="jumpToIndex" :view="screenView" />
+            </div>
+
+            <SliderLandscape v-else :data="data" :jumpToIndex="jumpToIndex" :view="screenView" />
         </div>
         
         <!-- Editor -->

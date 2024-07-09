@@ -7,97 +7,26 @@
 
 namespace App\Actions\Web\Banner;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\WithUploadWebImage;
-use App\Enums\Web\Banner\BannerStateEnum;
-use App\Http\Resources\Helpers\ImageResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
-use Exception;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-use function Sentry\captureException;
-
-class UploadImagesToBanner
+class UploadImagesToBanner extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
     use WithUploadWebImage;
+    use HasWebAuthorisation;
 
 
-    private Website $website;
-
-
-    public function handle(Banner $banner, array $imageFiles): Collection
+    public function asController(Shop $shop, Website $website, Banner $banner, ActionRequest $request): Collection
     {
-        $medias = [];
-        foreach ($imageFiles as $imageFile) {
-            $media = AttachImageToCustomer::run(
-                customer: customer(),
-                collection: 'content_block',
-                imagePath: $imageFile->getPathName(),
-                originalFilename: $imageFile->getClientOriginalName(),
-                extension: $imageFile->guessClientExtension()
-            );
+        $this->scope = $shop;
+        $this->initialisationFromShop($shop, $request);
 
-
-            $medias[] = $media;
-            $scope    = 'unpublished-slide';
-            $count    = $banner->images()->wherePivot('scope', $scope)->count();
-
-            if ($count == 0) {
-                $banner->images()->attach(
-                    $media->id,
-                    [
-                        'scope' => $scope
-                    ]
-                );
-
-                if ($banner->state == BannerStateEnum::UNPUBLISHED) {
-                    $banner->update(
-                        [
-                            'data->unpublished_image_id' => $media->id
-                        ]
-                    );
-                }
-            }
-        }
-
-        return collect($medias);
+        return $this->handle($website, 'unpublished-slide', $this->validatedData);
     }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
-    }
-
-    public function rules(): array
-    {
-        return [
-            'images'   => ['required'],
-            'images.*' => ["mimes:jpg,png,jpeg,gif,mp4","max:50000"]
-        ];
-    }
-
-
-    public function asController(Banner $banner, ActionRequest $request): Collection
-    {
-        try {
-            $request->validate();
-        } catch (Exception $e) {
-            captureException($e);
-        }
-        return $this->handle($banner, $request->validated('images'));
-    }
-
-
-
-    public function jsonResponse($medias): AnonymousResourceCollection
-    {
-        return ImageResource::collection($medias);
-    }
-
 }
