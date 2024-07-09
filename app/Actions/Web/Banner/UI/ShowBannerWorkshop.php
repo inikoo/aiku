@@ -89,14 +89,19 @@ class ShowBannerWorkshop extends OrgAction
                 'bannerLayout'      => $banner->compiled_layout,
                 'banner'            => BannerResource::make($banner)->getArray(),
                 'autoSaveRoute'     => [
-                    'name'       => 'customer.models.banner.fetch-firebase',
+                    'name'       => 'grp.models.shop.website.banner.update',
                     'parameters' => [
-                        'banner' => $banner->id
+                        'shop'    => $this->shop->id,
+                        'website' => $this->parent->id,
+                        'banner'  => $banner->id
                     ]
                 ],
                 'publishRoute'   => [
-                    'name'       => 'customer.models.banner.publish',
-                    'parameters' => ['banner' => $banner->id
+                    'name'       => 'grp.models.shop.website.banner.publish',
+                    'parameters' => [
+                        'shop'    => $this->shop->id,
+                        'website' => $this->parent->id,
+                        'banner'  => $banner->id
                     ]
                 ],
                 'imagesUploadRoute' => [
