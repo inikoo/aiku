@@ -6,31 +6,34 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faImage, faExpandArrows, faAlignCenter, faTrash, faStopwatch } from '@fal'
+import { trans } from "laravel-vue-i18n"
 
+// components
 import Corners from "@/Components/Banners/SlidesWorkshop/Fields/Corners/Corners.vue"
 import Range from "@/Components/Banners/SlidesWorkshop/Fields/Range.vue"
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { trans } from "laravel-vue-i18n"
 import Colorpicker from '@/Components/Banners/SlidesWorkshop/Fields/ColorPicker.vue'
 import TextAlign from './Fields/TextAlign.vue'
 import SelectFont from './Fields/SelectFont.vue'
 import GradientColor from './Fields/GradientColor.vue'
 import BannerNavigation from '@/Components/Banners/SlidesWorkshop/Fields/BannerNavigation.vue'
-
 import Toogle from './Fields/PrimitiveToggle.vue'
 import PrimitiveInput from './Fields/PrimitiveInput.vue'
 import Select from './Fields/PrimitiveSelect.vue'
 import Radio from './Fields/PrimitiveRadio.vue'
 
+// icon
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faImage, faExpandArrows, faAlignCenter, faTrash, faStopwatch } from '@fal'
+import { library } from "@fortawesome/fontawesome-svg-core"
+
 library.add(faImage, faExpandArrows, faAlignCenter, faTrash, faStopwatch)
+
 const props = defineProps<{
     currentComponentBeenEdited: Object,
     blueprint: Array<Object>,
 }>()
 
-// console.log(props.blueprint)
+console.log(props)
 
 const getComponent = (componentName: string) => {
     const components = {
@@ -70,8 +73,8 @@ const setCurrent = (key) => {
                     <li v-for="(item, key) in blueprint" @click="setCurrent(key)" :class="[
                         'group cursor-pointer px-6 sm:px-3 py-2 flex items-center justify-center sm:justify-start text-sm font-medium',
                         key == current
-                            ? 'navigationSecondActiveCustomer'
-                            : 'navigationSecondCustomer',
+                            ? 'bg-gray-200 sm:border-l-4 sm:border-amber-300 text-gray-600 transition-all duration-100 ease-in-out'
+                            : 'hover:bg-gray-100 text-gray-400 hover:text-gray-500 transition-all duration-100 ease-in-out',
                         ]" :aria-current="key === current ? 'page' : undefined">
                         <FontAwesomeIcon v-if="item.icon" aria-hidden="true"
                             class="flex-shrink-0 sm:-ml-1 sm:mr-3 h-6 w-6 text-gray-500 sm:text-gray-400 sm:group-hover:text-gray-500"
@@ -85,7 +88,7 @@ const setCurrent = (key) => {
         <!-- Content of forms -->
         <div class="px-4 sm:px-6 md:px-4 pt-6 xl:pt-4 col-span-9 flex flex-grow justify-center">
             <div class="flex flex-col w-full gap-y-3">
-                <dl v-for="(fieldData, index ) in blueprint[current].fields" :key="index"
+                <dl v-for="(fieldData, index) in blueprint[current].fields" :key="index"
                     class="pb-4 sm:pb-5 sm:gap-4 w-full">
                     <!-- Title -->
                     <dt v-if="fieldData.name != 'image_source' && fieldData.label"

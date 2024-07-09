@@ -171,7 +171,7 @@ onBeforeUnmount(() => {
 </script>
 
 
-<template layout="CustomerApp">
+<template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
        <!--  <template #other="{ dataPageHead: head }">

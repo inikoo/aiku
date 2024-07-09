@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { trans } from "laravel-vue-i18n"
 import { ref, watch, computed } from 'vue'
-/* import Input from '@/Components/Forms/Fields/Primitive/PrimitiveInput.vue'
-import ColorPicker from "@/Components/Workshop/Fields/ColorPicker.vue"
-import Radio from '@/Components/Forms/Fields/Primitive/PrimitiveRadio.vue' */
+import Input from '@/Components/Banners/SlidesWorkshop/Fields/PrimitiveInput.vue'
+import Colorpicker from '@/Components/Banners/SlidesWorkshop/Fields/ColorPicker.vue'
+import Radio from '@/Components/Banners/SlidesWorkshop/Fields/PrimitiveRadio.vue'
 import { get, cloneDeep, set } from 'lodash'
 import { faLock } from '@fas'
 import { faTimes } from '@fal'
@@ -264,23 +264,23 @@ watch(props.section, (newValue) => {
                     <!-- Available Field on Corners -->
                     <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
                         <div v-if="field.type == 'input' || field.type == 'number'" class="relative flex-grow">
-                            <!-- <Input :key="field.label + section.id + index"
+                            <Input :key="field.label + section.id + index"
                                 :value="get(section, ['valueForm', 'data', field.name],get(section, ['valueForm', 'temporaryData', activeType.value, field.name]))"
                                 :fieldData="{...field,...get(section, ['valueForm', 'temporaryData', activeType.value])}" 
-                                @onChange="(newValue)=>onUpdateFieldCorner(field, newValue)" /> -->
+                                @onChange="(newValue)=>onUpdateFieldCorner(field, newValue)" />
                         </div>
                         <div v-if="field.type == 'colorPicker'" class="relative flex-grow">
-                           <!--  <ColorPicker :key="field.label + section.id + index"
+                            <Colorpicker :key="field.label + section.id + index"
                                 :color="get(section, ['valueForm', 'data', field.name],get(section, ['valueForm', 'temporaryData', activeType.value, field.name]))"
                                 :fieldData="{...field,...get(section, ['valueForm', 'temporaryData', activeType.value])}" 
                                 @onChange="(newValue)=>onUpdateFieldCorner(field, newValue)"
-                                /> -->
+                                />
                         </div>
                         <div v-if="field.type == 'radio'" class="relative flex-grow">
-                            <!-- <Radio :key="field.label + index + index"
+                            <Radio :key="field.label + index + index"
                                 :radioValue="get(section, ['valueForm', 'data', field.name],get(section, ['valueForm', 'temporaryData', activeType.value, field.name]))"
                                 :fieldData="{ options: field.options, defaultValue: field.defaultValue }" 
-                                @onChange="(newValue)=>onUpdateFieldCorner(field, newValue)"/> -->
+                                @onChange="(newValue)=>onUpdateFieldCorner(field, newValue)"/>
                         </div>
                     </div>
                 </dd>
