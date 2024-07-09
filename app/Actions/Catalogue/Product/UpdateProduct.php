@@ -52,20 +52,20 @@ class UpdateProduct extends OrgAction
 
         if (Arr::hasAny($changed, ['state'])) {
 
-            GroupHydrateProducts::dispatch($product->group);
-            OrganisationHydrateProducts::dispatch($product->organisation);
-            ShopHydrateProducts::run($product->shop);
+            GroupHydrateProducts::dispatch($product->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateProducts::dispatch($product->organisation)->delay($this->hydratorsDelay);
+            ShopHydrateProducts::dispatch($product->shop)->delay($this->hydratorsDelay);
             if($product->department_id) {
-                DepartmentHydrateProducts::dispatch($product->department);
+                DepartmentHydrateProducts::dispatch($product->department)->delay($this->hydratorsDelay);
             }
             if($product->family_id) {
-                FamilyHydrateProducts::dispatch($product->family);
+                FamilyHydrateProducts::dispatch($product->family)->delay($this->hydratorsDelay);
             }
 
         }
 
         if(count($changed)>0) {
-            ProductHydrateUniversalSearch::dispatch($product);
+            ProductHydrateUniversalSearch::dispatch($product)->delay($this->hydratorsDelay);
         }
 
 

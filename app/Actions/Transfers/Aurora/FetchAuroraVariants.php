@@ -44,6 +44,7 @@ class FetchAuroraVariants extends FetchAuroraAction
                     $productVariant = StoreProductVariant::make()->action(
                         product: $productVariantData['product'],
                         modelData: $productVariantData['variant'],
+                        hydratorsDelay: 120
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productVariantData['variant'], 'Product', 'store');
