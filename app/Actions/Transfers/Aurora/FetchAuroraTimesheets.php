@@ -51,7 +51,8 @@ class FetchAuroraTimesheets extends FetchAuroraAction
                             generator: $clockingData['generator'],
                             parent: $clockingData['parent'],
                             subject: $clockingData['subject'],
-                            modelData: $clockingData['clockingData']
+                            modelData: $clockingData['clockingData'],
+                            hydratorsDelay:120
                         );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $clockingData['clockingData'], 'Clocking', 'store');

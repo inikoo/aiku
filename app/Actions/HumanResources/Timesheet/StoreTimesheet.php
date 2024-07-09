@@ -72,6 +72,6 @@ class StoreTimesheet extends OrgAction
 
     public function htmlResponse(Timesheet $timesheet): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.employees.show', $timesheet->slug);
+        return Redirect::route('grp.org.hr.employees.show', $timesheet->id);
     }
 }
