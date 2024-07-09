@@ -14,6 +14,7 @@ class PalletHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Pallet $pallet): void
     {

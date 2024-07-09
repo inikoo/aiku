@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class WebpageHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(Webpage $webpage): void
     {

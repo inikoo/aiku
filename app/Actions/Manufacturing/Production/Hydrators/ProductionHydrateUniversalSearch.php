@@ -14,6 +14,7 @@ class ProductionHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Production $production): void
     {

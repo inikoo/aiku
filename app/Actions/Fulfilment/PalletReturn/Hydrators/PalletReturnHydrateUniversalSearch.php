@@ -14,7 +14,7 @@ class PalletReturnHydrateUniversalSearch
 {
     use AsAction;
 
-
+    public string $jobQueue = 'universal-search';
     public function handle(PalletReturn $palletReturn): void
     {
         $palletReturn->universalSearch()->updateOrCreate(

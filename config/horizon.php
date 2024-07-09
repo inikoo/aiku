@@ -165,7 +165,8 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+
+        'hydrators' => [
             'connection'   => 'redis',
             'queue'        => ['default'],
             'balance'      => 'auto',
@@ -177,9 +178,21 @@ return [
             'timeout'      => 150,
             'nice'         => 0,
         ],
-        'supervisor-long-running' => [
+        'universal-search' => [
+            'connection'   => 'redis',
+            'queue'        => ['universal-search'],
+            'balance'      => 'auto',
+            'maxProcesses' => 1,
+            'maxTime'      => 0,
+            'maxJobs'      => 0,
+            'memory'       => 128,
+            'tries'        => 1,
+            'timeout'      => 150,
+            'nice'         => 0,
+        ],
+        'long-running' => [
             'connection'          => 'redis-long-running',
-            'queue'               => 'default_long',
+            'queue'               => ['default-long'],
             'balance'             => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses'        => 1,
@@ -190,9 +203,9 @@ return [
             'timeout'             => 3600,
             'nice'                => 0,
         ],
-        'supervisor-ses' => [
+        'ses' => [
             'connection'          => 'redis-ses',
-            'queue'               => 'ses',
+            'queue'               => ['ses'],
             'balance'             => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses'        => 1,
@@ -202,55 +215,130 @@ return [
             'tries'               => 1,
             'timeout'             => 7200,
             'nice'                => 0,
-        ]
+        ],
+        'sales' => [
+            'connection'          => 'redis',
+            'queue'               => ['sales'],
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses'        => 1,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
+            'memory'              => 128,
+            'tries'               => 3,
+            'timeout'             => 7200,
+            'nice'                => 0,
+        ],
+        'low-priority' => [
+            'connection'          => 'redis',
+            'queue'               => ['low-priority'],
+            'balance'             => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses'        => 1,
+            'maxTime'             => 0,
+            'maxJobs'             => 0,
+            'memory'              => 128,
+            'tries'               => 3,
+            'timeout'             => 7200,
+            'nice'                => 0,
+        ],
     ],
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
-                'maxProcesses'    => 15,
+            'hydrators' => [
+                'maxProcesses'    => 45,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'supervisor-long-running' => [
+            'long-running' => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'supervisor-ses' => [
+            'ses' => [
                 'maxProcesses'    => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'sales' => [
+                'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'universal-search' => [
+                'maxProcesses'    => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'low-priority' => [
+                'maxProcesses'    => 2,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
         'staging' => [
-            'supervisor-1' => [
+            'hydrators' => [
                 'maxProcesses'    => 15,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'supervisor-long-running' => [
+            'long-running' => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'supervisor-ses' => [
+            'ses' => [
                 'maxProcesses'    => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'sales' => [
+                'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'universal-search' => [
+                'maxProcesses'    => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'low-priority' => [
+                'maxProcesses'    => 2,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
         ],
         'local' => [
-            'supervisor-1' => [
-                'maxProcesses'    => 15,
+            'hydrators' => [
+                'maxProcesses'    => 45,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'supervisor-long-running' => [
-                'maxProcesses' => 10,
+            'long-running' => [
+                'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
             ],
-            'supervisor-ses' => [
-                'maxProcesses' => 3,
+            'ses' => [
+                'maxProcesses'    => 4,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'sales' => [
+                'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'universal-search' => [
+                'maxProcesses'    => 5,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'low-priority' => [
+                'maxProcesses'    => 2,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
             ],
         ],
     ],

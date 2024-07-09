@@ -14,6 +14,7 @@ class CustomerHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Customer $customer): void
     {

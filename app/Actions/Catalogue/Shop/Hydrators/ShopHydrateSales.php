@@ -18,6 +18,8 @@ class ShopHydrateSales
     use AsAction;
     use WithIntervalsAggregators;
 
+    public string $jobQueue = 'sales';
+
 
     private Shop $shop;
 

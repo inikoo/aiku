@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrgStockFamilyHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
 
     public function handle(OrgStockFamily $orgStockFamily): void
     {

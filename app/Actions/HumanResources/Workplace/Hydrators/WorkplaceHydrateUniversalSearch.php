@@ -13,7 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class WorkplaceHydrateUniversalSearch
 {
     use AsAction;
-
+    public string $jobQueue = 'universal-search';
     public function handle(Workplace $workplace): void
     {
         $workplace->universalSearch()->updateOrCreate(

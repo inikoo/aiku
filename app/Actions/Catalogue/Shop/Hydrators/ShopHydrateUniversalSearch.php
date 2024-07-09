@@ -14,6 +14,7 @@ class ShopHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Shop $shop): void
     {
