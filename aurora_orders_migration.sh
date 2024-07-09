@@ -11,7 +11,7 @@ DB_SUFFIX=_base
 PHP="${1:-$PHP}"
 DB_SUFFIX="${2:-$DB_SUFFIX}"
 
-echo -e "🧼 Migrating procurement models"
+echo -e "🧼 Migrating orders models"
 
 ${PHP} artisan fetch:orders -d "${DB_SUFFIX}" -w full
 

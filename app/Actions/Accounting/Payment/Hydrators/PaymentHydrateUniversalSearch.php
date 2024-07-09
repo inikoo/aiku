@@ -17,6 +17,15 @@ class PaymentHydrateUniversalSearch
 
     public function handle(Payment $payment): void
     {
+        $customer_id   = null;
+        $customer_slug = null;
+
+        $customer = $payment->customer;
+        if ($customer) {
+            $customer_id   = $customer->id;
+            $customer_slug = $customer->slug;
+        }
+
         $payment->universalSearch()->updateOrCreate(
             [],
             [
@@ -25,8 +34,8 @@ class PaymentHydrateUniversalSearch
                 'organisation_slug' => $payment->organisation->slug,
                 'shop_id'           => $payment->shop_id,
                 'shop_slug'         => $payment->shop->slug,
-                'customer_id'       => $payment->customer_id,
-                'customer_slug'     => $payment->customer->slug,
+                'customer_id'       => $customer_id,
+                'customer_slug'     => $customer_slug,
                 'section'           => 'accounting',
                 'title'             => $payment->reference,
             ]
