@@ -108,7 +108,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">
             <Button
-                v-if="!item.is_auto_assign"
+                v-if="!item.is_auto_assign && state === 'in-process'"
                 @click="() => onDeleteTransaction(item.id)"
                 :loading="isLoading === 'buttonReset' + item.id"
                 icon="fal fa-times"

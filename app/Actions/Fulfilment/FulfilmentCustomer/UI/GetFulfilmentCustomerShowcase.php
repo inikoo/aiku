@@ -31,11 +31,11 @@ class GetFulfilmentCustomerShowcase
         if ($fulfilmentCustomer->currentRecurringBill) {
             $recurringBillRoute = [
                 'name'             => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-                'parameters' => [
-                    'organisation'             => $fulfilmentCustomer->organisation->slug,
+                'parameters'       => [
+                    'organisation'               => $fulfilmentCustomer->organisation->slug,
                     'fulfilment'                 => $fulfilmentCustomer->fulfilment->slug,
-                    'fulfilmentCustomer' => $fulfilmentCustomer->slug,
-                    'recurringBill'           => $fulfilmentCustomer->currentRecurringBill->slug,
+                    'fulfilmentCustomer'         => $fulfilmentCustomer->slug,
+                    'recurringBill'              => $fulfilmentCustomer->currentRecurringBill->slug,
                 ],
             ];
         }
@@ -53,8 +53,11 @@ class GetFulfilmentCustomerShowcase
             'recurring_bill'      => [
                 'route'         => $recurringBillRoute,
                 'label'         => 'Recurring Bills',
+                'status'        => $fulfilmentCustomer->currentRecurringBill->status,  // 'former' and 'current'
                 'start_date'    => $fulfilmentCustomer->currentRecurringBill->start_date ?? '',
-                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date ?? '', 
+                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date   ?? '',
+                'total'         => $fulfilmentCustomer->currentRecurringBill->total      ?? 0,
+                'currency_code' => 'usd', // TODO: shop currency
             ],
             'updateRoute'                  => [
                 'name'       => 'grp.models.fulfilment-customer.update',
