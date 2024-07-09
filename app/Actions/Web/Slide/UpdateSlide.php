@@ -10,7 +10,6 @@ namespace App\Actions\Web\Slide;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Web\Slide;
 
-
 class UpdateSlide
 {
     use WithActionUpdate;

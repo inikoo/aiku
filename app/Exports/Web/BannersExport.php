@@ -7,7 +7,6 @@
 
 namespace App\Exports\Web;
 
-
 use App\Models\Web\Banner;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;

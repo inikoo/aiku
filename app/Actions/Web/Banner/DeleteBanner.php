@@ -7,7 +7,6 @@
 
 namespace App\Actions\Web\Banner;
 
-
 use App\Models\CRM\Customer;
 use App\Models\Web\Banner;
 use Illuminate\Http\RedirectResponse;

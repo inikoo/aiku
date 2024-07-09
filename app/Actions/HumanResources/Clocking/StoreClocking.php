@@ -182,9 +182,9 @@ class StoreClocking extends OrgAction
         }
     }
 
-    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData,int $hydratorsDelay = 0, ): Clocking
+    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData, int $hydratorsDelay = 0): Clocking
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($parent->organisation, $modelData);
         return $this->handle($generator, $parent, $subject, $this->validatedData);

@@ -131,6 +131,6 @@ class ShowDeletedBanner extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-     return [];
+        return [];
     }
 }

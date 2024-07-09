@@ -30,7 +30,7 @@ class EditBanner extends InertiaAction
         return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
     }
 
-    public function asController( Banner $banner, ActionRequest $request): Banner
+    public function asController(Banner $banner, ActionRequest $request): Banner
     {
         $this->initialisation($request);
 
