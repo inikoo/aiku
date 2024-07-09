@@ -12,16 +12,21 @@ import Gallery from "../Gallery/Gallery.vue";
 import axios from 'axios'
 import { ref } from "vue"
 import { notify } from "@kyvg/vue3-notification"
+import Modal from '@/Components/Utils/Modal.vue'
+import CropImage from "@/Components/CropImage/CropImage.vue" 
 
 library.add(faCube, faStar, faImage)
 
 const props = defineProps<{
     uploadRoutes: string
+    useCrop:Boolean,
+    cropProps:Object
 }>()
 
 const isDragging = ref(false);
 const uploadedFilesList = ref([])
 const fileInput = ref();
+const isOpenModalCrop = ref(false)
 
 
 const emits = defineEmits<{
@@ -95,4 +100,14 @@ const drop = (e) => {
     </div>
 
 
+    <Modal :isOpen="isOpenModalCrop" @onClose="isOpenModalCrop = false">
+        <div>
+            <CropImage 
+            v-bind="cropProps" 
+            :data="[]" 
+            :imagesUploadRoute="uploadRoutes" 
+            :response="(e) => console.log(e)" 
+            />
+        </div>
+    </Modal>
 </template>

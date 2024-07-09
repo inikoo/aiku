@@ -164,7 +164,7 @@ const onClickQuickStart = () => {
 <template>
     <Modal :isOpen="isOpenModalCrop" @onClose="closeModalCrop">
         <div>
-            <CropImage :ratio="data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}" :data="addedFiles" :imagesUploadRoute="props.imagesUploadRoute" :response="uploadImageRespone" />
+            <CropImage :ratio="data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}" :data="addedFiles" :imagesUploadRoute="route(imagesUploadRoute.name,imagesUploadRoute.parameters)" :response="uploadImageRespone" />
         </div>
     </Modal>
 

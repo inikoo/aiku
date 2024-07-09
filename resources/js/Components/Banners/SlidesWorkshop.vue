@@ -402,14 +402,14 @@ onMounted(() => {
 
 
         <!-- Modal: Crop (add slide) -->
-        <!--  <Modal :isOpen="isOpenCropModal" @onClose="closeCropModal">
+         <Modal :isOpen="isOpenCropModal" @onClose="closeCropModal">
             <div>
                 <CropImage
                     :ratio="data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}"
                     :data="uploadedFilesList"
-                    :imagesUploadRoute="props.imagesUploadRoute"
+                    :imagesUploadRoute="route(imagesUploadRoute.name,imagesUploadRoute.parameters)"
                     :response="uploadImageRespone" />
             </div>
-        </Modal> -->
+        </Modal>
     </div>
 </template>
