@@ -4,7 +4,7 @@ import SlidesWorkshop from "@/Components/Banners/SlidesWorkshop.vue"
 import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
 /* import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue" */
 import SlidesWorkshopAddMode from "@/Components/Banners/SlidesWorkshopAddMode.vue"
-/* import ScreenView from "@/Components/ScreenView.vue" */
+import ScreenView from "@/Components/ScreenView.vue"
 
 
 const props = defineProps<{
@@ -22,9 +22,9 @@ const screenView = ref("")
 <template>
     <div v-if="data.components.filter((item: any) => item.ulid != null).length > 0" class="w-full">
         <!-- Button: Screen -->
-   <!--      <div class="flex justify-end pr-2">
+        <div class="flex justify-end pr-2">
             <ScreenView @screenView="(val) => (screenView = val)" />
-        </div -->
+        </div>
 
         <!-- Banner: Square or Landscape -->
         <div class="flex pr-0.5"

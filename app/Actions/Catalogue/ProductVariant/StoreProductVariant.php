@@ -85,7 +85,7 @@ class StoreProductVariant extends OrgAction
                 ]
             );
         }
-        ProductHydrateProductVariants::dispatch($product);
+        ProductHydrateProductVariants::dispatch($product)->delay($this->hydratorsDelay);
 
         $historicProductVariant = StoreHistoricProductVariant::run($productVariant);
         $productVariant->updateQuietly(
