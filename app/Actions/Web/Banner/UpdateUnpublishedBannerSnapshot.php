@@ -5,19 +5,18 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBanners;
-use App\Actions\Portfolio\Banner\Hydrators\BannerHydrateUniversalSearch;
-use App\Actions\Portfolio\Banner\UI\ParseBannerLayout;
-use App\Actions\Portfolio\PortfolioWebsite\Hydrators\PortfolioWebsiteHydrateBanners;
-use App\Actions\Portfolio\Slide\StoreSlide;
-use App\Actions\Portfolio\Slide\UpdateSlide;
+use App\Actions\Web\Banner\Hydrators\BannerHydrateUniversalSearch;
+use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Portfolio\BannerResource;
+use App\Actions\Web\Slide\StoreSlide;
+use App\Actions\Web\Slide\UpdateSlide;
+use App\Http\Resources\Web\BannerResource;
 use App\Models\Helpers\Snapshot;
-use App\Models\Portfolio\Banner;
-use App\Models\Portfolio\Slide;
+
+use App\Models\Web\Banner;
+use App\Models\Web\Slide;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -84,11 +83,8 @@ class UpdateUnpublishedBannerSnapshot
         UpdateBannerImage::run($banner);
 
         BannerHydrateUniversalSearch::dispatch($banner);
-        CustomerHydrateBanners::dispatch(customer());
 
-        foreach ($banner->portfolioWebsites as $portfolioWebsite) {
-            PortfolioWebsiteHydrateBanners::run($portfolioWebsite);
-        }
+
 
 
         return $banner;

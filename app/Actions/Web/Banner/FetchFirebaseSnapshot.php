@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\HasBannerCommand;

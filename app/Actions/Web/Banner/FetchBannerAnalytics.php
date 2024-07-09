@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
 use App\Actions\Google\Analytics\GetAnalytics;
 use App\Models\Portfolio\Banner;
