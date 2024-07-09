@@ -21,14 +21,14 @@ import Popover from '@/Components/Popover.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt, faPaperPlane } from "@far"
-import { faSignOutAlt, faTimes, faShare, faCross, faUndo } from "@fal"
+import { faSignOutAlt, faTimes, faShare, faCross, faUndo, faStickyNote } from "@fal"
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { routeType } from "@/types/route"
 
 const layout = inject('layout', layoutStructure)
 
-library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faUndo, faPaperPlane)
+library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faUndo, faStickyNote, faPaperPlane)
 
 const props = defineProps<{
     data: {}
@@ -107,6 +107,18 @@ const isUndoLoading = ref(false)
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 
+		</template>
+
+        <!-- Column: Pallet Reference -->
+		<template #cell(customer_reference)="{ item }">
+			<div class="space-x-1 space-y-2">
+				<span v-if="item.customer_reference">{{ item.customer_reference }}</span>
+				<span v-if="item.notes" class="text-gray-400 text-xs">
+					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+					{{ item.notes }}
+				</span>
+                <span v-else class="text-gray-400 text-xs">-</span>
+			</div>
 		</template>
 
 

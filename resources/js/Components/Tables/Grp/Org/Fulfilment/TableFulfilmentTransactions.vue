@@ -76,7 +76,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     <Table :key="tab" :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item }">
-            {{ item.asset_code }}
+            {{ item.asset_code || '-' }}
         </template>
 
         <!-- Column: Name -->
@@ -90,10 +90,11 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
             <PureInput
                 v-if="state === 'in-process'"
                 v-model="item.quantity"
-                @blur="(e: number) => onUpdateQuantity(item.id, e)"
+                @blur="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
                 :isLoading="isLoading === 'quantity' + item.id"
                 type="number"
                 :readonly="item.is_auto_assign"
+                v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
             />
 
             <div v-else>{{ item.quantity }}</div>
@@ -112,7 +113,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
                 :loading="isLoading === 'buttonReset' + item.id"
                 icon="fal fa-times"
                 type="negative"
-                v-tooltip="'Reset quantity'"
+                v-tooltip="'Unselect this field'"
             />
         </template>
     </Table>

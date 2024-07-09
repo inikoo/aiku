@@ -27,6 +27,7 @@ import { Table as TSTable } from "@/types/Table"
 import '@/Composables/Icon/PalletStateEnum'
 import { trans } from "laravel-vue-i18n"
 import { ref } from "vue"
+import Tag from "@/Components/Tag.vue"
 
 library.add(faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faSortSizeUp)
 
@@ -163,7 +164,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		</template>
 
 
-		<!-- Column: Customer Reference -->
+		<!-- Column: Pallet Reference -->
 		<template #cell(customer_reference)="{ item }">
 			<div v-if="state == 'in-process'" class="w-full">
 				<FieldEditableTable
@@ -222,7 +223,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			</div>
             
             <template v-else>
-                {{ pallet.location_code }}
+                <Tag :label="pallet.location_code" />
             </template>
 		</template>
 

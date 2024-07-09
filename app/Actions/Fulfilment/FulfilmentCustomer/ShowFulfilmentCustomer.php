@@ -170,7 +170,10 @@ class ShowFulfilmentCustomer extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
-                        ...$additionalActions
+                        [
+                            'type'      => 'buttonGroup',
+                            'button'    => $additionalActions
+                        ]
                     ]
                 ],
 

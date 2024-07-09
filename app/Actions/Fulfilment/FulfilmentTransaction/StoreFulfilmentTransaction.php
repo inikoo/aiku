@@ -83,10 +83,10 @@ class StoreFulfilmentTransaction extends OrgAction
         $this->handle($palletDelivery, $this->validatedData);
     }
 
-    public function inPalletReturn(PalletReturn $palletReturn, $historicAsset, ActionRequest $actionRequest): void
+    public function inPalletReturn(PalletReturn $palletReturn, ActionRequest $actionRequest): void
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $actionRequest);
-        $this->handle($palletReturn, $historicAsset, $this->validatedData);
+        $this->handle($palletReturn, $this->validatedData);
     }
 
 

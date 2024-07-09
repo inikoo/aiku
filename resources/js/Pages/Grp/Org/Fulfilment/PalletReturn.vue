@@ -18,7 +18,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
+import TablePalletReturnPallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
@@ -40,6 +40,7 @@ import { Tabs as TSTabs } from "@/types/Tabs"
 import { Action } from "@/types/Action"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import axios from "axios"
+import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
@@ -83,10 +84,10 @@ const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_
 
 const component = computed(() => {
     const components: Component = {
-        pallets: TablePalletReturnsDelivery,
+        pallets: TablePalletReturnPallets,
         stored_items: TableStoredItems,
-        services: TableServices,
-        physical_goods: TablePhysicalGoods,
+        services: TableFulfilmentTransactions,
+        physical_goods: TableFulfilmentTransactions,
         history: TableHistories,
     }
     return components[currentTab.value]
@@ -102,47 +103,6 @@ watch(
 )
 
 
-
-
-// Method: Add single service
-const handleFormSubmitAddService = (data: {}, closedPopover: Function) => {
-    loading.value = true
-    formAddService.post(route(
-        data.route.name,
-        data.route.parameters
-    ), {
-        preserveScroll: true,
-        onSuccess: () => {
-            closedPopover()
-            formAddService.reset('quantity', 'service_id')
-            loading.value = false
-        },
-        onError: (errors) => {
-            loading.value = false
-            console.error('Error during form submission:', errors)
-        },
-    })
-}
-
-// Method: Add single service
-const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
-    loading.value = true
-    formAddPhysicalGood.post(route(
-        data.route.name,
-        data.route.parameters
-    ), {
-        preserveScroll: true,
-        onSuccess: () => {
-            closedPopover()
-            formAddPhysicalGood.reset('quantity', 'outer_id')
-            loading.value = false
-        },
-        onError: (errors) => {
-            loading.value = false
-            console.error('Error during form submission:', errors)
-        },
-    })
-}
 
 
 // Tabs: Services
