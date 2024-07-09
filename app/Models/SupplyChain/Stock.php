@@ -137,7 +137,6 @@ class Stock extends Model implements HasMedia, Auditable
         'activated_at',
         'discontinuing_at',
         'discontinued_at',
-
     ];
 
     public function getRouteKeyName(): string

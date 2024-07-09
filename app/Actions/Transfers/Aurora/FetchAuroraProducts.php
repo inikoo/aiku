@@ -47,6 +47,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                 }
             } else {
 
+
                 $product = StoreProduct::make()->action(
                     parent: $productData['parent'],
                     modelData: $productData['product'],

@@ -28,7 +28,14 @@ class FetchAuroraProduct extends FetchAurora
         $this->parsedData['parent'] = $this->parsedData['shop'];
         if ($this->auroraModelData->{'Product Family Category Key'}) {
             $family = $this->parseFamily($this->organisation->id.':'.$this->auroraModelData->{'Product Family Category Key'});
+
+
+
             if ($family) {
+
+                if($family->shop_id != $this->parsedData['shop']->id) {
+                    dd('Wrong family - shop');
+                }
                 $this->parsedData['parent'] = $family;
             }
         }
