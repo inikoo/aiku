@@ -145,10 +145,7 @@ console.log(props)
             </TabList>
 
             <TabPanels class="mt-2">
-                <TabPanel v-for="(tab, idx) in tabs" :key="idx" :class="[
-                    'rounded-xl bg-white p-3',
-                    'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
-                ]">
+                <TabPanel v-for="(tab, idx) in tabs" :key="idx" class="p-3 focus:outline-none">
                     <slot name="table" :data="{ p: props, tab: tab }">
                         <RentalTable v-bind="props" :bluprint="tab.tableBluprint" />
                     </slot>
