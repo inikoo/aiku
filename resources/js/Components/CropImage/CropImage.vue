@@ -24,7 +24,7 @@ import { routeType } from '@/types/route'
 
 const props = withDefaults(defineProps<{
     data: File[];
-    imagesUploadRoute: routeType
+    imagesUploadRoute: string
     response : Function
     ratio?:  {
         w: number
@@ -102,10 +102,7 @@ const addComponent = async () => {
 
     try {
         const response = await axios.post(
-            route(
-                props.imagesUploadRoute.name,
-                props.imagesUploadRoute.parameters
-            ),
+            props.imagesUploadRoute,
             { images: SendData },
             {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -186,7 +183,7 @@ const generateGif = (file: File) => {
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .swiper {
     @apply w-full h-full;
 }
