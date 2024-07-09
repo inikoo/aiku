@@ -53,8 +53,8 @@ class GetFulfilmentCustomerShowcase
             'recurring_bill'      => [
                 'route'         => $recurringBillRoute,
                 'label'         => 'Recurring Bills',
-                'start_date'    => 'xxx',
-                'end_date'      => 'xxx',
+                'start_date'    => $fulfilmentCustomer->currentRecurringBill->start_date ?? '',
+                'end_date'      => $fulfilmentCustomer->currentRecurringBill->end_date ?? '', 
             ],
             'updateRoute'                  => [
                 'name'       => 'grp.models.fulfilment-customer.update',
