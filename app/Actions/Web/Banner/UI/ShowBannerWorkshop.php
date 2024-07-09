@@ -20,9 +20,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowBannerWorkshop extends OrgAction
 {
+    private Website $parent;
+
     public function handler(Website $parent, Banner $banner): Banner
     {
-        //$this->parent = $parent;
+        $this->parent = $parent;
+
         return $banner;
     }
 
@@ -97,11 +100,13 @@ class ShowBannerWorkshop extends OrgAction
                     ]
                 ],
                 'imagesUploadRoute' => [
-                    'name'       => 'customer.models.banner.images.store',
-                    'parameters' => $banner->id
+                    'name'       => 'grp.models.shop.website.banner.images.store',
+                    'parameters' => [
+                        'shop'    => $this->shop->id,
+                        'website' => $this->parent->id,
+                        'banner'  => $banner->id
+                    ]
                 ],
-
-
             ]
         );
     }
