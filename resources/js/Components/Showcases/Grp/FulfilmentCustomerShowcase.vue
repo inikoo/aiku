@@ -7,7 +7,7 @@
   -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
@@ -22,7 +22,6 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
-import { useLocaleStore } from '@/Stores/locale'
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faLongArrowRight)
 
 const props = defineProps<{
@@ -78,7 +77,7 @@ const props = defineProps<{
 
 // console.log(props.data)
 
-const locale = useLocaleStore()
+const locale = inject('locale', {})
 
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
