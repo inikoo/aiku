@@ -5,28 +5,25 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner\UI;
+namespace App\Actions\Web\Banner\UI;
 
-use App\Actions\Helpers\History\IndexCustomerHistory;
 use App\Actions\InertiaAction;
-use App\Actions\Portfolio\PortfolioWebsite\UI\ShowPortfolioWebsite;
-use App\Enums\UI\Customer\BannerTabsEnum;
-use App\Http\Resources\History\CustomerHistoryResource;
-use App\Http\Resources\Portfolio\BannerResource;
+
+use App\Enums\Web\Banner\BannerTabsEnum;
+use App\Http\Resources\Web\BannerResource;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Portfolio\Banner;
-use App\Models\Portfolio\PortfolioWebsite;
+use App\Models\Web\Banner;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowDeletedBanner extends InertiaAction
 {
-    private Customer|Shop|PortfolioWebsite|Organisation $parent;
+    private Customer|Shop|Organisation $parent;
 
-    public function handle(Organisation|Shop|Customer|PortfolioWebsite $parent, Banner $banner): Banner
+    public function handle(Organisation|Shop|Customer $parent, Banner $banner): Banner
     {
         $this->parent = $parent;
 
@@ -134,55 +131,6 @@ class ShowDeletedBanner extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        $headCrumb = function (string $type, Banner $banner, array $routeParameters, string $suffix = null) {
-            return [
-                [
-                    'type'           => $type,
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('banners')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $banner->name,
-                        ],
-
-                    ],
-                    'simple'         => [
-                        'route' => $routeParameters['model'],
-                        'label' => $banner->name
-                    ],
-                    'suffix' => $suffix
-                ],
-            ];
-
-        };
-        return match ($routeName) {
-            'customer.portfolio.websites.show.banners.deleted' =>
-            array_merge(
-                ShowPortfolioWebsite::make()->getBreadcrumbs(
-                    'customer.portfolio.websites.show',
-                    ['website' => $routeParameters['portfolioWebsite']]
-                ),
-                $headCrumb(
-                    'modelWithIndex',
-                    $routeParameters['banner'],
-                    [
-                        'index' => [
-                            'name'       => 'customer.portfolio.websites.show.banners.index',
-                            'parameters' => [$routeParameters['portfolioWebsite']->slug]
-                        ],
-                        'model' => [
-                            'name'       => 'customer.portfolio.websites.show.banners.deleted',
-                            'parameters' => $routeParameters
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
-
-            default => []
-        };
+        return [];
     }
 }

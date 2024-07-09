@@ -83,9 +83,9 @@ class StoreClocking extends OrgAction
         TimesheetHydrateTimeTrackers::run($timesheet);
 
         if ($subject instanceof Employee) {
-            EmployeeHydrateClockings::dispatch($subject);
+            EmployeeHydrateClockings::dispatch($subject)->delay($this->hydratorsDelay);
         } else {
-            GuestHydrateClockings::dispatch($subject);
+            GuestHydrateClockings::dispatch($subject)->delay($this->hydratorsDelay);
         }
 
         return $clocking;
@@ -182,9 +182,10 @@ class StoreClocking extends OrgAction
         }
     }
 
-    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
+    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData, int $hydratorsDelay = 0): Clocking
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($parent->organisation, $modelData);
         return $this->handle($generator, $parent, $subject, $this->validatedData);
     }

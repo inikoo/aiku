@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner;
+namespace App\Actions\Web\Banner;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\PortfolioWebsite\BannersExport;
+use App\Exports\Web\BannersExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

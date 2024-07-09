@@ -5,13 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Banner\UI;
+namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Portfolio\PortfolioWebsite\UI\GetPortfolioWebsitesOptions;
-use App\Enums\Portfolio\Banner\BannerStateEnum;
-use App\Models\Portfolio\Banner;
-use App\Models\Portfolio\PortfolioWebsite;
+use App\Enums\Web\Banner\BannerStateEnum;
+use App\Models\Web\Banner;
 use Exception;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -32,7 +30,7 @@ class EditBanner extends InertiaAction
         return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
     }
 
-    public function asController(PortfolioWebsite $portfolioWebsite, Banner $banner, ActionRequest $request): Banner
+    public function asController(Banner $banner, ActionRequest $request): Banner
     {
         $this->initialisation($request);
 
@@ -54,13 +52,7 @@ class EditBanner extends InertiaAction
                     'value'    => $banner->name,
                     'required' => true,
                 ],
-                'portfolio_website_id' => [
-                    'type'     => 'select',
-                    'label'    => __('website'),
-                    'value'    => $banner->portfolio_website_id,
-                    'options'  => GetPortfolioWebsitesOptions::run(),
-                    'required' => true,
-                ],
+
             ]
         ];
 

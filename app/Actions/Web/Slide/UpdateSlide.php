@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Portfolio\Slide;
+namespace App\Actions\Web\Slide;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Portfolio\Slide;
+use App\Models\Web\Slide;
 
 class UpdateSlide
 {

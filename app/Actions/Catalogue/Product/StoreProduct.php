@@ -152,13 +152,13 @@ class StoreProduct extends OrgAction
         );
 
         GroupHydrateProducts::dispatch($product->group)->delay($this->hydratorsDelay);
-        OrganisationHydrateProducts::dispatch($product->organisation);
-        ShopHydrateProducts::dispatch($product->shop);
+        OrganisationHydrateProducts::dispatch($product->organisation)->delay($this->hydratorsDelay);
+        ShopHydrateProducts::dispatch($product->shop)->delay($this->hydratorsDelay);
         if($product->department_id) {
-            DepartmentHydrateProducts::dispatch($product->department);
+            DepartmentHydrateProducts::dispatch($product->department)->delay($this->hydratorsDelay);
         }
         if($product->family_id) {
-            FamilyHydrateProducts::dispatch($product->family);
+            FamilyHydrateProducts::dispatch($product->family)->delay($this->hydratorsDelay);
         }
         return $product;
     }

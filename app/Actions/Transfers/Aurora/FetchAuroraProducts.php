@@ -38,6 +38,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                     $product = UpdateProduct::make()->action(
                         product: $product,
                         modelData: $productData['product'],
+                        hydratorsDelay: 120
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
@@ -49,6 +50,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                     $product = StoreProduct::make()->action(
                         parent: $productData['parent'],
                         modelData: $productData['product'],
+                        hydratorsDelay: 120,
                         strict: false
                     );
                 } catch (Exception $e) {
