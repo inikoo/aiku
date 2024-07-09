@@ -116,7 +116,7 @@ class PalletReturnItemsResource extends JsonResource
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
-                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->id]
+                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->pallet_id]
                 ]
             },
             'notReceivedRoute' => [

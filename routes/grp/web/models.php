@@ -329,7 +329,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
         Route::prefix('pallet/{pallet:id}')->group(function () {
-            Route::delete('/', DeletePalletFromReturn::class)->name('pallet.delete');
+            Route::delete('', DeletePalletFromReturn::class)->name('pallet.delete');
         });
 
         Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
