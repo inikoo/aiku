@@ -1,9 +1,9 @@
 <script setup>
 import { ref, h, defineComponent } from "vue";
 import { set, get } from "lodash";
-// import { Cropper } from 'vue-advanced-cropper'
-// import 'vue-advanced-cropper/dist/style.css';
-// import 'vue-advanced-cropper/dist/theme.compact.css';
+import { Cropper } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css';
+import 'vue-advanced-cropper/dist/theme.compact.css';
 
 const props = defineProps(["data","ratio"]);
 const _cropper = ref()
@@ -51,6 +51,6 @@ const generateThumbnail = (fileOrUrl) => {
 .cropper {
     height: 200px;
     width: 400px;
-    @apply md:w-[400px]
+    @apply md:w-[400px] 
 }
 </style>
