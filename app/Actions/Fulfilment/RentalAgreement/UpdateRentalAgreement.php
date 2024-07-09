@@ -226,9 +226,9 @@ class UpdateRentalAgreement extends OrgAction
             ->customer
             ->webUsers()
             ->first();
-        $this->webUser = $webUser;
+        $this->webUser      = $webUser;
         $fulfilmentCustomer = $rentalAgreement->fulfilmentCustomer;
-        $this->parent = $fulfilmentCustomer;
+        $this->parent       = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
 
         return $this->handle($rentalAgreement, $this->validatedData);

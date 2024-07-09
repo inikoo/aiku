@@ -8,7 +8,6 @@
 namespace App\Actions\Helpers\Query\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Portfolio\PortfolioWebsite\UI\ShowPortfolioWebsite;
 use App\Models\Helpers\Query;
 use Exception;
 use Illuminate\Support\Arr;
@@ -127,11 +126,7 @@ class EditQuery extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowPortfolioWebsite::make()->getBreadcrumbs(
-            $routeName,
-            $routeParameters,
-            suffix: '(' . __('Editing') . ')'
-        );
+        return [];
     }
 
     public function getPrevious(Query $query, ActionRequest $request): ?array

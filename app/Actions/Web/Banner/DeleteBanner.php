@@ -7,10 +7,8 @@
 
 namespace App\Actions\Web\Banner;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBanners;
-use App\Actions\Portfolio\PortfolioWebsite\Hydrators\PortfolioWebsiteHydrateBanners;
 use App\Models\CRM\Customer;
-use App\Models\Portfolio\Banner;
+use App\Models\Web\Banner;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,11 +25,6 @@ class DeleteBanner
     {
         $banner->delete();
 
-        CustomerHydrateBanners::run($customer);
-
-        foreach($banner->portfolioWebsites as $portfolioWebsite) {
-            PortfolioWebsiteHydrateBanners::run($portfolioWebsite);
-        }
 
         return $banner;
     }
