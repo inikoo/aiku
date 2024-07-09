@@ -253,18 +253,7 @@ trait WithAuroraParsers
     }
 
 
-    // Never used
-    /*
-    public function parseHistoricProduct($sourceId): HistoricAsset
-    {
-        $historicProduct = HistoricAsset::where('source_id', $sourceId)->first();
-        if (!$historicProduct) {
-            $historicProduct = FetchAuroraHistoricAssets::run($this->organisationSource, $sourceId);
-        }
 
-        return $historicProduct;
-    }
-    */
 
 
     public function parseHistoricAsset($organisation, $productKey): HistoricAsset|null

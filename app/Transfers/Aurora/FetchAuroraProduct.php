@@ -22,9 +22,7 @@ class FetchAuroraProduct extends FetchAurora
             return;
         }
 
-        if ($this->auroraModelData->{'is_variant'} != 'No') {
-            return;
-        }
+
 
         $this->parsedData['shop']   = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Store Key'});
         $this->parsedData['parent'] = $this->parsedData['shop'];
@@ -83,7 +81,11 @@ class FetchAuroraProduct extends FetchAurora
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
 
+        $isMain=true;
+
+
         $this->parsedData['product'] = [
+            'is_main'                => $isMain,
             'type'                   => AssetTypeEnum::PRODUCT,
             'owner_type'             => $owner_type,
             'owner_id'               => $owner_id,
@@ -101,6 +103,19 @@ class FetchAuroraProduct extends FetchAurora
             'historic_source_id'     => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
             'images'                 => $this->parseImages()
         ];
+
+
+        if ($this->auroraModelData->{'is_variant'} == 'Yes') {
+            $this->parsedData['product']['is_main'] = false;
+            $mainProduct                            = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'variant_parent_id'});
+
+
+            $this->parsedData['product']['variant_ratio']      =  $units / $mainProduct->units;
+            $this->parsedData['product']['variant_is_visible'] =  $this->auroraModelData->{'Product Show Variant'} == 'Yes';
+            $this->parsedData['product']['main_product_id']    = $mainProduct->id;
+        }
+
+
     }
 
     private function parseImages(): array

@@ -1,19 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 02 Jun 2024 19:30:13 Central European Summer Time, Mijas Costa, Spain
+ * Created: Tue, 09 Jul 2024 20:59:40 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\ProductVariant;
+namespace App\Actions\Catalogue\Product;
 
-use App\Actions\Catalogue\HistoricProductVariant\StoreHistoricProductVariant;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\ProductVariant\ProductVariantStateEnum;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\ProductVariant;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
@@ -23,79 +19,43 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreProductVariant extends OrgAction
 {
-    public function handle(Product $product, array $modelData): ProductVariant
+    public function handle(Product $product, array $modelData): Product
     {
+
+
         $tradeUnitsData = [];
         foreach ($product->tradeUnits as $tradeUnit) {
-            $tradeUnitsData[] =
+            $tradeUnitsData[$tradeUnit->id] =
                 [
-                    'tradeUnit' => $tradeUnit,
-                    'data'      => [
-                        'units' => $tradeUnit->pivot->units * $modelData['ratio'],
-                        'notes' => Arr::get($modelData, 'is_main') ? $tradeUnit->pivot->notes : null
-                    ]
+                    'units' => $tradeUnit->pivot->units * $modelData['ratio'],
+                    'notes' => Arr::get($modelData, 'is_main') ? $tradeUnit->pivot->notes : null
                 ];
         }
-
-
+        data_set($modelData, 'trade_units', $tradeUnitsData);
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
         data_set($modelData, 'asset_id', $product->asset_id);
         data_set($modelData, 'family_id', $product->family_id);
         data_set($modelData, 'department_id', $product->department_id);
-
         data_set($modelData, 'shop_id', $product->shop_id);
-
-
         data_set($modelData, 'currency_id', $product->currency_id);
         data_set($modelData, 'unit', $product->unit);
         data_set($modelData, 'units', $product->units * $modelData['ratio']);
 
         data_set($modelData, 'status', $product->status);
-        data_set(
-            $modelData,
-            'state',
-            match ($product->state) {
-                ProductStateEnum::ACTIVE        => ProductVariantStateEnum::ACTIVE,
-                ProductStateEnum::DISCONTINUING => ProductVariantStateEnum::DISCONTINUING,
-                ProductStateEnum::DISCONTINUED  => ProductVariantStateEnum::DISCONTINUED,
-                default                         => ProductVariantStateEnum::IN_PROCESS
-            }
+        data_set($modelData, 'state', $product->state);
+        data_set($modelData, 'main_product_id', $product->id);
+
+
+
+
+        return StoreProduct::make()->action(
+            parent: $product->shop,
+            modelData: $modelData,
+            hydratorsDelay: $this->hydratorsDelay,
+            strict: $this->strict
         );
-
-
-        /** @var ProductVariant $productVariant */
-        $productVariant = $product->productVariants()->create($modelData);
-        $productVariant->stats()->create();
-        $productVariant->salesIntervals()->create();
-        $productVariant->refresh();
-
-        foreach ($tradeUnitsData as $tradeUnitData) {
-            $productVariant->tradeUnits()->attach(
-                $tradeUnitData['tradeUnit'],
-                $tradeUnitData['data']
-            );
-        }
-
-        if ($productVariant->is_main) {
-            $product->updateQuietly(
-                [
-                    'product_variant_id' => $productVariant->id
-                ]
-            );
-        }
-        ProductHydrateProductVariants::dispatch($product)->delay($this->hydratorsDelay);
-
-        $historicProductVariant = StoreHistoricProductVariant::run($productVariant);
-        $productVariant->updateQuietly(
-            [
-                'current_historic_product_variant_id' => $historicProductVariant->id,
-            ]
-        );
-
-
-        return $productVariant;
     }
 
 
@@ -112,7 +72,7 @@ class StoreProductVariant extends OrgAction
                     table: 'assets',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'state', 'operator' => '!=', 'value' => ProductVariantStateEnum::DISCONTINUED->value],
+                        ['column' => 'state', 'operator' => '!=', 'value' => ProductStateEnum::DISCONTINUED->value],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
@@ -134,7 +94,7 @@ class StoreProductVariant extends OrgAction
         return Redirect::route('grp.org.shops.show.catalogue.products.index', $product->shop);
     }
 
-    public function action(Product $product, array $modelData, int $hydratorsDelay = 0, $strict = true): ProductVariant
+    public function action(Product $product, array $modelData, int $hydratorsDelay = 0, $strict = true): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;

@@ -179,7 +179,7 @@ class ProductCategory extends Model implements Auditable, HasMedia
     }
 
 
-    public function products(): HasMany
+    public function products(): HasMany|null
     {
         return match ($this->type) {
             ProductCategoryTypeEnum::DEPARTMENT => $this->hasMany(Product::class, 'department_id'),

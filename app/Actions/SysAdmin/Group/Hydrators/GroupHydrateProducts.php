@@ -34,7 +34,7 @@ class GroupHydrateProducts
     {
 
         $stats         = [
-            'number_products' => $group->products()->count(),
+            'number_products' => $group->products()->where('is_main', true)->count(),
         ];
 
         $stats = array_merge(
@@ -45,7 +45,7 @@ class GroupHydrateProducts
                 enum: ProductStateEnum::class,
                 models: Product::class,
                 where: function ($q) use ($group) {
-                    $q->where('group_id', $group->id);
+                    $q->where('is_main', true)->where('group_id', $group->id);
                 }
             )
         );

@@ -35,7 +35,7 @@ class OrganisationHydrateProducts
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_products' => $organisation->products()->count(),
+            'number_products' => $organisation->products()->where('is_main', true)->count()
         ];
 
         $stats = array_merge(
@@ -46,7 +46,7 @@ class OrganisationHydrateProducts
                 enum: ProductStateEnum::class,
                 models: Product::class,
                 where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
+                    $q->where('is_main', true)->where('organisation_id', $organisation->id);
                 }
             )
         );

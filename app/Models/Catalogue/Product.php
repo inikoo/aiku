@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $asset_id
  * @property int|null $family_id
  * @property int|null $department_id
+ * @property bool $is_main
  * @property bool $status
  * @property ProductStateEnum $state
  * @property string $slug
@@ -50,12 +51,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
- * @property int|null $product_variant_id
  * @property string|null $barcode mirror from trade_unit
  * @property string|null $rrp RRP per outer
  * @property int|null $image_id
  * @property ProductUnitRelationshipType|null $unit_relationship_type
  * @property int|null $available_quantity outer available quantity for sale
+ * @property string $variant_ratio
+ * @property bool $variant_is_visible
+ * @property int|null $main_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -71,10 +74,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read Product|null $mainProduct
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
- * @property-read \App\Models\Catalogue\ProductVariant|null $productVariant
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductVariant> $productVariants
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductStats|null $stats
@@ -102,13 +105,15 @@ class Product extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'price'                  => 'decimal:2',
-        'rrp'                    => 'decimal:2',
-        'data'                   => 'array',
-        'settings'               => 'array',
-        'status'                 => 'boolean',
-        'state'                  => ProductStateEnum::class,
-        'unit_relationship_type' => ProductUnitRelationshipType::class
+        'variant_ratio'                      => 'decimal:3',
+        'price'                              => 'decimal:2',
+        'rrp'                                => 'decimal:2',
+        'data'                               => 'array',
+        'settings'                           => 'array',
+        'status'                             => 'boolean',
+        'variant_is_visible'                 => 'boolean',
+        'state'                              => ProductStateEnum::class,
+        'unit_relationship_type'             => ProductUnitRelationshipType::class
     ];
 
     protected $attributes = [
@@ -177,12 +182,12 @@ class Product extends Model implements Auditable, HasMedia
 
     public function productVariants(): HasMany
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(Product::class, 'main_product_id');
     }
 
-    public function productVariant(): BelongsTo
+    public function mainProduct(): BelongsTo
     {
-        return $this->belongsTo(ProductVariant::class);
+        return $this->belongsTo(Product::class, 'main_product_id');
     }
 
     public function department(): BelongsTo

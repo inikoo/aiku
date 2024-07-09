@@ -34,7 +34,7 @@ class GroupHydrateAssets
     {
 
         $stats         = [
-            'number_assets' => $group->assets()->count(),
+            'number_assets' => $group->assets()->where('is_main', true)->count(),
         ];
 
         $stats = array_merge(
@@ -45,7 +45,7 @@ class GroupHydrateAssets
                 enum: AssetStateEnum::class,
                 models: Asset::class,
                 where: function ($q) use ($group) {
-                    $q->where('group_id', $group->id);
+                    $q->where('is_main', true)->where('group_id', $group->id);
                 }
             )
         );
@@ -58,7 +58,7 @@ class GroupHydrateAssets
                 enum: AssetTypeEnum::class,
                 models: Asset::class,
                 where: function ($q) use ($group) {
-                    $q->where('group_id', $group->id);
+                    $q->where('is_main', true)->where('group_id', $group->id);
                 }
             )
         );

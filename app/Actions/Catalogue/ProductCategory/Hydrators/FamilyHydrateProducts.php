@@ -37,7 +37,7 @@ class FamilyHydrateProducts
     public function handle(ProductCategory $family): void
     {
         $stats         = [
-            'number_products' => $family->products()->count(),
+            'number_products' => $family->products()->where('is_main', true)->count()
         ];
 
         $stats = array_merge(
@@ -48,7 +48,7 @@ class FamilyHydrateProducts
                 enum: ProductStateEnum::class,
                 models: Product::class,
                 where: function ($q) use ($family) {
-                    $q->where('family_id', $family->id);
+                    $q->where('is_main', true)->where('family_id', $family->id);
                 }
             )
         );

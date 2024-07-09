@@ -46,6 +46,14 @@ class FetchAuroraProducts extends FetchAuroraAction
                     return null;
                 }
             } else {
+
+                $product = StoreProduct::make()->action(
+                    parent: $productData['parent'],
+                    modelData: $productData['product'],
+                    hydratorsDelay: 120,
+                    strict: false
+                );
+                /*
                 try {
                     $product = StoreProduct::make()->action(
                         parent: $productData['parent'],
@@ -54,10 +62,12 @@ class FetchAuroraProducts extends FetchAuroraAction
                         strict: false
                     );
                 } catch (Exception $e) {
+
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
 
                     return null;
                 }
+                */
             }
 
 
@@ -99,7 +109,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                     ->select('Product ID as source_id')
                     ->orderBy('Product ID')->get() as $productVariantData
             ) {
-                FetchAuroraVariants::run($organisationSource, $productVariantData->source_id);
+                FetchAuroraProducts::run($organisationSource, $productVariantData->source_id);
             }
 
 
@@ -116,7 +126,7 @@ class FetchAuroraProducts extends FetchAuroraAction
             ->table('Product Dimension')
             ->where('Product Type', 'Product')
             ->whereNull('Product Customer Key')
-            ->where('is_variant', 'No')
+         //   ->where('is_variant', 'No')
             ->select('Product ID as source_id')
             ->orderBy('Product ID');
 
@@ -136,7 +146,7 @@ class FetchAuroraProducts extends FetchAuroraAction
     {
         $query = DB::connection('aurora')->table('Product Dimension')
             ->whereNull('Product Customer Key')
-            ->where('is_variant', 'No')
+        //    ->where('is_variant', 'No')
             ->where('Product Type', 'Product');
 
         if ($this->onlyNew) {

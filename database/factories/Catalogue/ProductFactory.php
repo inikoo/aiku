@@ -19,7 +19,8 @@ class ProductFactory extends Factory
             'name'        => fake()->name,
             'description' => fake()->text,
             'rrp'         => fake()->numberBetween(20, 100),
-            'unit'        => 'piece'
+            'unit'        => 'piece',
+            'is_main'     => true,
         ];
     }
 }
