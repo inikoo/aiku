@@ -84,6 +84,13 @@ const onClickCopyButton = async (text: string) => {
     }, 2000)
 }
 
+const checkNumber = (event: KeyboardEvent) => {
+    if (event.key.length === 1 && isNaN(Number(event.key))) {
+        event.preventDefault();
+    }
+}
+
+
 </script>
 
 <template>
@@ -94,10 +101,11 @@ const onClickCopyButton = async (text: string) => {
                 :value="modelValue"
                 @blur ="(event: any) => emits('blur', event.target.value)"
                 @input="onChange"
+                @keydown="type === 'number' ? checkNumber : false"
                 @keyup.enter="(event: any) => emits('onEnter', event.target.value)"
                 :id="inputName"
                 :name="inputName"
-                :readonly="readonly"
+                :readonly="isLoading || readonly"
                 :type="type == 'password' ? showPassword : type"
                 :placeholder="placeholder"
                 :maxlength="maxLength"
@@ -150,10 +158,10 @@ const onClickCopyButton = async (text: string) => {
         </div>
 
         <!-- Slot: for icon error/success/loading in field edit -->
-        <div class="align-middle flex items-center">
-            <Transition name="headlessui">
-                <div class="px-1">
-                    <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin text-xl' fixed-width aria-hidden='true' />
+        <div class="absolute right-0 inset-y-0 align-middle flex items-center">
+            <Transition name="spin-to-down">
+                <div v-if="isLoading" class="px-1">
+                    <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-xl' fixed-width aria-hidden='true' />
                 </div>
             </Transition>
 
