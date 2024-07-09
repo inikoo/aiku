@@ -272,12 +272,6 @@ trait WithAuroraParsers
     }
 
 
-    public function parseTransactionItem($organisation, $productKey): HistoricAsset|null
-    {
-        return $this->parseHistoricAsset($organisation, $productKey);
-
-    }
-
     public function parseAsset(string $sourceId): Product
     {
         $product = Product::where('source_id', $sourceId)->first();

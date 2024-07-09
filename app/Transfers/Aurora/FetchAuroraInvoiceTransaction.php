@@ -15,12 +15,12 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
     protected function parseInvoiceTransaction(Invoice $invoice, bool $isFulfilment): void
     {
         if ($this->auroraModelData->{'Product Key'}) {
-            $historicItem = $this->parseTransactionItem(
+            $historicAsset = $this->parseHistoricAsset(
                 $this->organisation,
                 $this->auroraModelData->{'Product Key'}
             );
 
-            $this->parsedData['historic_asset'] = $historicItem;
+            $this->parsedData['historic_asset'] = $historicAsset;
 
 
             if (!$isFulfilment) {
