@@ -18,6 +18,7 @@ use App\Models\Web\Banner;
 use App\Models\Web\Website;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -53,12 +54,18 @@ class IndexBanners extends OrgAction
             $query->where('banners.name', "%$value%");
         });
 
+        $stateFilter = AllowedFilter::callback('state', function ($query, $value) {
+            $query->where('banners.state', "%$value%");
+        });
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
         $queryBuilder = QueryBuilder::for(Banner::class);
+
         $queryBuilder->select(
+            'banners.id',
             'banners.slug',
             'banners.state',
             'banners.name',
@@ -79,7 +86,7 @@ class IndexBanners extends OrgAction
         return $queryBuilder
             ->defaultSort('-date')
             ->allowedSorts(['name', 'date', 'number_views'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch, $stateFilter])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -136,6 +143,11 @@ class IndexBanners extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle();
+    }
+
+    public function jsonResponse(LengthAwarePaginator $banners): AnonymousResourceCollection
+    {
+        return BannersResource::collection($banners);
     }
 
     public function htmlResponse(LengthAwarePaginator $banners, ActionRequest $request): Response
