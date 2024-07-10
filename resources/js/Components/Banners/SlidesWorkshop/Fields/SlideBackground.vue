@@ -169,7 +169,7 @@ const onPickImage = (res) => {
             <div>    
                 <CropImage
                     :data="addFiles"
-                    :imagesUploadRoute="route(imagesUploadRoute.name,imagesUploadRoute.parameters)"
+                    :imagesUploadRoute="route(uploadRoutes.name,uploadRoutes.parameters)"
                     :response="uploadImageRespone"
                     :ratio="ratio"/>
             </div>
