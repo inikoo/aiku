@@ -25,6 +25,7 @@ class WebUserResource extends JsonResource
             'status'     => $webUser->status,
             'email'      => $webUser->email,
             'is_root'    => $webUser->is_root,
+            'last_login' => $webUser->stats->last_login_at ?? 'no data',
             'created_at' => $webUser->created_at,
             'updated_at' => $webUser->updated_at,
             'customer'   => CustomersResource::make($webUser->customer),
