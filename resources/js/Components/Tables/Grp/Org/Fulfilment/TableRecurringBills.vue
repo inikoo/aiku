@@ -47,7 +47,7 @@ function recurringBillRoute(bill) {
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
       <template #cell(reference)="{ item: bill }">
-          <Link :href="recurringBillRoute(bill)" class="secondaryLink">
+          <Link :href="recurringBillRoute(bill)" class="primaryLink">
               {{ bill["reference"] }}
           </Link>
       </template>

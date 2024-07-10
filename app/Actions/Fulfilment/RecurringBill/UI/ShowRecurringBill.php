@@ -80,7 +80,7 @@ class ShowRecurringBill extends OrgAction
                             'title' => __('recurring bill')
                         ],
                     'model'        => __('Recurring Bill'),
-                    'title'  => $recurringBill->slug
+                    'title'        => $recurringBill->slug
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

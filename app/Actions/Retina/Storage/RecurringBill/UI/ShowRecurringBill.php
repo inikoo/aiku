@@ -13,7 +13,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
@@ -67,7 +66,7 @@ class ShowRecurringBill extends RetinaAction
                             'title' => __('recurring bill')
                         ],
                     'model'        => __('Recurring Bill'),
-                    'title'  => $recurringBill->slug
+                    'title'        => $recurringBill->slug
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

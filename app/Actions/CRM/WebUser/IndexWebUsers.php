@@ -41,6 +41,7 @@ class IndexWebUsers extends OrgAction
     public function handle(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, $prefix = null): LengthAwarePaginator
     {
 
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('username', $value);
@@ -87,7 +88,6 @@ class IndexWebUsers extends OrgAction
     {
         return WebUsersResource::collection($this->handle($this->parent));
     }
-
 
     public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
     {
@@ -186,7 +186,6 @@ class IndexWebUsers extends OrgAction
         };
     }
 
-
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
@@ -237,6 +236,9 @@ class IndexWebUsers extends OrgAction
             ];
         };
 
+
+
+
         return match ($routeName) {
             'grp.org.fulfilments.show.crm.customers.show.web-users.index' =>
             array_merge(
@@ -245,16 +247,15 @@ class IndexWebUsers extends OrgAction
                     $routeParameters
                 )
             ),
-
-            'customers.show.web-users.index' => array_merge(
-                (new ShowCustomer())->getBreadcrumbs('customers.show', $routeParameters),
-                $routeParameters
-            ),
-            'shops.show.customers.show.web-users.index' =>
+            'grp.org.shops.show.crm.customers.show.web-users.index' =>
             array_merge(
-                (new ShowCustomer())->getBreadcrumbs('shops.show.customers.show', $routeParameters),
-                $headCrumb($routeParameters)
+                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
+                $headCrumb(
+                    $routeParameters
+                )
             ),
+
+
             'grp.org.shops.show.web.websites.show.web-users.index' =>
             array_merge(
                 (new ShowWebsite())->getBreadcrumbs(

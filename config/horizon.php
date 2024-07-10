@@ -311,7 +311,7 @@ return [
         ],
         'local' => [
             'hydrators' => [
-                'maxProcesses'    => 45,
+                'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -326,12 +326,12 @@ return [
                 'balanceCooldown' => 3,
             ],
             'sales' => [
-                'maxProcesses'    => 10,
+                'maxProcesses'    => 3,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 5,
+                'maxProcesses'    => 2,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

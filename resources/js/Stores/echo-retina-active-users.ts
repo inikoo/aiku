@@ -56,7 +56,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
 
                 // })
 
-                .joining((user) => {
+                .joining((user: LiveUser) => {
                     console.log('Someone join')
                     // if UserA join, then others send their data to UserA
                     window.Echo.join(`retina.active.users`).whisper(`sendTo${user.id}`, this.liveUsers[usePage().props.auth.user.id])
@@ -72,7 +72,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                     }
                 })
 
-                .error((error) => {
+                .error((error: {}) => {
                     console.log('error', error)
                 })
 
