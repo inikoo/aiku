@@ -75,6 +75,11 @@ class StoreRental extends OrgAction
                 'current_historic_asset_id' => $historicAsset->id,
             ]
         );
+        $rental->updateQuietly(
+            [
+                'current_historic_asset_id' => $historicAsset->id,
+            ]
+        );
 
         ShopHydrateRentals::dispatch($shop);
         OrganisationHydrateRentals::dispatch($shop->organisation);

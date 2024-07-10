@@ -306,7 +306,7 @@ watch(() => props.data, (newValue) => {
                             <Button
                                 :style="'save'"
                                 :loading="!!isLoadingButton"
-                                :disabled="!formMultiplePallet.number_pallets"
+                                :disabled="formMultiplePallet.number_pallets < 1"
                                 :key="formMultiplePallet.number_pallets"
                                 full
                                 @click="() => handleFormSubmitAddMultiplePallet(action, closed)"
@@ -416,14 +416,13 @@ watch(() => props.data, (newValue) => {
                                 </p>
                             </div>
                             <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddService.quantity"
-                                    placeholder="Qty"
+                                    :placeholder="trans('Quantity')"
                                     @keydown.enter="() => onSubmitAddService(action, closed)"
                                 />
-                                <p v-if="get(formAddService, ['errors', 'quantity'])"
-                                    class="mt-2 text-sm text-red-600">
+                                <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddService.errors.quantity }}
                                 </p>
                             </div>
@@ -432,6 +431,7 @@ watch(() => props.data, (newValue) => {
                                     @click="() => onSubmitAddService(action, closed)"
                                     :style="'save'"
                                     :loading="isLoadingButton == 'addService'"
+                                    :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
                                     label="Save"
                                     full
                                 />
@@ -491,10 +491,10 @@ watch(() => props.data, (newValue) => {
                                 </p>
                             </div>
                             <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddPhysicalGood.quantity"
-                                    placeholder="Qty"
+                                    placeholder="Quantity"
                                     @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
@@ -504,8 +504,10 @@ watch(() => props.data, (newValue) => {
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button
+                                    :key="'button' + formAddPhysicalGood.outer_id + formAddPhysicalGood.quantity"
                                     :style="'save'"
                                     :loading="isLoadingButton == 'addPGood'"
+                                    :disabled="!formAddPhysicalGood.outer_id || !(formAddPhysicalGood.quantity > 0)"
                                     :label="'save'"
                                     full
                                     @click="() => onSubmitAddPhysicalGood(action, closed)"

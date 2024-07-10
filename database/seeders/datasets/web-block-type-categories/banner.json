@@ -13,7 +13,8 @@
                 "icon" : ["fal", "presentation"],
                 "component": "bannerWowsbar",
                 "fieldValue" : {
-                    "link": null,
+                    "banner_id" : null,
+                    "banner_slug" : null,
                     "emptyState": true,
                     "height": {
                         "value": "335",
