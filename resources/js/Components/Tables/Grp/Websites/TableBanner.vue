@@ -28,7 +28,7 @@
 
   function bannerRoute(banner: Banner) {
       return route(
-          'grp.org.shops.show.web.banners.workshop',
+          'grp.org.shops.show.web.banners.show',
           [route().params['organisation'], route().params['shop'], route().params['website'], banner.slug]);
   }
 

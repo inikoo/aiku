@@ -7,42 +7,39 @@
 
 namespace App\Actions\Web\Banner\UI;
 
-use App\Actions\Helpers\History\IndexCustomerHistory;
 use App\Actions\Helpers\Snapshot\UI\IndexSnapshots;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\UI\Customer\Banners\ShowBannersDashboard;
-use App\Enums\UI\Customer\BannerTabsEnum;
-use App\Http\Resources\History\CustomerHistoryResource;
-use App\Http\Resources\Portfolio\BannerResource;
-use App\Http\Resources\Portfolio\SnapshotResource;
-use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Enums\Web\Banner\BannerTabsEnum;
+use App\Http\Resources\Helpers\SnapshotResource;
+use App\Http\Resources\Web\BannerResource;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Portfolio\Banner;
-use App\Models\Portfolio\PortfolioWebsite;
+use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowBanner extends InertiaAction
+class ShowBanner extends OrgAction
 {
     use WithActionButtons;
 
-    private Customer|Shop|PortfolioWebsite|Organisation $parent;
+    private Website $parent;
 
-    public function handle(Organisation|Shop|Customer|PortfolioWebsite $parent, Banner $banner): Banner
+    public function handle(Banner $banner): Banner
     {
-        $this->parent = $parent;
-
         return $banner;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->get('customerUser')->hasPermissionTo('portfolio.banners.edit');
-        $this->canDelete = $request->get('customerUser')->hasPermissionTo('portfolio.banners.edit');
+
+        $this->canEdit   = true;
+        $this->canDelete = true;
+
+        return true;
 
         return
             (
@@ -50,36 +47,18 @@ class ShowBanner extends InertiaAction
             );
     }
 
-    public function asController(Banner $banner, ActionRequest $request): Banner
+    public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
-        $this->initialisation($request)->withTab(BannerTabsEnum::values());
+        $this->parent = $website;
+        $this->initialisationFromShop($shop, $request)->withTab(BannerTabsEnum::values());
 
-        return $this->handle($request->get('customer'), $banner);
-    }
-
-    public function inPortfolioWebsite(PortfolioWebsite $portfolioWebsite, Banner $banner, ActionRequest $request): Banner
-    {
-        $this->initialisation($request)->withTab(BannerTabsEnum::values());
-
-        return $this->handle($portfolioWebsite, $banner);
+        return $this->handle($banner);
     }
 
     public function htmlResponse(Banner $banner, ActionRequest $request): Response
     {
-        $customer = $request->get('customer');
-
-        $container = null;
-        if (class_basename($this->parent) == 'PortfolioWebsite') {
-            $container = [
-                'icon'    => ['fal', 'fa-globe'],
-                'tooltip' => __('Website'),
-                'label'   => Str::possessive($this->parent->name)
-            ];
-        }
-
-
         return Inertia::render(
-            'Banners/Banner',
+            'Org/Web/Banners/Banner',
             [
                 'breadcrumbs'                   => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -96,24 +75,15 @@ class ShowBanner extends InertiaAction
                         'tooltip' => __('banner'),
                         'icon'    => 'fal fa-sign'
                     ],
-                    'container'   => $container,
+                    'container'   => [
+                        'icon'    => ['fal', 'fa-globe'],
+                        'tooltip' => __('Website'),
+                        'label'   => Str::possessive($this->parent->name)
+                    ],
                     'iconRight'   => $banner->state->stateIcon()[$banner->state->value],
                     'actions'     => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
-                        /*
-                        [
-                            'type'  => 'button',
-                            'style' => 'tertiary',
-                            'label' => __('clone this banner'),
-                            'icon'  => ["fal", "fa-paste"],
-                            'route' => [
-                                'name'       => 'customer.banners.banners.duplicate',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                        */
-
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'primary',
@@ -151,29 +121,7 @@ class ShowBanner extends InertiaAction
                             prefix: BannerTabsEnum::SNAPSHOTS->value
                         )
                     )),
-
-                BannerTabsEnum::CHANGELOG->value => $this->tab == BannerTabsEnum::CHANGELOG->value
-                    ?
-                    fn () => CustomerHistoryResource::collection(
-                        IndexCustomerHistory::run(
-                            customer: $customer,
-                            model: $banner,
-                            prefix: BannerTabsEnum::CHANGELOG->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => CustomerHistoryResource::collection(
-                        IndexCustomerHistory::run(
-                            customer: $customer,
-                            model: $banner,
-                            prefix: BannerTabsEnum::CHANGELOG->value
-                        )
-                    )),
-
             ]
-        )->table(
-            IndexCustomerHistory::make()->tableStructure(
-                prefix: BannerTabsEnum::CHANGELOG->value
-            )
         )->table(
             IndexSnapshots::make()->tableStructure(
                 parent: $banner,
@@ -213,7 +161,7 @@ class ShowBanner extends InertiaAction
             'customer.banners.banners.show',
             'customer.banners.banners.edit' =>
             array_merge(
-                ShowBannersDashboard::make()->getBreadcrumbs(),
+                IndexBanners::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
                     'modelWithIndex',
                     Banner::firstWhere('slug', $routeParameters['banner']),
@@ -277,6 +225,7 @@ class ShowBanner extends InertiaAction
                     ]
                 ]
             ],
+            default => []
         };
     }
 
