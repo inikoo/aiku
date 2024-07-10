@@ -236,10 +236,10 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                             </p>
                         </div>
                         <div class="mt-3">
-                            <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                            <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                             <PureInput
                                 v-model="formAddService.quantity"
-                                placeholder="Qty"
+                                :placeholder="trans('Quantity')"
                                 @keydown.enter="() => onSubmitAddService(action, closed)"
                             />
                             <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
@@ -251,6 +251,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                 :style="'save'"
                                 :loading="isLoadingButton == 'addService'"
                                 :label="'save'"
+                                :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
                                 full
                                 @click="() => onSubmitAddService(action, closed)"
                             />
@@ -324,6 +325,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                 <Button
                                     :style="'save'"
                                     :loading="isLoadingButton == 'addPGood'"
+                                    :disabled="!formAddPhysicalGood.outer_id || !(formAddPhysicalGood.quantity > 0)"
                                     :label="'save'"
                                     full
                                     @click="() => onSubmitAddPhysicalGood(action, closed)"
