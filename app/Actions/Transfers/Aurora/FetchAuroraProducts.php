@@ -47,14 +47,6 @@ class FetchAuroraProducts extends FetchAuroraAction
                 }
             } else {
 
-
-                $product = StoreProduct::make()->action(
-                    parent: $productData['parent'],
-                    modelData: $productData['product'],
-                    hydratorsDelay: 120,
-                    strict: false
-                );
-                /*
                 try {
                     $product = StoreProduct::make()->action(
                         parent: $productData['parent'],
@@ -68,7 +60,7 @@ class FetchAuroraProducts extends FetchAuroraAction
 
                     return null;
                 }
-                */
+
             }
 
 
