@@ -4,113 +4,117 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-  <script setup lang="ts">
-  import { ref, onMounted, inject, watch } from "vue"
-  import axios from "axios"
-  import { notify } from "@kyvg/vue3-notification"
-  import Button from "@/Components/Elements/Buttons/Button.vue"
-  import Modal from "@/Components/Utils/Modal.vue"
-  import { trans } from "laravel-vue-i18n"
-  import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
-  import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
-  import Popover from '@/Components/Popover.vue'
-  import PureInput from "@/Components/Pure/PureInput.vue"
-  import InputUseOption from "@/Components/Pure/InputUseOption.vue"
-  
-  import { faPresentation, faLink } from "@fal"
-  import { faSpinnerThird } from '@fad'
-  import { library } from "@fortawesome/fontawesome-svg-core"
-  import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-  import { layoutStructure } from '@/Composables/useLayoutStructure'
-  
-  library.add(faPresentation, faLink, faSpinnerThird)
-  
-  const props = defineProps<{
-      modelValue: Object | String
-  }>()
-  
-  const layout = inject('layout', layoutStructure)
-  const bannersList = ref([])
-  const isModalOpen = ref(false)
-  const data = ref(null)
-  const loading = ref(false)
-  
-  const emits = defineEmits<{
-      (e: 'update:modelValue', value: string | number): void
-      (e: 'autoSave'): void
-  }>()
-  
-  const onPickBanner = (banner) => {
-      emits('update:modelValue', { ...props.modelValue, emptyState: false, banner_id: banner.id, banner_slug: banner.slug })
-      emits('autoSave')
-      isModalOpen.value = false
-  }
-  
-  const getBannersList = async (): Promise<void> => {
-      try {
-          loading.value = true
-          const url = route('grp.org.shops.show.web.banners.index', {
-              organisation: layout.currentParams.organisation,
-              shop: layout.currentParams.shop,
-              website: layout.currentParams.website
-          });
-  
-          const response = await axios.get(url, {
-              params: {
-                  'filter[state]': 'live'
-              }
-          });
-          loading.value = false
-          bannersList.value = response.data.data;
-      } catch (error) {
-          console.error(error);
-          loading.value = false
-          notify({
-              title: "Failed to fetch banners data",
-              text: error.message || 'An error occurred',
-              type: "error",
-          });
-      }
-  };
-  
-  const getDataBanner = async (): Promise<void> => {
-      if (props.modelValue.banner_slug) {
-          try {
-              loading.value = true
-              const url = route('grp.org.shops.show.web.banners.show', {
-                  organisation: layout.currentParams.organisation,
-                  shop: layout.currentParams.shop,
-                  website: layout.currentParams.website,
-                  banner: props.modelValue.banner_slug
-              });
-  
-              const response = await axios.get(url);
-              data.value = response.data
-              loading.value = false
-          } catch (error) {
-              console.error(error);
-              loading.value = false
-              notify({
-                  title: "Failed to fetch banners data",
-                  text: error.message || 'An error occurred',
-                  type: "error",
-              });
-          }
-      }
-  };
-  
-  // Menggunakan watch untuk memanggil getDataBanner saat modelValue berubah
-  watch(() => props.modelValue, (newValue, oldValue) => {
-      if (newValue.banner_slug !== oldValue.banner_slug) {
-          getDataBanner();
-      }
-  });
-  
-  onMounted(() => {
-      if (props.modelValue.banner_slug && props.modelValue.banner_id) getDataBanner()
-      else getBannersList()
-  })
-  </script>
+<script setup lang="ts">
+import { ref, onMounted, inject, watch } from "vue"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import Modal from "@/Components/Utils/Modal.vue"
+import { trans } from "laravel-vue-i18n"
+import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
+import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
+import Popover from '@/Components/Popover.vue'
+import PureInput from "@/Components/Pure/PureInput.vue"
+import InputUseOption from "@/Components/Pure/InputUseOption.vue"
+
+import { faPresentation, faLink } from "@fal"
+import { faSpinnerThird } from '@fad'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+
+library.add(faPresentation, faLink, faSpinnerThird)
+
+const props = defineProps<{
+    modelValue: any
+    webpageData: any
+    web_block: Object
+    id: Number,
+    type: String
+}>()
+
+const layout = inject('layout', layoutStructure)
+const bannersList = ref([])
+const isModalOpen = ref(false)
+const data = ref(null)
+const loading = ref(false)
+
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+    (e: 'autoSave'): void
+}>()
+
+const onPickBanner = (banner) => {
+    emits('update:modelValue', { ...props.modelValue, emptyState: false, banner_id: banner.id, banner_slug: banner.slug })
+    emits('autoSave')
+    isModalOpen.value = false
+}
+
+const getBannersList = async (): Promise<void> => {
+    try {
+        loading.value = true
+        const url = route('grp.org.shops.show.web.banners.index', {
+            organisation: layout.currentParams.organisation,
+            shop: layout.currentParams.shop,
+            website: layout.currentParams.website
+        });
+
+        const response = await axios.get(url, {
+            params: {
+                'filter[state]': 'live'
+            }
+        });
+        loading.value = false
+        bannersList.value = response.data.data;
+    } catch (error) {
+        console.error(error);
+        loading.value = false
+        notify({
+            title: "Failed to fetch banners data",
+            text: error.message || 'An error occurred',
+            type: "error",
+        });
+    }
+};
+
+const getDataBanner = async (): Promise<void> => {
+    if (props.modelValue.banner_slug) {
+        try {
+            loading.value = true
+            const url = route('grp.org.shops.show.web.banners.show', {
+                organisation: layout.currentParams.organisation,
+                shop: layout.currentParams.shop,
+                website: layout.currentParams.website,
+                banner: props.modelValue.banner_slug
+            });
+
+            const response = await axios.get(url);
+            data.value = response.data
+            loading.value = false
+        } catch (error) {
+            console.error(error);
+            loading.value = false
+            notify({
+                title: "Failed to fetch banners data",
+                text: error.message || 'An error occurred',
+                type: "error",
+            });
+        }
+    }
+};
+
+// Menggunakan watch untuk memanggil getDataBanner saat modelValue berubah
+watch(() => props.modelValue, (newValue, oldValue) => {
+    if (newValue.banner_slug !== oldValue.banner_slug) {
+        getDataBanner();
+    }
+});
+
+onMounted(() => {
+    if (props.modelValue.banner_slug && props.modelValue.banner_id) getDataBanner()
+    else getBannersList()
+})
+</script>
 
 <template>
     <div v-if="!props.modelValue.banner_id && !props.modelValue.banner_slug && !loading">
