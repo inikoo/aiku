@@ -26,7 +26,7 @@ class StoreFulfilmentTransaction extends OrgAction
     {
 
         $historicAsset = HistoricAsset::find($modelData['historic_asset_id']);
-        $net = $modelData['quantity']*$historicAsset->asset->price;
+        $net           = $modelData['quantity']*$historicAsset->asset->price;
 
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
@@ -53,10 +53,11 @@ class StoreFulfilmentTransaction extends OrgAction
 
         $fulfilmentTransaction->refresh();
 
-        $this->update($fulfilmentTransaction, 
-        [
+        $this->update(
+            $fulfilmentTransaction,
+            [
             'group_net_amount' => $fulfilmentTransaction->net * $fulfilmentTransaction->group_exchange,
-            'org_net_amount' => $fulfilmentTransaction->net * $fulfilmentTransaction->org_exchange
+            'org_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->org_exchange
         ]
         );
 

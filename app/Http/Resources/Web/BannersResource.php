@@ -32,6 +32,7 @@ class BannersResource extends JsonResource
         }
 
         return [
+            'id'                 => $banner->id,
             'type'               => $banner->type,
             'slug'               => $banner->slug,
             'name'               => $banner->name,
