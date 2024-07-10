@@ -13,13 +13,18 @@ library.add(faChevronDown, faCheckSquare, faSquare)
 
 const props = defineProps<{
     elements: {
-        [key: string]: {
-            [key: string]: number[] | string[]
+        [key: string]: {  // 'status'
+            elements: {
+                [key: string]: number[] | string[]  // active, lose, inactive, no_rental_agreement: ['No Rental Agreement', 126, 'NRA']
+            }
+            key: string
+            label: string
         }
     }
     tableName: string
 }>()
 
+console.log('element', props.elements)
 const emits = defineEmits<{
     (e: 'checkboxChanged', value: SelectedElement): void
 }>()
@@ -101,7 +106,7 @@ onMounted(() => {
 <template>
     <!-- <pre>{{ elements }}</pre> -->
 
-    <Popover class="relative lg:hidden">
+    <Popover class="relative md:hidden">
         <!-- Button: Filter table -->
         <PopoverButton :as="Button" type="tertiary" label="Filter table" icon="fal fa-filter" />
 
@@ -118,15 +123,15 @@ onMounted(() => {
                     <!-- List of element (checkbox) -->
                     <div class="max-w-96 grid grid-cols-2 rounded overflow-hidden w-full flex-wrap justify-end gap-0.5 ">
                         <div v-for="(value, elementKey) of element.elements"
-                            :key="elementKey + elementKey"
+                            :key="`${elementKey}${idxElement}`"
                             class="hover:bg-gray-100 flex items-center gap-x-1 px-3 py-2.5 cursor-pointer select-none"
-                            :class="[selectedElement[elementScope]?.includes(value) ? 'bg-gray-50' : 'bg-white']"
+                            :class="[selectedElement[elementScope]?.includes(elementKey) ? 'bg-gray-50' : 'bg-white']"
                             @click="onClickCheckbox(elementKey, elementScope)"
                             @dblclick="onDoubleClickCheckbox(elementKey, elementScope)" role="filter"
                         >
                             <FontAwesomeIcon v-if="selectedElement[elementScope]?.includes(elementKey)" icon="fal fa-check-square" aria-hidden="true" />
                             <FontAwesomeIcon v-else icon="fal fa-square" aria-hidden="true" />
-                            <div :class="[selectedElement[elementScope]?.includes(value) ? 'text-gray-600' : 'text-gray-600']"
+                            <div :class="[selectedElement[elementScope]?.includes(elementKey) ? '' : 'text-gray-400']"
                                 class="capitalize space-x-1">
                                 <span class="font-normal">{{ value[0] }}</span>
                                 <span :class="[value[1] ? 'font-semibold' : 'text-gray-400']" class="">
@@ -140,12 +145,12 @@ onMounted(() => {
         </Transition>
     </Popover>
 
-    <div v-if="!!selectedGroup" class="hidden lg:flex items-center text-xs justify-between w-fit">
+    <div v-if="!!selectedGroup" class="hidden md:flex items-center text-xs justify-between w-fit">
         <div class="w-fit flex gap-x-1 lg:gap-x-0 justify-end border border-gray-200 rounded">
             <!-- List of element (checkbox) -->
             <div class="rounded overflow-hidden grid grid-rows-2 xl:grid-rows-1 grid-flow-col w-fit justify-end gap-0.5 ">
                 <div v-for="(value, element, index) of elements[selectedGroup]?.elements" :key="element"
-                    class="hover:bg-gray-100/60 flex items-center gap-x-1 px-3 py-2.5 cursor-pointer select-none"
+                    class="hover:bg-gray-100 flex items-center gap-x-1 px-3 py-2.5 cursor-pointer select-none"
                     :class="[selectedElement[selectedGroup]?.includes(element) ? 'bg-gray-50' : 'bg-white']"
                     @click="onClickCheckbox(element, selectedGroup)"
                     @dblclick="onDoubleClickCheckbox(element, selectedGroup)"
@@ -156,7 +161,8 @@ onMounted(() => {
                     <FontAwesomeIcon v-else icon="fal fa-square" aria-hidden="true" />
                     <div :class="[ selectedElement[selectedGroup]?.includes(element) ? 'text-gray-600' : 'text-gray-600',
                         'capitalize space-x-1']">
-                        <span class="font-normal">{{ value[0] }}</span>
+                        <span class="hidden lg:inline font-normal">{{ value[0] }}</span>
+                        <span class="lg:hidden font-normal">{{ value[2] || value[0] }}</span>
                         <span :class="[value[1] ? 'font-semibold' : 'text-gray-400']" class="">({{ useLocaleStore().number(value[1]) }})</span>
                     </div>
                 </div>

@@ -14,6 +14,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -81,7 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Asset withoutTrashed()
  * @mixin \Eloquent
  */
-class Asset extends Model implements HasMedia
+class Asset extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasSlug;
@@ -89,6 +91,7 @@ class Asset extends Model implements HasMedia
     use HasFactory;
     use InShop;
     use HasImage;
+    use HasHistory;
 
     protected $casts = [
         'data'                   => 'array',
@@ -100,6 +103,29 @@ class Asset extends Model implements HasMedia
 
     protected $attributes = [
         'data'     => '{}',
+    ];
+
+    protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditInclude = [
+        'is_main',
+        'model_type',
+        'model_id',
+        'status',
+        'state',
+        'code',
+        'name',
+        'price',
+        'currency_id',
+        'units',
+        'unit',
     ];
 
     public function getRouteKeyName(): string
@@ -118,8 +144,6 @@ class Asset extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-
-    protected $guarded = [];
 
     public function stats(): HasOne
     {

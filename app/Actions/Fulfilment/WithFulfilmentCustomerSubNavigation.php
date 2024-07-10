@@ -32,7 +32,6 @@ trait WithFulfilmentCustomerSubNavigation
 
         ];
 
-
         $subNavigation[]=[
             'href' => [
                 'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
@@ -122,20 +121,6 @@ trait WithFulfilmentCustomerSubNavigation
         }
 
         if($fulfilmentCustomer->dropshipping) {
-            $subNavigation[]=[
-                'href' => [
-                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
-                    'parameters'=> $request->route()->originalParameters()
-                ],
-
-                'label'     => __('Recurring bills'),
-                'leftIcon'  => [
-                    'icon'    => 'fal fa-receipt',
-                    'tooltip' => __('Recurring bills'),
-                ],
-                'number'=> $fulfilmentCustomer->number_recurring_bills
-
-            ];
 
             $subNavigation[]=[
                 'href' => [
@@ -152,6 +137,21 @@ trait WithFulfilmentCustomerSubNavigation
 
             ];
         }
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
+                'parameters'=> $request->route()->originalParameters()
+            ],
+
+            'label'     => __('Recurring bills'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-receipt',
+                'tooltip' => __('Recurring bills'),
+            ],
+            'number'=> $fulfilmentCustomer->number_recurring_bills
+
+        ];
 
         return $subNavigation;
     }
