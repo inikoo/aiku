@@ -9,7 +9,7 @@ import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { WebUser } from "@/types/web-user";
 
-const props = defineProps<{
+defineProps<{
     data: object,
     tab?: string
 }>();
@@ -24,25 +24,21 @@ function webUserRoute(webUser: WebUser) {
                 "grp.org.fulfilments.show.crm.customers.show.web-users.show",
                 [route().params.organisation, route().params.fulfilment, route().params.fulfilmentCustomer, webUser.slug]
             );
-
-        case "grp.org.shops.show.web.web-users.index":
-            return route(
-                "grp.org.shops.show.web.web-users.show",
-                [route().params.organisation, route().params.shop, webUser.slug]
-            );
         case "grp.org.fulfilments.show.web.web-users.index":
             return route(
                 "grp.org.fulfilments.show.web.web-users.show",
                 [route().params.organisation, route().params.fulfilment, webUser.slug]);
-
-        case  "grp.org.shops.show.web.websites.show":
-            return route(
-                "grp.org.shops.show.web.websites.show.web-users.show",
-                [route().params.organisation, route().params.shop, route().params.website, webUser.slug]);
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
                 "grp.org.fulfilments.show.crm.customers.show.web-users.show",
                 [route().params.organisation, route().params.fulfilment,  route().params.fulfilmentCustomer, webUser.slug]);
+      case "grp.org.shops.show.crm.customers.show.web-users.index":
+        return route(
+          "grp.org.shops.show.crm.customers.show.web-users.show",
+          [route().params.organisation, route().params.shop, route().params.customer, webUser.slug]
+        );
+
+
     }
 }
 
@@ -61,6 +57,10 @@ function webUserRoute(webUser: WebUser) {
             {{ webUser["is_root"] }}
         </template>
 
+        <!-- Column: Created at -->
+        <template #cell(created_at)="{ item: webUser }">
+            {{ useFormatTime(webUser.created_at) }}
+        </template>
     </Table>
 
 

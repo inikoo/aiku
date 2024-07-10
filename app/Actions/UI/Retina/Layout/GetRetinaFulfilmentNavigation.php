@@ -118,13 +118,14 @@ class GetRetinaFulfilmentNavigation
             $groupNavigation['billing'] = [
                 'label'   => __('billing'),
                 'icon'    => ['fal', 'fa-file-invoice-dollar'],
+                'root'    => 'retina.billing.',
                 'route'   => [
                     'name' => 'retina.billing.dashboard'
                 ],
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('recurring billing'),
+                            'label' => __('recurring bills'),
                             'icon'  => ['fal', 'fa-terminal'],
                             'root'  => 'retina.billing.recurring.',
                             'route' => [
@@ -138,7 +139,7 @@ class GetRetinaFulfilmentNavigation
                             'icon'  => ['fal', 'fa-cog'],
                             'root'  => 'retina.billing.invoice.',
                             'route' => [
-                                'name' => 'retina.billing.invoice.index',
+                                'name' => 'retina.billing.invoices.index',
 
                             ]
                         ],

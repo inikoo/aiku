@@ -89,7 +89,7 @@ class PublishBanner extends OrgAction
 
         $banner->update($updateData);
         BannerHydrateUniversalSearch::dispatch($banner);
-        UpdateBannerImage::dispatch($banner);
+        UpdateBannerImage::run($banner);
 
 
         Cache::put('banner_compiled_layout_'.$banner->ulid, $banner->compiled_layout, 86400);

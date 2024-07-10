@@ -132,6 +132,11 @@ class EditWebUser extends OrgAction
                                     'label' => __('password'),
                                     'value' => ''
                                 ],
+                                'is_root' => [
+                                    'type'  => 'toggle',
+                                    'label' => __('Admin'),
+                                    'value' => false
+                                ],
 
                             ]
                         ],

@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\RecurringBill\UI;
+namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
@@ -13,7 +13,8 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\OrgAction;
+use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
@@ -34,26 +35,11 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property StoredItem $storedItem
  */
-class ShowRecurringBill extends OrgAction
+class ShowRecurringBill extends RetinaAction
 {
-    public function authorize(ActionRequest $request): bool
+    public function asController(RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-    }
-
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
-
-        return $this->handle($recurringBill);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
+        $this->initialisation($request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($recurringBill);
     }
@@ -66,7 +52,7 @@ class ShowRecurringBill extends OrgAction
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/RecurringBill',
+            'Billing/RetinaRecurringBill',
             [
                 'title'       => __('recurring bill'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -138,7 +124,7 @@ class ShowRecurringBill extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $recurringBill->reference,
+                            'label' => $recurringBill->slug,
                         ],
 
                     ],
@@ -149,41 +135,26 @@ class ShowRecurringBill extends OrgAction
 
         $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
 
+
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show' => array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
+            'retina.billing.recurring.show' => array_merge(
+                ShowBillingDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $recurringBill,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                            'name'       => 'retina.billing.recurring.index',
+                            'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'recurringBill'])
+                            'name'       => 'retina.billing.recurring.show',
+                            'parameters' => [$recurringBill->slug]
                         ]
                     ],
                     $suffix
-                )
+                ),
             ),
-            'grp.org.fulfilments.show.operations.recurring_bills.show' => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment'])),
-                $headCrumb(
-                    $recurringBill,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
+
             default => []
         };
     }

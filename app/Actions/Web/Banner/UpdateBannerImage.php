@@ -34,8 +34,6 @@ class UpdateBannerImage
             $image_id = Arr::get($banner->data, 'unpublished_image_id');
         }
 
-
-
         $banner->image_id = $image_id;
         $banner->saveQuietly();
 
