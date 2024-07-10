@@ -105,6 +105,7 @@ export interface PalletDelivery {
     estimated_delivery_date: string
 }
 
+
 export interface PalletReturn {
     id: number
     delivery_address: {
@@ -120,6 +121,16 @@ export interface PalletReturn {
     number_services: number
     number_physical_goods: number
 }
+
+
+export interface FieldOrderSummary {
+    label: string
+    quantity: number
+    price_base?: number
+    price_total: number | string
+    information?: string
+}
+
 
 // Box Stats in Pallet Delivery
 export interface BoxStats {
@@ -154,27 +165,7 @@ export interface BoxStats {
             pallets_storage: boolean
         }
     }
-    order_summary: {
-        currency_code: string
-        number_pallets: number
-        number_services: number
-        number_physical_goods: number
-        pallets_price: number
-        physical_goods_price: number
-        services_price: number
-        total_pallets_price: number
-        total_services_price: number
-        total_physical_goods_price: number
-        shipping: {
-            tooltip: string
-            fee: number
-        }
-        tax: {
-            tooltip: string
-            fee: number
-        }
-        total_price: number
-    }
+    order_summary: FieldOrderSummary[][]
 }
 
 export interface PalletStatus {
