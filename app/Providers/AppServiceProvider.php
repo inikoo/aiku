@@ -167,8 +167,6 @@ class AppServiceProvider extends ServiceProvider
                 'Product'                       => 'App\Models\Catalogue\Product',
                 'Rental'                        => 'App\Models\Fulfilment\Rental',
                 'Service'                       => 'App\Models\Catalogue\Service',
-                'ProductVariant'                => 'App\Models\Catalogue\ProductVariant',
-                'HistoricProductVariant'        => 'App\Models\Catalogue\HistoricProductVariant',
 
                 // Deals
                 'Offer'                         => 'App\Models\Marketing\Offer',

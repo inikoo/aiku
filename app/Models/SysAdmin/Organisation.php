@@ -18,6 +18,7 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -155,7 +156,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
- * @property-read LaravelCollection<int, Asset> $products
+ * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
@@ -545,7 +546,7 @@ class Organisation extends Model implements HasMedia, Auditable
 
     public function products(): HasMany
     {
-        return $this->hasMany(Asset::class);
+        return $this->hasMany(Product::class);
     }
 
     public function rentals(): HasMany

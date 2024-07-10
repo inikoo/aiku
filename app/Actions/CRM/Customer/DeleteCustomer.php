@@ -45,7 +45,6 @@ class DeleteCustomer
             'clients'          => $customer->clients()->count(),
             'webUsers'         => $customer->webUsers()->count(),
             'products'         => $customer->products()->count(),
-            'fulfilmentOrders' => $customer->fulfilmentOrders()->count(),
             'orders'           => $customer->orders()->count(),
         ];
 

@@ -5,8 +5,8 @@ import { ref, toRefs, watch } from "vue"
 import 'vue-advanced-cropper/dist/style.css'
 import 'vue-advanced-cropper/dist/theme.compact.css'
 import Modal from '@/Components/Utils/Modal.vue'
-import CropImage from '@/Components/Workshop/CropImage/CropImage.vue'
-import GalleryImages from "@/Components/Workshop/GalleryImages.vue"
+import CropImage from '@/Components/CropImage/CropImage.vue'
+import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 import Image from '@/Components/Image.vue'
 import { set, get } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
@@ -15,6 +15,7 @@ import { useBannerBackgroundColor } from "@/Composables/useStockList"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faUpload } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { routeType } from "@/types/route"
 library.add(faUpload)
 
 const props = defineProps<{
@@ -22,6 +23,7 @@ const props = defineProps<{
     fieldName: string
     fieldData: any
     bannerType: string
+    uploadRoutes : routeType
 }>()
 
 
@@ -134,29 +136,40 @@ const screenViewChange = (value: string) => {
 
 const backgroundColorList = useBannerBackgroundColor() // Fetch color list from Composables
 
+const onPickImage = (res) => {
+    props.data.image = {
+        ...props.data.image,
+        ...{[screenView.value || 'desktop']: res}
+    }
+    props.data.layout.backgroundType = {
+        ...props.data.layout.backgroundType,
+        ...{[screenView.value || 'desktop']: 'image'}
+    }
+
+    isOpenCropModal.value = false
+    isOpen.value = false
+}
+
 </script>
 
 <template>
     <div class="block w-full">
         <!-- Popup: add image from Gallery -->
-        <Modal :show="isOpen" @onClose="closeModal">
-            <div>
-                <GalleryImages
-                    :imagesUploadRoute="props.fieldData.uploadRoute"
-                    :addImage="uploadImageRespone"
-                    :closeModal="() => isOpen = false"
-                    :multiple="false"
-                    :ratio="bannerType === 'square' ? {w : 1, h : 1} : undefined"
-                />
-            </div>
-        </Modal>
+
+        <Gallery 
+            :open="isOpen" 
+            @on-close="closeModal"  
+            :uploadRoutes="route(uploadRoutes.name,uploadRoutes.parameters)"
+            :tabs="['images_uploaded', 'stock_images']" 
+            @on-pick="onPickImage"
+        />
 
         <!-- Popup: Crop when add image (landscape) -->
         <Modal :isOpen="isOpenCropModal" @onClose="closeModalisOpenCropModal">
             <div>    
                 <CropImage
                     :data="addFiles"
-                    :imagesUploadRoute="props.fieldData.uploadRoute"
+                    :imagesUploadRoute="route(uploadRoutes.name,uploadRoutes.parameters)"
                     :response="uploadImageRespone"
                     :ratio="ratio"/>
             </div>
@@ -180,11 +193,6 @@ const backgroundColorList = useBannerBackgroundColor() // Fetch color list from 
                     <div v-if="get(data, ['layout', 'backgroundType', screenView || 'desktop'], 'image') === 'image'"
                         class="group h-full relative"
                     >
-                        <!-- <div class="group-hover:bg-gray-700/50 inset-0 absolute h-full"></div>
-                        <div class="hidden group-hover:flex absolute inset-0 justify-center items-center text-white">
-                            <FontAwesomeIcon icon='fal fa-trash-alt' class='text-3xl text-red-500' aria-hidden='true' />
-                        </div>
-                        <FontAwesomeIcon icon='fal fa-times' class='absolute top-0 -right-8 text-3xl text-red-400 hover:text-red-500' aria-hidden='true' /> -->
                         <Image :src="get(data, ['image', screenView || 'desktop', 'source'])"
                             :alt="data.image?.name" :imageCover="true"/>
                     </div>

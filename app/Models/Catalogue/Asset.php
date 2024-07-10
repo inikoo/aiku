@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property string $slug
+ * @property bool $is_main
  * @property AssetTypeEnum $type
  * @property string $model_type
  * @property int|null $model_id

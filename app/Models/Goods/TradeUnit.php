@@ -11,6 +11,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Helpers\Barcode;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
@@ -50,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
@@ -65,12 +68,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|TradeUnit withoutTrashed()
  * @mixin Eloquent
  */
-class TradeUnit extends Model implements HasMedia
+class TradeUnit extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use HasImage;
     use HasFactory;
+    use HasHistory;
 
     protected $casts = [
         'data'       => 'array',
@@ -83,6 +87,25 @@ class TradeUnit extends Model implements HasMedia
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'goods'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'description',
+        'barcode',
+        'gross_weight',
+        'net_weight',
+        'dimensions',
+        'volume',
+        'type',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {

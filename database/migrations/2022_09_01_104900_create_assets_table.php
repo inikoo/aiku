@@ -24,6 +24,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->boolean('is_main')->default(true)->index();
             $table->string('type')->index();
             $table->string('model_type')->index();
             $table->unsignedInteger('model_id')->index()->nullable();

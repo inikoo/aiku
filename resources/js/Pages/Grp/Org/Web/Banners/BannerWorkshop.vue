@@ -127,13 +127,13 @@ const handleKeyDown = () => {
 
 const autoSave = () => {
     const form = useForm(deleteUser());
-   form.patch(
+ /*   form.patch(
         route(props.autoSaveRoute.name, props.autoSaveRoute.parameters), {
             preserveScroll: true,
             onError: (errors: any) => {
                 console.log(errors)
             },
-        })
+        }) */
 }
 
 watch(data,autoSave,{deep: true})

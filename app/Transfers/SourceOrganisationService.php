@@ -73,8 +73,6 @@ interface SourceOrganisationService
 
     public function fetchProduct($id);
 
-    public function fetchVariant($id);
-
     public function fetchService($id);
 
     public function fetchProductStocks($id);

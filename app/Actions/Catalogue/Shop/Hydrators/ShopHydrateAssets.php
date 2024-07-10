@@ -34,7 +34,7 @@ class ShopHydrateAssets
     {
 
         $stats         = [
-            'number_assets' => $shop->assets()->count(),
+            'number_assets' => $shop->assets()->where('is_main', true)->count(),
         ];
 
         $stats = array_merge(
@@ -45,7 +45,7 @@ class ShopHydrateAssets
                 enum: AssetStateEnum::class,
                 models: Asset::class,
                 where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                    $q->where('is_main', true)->where('shop_id', $shop->id);
                 }
             )
         );
@@ -58,7 +58,7 @@ class ShopHydrateAssets
                 enum: AssetTypeEnum::class,
                 models: Asset::class,
                 where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                    $q->where('is_main', true)->where('shop_id', $shop->id);
                 }
             )
         );
