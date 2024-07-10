@@ -5,44 +5,45 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import Table from "@/Components/Table/Table.vue";
-import { WebUser } from "@/types/web-user";
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import { WebUser } from "@/types/web-user"
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 const props = defineProps<{
     data: object,
     tab?: string
-}>();
+}>()
 
 
 
 function webUserRoute(webUser: WebUser) {
-    console.log(route().current());
+    console.log(route().current())
     switch (route().current()) {
         case "grp.org.fulfilments.show.crm.customers.show.web-users.index":
             return route(
                 "grp.org.fulfilments.show.crm.customers.show.web-users.show",
                 [route().params.organisation, route().params.fulfilment, route().params.fulfilmentCustomer, webUser.slug]
-            );
+            )
 
         case "grp.org.shops.show.web.web-users.index":
             return route(
                 "grp.org.shops.show.web.web-users.show",
                 [route().params.organisation, route().params.shop, webUser.slug]
-            );
+            )
         case "grp.org.fulfilments.show.web.web-users.index":
             return route(
                 "grp.org.fulfilments.show.web.web-users.show",
-                [route().params.organisation, route().params.fulfilment, webUser.slug]);
+                [route().params.organisation, route().params.fulfilment, webUser.slug])
 
-        case  "grp.org.shops.show.web.websites.show":
+        case "grp.org.shops.show.web.websites.show":
             return route(
                 "grp.org.shops.show.web.websites.show.web-users.show",
-                [route().params.organisation, route().params.shop, route().params.website, webUser.slug]);
+                [route().params.organisation, route().params.shop, route().params.website, webUser.slug])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
                 "grp.org.fulfilments.show.crm.customers.show.web-users.show",
-                [route().params.organisation, route().params.fulfilment,  route().params.fulfilmentCustomer, webUser.slug]);
+                [route().params.organisation, route().params.fulfilment, route().params.fulfilmentCustomer, webUser.slug])
     }
 }
 
@@ -61,9 +62,11 @@ function webUserRoute(webUser: WebUser) {
             {{ webUser["is_root"] }}
         </template>
 
+        <!-- Column: Created at -->
+        <template #cell(created_at)="{ item: webUser }">
+            {{ useFormatTime(webUser.created_at) }}
+        </template>
     </Table>
 
 
 </template>
-
-
