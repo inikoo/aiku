@@ -19,63 +19,64 @@ const props = defineProps<{
     blocks: any,
 }>()
 
-console.log(props.blocks)
+console.log('blocks from webpage', props.blocks.web_blocks)
+console.log('data', props.data)
 
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-const features = [
-    {
-        name: 'Flexible Storage Options',
-        description: 'Choose from a variety of warehouse spaces tailored to your needs. Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus, laboriosam?'
-    },
-    {
-        name: 'Secure Facilities',
-        description: 'Rest assured with our state-of-the-art security systems and personnel. Amet consectetur adipisicing elit. Adipisci, consectetur dolorem.'
-    },
-    {
-        name: '24/7 Access',
-        description: 'Access your stored items whenever you need them, day or night. Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, quisquam.'
-    },
-    {
-        name: 'Climate Control',
-        description: 'Ensure the optimal condition of your goods with our climate-controlled warehouses. Consectetur adipisicing elit. Ad, explicabo labore.'
-    },
-    {
-        name: 'Inventory Management',
-        description: 'Streamline your operations with our advanced inventory tracking and management solutions. Dolor sit amet consectetur adipisicing elit. Aperiam, molestiae.'
-    },
-    {
-        name: 'Loading Docks',
-        description: 'Efficiently load and unload your shipments with our convenient loading docks. Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia, odit.'
-    }
-]
+// const features = [
+//     {
+//         name: 'Flexible Storage Options',
+//         description: 'Choose from a variety of warehouse spaces tailored to your needs. Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus, laboriosam?'
+//     },
+//     {
+//         name: 'Secure Facilities',
+//         description: 'Rest assured with our state-of-the-art security systems and personnel. Amet consectetur adipisicing elit. Adipisci, consectetur dolorem.'
+//     },
+//     {
+//         name: '24/7 Access',
+//         description: 'Access your stored items whenever you need them, day or night. Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, quisquam.'
+//     },
+//     {
+//         name: 'Climate Control',
+//         description: 'Ensure the optimal condition of your goods with our climate-controlled warehouses. Consectetur adipisicing elit. Ad, explicabo labore.'
+//     },
+//     {
+//         name: 'Inventory Management',
+//         description: 'Streamline your operations with our advanced inventory tracking and management solutions. Dolor sit amet consectetur adipisicing elit. Aperiam, molestiae.'
+//     },
+//     {
+//         name: 'Loading Docks',
+//         description: 'Efficiently load and unload your shipments with our convenient loading docks. Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia, odit.'
+//     }
+// ]
 
-const pricing = [
-    {
-        name: 'Basic',
-        id: 'tier-basic',
-        href: '#',
-        priceMonthly: '$99',
-        description: "Ideal for small businesses or startups with moderate storage needs.",
-        features: ['100 sq. ft. storage space', '24/7 access', 'Basic security features'],
-        featured: false,
-    },
-    {
-        name: 'Pro',
-        id: 'tier-pro',
-        href: '#',
-        priceMonthly: '$249',
-        description: 'Perfect for growing businesses with increased storage demands.',
-        features: [
-            '250 sq. ft. storage space',
-            'Climate-controlled environment',
-            'Advanced security system',
-            'Inventory management software',
-        ],
-        featured: true,
-    },
-]
+// const pricing = [
+//     {
+//         name: 'Basic',
+//         id: 'tier-basic',
+//         href: '#',
+//         priceMonthly: '$99',
+//         description: "Ideal for small businesses or startups with moderate storage needs.",
+//         features: ['100 sq. ft. storage space', '24/7 access', 'Basic security features'],
+//         featured: false,
+//     },
+//     {
+//         name: 'Pro',
+//         id: 'tier-pro',
+//         href: '#',
+//         priceMonthly: '$249',
+//         description: 'Perfect for growing businesses with increased storage demands.',
+//         features: [
+//             '250 sq. ft. storage space',
+//             'Climate-controlled environment',
+//             'Advanced security system',
+//             'Inventory management software',
+//         ],
+//         featured: true,
+//     },
+// ]
 
 // const faqs = [
 //     {
@@ -154,20 +155,22 @@ const people = [
 <template>
 
     <Head title="Warehouse Solution" />
-
+<!-- <pre>{{ blocks.web_blocks[0].web_block.layout.data.component }}</pre> -->
 
     <div class="bg-white pb-20">
         <template v-if="props.blocks?.web_blocks?.length">
-            <div v-for="(activityItem, activityItemIdx) in props.blocks.blocks"
+            <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks"
                 :key="'block' + activityItem.id"
                 class="w-full">
+                <!-- ==== {{ activityItem['type'] }} -->
                 <component
-                    :is="getComponent(activityItem['component'])"
+                    :is="getComponent(activityItem.web_block.layout.data.component)"
                     :key="activityItemIdx"
                     v-model="activityItem.fieldValue"
                     :isEditable="false"
-                    v-bind="activityItem.fieldData"
+                    v-bind="activityItem.web_block.layout.data.fieldValue"
                 />
+                <!-- <pre>{{ activityItem.web_block.layout.data.fieldValue }}</pre> -->
             </div>
         </template>
 
@@ -330,7 +333,7 @@ const people = [
         </div>
 
         <!-- Pricing section -->
-        <div v-if="false" class="relative isolate mt-32 bg-white px-6 sm:mt-56 lg:px-8">
+        <!-- <div v-if="false" class="relative isolate mt-32 bg-white px-6 sm:mt-56 lg:px-8">
             <div class="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
                 aria-hidden="true">
                 <div class="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
@@ -374,7 +377,7 @@ const people = [
                         started today</a>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 

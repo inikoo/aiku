@@ -8,6 +8,8 @@
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
+use App\Enums\UI\Fulfilment\RecurringBillsTabsEnum;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -90,12 +92,12 @@ class IndexRecurringBills extends RetinaAction
         return Inertia::render(
             'Billing/RetinaRecurringBills',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('recurring bills'),
-                'model'       => __('Recurring Bill'),
+                'model'     => __('Recurring Bill'),
                 'pageHead'    => [
                     'title'         => __('recurring bills'),
                     'icon'          => [
@@ -109,27 +111,27 @@ class IndexRecurringBills extends RetinaAction
         );
     }
 
-    // public function getBreadcrumbs(string $routeName): array
-    // {
-    //     return match ($routeName) {
-    //         'retina.storage.pallet-deliveries.index' =>
-    //         array_merge(
-    //             ShowStorageDashboard::make()->getBreadcrumbs(),
-    //             [
-    //                 [
-    //                     'type'   => 'simple',
-    //                     'simple' => [
-    //                         'route' => [
-    //                             'name'       => 'retina.storage.pallet-deliveries.index',
-    //                         ],
-    //                         'label' => __('pallet deliveries'),
-    //                         'icon'  => 'fal fa-bars',
-    //                     ],
+    public function getBreadcrumbs(string $routeName): array
+    {
+        return match ($routeName) {
+            'retina.billing.recurring.index' =>
+            array_merge(
+                ShowBillingDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'retina.billing.recurring.index',
+                            ],
+                            'label' => __('Recurring bills'),
+                            'icon'  => 'fal fa-bars',
+                        ],
 
-    //                 ]
-    //             ]
-    //         ),
-    //     };
-    // }
+                    ]
+                ]
+            ),
+        };
+    }
 
 }

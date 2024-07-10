@@ -57,6 +57,10 @@ function webUserRoute(webUser: WebUser) {
             {{ webUser["is_root"] }}
         </template>
 
+        <!-- Column: Created at -->
+        <template #cell(created_at)="{ item: webUser }">
+            {{ useFormatTime(webUser.created_at) }}
+        </template>
     </Table>
 
 
