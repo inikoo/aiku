@@ -13,7 +13,7 @@ import {capitalize} from "@/Composables/capitalize"
 import {library} from "@fortawesome/fontawesome-svg-core"
 import BannerWorkshopComponent from '@/Components/Banners/BannerWorkshopComponent.vue'
 import {useLayoutStore} from "@/Stores/layout"
-import {cloneDeep} from "lodash"
+import { cloneDeep , debounce } from "lodash"
 
 import {useBannerHash} from "@/Composables/useBannerHash"
 import Publish from "@/Components/Utils/Publish.vue"
@@ -98,25 +98,15 @@ const fetchInitialData = async () => {
     } finally {
         isSetData.value = false
         loadingState.value = false
-        if (props.banner.state == 'live') {
+      /*   if (props.banner.state == 'live') {
             startInterval()
-        }
+        } */
     }
 }
 
 
 onBeforeMount(fetchInitialData)
 
-const deleteUser = () => {
-    const set = cloneDeep(data) // Creating a copy of the data object
-    for (const index in set.components) {
-        if (set.components[index].user == user.value.username) {
-            delete set.components[index].user  // Removing the 'user' property from components
-        }
-    }
-    if (set.common?.user) delete set.common.user
-    return set
-}
 
 const handleKeyDown = () => {
     clearTimeout(timeoutId)
@@ -125,16 +115,17 @@ const handleKeyDown = () => {
 
 
 
-const autoSave = () => {
-    const form = useForm(deleteUser());
- /*   form.patch(
+const autoSave = debounce(() => {
+    const form = useForm(data);
+    form.patch(
         route(props.autoSaveRoute.name, props.autoSaveRoute.parameters), {
             preserveScroll: true,
             onError: (errors: any) => {
-                console.log(errors)
+                console.log(errors);
             },
-        }) */
-}
+        }
+    );
+}, 3000);
 
 watch(data,autoSave,{deep: true})
 
@@ -142,11 +133,11 @@ watch(data,autoSave,{deep: true})
 const intervalAutoSave = ref(null)
 
 
-const startInterval = () => {
+/* const startInterval = () => {
     intervalAutoSave.value = setInterval(() => {
         autoSave();
     }, 600000);
-}
+} */
 
 const stopInterval = () => {
     clearInterval(intervalAutoSave.value);
