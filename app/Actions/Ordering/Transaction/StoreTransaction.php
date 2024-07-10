@@ -9,6 +9,7 @@ namespace App\Actions\Ordering\Transaction;
 
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
@@ -22,25 +23,29 @@ class StoreTransaction extends OrgAction
 {
     use WithAttributes;
 
-    public function handle(Order $order, HistoricAsset $item, array $modelData): Transaction
+    public function handle(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
     {
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'group_id', $order->group_id);
         data_set($modelData, 'organisation_id', $order->organisation_id);
-
-        data_set($modelData, 'item_type', class_basename($item));
-        data_set($modelData, 'item_id', $item->id);
-
+        data_set($modelData, 'historic_asset_id', $historicAsset->id);
+        data_set($modelData, 'asset_id', $historicAsset->asset_id);
         data_set($modelData, 'date', now(), overwrite: false);
+
+        $assetType=match ($historicAsset->model_type) {
+            'Service' => AssetTypeEnum::SERVICE,
+            default   => AssetTypeEnum::PRODUCT,
+        };
+
+
+        data_set($modelData, 'asset_type', $assetType);
 
 
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
 
-
         OrderHydrateTransactions::dispatch($order);
-
 
         return $transaction;
     }
@@ -70,10 +75,10 @@ class StoreTransaction extends OrgAction
         ];
     }
 
-    public function action(Order $order, HistoricAsset $item, array $modelData): Transaction
+    public function action(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
     {
         $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $item, $this->validatedData);
+        return $this->handle($order, $historicAsset, $this->validatedData);
     }
 }

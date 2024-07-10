@@ -9,9 +9,9 @@ namespace App\Actions\Catalogue\Product;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
 use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
-use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
@@ -56,11 +56,7 @@ class StoreProduct extends OrgAction
             $units = 1;
         }
         data_set($modelData, 'units', $units);
-
-
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
-
-
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
 
@@ -84,15 +80,26 @@ class StoreProduct extends OrgAction
 
         /** @var Product $product */
         $product = $shop->products()->create($modelData);
+
+        if ($product->is_main) {
+            $product->updateQuietly([
+                'main_product_id' => $product->id
+            ]);
+        }
+
         $product->stats()->create();
         $product->salesIntervals()->create();
+        ProductHydrateProductVariants::dispatch($product->mainProduct)->delay($this->hydratorsDelay);
+
         $product->refresh();
+
 
         $asset = StoreAsset::run(
             $product,
             [
-                'type'  => AssetTypeEnum::PRODUCT,
-                'state' => match ($product->state) {
+                'type'    => AssetTypeEnum::PRODUCT,
+                'is_main' => $product->is_main,
+                'state'   => match ($product->state) {
                     ProductStateEnum::IN_PROCESS    => AssetStateEnum::IN_PROCESS,
                     ProductStateEnum::ACTIVE        => AssetStateEnum::ACTIVE,
                     ProductStateEnum::DISCONTINUING => AssetStateEnum::DISCONTINUING,
@@ -138,28 +145,17 @@ class StoreProduct extends OrgAction
             ]
         );
 
-        StoreProductVariant::make()->action(
-            $product,
-            [
-                'is_main'            => true,
-                'ratio'              => 1,
-                'code'               => $product->code,
-                'name'               => $product->name,
-                'price'              => $product->price,
-                'source_id'          => $product->source_id,
-                'historic_source_id' => $product->historic_source_id,
-            ]
-        );
 
         GroupHydrateProducts::dispatch($product->group)->delay($this->hydratorsDelay);
         OrganisationHydrateProducts::dispatch($product->organisation)->delay($this->hydratorsDelay);
         ShopHydrateProducts::dispatch($product->shop)->delay($this->hydratorsDelay);
-        if($product->department_id) {
+        if ($product->department_id) {
             DepartmentHydrateProducts::dispatch($product->department)->delay($this->hydratorsDelay);
         }
-        if($product->family_id) {
+        if ($product->family_id) {
             FamilyHydrateProducts::dispatch($product->family)->delay($this->hydratorsDelay);
         }
+
         return $product;
     }
 
@@ -192,7 +188,16 @@ class StoreProduct extends OrgAction
             ],
             'name'               => ['required', 'max:250', 'string'],
             'state'              => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
-            'family_id'          => ['sometimes', 'required', 'exists:families,id'],
+            'family_id'          => ['sometimes', 'required',
+                                     Rule::exists('product_categories', 'id')
+                                         ->where('shop_id', $this->shop->id)
+                                         ->where('type', ProductCategoryTypeEnum::FAMILY)
+                ],
+            'department_id'          => ['sometimes', 'required',
+                                     Rule::exists('product_categories', 'id')
+                                         ->where('shop_id', $this->shop->id)
+                                         ->where('type', ProductCategoryTypeEnum::DEPARTMENT)
+            ],
             'image_id'           => ['sometimes', 'required', 'exists:media,id'],
             'price'              => ['required', 'numeric', 'min:0'],
             'unit'               => ['sometimes', 'required', 'string'],
@@ -203,6 +208,15 @@ class StoreProduct extends OrgAction
             'data'               => ['sometimes', 'array'],
             'settings'           => ['sometimes', 'array'],
             'created_at'         => ['sometimes', 'date'],
+            'is_main'            => ['required', 'boolean'],
+            'main_product_id'    => [
+                'sometimes',
+                'nullable',
+                Rule::exists('products', 'id')
+                    ->where('shop_id', $this->shop->id)
+            ],
+            'variant_ratio'      => ['sometimes', 'required', 'numeric', 'gt:0'],
+            'variant_is_visible' => ['sometimes', 'required', 'boolean'],
 
         ];
 
@@ -235,7 +249,6 @@ class StoreProduct extends OrgAction
 
     public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): RedirectResponse
     {
-
         $this->initialisationFromShop($shop, $request);
         $request->validate();
         $this->handle($family, $request->all());

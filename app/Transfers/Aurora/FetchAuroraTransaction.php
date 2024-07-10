@@ -24,31 +24,22 @@ class FetchAuroraTransaction extends FetchAurora
             }
 
 
-            $historicItem = $this->parseTransactionItem(
+            $historicAsset = $this->parseHistoricAsset(
                 $this->organisation,
                 $this->auroraModelData->{'Product Key'}
             );
 
             $state = null;
-            if (class_basename($historicItem) == 'HistoricAsset') {
-                $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                    'In Process'            => TransactionStateEnum::CREATING,
-                    'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
-                    'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
-                    'Ready to Ship' => TransactionStateEnum::FINALISED,
-                    'Dispatched'    => TransactionStateEnum::DISPATCHED,
-                    'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
-                    'Unknown' => null
-                };
-            } elseif (class_basename($historicItem) == 'HistoricService') {
-                $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                    'In Process' => TransactionStateEnum::CREATING,
-                    'Dispatched' => TransactionStateEnum::DISPATCHED,
-                    'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
-                    'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Unknown' => null,
-                    default => TransactionStateEnum::SUBMITTED,
-                };
-            }
+
+            $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
+                'In Process'            => TransactionStateEnum::CREATING,
+                'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
+                'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
+                'Ready to Ship' => TransactionStateEnum::FINALISED,
+                'Dispatched'    => TransactionStateEnum::DISPATCHED,
+                'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
+                'Unknown' => null
+            };
 
 
             $status = match ($this->auroraModelData->{'Current Dispatching State'}) {
@@ -65,7 +56,7 @@ class FetchAuroraTransaction extends FetchAurora
             $date = $this->parseDate($this->auroraModelData->{'Order Date'});
             $date = new Carbon($date);
 
-            $this->parsedData['item'] = $historicItem;
+            $this->parsedData['historic_asset'] = $historicAsset;
 
             $quantityFail = round($this->auroraModelData->{'No Shipped Due Out of Stock'}, 4);
             if ($quantityFail < 0.001) {

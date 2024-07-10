@@ -59,7 +59,6 @@ use App\Transfers\Aurora\FetchAuroraTimesheet;
 use App\Transfers\Aurora\FetchAuroraTradeUnit;
 use App\Transfers\Aurora\FetchAuroraTradeUnitImages;
 use App\Transfers\Aurora\FetchAuroraTransaction;
-use App\Transfers\Aurora\FetchAuroraVariant;
 use App\Transfers\Aurora\FetchAuroraWarehouse;
 use App\Transfers\Aurora\FetchAuroraWarehouseArea;
 use App\Transfers\Aurora\FetchAuroraWebpage;
@@ -230,11 +229,6 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchProduct($id): ?array
     {
         return (new FetchAuroraProduct($this))->fetch($id);
-    }
-
-    public function fetchVariant($id): ?array
-    {
-        return (new FetchAuroraVariant($this))->fetch($id);
     }
 
     public function fetchService($id): ?array

@@ -12,14 +12,12 @@ use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\StoreProduct;
+use App\Actions\Catalogue\Product\StoreProductVariant;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\ProductCategory\HydrateDepartments;
 use App\Actions\Catalogue\ProductCategory\HydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
-use App\Actions\Catalogue\ProductVariant\HydrateProductVariant;
-use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
-use App\Actions\Catalogue\ProductVariant\UpdateProductVariant;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\HydrateShops;
@@ -37,13 +35,11 @@ use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\ProductVariant;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
-
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -61,9 +57,9 @@ beforeEach(function () {
     $this->guest        = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
-    $this->group        =$this->organisation->group;
+    $this->group        = $this->organisation->group;
 
-    list($this->tradeUnit, $this->tradeUnit2)=createTradeUnits($this->group);
+    list($this->tradeUnit, $this->tradeUnit2) = createTradeUnits($this->group);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -71,8 +67,6 @@ beforeEach(function () {
     );
     actingAs($this->adminGuest->user);
     setPermissionsTeamId($this->organisation->group->id);
-
-
 });
 
 test('create shop', function () {
@@ -263,10 +257,6 @@ test('create product', function (ProductCategory $family) {
     $product->refresh();
 
 
-    /** @var ProductVariant $productVariant */
-    $productVariant = $product->productVariant;
-
-
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->state)->toBe(ProductStateEnum::IN_PROCESS)
         ->and($product->asset)->toBeInstanceOf(Asset::class)
@@ -288,10 +278,7 @@ test('create product', function (ProductCategory $family) {
         ->and($product->department->stats->number_products)->toBe(1)
         ->and($product->department->stats->number_current_products)->toBe(0)
         ->and($product->shop->stats->number_assets_type_product)->toBe(1)
-        ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
-        ->and($productVariant->asset)->toBeInstanceOf(Asset::class)
-        ->and($productVariant->name)->toBe($product->name)
-        ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
+        ->and($product->stats->number_product_variants)->toBe(1);
 
 
     return $product;
@@ -314,8 +301,7 @@ test('update product state to active', function (Product $product) {
         ->and($product->department->stats->number_current_products)->toBe(1)
         ->and($product->family->stats->number_current_products)->toBe(1)
         ->and($product->family->stats->number_products_state_active)->toBe(1)
-        ->and($product->family->state)->toBe(ProductCategoryStateEnum::ACTIVE)
-    ;
+        ->and($product->family->state)->toBe(ProductCategoryStateEnum::ACTIVE);
 
     return $product;
 })->depends('create product');
@@ -379,7 +365,6 @@ test('update product', function (Product $product) {
 })->depends('create product');
 
 test('add variant to product', function (Product $product) {
-
     expect($product->stats->number_product_variants)->toBe(1);
 
     $productVariant = StoreProductVariant::run(
@@ -395,21 +380,20 @@ test('add variant to product', function (Product $product) {
     $product->refresh();
 
 
-    expect($productVariant)->toBeInstanceOf(ProductVariant::class)
+    expect($productVariant)->toBeInstanceOf(Product::class)
         ->and($productVariant->asset)->toBeInstanceOf(Asset::class)
         ->and($productVariant->is_main)->toBeFalse()
-        ->and($productVariant->product->id)->toBe($product->id)
+        ->and($productVariant->mainProduct->id)->toBe($product->id)
         ->and($product->stats->number_product_variants)->toBe(2)
-        ->and($product->stats->number_historic_assets)->toBe(2)
-        ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
+        ->and($product->stats->number_historic_assets)->toBe(2);
 
 
     return $productVariant;
 })
     ->depends('update product');
 
-test('update second product variant', function (ProductVariant $productVariant) {
-    $product = $productVariant->product;
+test('update second product variant', function (Product $productVariant) {
+    $product = $productVariant->mainProduct;
     expect($productVariant->id)->not->toBe($product->product_variant_id)
         ->and($product->stats->number_product_variants)->toBe(2);
     $modelData = [
@@ -418,14 +402,13 @@ test('update second product variant', function (ProductVariant $productVariant) 
         'price' => 99.99
     ];
 
-    $productVariant = UpdateProductVariant::make()->action($productVariant, $modelData);
+    $productVariant = UpdateProduct::make()->action($productVariant, $modelData);
     $productVariant->refresh();
     $product->refresh();
 
     expect($productVariant->name)->toBe('Updated Product Sec Name')
         ->and($productVariant->code)->toBe('sec_code')
-        ->and($product->stats->number_product_variants)->toBe(2)
-        ->and($productVariant->stats->number_historic_product_variants)->toBe(2);
+        ->and($product->stats->number_product_variants)->toBe(2);
 
     return $product;
 })->depends('add variant to product');
@@ -436,6 +419,8 @@ test('delete product', function ($product) {
 
 
     expect($shop->stats->number_products)->toBe(2)
+        ->and($product->stats->number_product_variants)->toBe(2)
+        ->and($shop->group->catalogueStats->number_assets)->toBe(2)
         ->and($shop->group->catalogueStats->number_products)->toBe(2)
         ->and($shop->organisation->catalogueStats->number_products)->toBe(2);
 
@@ -443,6 +428,7 @@ test('delete product', function ($product) {
     $shop->refresh();
 
     expect($shop->stats->number_products)->toBe(1)
+        ->and($shop->group->catalogueStats->number_assets)->toBe(1)
         ->and($shop->group->catalogueStats->number_products)->toBe(1)
         ->and($shop->organisation->catalogueStats->number_products)->toBe(1);
 
@@ -608,15 +594,8 @@ test('hydrate products', function (Product $product) {
     $this->artisan('hydrate:products')->assertExitCode(0);
 })->depends('create product');
 
-test('hydrate product variants', function (Product $product) {
-    $variant=$product->productVariant;
-    HydrateProductVariant::run($variant);
-    $this->artisan('hydrate:product-variants')->assertExitCode(0);
-})->depends('create product');
 
 test('can show catalogue', function (Shop $shop) {
-
-
     $response = get(route('grp.org.shops.show.catalogue.dashboard', [
         $shop->organisation->slug,
         $shop->slug

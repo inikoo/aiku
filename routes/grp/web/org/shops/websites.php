@@ -11,6 +11,7 @@ use App\Actions\Mail\Outbox\UI\IndexOutboxes;
 use App\Actions\Mail\Outbox\UI\ShowOutbox;
 use App\Actions\Web\Banner\UI\CreateBanner;
 use App\Actions\Web\Banner\UI\IndexBanners;
+use App\Actions\Web\Banner\UI\ShowBanner;
 use App\Actions\Web\Banner\UI\ShowBannerWorkshop;
 use App\Actions\Web\Webpage\UI\CreateWebpage;
 use App\Actions\Web\Webpage\UI\EditWebpage;
@@ -72,4 +73,5 @@ Route::prefix('{website}/banners')->name('banners.')->group(function () {
     Route::get('', IndexBanners::class)->name('index');
     Route::get('/create', CreateBanner::class)->name('create');
     Route::get('/{banner}/workshop', ShowBannerWorkshop::class)->name('workshop');
+    Route::get('/{banner}', ShowBanner::class)->name('show');
 });

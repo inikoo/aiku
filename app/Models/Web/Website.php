@@ -85,6 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read Snapshot|null $liveSnapshot
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots

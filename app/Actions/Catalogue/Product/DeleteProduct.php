@@ -33,7 +33,7 @@ class DeleteProduct extends OrgAction
     {
         $product->delete();
         $product->asset->delete();
-        //$product->productVariants()->delete();
+        $product->productVariants()->delete();
         $product = $this->update($product, $deletedData, ['data']);
         if (!$skipHydrate) {
             ShopHydrateProducts::dispatch($product->shop);

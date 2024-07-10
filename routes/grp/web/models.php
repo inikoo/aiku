@@ -363,23 +363,21 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
         Route::patch('', [UpdateWebpage::class, 'inShop'])->name('update')->withoutScopedBindings();
     });
 
-    Route::post('website/{website:id}/banner', StoreBanner::class)->name('banner.store')->withoutScopedBindings();
-    Route::post('website/{website:id}/banner/{banner:id}/images', UploadImagesToBanner::class)->name('website.banner.images.store')->withoutScopedBindings();
-});
+    Route::prefix('website/{website:id}/banner')->name('website.banner.')->group(function () {
+        Route::post('/', StoreBanner::class)->name('store')->withoutScopedBindings();
+        Route::post('from-gallery', [StoreBanner::class, 'fromGallery'])->name('store.from-gallery');
 
-Route::prefix('/banner')->name('banner.')->group(function () {
-    Route::post('from-gallery', [StoreBanner::class, 'fromGallery'])->name('store.from-gallery');
-
-    Route::prefix('{banner:id}')->group(function () {
-        Route::patch('', UpdateBanner::class)->name('update');
-        Route::patch('publish', PublishBanner::class)->name('publish');
-        Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
-        Route::delete('', DeleteBanner::class)->name('delete');
-        Route::patch('shutdown', PublishBanner::class)->name('shutdown');
-        Route::patch('switch-on', PublishBanner::class)->name('switch-on');
+        Route::prefix('{banner:id}')->group(function () {
+            Route::post('images', UploadImagesToBanner::class)->name('images.store')->withoutScopedBindings();
+            Route::patch('', UpdateBanner::class)->name('update')->withoutScopedBindings();
+            Route::patch('publish', PublishBanner::class)->name('publish')->withoutScopedBindings();
+            Route::patch('state/{state}', UpdateBannerState::class)->name('update-state');
+            Route::delete('', DeleteBanner::class)->name('delete');
+            Route::patch('shutdown', PublishBanner::class)->name('shutdown');
+            Route::patch('switch-on', PublishBanner::class)->name('switch-on');
+        });
     });
 });
-
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
     Route::post('website', [StoreWebsite::class, 'inFulfilment'])->name('website.store');
 });

@@ -37,7 +37,12 @@ return new class () extends Migration {
             $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
             $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
 
-            $table->nullableMorphs('item');
+            $table->string('asset_type')->index();
+            $table->unsignedInteger('asset_id')->index();
+            $table->foreign('asset_id')->references('id')->on('assets');
+            $table->unsignedInteger('historic_asset_id')->index();
+            $table->foreign('historic_asset_id')->references('id')->on('historic_assets');
+
             $table->decimal('quantity_ordered', 16, 3);
             $table->decimal('quantity_bonus', 16, 3)->default(0);
             $table->decimal('quantity_dispatched', 16, 3)->default(0);

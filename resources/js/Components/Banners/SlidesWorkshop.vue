@@ -134,29 +134,14 @@ const ComponentsBlueprint = ref(SlidesBluprint.data);
 
 
 const setCommonEdit = () => {
-    if (props.data.common?.user && props.data.common?.user !== props.user) {
-        notify({
-            title: "Error!",
-            text: `${props.data.common.user} working for this area`,
-            type: "error"
-        })
+    commonEditActive.value = !commonEditActive.value;
+
+    if (commonEditActive.value) {
+        currentComponentBeenEdited.value = null;
     } else {
-        const oldComponentToEdit = props.data.components.find(
-            (item) => item.ulid === get(currentComponentBeenEdited.value, "ulid")
-        );
-        props.data.common.user = props.user;
-        if (oldComponentToEdit) {
-            oldComponentToEdit.user = null;
-        }
-
-        commonEditActive.value = !commonEditActive.value;
-
-        if (commonEditActive.value) {
-            currentComponentBeenEdited.value = null;
-        } else {
-            currentComponentBeenEdited.value = props.data.components[0];
-        }
+        currentComponentBeenEdited.value = props.data.components[0];
     }
+
 };
 
 const uploadImageRespone = (res) => {
@@ -276,11 +261,8 @@ onMounted(() => {
                     ? 'sm:border-l-4 sm:border-amber-300 text-amber-300 transition-all duration-100 ease-in-out bg-gray-200/60 font-medium'
                     : 'hover:bg-gray-200/30 text-white transition-all duration-100 ease-in-out hover:bg-gray-100 border-gray-300',
                 ]" @click="setCommonEdit">
-                <FontAwesomeIcon v-if="props.data.common?.user == props.user || !props.data.common?.user"
-                    icon="fal fa-cog" class="text-xl md:text-base text-gray-500" aria-hidden="true" />
-                <FontAwesomeIcon :name="props.data.common?.user" v-else="
-                    props.data.common?.user == props.user || !props.data.common?.user
-                    " :icon="['fal', 'lock']" class="text-gray-600" aria-hidden="true" />
+                <FontAwesomeIcon 
+                icon="fal fa-cog" class="text-xl md:text-base text-gray-500" aria-hidden="true" />
                 <span class="text-gray-600 text-sm hidden sm:inline">{{ trans("Common properties") }}</span>
             </div>
 
@@ -293,9 +275,6 @@ onMounted(() => {
                             slide.ulid == get(currentComponentBeenEdited, 'ulid')
                                 ? 'sm:border-l-4 sm:border-amber-300 text-amber-300 transition-all duration-100 ease-in-out font-medium'
                                 : 'hover:bg-gray-100 text-gray-400 hover:text-gray-500 transition-all duration-100 ease-in-out',
-                            slide.user != props.user && slide.user
-                                ? 'border-l-gray-500 border-l-4 bg-gray-200/60 text-gray-600 font-medium cursor-not-allowed'
-                                : 'cursor-pointer',
                         ]">
                         <!-- Slide -->
                         <div class="grid grid-flow-col gap-x-1 lg:gap-x-0 ssm:py-1 lg:py-0">
@@ -338,8 +317,7 @@ onMounted(() => {
                         </div>
 
                         <!-- Button: Show/hide, delete slide -->
-                        <div class="flex justify-center items-center pr-2 justify-self-end"
-                            v-if="slide.user == props.user || !slide.user">
+                        <div class="flex justify-center items-center pr-2 justify-self-end">
                             <button v-if="!slide.visibility"
                                 class="px-2 py-1 bg-grays-500 text-red-500/60 hover:text-red-500" type="button" @click="(e)=>{ e.stopPropagation()
                                     removeComponent(slide)}" title="Delete this slide">
@@ -356,13 +334,6 @@ onMounted(() => {
                                 <FontAwesomeIcon icon="fad fa-clone" class="text-xs sm:text-sm " />
                             </button>
                         </div>
-
-                        <div v-else class="flex justify-center items-center pr-2 justify-self-end">
-                            <div class="px-2 py-1" type="button" :title="`Edited by ${slide.user}`">
-                                <FontAwesomeIcon :icon="['fal', 'lock']" class="text-xs sm:text-sm text-gray-600" />
-                            </div>
-                        </div>
-
                     </div>
                 </template>
             </draggable>
@@ -393,7 +364,7 @@ onMounted(() => {
         <div class="border border-gray-300 w-3/4 rounded-md" v-if="currentComponentBeenEdited != null">
             <SlideWorkshop ref="_SlideWorkshop" :bannerType="data.type" :common="data.common"
                 :currentComponentBeenEdited="currentComponentBeenEdited" :blueprint="ComponentsBlueprint"
-                :remove="removeComponent" />
+                :remove="removeComponent"  :uploadRoutes="imagesUploadRoute" />
         </div>
 
         <!-- Modal: Gallery -->

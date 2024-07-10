@@ -7,9 +7,12 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
+use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Catalogue\Shop;
@@ -42,8 +45,9 @@ use Illuminate\Support\Carbon;
  * @property string|null $settled_at
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
- * @property string|null $item_type
- * @property int|null $item_id
+ * @property AssetTypeEnum $asset_type
+ * @property int $asset_id
+ * @property int $historic_asset_id
  * @property string $quantity_ordered
  * @property string $quantity_bonus
  * @property string $quantity_dispatched
@@ -61,13 +65,14 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Asset $asset
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read HistoricAsset $historicAsset
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\Ordering\Order|null $order
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-write mixed $quantity
  * @property-read Shop $shop
  * @method static \Database\Factories\Ordering\TransactionFactory factory($count = null, $state = [])
  * @method static Builder|Transaction newModelQuery()
@@ -87,10 +92,12 @@ class Transaction extends Model
     protected $table = 'transactions';
 
     protected $casts = [
-        'data'   => 'array',
-        'state'  => TransactionStateEnum::class,
-        'status' => TransactionStatusEnum::class,
-        'type'   => TransactionTypeEnum::class,
+        'quantity'   => 'decimal:3',
+        'data'       => 'array',
+        'state'      => TransactionStateEnum::class,
+        'status'     => TransactionStatusEnum::class,
+        'type'       => TransactionTypeEnum::class,
+        'asset_type' => AssetTypeEnum::class
 
     ];
 
@@ -116,9 +123,16 @@ class Transaction extends Model
         return $this->belongsTo(Order::class);
     }
 
-    /** @noinspection PhpUnused */
-    public function setQuantityAttribute($val): void
+    public function asset(): BelongsTo
     {
-        $this->attributes['quantity'] = sprintf('%.3f', $val);
+        return $this->belongsTo(Asset::class);
     }
+
+    public function historicAsset(): BelongsTo
+    {
+        return $this->belongsTo(HistoricAsset::class);
+    }
+
+
+
 }

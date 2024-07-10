@@ -12,6 +12,7 @@ use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\InertiaTable\InertiaTable;
 use App\Models\Helpers\Snapshot;
 use App\Models\Mail\EmailTemplate;
+use App\Models\Web\Banner;
 use App\Models\Web\Webpage;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -54,7 +55,7 @@ class IndexSnapshots extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(Webpage|EmailTemplate $parent, ?array $modelOperations = null, $prefix = null, ?array $exportLinks = null): Closure
+    public function tableStructure(Webpage|EmailTemplate|Banner $parent, ?array $modelOperations = null, $prefix = null, ?array $exportLinks = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $exportLinks) {
             if ($prefix) {

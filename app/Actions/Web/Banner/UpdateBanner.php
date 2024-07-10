@@ -11,7 +11,9 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\Hydrators\BannerHydrateUniversalSearch;
 use App\Http\Resources\Web\BannerResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateBanner extends OrgAction
@@ -31,6 +33,8 @@ class UpdateBanner extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        return true;
+
         if ($this->isAction) {
             return true;
         }
@@ -46,9 +50,9 @@ class UpdateBanner extends OrgAction
     }
 
 
-    public function asController(Banner $banner, ActionRequest $request): Banner
+    public function asController(Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
-        $this->initialisation();
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($banner, $this->validatedData);
     }

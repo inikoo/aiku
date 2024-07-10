@@ -37,7 +37,7 @@ class DepartmentHydrateProducts
     public function handle(ProductCategory $department): void
     {
         $stats = [
-            'number_products' => $department->products()->count(),
+            'number_products' => $department->products()->where('is_main', true)->count()
         ];
 
         $stats = array_merge(
@@ -48,7 +48,7 @@ class DepartmentHydrateProducts
                 enum: ProductStateEnum::class,
                 models: Product::class,
                 where: function ($q) use ($department) {
-                    $q->where('department_id', $department->id);
+                    $q->where('is_main', true)->where('department_id', $department->id);
                 }
             )
         );

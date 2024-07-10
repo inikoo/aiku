@@ -34,7 +34,7 @@ class ProductHydrateProductVariants
             'number_product_variants' => $product->productVariants()->count(),
         ];
 
-        $product->stats->update($stats);
+        $product->stats()->update($stats);
     }
 
 }

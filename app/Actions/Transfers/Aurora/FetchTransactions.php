@@ -38,7 +38,7 @@ class FetchTransactions
 
                 $transaction= StoreTransaction::make()->action(
                     order:     $order,
-                    item:     $transactionData['item'],
+                    historicAsset:     $transactionData['historic_asset'],
                     modelData: $transactionData['transaction']
                 );
 

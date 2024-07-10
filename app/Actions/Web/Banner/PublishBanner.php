@@ -10,19 +10,22 @@ namespace App\Actions\Web\Banner;
 use App\Actions\Helpers\Deployment\StoreDeployment;
 use App\Actions\Helpers\Snapshot\StoreBannerSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Banner\Hydrators\BannerHydrateUniversalSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannerResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Banner;
+use App\Models\Web\Website;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\ActionRequest;
 
-class PublishBanner
+class PublishBanner extends OrgAction
 {
     use WithActionUpdate;
 
@@ -97,11 +100,13 @@ class PublishBanner
 
     public function authorize(ActionRequest $request): bool
     {
+        return true;
+
         if ($this->isAction) {
             return true;
         }
 
-        return $request->get('customerUser')->hasPermissionTo("portfolio.banners.edit");
+        return $request->user()->hasPermissionTo("portfolio.banners.edit");
     }
 
     public function rules(): array
@@ -116,20 +121,16 @@ class PublishBanner
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $request->merge(
-            [
-                'layout'         => $request->only(['type', 'delay', 'common', 'components', 'navigation', 'published_hash']),
-                'publisher_id'   => $request->get('customerUser')->id,
-                'publisher_type' => 'CustomerUser'
-            ]
-        );
+        $this->set('layout', $request->only(['type', 'delay', 'common', 'components', 'navigation', 'published_hash']));
+        $this->set('publisher_id', $request->user()->id);
+        $this->set('publisher_type', 'User');
     }
 
-    public function asController(Banner $banner, ActionRequest $request): Banner
+    public function asController(Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
-        $request->validate();
+        $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($banner, $request->validated());
+        return $this->handle($banner, $this->validatedData);
     }
 
     public function action(Banner $banner, $modelData): Banner
