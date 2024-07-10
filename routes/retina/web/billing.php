@@ -6,7 +6,7 @@
  */
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
+use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use Illuminate\Support\Facades\Route;
 
