@@ -90,7 +90,7 @@ class StoreCustomer extends OrgAction
         }
 
         if ($customer->is_fulfilment) {
-            StoreFulfilmentCustomerFromCustomer::run($customer, $shop);
+            StoreFulfilmentCustomerFromCustomer::run($customer, $shop, ['source_id' => $customer->source_id]);
         }
 
         $customer = $this->addAddressToModel(

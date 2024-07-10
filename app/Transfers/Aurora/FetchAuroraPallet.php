@@ -11,14 +11,16 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\CRM\Customer;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPallet extends FetchAurora
 {
     protected function parseModel(): void
     {
+        /** @var Customer $customer */
         $customer = $this->parseCustomer(
-            $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Customer Key'}
+            $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'}
         );
 
         $shop = $customer->shop;
@@ -40,19 +42,19 @@ class FetchAuroraPallet extends FetchAurora
         $this->parsedData['customer'] = $customer;
 
         $warehouse = $this->parseWarehouse(
-            $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Warehouse Key'}
+            $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Warehouse Key'}
         );
 
 
         $location_id = null;
         if ($this->auroraModelData->{'Fulfilment Asset Location Key'}) {
-            $location = $this->parseLocation(
-                $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Location Key'}
+            $location    = $this->parseLocation(
+                $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'}
             );
             $location_id = $location?->id;
         }
 
-        $state = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
+        $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
             'Received'  => PalletStateEnum::RECEIVED,
             'BookedIn'  => PalletStateEnum::STORING,
@@ -93,6 +95,12 @@ class FetchAuroraPallet extends FetchAurora
         $notes = str_replace('&nbsp;', ' ', $notes);
         $notes = trim($notes);
 
+
+        $rental = $customer->shop->rentals()
+            ->where('auto_assign_asset', 'Pallet')
+            ->where('auto_assign_asset_type', $type->value)->firstOrFail();
+
+
         $this->parsedData['pallet'] = [
             'warehouse_id'       => $warehouse->id,
             'state'              => $state,
@@ -102,7 +110,8 @@ class FetchAuroraPallet extends FetchAurora
             'notes'              => $notes,
             'created_at'         => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
             'received_at'        => $received_at,
-            'source_id'          => $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Key'},
+            'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
+            'rental_id'          => $rental->id
         ];
         if ($location_id) {
             $this->parsedData['pallet']['location_id'] = $location_id;

@@ -26,7 +26,14 @@ return new class () extends Migration {
             $table->dateTimeTz('start_date');
             $table->dateTimeTz('end_date')->nullable();
             $table->nullableMorphs('item');
+            $table->unsignedInteger('asset_id')->index();
+            $table->foreign('asset_id')->references('id')->on('assets');
+            $table->unsignedInteger('historic_asset_id')->index();
+            $table->foreign('historic_asset_id')->references('id')->on('historic_assets');
+            $table->unsignedInteger('rental_agreement_clause_id')->nullable()->index();
+            $table->foreign('rental_agreement_clause_id')->references('id')->on('rental_agreement_clauses');
             $table->decimal('quantity', 16, 3)->default(0);
+            $table->decimal('gross_amount', 16)->default(0)->comment('Gross amount before discounts');
             $table->decimal('net_amount', 16)->default(0);
             $table->decimal('group_net_amount', 16)->default(0);
             $table->decimal('org_net_amount', 16)->default(0);

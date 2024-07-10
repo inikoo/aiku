@@ -38,6 +38,7 @@ return new class () extends Migration {
                 $table->jsonb('data');
                 $table->timestampsTz();
                 $this->softDeletes($table);
+                $table->string('source_id')->nullable()->unique();
             });
         }
     }
