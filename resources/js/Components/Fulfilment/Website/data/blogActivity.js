@@ -7,7 +7,7 @@ export default {
 			type: "wowsbar",
 			component: "bannerWowsbar",
 			fieldValue: {
-				link: null,
+				banner_id : null,
 				emptyState: true,
 				height: {
 					value: "335",

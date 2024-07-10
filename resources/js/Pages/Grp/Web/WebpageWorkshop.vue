@@ -22,6 +22,7 @@ import debounce from 'lodash/debounce'
 import Publish from '@/Components/Publish.vue'
 import { notify } from "@kyvg/vue3-notification"
 
+
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars)
 
 const props = defineProps<{
@@ -32,9 +33,6 @@ const props = defineProps<{
     data: Array
   }
 }>();
-
-console.log(props)
-
 
 const isModalBlocksList = ref(false)
 const comment = ref("");

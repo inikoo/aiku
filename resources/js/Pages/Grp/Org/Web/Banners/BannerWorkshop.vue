@@ -60,7 +60,7 @@ const compCurrentHash = computed(() => {
 const sendDataToServer = async () => {
     isLoading.value = true
     const formValues = {
-        ...deleteUser(),
+        ...data,
         ...(props.banner.state !== 'unpublished' && {comment: comment.value}),
     }
     const form = useForm(formValues)
