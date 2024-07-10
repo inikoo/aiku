@@ -15,6 +15,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
@@ -52,13 +53,13 @@ class ShowRecurringBill extends RetinaAction
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/RecurringBill',
+            'Billing/RetinaRecurringBill',
             [
                 'title'       => __('recurring bill'),
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -111,66 +112,51 @@ class ShowRecurringBill extends RetinaAction
         return new RecurringBillResource($recurringBill);
     }
 
-    // public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
-    // {
-    //     $headCrumb = function (RecurringBill $recurringBill, array $routeParameters, string $suffix) {
-    //         return [
-    //             [
-    //                 'type'           => 'modelWithIndex',
-    //                 'modelWithIndex' => [
-    //                     'index' => [
-    //                         'route' => $routeParameters['index'],
-    //                         'label' => __('Recurring bills')
-    //                     ],
-    //                     'model' => [
-    //                         'route' => $routeParameters['model'],
-    //                         'label' => $recurringBill->reference,
-    //                     ],
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
+    {
+        $headCrumb = function (RecurringBill $recurringBill, array $routeParameters, string $suffix) {
+            return [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Recurring bills')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $recurringBill->slug,
+                        ],
 
-    //                 ],
-    //                 'suffix' => $suffix
-    //             ],
-    //         ];
-    //     };
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
+        };
 
-    //     $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
+        $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
 
-    //     return match ($routeName) {
-    //         'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show' => array_merge(
-    //             ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
-    //             $headCrumb(
-    //                 $recurringBill,
-    //                 [
-    //                     'index' => [
-    //                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
-    //                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
-    //                     ],
-    //                     'model' => [
-    //                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
-    //                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'recurringBill'])
-    //                     ]
-    //                 ],
-    //                 $suffix
-    //             )
-    //         ),
-    //         'grp.org.fulfilments.show.operations.recurring_bills.show' => array_merge(
-    //             ShowFulfilment::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment'])),
-    //             $headCrumb(
-    //                 $recurringBill,
-    //                 [
-    //                     'index' => [
-    //                         'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.index',
-    //                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
-    //                     ],
-    //                     'model' => [
-    //                         'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.show',
-    //                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'recurringBill'])
-    //                     ]
-    //                 ],
-    //                 $suffix
-    //             )
-    //         ),
-    //         default => []
-    //     };
-    // }
+
+        return match ($routeName) {
+            'retina.billing.recurring.show' => array_merge(
+                ShowBillingDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $recurringBill,
+                    [
+                        'index' => [
+                            'name'       => 'retina.billing.recurring.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'retina.billing.recurring.show',
+                            'parameters' => [$recurringBill->slug]
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+            default => []
+        };
+    }
 }
