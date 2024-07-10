@@ -24,7 +24,7 @@ const props = defineProps<{
     <!-- Top Bar -->
     <div class="bg-gray-800 grid grid-cols-3 text-white  justify-between items-center p-2 text-xs ">
         <div></div>
-        <div class="font-bold text-center"><Editor v-model="modelValue.headerText" /></div>
+        <div class="font-bold text-center"><Editor :toogle="[]" v-model="modelValue.headerText" /></div>
 
         <!-- Section: Logout, Cart, profile -->
         <div class="place-self-end flex items-center space-x-4 mr-4">
@@ -62,7 +62,7 @@ const props = defineProps<{
                         class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400"></FontAwesomeIcon>
                 </div>
                 <button
-                    class="justify-self-end flex w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md"><Editor v-model="modelValue.chip.text" /><FontAwesomeIcon icon="fas fa-chevron-right" class="ml-1 text-xs">
+                    class="justify-self-end flex w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md"><Editor :toogle="[]" v-model="modelValue.chip.text" /><FontAwesomeIcon icon="fas fa-chevron-right" class="ml-1 text-xs">
                     </FontAwesomeIcon> </button>
             </div>
         </div>

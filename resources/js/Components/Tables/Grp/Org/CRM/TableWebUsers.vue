@@ -8,6 +8,7 @@
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { WebUser } from "@/types/web-user";
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 defineProps<{
     data: object,
