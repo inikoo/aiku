@@ -55,7 +55,7 @@ class IndexBanners extends OrgAction
         });
 
         $stateFilter = AllowedFilter::callback('state', function ($query, $value) {
-            $query->where('banners.state', "%$value%");
+            $query->where('banners.state', $value);
         });
 
         if ($prefix) {

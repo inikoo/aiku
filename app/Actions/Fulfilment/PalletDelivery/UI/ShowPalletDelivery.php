@@ -285,10 +285,10 @@ class ShowPalletDelivery extends OrgAction
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
 
-        $physicalGoods = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->get();
+        $physicalGoods    = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->get();
         $physicalGoodsNet = $physicalGoods->sum('net');
-        $services = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
-        $servicesNet = $services->sum('net');
+        $services         = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
+        $servicesNet      = $services->sum('net');
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
