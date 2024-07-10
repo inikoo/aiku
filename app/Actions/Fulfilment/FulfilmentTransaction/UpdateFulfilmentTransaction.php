@@ -18,7 +18,21 @@ class UpdateFulfilmentTransaction extends OrgAction
 
     public function handle(FulfilmentTransaction $palletDeliveryTransaction, array $modelData): FulfilmentTransaction
     {
-        return $this->update($palletDeliveryTransaction, $modelData, ['data']);
+        $palletDeliveryTransaction =  $this->update($palletDeliveryTransaction, $modelData, ['data']);
+
+        $palletDeliveryTransaction->refresh();
+
+        $net = $palletDeliveryTransaction->asset->price * $palletDeliveryTransaction->quantity;
+
+        $this->update($palletDeliveryTransaction, 
+        [
+            'net'              => $net,
+            'group_net_amount' => $net * $palletDeliveryTransaction->group_exchange,
+            'org_net_amount' => $net * $palletDeliveryTransaction->org_exchange
+        ]
+        );
+
+        return $palletDeliveryTransaction;
     }
 
     public function rules(): array

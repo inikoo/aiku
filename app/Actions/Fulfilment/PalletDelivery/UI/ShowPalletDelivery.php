@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
@@ -284,6 +285,10 @@ class ShowPalletDelivery extends OrgAction
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
 
+        $physicalGoods = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->get();
+        $physicalGoodsNet = $physicalGoods->sum('net');
+        $services = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
+        $servicesNet = $services->sum('net');
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -437,8 +442,8 @@ class ShowPalletDelivery extends OrgAction
                         'number_services'              => $palletDelivery->stats->number_services,
                         'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
                         'pallets_price'                => 0,  // TODO
-                        'physical_goods_price'         => 0,  // TODO
-                        'services_price'               => 0,  // TODO
+                        'physical_goods_price'         => $physicalGoodsNet,
+                        'services_price'               => $servicesNet,
                         'total_pallets_price'          => 0,  // TODO
                         'total_services_price'         => $palletDelivery->stats->total_services_price,
                         'total_physical_goods_price'   => $palletDelivery->stats->total_physical_goods_price,
