@@ -20,19 +20,26 @@ class DetectWebsiteFromDomain
      */
     public function handle($domain): Website
     {
-        if(app()->environment('local')) {
-            $domain = config('app.local.retina_domain');
+        if (app()->environment('local')) {
+            if ($domain == 'fulfilment.test') {
+                $domain = config('app.local.retina_fulfilment_domain');
+            } elseif ($domain == 'ds.test') {
+                $domain = config('app.local.retina_dropshipping_domain');
+            } else {
+                $domain = config('app.local.retina_b2b_domain');
+            }
         }
-        if(app()->environment('staging')) {
+        if (app()->environment('staging')) {
             $domain = str_replace('canary.', '', $domain);
         }
         // dd($domain);
 
         /** @var Website $website */
-        $website= Website::where('domain', $domain)->first();
-        if(!$website) {
+        $website = Website::where('domain', $domain)->first();
+        if (!$website) {
             throw IrisWebsiteNotFound::make();
         }
+
         return $website;
     }
 
