@@ -8,7 +8,6 @@
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
 use App\Actions\RetinaAction;
-use App\Enums\UI\Fulfilment\RecurringBillsTabsEnum;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -96,7 +95,7 @@ class IndexRecurringBills extends RetinaAction
                 //     $request->route()->originalParameters()
                 // ),
                 'title'       => __('recurring bills'),
-                'model'     => __('Recurring Bill'),
+                'model'       => __('Recurring Bill'),
                 'pageHead'    => [
                     'title'         => __('recurring bills'),
                     'icon'          => [

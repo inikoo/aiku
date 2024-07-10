@@ -199,7 +199,7 @@ class IndexCustomerClients extends OrgAction
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
-                $subNavigation = $this->getCustomerSubNavigation($this->parent);
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
         }
         return Inertia::render(

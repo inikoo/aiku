@@ -8,10 +8,11 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Models\CRM\Customer;
+use Lorisleiva\Actions\ActionRequest;
 
 trait WithCustomerSubNavigation
 {
-    protected function getCustomerSubNavigation(Customer $customer): array
+    protected function getCustomerSubNavigation(Customer $customer, ActionRequest $request): array
     {
         return [
             [
@@ -25,6 +26,23 @@ trait WithCustomerSubNavigation
                     'tooltip' => __('Customer')
                 ]
             ],
+
+            [
+                'href' => [
+                    'name'      => 'grp.org.shops.show.crm.customers.show.web-users.index',
+                    'parameters'=> $request->route()->originalParameters()
+
+                ],
+
+                'label'     => __('Web users'),
+                'leftIcon'  => [
+                    'icon'    => 'fal fa-terminal',
+                    'tooltip' => __('Web users'),
+                ],
+                'number'=> $customer->stats->number_web_users
+            ],
+
+
             [
                 'label'    => __('Clients'),
                 'number'   => $customer->stats->number_clients,

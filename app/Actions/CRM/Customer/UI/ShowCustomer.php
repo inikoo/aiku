@@ -91,7 +91,7 @@ class ShowCustomer extends OrgAction
         $subNavigation = null;
         if ($this->parent instanceof Shop) {
             if ($this->parent->type == ShopTypeEnum::DROPSHIPPING) {
-                $subNavigation = $this->getCustomerSubNavigation($customer);
+                $subNavigation = $this->getCustomerSubNavigation($customer, $request);
             }
         }
 
