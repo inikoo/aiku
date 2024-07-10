@@ -12,10 +12,5 @@ use OwenIt\Auditing\Auditable;
 trait HasHistory
 {
     use Auditable;
-    protected array $auditEvents = [
-        'created',
-        'updated',
-        'deleted',
-        'restored',
-    ];
+
 }

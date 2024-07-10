@@ -143,7 +143,8 @@ class Product extends Model implements Auditable, HasMedia
         'auto_assign_trigger',
         'auto_assign_subject',
         'auto_assign_subject_type',
-        'auto_assign_status'
+        'auto_assign_status',
+        'is_main',
     ];
 
     public function getRouteKeyName(): string

@@ -46,7 +46,6 @@
       }, 2000)
   }
 
-  console.log('a',props)
   
   </script>
   
