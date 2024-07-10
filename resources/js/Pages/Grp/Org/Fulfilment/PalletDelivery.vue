@@ -157,8 +157,6 @@ const onOpenModalAddService = async () => {
 }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
-    console.log('vvv', data.route?.name)
-    console.log('vvv', dataServiceList.value.filter(service => service.id == formAddService.service_id)[0])
     
     formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
@@ -198,13 +196,11 @@ const onOpenModalAddPGood = async () => {
 }
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
-    console.log('vvv', data.route?.name)
-    console.log('vvv', dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0])
     formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
 
     isLoadingButton.value = 'addPGood'
     formAddPhysicalGood.post(
-        route( data.route?.name, data.route?.parameters ),
+        route(data.route?.name, data.route?.parameters),
         {
             preserveScroll: true,
             onSuccess: () => {
@@ -265,18 +261,19 @@ watch(() => props.data, (newValue) => {
         <template #button-group-upload="{ action }">
             <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action)"
                 :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
-                class="rounded-l rounded-r-none border-none" />
+                class="rounded-l-md rounded-r-none border-none" />
             <div v-else></div>
         </template>
 
-        <!-- Button: Add many pallet -->
+        <!-- Button: Add multiple pallet -->
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
                     <Button v-if="currentTab === 'pallets'" :style="action.style" :icon="action.icon"
                         :iconRight="action.iconRight"
                         :key="`ActionButton${action.label}${action.style}`"
-                        :tooltip="trans('Add multiple pallets')" class="rounded-none border-none" />
+                        :tooltip="trans('Add multiple pallets')"
+                        class="rounded-none border-none" />
                     <div v-else></div>
                 </template>
 
@@ -308,7 +305,7 @@ watch(() => props.data, (newValue) => {
                         <div class="flex justify-end mt-3">
                             <Button
                                 :style="'save'"
-                                :loading="isLoadingButton"
+                                :loading="!!isLoadingButton"
                                 :disabled="!formMultiplePallet.number_pallets"
                                 :key="formMultiplePallet.number_pallets"
                                 full
@@ -331,7 +328,7 @@ watch(() => props.data, (newValue) => {
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r border-none"
+                            class="rounded-l-none rounded-r-md border-none"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -396,7 +393,6 @@ watch(() => props.data, (newValue) => {
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r border-none"
                         />
                     </template>
                     <template #content="{ close: closed }">
@@ -459,12 +455,11 @@ watch(() => props.data, (newValue) => {
                     <template #button="{ open }">
                         <Button
                             @click="open ? false : onOpenModalAddPGood()"
+                            :key="`ActionButton${action.label}${action.style}`"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
-                            :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r border-none"
                         />
                     </template>
                     <template #content="{ close: closed }">

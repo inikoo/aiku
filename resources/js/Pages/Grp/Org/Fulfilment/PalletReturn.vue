@@ -121,8 +121,6 @@ const onOpenModalAddService = async () => {
 }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
-    console.log('vvv', data.route?.name)
-    console.log('vvv', dataServiceList.value.filter(service => service.id == formAddService.service_id)[0])
     
     formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
@@ -162,8 +160,6 @@ const onOpenModalAddPGood = async () => {
 }
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
-    console.log('vvv', data.route?.name)
-    console.log('vvv', dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0])
     formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
 
     isLoadingButton.value = 'addPGood'

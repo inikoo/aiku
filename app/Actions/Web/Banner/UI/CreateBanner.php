@@ -83,7 +83,7 @@ class CreateBanner extends OrgAction
                     'route'     =>
                         match (class_basename($this->parent)) {
                             'Shop' => [
-                                'name'       => 'grp.models.shop.banner.store',
+                                'name'       => 'grp.models.shop.website.banner.store',
                                 'parameters' => [
                                     'shop'    => $this->parent->id,
                                     'website' => $this->website->id

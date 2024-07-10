@@ -14,7 +14,6 @@ use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
 use Exception;
@@ -140,7 +139,7 @@ class StoreBanner extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Banner
+    public function asController(Shop $shop, Website $website, ActionRequest $request): Banner
     {
         $this->parent  = $shop;
         $this->website = $website;

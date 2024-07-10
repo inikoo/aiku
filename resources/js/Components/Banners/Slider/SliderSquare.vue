@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, watch, computed, toRef, onMounted } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { get } from 'lodash'
 
 import SlideCorner from "@/Components/Banners/Slider/SlideCorner.vue"
@@ -29,9 +29,6 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-
-
-
 
 const props = defineProps<{
     production?: boolean

@@ -6,7 +6,7 @@
 
 <script setup lang='ts'>
 import JsBarcode from 'jsbarcode'
-import { onMounted, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 import { capitalize } from '@/Composables/capitalize'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 
@@ -33,6 +33,8 @@ const props = defineProps<{
     boxStats: BoxStats
     updateRoute: routeType
 }>()
+
+const locale = inject('locale', {})
 
 
 onMounted(() => {
@@ -270,46 +272,46 @@ const onSelectAddress = (selectedAddress) => {
             <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
                 <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2>
 
-                <dl class="mt-2 space-y-2">
+                <dl class="mt-2 space-y-2 text-gray-600">
                     <div class="flex flex-col gap-y-2">
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
-                            <dt class="text-sm text-gray-600">Pallets</dt>
-                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_pallets}}</dd>
-                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.pallets_price }}</dd>
-                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_pallets_price }}</dd>
+                            <dt class="text-sm">{{ trans('Pallets')}}</dt>
+                            <dd class="place-self-end text-sm">{{ locale.number(boxStats.order_summary?.number_pallets || 0)}}</dd>
+                            <dd class="place-self-end text-sm">{{ locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary?.pallets_price || 0) }}</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary?.total_pallets_price || 0) }}</dd>
                         </div>
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
-                            <dt class="text-sm text-gray-600">Services</dt>
-                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_services}}</dd>
-                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.services_price }}</dd>
-                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_services_price }}</dd>
+                            <dt class="text-sm">{{ trans('Services') }}</dt>
+                            <dd class="place-self-end text-sm">{{ locale.number(boxStats.order_summary?.number_services || 0) }}</dd>
+                            <dd class="place-self-end text-sm">{{ locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary?.services_price || 0) }}</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary?.total_services_price || 0) }}</dd>
                         </div>
                         <div class="grid grid-cols-4 gap-x-4 items-center justify-between">
-                            <dt class="text-sm text-gray-600">Physical Goods</dt>
-                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.number_physical_goods}}</dd>
-                            <dd class="place-self-end text-sm">{{ boxStats.order_summary.physical_goods_price }}</dd>
-                            <dd class="place-self-end text-sm font-medium">{{ boxStats.order_summary.total_physical_goods_price }}</dd>
+                            <dt class="text-sm">{{ trans('Physical Goods') }}</dt>
+                            <dd class="place-self-end text-sm">{{ locale.number(boxStats.order_summary?.number_physical_goods || 0) }}</dd>
+                            <dd class="place-self-end text-sm">{{ locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary?.physical_goods_price || 0) }}</dd>
+                            <dd class="place-self-end text-sm font-medium">{{ locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary?.total_physical_goods_price || 0) }}</dd>
                         </div>
                     </div>
 
                     <!-- Field: Shipping estimate & Tax estimate -->
-                    <!-- <div class="flex flex-col justify-center gap-y-2 border-t border-gray-200 pt-2">
+                    <div class="flex flex-col justify-center gap-y-2 border-t border-gray-200 pt-2">
                         <div class="flex items-center justify-between">
                             <dt class="flex items-center text-sm text-gray-600">
                                 <span>Shipping estimate</span>
-                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="'Estimated Shipping'" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="boxStats.order_summary.shipping.tooltip" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-sm text-green-600 animate-pulse">Free</dd>
+                            <dd :class="boxStats.order_summary.shipping.fee ? '' : 'text-green-600 animate-pulse'" class="text-sm">{{ boxStats.order_summary.shipping.fee ? locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary.shipping.fee) : 'Free' }}</dd>
                         </div>
 
                         <div class="flex items-center justify-between">
                             <dt class="flex items-center text-sm text-gray-600">
                                 <span>Tax estimate</span>
-                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="'Tax estimate'" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="boxStats.order_summary.tax.tooltip" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-sm font-medium">$8.32</dd>
+                            <dd class="text-sm font-medium">{{ boxStats.order_summary.tax.fee }}</dd>
                         </div>
-                    </div> -->
+                    </div>
 
                     <div class="flex items-center justify-between border-t border-gray-200 pt-3">
                         <dt class="text-base font-medium">Order total</dt>
