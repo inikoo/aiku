@@ -34,6 +34,7 @@ const props = withDefaults(defineProps<{
     tooltip?: string
     loading?:boolean
     type?:string
+    disabled?: boolean
 }>(), {
     // style: 'primary',
     size: 'm',
@@ -161,7 +162,7 @@ const getActionIcon = (icon: any) => {
             styleClass,
             sizeClass
         ]"
-        :disabled="loading || style == 'disabled' || type == 'disabled'"
+        :disabled="loading || disabled || style == 'disabled' || type == 'disabled'"
         v-tooltip="tooltip ?? undefined"
     >
         <slot>
