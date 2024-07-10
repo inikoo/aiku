@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import JsBarcode from 'jsbarcode'
-import { onMounted, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 import DatePicker from '@vuepic/vue-datepicker'
 import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
 import { PalletDelivery, BoxStats } from '@/types/Pallet'
@@ -10,11 +10,16 @@ import Popover from '@/Components/Popover.vue'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 import { Link, router } from '@inertiajs/vue3'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { notify } from '@kyvg/vue3-notification'
 import { routeType } from '@/types/route'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faQuestionCircle } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faQuestionCircle)
+
+const locale = inject('locale', {})
 const props = defineProps<{
     dataPalletDelivery: PalletDelivery
     boxStats: BoxStats
@@ -162,7 +167,9 @@ onMounted(() => {
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
-                            class="group text-xs text-gray-500">
+                            class="group text-xs text-gray-500"
+                            :class="[dataPalletDelivery.state === 'in-process' ? 'underline' : '']"    
+                        >
                             {{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
                             <FontAwesomeIcon icon='fal fa-pencil' size="sm"
                                 class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
@@ -240,23 +247,23 @@ onMounted(() => {
                     </div>
 
                     <!-- Field: Shipping estimate & Tax estimate -->
-                    <!-- <div class="flex flex-col justify-center gap-y-2 border-t border-gray-200 pt-2">
+                    <div class="flex flex-col justify-center gap-y-2 border-t border-gray-200 pt-2">
                         <div class="flex items-center justify-between">
                             <dt class="flex items-center text-sm text-gray-600">
                                 <span>Shipping estimate</span>
-                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="'Estimated Shipping'" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="boxStats.order_summary.shipping.tooltip" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-sm text-green-600 animate-pulse">Free</dd>
+                            <dd :class="boxStats.order_summary.shipping.fee ? '' : 'text-green-600 animate-pulse'" class="text-sm">{{ boxStats.order_summary.shipping.fee ? locale.currencyFormat(boxStats.order_summary.currency_code, boxStats.order_summary.shipping.fee) : 'Free' }}</dd>
                         </div>
 
                         <div class="flex items-center justify-between">
                             <dt class="flex items-center text-sm text-gray-600">
                                 <span>Tax estimate</span>
-                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="'Tax estimate'" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fal fa-question-circle' v-tooltip="boxStats.order_summary.tax.tooltip" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
                             </dt>
                             <dd class="text-sm font-medium">$8.32</dd>
                         </div>
-                    </div> -->
+                    </div>
 
                     <div class="flex items-center justify-between border-t border-gray-200 pt-3">
                         <dt class="text-base font-medium">Order total</dt>

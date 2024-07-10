@@ -432,15 +432,24 @@ class ShowPalletDelivery extends OrgAction
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'order_summary'                => [
+                        'currency_code'                => 'usd',  // TODO
                         'number_pallets'               => $palletDelivery->number_pallets,
                         'number_services'              => $palletDelivery->stats->number_services,
                         'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
-                        'pallets_price'                => 0,
-                        'physical_goods_price'         => 0,// todo
-                        'services_price'               => 0,// todo
-                        'total_pallets_price'          => 0,
+                        'pallets_price'                => 0,  // TODO
+                        'physical_goods_price'         => 0,  // TODO
+                        'services_price'               => 0,  // TODO
+                        'total_pallets_price'          => 0,  // TODO
                         'total_services_price'         => $palletDelivery->stats->total_services_price,
                         'total_physical_goods_price'   => $palletDelivery->stats->total_physical_goods_price,
+                        'shipping'                     => [
+                            'tooltip'           => __('Shipping fee to your address using DHL service.'),
+                            'fee'               => 11111, // TODO
+                        ],
+                        'tax'                      => [
+                            'tooltip'           => __('Tax is based on 10% of total order.'),
+                            'fee'               => 99999, // TODO
+                        ],
                         'total_price'                  => $palletDelivery->stats->total_price
                     ]
                 ],
