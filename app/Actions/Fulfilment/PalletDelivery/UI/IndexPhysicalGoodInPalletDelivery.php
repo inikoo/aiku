@@ -78,6 +78,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
             ->select([
                 'fulfilment_transactions.id',
                 'fulfilment_transactions.asset_id',
+                'fulfilment_transactions.net',
                 'fulfilment_transactions.type as asset_type',
                 'fulfilment_transactions.historic_asset_id',
                 'products.slug as asset_slug',

@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\FulfilmentTransaction;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Fulfilment\PalletDelivery;
@@ -20,9 +21,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilmentTransaction extends OrgAction
 {
+    use WithActionUpdate;
     public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction
     {
+
         $historicAsset = HistoricAsset::find($modelData['historic_asset_id']);
+        $net = $modelData['quantity']*$historicAsset->asset->price;
 
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
@@ -30,6 +34,7 @@ class StoreFulfilmentTransaction extends OrgAction
         data_set($modelData, 'fulfilment_customer_id', $parent->fulfilment_customer_id);
         data_set($modelData, 'historic_asset_id', $historicAsset->id);
         data_set($modelData, 'asset_id', $historicAsset->asset_id);
+        data_set($modelData, 'net', $net);
 
         if ($historicAsset->model_type === 'Product') {
             data_set($modelData, 'type', FulfilmentTransactionTypeEnum::PRODUCT);
@@ -45,6 +50,15 @@ class StoreFulfilmentTransaction extends OrgAction
         } else {
             PalletReturnHydrateTransactions::run($fulfilmentTransaction->parent);
         }
+
+        $fulfilmentTransaction->refresh();
+
+        $this->update($fulfilmentTransaction, 
+        [
+            'group_net_amount' => $fulfilmentTransaction->net * $fulfilmentTransaction->group_exchange,
+            'org_net_amount' => $fulfilmentTransaction->net * $fulfilmentTransaction->org_exchange
+        ]
+        );
 
         return $fulfilmentTransaction;
     }

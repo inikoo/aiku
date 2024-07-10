@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { useRangeFromNow } from '@/Composables/useFormatTime'
-// import SliderLandscape from "@/Components/Slider/SliderLandscape.vue"
-// import SliderSquare from "@/Components/Slider/SliderSquare.vue"
+import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
+import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
 import Image from '@/Components/Image.vue'
 
 const props = defineProps<{
@@ -37,7 +37,7 @@ const props = defineProps<{
             </div>
         </div>
         <div class="aspect-[2/1] md:aspect-[3/1] lg:aspect-[4/1] w-fit h-56 md:h-60">
-<!--            <SliderLandscape :data="data.compiled_layout" :production="true" />-->
+            <SliderLandscape :data="data.compiled_layout" :production="true" />
         </div>
     </div>
 
@@ -58,7 +58,7 @@ const props = defineProps<{
             </div>
         </div>
         <div class="aspect-[2/1] md:aspect-[3/1] lg:aspect-[4/1] w-fit h-56 md:h-60">
-<!--            <SliderSquare :data="data.compiled_layout" :production="true" />-->
+            <SliderSquare :data="data.compiled_layout" :production="true" />
         </div>
     </div>
     <!-- <pre>{{ data.compiled_layout }}</pre> -->

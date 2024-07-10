@@ -211,7 +211,7 @@ const onPickImage = (res) => {
                 >
                     <div>An Image:</div>
                     <div class="flex items-center gap-x-2">
-                        <Button v-if="bannerType != 'square'" :style="`secondary`" class="relative" size="xs">
+                        <Button  :style="`secondary`" class="relative" size="xs">
                             <FontAwesomeIcon icon='fas fa-upload' class='' aria-hidden='true' />
                             {{ trans(`Upload image ${screenView}`) }}
                             <label class="bg-transparent inset-0 absolute inline-block cursor-pointer" id="input-slide-large-mask"
