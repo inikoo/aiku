@@ -7,6 +7,7 @@
 
 namespace App\Models\Catalogue;
 
+use App\Models\Traits\HasHistory;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * App\Models\Catalogue\HistoricAsset
@@ -45,15 +47,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|HistoricAsset withoutTrashed()
  * @mixin Eloquent
  */
-class HistoricAsset extends Model
+class HistoricAsset extends Model implements Auditable
 {
     use SoftDeletes;
+    use HasHistory;
+
 
     protected $casts = [
         'status' => 'boolean',
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'catalogue',
+        ];
+    }
+
+    protected array $auditEvents = [
+        'update',
+    ];
 
     public function asset(): BelongsTo
     {

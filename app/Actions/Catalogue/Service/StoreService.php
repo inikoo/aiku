@@ -74,7 +74,11 @@ class StoreService extends OrgAction
                 'current_historic_asset_id' => $historicAsset->id,
             ]
         );
-
+        $service->updateQuietly(
+            [
+                'current_historic_asset_id' => $historicAsset->id,
+            ]
+        );
 
         ShopHydrateServices::dispatch($shop);
         OrganisationHydrateServices::dispatch($shop->organisation);
