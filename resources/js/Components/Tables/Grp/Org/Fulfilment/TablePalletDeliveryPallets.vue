@@ -255,6 +255,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 				<Link
                     :href="route(pallet.deleteRoute.name, pallet.deleteRoute.parameters)"
                     method="delete"
+                    preserve-scroll
                     as="div"
                     @start="() => isLoading = 'delete' + pallet.id"
                     v-tooltip="'Delete this pallet'"
