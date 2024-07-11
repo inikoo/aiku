@@ -7,6 +7,7 @@
 
 namespace App\Actions\Mail\Outbox\UI;
 
+use App\Actions\Fulfilment\Setting\ShowFulfilmentSettingDashboard;
 use App\Actions\Mail\ShowMailDashboard;
 use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
@@ -188,15 +189,15 @@ class IndexOutboxes extends OrgAction
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.mail.outboxes' =>
+            'grp.org.fulfilments.show.setting.outboxes.index' =>
             array_merge(
-                ShowMailDashboard::make()->getBreadcrumbs(
-                    'grp.org.fulfilments.show.mail.dashboard',
+                ShowFulfilmentSettingDashboard::make()->getBreadcrumbs(
+                    'grp.org.fulfilments.show.setting.dashboard',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.mail.outboxes',
+                        'name'       => 'grp.org.fulfilments.show.setting.outboxes.index',
                         'parameters' => $routeParameters
                     ]
                 )

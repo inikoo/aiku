@@ -14,7 +14,8 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import ShowcaseStats from '@/Components/ShowcaseStats.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { trans } from 'laravel-vue-i18n'
-import PureInput from '@/Components/Pure/PureInput.vue'
+import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
+import Tag from '@/Components/Tag.vue'
 
 
 library.add(faGlobe)
@@ -28,22 +29,37 @@ const props = defineProps<{
 const dataCompany = [
     {
         label: 'Contact',
+        key: 'contact',
         value: props.data.customer?.contact_name
     },
     {
-        label: 'Company Name',
-        value: props.data.customer?.company_name
+        label: 'Username',
+        key: 'username',
+        value: props.data.username
     },
     {
         label: 'Email',
+        key: 'email',
         value: props.data.customer?.email
     },
     {
+        label: 'Last login',
+        key: 'last_login',
+        value: '-'
+    },
+    {
         label: 'Create At',
+        key: 'created_At',
         value: useFormatTime(props.data.customer?.created_at)
     },
     {
+        label: 'Status',
+        key: 'status',
+        value: props.data.status
+    },
+    {
         label: 'Location',
+        key: 'location',
         value: props.data.customer?.location
     },
 ]
@@ -53,51 +69,41 @@ const dataCompany = [
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-
     <div class="grid grid-cols-2 py-4 px-6">
 
         <!-- Section: field data -->
-        <dl v-if="true" class="h-fit grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-10 lg:gap-x-8">
-            <div class="col-span-2 ">
-                <dt class="font-medium">Username</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <PureInput :modelValue="props.data.username" :rows="5" :placeholder="trans('No Username.')" disabled copyButton />
-                </dd>
-            </div>
-
-            <div class="col-span-2 ">
-                <dt class="font-medium">Email</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <PureInput :modelValue="props.data.email" :rows="5" :placeholder="trans('No email.')" disabled copyButton />
-                </dd>
-            </div>
-
-            <!-- <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.customer_reference.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.customer_reference.value }}</dd>
-            </div>
-
-            <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.location.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <Link v-if="blueprint.location.value.route?.name" :href="route(blueprint.location.value.route.name, blueprint.location.value.route.parameters)" class="primaryLink">
-                        {{ blueprint.location.value.resource.code }}
-                    </Link>
-                    <span v-else>{{ blueprint.location.value.resource.code }}</span>
-                </dd>
-            </div> -->
-        </dl>
-
-        <!-- Company Data -->
-        <div class="justify-self-end bg-slate-50 px-6 py-4 space-y-4 w-80 border border-gray-200 rounded-md shadow">
-            <div class="text-xl font-bold">Company details</div>
-            <div v-for="print in dataCompany" class="">
-                <div class="font-semibold text-sm">{{ print.label }}</div>
-                <div class="text-gray-500">
-                    {{ print.value }}
+        <div>
+            <div class="text-xl font-bold mb-2">{{ trans('Web user details') }}</div>
+            <div class="h-fit w-80 relative grid grid-cols-1 divide-y divide-gray-300 border border-gray-300 rounded-md">
+                <div v-for="(print, index) in dataCompany" class="py-2.5 px-4">
+                    <div class="text-gray-400 text-xs">
+                        {{ print.label }}
+                    </div>
+                    <div class="font-medium text-sm">
+                        <Tag v-if="print.key === 'status'" :theme="print.value ? 3 : undefined" :label="print.value ? 'Active' : 'Inactive'" />
+                        <AddressLocation v-else-if="print.key === 'location'" :data="print.value" />
+                        <span v-else>{{print.value}}</span>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Company Data -->
+        <!-- <div class="justify-self-end bg-slate-50 px-6 py-4 space-y-4 w-80 border border-gray-200 rounded-md shadow">
+            <div v-for="print,index in dataCompany" class="">
+                <div class="font-semibold text-sm">{{ print.label }}</div>
+                <template v-if="print.key !== 'location'">
+                    <div class="text-gray-500">
+                        {{ print.value }}
+                    </div>
+                </template>
+                <div v-else>
+                    <AddressLocation :data="print.value" />
+                </div>
+            </div>
+        </div> -->
+
+
     </div>
         <!-- <pre>{{ data }}</pre> -->
 </template>
