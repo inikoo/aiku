@@ -41,7 +41,7 @@ const onSelectOption = (value: number) => {
     <div class="relative">
         <Popover>
             <template #button="{ open, close }">
-                <div class="cursor-pointer">
+                <div class="cursor-pointer underline">
                     Date: {{ form[fieldName].date }} <span v-if="form[fieldName].isWeekdays">(Weekdays only)</span>
                 </div>
             </template>

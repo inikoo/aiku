@@ -33,13 +33,14 @@ const compareObjects = (objA, objB) => {
         <fieldset class="select-none">
             <legend class="sr-only"></legend>
             <div class="flex items-center gap-x-8 gap-y-1 flex-wrap ">
-                <!-- Mode Radio: Normal -->
+                <!-- Mode Radio: Compact -->
                 <div v-if="fieldData.mode === 'compact'">
                     <RadioGroup v-model="form[fieldName]">
                         <RadioGroupLabel class="sr-only">Choose the radio</RadioGroupLabel>
                         <div class="flex gap-x-1.5 gap-y-1 flex-wrap">
                             <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value"
-                                :value="option" v-slot="{ active, checked }">
+                                :value="fieldData.valueProp == 'object' || !fieldData.valueProp ? option : option[fieldData.valueProp] "
+                                v-slot="{ active, checked }">
                                 <div
                                     :class="[
                                         'cursor-pointer focus:outline-none flex items-center justify-center rounded-md py-3 px-3 text-sm font-medium capitalize',

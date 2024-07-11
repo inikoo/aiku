@@ -84,6 +84,7 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                                             'value' => 'Friday'
                                         ],
                                     ],
+                                    'valueProp' => 'value',
                                     'required'  => true,
                                     'label'     => __('weekly cut off day'),
                                     'value'     => $fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']
