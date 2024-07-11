@@ -27,6 +27,7 @@ class ShowFulfilmentSettingDashboard extends OrgAction
 
     public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
+        // dd($fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']);
         return Inertia::render(
             'EditModel',
             [
@@ -47,37 +48,37 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                             'fields' => [
 
                                 'monthly_cut_off_day' => [
-                                    'type'  => 'date',
+                                    'type'  => 'input',
                                     'label' => __('monthly cut off day'),
-                                    'value' => ''
+                                    'value' => $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day']
                                 ],
                                 'weekly_cut_off_day' => [
                                     'type'      => 'select',
                                     'options'   => [
                                         [
                                             'label' => __('Monday'),
-                                            'value' => 'monday'
+                                            'value' => 'Monday'
                                         ],
                                         [
                                             'label' => __('Tuesday'),
-                                            'value' => 'tuesday'
+                                            'value' => 'Tuesday'
                                         ],
                                         [
                                             'label' => __('Wednesday'),
-                                            'value' => 'wednesday'
+                                            'value' => 'Wednesday'
                                         ],
                                         [
                                             'label' => __('Thursday'),
-                                            'value' => 'thursday'
+                                            'value' => 'Thursday'
                                         ],
                                         [
                                             'label' => __('Friday'),
-                                            'value' => 'friday'
+                                            'value' => 'Friday'
                                         ],
                                     ],
                                     'required'  => true,
                                     'label'     => __('weekly cut off day'),
-                                    'value'     => ''
+                                    'value'     => $fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']
                                 ],
                             ]
                         ]
