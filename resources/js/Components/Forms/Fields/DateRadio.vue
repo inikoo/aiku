@@ -6,15 +6,16 @@
 
 <script setup lang="ts">
 import PureCheckbox from '@/Components/Pure/PureCheckbox.vue'
+import { ref, watch } from "vue"
+import Popover from '@/Components/Popover.vue'
+import { get } from "lodash"
+
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { } from '@fas'
 import { } from '@fal'
 import { } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 library.add()
-import { ref, watch } from "vue"
-import Popover from '@/Components/Popover.vue'
-import { get } from "lodash"
 
 const props = defineProps<{
     form: any
@@ -61,15 +62,10 @@ const onSelectOption = (value: number) => {
                     </div>
                 </div>
 
-                <div class="flex gap-x-3 items-center">
+                <div class="flex items-center">
                 <!-- {{ form[fieldName].isWeekdays }} -->
-                    <label for="checkboxxx" class="cursor-pointer">Is weekday</label>
-                    <input
-                        v-model="form[fieldName].isWeekdays"
-                        type="checkbox"
-                        id="checkboxxx"
-                        class="h-4 w-4 rounded cursor-pointer custom-checkbox" />
-                    <!-- <PureCheckbox v-model="form[fieldName].isWeekdays" /> -->
+                    <label for="checkboxxx" class="cursor-pointer pr-3">Is weekday</label>
+                    <PureCheckbox v-model="form[fieldName].isWeekdays" />
                 </div>
             </template>
         </Popover>
