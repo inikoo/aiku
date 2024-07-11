@@ -291,11 +291,11 @@ class GetFulfilmentNavigation
                 "topMenu" => [
                     "subSections" => [
                         [
-                            "tooltip" => __("mail dashboard"),
+                            "tooltip" => __("Setting dashboard"),
                             "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.fulfilments.show.mail.dashboard',
+                            'root'    => 'grp.org.fulfilments.show.setting.dashboard',
                             "route"   => [
-                                "name"       => 'grp.org.fulfilments.show.mail.dashboard',
+                                "name"       => 'grp.org.fulfilments.show.setting.dashboard',
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                             ],
                         ],
@@ -303,9 +303,19 @@ class GetFulfilmentNavigation
                             "label"   => __("outboxes"),
                             "tooltip" => __("outboxes"),
                             "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.fulfilments.show.mail.outboxes',
+                            'root'    => 'grp.org.fulfilments.show.setting.outboxes.index',
                             "route"   => [
-                                "name"       => "grp.org.fulfilments.show.mail.outboxes",
+                                "name"       => "grp.org.fulfilments.show.setting.outboxes.index",
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("recurring bill"),
+                            "tooltip" => __("recurring bill"),
+                            "icon"    => ["fal", "fa-receipt"],
+                            'root'    => 'grp.org.fulfilments.show.setting.recurring-bill.edit',
+                            "route"   => [
+                                "name"       => "grp.org.fulfilments.show.setting.recurring-bill.edit",
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                             ],
                         ],

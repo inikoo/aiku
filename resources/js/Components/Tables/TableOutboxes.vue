@@ -25,9 +25,9 @@ function outboxRoute(outbox: Outbox) {
         return route(
                 'grp.org.shops.show.web.websites.outboxes.show',
                 [route().params['organisation'], route().params['shop'], route().params['website'], outbox.slug])
-        case 'grp.org.fulfilments.show.mail.outboxes':
+        case 'grp.org.fulfilments.show.setting.outboxes.index':
         return route(
-                'grp.org.fulfilments.show.mail.outboxes.show',
+                'grp.org.fulfilments.show.setting.outboxes.show',
                 [route().params['organisation'], route().params['fulfilment'], outbox.slug])
         default:
             return null
