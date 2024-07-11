@@ -8,6 +8,7 @@ import { getComponent, getDescriptor } from '@/Components/Websites/Header/Conten
 import ListHeader from '@/Components/Websites/Header/ListHeader'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
 import SideEditor from '@/Components/Websites/Header/SideEditor.vue';
+import { v4 as uuidv4 } from 'uuid';
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -21,6 +22,7 @@ const previewMode = ref(false)
 const loginMode = ref(true)
 const isModalOpen = ref(false)
 const usedTemplates = ref(null)
+const keyTemplates = ref(uuidv4())
 
 
 const onPickTemplate = (header) => {
@@ -51,7 +53,7 @@ const onPickTemplate = (header) => {
                 <div><Button type="secondary" label="Pick Template" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" /></div>
             </div>
 
-            <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint" />
+            <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"  @update:modelValue="keyTemplates = uuidv4()" />
 
             <!-- New bottom div with red background and absolute positioning -->
             <div class="absolute inset-x-0 bottom-0 bg-gray-300 p-4 text-white text-center">
@@ -72,7 +74,7 @@ const onPickTemplate = (header) => {
 
         <div class="col-span-3">
             <section v-if="usedTemplates?.key" class="w-full">
-                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" v-model="usedTemplates.data"/>
+                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" v-model="usedTemplates.data" :keyTemplate="keyTemplates"/>
             </section>
             <section v-else>
                 <EmptyState description="You need pick a template from list" title="Pick Templates"></EmptyState>

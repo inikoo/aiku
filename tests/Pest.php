@@ -40,6 +40,7 @@ use App\Models\Web\Website;
 use Illuminate\Foundation\Testing\TestCase;
 
 uses(TestCase::class)->in('Feature');
+uses(TestCase::class)->group('integration')->in('Integration');
 
 function loadDB(): void
 {

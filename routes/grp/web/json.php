@@ -1,12 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 27 Jun 2023 14:15:16 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 11 Jul 2024 13:50:35 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
-use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
+use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/locations', IndexLocations::class)->name('locations');
+Route::get('fulfilment/{fulfilment}/services', GetFulfilmentServices::class)->name('pallet-delivery.services.index');
+Route::get('fulfilment/{fulfilment}/physical-goods', GetFulfilmentPhysicalGoods::class)->name('pallet-delivery.physical-goods.index');

@@ -19,6 +19,10 @@ const props = defineProps<{
     bluprint: Array
 }>()
 
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+}>()
+
 const getComponent = (componentName: string) => {
     const components: Component = {
         'text': PureInput,
@@ -26,6 +30,12 @@ const getComponent = (componentName: string) => {
     }
 
     return components[componentName]
+}
+
+const onUpdateValue = (field,value) => {
+    emits('update:modelValue', {
+        ...props.modelValue, [field.key] : value
+    })
 }
 
 console.log('aa', props)
@@ -38,7 +48,7 @@ console.log('aa', props)
         <section v-for="field in bluprint" :key="field.key" class="mb-3">
             <div class="font-medium text-sm mb-2">{{ field.name }}</div>
             <section class="w-full">
-                <component :is="getComponent(field.type)"  v-model="modelValue[field.key]" />
+                <component :is="getComponent(field.type)" v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field,value)"/>
             </section>
         </section>
     </div>

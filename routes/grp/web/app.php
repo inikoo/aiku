@@ -81,5 +81,9 @@ Route::middleware(["auth"])->group(function () {
         ->name("gallery.")
         ->group(__DIR__."/gallery.php");
 
+    Route::prefix("json")
+        ->name("json.")
+        ->group(__DIR__."/json.php");
+
 });
 require __DIR__."/auth.php";
