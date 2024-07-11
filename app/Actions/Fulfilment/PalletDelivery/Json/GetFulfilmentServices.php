@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Thu, 11 Jul 2024 13:54:36 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDelivery;
+namespace App\Actions\Fulfilment\PalletDelivery\Json;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
@@ -15,15 +15,13 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class GetDeliveryServices extends OrgAction
+class GetFulfilmentServices extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
@@ -116,7 +114,7 @@ class GetDeliveryServices extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
+    public function asController(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ServicesTabsEnum::values());
 
