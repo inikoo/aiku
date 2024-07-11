@@ -1,10 +1,8 @@
 export const data = {
     logo : null,
     headerText : 'FAIRLY TRADING WHOLESALE GIFTS SINCE 1995',
-    chip : {
-        text : 'Become a Gold Reward Member',
-        background_color : '#57534E'
-    }
+    chip_text : 'Become a Gold Reward Member',
+    chip_background_color : '#57534E'
 }
 
 
@@ -16,7 +14,7 @@ export const bluprintForm = [
     },
     {
         name : 'Chip',
-        key : ['chip','text'],
+        key : 'chip_text',
         type : 'text'
     },
     {
