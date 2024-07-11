@@ -53,7 +53,8 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                                     'value' => $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day']
                                 ],
                                 'weekly_cut_off_day' => [
-                                    'type'      => 'select',
+                                    'type'      => 'radio',
+                                    'mode'      => 'compact',
                                     'options'   => [
                                         [
                                             'label' => __('Monday'),
