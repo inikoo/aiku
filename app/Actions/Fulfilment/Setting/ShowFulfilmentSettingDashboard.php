@@ -46,7 +46,6 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                             'title'  => __('recurring bill settings'),
                             'label'  => __('cut off day'),
                             'fields' => [
-
                                 'monthly_cut_off_day' => [
                                     'type'  => 'input',
                                     'label' => __('monthly cut off day'),
