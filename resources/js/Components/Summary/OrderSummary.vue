@@ -1,10 +1,11 @@
 <script setup lang='ts'>
 import { trans } from 'laravel-vue-i18n'
 import { inject } from 'vue'
+import { FieldOrderSummary } from '@/types/Pallet'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faQuestionCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { FieldOrderSummary } from '@/types/Pallet'
 library.add(faQuestionCircle)
 
 const props = defineProps<{
