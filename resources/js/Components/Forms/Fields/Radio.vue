@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { RadioGroup, RadioGroupLabel, RadioGroupOption, RadioGroupDescription } from '@headlessui/vue'
+import { get } from 'lodash'
 
 const props = defineProps(['form', 'fieldName', 'fieldData'])
 
@@ -34,7 +35,7 @@ const compareObjects = (objA, objB) => {
             <legend class="sr-only"></legend>
             <div class="flex items-center gap-x-8 gap-y-1 flex-wrap ">
                 <!-- Mode Radio: Compact -->
-                <div v-if="fieldData.mode === 'compact'">
+                <div v-if="fieldData.mode === 'compact'" :class="get(form, ['errors', fieldName]) ? 'errorShake' : ''">
                     <RadioGroup v-model="form[fieldName]">
                         <RadioGroupLabel class="sr-only">Choose the radio</RadioGroupLabel>
                         <div class="flex gap-x-1.5 gap-y-1 flex-wrap">
@@ -99,5 +100,9 @@ const compareObjects = (objA, objB) => {
                 </div>
             </div>
         </fieldset>
+
+        <p v-if="get(form, ['errors', `${fieldName}`])" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
+            {{ form.errors[fieldName] }}
+        </p>
     </div>
 </template>
