@@ -39,7 +39,7 @@ const onSelectOption = (value: number) => {
 
 
 <template>
-    <div class="relative">
+    <div class="relative" :class="get(form, ['errors', `${fieldName}`]) ? 'errorShake' : ''">
         <Popover>
             <template #button="{ open, close }">
                 <div class="cursor-pointer underline">
