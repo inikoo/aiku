@@ -28,6 +28,7 @@ class EditFulfilment extends OrgAction
         return $this->handle($fulfilment);
     }
 
+
     public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -48,7 +49,7 @@ class EditFulfilment extends OrgAction
                             'title'  => __('recurring bill settings'),
                             'label'  => __('cut off day'),
                             'fields' => [
-                                'monthly_cut_off_day' => [
+                                'monthly_cut_off' => [
                                     'type'      => 'date_radio',
                                     'label'     => __('monthly cut off day'),
                                     'options'   => [
@@ -59,7 +60,7 @@ class EditFulfilment extends OrgAction
                                     ],
                                     'value' => [
                                         'date'          => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day'],
-                                        'isWeekdays'    => false, // TODO
+                                        'isWeekdays'    => $fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'],
                                     ]
                                 ],
                                 'weekly_cut_off_day' => [
