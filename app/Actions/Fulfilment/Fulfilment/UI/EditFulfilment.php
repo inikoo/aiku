@@ -123,7 +123,7 @@ class EditFulfilment extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.fulfilments.show.setting.dashboard' =>
+            'grp.org.fulfilments.show.settings.edit' =>
                array_merge(
                    ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                    [
@@ -131,10 +131,10 @@ class EditFulfilment extends OrgAction
                             'type'   => 'simple',
                             'simple' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilments.show.setting.dashboard',
+                                    'name'       => 'grp.org.fulfilments.show.settings.edit',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => __('Setting')
+                                'label' => __('Settings')
                             ]
                         ]
                     ]
