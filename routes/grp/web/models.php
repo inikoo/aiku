@@ -32,6 +32,7 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
+use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilmentRecurringBillSetting;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
@@ -202,9 +203,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post('shop', StoreShop::class)->name('shop.store');
     Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
-    Route::prefix('fulfilment/{fulfilment:id}/setting')->name('fulfilment.settings.')->group(function () {
-        Route::patch('/recurring-bill', UpdateFulfilmentRecurringBillSetting::class)->name('recurring-bill');
-    });
+    Route::post('{fulfilment}', UpdateFulfilment::class)->name('fulfilment.update');
+
     
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {

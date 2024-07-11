@@ -32,7 +32,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateFulfilmentRecurringBillSetting extends OrgAction
+class UpdateFulfilment extends OrgAction
 {
     use WithActionUpdate;
 

@@ -309,16 +309,6 @@ class GetFulfilmentNavigation
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                             ],
                         ],
-                        [
-                            "label"   => __("recurring bill"),
-                            "tooltip" => __("recurring bill"),
-                            "icon"    => ["fal", "fa-receipt"],
-                            'root'    => 'grp.org.fulfilments.show.setting.recurring-bill.edit',
-                            "route"   => [
-                                "name"       => "grp.org.fulfilments.show.setting.recurring-bill.edit",
-                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
-                            ],
-                        ],
                     ],
                 ],
             ];
