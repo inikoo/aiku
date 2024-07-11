@@ -4,7 +4,6 @@ namespace App\Actions\Fulfilment\Setting;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Enums\UI\Setting\FulfilmentDashboardTabsEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -48,9 +47,18 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                             'fields' => [
 
                                 'monthly_cut_off_day' => [
-                                    'type'  => 'input',
-                                    'label' => __('monthly cut off day'),
-                                    'value' => $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day']
+                                    'type'      => 'date_radio',
+                                    'label'     => __('monthly cut off day'),
+                                    'options'   => [
+                                        1, 2, 3, 4, 5, 6, 7, 8 ,9, 10,
+                                        11, 12, 13, 14, 15, 16, 17, 81 ,19, 20,
+                                        21, 22, 23, 24, 25, 26, 27, 82 ,29, 30,
+                                        31
+                                    ],
+                                    'value' => [
+                                        'date'          => $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day'],
+                                        'isWeekdays'    => false,
+                                    ]
                                 ],
                                 'weekly_cut_off_day' => [
                                     'type'      => 'radio',
@@ -90,7 +98,7 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                             'name'       => 'grp.models.org.fulfilment.update',
                             'parameters' => [
                                 'organisation' => $fulfilment->organisation_id,
-                                'fulfilment' => $fulfilment->id
+                                'fulfilment'   => $fulfilment->id
                                 ]
                         ],
                     ]
