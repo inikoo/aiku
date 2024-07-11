@@ -41,21 +41,23 @@ class UpdateFulfilment extends OrgAction
 
     public function handle(Fulfilment $fulfilment, array $modelData): Fulfilment
     {
+        $monthlyDay = Arr::get($modelData, 'monthly_cut_off_day');
+        $weeklyDay = Arr::get($modelData, 'weekly_cut_off_day');
         data_set($modelData, 'settings', [
             'rental_agreement_weekly_cut_off'=>[
                 RentalAgreementBillingCycleEnum::WEEKLY->value=>[
                     'type'=>RentalAgreementBillingCycleEnum::WEEKLY->value,
-                    'day'=>$modelData['weekly_cut_off_day']
+                    'day'=> $weeklyDay ?? $fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']
                 ],
                 RentalAgreementBillingCycleEnum::MONTHLY->value=>[
                     'type'=>RentalAgreementBillingCycleEnum::MONTHLY->value,
-                    'day'=>$modelData['monthly_cut_off_day'],
+                    'day'=> $monthlyDay ?? $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day'],
                     'workdays'=>false
                 ]
             ]
 
         ]);
-
+        Arr::forget($modelData,['weekly_cut_off_day','monthly_cut_off_day']);
         $fulfilment = $this->update($fulfilment, $modelData);
 
         return $fulfilment;
@@ -73,11 +75,13 @@ class UpdateFulfilment extends OrgAction
     public function rules(): array
     {
         return [
-            'settings' => ['sometimes']
+            'monthly_cut_off_day' => ['sometimes'],
+            'weekly_cut_off_day'  => ['sometimes']
         ];
     }
 
-    public function asController(Fulfilment $fulfilment, ActionRequest $request): Fulfilment
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
         $this->fulfilment = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);

@@ -244,6 +244,19 @@ class IndexPalletDeliveries extends OrgAction
 
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $action = [
+                [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('Create new pallet delivery'),
+                    'label'   => __('Pallet delivery'),
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                        'parameters' => [$this->parent->id]
+                    ]
+                ]
+            ];
         }
 
         return Inertia::render(
@@ -259,17 +272,21 @@ class IndexPalletDeliveries extends OrgAction
                     'subNavigation' => $subNavigation,
                     'icon'          => ['fal', 'fa-truck-couch'],
                     'actions'       => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new pallet delivery'),
-                            'label'   => __('Pallet delivery'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$this->parent->id]
-                            ]
-                        ]
+                        match (class_basename($this->parent)) {
+                            'FulfilmentCustomer' =>
+                                 [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('Create new pallet delivery'),
+                                    'label'   => __('Pallet delivery'),
+                                    'route'   => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                        'parameters' => [$this->parent->id]
+                                        ]
+                                ],
+                            default => null
+                        }
                     ]
                     /*
                     'actions' => [

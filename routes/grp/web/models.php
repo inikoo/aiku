@@ -203,7 +203,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post('shop', StoreShop::class)->name('shop.store');
     Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
-    Route::post('{fulfilment}', UpdateFulfilment::class)->name('fulfilment.update');
+    Route::patch('fulfilment/{fulfilment:id}', UpdateFulfilment::class)->name('fulfilment.update')->withoutScopedBindings();
 
     
 
