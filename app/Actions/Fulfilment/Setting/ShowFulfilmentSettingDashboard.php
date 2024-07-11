@@ -13,36 +13,89 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFulfilmentSettingDashboard extends OrgAction
 {
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): ActionRequest
+    public function handle(Fulfilment $fulfilment): Fulfilment
+    {
+        return $fulfilment;
+    }
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $request;
+        return $this->handle($fulfilment);
     }
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
+        // dd($fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']);
         return Inertia::render(
-            'Mail/MailDashboard',
+            'EditModel',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
-                'title'        => __('setting'),
-                'pageHead'     => [
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-ballot'],
-                        'title' => __('setting')
-                    ],
-                    'iconRight' => [
-                        'icon'  => ['fal', 'fa-chart-network'],
-                        'title' => __('setting')
-                    ],
-                    'title' => __('setting dashboard'),
-                ],
-                'tabs' => [
-                    'current'    => $this->tab,
-                    'navigation' => FulfilmentDashboardTabsEnum::navigation()
+                'title'       => __('fulfilment setting'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'pageHead'    => [
+                    'title'    => $fulfilment->shop->name,
                 ],
 
+                'formData' => [
+                    'blueprint' => [
+                        [
+                            'title'  => __('recurring bill settings'),
+                            'label'  => __('cut off day'),
+                            'fields' => [
+
+                                'monthly_cut_off_day' => [
+                                    'type'  => 'input',
+                                    'label' => __('monthly cut off day'),
+                                    'value' => $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day']
+                                ],
+                                'weekly_cut_off_day' => [
+                                    'type'      => 'radio',
+                                    'mode'      => 'compact',
+                                    'options'   => [
+                                        [
+                                            'label' => __('Monday'),
+                                            'value' => 'Monday'
+                                        ],
+                                        [
+                                            'label' => __('Tuesday'),
+                                            'value' => 'Tuesday'
+                                        ],
+                                        [
+                                            'label' => __('Wednesday'),
+                                            'value' => 'Wednesday'
+                                        ],
+                                        [
+                                            'label' => __('Thursday'),
+                                            'value' => 'Thursday'
+                                        ],
+                                        [
+                                            'label' => __('Friday'),
+                                            'value' => 'Friday'
+                                        ],
+                                    ],
+                                    'required'  => true,
+                                    'label'     => __('weekly cut off day'),
+                                    'value'     => $fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']
+                                ],
+                            ]
+                        ]
+
+                    ],
+                    'args'      => [
+                        'updateRoute' => [
+                            'name'       => 'grp.models.org.fulfilment.update',
+                            'parameters' => [
+                                'organisation' => $fulfilment->organisation_id,
+                                'fulfilment' => $fulfilment->id
+                                ]
+                        ],
+                    ]
+
+                ],
 
             ]
         );

@@ -12,6 +12,3 @@ Route::prefix('ouboxes')->as('outboxes.')->group(function () {
     Route::get('', [IndexOutboxes::class, 'inFulfilment'])->name('index');
     Route::get('{outbox}', [ShowOutbox::class, 'inFulfilment'])->name('show');
 });
-Route::prefix('recurring-bill')->as('recurring-bill.')->group(function () {
-    Route::get('edit', ShowRecurringBillSetting::class)->name('edit');
-});
