@@ -26,7 +26,8 @@ const emits = defineEmits<{
 const getComponent = (componentName: string) => {
     const components: Component = {
         'text': PureInput,
-        'upload_image' : UploadImage
+        'upload_image' : UploadImage,
+        
     }
 
     return components[componentName]

@@ -16,6 +16,7 @@ const props = defineProps<{
     modelValue: object,
     loginMode : Boolean
     keyTemplate:String
+    previewMode : Boolean
 }>();
 
 
@@ -51,7 +52,7 @@ const props = defineProps<{
 
 
     <!-- Main Nav -->
-    <div class="bg-white shadow-md border-b-2 border-gray-700">
+    <div class="bg-white">
         <div class="container mx-auto flex flex-col justify-between items-center">
             <div class="w-full grid grid-cols-3 items-center justify-between space-x-4 ">
                 <img src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
