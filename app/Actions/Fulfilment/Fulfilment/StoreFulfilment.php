@@ -33,7 +33,7 @@ class StoreFulfilment extends OrgAction
 
         data_set($modelData, 'settings', [
 
-            'rental_agreement_weekly_cut_off'=> [
+            'rental_agreement_cut_off'=> [
                 RentalAgreementBillingCycleEnum::WEEKLY->value=> [
                     'type'=> RentalAgreementBillingCycleEnum::WEEKLY->value,
                     'day' => 'Friday'
