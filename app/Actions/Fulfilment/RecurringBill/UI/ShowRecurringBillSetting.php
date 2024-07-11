@@ -97,8 +97,11 @@ class ShowRecurringBillSetting extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.fulfilment-customer.update',
-                            'parameters' => [$fulfilment->id]
+                            'name'       => 'grp.models.org.fulfilment.settings.recurring-bill',
+                            'parameters' => [
+                                'organisation' => $fulfilment->organisation_id,
+                                'fulfilment' => $fulfilment->id
+                                ]
                         ],
                     ]
 
