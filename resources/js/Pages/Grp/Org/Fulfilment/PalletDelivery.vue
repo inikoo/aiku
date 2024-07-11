@@ -526,12 +526,18 @@ watch(() => props.data, (newValue) => {
         </template>
     </PageHeading>
 
-    <!-- Section: Warning -->
-    <div v-if="pallet_limits?.status == 'exceeded'">
-        <div class="rounded-md bg-yellow-50 p-4">
+    <!-- Section: Pallet Warning -->
+    <div v-if="pallet_limits?.status">
+        <div class="p-4"
+            :class="{
+                'bg-yellow-50': pallet_limits?.status === 'almost',
+                'bg-orange-200': pallet_limits?.status === 'limit',
+                'bg-red-200': pallet_limits?.status === 'exceeded',
+            }"
+        >
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="h-5 w-5 text-yellow-400"
+                    <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="h-5 w-5 text-amber-500"
                         aria-hidden="true" />
                 </div>
                 <div class="ml-3">
