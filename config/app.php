@@ -239,7 +239,9 @@ return [
     'cloudflare_api_url'    => env('CLOUDFLARE_API_URL'),
     'cloudflare_account_id' => env('CLOUDFLARE_ACCOUNT_ID'),
     'local'                 => [
-        'retina_domain' => env('LOCAL_RETINA_DOMAIN'),
+        'retina_fulfilment_domain'   => env('LOCAL_FULFILMENT_RETINA_DOMAIN'),
+        'retina_dropshipping_domain' => env('LOCAL_DROPSHIPPING_RETINA_DOMAIN'),
+        'retina_b2b_domain'          => env('LOCAL_B2B_RETINA_DOMAIN'),
     ],
 
 

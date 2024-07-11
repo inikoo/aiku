@@ -25,7 +25,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPortfolios extends OrgAction
 {
-    // private bool $canCreateShop = false;
     use WithCustomerSubNavigation;
     private Customer $parent;
 
@@ -186,7 +185,7 @@ class IndexPortfolios extends OrgAction
                 ->column(key: 'product_name', label: __('product name'), canBeHidden: false, searchable: true)
                 ->column(key: 'reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'created_at', label: __('created at'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'action', label: __('action'), canBeHidden: false, sortable: false, searchable: false);
+                ->column(key: 'action', label: __('action'), canBeHidden: false);
         };
     }
 
@@ -201,7 +200,7 @@ class IndexPortfolios extends OrgAction
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
-                $subNavigation = $this->getCustomerSubNavigation($this->parent);
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
         }
 

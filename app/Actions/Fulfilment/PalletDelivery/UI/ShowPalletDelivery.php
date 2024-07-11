@@ -427,35 +427,90 @@ class ShowPalletDelivery extends OrgAction
                     'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
-                'pallet_limits' => $palletLimits == null ? null : ($palletLimitLeft <= 2 ? [
-                    'status'  => 'exceeded',
-                    'message' => __("Pallet almost reached the limits: $palletLimitLeft left.")
-                ] : false),
+                'pallet_limits' =>
+                    $palletLimits == null
+                        ? null
+                        : (
+                            $palletLimitLeft <= 5
+                            ? [
+                                'status'  => 'almost',
+                                'message' => __("Pallet almost reached the limit: $palletLimitLeft left.")
+                            ]
+                            : ($palletLimitLeft == 0
+                            ? [
+                                'status'  => 'limit',
+                                'message' => __("Pallet has reached the limit, no space left.")
+                            ]
+                            : ($palletLimitLeft < 0
+                            ? [
+                                'status'  => 'exceeded',
+                                'message' => __("Pallet has reached over the limit: $palletLimitLeft.")
+                            ]
+                            : null))
+                        ),
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'order_summary'                => [
-                        'currency_code'                => 'usd',  // TODO
-                        'number_pallets'               => $palletDelivery->number_pallets,
-                        'number_services'              => $palletDelivery->stats->number_services,
-                        'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
-                        'pallets_price'                => 0,  // TODO
-                        'physical_goods_price'         => $physicalGoodsNet,
-                        'services_price'               => $servicesNet,
-                        'total_pallets_price'          => 0,  // TODO
-                        'total_services_price'         => $palletDelivery->stats->total_services_price,
-                        'total_physical_goods_price'   => $palletDelivery->stats->total_physical_goods_price,
-                        'shipping'                     => [
-                            'tooltip'           => __('Shipping fee to your address using DHL service.'),
-                            'fee'               => 11111, // TODO
+                        [
+                            [
+                                'label'         => __('Pallets'),
+                                'quantity'      => $palletDelivery->number_pallets ?? 0,
+                                'price_base'    => 999,
+                                'price_total'   => 1111 ?? 0
+                            ],
+                            [
+                                'label'         => __('Services'),
+                                'quantity'      => $palletDelivery->stats->number_services ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => $palletDelivery->stats->total_services_price ?? 0
+                            ],
+                            [
+                                'label'         => __('Physical Goods'),
+                                'quantity'      => $palletDelivery->stats->number_physical_goods ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => $palletDelivery->stats->total_physical_goods_price ?? 0
+                            ],
                         ],
-                        'tax'                      => [
-                            'tooltip'           => __('Tax is based on 10% of total order.'),
-                            'fee'               => 99999, // TODO
+                        [
+                            [
+                                'label'         => __('Shipping'),
+                                'information'   => __('Shipping fee to your address using DHL service.'),
+                                'price_total'   => 1111
+                            ],
+                            [
+                                'label'         => __('Tax'),
+                                'information'   => __('Tax is based on 10% of total order.'),
+                                'price_total'   => 1111
+                            ],
                         ],
-                        'total_price'                  => $palletDelivery->stats->total_price
+                        [
+                            [
+                                'label'         => __('Total'),
+                                'price_total'   => $palletDelivery->stats->total_price
+                            ],
+                        ],
+                        // 'currency_code'                => 'usd',  // TODO
+                        // // 'number_pallets'               => $palletDelivery->number_pallets,
+                        // // 'number_services'              => $palletDelivery->stats->number_services,
+                        // // 'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
+                        // 'pallets_price'                => 0,  // TODO
+                        // 'physical_goods_price'         => $physicalGoodsNet,
+                        // 'services_price'               => $servicesNet,
+                        // 'total_pallets_price'          => 0,  // TODO
+                        // // 'total_services_price'         => $palletDelivery->stats->total_services_price,
+                        // // 'total_physical_goods_price'   => $palletDelivery->stats->total_physical_goods_price,
+                        // 'shipping'                     => [
+                        //     'tooltip'           => __('Shipping fee to your address using DHL service.'),
+                        //     'fee'               => 11111, // TODO
+                        // ],
+                        // 'tax'                      => [
+                        //     'tooltip'           => __('Tax is based on 10% of total order.'),
+                        //     'fee'               => 99999, // TODO
+                        // ],
+                        // 'total_price'                  => $palletDelivery->stats->total_price
                     ]
                 ],
                 'notes_data'             => [

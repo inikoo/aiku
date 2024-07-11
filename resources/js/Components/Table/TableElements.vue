@@ -24,7 +24,7 @@ const props = defineProps<{
     tableName: string
 }>()
 
-console.log('element', props.elements)
+// console.log('element', props.elements)
 const emits = defineEmits<{
     (e: 'checkboxChanged', value: SelectedElement): void
 }>()

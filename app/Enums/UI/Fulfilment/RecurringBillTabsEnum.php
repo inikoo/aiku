@@ -19,6 +19,7 @@ enum RecurringBillTabsEnum: string
     case PALLETS         = 'pallets';
     case SERVICES        = 'services';
     case PHYSICAL_GOODS  = 'physical_goods';
+    case TRANSACTIONS    = 'transactions';
 
     case DATA    = 'data';
     case HISTORY = 'history';
@@ -41,6 +42,10 @@ enum RecurringBillTabsEnum: string
             RecurringBillTabsEnum::PHYSICAL_GOODS => [
                 'title' => __('physical goods'),
                 'icon'  => 'fal fa-cube',
+            ],
+            RecurringBillTabsEnum::TRANSACTIONS => [
+                'title' => __('transactions'),
+                'icon'  => 'fal fa-ballot',
             ],
             RecurringBillTabsEnum::DATA => [
                 'align' => 'right',

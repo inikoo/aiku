@@ -69,8 +69,7 @@ class StorePallet extends OrgAction
         $pallet->refresh();
 
 
-        if ($this->parent instanceof PalletDelivery) {
-        }
+
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
         FulfilmentHydratePallets::dispatch($fulfilmentCustomer->fulfilment);
         OrganisationHydratePallets::dispatch($fulfilmentCustomer->organisation);
@@ -129,7 +128,14 @@ class StorePallet extends OrgAction
             'source_id'          => ['sometimes', 'nullable', 'string'],
             'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
             'location_id'        => ['sometimes', 'nullable', 'integer', 'exists:locations,id'],
-            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer', 'exists:pallet_deliveries,id']
+            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer', 'exists:pallet_deliveries,id'],
+            'rental_id'          => [
+                'sometimes',
+                'required',
+                'integer',
+                Rule::exists('rentals', 'id')->where('auto_assign_asset', 'Pallet')
+            ],
+
         ];
     }
 

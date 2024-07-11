@@ -4,6 +4,8 @@ export interface Button {
     method?: 'get' | 'post' | 'put' | 'patch' | 'delete'
     style?: string
     icon?: string | string[]
+    iconRight?: string | string[]
+    disabled?: boolean
     label?: string
     tooltip?: string
     route: routeType

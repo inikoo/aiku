@@ -37,6 +37,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\Catalogue\Asset $asset
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Model|\Eloquent $model
  * @property-read \App\Models\Catalogue\HistoricAssetStats|null $stats
  * @method static Builder|HistoricAsset newModelQuery()

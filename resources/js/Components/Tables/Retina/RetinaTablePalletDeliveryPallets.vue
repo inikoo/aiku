@@ -159,6 +159,7 @@ const typePallet = [
 					:onSuccess="() => emits('renderTableKey')"
                     :onFinish="() => isActionLoading = false"
                     v-tooltip="'Delete this pallet'"
+                    preserve-scroll
                     class="w-fit"
                 >
                     <Button icon="far fa-trash-alt" :loading="isActionLoading == 'delete' + pallet.id" type="negative" />

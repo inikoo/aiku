@@ -26,7 +26,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $end_date
  * @property string|null $item_type
  * @property int|null $item_id
+ * @property int $asset_id
+ * @property int $historic_asset_id
+ * @property int|null $rental_agreement_clause_id
  * @property string $quantity
+ * @property string $gross_amount Gross amount before discounts
  * @property string $net_amount
  * @property string $group_net_amount
  * @property string $org_net_amount

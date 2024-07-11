@@ -79,7 +79,8 @@ class ShowRecurringBill extends OrgAction
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('recurring bill')
                         ],
-                    'title'  => $recurringBill->slug
+                    'model'        => __('Recurring Bill'),
+                    'title'        => $recurringBill->slug
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
