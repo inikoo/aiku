@@ -10,7 +10,7 @@ import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {faClipboard, faDownload, faFileExport, faPlus as falPlus, faHistory, faListAlt} from '@fal'
 import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly, faTimes } from '@far'
-import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
+import { faPlus, faSave, faUpload, faTrashUndoAlt, faThLarge } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 // import { useLayoutStore } from '@/Stores/layout'
 import { faSpinnerThird } from '@fad'
@@ -19,7 +19,7 @@ import { inject } from 'vue'
 // const layout = useLayoutStore()
 const layout: any = inject('layout', {})
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly, faFileExport, faClipboard, faHistory, faListAlt, faTimes)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly, faFileExport, faClipboard, faHistory, faListAlt, faTimes, faThLarge)
 
 
 const props = withDefaults(defineProps<{

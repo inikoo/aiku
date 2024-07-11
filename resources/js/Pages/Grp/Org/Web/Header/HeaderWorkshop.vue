@@ -7,6 +7,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import { getComponent, getDescriptor } from '@/Components/Websites/Header/Content'
 import ListHeader from '@/Components/Websites/Header/ListHeader'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
+import SideEditor from '@/Components/Websites/Header/SideEditor.vue';
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -31,6 +32,7 @@ const onPickTemplate = (header) => {
 </script>
 
 <template>
+    <div @click="()=>console.log(usedTemplates)">see data</div>
     <div class="grid grid-flow-row-dense grid-cols-4">
         <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
             <div class="flex justify-between">
@@ -46,16 +48,10 @@ const onPickTemplate = (header) => {
                         Login Mode
                     </div>
                 </div>
-                <Button type="Primary" label="Pick Template" size="xs" @click="isModalOpen = true"></Button>
+                <div><Button type="secondary" label="Pick Template" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" /></div>
             </div>
-            <div class="p-4">
-                <div class="font-medium text-sm mb-2">Logo</div>
-                <div type="button"
-                    class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    <font-awesome-icon :icon="['fas', 'image']" class="mx-auto h-12 w-12 text-gray-400" />
-                    <span class="mt-2 block text-sm font-semibold text-gray-900">Logo Image</span>
-                </div>
-            </div>
+
+            <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint" />
 
             <!-- New bottom div with red background and absolute positioning -->
             <div class="absolute inset-x-0 bottom-0 bg-gray-300 p-4 text-white text-center">

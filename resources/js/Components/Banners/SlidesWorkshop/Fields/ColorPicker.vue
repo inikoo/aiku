@@ -174,7 +174,7 @@ const updateFormValue = (newValue) => {
 </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .colors {
     @apply hidden
 }

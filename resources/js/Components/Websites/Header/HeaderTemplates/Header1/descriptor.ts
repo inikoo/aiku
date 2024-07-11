@@ -10,8 +10,18 @@ export const data = {
 
 export const bluprintForm = [
     {
+        name : 'Title',
+        key : 'headerText',
+        type : 'text'
+    },
+    {
+        name : 'Chip',
+        key : ['chip','text'],
+        type : 'text'
+    },
+    {
         name : 'Logo',
         key : 'logo',
         type : 'upload_image'
-    }
+    },
 ]
