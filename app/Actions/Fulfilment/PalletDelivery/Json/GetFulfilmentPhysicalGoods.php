@@ -1,50 +1,26 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Thu, 11 Jul 2024 13:54:36 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDelivery;
+namespace App\Actions\Fulfilment\PalletDelivery\Json;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
-use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class GetDeliveryPhysicalGoods extends OrgAction
+class GetFulfilmentPhysicalGoods extends OrgAction
 {
-    protected function getElementGroups(Fulfilment $parent): array
-    {
-        return [
-
-            'state' => [
-                'label'    => __('State'),
-                'elements' => array_merge_recursive(
-                    ProductStateEnum::labels(),
-                    ProductStateEnum::count($parent->shop)
-                ),
-
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
-                }
-
-            ],
-        ];
-    }
-
-    public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -53,9 +29,7 @@ class GetDeliveryPhysicalGoods extends OrgAction
             });
         });
 
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
-        }
+
 
         $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->where('products.shop_id', $parent->shop_id);
@@ -63,14 +37,6 @@ class GetDeliveryPhysicalGoods extends OrgAction
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
 
         $queryBuilder
             ->defaultSort('products.id')
@@ -91,11 +57,11 @@ class GetDeliveryPhysicalGoods extends OrgAction
 
         return $queryBuilder->allowedSorts(['id','code','name','price'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator(null)
             ->withQueryString();
     }
 
-
+    //todo review this
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof WebUser) {
@@ -108,11 +74,11 @@ class GetDeliveryPhysicalGoods extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
+    public function asController(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PhysicalGoodsTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value);
+        return $this->handle($fulfilment);
     }
 
     public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection

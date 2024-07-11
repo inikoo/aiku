@@ -35,7 +35,7 @@ const compareObjects = (objA, objB) => {
             <div class="flex items-center gap-x-8 gap-y-1 flex-wrap ">
                 <!-- Mode Radio: Normal -->
                 <div v-if="fieldData.mode === 'compact'">
-                    <RadioGroup v-model="form[fieldName]" class="mt-2">
+                    <RadioGroup v-model="form[fieldName]">
                         <RadioGroupLabel class="sr-only">Choose the radio</RadioGroupLabel>
                         <div class="flex gap-x-1.5 gap-y-1 flex-wrap">
                             <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value"

@@ -1,63 +1,37 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Thu, 11 Jul 2024 13:54:36 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDelivery;
+namespace App\Actions\Fulfilment\PalletDelivery\Json;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
-use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class GetDeliveryServices extends OrgAction
+class GetFulfilmentServices extends OrgAction
 {
-    protected function getElementGroups(Fulfilment $parent): array
+    public function handle(Fulfilment $parent): LengthAwarePaginator
     {
 
-        return [
-
-            'state' => [
-                'label'    => __('State'),
-                'elements' => array_merge_recursive(
-                    ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent->shop),
-                    ServicestateEnum::shortLabels(),
-                ),
-
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
-                }
-
-            ],
-        ];
-    }
-
-    public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
-    {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('services.name', $value)
                     ->orWhereStartWith('services.code', $value);
             });
         });
 
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
-        }
+
 
         $queryBuilder = QueryBuilder::for(Service::class);
         $queryBuilder->where('services.shop_id', $parent->shop_id);
@@ -66,14 +40,6 @@ class GetDeliveryServices extends OrgAction
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
 
         $queryBuilder
             ->defaultSort('services.id')
@@ -99,11 +65,11 @@ class GetDeliveryServices extends OrgAction
 
         return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator(null)
             ->withQueryString();
     }
 
-
+    //todo review this
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof WebUser) {
@@ -116,11 +82,11 @@ class GetDeliveryServices extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
+    public function asController(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ServicesTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, ServicesTabsEnum::SERVICES->value);
+        return $this->handle($fulfilment);
     }
 
     public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection

@@ -22,10 +22,10 @@ Route::middleware(["auth"])->group(function () {
 
             echo "<table style='width:100%'>";
             echo "<tr>";
-            echo "<td width='10%'><h4>HTTP Method</h4></td>";
-            echo "<td width='10%'><h4>Route</h4></td>";
-            echo "<td width='10%'><h4>Name</h4></td>";
-            echo "<td width='70%'><h4>Corresponding Action</h4></td>";
+            echo "<td><h4>HTTP Method</h4></td>";
+            echo "<td><h4>Route</h4></td>";
+            echo "<td><h4>Name</h4></td>";
+            echo "<td><h4>Corresponding Action</h4></td>";
             echo "</tr>";
             foreach ($routeCollection as $value) {
                 echo "<tr>";
@@ -80,6 +80,10 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("gallery")
         ->name("gallery.")
         ->group(__DIR__."/gallery.php");
+
+    Route::prefix("json")
+        ->name("json.")
+        ->group(__DIR__."/json.php");
 
 });
 require __DIR__."/auth.php";

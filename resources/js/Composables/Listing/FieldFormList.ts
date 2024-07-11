@@ -6,6 +6,7 @@ import Input from '@/Components/Forms/Fields/Input.vue'
 import Select from '@/Components/Forms/Fields/Select.vue'
 import Phone from '@/Components/Forms/Fields/Phone.vue'
 import Date from '@/Components/Forms/Fields/Date.vue'
+import DateRadio from '@/Components/Forms/Fields/DateRadio.vue'
 import Address from "@/Components/Forms/Fields/Address.vue"
 import Radio from '@/Components/Forms/Fields/Radio.vue'
 import Country from "@/Components/Forms/Fields/Country.vue"
@@ -43,6 +44,7 @@ export const componentsList: {[key: string]: Component} = {
     'inputWithAddOn': InputWithAddOn,
     'phone': Phone,
     'date': Date,
+    'date_radio': DateRadio,
     'select': Select,
     'address': Address,
     'radio': Radio,

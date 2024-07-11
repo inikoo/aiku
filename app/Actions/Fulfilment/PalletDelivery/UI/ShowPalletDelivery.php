@@ -92,7 +92,6 @@ class ShowPalletDelivery extends OrgAction
         $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
         $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
 
-        $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
         $totalPallets = $numberPallets + $numberStoredPallets;
         $pdfButton    = [
             'type'   => 'button',
@@ -277,7 +276,24 @@ class ShowPalletDelivery extends OrgAction
             }
         }
 
+        $palletLimits    = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
         $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
+        $palletLimitData = $palletLimits == null ? null : ($palletLimitLeft < 0
+        ? [
+                'status'  => 'exceeded',
+                'message' => __("Pallet has reached over the limit: $palletLimitLeft.")
+            ]
+        : ($palletLimitLeft == 0
+            ? [
+                    'status'  => 'limit',
+                    'message' => __("Pallet has reached the limit, no space left.")
+                ]
+            : ($palletLimitLeft <= 5
+                ? [
+                        'status'  => 'almost',
+                        'message' => __("Pallet almost reached the limit: $palletLimitLeft left.")
+                    ]
+                : null)));
 
         $rentalList = [];
 
@@ -289,6 +305,8 @@ class ShowPalletDelivery extends OrgAction
         $physicalGoodsNet = $physicalGoods->sum('net');
         $services         = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
         $servicesNet      = $services->sum('net');
+
+
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -406,19 +424,15 @@ class ShowPalletDelivery extends OrgAction
 
                 'rental_lists'         => $rentalList,
                 'service_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.pallet-delivery.services.index',
+                    'name'       => 'grp.json.pallet-delivery.services.index',
                     'parameters' => [
-                        'organisation'   => $palletDelivery->organisation->slug,
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
-                        'palletDelivery' => $palletDelivery->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.org.fulfilments.show.billables.pallet-delivery.physical-goods.index',
+                    'name'       => 'grp.json.pallet-delivery.physical-goods.index',
                     'parameters' => [
-                        'organisation'   => $palletDelivery->organisation->slug,
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
-                        'palletDelivery' => $palletDelivery->slug
                     ]
                 ],
 
@@ -427,27 +441,7 @@ class ShowPalletDelivery extends OrgAction
                     'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
-                'pallet_limits' =>
-                    $palletLimits == null
-                        ? null
-                        : (
-                            $palletLimitLeft <= 5
-                            ? [
-                                'status'  => 'almost',
-                                'message' => __("Pallet almost reached the limit: $palletLimitLeft left.")
-                            ]
-                            : ($palletLimitLeft == 0
-                            ? [
-                                'status'  => 'limit',
-                                'message' => __("Pallet has reached the limit, no space left.")
-                            ]
-                            : ($palletLimitLeft < 0
-                            ? [
-                                'status'  => 'exceeded',
-                                'message' => __("Pallet has reached over the limit: $palletLimitLeft.")
-                            ]
-                            : null))
-                        ),
+                'pallet_limits' => $palletLimitData,
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [
