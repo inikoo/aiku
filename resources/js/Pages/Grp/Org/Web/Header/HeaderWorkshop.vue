@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { capitalize } from "@/Composables/capitalize"
 
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { Switch } from '@headlessui/vue'
@@ -7,8 +10,9 @@ import Modal from '@/Components/Utils/Modal.vue'
 import { getComponent, getDescriptor } from '@/Components/Websites/Header/Content'
 import ListHeader from '@/Components/Websites/Header/ListHeader'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
-import SideEditor from '@/Components/Websites/Header/SideEditor.vue';
+import SideEditor from '@/Components/Websites/SideEditor.vue';
 import { v4 as uuidv4 } from 'uuid';
+import DummyCanvas from '@/Components/Websites/Header/DummyCanvas.vue';
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -17,6 +21,12 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeart } from '@far';
 import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage } from '@fas';
 library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
+
+const props = defineProps<{
+    pageHead: TSPageHeading
+    title: string
+    data: {}
+}>()
 
 const previewMode = ref(false)
 const loginMode = ref(true)
@@ -33,8 +43,11 @@ const onPickTemplate = (header) => {
 
 </script>
 
-<template>
-    <div @click="()=>console.log(usedTemplates)">see data</div>
+<template>-
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead" />
+
+    <!-- <div @click="()=>console.log(usedTemplates)">see data</div> -->
     <div class="grid grid-flow-row-dense grid-cols-4">
         <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
             <div class="flex justify-between">
@@ -50,7 +63,7 @@ const onPickTemplate = (header) => {
                         Login Mode
                     </div>
                 </div>
-                <div><Button type="secondary" label="Pick Template" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" /></div>
+                <div><Button type="secondary" label="Templates" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" /></div>
             </div>
 
             <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"  @update:modelValue="keyTemplates = uuidv4()" />
@@ -72,13 +85,17 @@ const onPickTemplate = (header) => {
             </div>
         </div>
 
-        <div class="col-span-3">
-            <section v-if="usedTemplates?.key" class="w-full">
-                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" v-model="usedTemplates.data" :keyTemplate="keyTemplates"/>
+        <div class="col-span-3  bg-gray-100 px-6 py-6 h-screen overflow-auto">
+        <div class="bg-white">
+            <section v-if="usedTemplates?.key">
+                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" :previewMode="previewMode" v-model="usedTemplates.data" :keyTemplate="keyTemplates"/>
             </section>
             <section v-else>
                 <EmptyState description="You need pick a template from list" title="Pick Templates"></EmptyState>
             </section>
+            <DummyCanvas class="cursor-not-allowed"/>
+        </div>
+            
         </div>
     </div>
 
