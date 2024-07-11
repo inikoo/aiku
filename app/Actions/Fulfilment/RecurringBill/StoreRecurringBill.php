@@ -18,16 +18,36 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 class StoreRecurringBill extends OrgAction
 {
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
     {
-
         data_set($modelData, 'organisation_id', $rentalAgreement->organisation_id);
         data_set($modelData, 'group_id', $rentalAgreement->group_id);
         data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $rentalAgreement->fulfilment_customer_id);
+
+
+        if(!Arr::exists($modelData, 'start_end')) {
+
+            $endDate= $this->getEndDate(
+                $modelData['start_date']->copy(),
+                Arr::get(
+                    $rentalAgreement->fulfilment->settings,
+                    'rental_agreement_weekly_cut_off.'.$rentalAgreement->billing_cycle->value
+                )
+            );
+
+            data_set($modelData, 'end_date', $endDate);
+
+
+        }
+
+
+
 
         data_set(
             $modelData,
@@ -38,8 +58,10 @@ class StoreRecurringBill extends OrgAction
             )
         );
 
+
+
         /** @var RecurringBill $recurringBill */
-        $recurringBill=$rentalAgreement->recurringBills()->create($modelData);
+        $recurringBill = $rentalAgreement->recurringBills()->create($modelData);
         $recurringBill->stats()->create();
         StoreStrayRecurringBillTransactionables::run($recurringBill);
 
@@ -57,20 +79,20 @@ class StoreRecurringBill extends OrgAction
     {
         return [
             'start_date' => ['required', 'date'],
-            'end_date'   => ['required', 'date'],
+            'end_date'   => ['sometimes', 'required', 'date', 'gte:start_date'],
         ];
-
     }
 
     public function action(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
     {
-        $this->asAction       = true;
+        $this->asAction = true;
 
         $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $modelData);
+
         return $this->handle($rentalAgreement, $this->validatedData);
     }
 
-    public string $commandSignature = 'proforma:create {rental-agreement}';
+    public string $commandSignature = 'recurring-bill:create {rental-agreement}';
 
     public function asCommand(Command $command): int
     {
@@ -80,6 +102,7 @@ class StoreRecurringBill extends OrgAction
             $rentalAgreement = RentalAgreement::where('slug', $command->argument('rental-agreement'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 
@@ -87,6 +110,7 @@ class StoreRecurringBill extends OrgAction
             $this->initialisationFromFulfilment($rentalAgreement->fulfilment, []);
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 
@@ -97,5 +121,24 @@ class StoreRecurringBill extends OrgAction
         return 0;
     }
 
+    public function getEndDate(Carbon $startDate, array $setting): Carbon
+    {
+
+
+        return match (Arr::get($setting, 'type')) {
+            'weekly' => $this->getEndDateWeekly($startDate, $setting),
+            default  => $this->getEndDateMonthly($startDate, $setting),
+        };
+    }
+
+    public function getEndDateMonthly(Carbon $startDate, array $setting): Carbon
+    {
+        return  $startDate->addMonth();
+    }
+
+    public function getEndDateWeekly(Carbon $startDate, array $setting): Carbon
+    {
+        return  $startDate->addWeek();
+    }
 
 }

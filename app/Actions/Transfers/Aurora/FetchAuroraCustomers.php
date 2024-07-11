@@ -12,11 +12,8 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
-use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
-use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\CRM\Customer;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\Aurora\WithAuroraParsers;
@@ -50,6 +47,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     $this->recordChange($organisationSource, $customer->wasChanged());
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'update');
+
                     return null;
                 }
             } else {
@@ -62,67 +60,14 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     );
 
 
-                    if($customerData['shop']->type == ShopTypeEnum::FULFILMENT) {
-
-                        $sourceData = explode(':', $customer->source_id);
-
-                        $palletsCount= DB::connection('aurora')
-                            ->table('Fulfilment Asset Dimension')
-                            ->where('Fulfilment Asset Customer Key', $sourceData[1])->count();
-
-
-
-                        if($palletsCount>0) {
-
-                            foreach (
-                                DB::connection('aurora')
-                                    ->table('Website User Dimension')
-                                    ->where('Website User Customer Key', $sourceData[1])
-                                    ->select('Website User Key as source_id')
-                                    ->orderBy('source_id')->get() as $webUserData
-                            ) {
-
-                                FetchAuroraWebUsers::run($organisationSource, $webUserData->source_id);
-                            }
-
-                            $rentalAgreementData=[
-                                'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
-                                'state'         => RentalAgreementStateEnum::ACTIVE,
-                                'created_at'    => $customer->created_at,
-                            ];
-
-                            $customer->fulfilmentCustomer->refresh();
-                            if($customer->fulfilmentCustomer->customer->webUsers()->count()==0) {
-
-
-
-
-                                $rentalAgreementData['username']=$customer->email??$customer->reference;
-                                $rentalAgreementData['email']   =$customer->email;
-
-                            }
-
-
-                            StoreRentalAgreement::make()->action(
-                                $customer->fulfilmentCustomer,
-                                $rentalAgreementData
-                            );
-
-
-
-
-                        }
-
-
-                    }
-
-
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
+
                     return null;
                 }
             }
+
 
             $sourceData = explode(':', $customer->source_id);
 
@@ -139,7 +84,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
             }
 
 
-            if ($customer->shop->type ==ShopTypeEnum::DROPSHIPPING and in_array('clients', $with)) {
+            if ($customer->shop->type == ShopTypeEnum::DROPSHIPPING and in_array('clients', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')
@@ -151,7 +96,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-            if ($customer->shop->type ==ShopTypeEnum::DROPSHIPPING and in_array('portfolio', $with)) {
+            if ($customer->shop->type == ShopTypeEnum::DROPSHIPPING and in_array('portfolio', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Portfolio Fact')
@@ -176,7 +121,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
             }
 
 
-
             if (in_array('web-users', $with)) {
                 foreach (
                     DB::connection('aurora')
@@ -185,7 +129,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         ->select('Website User Key as source_id')
                         ->orderBy('source_id')->get() as $webUserData
                 ) {
-
                     FetchAuroraWebUsers::run($organisationSource, $webUserData->source_id);
                 }
             }
@@ -197,9 +140,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
 
             if (in_array('attachments', $this->with)) {
-                $sourceData= explode(':', $customer->source_id);
+                $sourceData = explode(':', $customer->source_id);
                 foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-
                     SaveModelAttachment::run(
                         $customer,
                         $attachmentData['fileData'],
@@ -218,10 +160,13 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
     private function parseAttachments($staffKey): array
     {
-        $attachments            = $this->getModelAttachmentsCollection(
+        $attachments = $this->getModelAttachmentsCollection(
             'Customer',
             $staffKey
-        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        )->map(function ($auroraAttachment) {
+            return $this->fetchAttachment($auroraAttachment);
+        });
+
         return $attachments->toArray();
     }
 
@@ -240,8 +185,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
             $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Store Key', $sourceData[1]);
         }
-        return $query;
 
+        return $query;
     }
 
     public function count(): ?int

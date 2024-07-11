@@ -28,7 +28,6 @@ class FetchAuroraAction extends FetchAction
             $this->fetchAll = (bool)$command->option('all');
         }
 
-
         if (in_array($command->getName(), [
                 'fetch:customers',
                 'fetch:web-users',

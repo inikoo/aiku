@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
@@ -30,6 +31,21 @@ class StoreFulfilment extends OrgAction
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
 
+        data_set($modelData, 'settings', [
+
+            'rental_agreement_weekly_cut_off'=> [
+                RentalAgreementBillingCycleEnum::WEEKLY->value=> [
+                    'type'=> RentalAgreementBillingCycleEnum::WEEKLY->value,
+                    'day' => 'Friday'
+                ],
+                RentalAgreementBillingCycleEnum::MONTHLY->value=> [
+                    'type'    => RentalAgreementBillingCycleEnum::MONTHLY->value,
+                    'day'     => 20,
+                    'workdays'=> false
+                ]
+            ]
+
+        ]);
 
         $warehouses= $modelData['warehouses'];
         Arr::forget($modelData, 'warehouses');

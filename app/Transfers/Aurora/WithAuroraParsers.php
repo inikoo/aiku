@@ -21,6 +21,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
 use App\Actions\Transfers\Aurora\FetchAuroraOutboxes;
+use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\Transfers\Aurora\FetchAuroraPayments;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentServiceProviders;
@@ -48,6 +49,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatching\Shipper;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Country;
@@ -271,6 +273,16 @@ trait WithAuroraParsers
 
     }
 
+    public function parsePallet(string $sourceId): Pallet
+    {
+        $pallet = Pallet::where('source_id', $sourceId)->first();
+        if (!$pallet) {
+            $sourceData = explode(':', $sourceId);
+            $pallet     = FetchAuroraPallets::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $pallet;
+    }
 
     public function parseAsset(string $sourceId): Product
     {

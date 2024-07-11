@@ -26,6 +26,11 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'item_id', $item->id);
         data_set($modelData, 'item_type', class_basename($item));
 
+        data_set($modelData, 'asset_id', $item->rental->asset_id);
+        data_set($modelData, 'historic_asset_id', $item->rental->asset->current_historic_asset_id);
+
+        //todo add rental_agreement_clause_id
+
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
 

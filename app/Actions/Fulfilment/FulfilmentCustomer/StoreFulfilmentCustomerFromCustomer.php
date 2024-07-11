@@ -18,14 +18,19 @@ use App\Models\Catalogue\Shop;
 
 class StoreFulfilmentCustomerFromCustomer extends OrgAction
 {
-    public function handle(Customer $customer, Shop $shop): FulfilmentCustomer
+    public function handle(Customer $customer, Shop $shop, array $modelData): FulfilmentCustomer
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $customer->fulfilmentCustomer()->create([
-            'fulfilment_id'   => $shop->fulfilment->id,
-            'group_id'        => $customer->group_id,
-            'organisation_id' => $customer->organisation_id,
-        ]);
+        $fulfilmentCustomer = $customer->fulfilmentCustomer()->create(
+            array_merge(
+                $modelData,
+                [
+                    'fulfilment_id'   => $shop->fulfilment->id,
+                    'group_id'        => $customer->group_id,
+                    'organisation_id' => $customer->organisation_id,
+                ]
+            )
+        );
         $fulfilmentCustomer->refresh();
 
         $fulfilmentCustomer->serialReferences()->create(
