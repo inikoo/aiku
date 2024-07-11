@@ -2,13 +2,8 @@
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
-const props = defineProps<{
-    modelValue: boolean
-}>()
+const model = defineModel()
 
-const emits = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void
-}>()
 
 const layout = inject('layout', layoutStructure)
 
@@ -20,8 +15,7 @@ defineOptions({
 <template>
     <div>
         <input
-            :value="modelValue"
-            @input="(v) => (console.log(v.target.value), emits('update:modelValue', v.target.value))"
+            v-model="model"
             v-bind="$attrs"
             type="checkbox"
             class="h-6 w-6 rounded cursor-pointer custom-checkbox" />
