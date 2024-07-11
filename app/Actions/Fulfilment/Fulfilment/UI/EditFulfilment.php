@@ -57,10 +57,12 @@ class EditFulfilment extends OrgAction
                                         21, 22, 23, 24, 25, 26, 27, 82 ,29, 30,
                                         31
                                     ],
-                                    'value' => [
-                                        'date'          => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day'],
-                                        'isWeekdays'    => false,
-                                    ]
+                                    'value' => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day']
+                                ],
+                                'monthly_only_weekdays' => [
+                                    'type'      => 'toggle',
+                                    'label'     => __('Is only weekdays?'),
+                                    'value'     => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day']  // TODO
                                 ],
                                 'weekly_cut_off_day' => [
                                     'type'      => 'radio',
@@ -100,7 +102,7 @@ class EditFulfilment extends OrgAction
                                     'required'  => true,
                                     'label'     => __('weekly cut off day'),
                                     'value'     => $fulfilment->settings['rental_agreement_cut_off']['weekly']['day']
-                                ],
+                                ]
                             ]
                         ]
 
