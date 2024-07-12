@@ -95,29 +95,27 @@ console.log(props)
 
                 <div class="flex flex-col flex-col-reverse gap-y-6 md:block">
                     <div>
-                        <div class="text-center space-y-2 md:space-y-0">
+                       <!--  <div class="text-center space-y-2 md:space-y-0">
                             <FontAwesomeIcon icon="fas fa-shield-alt" class="text-3xl"></FontAwesomeIcon>
                             <div class="flex justify-center items-center gap-x-3 md:inline-block">
                                 <div class="text-sm md:text-base">Secure Payments</div>
                                 <img src="https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png"
                                     alt="" class="h-5 md:mb-4">
                             </div>
-                        </div>
-                        <div class="flex items-center justify-center md:justify-start space-x-4 mt-6 md:mt-0 mb-3">
-                            <img src="https://e7.pngegg.com/pngimages/687/457/png-clipart-visa-credit-card-logo-payment-mastercard-usa-visa-blue-company.png"
-                                alt="Visa" class="px-1 h-4">
-                            <img src="https://e7.pngegg.com/pngimages/292/77/png-clipart-paypal-logo-illustration-paypal-logo-icons-logos-emojis-tech-companies.png"
-                                alt="Paypal" class="px-1 h-4">
-                            <img src="https://i.pinimg.com/736x/38/2f/0a/382f0a8cbcec2f9d791702ef4b151443.jpg"
-                                alt="Mastercard" class="px-1 h-4">
-                            <img src="https://pastpay.com/wp-content/uploads/2023/07/PastPay-logo-dark-edge.png"
-                                class="md:hidden h-5" alt="">
-                        </div>
-                        <img src="https://pastpay.com/wp-content/uploads/2023/07/PastPay-logo-dark-edge.png"
-                            class="hidden md:block h-5 mb-5" alt="">
-                            <address class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                                 <Editor v-model="modelValue.column.column_4.data.textBox1" toggle="toggle" />
-                            </address>
+                        </div> -->
+                            <div class="flex flex-wrap -mx-4">
+                                <div v-for="payment in modelValue.PaymentData.data" :key="payment.key" class="w-full md:w-1/3 px-4 mb-8">
+                                    <div class="flex items-center justify-center md:justify-start space-x-4">
+                                        <img :src="payment.image" :alt="payment.key" class="px-1 h-4">
+                                    </div>
+                                </div>
+                            </div>
+                        
+
+                        <address class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
+                            <Editor v-model="modelValue.column.column_4.data.textBox1" toggle="toggle" />
+                        </address>
+
                         <div class="flex justify-center gap-x-8 text-gray-300 md:block">
                             <Editor v-model="modelValue.column.column_4.data.textBox2" toggle="toggle" />
                         </div>

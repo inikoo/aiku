@@ -55,8 +55,8 @@ const onPickTemplate = (footer) => {
                     @click="isModalOpen = true" />
             </div>
 
-            <!-- <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
-                @update:modelValue="keyTemplates = uuidv4()" /> -->
+            <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
+                @update:modelValue="keyTemplates = uuidv4()" />
 
             <div class="absolute inset-x-0 bottom-0 bg-gray-300 p-4 text-white text-center">
                 <div class="flex items-center gap-x-2">
