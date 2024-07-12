@@ -8,6 +8,7 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Mail\Mailshot;
@@ -23,7 +24,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexMailshots extends InertiaAction
+class IndexMailshots extends OrgAction
 {
     use HasUIMailshots;
 
@@ -110,14 +111,13 @@ class IndexMailshots extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $mailshots, ActionRequest $request): Response
     {
-        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
 
         return Inertia::render(
             'Mail/Mailshots',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('mailshots '),
                 'pageHead'    => [
@@ -134,15 +134,15 @@ class IndexMailshots extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation,ActionRequest $request): LengthAwarePaginator
     {
 
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+        $this->initialisation($organisation,$request);
+        return $this->handle($organisation);
     }
 
     public function inShop(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator

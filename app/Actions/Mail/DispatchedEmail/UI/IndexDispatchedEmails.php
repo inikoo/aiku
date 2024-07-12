@@ -9,6 +9,7 @@ namespace App\Actions\Mail\DispatchedEmail\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
+use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\InertiaTable\InertiaTable;
@@ -27,8 +28,11 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexDispatchedEmails extends InertiaAction
+class IndexDispatchedEmails extends OrgAction
 {
+
+    private Organisation|Shop $parent;
+
     public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -116,13 +120,12 @@ class IndexDispatchedEmails extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $dispatched_emails, ActionRequest $request): Response
     {
-        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
         return Inertia::render(
             'Mail/DispatchedEmails',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->originalParameters()
                 ),
                 'title'       => __('dispatched emails '),
                 'pageHead'    => [
@@ -132,20 +135,21 @@ class IndexDispatchedEmails extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation,ActionRequest $request): LengthAwarePaginator
     {
-
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+$this->parent=$organisation;
+        $this->initialisation($organisation,$request);
+        return $this->handle($organisation);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation,Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent=$shop;
+        $this->initialisationFromShop($shop,$request);
         return $this->handle($shop);
     }
 
@@ -164,7 +168,7 @@ class IndexDispatchedEmails extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, Mailshot|Outbox|PostRoom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -183,14 +187,14 @@ class IndexDispatchedEmails extends InertiaAction
             array_merge(
                 (new MarketingHub())->getBreadcrumbs(
                     $routeName,
-                    $request->route()->originalParameters()
+                    $routeParameters
                 ),
                 $headCrumb()
             ),
             'mail.post_rooms.show.dispatched-emails.index' =>
             array_merge(
-                (new ShowPostRoom())->getBreadcrumbs($parent),
-                $headCrumb([$parent->slug])
+                (new ShowPostRoom())->getBreadcrumbs(),
+                $headCrumb([])
             ),
             default => []
         };
