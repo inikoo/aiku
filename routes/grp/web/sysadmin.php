@@ -12,13 +12,13 @@ use App\Actions\SysAdmin\Guest\UI\EditGuest;
 use App\Actions\SysAdmin\Guest\UI\IndexGuest;
 use App\Actions\SysAdmin\Guest\UI\RemoveGuest;
 use App\Actions\SysAdmin\Guest\UI\ShowGuest;
+use App\Actions\SysAdmin\Organisation\UI\EditOrganisationSettings;
 use App\Actions\SysAdmin\User\ExportUsers;
 use App\Actions\SysAdmin\User\UI\CreateUser;
 use App\Actions\SysAdmin\User\UI\EditUser;
 use App\Actions\SysAdmin\User\UI\IndexUsers;
 use App\Actions\SysAdmin\User\UI\ShowUser;
 use App\Actions\UI\Grp\Dashboard\ShowDashTV;
-use App\Actions\UI\Grp\SysAdmin\EditSystemSettings;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +27,7 @@ Route::get('/', [
     'icon'   => 'users-cog',
     'label'  => 'sysadmin'
 ])->name('dashboard');
-Route::get('/settings', EditSystemSettings::class)->name('settings.edit');
+Route::get('/settings', EditOrganisationSettings::class)->name('settings.edit');
 
 Route::get('/users', IndexUsers::class)->name('users.index');
 Route::get('/users/export', ExportUsers::class)->name('users.export');

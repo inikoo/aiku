@@ -1,50 +1,50 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 19 Feb 2024 20:34:57 Central Standard Time, Mexico City, Mexico
+ * Created: Fri, 12 Jul 2024 23:57:50 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Grp\SysAdmin;
+namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\Helpers\GoogleDrive\Traits\WithTokenPath;
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class EditSystemSettings
+class EditOrganisationSettings extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-    use WithTokenPath;
+    //use WithTokenPath;
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
     }
 
 
-    public function asController()
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
+        $this->initialisation($organisation, $request);
 
+        return $organisation;
     }
 
 
-    public function htmlResponse(): Response
+
+    public function htmlResponse(Organisation $organisation): Response
     {
 
-        $organisation= app('currentTenant');
         return Inertia::render(
             'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('system settings'),
+                'title'       => __('Organisation settings'),
                 'pageHead'    => [
-                    'title' => __('system settings'),
+                    'title' => __('Organisation settings'),
                 ],
                 "formData" => [
                     "blueprint" => [
@@ -61,7 +61,7 @@ class EditSystemSettings
                                 "logo" => [
                                     "type"  => "avatar",
                                     "label" => __("logo"),
-                                    "value" => $organisation->logo_id,
+                                    "value" => $organisation->image_id,
                                 ],
                             ],
                         ],
@@ -69,11 +69,7 @@ class EditSystemSettings
                             "title"  => __("appearance"),
                             "icon"   => "fa-light fa-paint-brush",
                             "fields" => [
-                                "colorMode" => [
-                                    "type"  => "colorMode",
-                                    "label" => __("turn dark mode"),
-                                    "value" => "",
-                                ],
+
                                 "theme"     => [
                                     "type"  => "theme",
                                     "label" => __("choose your theme"),
@@ -81,6 +77,7 @@ class EditSystemSettings
                                 ],
                             ],
                         ],
+                        /*
                         [
                             "title"  => __("google drive"),
                             "icon"   => "fab fa-google",
@@ -89,6 +86,7 @@ class EditSystemSettings
                                 "route"   => route('grp.google.drive.authorize'),
                                 "disable" => file_exists($this->getTokenPath())
                             ],
+
                             "fields" => [
                                 "google_client_id" => [
                                     "type"  => "input",
@@ -113,11 +111,14 @@ class EditSystemSettings
                                     "copyButton" => true,
                                 ]
                             ],
+
                         ],
+                        */
                     ],
                     "args"      => [
                         "updateRoute" => [
-                            "name"       => "models.system-settings.update"
+                            "name"       => "grp.models.organisation.update",
+                            "parameters" => [$organisation->id],
                         ],
                     ],
                 ],
@@ -139,9 +140,10 @@ class EditSystemSettings
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.sysadmin.settings.edit'
+                                'name'       => 'grp.org.settings.edit',
+                                'parameters' => [$this->organisation->slug]
                             ],
-                            'label'  => __('settings'),
+                            'label'  => __('Organisation settings'),
                         ]
                     ]
                 ]

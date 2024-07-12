@@ -56,7 +56,7 @@ Route::prefix('{shop}')->name('show.')
             ->name("web.")
             ->group(__DIR__."/websites.php");
 
-        Route::prefix("setting")
-            ->name("setting.")
+        Route::prefix("settings")
+            ->name("settings.")
             ->group(__DIR__."/settings.php");
     });

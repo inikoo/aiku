@@ -42,7 +42,6 @@ class GetOrganisationNavigation
             ];
         }
 
-
         $shops_navigation = [];
         foreach (
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
@@ -508,6 +507,22 @@ class GetOrganisationNavigation
             ];
         }
 
+        if ($user->hasPermissionTo('org-supervisor.'.$organisation->id)) {
+            $navigation['setting'] = [
+                "root"    => "grp.org.settings.",
+                "icon"    => ["fal", "fa-sliders-h"],
+                "label"   => __("Settings"),
+                "route"   => [
+                    "name"       => 'grp.org.settings.edit',
+                    "parameters" => [$organisation->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+
+                    ],
+                ],
+            ];
+        }
 
         return $navigation;
     }

@@ -10,16 +10,17 @@ namespace App\Actions\Catalogue\Shop\UI;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditShop extends InertiaAction
+class EditShop extends OrgAction
 {
     public function handle(Shop $shop): Shop
     {
@@ -28,12 +29,12 @@ class EditShop extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.edit");
+        return $request->user()->hasPermissionTo("supervisor-products.{$this->shop->id}");
     }
 
-    public function asController(Shop $shop, ActionRequest $request): Shop
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($shop);
     }
 
@@ -46,11 +47,8 @@ class EditShop extends InertiaAction
             'EditModel',
             [
                 'title'        => __('edit shop'),
-                'breadcrumbs'  => $this->getBreadcrumbs($shop),
-                'navigation'   => [
-                    'previous' => $this->getPrevious($shop, $request),
-                    'next'     => $this->getNext($shop, $request),
-                ],
+                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
+
                 'pageHead'    => [
                     'title'     => $shop->name,
                     'icon'      => [
@@ -172,44 +170,29 @@ class EditShop extends InertiaAction
         );
     }
 
-
-    public function getBreadcrumbs(Shop $shop): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $routeParameters = ['shop' => $shop];
-        return ShowShop::make()->getBreadcrumbs($routeParameters, suffix: '('.__('Editing').')');
-    }
-
-    public function getPrevious(Shop $shop, ActionRequest $request): ?array
-    {
-        $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
-
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
-
-    public function getNext(Shop $shop, ActionRequest $request): ?array
-    {
-        $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Shop $shop, string $routeName): ?array
-    {
-        if (!$shop) {
-            return null;
-        }
-
         return match ($routeName) {
-            'shops.edit' => [
-                'label' => $shop->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'shop' => $shop->slug
+            'grp.org.shops.show.settings.edit' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.settings.edit',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Settings')
+                        ]
                     ]
-
                 ]
-            ]
+            ),
+            default => []
         };
     }
+
+
+
 }

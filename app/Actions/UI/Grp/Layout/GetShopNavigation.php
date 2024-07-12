@@ -454,29 +454,22 @@ class GetShopNavigation
                 ],
             ];
         }
-        $navigation['setting'] = [
-            "root"  => "grp.org.shops.show.setting.",
-            "icon"  => ["fal", "fa-sliders-h"], //TODO: Need icon for this
-            "label" => __("Setting"),
-            "route" => [
-                "name"       => 'grp.org.shops.show.setting.dashboard',
-                "parameters" => [$shop->organisation->slug, $shop->slug],
-            ],
-            "topMenu" => [
-                "subSections" => [
-                    [
-                        "label"   => __("outboxes"),
-                        "tooltip" => __("outboxes"),
-                        "icon"    => ["fal", "fa-comment-dollar"],
-                        'root'    => 'grp.org.shops.show.mail.outboxes',
-                        "route"   => [
-                            "name"       => "grp.org.shops.show.mail.outboxes",
-                            "parameters" => [$shop->organisation->slug, $shop->slug],
-                        ],
+        if ($user->hasPermissionTo("supervisor-products.$shop->id")) {
+            $navigation['setting'] = [
+                "root"    => "grp.org.shops.show.settings.",
+                "icon"    => ["fal", "fa-sliders-h"],
+                "label"   => __("Setting"),
+                "route"   => [
+                    "name"       => 'grp.org.shops.show.settings.edit',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+
                     ],
                 ],
-            ],
-        ];
+            ];
+        }
 
         return $navigation;
     }

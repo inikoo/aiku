@@ -53,6 +53,9 @@ Route::prefix("reports")
     ->name("reports.")
     ->group(__DIR__."/reports.php");
 
+Route::prefix("settings")
+    ->name("settings.")
+    ->group(__DIR__."/settings.php");
 
 
 Route::get('/show', ShowOrganisation::class)->name('show');

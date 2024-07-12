@@ -7,13 +7,13 @@
 
 namespace App\Actions\SysAdmin\Organisation\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\GrpAction;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditOrganisation extends InertiaAction
+class EditOrganisation extends GrpAction
 {
     public function handle(Organisation $organisation): Organisation
     {
@@ -27,7 +27,7 @@ class EditOrganisation extends InertiaAction
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
-        $this->initialisation($request);
+        $this->initialisation(app('group'), $request);
 
         return $this->handle($organisation);
     }
@@ -90,7 +90,7 @@ class EditOrganisation extends InertiaAction
                 ],
                 "args" => [
                     "updateRoute" => [
-                        "name"       => "grp.models.user.update",
+                        "name"       => "grp.models.organisation.update",
                         "parameters" => [$organisation->id],
                     ],
                 ],

@@ -113,7 +113,7 @@ return [
             ]
         ],
         'shk-m'    => [
-            'code'               => 'web-m',
+            'code'               => 'shk-m',
             'name'               => 'Shopkeeper supervisor',
             'department'         => 'products',
             'scope'              => JobPositionScopeEnum::SHOPS,
