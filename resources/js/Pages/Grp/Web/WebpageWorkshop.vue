@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars } from '@fal'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
 import draggable from "vuedraggable"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -21,9 +21,11 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import Publish from '@/Components/Publish.vue'
 import { notify } from "@kyvg/vue3-notification"
+import EmptyState from "@/Components/Utils/EmptyState.vue"
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
 const props = defineProps<{
   title: string,
@@ -169,7 +171,6 @@ const onPublish = async (action) => {
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
     <template #button-publish="{ action }">
-      <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
       <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
         @onPublish="onPublish(action.route)" />
     </template>
@@ -177,7 +178,9 @@ const onPublish = async (action) => {
 
   <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
     <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
-      <div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
+
+      <div class="h-screen overflow-auto border-2 border-dashed"
+        :class="data.layout.web_blocks.length ? 'col-span-3' : 'col-span-4'">
         <div v-if="data.layout.web_blocks?.length">
           <TransitionGroup tag="div" name="zzz" class="relative">
             <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id"
@@ -189,12 +192,18 @@ const onPublish = async (action) => {
           </TransitionGroup>
         </div>
 
-        <div v-else
-          class="relative block w-full h-full border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
-          <span class="mt-2 block text-sm font-semibold">You dont have block</span>
+        <div v-else>
+          <EmptyState :data="{ title: 'Pick Frist Block For Your Website', description: 'Pick block from list' }">
+            <template #button-empty-state>
+              <div class="mt-4 block">
+                <Button type="secondary" label="Block Templates" icon="fas fa-th-large"
+                  @click="isModalBlocksList = true"></Button>
+              </div>
+            </template>
+          </EmptyState>
         </div>
       </div>
+
       <div class="col-span-1 h-screen">
         <div class="border-2 bg-gray-200 p-3 h-full">
           <div class="flex justify-between">
@@ -202,47 +211,48 @@ const onPublish = async (action) => {
             <Button icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
           </div>
 
-          <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks"
+          <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks" handle=".handle"
             @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
             <template #item="{ element, index }">
+              <div>
+                <Disclosure v-slot="{ open }">
+                  <DisclosureButton
+                    :class="open ? 'rounded-t-lg' : 'rounded'"
+                    class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full  cursor-pointer hover:bg-gray-100 bg-slate-50">
+                    <div class="flex gap-x-2">
+                      <div class="flex items-center justify-center">
+                        <!-- <pre>{{element }}</pre> -->
+                        <FontAwesomeIcon icon="fal fa-bars"
+                                class="handle text-xs  text-gray-700 cursor-grab pr-3 mr-2" />
+                        <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs' fixed-width
+                          aria-hidden='true' />
+                      </div>
+                      <h3 class="text-sm font-medium">
+                        {{ element.web_block.layout.name }}
+                      </h3>
+                    </div>
 
+                    <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
+                      @click="(e) =>{e.stopPropagation(), sendDeleteBlock(element)}">
+                      <font-awesome-icon :icon="['fal', 'times']" />
+                    </div>
 
-              <div
-                class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
-                <div class="flex gap-x-2">
-                  <div class="flex items-center justify-center">
-                    <!-- <pre>{{element }}</pre> -->
-                    <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs' fixed-width
-                      aria-hidden='true' />
-                  </div>
-                  <h3 class="text-sm font-medium">
-                    {{ element.web_block.layout.name }}
-                  </h3>
-                </div>
-
-                <div class="py-0 text-xs text-gray-400 hover:text-red-500 px-1 cursor-pointer"
-                  @click="() => sendDeleteBlock(element)">
-                  <font-awesome-icon :icon="['fal', 'times']" />
-                </div>
+                  </DisclosureButton>
+                  <DisclosurePanel
+                    class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
+                    will be form padding
+                  </DisclosurePanel>
+                </Disclosure>
               </div>
             </template>
           </draggable>
 
           <!-- Section: if no blocks selected -->
-          <div v-else class="h-fit mt-4 rounded-lg border-2 p-4 text-center border-gray-300">
+          <!--  <div v-else class="h-fit mt-4 rounded-lg border-2 p-4 text-center border-gray-300">
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-600">You dont have block</span>
-          </div>
+          </div> -->
 
-          <!--  <Button
-                        type="dashed"
-                        icon="fal fa-plus"
-                        label="Add block"
-                        full
-                        size="s"
-                        class="mt-2"
-                        @click="() => (isModalBlocksList = true)"
-                    /> -->
         </div>
       </div>
     </div>
