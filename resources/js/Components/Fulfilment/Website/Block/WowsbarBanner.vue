@@ -22,6 +22,8 @@ import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 library.add(faPresentation, faLink, faSpinnerThird)
 
@@ -37,7 +39,8 @@ const layout = inject('layout', layoutStructure)
 const bannersList = ref([])
 const isModalOpen = ref(false)
 const data = ref(null)
-const loading = ref(false)
+const isLoading = ref(false)
+const isLoadingFetching = ref(false)
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -52,7 +55,7 @@ const onPickBanner = (banner) => {
 
 const getBannersList = async (): Promise<void> => {
     try {
-        loading.value = true
+        isLoadingFetching.value = true
         const url = route('grp.org.shops.show.web.banners.index', {
             organisation: layout.currentParams.organisation,
             shop: layout.currentParams.shop,
@@ -64,11 +67,11 @@ const getBannersList = async (): Promise<void> => {
                 'filter[state]': 'live'
             }
         });
-        loading.value = false
+        isLoadingFetching.value = false
         bannersList.value = response.data.data;
     } catch (error) {
         console.error(error);
-        loading.value = false
+        isLoadingFetching.value = false
         notify({
             title: "Failed to fetch banners data",
             text: error.message || 'An error occurred',
@@ -80,7 +83,7 @@ const getBannersList = async (): Promise<void> => {
 const getDataBanner = async (): Promise<void> => {
     if (props.modelValue.banner_slug) {
         try {
-            loading.value = true
+            isLoading.value = true
             const url = route('grp.org.shops.show.web.banners.show', {
                 organisation: layout.currentParams.organisation,
                 shop: layout.currentParams.shop,
@@ -90,10 +93,10 @@ const getDataBanner = async (): Promise<void> => {
 
             const response = await axios.get(url);
             data.value = response.data
-            loading.value = false
+            isLoading.value = false
         } catch (error) {
             console.error(error);
-            loading.value = false
+            isLoading.value = false
             notify({
                 title: "Failed to fetch banners data",
                 text: error.message || 'An error occurred',
@@ -117,8 +120,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="!props.modelValue.banner_id && !props.modelValue.banner_slug && !loading">
-        <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 p-5">
+
+    
+    <div v-if="isLoading" class="flex justify-center h-36 items-center">
+        <LoadingIcon class="text-4xl"/>
+    </div>
+    <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug">
+
+        <!-- <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-5">
             <li v-for="banner in bannersList.slice(0, 6)" :key="banner.slug"
                 class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
                 <div class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-h-1 h-28 aspect-w-1 w-full bg-gray-200"
@@ -137,19 +146,23 @@ onMounted(() => {
                 </div>
                 <span class="font-bold text-xs">{{ banner.name }}</span>
             </li>
-        </ul>
-        <div class="flex justify-center">
-            <Button label="Load More" type="secondary" @click="isModalOpen = true"></Button>
+        </ul> -->
+
+        <div class="flex justify-center border border-dashed border-gray-300 rounded-md py-8">
+            <Button label="Select banner" type="tertiary" @click="isModalOpen = true"></Button>
         </div>
     </div>
 
-    <div v-if="props.modelValue.banner_id && props.modelValue.banner_slug && !loading && data" class="relative">
+
+
+    <div v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative">
 
         <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
         <SliderSquare v-else :data="data.compiled_layout" :production="true" />
 
+        <!-- Icon: Edit -->
         <div class="absolute top-2 right-2 flex space-x-2 z-10">
-            <Button :icon="['far', 'fa-pencil']" size="xs" @click="() => { isModalOpen = true, getBannersList() }" />
+            <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs" @click="() => { isModalOpen = true, getBannersList() }" />
             <!-- <Popover width="w-full" class="relative h-full">
         <template #button>
             <Button :icon="['far', 'fa-pencil']" size="xs" />
@@ -197,40 +210,45 @@ onMounted(() => {
     </div>
 
 
-    <div v-if="loading" class="flex justify-center p-24">
-        <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' fixed-width aria-hidden="true" />
-    </div>
 
 
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <div class="text-center font-semibold text-2xl mb-4">
-            {{ trans('Banners') }}
-        </div>
-        <div v-if="!loading">
-            <ul role="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 p-5">
-                <li v-for="banner in bannersList" :key="banner.slug"
-                    class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
-                    <div class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-h-1 h-28 aspect-w-1 w-full bg-gray-200"
-                        @click="() => onPickBanner(banner)">
-                        <img v-if="banner['image_thumbnail']" :src="banner['image_thumbnail']"
-                            class="w-full object-cover object-center group-hover:opacity-75" />
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                            <defs>
-                                <pattern id="pattern_mQij" patternUnits="userSpaceOnUse" width="13" height="13"
-                                    patternTransform="rotate(45)">
-                                    <line x1="0" y="0" x2="0" y2="13" stroke="#CCCCCC" stroke-width="12" />
-                                </pattern>
-                            </defs>
-                            <rect width="100%" height="100%" fill="url(#pattern_mQij)" opacity="0.4" />
-                        </svg>
-                    </div>
-                    <span class="font-bold text-xs">{{ banner.name }}</span>
-                </li>
-            </ul>
-        </div>
-        <div v-else class="flex justify-center p-24">
-            <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' fixed-width aria-hidden="true" />
+        <div class="h-96">
+            <div class="text-center font-semibold text-2xl mb-4">
+                {{ trans('Select banners') }}
+            </div>
+            
+            <div v-if="!isLoadingFetching">
+                <ul role="list" class="flex flex-wrap gap-x-4 gap-y-2.5">
+                    <li
+                        v-for="banner in bannersList" :key="banner.slug"
+                        @click="() => onPickBanner(banner)"
+                        class="relative overflow-hidden rounded-lg bg-white shadow cursor-pointer ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-600"
+                    >
+                        <div class="aspect-[16/9] overflow-hidden h-28 aspect-w-1 w-full" >
+                            <img v-if="banner.image_thumbnail" :src="banner.image_thumbnail" class="w-full object-cover object-center group-hover:opacity-75" />
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                                <defs>
+                                    <pattern id="pattern_mQij" patternUnits="userSpaceOnUse" width="13" height="13"
+                                        patternTransform="rotate(45)">
+                                        <line x1="0" y="0" x2="0" y2="13" stroke="#CCCCCC" stroke-width="12" />
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#pattern_mQij)" opacity="0.4" />
+                            </svg>
+                        </div>
+                        <div class="py-1">
+                            <div class="font-bold text-xs px-2">{{ banner.name }}</div>
+                            <div class="text-xxs px-2 text-gray-400 italic">{{ useFormatTime(banner.date) }}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div v-else class="flex justify-center pt-32 items-center">
+                <LoadingIcon class="text-6xl" />
+            </div>
         </div>
     </Modal>
 </template>
