@@ -16,7 +16,9 @@ use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Website;
 use Illuminate\Support\Arr;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class PublishWebsiteMarginal extends OrgAction
 {
@@ -24,17 +26,16 @@ class PublishWebsiteMarginal extends OrgAction
 
     public bool $isAction = false;
 
-    public function handle(Website $website, string $marginal, array $modelData): void
+    public function handle(Website $website, string $marginal, array $modelData): Website
     {
         $layout = [];
         if ($marginal == 'header') {
-            $layout = $website->unpublishedHeaderSnapshot->layout;
+            $layout = Arr::get($modelData, 'layout') ?? $website->unpublishedHeaderSnapshot->layout;
         } elseif ($marginal == 'footer') {
-            $layout = $website->unpublishedFooterSnapshot->layout;
+            $layout = Arr::get($modelData, 'layout') ?? $website->unpublishedFooterSnapshot->layout;
         }
 
         $firstCommit = true;
-
 
         foreach ($website->snapshots()->where('scope', $marginal)->where('state', SnapshotStateEnum::LIVE)->get() as $liveSnapshot) {
             $firstCommit = false;
@@ -77,6 +78,17 @@ class PublishWebsiteMarginal extends OrgAction
         ];
 
         $website->update($updateData);
+
+        return $website;
+    }
+
+    public function htmlResponse(Website $website): Response
+    {
+        return Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
+            'organisation' => $website->organisation->slug,
+            'shop'         => $website->shop->slug,
+            'website'      => $website->slug,
+        ]));
     }
 
     public function authorize(ActionRequest $request): bool
@@ -106,24 +118,21 @@ class PublishWebsiteMarginal extends OrgAction
             'comment'        => ['sometimes', 'required', 'string', 'max:1024'],
             'publisher_id'   => ['sometimes'],
             'publisher_type' => ['sometimes', 'string'],
+            'layout'         => ['sometimes']
         ];
     }
 
 
-    public function header(Website $website, ActionRequest $request): string
+    public function header(Website $website, ActionRequest $request): Website
     {
         $this->initialisationFromShop($website->shop, $request);
-        $this->handle($website, 'header', $this->validatedData);
-
-        return "🚀";
+        return $this->handle($website, 'header', $this->validatedData);
     }
 
-    public function footer(Website $website, ActionRequest $request): string
+    public function footer(Website $website, ActionRequest $request): Website
     {
         $this->initialisationFromShop($website->shop, $request);
-        $this->handle($website, 'footer', $this->validatedData);
-
-        return "🚀";
+        return $this->handle($website, 'footer', $this->validatedData);
     }
 
     public function action(Website $website, $marginal, $modelData): string

@@ -100,6 +100,7 @@ class ShowBanner extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => BannerTabsEnum::navigation()
                 ],
+
                 BannerTabsEnum::SHOWCASE->value => $this->tab == BannerTabsEnum::SHOWCASE->value
                     ?
                     fn () => BannerResource::make($banner)->getArray()

@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars } from '@fal'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
 import draggable from "vuedraggable"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -21,10 +21,12 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import Publish from '@/Components/Publish.vue'
 import { notify } from "@kyvg/vue3-notification"
+import EmptyState from "@/Components/Utils/EmptyState.vue"
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 
 const props = defineProps<{
     title: string,
@@ -203,57 +205,69 @@ const onPublish = async (action) => {
                     </div>
                 </div>
 
-                <div v-else
-                    class="relative flex flex-col items-center justify-center w-full h-full border-gray-300 p-12 text-center">
-                    <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-300" />
-                    <span class="my-2 block font-semibold text-gray-400 text-2xl">Add block to see what happen</span>
-                    <Button @click="() => isModalBlocksList = true" label="Select block" type="tertiary" icon="fal fa-plus" />
-                </div>
-            </div>
-            
-            <!-- Section: Block list (right panel) -->
-            <div class="col-span-1 h-full">
-                <div class="border-2 bg-gray-200 h-full">
-                    <div class="flex justify-between border-b border-gray-300 px-3 py-2">
-                        <h2 class="text-sm font-semibold leading-6">Block List</h2>
-                        <Button v-tooltip="'Add block'" icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
+        <div v-else>
+          <EmptyState :data="{ title: 'Pick Frist Block For Your Website', description: 'Pick block from list' }">
+            <template #button-empty-state>
+              <div class="mt-4 block">
+                <Button @click="() => isModalBlocksList = true" label="Select block" type="tertiary" icon="fal fa-plus" />
+              </div>
+            </template>
+          </EmptyState>
+        </div>
+      </div>
+
+      <div class="col-span-1 h-screen">
+        <div class="border-2 bg-gray-200 p-3 h-full">
+          <div class="flex justify-between">
+            <h2 class="text-sm font-semibold leading-6">Block List</h2>
+            <Button icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
+          </div>
+          <div class="px-3">
+          <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks" handle=".handle"
+            @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
+            <template #item="{ element, index }">
+              <div>
+                <Disclosure v-slot="{ open }">
+                  <DisclosureButton
+                    :class="open ? 'rounded-t-lg' : 'rounded'"
+                    class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full  cursor-pointer hover:bg-gray-100 bg-slate-50">
+                    <div class="flex gap-x-2">
+                      <div class="flex items-center justify-center">
+                        <!-- <pre>{{element }}</pre> -->
+                        <FontAwesomeIcon icon="fal fa-bars"
+                                class="handle text-xs  text-gray-700 cursor-grab pr-3 mr-2" />
+                        <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs' fixed-width
+                          aria-hidden='true' />
+                      </div>
+                      <h3 class="text-sm font-medium">
+                        {{ element.web_block.layout.name }}
+                      </h3>
                     </div>
 
-                    <div class="px-3">
-                        <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks"
-                            @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id"
-                            class="mt-2 space-y-1">
-                            <template #item="{ element, index }">
-                                <div
-                                    class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
-                                    <div class="flex gap-x-2">
-                                        <div class="flex items-center justify-center">
-                                            <!-- <pre>{{element }}</pre> -->
-                                            <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs'
-                                                fixed-width aria-hidden='true' />
-                                        </div>
-                                        <h3 class="text-sm font-medium">
-                                            {{ element.web_block.layout.name }}
-                                        </h3>
-                                    </div>
-                                    <div v-tooltip="'Delete this block'" class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
-                                        @click="() => sendDeleteBlock(element)">
-                                        <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)" class="text-gray-400" />
-                                        <FontAwesomeIcon v-else icon='fal fa-times' class='' fixed-width aria-hidden='true' />
-                                    </div>
-                                </div>
-                            </template>
-                        </draggable>
+                    <div v-tooltip="'Delete this block'" class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
+                        @click="(e) => {e.stopPropagation(), sendDeleteBlock(element)}">
+                        <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)" class="text-gray-400" />
+                        <FontAwesomeIcon v-else icon='fal fa-times' class='' fixed-width aria-hidden='true' />
+                    </div>
 
-                        <!-- Section: if no blocks selected -->
-                        <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
+                  </DisclosureButton>
+                  <DisclosurePanel
+                    class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
+                    will be form padding
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
+            </template>
+          </draggable>
+
+          <!-- Section: if no blocks selected -->
+          <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
                             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
                             <span class="mt-2 block text-sm font-semibold text-gray-600">You dont have block</span>
                         </div>
-                    </div>
+          </div>
 
-
-                    <!--  <Button
+          <!--  <Button
                         type="dashed"
                         icon="fal fa-plus"
                         label="Add block"
@@ -262,14 +276,12 @@ const onPublish = async (action) => {
                         class="mt-2"
                         @click="() => (isModalBlocksList = true)"
                     /> -->
-                </div>
-            </div>
         </div>
+      </div>
     </div>
-
-    <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
-        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
-    </Modal>
-    
-    <div @click="setData">see data</div>
+  </div>
+  <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
+    <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
+  </Modal>
+  <div @click="setData">see data</div>
 </template>
