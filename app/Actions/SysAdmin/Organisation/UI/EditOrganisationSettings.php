@@ -83,7 +83,7 @@ class EditOrganisationSettings extends OrgAction
                             "icon"   => "fab fa-google",
                             "button" => [
                                 "title"   => !file_exists($this->getTokenPath()) ? "Authorize" : "Authorized",
-                                "route"   => route('grp.google.drive.authorize'),
+                                "route"   => route('grp.models.org.google_drive.authorize', $organisation->id),
                                 "disable" => file_exists($this->getTokenPath())
                             ],
 

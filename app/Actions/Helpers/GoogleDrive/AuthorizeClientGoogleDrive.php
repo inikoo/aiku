@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers\GoogleDrive;
 
 use App\Actions\Helpers\GoogleDrive\Traits\WithTokenPath;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Google_Client;
 use Google_Service_Drive;
@@ -23,10 +24,9 @@ class AuthorizeClientGoogleDrive
     /**
      * @throws \Exception
      */
-    public function handle(): RedirectResponse
+    public function handle(Organisation $organisation): RedirectResponse
     {
         $client       = new Google_Client();
-        $organisation = app('currentTenant');
 
         $tokenPath = $this->getTokenPath();
 
@@ -48,7 +48,7 @@ class AuthorizeClientGoogleDrive
         );
 
         if (blank($authCode)) {
-            // If there is no previous token or it's expired.
+            // If there is no previous token, or it's expired.
             if ($client->isAccessTokenExpired()) {
                 // Refresh the token if possible, else fetch a new one.
                 if ($client->getRefreshToken()) {
@@ -83,8 +83,8 @@ class AuthorizeClientGoogleDrive
     /**
      * @throws \Exception
      */
-    public function asController(): RedirectResponse
+    public function asController(Organisation $organisation): RedirectResponse
     {
-        return $this->handle();
+        return $this->handle($organisation);
     }
 }

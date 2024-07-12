@@ -7,6 +7,8 @@
 
 namespace App\Actions\Helpers\GoogleDrive;
 
+use App\Models\SysAdmin\Organisation;
+use Exception;
 use Google_Service_Drive_DriveFile;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
@@ -19,16 +21,15 @@ class UploadFileGoogleDrive
 
     private mixed $aiku_folder_key;
 
-    public string $commandSignature = 'drive:upload {filename}';
+    public string $commandSignature = 'drive:upload {organisations} {filename}';
 
     /**
      * @throws \Google\Exception
      */
-    public function handle($path): string
+    public function handle(Organisation $organisation, $path): string
     {
-        $client       = GetClientGoogleDrive::run();
-        $organisation = app('currentTenant');
-        $name         = Str::of($path)->basename();
+        $client = GetClientGoogleDrive::run($organisation);
+        $name   = Str::of($path)->basename();
 
         $base_folder_key = Arr::get($organisation->settings, 'google.drive.folder');
 
@@ -56,6 +57,14 @@ class UploadFileGoogleDrive
      */
     public function asCommand(Command $command): string
     {
-        return $this->handle($command->argument('filename'));
+        try {
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Organisation not found');
+
+            return 1;
+        }
+
+        return $this->handle($organisation, $command->argument('filename'));
     }
 }

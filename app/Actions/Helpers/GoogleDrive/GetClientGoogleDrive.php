@@ -23,12 +23,11 @@ class GetClientGoogleDrive
     /**
      * @throws \Google\Exception
      */
-    public function handle(): Google_Service_Drive
+    public function handle(Organisation $organisation): Google_Service_Drive
     {
-        Organisation::where('slug', 'aroma')->first()->makeCurrent();
         $tokenPath = $this->getTokenPath();
 
-        $client = $this->getClient($tokenPath);
+        $client = $this->getClient($organisation, $tokenPath);
 
         return new Google_Service_Drive($client);
     }
@@ -36,10 +35,9 @@ class GetClientGoogleDrive
     /**
      * @throws \Google\Exception
      */
-    public function getClient($tokenPath): RedirectResponse|Google_Client
+    public function getClient(Organisation $organisation, $tokenPath): RedirectResponse|Google_Client
     {
         $client       = new Google_Client();
-        $organisation = app('currentTenant');
 
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([

@@ -88,6 +88,8 @@ use App\Actions\Fulfilment\StoredItemReturn\DeleteStoredItemFromStoredItemReturn
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
+use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
+use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
@@ -197,6 +199,10 @@ Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:i
 */
 
 Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
+
+    Route::get("google-drive.authorize", AuthorizeClientGoogleDrive::class)->name('google_drive.authorize');
+    Route::get("google-drive.callback", CallbackClientGoogleDrive::class)->name('google_drive.callback');
+
 
     Route::post('employee', StoreEmployee::class)->name('employee.store');
     Route::post('position', StoreJobPosition::class)->name('jon_position.store');

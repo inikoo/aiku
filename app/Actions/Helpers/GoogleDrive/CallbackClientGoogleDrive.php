@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers\GoogleDrive;
 
 use App\Actions\Helpers\GoogleDrive\Traits\WithTokenPath;
+use App\Models\SysAdmin\Organisation;
 use Exception;
 use Google_Client;
 use Google_Service_Drive;
@@ -23,13 +24,12 @@ class CallbackClientGoogleDrive
     /**
      * @throws \Exception
      */
-    public function handle(): RedirectResponse
+    public function handle(Organisation $organisation): RedirectResponse
     {
         $client = new Google_Client();
 
         $tokenPath       = $this->getTokenPath();
         $authCode        = request()->query('code');
-        $organisation    = app('currentTenant');
 
         $client->setRedirectUri('http://localhost:5173');
         $client->setApplicationName('Aiku google drive manager');
@@ -65,4 +65,13 @@ class CallbackClientGoogleDrive
 
         return redirect()->route('grp.sysadmin.settings.edit');
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function asController(Organisation $organisation): RedirectResponse
+    {
+        return $this->handle($organisation);
+    }
+
 }
