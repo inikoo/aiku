@@ -102,7 +102,7 @@ class StorePurchaseOrder extends OrgAction
             'cancelled_at'    => ['sometimes', 'nullable', 'date'],
             'currency_id'     => ['sometimes', 'required', 'exists:currencies,id'],
             'org_exchange'    => ['sometimes', 'required', 'numeric', 'min:0'],
-            'group_exchange'  => ['sometimes', 'required', 'numeric', 'min:0'],
+            'grp_exchange'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
             'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
             'source_id'       => ['sometimes', 'required', 'string', 'max:64'],

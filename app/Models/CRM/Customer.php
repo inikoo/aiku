@@ -26,6 +26,7 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Platform;
+use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -122,6 +123,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
  * @property-read TaxNumber|null $taxNumber
+ * @property-read Collection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
@@ -351,6 +353,11 @@ class Customer extends Model implements HasMedia, Auditable
         $platform = $this->platforms()->first();
 
         return $platform;
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 
 }

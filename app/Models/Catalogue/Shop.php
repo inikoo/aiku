@@ -39,6 +39,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZoneSchema;
+use App\Models\Ordering\Transaction;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -153,6 +154,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone
+ * @property-read LaravelCollection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
  * @method static \Database\Factories\Catalogue\ShopFactory factory($count = null, $state = [])
@@ -457,5 +459,10 @@ class Shop extends Model implements HasMedia, Auditable
     public function clients(): HasMany
     {
         return $this->hasMany(CustomerClient::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

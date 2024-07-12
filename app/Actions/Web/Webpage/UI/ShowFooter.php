@@ -51,6 +51,30 @@ class ShowFooter extends OrgAction
                         'title' => __('footer'),
                         'icon'  => 'fal fa-browser'
                     ],
+                    'actions'            => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exit',
+                            'label' => __('Exit workshop'),
+                            'route' => [
+                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters()),
+                            ]
+                        ],
+                        [
+                            'type'  => 'button',
+                            'style' => 'primary',
+                            'icon'  => ["fas", "fa-rocket"],
+                            'label' => __('Publish'),
+                            'route' => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.website.publish.footer',
+                                'parameters' => [
+                                    'website' => $website->id
+                                ],
+                            ]
+                        ],
+                    ],
                 ],
 
                 'data' => GetWebsiteWorkshopFooter::run($website)

@@ -32,12 +32,12 @@ return new class () extends Migration {
             $table->string('type')->default(InvoiceTypeEnum::INVOICE)->index();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->decimal('group_exchange', 16, 4)->default(1);
+            $table->decimal('grp_exchange', 16, 4)->default(1);
             $table->decimal('org_exchange', 16, 4)->default(1);
             $table->decimal('net_amount', 16)->default(0);
             $table->decimal('total_amount', 16)->default(0);
             $table->decimal('payment_amount', 16)->default(0);
-            $table->decimal('group_net_amount', 16)->default(0);
+            $table->decimal('grp_net_amount', 16)->default(0);
             $table->decimal('org_net_amount', 16)->default(0);
             $table->dateTimeTz('date')->index()->nullable();
             $table->dateTimeTz('tax_liability_at')->nullable();

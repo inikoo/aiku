@@ -10,6 +10,7 @@ namespace App\Transfers\Aurora;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
+use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +30,7 @@ class FetchAuroraTransaction extends FetchAurora
                 $this->auroraModelData->{'Product Key'}
             );
 
-            $state = null;
+
 
             $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
                 'In Process'            => TransactionStateEnum::CREATING,
@@ -68,24 +69,28 @@ class FetchAuroraTransaction extends FetchAurora
                 $quantityBonus = 0;
             }
 
+            $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Order Transaction Tax Category Key'})
+                ->firstOrFail();
 
             $this->parsedData['transaction'] = [
-                'tax_rate'            => $this->auroraModelData->{'Transaction Tax Rate'},
                 'date'                => $date,
                 'created_at'          => $date,
                 'type'                => TransactionTypeEnum::ORDER,
-                'tax_band_id'         => $taxBand->id ?? null,
+                'tax_category_id'     => $taxCategory->id,
                 'state'               => $state,
                 'status'              => $status,
                 'quantity_ordered'    => $this->auroraModelData->{'Order Quantity'},
                 'quantity_bonus'      => $quantityBonus,
                 'quantity_dispatched' => $this->auroraModelData->{'Delivery Note Quantity'},
                 'quantity_fail'       => $quantityFail,
-                'discounts'           => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
-                'net'                 => $this->auroraModelData->{'Order Transaction Amount'},
+                'gross_amount'        => $this->auroraModelData->{'Order Transaction Gross Amount'},
+                'net_amount'          => $this->auroraModelData->{'Order Transaction Amount'},
                 'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
-
             ];
+
+
+
+
         } else {
             print "Warning Asset Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }

@@ -82,24 +82,22 @@ class ShowWebpage extends OrgAction
                 ]
             );
         } elseif ($webpage->type == WebpageTypeEnum::STOREFRONT) {
-            $actions = array_merge(
-                $actions,
-                [
-                    $this->canEdit ? [
-                        'type'  => 'button',
-                        'style' => 'create',
-                        'label' => __('Main webpage'),
-                        'route' => [
-                            'name'       => 'org.websites.show.webpages.show.webpages.create',
-                            'parameters' => [
-                                'website' => $webpage->website->slug,
-                                'webpage' => $webpage->slug
-
-                            ]
-                        ]
-                    ] : []
+            $mainWebpageAction = $this->canEdit ? [
+                'type'  => 'button',
+                'style' => 'edit',
+                'label' => __('Main webpage'),
+                'route' => [
+                    'name'       => 'org.websites.show.webpages.show.webpages.create',
+                    'parameters' => [
+                        'website' => $webpage->website->slug,
+                        'webpage' => $webpage->slug
+                    ]
                 ]
-            );
+            ] : [];
+
+            if (!empty($mainWebpageAction)) {
+                array_splice($actions, 1, 0, [$mainWebpageAction]);
+            }
         } elseif (in_array(
             $webpage->type,
             [

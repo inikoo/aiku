@@ -79,7 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $items_discounts
  * @property string $items_net
  * @property int $currency_id
- * @property string $group_exchange
+ * @property string $grp_exchange
  * @property string $org_exchange
  * @property string $charges
  * @property string|null $shipping

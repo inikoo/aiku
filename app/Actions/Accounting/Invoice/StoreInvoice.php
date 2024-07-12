@@ -55,12 +55,12 @@ class StoreInvoice extends OrgAction
 
 
         $orgExchange   = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->currency);
-        $groupExchange = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->group->currency);
+        $grpExchange   = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->group->currency);
 
         data_set($modelData, 'org_exchange', $orgExchange, overwrite: false);
-        data_set($modelData, 'group_exchange', $groupExchange, overwrite: false);
+        data_set($modelData, 'grp_exchange', $grpExchange, overwrite: false);
         data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net') * $orgExchange, overwrite: false);
-        data_set($modelData, 'group_net_amount', Arr::get($modelData, 'net') * $groupExchange, overwrite: false);
+        data_set($modelData, 'grp_net_amount', Arr::get($modelData, 'net') * $grpExchange, overwrite: false);
 
         $date = now();
         data_set($modelData, 'date', $date, overwrite: false);
@@ -128,9 +128,9 @@ class StoreInvoice extends OrgAction
             'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
             'org_exchange'     => ['sometimes', 'numeric'],
-            'group_exchange'   => ['sometimes', 'numeric'],
+            'grp_exchange'     => ['sometimes', 'numeric'],
             'org_net_amount'   => ['sometimes', 'numeric'],
-            'group_net_amount' => ['sometimes', 'numeric'],
+            'grp_net_amount'   => ['sometimes', 'numeric'],
             'source_id'        => ['sometimes', 'string'],
         ];
 

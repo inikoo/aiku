@@ -28,7 +28,7 @@ class UpdateFulfilmentTransaction extends OrgAction
             $palletDeliveryTransaction,
             [
             'net'              => $net,
-            'group_net_amount' => $net * $palletDeliveryTransaction->group_exchange,
+            'grp_net_amount'   => $net * $palletDeliveryTransaction->grp_exchange,
             'org_net_amount'   => $net * $palletDeliveryTransaction->org_exchange
         ]
         );

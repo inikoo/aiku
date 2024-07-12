@@ -35,7 +35,7 @@ return new class () extends Migration {
             $table->decimal('quantity', 16, 3)->default(0);
             $table->decimal('gross_amount', 16)->default(0)->comment('Gross amount before discounts');
             $table->decimal('net_amount', 16)->default(0);
-            $table->decimal('group_net_amount', 16)->default(0);
+            $table->decimal('grp_net_amount', 16)->default(0);
             $table->decimal('org_net_amount', 16)->default(0);
             $table->jsonb('data');
             $table->timestampsTz();

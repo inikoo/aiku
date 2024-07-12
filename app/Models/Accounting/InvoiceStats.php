@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Accounting\InvoiceStats
@@ -19,8 +18,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $invoice_id
  * @property int $number_items current number of items
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\Invoice $invoice
  * @method static Builder|InvoiceStats newModelQuery()
  * @method static Builder|InvoiceStats newQuery()

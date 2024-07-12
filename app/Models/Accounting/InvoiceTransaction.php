@@ -15,39 +15,36 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Accounting\InvoiceTransaction
+ *
  *
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $date
  * @property int $shop_id
+ * @property int|null $invoice_id
  * @property int $customer_id
  * @property int $asset_id
- * @property string $model_type
- * @property int $model_id
  * @property int $historic_asset_id
- * @property int|null $historic_product_variant_id
  * @property int|null $family_id
  * @property int|null $department_id
  * @property int|null $order_id
- * @property int|null $invoice_id
  * @property int|null $transaction_id
  * @property string $quantity
  * @property string $net_amount
- * @property string $group_net_amount
+ * @property string $grp_net_amount
  * @property string $org_net_amount
- * @property string $discounts_amount
+ * @property string $gross_amount
  * @property string $tax_amount
- * @property string $group_exchange
+ * @property string $grp_exchange
  * @property string $org_exchange
- * @property int|null $tax_band_id
+ * @property int $tax_category_id
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property int|null $source_alt_id
  * @property-read Model|\Eloquent $item

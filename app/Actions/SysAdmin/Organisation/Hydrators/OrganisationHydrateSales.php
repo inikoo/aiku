@@ -36,7 +36,7 @@ class OrganisationHydrateSales
     {
         $stats = [];
 
-        $queryBase = Invoice::where('organisation_id', $organisation->id)->selectRaw('sum(group_net_amount) as  sum_group  , sum(group_net_amount) as  sum_org  ');
+        $queryBase = Invoice::where('organisation_id', $organisation->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org  ');
 
         $stats=array_merge($stats, $this->getIntervalStats($queryBase, 'group_amount_', 'date', 'sum_group'));
         $stats=array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'group_amount_', 'date', 'sum_group'));

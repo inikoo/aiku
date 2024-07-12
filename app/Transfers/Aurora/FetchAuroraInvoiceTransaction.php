@@ -8,6 +8,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Models\Accounting\Invoice;
+use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoiceTransaction extends FetchAurora
@@ -15,13 +16,18 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
     protected function parseInvoiceTransaction(Invoice $invoice, bool $isFulfilment): void
     {
         if ($this->auroraModelData->{'Product Key'}) {
-            $historicAsset = $this->parseHistoricAsset(
-                $this->organisation,
-                $this->auroraModelData->{'Product Key'}
-            );
+            $transaction = $invoice->customer->transactions()->where('source_id', $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'})->first();
 
-            $this->parsedData['historic_asset'] = $historicAsset;
+            if ($transaction) {
+                $this->parsedData['model'] = $transaction;
+            } else {
+                $historicAsset = $this->parseHistoricAsset(
+                    $this->organisation,
+                    $this->auroraModelData->{'Product Key'}
+                );
 
+                $this->parsedData['model'] = $historicAsset;
+            }
 
             if (!$isFulfilment) {
                 $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Order Key'});
@@ -35,12 +41,16 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
             }
 
 
+            $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Order Transaction Tax Category Key'})
+                ->firstOrFail();
+
             $this->parsedData['transaction'] = [
-                'order_id'    => $orderId,
-                'tax_band_id' => $taxBand->id ?? null,
-                'quantity'    => $this->auroraModelData->{'Delivery Note Quantity'},
-                'net_amount'  => $this->auroraModelData->{'Order Transaction Amount'},
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
+                'order_id'        => $orderId,
+                'tax_category_id' => $taxCategory->id,
+                'quantity'        => $this->auroraModelData->{'Delivery Note Quantity'},
+                'gross_amount'    => $this->auroraModelData->{'Order Transaction Gross Amount'},
+                'net_amount'      => $this->auroraModelData->{'Order Transaction Amount'},
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {

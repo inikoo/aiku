@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class,
             TimezoneSeeder::class,
             LanguageSeeder::class,
+            TaxCategorySeeder::class,
         ]);
         Artisan::call('import:tariff_codes harmonized-system.csv');
 

@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $quantity
  * @property string $gross_amount Gross amount before discounts
  * @property string $net_amount
- * @property string $group_net_amount
+ * @property string $grp_net_amount
  * @property string $org_net_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at

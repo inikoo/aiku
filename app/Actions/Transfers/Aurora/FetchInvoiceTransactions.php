@@ -21,20 +21,18 @@ class FetchInvoiceTransactions
 
     public function handle(SourceOrganisationService $organisationSource, int $source_id, Invoice $invoice): ?InvoiceTransaction
     {
-
-
         if ($transactionData = $organisationSource->fetchInvoiceTransaction(
             id: $source_id,
-            invoice:$invoice,
-            isFulfilment:$invoice->shop->type===ShopTypeEnum::FULFILMENT
+            invoice: $invoice,
+            isFulfilment: $invoice->shop->type === ShopTypeEnum::FULFILMENT
         )) {
             if (!InvoiceTransaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
-
-                return StoreInvoiceTransaction::run(
-                    invoice:   $invoice,
-                    historicAsset: $transactionData['historic_asset'],
-                    modelData: $transactionData['transaction']
+                return StoreInvoiceTransaction::make()->action(
+                    invoice: $invoice,
+                    model: $transactionData['model'],
+                    modelData: $transactionData['transaction'],
+                    strict: false
                 );
             }
         }
