@@ -139,6 +139,7 @@ use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\ReorderWebBlocks;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
+use App\Actions\Web\Website\PublishWebsiteMarginal;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Actions\Web\Website\UploadImagesToWebsite;
@@ -410,6 +411,9 @@ Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('or
 
 
 Route::name('website.')->prefix('website/{website:id}')->group(function () {
+    Route::post('publish/header', [PublishWebsiteMarginal::class, 'header'])->name('publish.header');
+    Route::post('publish/footer', [PublishWebsiteMarginal::class, 'footer'])->name('publish.footer');
+
     Route::patch('', UpdateWebsite::class)->name('update');
     Route::post('launch', LaunchWebsite::class)->name('launch');
     Route::post('images/header', [UploadImagesToWebsite::class, 'header'])->name('header.images.store');

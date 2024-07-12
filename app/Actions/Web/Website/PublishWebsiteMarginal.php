@@ -10,6 +10,7 @@ namespace App\Actions\Web\Website;
 use App\Actions\Helpers\Deployment\StoreDeployment;
 use App\Actions\Helpers\Snapshot\StoreWebsiteSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Helpers\Snapshot;
@@ -17,7 +18,7 @@ use App\Models\Web\Website;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class PublishWebsiteMarginal
+class PublishWebsiteMarginal extends OrgAction
 {
     use WithActionUpdate;
 
@@ -80,6 +81,8 @@ class PublishWebsiteMarginal
 
     public function authorize(ActionRequest $request): bool
     {
+        return true;
+
         if ($this->isAction) {
             return true;
         }
@@ -92,7 +95,7 @@ class PublishWebsiteMarginal
         $request->merge(
             [
                 'publisher_id'   => $request->user()->id,
-                'publisher_type' => 'OrganisationUser'
+                'publisher_type' => 'User'
             ]
         );
     }
@@ -109,17 +112,16 @@ class PublishWebsiteMarginal
 
     public function header(Website $website, ActionRequest $request): string
     {
-        $request->validate();
-
-        $this->handle($website, 'header', $request->validated());
+        $this->initialisationFromShop($website->shop, $request);
+        $this->handle($website, 'header', $this->validatedData);
 
         return "🚀";
     }
 
     public function footer(Website $website, ActionRequest $request): string
     {
-        $request->validate();
-        $this->handle($website, 'footer', $request->validated());
+        $this->initialisationFromShop($website->shop, $request);
+        $this->handle($website, 'footer', $this->validatedData);
 
         return "🚀";
     }

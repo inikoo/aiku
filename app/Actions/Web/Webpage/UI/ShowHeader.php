@@ -69,8 +69,11 @@ class ShowHeader extends OrgAction
                             'icon'  => ["fas", "fa-rocket"],
                             'label' => __('Publish'),
                             'route' => [
-                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters()),
+                                'method'     => 'post',
+                                'name'       => 'grp.models.website.publish.header',
+                                'parameters' => [
+                                    'website' => $website->id
+                                ],
                             ]
                         ],
                     ],
