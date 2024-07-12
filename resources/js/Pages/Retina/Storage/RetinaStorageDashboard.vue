@@ -68,9 +68,9 @@ const options = {
         <h1 class="text-2xl font-bold">Storage Dashboard</h1>
         <hr class="border-slate-200 rounded-full mb-5 mt-2">
 
-        <div class="grid grid-cols-2 gap-x-3">
+        <div class="grid md:grid-cols-2 gap-y-4 md:gap-y-0 gap-x-3">
             <!-- Section: Profile box -->
-            <div class="bg-slate-50 border border-slate-200 text-retina-600 p-6 flex flex-col justify-between rounded-lg shadow overflow-hidden">
+            <div class="h-fit bg-slate-50 border border-slate-200 text-retina-600 p-6 flex flex-col justify-between rounded-lg shadow overflow-hidden">
                 <div class="w-full">
                     <h2 v-if="customer?.name" class="text-3xl font-bold">{{ customer?.name }}</h2>
                     <h2 v-else class="text-3xl font-light italic brightness-75">{{ trans('No name') }}</h2>
@@ -81,6 +81,7 @@ const options = {
                         </span> -->
                     </div>
                 </div>
+                
                 <div class="space-y-3 text-sm text-slate-500">
                     <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Phone</h3>
@@ -104,9 +105,10 @@ const options = {
             </div>
 
             <!-- Section: Stats box -->
-            <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
-                <div v-for="(prospectState, keyObject) in pieData" class="bg-slate-50 flex justify-between px-4 py-5 sm:p-6 rounded-lg border border-gray-100 shadow tabular-nums"
-                    :class="keyObject === 'pallets' ? 'col-span-2' : ''"
+            <div class="grid md:grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
+                <div v-for="(prospectState, keyObject) in pieData"
+                    class="bg-slate-50 flex justify-between px-4 py-5 sm:p-6 rounded-lg border border-gray-200 tabular-nums"
+                    :class="keyObject === 'pallets' ? 'md:col-span-2' : ''"
                 >
                     <div class="">
                         <dt class="text-base font-medium text-gray-400 capitalize">{{ prospectState.label }}</dt>
@@ -134,7 +136,7 @@ const options = {
                     </div>
 
                     <!-- Pie -->
-                    <div class="w-20">
+                    <div class="hidden md:block w-20">
                         <Pie :data="{
                             labels: Object.entries(prospectState.cases).map(([, value]) => value.label),
                             datasets: [{

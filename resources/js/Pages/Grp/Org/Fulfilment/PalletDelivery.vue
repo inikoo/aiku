@@ -100,6 +100,17 @@ const typePallet = [
 ]
 
 
+const component = computed(() => {
+    const components: Component = {
+        pallets: TablePalletDeliveryPallets,
+        services: TableFulfilmentTransactions,
+        physical_goods: TableFulfilmentTransactions,
+        history: TableHistories
+    }
+    return components[currentTab.value]
+
+})
+
 
 // Method: Add single pallet
 const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
@@ -231,17 +242,6 @@ const onUploadOpen = (action) => {
 const changePalletType=(form,fieldName,value)=>{
     form[fieldName] = value
 }
-
-const component = computed(() => {
-    const components: Component = {
-        pallets: TablePalletDeliveryPallets,
-        services: TableFulfilmentTransactions,
-        physical_goods: TableFulfilmentTransactions,
-        history: TableHistories
-    }
-    return components[currentTab.value]
-
-})
 
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
@@ -577,19 +577,21 @@ watch(() => props.data, (newValue) => {
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
-    <component
-        :is="component"
-        :key="timeline.state"
-        :data="props[currentTab as keyof typeof props]"
-        :state="timeline.state"
-        :tab="currentTab"
-        :tableKey="tableKey"
-        @renderTableKey="changeTableKey"
-        :locationRoute="locationRoute"
-        :storedItemsRoute="storedItemsRoute"
-        :rentalRoute="rentalRoute"
-        :rentalList="props.rental_lists"
-    />
+    <div class="pb-12">
+        <component
+            :is="component"
+            :key="timeline.state"
+            :data="props[currentTab as keyof typeof props]"
+            :state="timeline.state"
+            :tab="currentTab"
+            :tableKey="tableKey"
+            @renderTableKey="changeTableKey"
+            :locationRoute="locationRoute"
+            :storedItemsRoute="storedItemsRoute"
+            :rentalRoute="rentalRoute"
+            :rentalList="props.rental_lists"
+        />
+    </div>
 
     <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
         :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{

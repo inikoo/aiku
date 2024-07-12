@@ -95,18 +95,24 @@ const sendToServer = async (data) => {
 <template>
     <div class="flex">
         <div class="flex gap-x-1.5 gap-y-1.5 flex-wrap">
-            <div v-for="item of pallet.stored_items" class="cursor-pointer">
-                <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
-                    :label="`${item.reference}`"
-                    :closeButton="state == 'in-process' ? true : false" :stringToColor="true"
-                    @click="() => state == 'in-process' ? setFormOnEdit(item) : null"
-                >
-                    <template #label>
-                        <div class="whitespace-nowrap text-xs">
-                            {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
-                        </div>
-                    </template>
-                </Tag>
+            <template v-if="pallet?.stored_items?.length">
+                <div v-for="item of pallet.stored_items" class="cursor-pointer">
+                    <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
+                        :label="`${item.reference}`"
+                        :closeButton="state == 'in-process' ? true : false" :stringToColor="true"
+                        @click="() => state == 'in-process' ? setFormOnEdit(item) : null"
+                    >
+                        <template #label>
+                            <div class="whitespace-nowrap text-xs">
+                                {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                            </div>
+                        </template>
+                    </Tag>
+                </div>
+            </template>
+            
+			<div v-else-if="state !== 'in-process'" class="pl-2.5 text-gray-400">
+                -
             </div>
 
             <Button v-if="state == 'in-process'" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
