@@ -46,7 +46,7 @@ const onPickTemplate = (header) => {
 <template>-
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" :dataToSubmit="usedTemplates?.data">
+    <PageHeading :data="pageHead" :dataToSubmit="{ layout : usedTemplates?.data}">
     </PageHeading>
 
     <!-- <div @click="()=>console.log(usedTemplates)">see data</div> -->
