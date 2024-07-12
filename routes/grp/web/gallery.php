@@ -7,12 +7,15 @@
 
 use App\Actions\Helpers\Gallery\UI\StockImages\IndexBannersStockImages;
 
+use App\Actions\Helpers\Gallery\UI\StockImages\IndexStockImages;
 use App\Actions\Helpers\Gallery\UI\UploadedImages\IndexUploadedBannerImages;
 use App\Actions\Helpers\Gallery\UI\UploadedImages\IndexUploadedImages;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('stock-images')->name('stock-images')->group(function () {
-    Route::get('', IndexBannersStockImages::class)->name('.index');
+    Route::get('', IndexStockImages::class)->name('.index');
+    Route::get('banner/landscape', [IndexBannersStockImages::class, 'landscape'])->name('.banner.landscape.index');
+    Route::get('banner/square', [IndexBannersStockImages::class, 'square'])->name('.banner.square.index');
 });
 
 Route::prefix('uploaded-images')->name('uploaded-images')->group(function () {

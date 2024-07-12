@@ -14,7 +14,6 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
 use App\Actions\Web\Website\GetWebsiteWorkshopLayout;
-use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use App\Actions\Web\Website\GetWebsiteWorkshopProduct;
 use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
 use App\Models\Catalogue\Shop;
