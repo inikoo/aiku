@@ -15,20 +15,16 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { Table } from '@/types/Table'
-import { PalletDelivery, PDBoxStats } from '@/types/Pallet'
+import { PalletDelivery, BoxStats } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
-import DatePicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
-import { notify } from '@kyvg/vue3-notification'
 import type { Component } from 'vue'
 
 import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
 import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+import RetinaBoxStatsPD from "@/Components/Retina/Storage/RetinaBoxStatsPD.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -59,7 +55,7 @@ const props = defineProps<{
         index: routeType
         store: routeType
     }
-    box_stats: PDBoxStats
+    box_stats: BoxStats
 
     pallets?: Table
     stored_items?: Table
@@ -101,29 +97,6 @@ const isLoadingData = ref<string | boolean>(false)
 
 
 
-// Method: On change estimated date
-const onChangeEstimateDate = async () => {
-    try {
-        router.patch(
-            route(props.updateRoute.route.name, props.updateRoute.route.parameters),
-            {
-                estimated_delivery_date : props.data.data.estimated_delivery_date
-            }, 
-            {
-                onStart: () => isLoading.value = 'estimatedDate',
-                onFinish: () => isLoading.value = false,
-            }
-        )
-    } catch (error) {
-        console.log(error)
-        notify({
-			title: "Failed",
-			text: "Failed to update the Delivery date, try again.",
-			type: "error",
-		})
-    }
-}
-
 
 // Method: Add multiple pallet
 const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
@@ -157,13 +130,6 @@ const changeTableKey = () => {
 const changePalletType=(form,fieldName,value)=>{
     form[fieldName] = value
 }
-
-const disableBeforeToday=(date)=>{
-      const today = new Date();
-      // Set time to 00:00:00 for comparison purposes
-      today.setHours(0, 0, 0, 0);
-      return date < today;
-    }
 
 
 
@@ -309,7 +275,7 @@ const typePallet = [
 
         <!-- Button: Add many pallets -->
         <template #button-group-multiple="{ action }">
-            <Popover v-if="currentTab === 'pallets'" width="w-full" class="relative h-full">
+            <Popover v-if="currentTab === 'pallets'" width="w-full" class="md:relative h-full">
                 <template #button>
                     <Button
                         :style="action.style"
@@ -372,7 +338,7 @@ const typePallet = [
 
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action }">
-            <div v-if="currentTab === 'pallets'" class="relative">
+            <div v-if="currentTab === 'pallets'" class="md:relative">
                 <Popover width="w-full">
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
@@ -591,75 +557,7 @@ const typePallet = [
 
 
     <!-- Box: Stats -->
-    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
-        <!-- Box: Status -->
-        <BoxStatPallet :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
-            class=" pb-2 py-5 px-3" :tooltip="trans('Detail')" :label="capitalize(data?.data.state)"
-            icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2 mb-2">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
-            </div>
-
-            <div  class="flex items-center w-full flex-none gap-x-2">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon="['fal', 'calendar-day']"  :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-                
-                <Popover v-if="data?.data.state === 'in-process'" position="">
-                    <template #button>
-                        <div v-if="data.data.estimated_delivery_date"
-                            v-tooltip="useDaysLeftFromToday(data.data.estimated_delivery_date)"
-                            class="group text-xs text-gray-500">
-                            {{ useFormatTime(data.data.estimated_delivery_date) }}
-                            <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
-                        </div>
-
-                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
-                            {{ trans('Set estimated date') }}
-                        </div>
-                    </template>
-
-                    <template #content="{ close: closed }">
-                        <div>
-                            <DatePicker
-                                v-model="data.data.estimated_delivery_date" 
-                                @update:modelValue="() => onChangeEstimateDate()"
-                                inline
-                                auto-apply
-                                :disabled-dates="disableBeforeToday"  
-                                :enable-time-picker="false"
-                            />
-                        </div>
-                    </template>
-                </Popover>
-
-                <div v-else>
-                    <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
-                </div>
-
-            </div>
-        </BoxStatPallet>
-
-        <!-- Box: Pallet -->
-        <BoxStatPallet :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
-            class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
-            <div class="flex items-end gap-x-3">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
-            </div>
-        </BoxStatPallet>
-    </div>
+    <RetinaBoxStatsPD :data_pallet="data.data" :box_stats="box_stats" :updateRoute />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component
