@@ -20,37 +20,47 @@ class TaxCategorySeeder extends Seeder
         $taxCategories = json_decode(Storage::disk('datasets')->get('tax-categories.json'));
 
 
+        foreach ($taxCategories as $taxCategoryRawData) {
 
 
-        foreach ($taxCategories as $taxCategory) {
-
-            $type=match ($taxCategory->{'Tax Category Type'}) {
+            $type = match ($taxCategoryRawData->{'Tax Category Type'}) {
                 'Standard' => TaxCategoryTypeEnum::STANDARD,
-                'Reduced'  => TaxCategoryTypeEnum::REDUCED,
-                'Outside'  => TaxCategoryTypeEnum::OUTSIDE,
-                'EU_VTC'   => TaxCategoryTypeEnum::EU_VTC,
-                'Standard_Re','Standard+RE' => TaxCategoryTypeEnum::STANDARD_RE,
-                'Reduced+RE'=> TaxCategoryTypeEnum::REDUCED_RE,
-                default     => TaxCategoryTypeEnum::LEGACY,
+                'Reduced' => TaxCategoryTypeEnum::REDUCED,
+                'Outside' => TaxCategoryTypeEnum::OUTSIDE,
+                'EU_VTC' => TaxCategoryTypeEnum::EU_VTC,
+                'Standard_Re', 'Standard+RE' => TaxCategoryTypeEnum::STANDARD_RE,
+                'Reduced+RE' => TaxCategoryTypeEnum::REDUCED_RE,
+                default => TaxCategoryTypeEnum::LEGACY,
             };
 
-            TaxCategory::upsert(
-                [
-                    [
-                        'code'       => $taxCategory->{'Tax Category Code'},
-                        'name'       => $taxCategory->{'Tax Category Name'},
-                        'status'     => $taxCategory->{'Tax Category Active'} === 'Yes',
-                        'rate'       => $taxCategory->{'Tax Category Rate'},
-                        'country_id' => Country::where('code', $taxCategory->{'Tax Category Country 2 Alpha Code'})->value('id'),
-                        'data'       => $taxCategory->{'Tax Category Metadata'},
-                        'type'       => $type,
-                        'type_name'  => $taxCategory->{'Tax Category Type Name'},
-                        'source_id'  => $taxCategory->{'Tax Category Key'},
-                    ],
-                ],
-                ['code'],
-                ['name', 'status']
-            );
+
+
+
+            $taxCategoryData= [
+                'label'       => $taxCategoryRawData->{'Tax Category Code'},
+                'name'       => $taxCategoryRawData->{'Tax Category Name'},
+                'status'     => $taxCategoryRawData->{'Tax Category Active'} === 'Yes',
+                'rate'       => $taxCategoryRawData->{'Tax Category Rate'},
+                'country_id' => Country::where('code', $taxCategoryRawData->{'Tax Category Country 2 Alpha Code'})->value('id'),
+                'data'       => $taxCategoryRawData->{'Tax Category Metadata'},
+                'type'       => $type,
+                'type_name'  => $taxCategoryRawData->{'Tax Category Type Name'},
+                'source_id'  => $taxCategoryRawData->{'Tax Category Key'},
+            ];
+
+
+
+            $taxCategory = TaxCategory::where('source_id', $taxCategoryRawData->{'Tax Category Key'})->first();
+
+
+            if ($taxCategory) {
+                $taxCategory->update($taxCategoryData);
+            } else {
+                TaxCategory::create($taxCategoryData);
+            }
+
+
+
         }
     }
 }
