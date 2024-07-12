@@ -100,10 +100,7 @@ class ShowWebsiteWorkshop extends OrgAction
                         fn () => GetWebsiteWorkshopColorScheme::run($website)
                     ),
 
-                WebsiteWorkshopTabsEnum::MENU->value => $this->tab == WebsiteWorkshopTabsEnum::MENU->value
-                    ?
-                    fn () => GetWebsiteWorkshopMenu::run($website)
-                    : Inertia::lazy(fn () => GetWebsiteWorkshopMenu::run($website)),
+
 
                 WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value ?
                     fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)
