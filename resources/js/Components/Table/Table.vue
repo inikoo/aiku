@@ -817,10 +817,12 @@ watch(selectRow, () => {
                                             fixed-width aria-hidden='true' />
                                     </div>
 
-                                    <HeaderCell v-for="column in queryBuilderProps.columns"
-                                        :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
-                                        :type="columnsType[column.key]" :column="column" :resource="compResourceData">
-                                    </HeaderCell>
+                                    <slot v-for="column in queryBuilderProps.columns" :name="`header(${column.key})`" :header="column">
+                                        <HeaderCell
+                                            :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
+                                            :type="columnsType[column.key]" :column="column" :resource="compResourceData">
+                                        </HeaderCell>
+                                    </slot>
                                 </tr>
                             </thead>
 

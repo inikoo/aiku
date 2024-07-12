@@ -158,15 +158,16 @@ const people = [
 <!-- <pre>{{ blocks.web_blocks[0].web_block.layout.data.component }}</pre> -->
 
     <div class="bg-white pb-20">
+    <!-- <pre>{{ props.blocks?.web_blocks }}</pre> -->
         <template v-if="props.blocks?.web_blocks?.length">
             <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks"
                 :key="'block' + activityItem.id"
                 class="w-full">
-                <!-- ==== {{ activityItem['type'] }} -->
+                <!-- ==== {{ activityItem.web_block.layout.data.fieldValue }} -->
                 <component
                     :is="getComponent(activityItem.web_block.layout.data.component)"
                     :key="activityItemIdx"
-                    v-model="activityItem.fieldValue"
+                    v-model="activityItem.web_block.layout.data.fieldValue"
                     :isEditable="false"
                     v-bind="activityItem.web_block.layout.data.fieldValue"
                 />
@@ -174,7 +175,7 @@ const people = [
             </div>
         </template>
 
-        <div class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
+        <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
             This page have no data
         </div>
     
