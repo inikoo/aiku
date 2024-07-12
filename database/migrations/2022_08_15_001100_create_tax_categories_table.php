@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('type')->index();
             $table->string('type_name')->index();
-            $table->string('code')->unique()->collation('und_ci');
+            $table->string('label')->collation('und_ci');
             $table->string('name')->collation('und_ci');
             $table->boolean('status')->default(true)->index();
             $table->decimal('rate', 7, 4)->default(0);

@@ -9,7 +9,6 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
-use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\OrgAction;
@@ -18,19 +17,19 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\Traits\WithFixedAddressActions;
+use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
 {
     use WithFixedAddressActions;
-
+    use WithOrderExchanges;
 
     public function handle(
         Customer|Order $parent,
@@ -53,14 +52,8 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
+        $modelData=$this->processExchanges($modelData, $parent->shop);
 
-        $orgExchange   = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->currency);
-        $grpExchange   = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->group->currency);
-
-        data_set($modelData, 'org_exchange', $orgExchange, overwrite: false);
-        data_set($modelData, 'grp_exchange', $grpExchange, overwrite: false);
-        data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net') * $orgExchange, overwrite: false);
-        data_set($modelData, 'grp_net_amount', Arr::get($modelData, 'net') * $grpExchange, overwrite: false);
 
         $date = now();
         data_set($modelData, 'date', $date, overwrite: false);
@@ -121,21 +114,42 @@ class StoreInvoice extends OrgAction
             'currency_id'      => ['required', 'exists:currencies,id'],
             'billing_address'  => ['required', new ValidAddress()],
             'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
+
             'net_amount'       => ['required', 'numeric'],
             'total_amount'     => ['required', 'numeric'],
+
+
+
+
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
-            'org_exchange'     => ['sometimes', 'numeric'],
-            'grp_exchange'     => ['sometimes', 'numeric'],
-            'org_net_amount'   => ['sometimes', 'numeric'],
-            'grp_net_amount'   => ['sometimes', 'numeric'],
+
             'source_id'        => ['sometimes', 'string'],
+            'tax_category_id'  => ['required', 'exists:tax_categories,id'],
         ];
 
         if (!$this->strict) {
             $rules['number'] = ['required', 'max:64', 'string'];
+
+
+            $rules['grp_exchange'] = ['sometimes', 'numeric'];
+            $rules['org_exchange'] = ['sometimes', 'numeric'];
+
+            $rules['gross_amount']    = ['sometimes', 'numeric'];
+            $rules['goods_amount']    = ['sometimes', 'numeric'];
+            $rules['services_amount'] = ['sometimes', 'numeric'];
+
+            $rules['shipping_amount']  = ['sometimes', 'numeric'];
+            $rules['charges_amount']   = ['sometimes', 'numeric'];
+            $rules['insurance_amount'] = ['sometimes', 'numeric'];
+
+            $rules['net_amount']   = ['sometimes', 'numeric'];
+            $rules['tax_amount']   = ['sometimes', 'numeric'];
+            $rules['total_amount'] = ['sometimes', 'numeric'];
+
+
         }
 
 

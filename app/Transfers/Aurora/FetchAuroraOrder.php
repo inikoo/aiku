@@ -7,18 +7,20 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\Transfers\Aurora\FetchAuroraCustomerClients;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\TaxCategory;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
-
         $deliveryData = [];
 
         if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
@@ -42,10 +44,9 @@ class FetchAuroraOrder extends FetchAurora
                 $this->auroraModelData->{'Order Customer Client Key'},
             );
 
-            if($parent==null and $this->auroraModelData->{'Order State'} == "Cancelled") {
+            if ($parent == null and $this->auroraModelData->{'Order State'} == "Cancelled") {
                 return;
             }
-
         } else {
             $parent = $this->parseCustomer(
                 $this->organisation->id.':'.$this->auroraModelData->{'Order Customer Key'}
@@ -57,7 +58,7 @@ class FetchAuroraOrder extends FetchAurora
             return;
         }
 
-        if($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
+        if ($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
             return;
         }
 
@@ -124,9 +125,19 @@ class FetchAuroraOrder extends FetchAurora
             $billingLocked  = true;
         }
 
+        $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Order Tax Category Key'})->firstOrFail();
+
+
+        $shop = $parent->shop;
+
+        $date = Carbon::parse($this->auroraModelData->{'Order Date'});
+
+        $orgExchange = GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $date);
+        $grpExchange = GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $date);
+
 
         $this->parsedData["order"] = [
-            'date'            => $this->auroraModelData->{'Order Date'},
+            'date'            => $date,
             'submitted_at'    => $this->parseDate($this->auroraModelData->{'Order Submitted by Customer Date'}),
             'in_warehouse_at' => $this->parseDate($this->auroraModelData->{'Order Send to Warehouse Date'}),
             'packed_at'       => $this->parseDate($this->auroraModelData->{'Order Packed Date'}),
@@ -135,6 +146,7 @@ class FetchAuroraOrder extends FetchAurora
             'handing_type'    => $handingType,
             'billing_locked'  => $billingLocked,
             'delivery_locked' => $deliveryLocked,
+            'tax_category_id' => $taxCategory->id,
 
             "number"          => $this->auroraModelData->{'Order Public ID'},
             'customer_number' => (string)$this->auroraModelData->{'Order Customer Purchase Order ID'},
@@ -142,38 +154,51 @@ class FetchAuroraOrder extends FetchAurora
             "status"          => $status,
             "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Order Key'},
 
-            "created_at"   => $this->auroraModelData->{'Order Created Date'},
-            "cancelled_at" => $cancelled_at,
-            "data"         => $data
+            "created_at"     => $this->auroraModelData->{'Order Created Date'},
+            "cancelled_at"   => $cancelled_at,
+            "data"           => $data,
+            'org_exchange'   => $orgExchange,
+            'grp_exchange'   => $grpExchange,
+
+            'gross_amount'       => $this->auroraModelData->{'Order Items Gross Amount'},
+            'goods_amount'       => $this->auroraModelData->{'Order Items Net Amount'},
+            'shipping_amount'    => $this->auroraModelData->{'Order Shipping Net Amount'},
+            'charges_amount'     => $this->auroraModelData->{'Order Charges Net Amount'},
+            'insurance_amount'   => $this->auroraModelData->{'Order Insurance Net Amount'},
+
+
+            'net_amount'     => $this->auroraModelData->{'Order Total Net Amount'},
+            'tax_amount'     => $this->auroraModelData->{'Order Total Tax Amount'},
+            'total_amount'   => $this->auroraModelData->{'Order Total Amount'},
+
+
         ];
 
-        $billingAddressData                           = $this->parseAddress(
+        $billingAddressData = $this->parseAddress(
             prefix: "Order Invoice",
             auAddressData: $this->auroraModelData,
         );
 
-        if(!$billingAddressData['country_id']) {
-            $billingAddressData['country_id']=$parent->addresses->first()->country_id;
+        if (!$billingAddressData['country_id']) {
+            $billingAddressData['country_id'] = $parent->addresses->first()->country_id;
         }
 
         $this->parsedData['order']["billing_address"] = new Address($billingAddressData);
 
         if ($handingType == OrderHandingTypeEnum::SHIPPING) {
-            $deliveryAddressData                           = $this->parseAddress(
+            $deliveryAddressData = $this->parseAddress(
                 prefix: "Order Delivery",
                 auAddressData: $this->auroraModelData,
             );
 
-            if(!$deliveryAddressData['country_id']) {
-                $deliveryAddressData['country_id']=$parent->addresses->first()->country_id;
+            if (!$deliveryAddressData['country_id']) {
+                $deliveryAddressData['country_id'] = $parent->addresses->first()->country_id;
             }
 
             $this->parsedData['order']["delivery_address"] = new Address(
                 $deliveryAddressData,
             );
         }
-
-
     }
 
     protected function fetchData($id): object|null

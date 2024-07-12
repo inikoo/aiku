@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property TaxCategoryTypeEnum $type
  * @property string $type_name
- * @property string $code
+ * @property string $label
  * @property string $name
  * @property bool $status
  * @property string $rate

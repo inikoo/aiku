@@ -49,7 +49,6 @@ return new class () extends Migration {
             $table->decimal('quantity_fail', 16, 3)->default(0);
             $table->decimal('quantity_cancelled', 16, 3)->default(0);
 
-
             $table= $this->orderMoneyFields($table);
 
             $table->jsonb('data');

@@ -8,6 +8,7 @@
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Stubs\Migrations\HasFulfilmentDelivery;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasOrderAmountTotals;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +18,7 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
     use HasFulfilmentDelivery;
+    use HasOrderAmountTotals;
 
     public function up(): void
     {
@@ -39,6 +41,9 @@ return new class () extends Migration {
                 $table->foreign('delivery_address_id')->references('id')->on('addresses');
                 $table->unsignedInteger('collection_address_id')->index()->nullable();
                 $table->foreign('collection_address_id')->references('id')->on('addresses');
+
+                $table=$this->currencyFields($table);
+                $table=$this->orderTotalAmounts($table);
 
                 $table->timestampsTz();
                 $this->softDeletes($table);

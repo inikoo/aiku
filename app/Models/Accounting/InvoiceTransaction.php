@@ -33,14 +33,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $order_id
  * @property int|null $transaction_id
  * @property string $quantity
- * @property string $net_amount
- * @property string $grp_net_amount
- * @property string $org_net_amount
  * @property string $gross_amount
- * @property string $tax_amount
+ * @property string $net_amount
+ * @property int $tax_category_id
  * @property string $grp_exchange
  * @property string $org_exchange
- * @property int $tax_category_id
+ * @property string $grp_net_amount
+ * @property string $org_net_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -37,9 +37,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property RecurringBillStatusEnum|null $status
  * @property string $start_date
  * @property string|null $end_date
- * @property string $amount
- * @property string $tax
- * @property string $total
+ * @property int $currency_id
+ * @property string $grp_exchange
+ * @property string $org_exchange
+ * @property string $gross_amount Total asserts amount (excluding charges and shipping) before discounts
+ * @property string $goods_amount
+ * @property string $services_amount
+ * @property string $rental_amount
+ * @property string $net_amount
+ * @property string $grp_net_amount
+ * @property string $org_net_amount
+ * @property int $tax_category_id
+ * @property string $tax_amount
+ * @property string $total_amount
+ * @property string $payment_amount
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

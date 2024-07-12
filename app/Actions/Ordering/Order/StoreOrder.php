@@ -11,6 +11,7 @@ use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
@@ -33,6 +34,7 @@ class StoreOrder extends OrgAction
     use WithFixedAddressActions;
     use WithModelAddressActions;
     use HasOrderHydrators;
+    use WithOrderExchanges;
 
     public int $hydratorsDelay = 0;
 
@@ -64,6 +66,7 @@ class StoreOrder extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
+        $modelData=$this->processExchanges($modelData, $parent->shop);
 
         /** @var Order $order */
         $order = Order::create($modelData);
@@ -155,13 +158,30 @@ class StoreOrder extends OrgAction
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean'],
 
-            'source_id' => ['sometimes', 'string', 'max:64'],
+            'source_id'        => ['sometimes', 'string', 'max:64'],
+            'tax_category_id'  => ['required', 'exists:tax_categories,id'],
 
 
         ];
 
         if (!$this->strict) {
             $rules['number'] = ['sometimes', 'string', 'max:64'];
+
+            $rules['grp_exchange'] = ['sometimes', 'numeric'];
+            $rules['org_exchange'] = ['sometimes', 'numeric'];
+
+            $rules['gross_amount']    = ['sometimes', 'numeric'];
+            $rules['goods_amount']    = ['sometimes', 'numeric'];
+            $rules['services_amount'] = ['sometimes', 'numeric'];
+
+            $rules['shipping_amount']  = ['sometimes', 'numeric'];
+            $rules['charges_amount']   = ['sometimes', 'numeric'];
+            $rules['insurance_amount'] = ['sometimes', 'numeric'];
+
+            $rules['net_amount']   = ['sometimes', 'numeric'];
+            $rules['tax_amount']   = ['sometimes', 'numeric'];
+            $rules['total_amount'] = ['sometimes', 'numeric'];
+
         }
 
         return $rules;

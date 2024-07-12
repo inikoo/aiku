@@ -76,15 +76,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_invoiced
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
- * @property string $items_discounts
- * @property string $items_net
  * @property int $currency_id
  * @property string $grp_exchange
  * @property string $org_exchange
- * @property string $charges
- * @property string|null $shipping
- * @property string $net
- * @property string $tax
+ * @property string $gross_amount Total asserts amount (excluding charges and shipping) before discounts
+ * @property string $goods_amount
+ * @property string $services_amount
+ * @property string $charges_amount
+ * @property string|null $shipping_amount
+ * @property string|null $insurance_amount
+ * @property string $net_amount
+ * @property string $grp_net_amount
+ * @property string $org_net_amount
+ * @property int $tax_category_id
+ * @property string $tax_amount
+ * @property string $total_amount
+ * @property string $payment_amount
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

@@ -47,16 +47,15 @@ return new class () extends Migration {
 
             $table->decimal('quantity', 16, 3);
 
-            $table->decimal('net_amount', 16)->default(0);
-            $table->decimal('grp_net_amount', 16)->default(0);
-            $table->decimal('org_net_amount', 16)->default(0);
-
             $table->decimal('gross_amount', 16)->default(0);
-            $table->decimal('tax_amount', 16)->default(0);
-            $table->decimal('grp_exchange', 16, 4)->default(1);
-            $table->decimal('org_exchange', 16, 4)->default(1);
+            $table->decimal('net_amount', 16)->default(0);
+
             $table->unsignedSmallInteger('tax_category_id')->index();
             $table->foreign('tax_category_id')->references('id')->on('tax_categories');
+            $table->decimal('grp_exchange', 16, 4)->default(1);
+            $table->decimal('org_exchange', 16, 4)->default(1);
+            $table->decimal('grp_net_amount', 16)->default(0);
+            $table->decimal('org_net_amount', 16)->default(0);
 
             $table->jsonb('data');
 

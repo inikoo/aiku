@@ -9,6 +9,7 @@ namespace App\Actions\Ordering\Transaction;
 
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
@@ -17,11 +18,10 @@ use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreTransaction extends OrgAction
 {
-    use WithAttributes;
+    use WithOrderExchanges;
 
     public function handle(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
     {
@@ -35,10 +35,7 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'date', now(), overwrite: false);
         data_set($modelData, 'submitted_at', $order->submitted_at, overwrite: false);
 
-
-        data_set($modelData, 'org_exchange', $order->org_exchange, overwrite: false);
-        data_set($modelData, 'grp_exchange', $order->grp_exchange, overwrite: false);
-
+        $modelData = $this->processExchanges($modelData, $order->shop);
 
         $assetType = match ($historicAsset->model_type) {
             'Service' => AssetTypeEnum::SERVICE,

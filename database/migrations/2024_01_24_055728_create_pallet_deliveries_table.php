@@ -9,6 +9,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryHandingTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Stubs\Migrations\HasFulfilmentDelivery;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasOrderAmountTotals;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,6 +19,7 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
     use HasFulfilmentDelivery;
+    use HasOrderAmountTotals;
 
     public function up(): void
     {
@@ -43,6 +45,9 @@ return new class () extends Migration {
             $table->text('customer_notes')->nullable();
             $table->text('public_notes')->nullable();
             $table->text('internal_notes')->nullable();
+
+            $table=$this->currencyFields($table);
+            $table=$this->orderTotalAmounts($table);
 
             $table->jsonb('data')->nullable();
             $table->timestampsTz();

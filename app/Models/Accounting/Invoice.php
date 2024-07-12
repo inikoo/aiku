@@ -52,11 +52,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property string $grp_exchange
  * @property string $org_exchange
+ * @property string $gross_amount Total asserts amount (excluding charges and shipping) before discounts
+ * @property string $goods_amount
+ * @property string $services_amount
+ * @property string $rental_amount
+ * @property string $charges_amount
+ * @property string|null $shipping_amount
+ * @property string|null $insurance_amount
  * @property string $net_amount
- * @property string $total_amount
- * @property string $payment_amount
  * @property string $grp_net_amount
  * @property string $org_net_amount
+ * @property int $tax_category_id
+ * @property string $tax_amount
+ * @property string $total_amount
+ * @property string $payment_amount
  * @property string|null $date
  * @property Carbon|null $tax_liability_at
  * @property Carbon|null $paid_at

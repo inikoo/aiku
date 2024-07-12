@@ -48,9 +48,13 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
                 'order_id'        => $orderId,
                 'tax_category_id' => $taxCategory->id,
                 'quantity'        => $this->auroraModelData->{'Delivery Note Quantity'},
-                'gross_amount'    => $this->auroraModelData->{'Order Transaction Gross Amount'},
-                'net_amount'      => $this->auroraModelData->{'Order Transaction Amount'},
-                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
+
+                'gross_amount' => $this->auroraModelData->{'Order Transaction Gross Amount'},
+                'net_amount'   => $this->auroraModelData->{'Order Transaction Amount'},
+                'grp_exchange' => $invoice->grp_exchange,
+                'org_exchange' => $invoice->org_exchange,
+
+                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {
