@@ -5,13 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Helpers\Gallery\UI\StockImages\IndexStockImages;
+use App\Actions\Helpers\Gallery\UI\StockImages\IndexBannersStockImages;
 
 use App\Actions\Helpers\Gallery\UI\UploadedImages\IndexUploadedImages;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('stock-images')->name('stock-images')->group(function () {
-    Route::get('', IndexStockImages::class)->name('.index');
+    Route::get('', IndexBannersStockImages::class)->name('.index');
 });
 
 Route::prefix('uploaded-images')->name('uploaded-images')->group(function () {
