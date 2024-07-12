@@ -30,13 +30,12 @@ class PublishWebsiteMarginal extends OrgAction
     {
         $layout = [];
         if ($marginal == 'header') {
-            $layout = $website->unpublishedHeaderSnapshot->layout;
+            $layout = Arr::get($modelData, 'layout') ?? $website->unpublishedHeaderSnapshot->layout;
         } elseif ($marginal == 'footer') {
-            $layout = $website->unpublishedFooterSnapshot->layout;
+            $layout = Arr::get($modelData, 'layout') ?? $website->unpublishedFooterSnapshot->layout;
         }
 
         $firstCommit = true;
-
 
         foreach ($website->snapshots()->where('scope', $marginal)->where('state', SnapshotStateEnum::LIVE)->get() as $liveSnapshot) {
             $firstCommit = false;
@@ -83,14 +82,14 @@ class PublishWebsiteMarginal extends OrgAction
         return $website;
     }
 
-    //    public function htmlResponse(Website $website): Response
-    //    {
-    //        return Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
-    //            'organisation' => $website->organisation->slug,
-    //            'shop' => $website->shop->slug,
-    //            'website' => $website->slug,
-    //        ]));
-    //    }
+    public function htmlResponse(Website $website): Response
+    {
+        return Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
+            'organisation' => $website->organisation->slug,
+            'shop'         => $website->shop->slug,
+            'website'      => $website->slug,
+        ]));
+    }
 
     public function authorize(ActionRequest $request): bool
     {
