@@ -23,26 +23,31 @@ class FetchTransactions
     public function handle(SourceOrganisationService $organisationSource, int $source_id, Order $order): ?Transaction
     {
         if ($transactionData = $organisationSource->fetchTransaction(id: $source_id)) {
-
             if (!Transaction::where('source_id', $transactionData['transaction']['source_id'])->first()) {
-
-
-                $transactionData['transaction']['org_exchange']=
+                $transactionData['transaction']['org_exchange']     =
                     GetHistoricCurrencyExchange::run($order->shop->currency, $order->organisation->currency, $transactionData['transaction']['date']);
-                $transactionData['transaction']['group_exchange']=
+                $transactionData['transaction']['grp_exchange']   =
                     GetHistoricCurrencyExchange::run($order->shop->currency, $order->group->currency, $transactionData['transaction']['date']);
-                $transactionData['transaction']['org_net_amount']  = $transactionData['transaction']['net']*$transactionData['transaction']['org_exchange'];
-                $transactionData['transaction']['group_net_amount']= $transactionData['transaction']['net']*$transactionData['transaction']['group_exchange'];
+                $transactionData['transaction']['org_net_amount']   = $transactionData['transaction']['net_amount'] * $transactionData['transaction']['org_exchange'];
+                $transactionData['transaction']['grp_net_amount']   = $transactionData['transaction']['net_amount'] * $transactionData['transaction']['grp_exchange'];
+
+
+                if($order->submitted_at) {
+                    $transactionData['transaction']['submitted_at']=$order->submitted_at;
+                }
+                if($order->in_warehouse_at) {
+                    $transactionData['transaction']['in_warehouse_at']=$order->in_warehouse_at;
+                }
 
 
 
-                $transaction= StoreTransaction::make()->action(
-                    order:     $order,
-                    historicAsset:     $transactionData['historic_asset'],
+                $transaction = StoreTransaction::make()->action(
+                    order: $order,
+                    historicAsset: $transactionData['historic_asset'],
                     modelData: $transactionData['transaction']
                 );
 
-                $sourceData=explode(':', $transaction->source_id);
+                $sourceData = explode(':', $transaction->source_id);
                 DB::connection('aurora')->table('Order Transaction Fact')
                     ->where('Order Transaction Fact Key', $sourceData[1])
                     ->update(['aiku_id' => $transaction->id]);

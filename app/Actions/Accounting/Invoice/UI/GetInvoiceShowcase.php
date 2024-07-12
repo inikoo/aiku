@@ -55,9 +55,9 @@ class GetInvoiceShowcase
             'currency'         => $invoice->currency->code,
             'type'             => $invoice->type,
             'paid_at'          => $invoice->paid_at,
-            'group_exchange'   => $invoice->group_exchange,
+            'grp_exchange'     => $invoice->grp_exchange,
             'org_exchange'     => $invoice->org_exchange,
-            'group_net_amount' => $invoice->group_net_amount,
+            'grp_net_amount'   => $invoice->grp_net_amount,
             'org_net_amount'   => $invoice->org_net_amount,
             'tax_liability_at' => $invoice->tax_liability_at,
 

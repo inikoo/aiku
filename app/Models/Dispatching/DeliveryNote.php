@@ -146,7 +146,7 @@ class DeliveryNote extends Model implements Auditable
         'type',
         'net_amount',
         'currency_id',
-        'group_exchange',
+        'grp_exchange',
         'org_exchange',
         'total_amount',
     ];

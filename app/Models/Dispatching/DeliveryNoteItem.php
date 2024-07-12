@@ -13,7 +13,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Dispatching\DeliveryNoteItem
@@ -35,9 +34,9 @@ use Illuminate\Support\Carbon;
  * @property string|null $quantity_packed
  * @property string|null $quantity_dispatched
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()

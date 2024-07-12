@@ -114,7 +114,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
         $org_exchange = $this->auroraModelData->{'Purchase Order Currency Exchange'};
 
-        $group_exchange = GetHistoricCurrencyExchange::run(
+        $grp_exchange = GetHistoricCurrencyExchange::run(
             Currency::find($this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'})),
             $this->organisation->group->currency,
             Carbon::parse($this->auroraModelData->{'Purchase Order Date'})
@@ -146,7 +146,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
             "source_id"      => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Key'},
             "org_exchange"   => $org_exchange,
-            "group_exchange" => $group_exchange,
+            "grp_exchange"   => $grp_exchange,
             "currency_id"    => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
             "created_at"     => $this->auroraModelData->{'Purchase Order Creation Date'},
             "cancelled_at"   => $cancelled_at,

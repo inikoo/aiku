@@ -73,11 +73,11 @@ class FetchAuroraInvoice extends FetchAurora
             'total_amount'            => $this->auroraModelData->{'Invoice Total Amount'},
 
             'org_exchange'   => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
-            'group_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
+            'grp_exchange'   => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
 
 
             'org_net_amount'   => $this->auroraModelData->{'Invoice Total Net Amount'} * GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
-            'group_net_amount' => $this->auroraModelData->{'Invoice Total Net Amount'} * GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
+            'grp_net_amount'   => $this->auroraModelData->{'Invoice Total Net Amount'} * GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
 
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
             'data'            => $data,

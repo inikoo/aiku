@@ -39,7 +39,7 @@ return new class () extends Migration {
             $table->dateTimeTz('cancelled_at')->nullable();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->decimal('group_exchange', 16, 4)->default(1);
+            $table->decimal('grp_exchange', 16, 4)->default(1);
             $table->decimal('org_exchange', 16, 4)->default(1);
             $table->smallInteger('number_of_items')->default(0);
             $table->float('gross_weight', 16)->default(null)->nullable();

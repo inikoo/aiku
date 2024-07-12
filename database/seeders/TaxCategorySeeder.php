@@ -45,6 +45,7 @@ class TaxCategorySeeder extends Seeder
                         'data'       => $taxCategory->{'Tax Category Metadata'},
                         'type'       => $type,
                         'type_name'  => $taxCategory->{'Tax Category Type Name'},
+                        'source_id'  => $taxCategory->{'Tax Category Key'},
                     ],
                 ],
                 ['code'],

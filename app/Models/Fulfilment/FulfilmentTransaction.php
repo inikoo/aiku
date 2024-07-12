@@ -29,11 +29,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $asset_id
  * @property int $historic_asset_id
  * @property string $quantity
- * @property string $net
- * @property string $group_net_amount
+ * @property string $gross_amount net amount before discounts
+ * @property string $net_amount
+ * @property string $grp_net_amount
  * @property string $org_net_amount
- * @property string $tax_rate
- * @property string $group_exchange
+ * @property int $tax_category_id
+ * @property string $grp_exchange
  * @property string $org_exchange
  * @property bool $is_auto_assign
  * @property array $data

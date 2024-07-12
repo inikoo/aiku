@@ -34,7 +34,7 @@ class StoreFulfilmentTransaction extends OrgAction
         data_set($modelData, 'fulfilment_customer_id', $parent->fulfilment_customer_id);
         data_set($modelData, 'historic_asset_id', $historicAsset->id);
         data_set($modelData, 'asset_id', $historicAsset->asset_id);
-        data_set($modelData, 'net', $net);
+        data_set($modelData, 'net_amount', $net);
 
         if ($historicAsset->model_type === 'Product') {
             data_set($modelData, 'type', FulfilmentTransactionTypeEnum::PRODUCT);
@@ -56,7 +56,7 @@ class StoreFulfilmentTransaction extends OrgAction
         $this->update(
             $fulfilmentTransaction,
             [
-            'group_net_amount' => $fulfilmentTransaction->net * $fulfilmentTransaction->group_exchange,
+            'grp_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->grp_exchange,
             'org_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->org_exchange
         ]
         );

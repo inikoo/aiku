@@ -31,9 +31,16 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'organisation_id', $order->organisation_id);
         data_set($modelData, 'historic_asset_id', $historicAsset->id);
         data_set($modelData, 'asset_id', $historicAsset->asset_id);
-        data_set($modelData, 'date', now(), overwrite: false);
 
-        $assetType=match ($historicAsset->model_type) {
+        data_set($modelData, 'date', now(), overwrite: false);
+        data_set($modelData, 'submitted_at', $order->submitted_at, overwrite: false);
+
+
+        data_set($modelData, 'org_exchange', $order->org_exchange, overwrite: false);
+        data_set($modelData, 'grp_exchange', $order->grp_exchange, overwrite: false);
+
+
+        $assetType = match ($historicAsset->model_type) {
             'Service' => AssetTypeEnum::SERVICE,
             default   => AssetTypeEnum::PRODUCT,
         };
@@ -52,32 +59,42 @@ class StoreTransaction extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'date'                => ['sometimes', 'required', 'date'],
+        $rules= [
             'type'                => ['required', Rule::enum(TransactionTypeEnum::class)],
             'quantity_ordered'    => ['required', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_fail'       => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_cancelled'  => ['sometimes', 'sometimes', 'numeric', 'min:0'],
+            'source_id'           => ['sometimes', 'string'],
+            'state'               => ['sometimes', Rule::enum(TransactionStateEnum::class)],
+            'status'              => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
+            'gross_amount'        => ['required', 'numeric'],
+            'net_amount'          => ['required', 'numeric'],
+            'org_exchange'        => ['sometimes', 'numeric'],
+            'grp_exchange'        => ['sometimes', 'numeric'],
+            'org_net_amount'      => ['sometimes', 'numeric'],
+            'grp_net_amount'      => ['sometimes', 'numeric'],
+            'created_at'          => ['sometimes', 'required', 'date'],
+            'tax_category_id'     => ['required', 'exists:tax_categories,id'],
 
-            'source_id'        => ['sometimes', 'string'],
-            'state'            => ['sometimes', Rule::enum(TransactionStateEnum::class)],
-            'status'           => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
-            'org_exchange'     => ['sometimes', 'numeric'],
-            'group_exchange'   => ['sometimes', 'numeric'],
-            'org_net_amount'   => ['sometimes', 'numeric'],
-            'group_net_amount' => ['sometimes', 'numeric'],
-            'tax_rate'         => ['sometimes', 'required', 'numeric', 'min:0'],
-            'created_at'       => ['sometimes', 'required', 'date'],
-
-
+            'date'         => ['sometimes', 'required', 'date'],
+            'submitted_at' => ['sometimes', 'required', 'date'],
         ];
+
+        // when importing from other system
+        if(!$this->strict) {
+            $rules['in_warehouse_at']= ['sometimes', 'required', 'date'];
+        }
+
+
+        return $rules;
     }
 
-    public function action(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
+    public function action(Order $order, HistoricAsset $historicAsset, array $modelData, bool $strict=true): Transaction
     {
         $this->initialisationFromShop($order->shop, $modelData);
+        $this->strict = $strict;
 
         return $this->handle($order, $historicAsset, $this->validatedData);
     }
