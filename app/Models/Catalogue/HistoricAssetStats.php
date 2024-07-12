@@ -10,15 +10,14 @@ namespace App\Models\Catalogue;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Catalogue\HistoricAssetStats
  *
  * @property int $id
  * @property int $historic_asset_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static Builder|HistoricAssetStats newModelQuery()
  * @method static Builder|HistoricAssetStats newQuery()
  * @method static Builder|HistoricAssetStats query()

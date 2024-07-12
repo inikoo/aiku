@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $rate
  * @property int|null $country_id
  * @property array $data
+ * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|TaxCategory newModelQuery()

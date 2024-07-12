@@ -35,7 +35,7 @@ class ProductCategoryHydrateSales
     {
         $stats = [];
 
-        $queryBase = InvoiceTransaction::where('shop_id', $productCategory->shop->id)->selectRaw('sum(group_net_amount) as  sum_group  , sum(group_net_amount) as  sum_org , sum(net) as  sum_shop  ');
+        $queryBase = InvoiceTransaction::where('shop_id', $productCategory->shop->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net) as  sum_shop  ');
 
         $stats=array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
 

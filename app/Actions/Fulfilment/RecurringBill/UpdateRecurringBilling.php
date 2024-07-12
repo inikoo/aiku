@@ -38,7 +38,7 @@ class UpdateRecurringBilling extends OrgAction
             'total'            => ['sometimes'],
             'payment'          => ['sometimes'],
             'net'              => ['sometimes'],
-            'group_net_amount' => ['sometimes'],
+            'grp_net_amount'   => ['sometimes'],
             'org_net_amount'   => ['sometimes']
         ];
     }

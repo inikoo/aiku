@@ -35,9 +35,24 @@ const dataProduct = ref({
 
 <template>
     <div class="opacity-25 cursor-not-allowed">
-        <MenuPreviewMode :navigations="MenuDescriptor" :useHeader="false" />
-        <div id="app" class="mx-auto max-w-5xl text-gray-600">
+        <!-- <MenuPreviewMode :navigations="MenuDescriptor" :useHeader="false" /> -->
 
+        <div class="bg-white shadow-md border-b-2 border-gray-700">
+            <div class="container mx-auto flex flex-col justify-between items-center">
+
+                <!-- Section: Navigation list horizontal -->
+                <nav class="relative flex text-sm text-gray-600">
+                    <div v-for="(navigation, idxNavigation) in MenuDescriptor" href="#" class="group w-full ">
+                        <div class="px-5   flex items-center justify-center gap-x-1 h-full cursor-not-allowed">
+                            <div class="w-fit text-center">{{ navigation.label }}</div>
+                            <FontAwesomeIcon icon="fas fa-chevron-down" class="text-[11px]"></FontAwesomeIcon>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div id="app" class="mx-auto max-w-5xl text-gray-600">
             <div class="mb-3 border-b border-gray-500 py-0.5 text-gray-500 text-xs w-fit">
                 Beauty & Spa >> Bath Bombs >> Shaped Bath Bombs for Kids
             </div>

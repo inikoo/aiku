@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('country_id')->nullable()->index();
             $table->foreign('country_id')->references('id')->on('countries');
             $table->jsonb('data');
+            $table->string('source_id')->nullable()->index();
             $table->timestampsTz();
 
         });
