@@ -44,12 +44,14 @@ const onPickTemplate = (header) => {
 </script>
 
 <template>-
+
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
+    <PageHeading :data="pageHead" :dataToSubmit="usedTemplates?.data">
+    </PageHeading>
 
     <!-- <div @click="()=>console.log(usedTemplates)">see data</div> -->
     <div class="grid grid-flow-row-dense grid-cols-4">
-        <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
+        <div v-if="usedTemplates?.key" class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
             <div class="flex justify-between">
                 <div class="font-bold text-sm">
                     <Switch @click="loginMode = !loginMode"
@@ -63,10 +65,12 @@ const onPickTemplate = (header) => {
                         Login Mode
                     </div>
                 </div>
-                <div><Button type="secondary" label="Templates" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" /></div>
+                <div><Button type="secondary" label="Templates" size="xs" icon="fas fa-th-large"
+                        @click="isModalOpen = true" /></div>
             </div>
 
-            <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"  @update:modelValue="keyTemplates = uuidv4()" />
+            <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
+                @update:modelValue="keyTemplates = uuidv4()" />
 
             <!-- New bottom div with red background and absolute positioning -->
             <div class="absolute inset-x-0 bottom-0 bg-gray-300 p-4 text-white text-center">
@@ -85,17 +89,25 @@ const onPickTemplate = (header) => {
             </div>
         </div>
 
-        <div class="col-span-3  bg-gray-100 px-6 py-6 h-screen overflow-auto">
-        <div class="bg-white">
-            <section v-if="usedTemplates?.key">
-                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" :previewMode="previewMode" v-model="usedTemplates.data" :keyTemplate="keyTemplates"/>
-            </section>
-            <section v-else>
-                <EmptyState description="You need pick a template from list" title="Pick Templates"></EmptyState>
-            </section>
-            <DummyCanvas class="cursor-not-allowed"/>
-        </div>
-            
+        <div class="bg-gray-100 px-6 py-6 h-screen overflow-auto" :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
+            <div :class="usedTemplates?.key ? 'bg-white' : ''">
+                <section v-if="usedTemplates?.key">
+                    <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" :previewMode="previewMode"
+                        v-model="usedTemplates.data" :keyTemplate="keyTemplates" />
+                </section>
+                <section v-else>
+                    <EmptyState :data="{ description:'You need pick a template from list', title:'Pick Header Templates' }">
+                        <template #button-empty-state >
+                        <div class="mt-4 block" >
+                            <Button type="secondary" label="Templates" icon="fas fa-th-large" @click="isModalOpen = true"/>
+                        </div>
+                            
+                        </template>
+                    </EmptyState>
+                </section>
+                <DummyCanvas v-if="usedTemplates?.key" class="cursor-not-allowed" />
+            </div>
+
         </div>
     </div>
 
@@ -103,8 +115,7 @@ const onPickTemplate = (header) => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">
         <div tag="div"
             class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
-            <div v-for="header in ListHeader.listTemplate" :key="header.key"
-                @click="()=> onPickTemplate(header)"
+            <div v-for="header in ListHeader.listTemplate" :key="header.key" @click="()=> onPickTemplate(header)"
                 class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
                 <div class="flex items-center justify-center">
                     <FontAwesomeIcon :icon='header.icon' class='' fixed-width aria-hidden='true' />

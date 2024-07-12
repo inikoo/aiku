@@ -260,6 +260,11 @@ export const data = {
 	useSocial: true,
 	PaymentData: {
 		data: [
+            {
+				name: "Checkout.com",
+				key: "checkout.com",
+				image: "https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png",
+			},
 			{
 				name: "visa",
 				key: "visa",
@@ -286,8 +291,8 @@ export const data = {
 
 export const bluprintForm = [
 	{
-		name: "Payment",
-		key: "payment",
+		name: "Payments",
+		key: "PaymentData",
 		type: "payment_templates",
 	},
 ]
