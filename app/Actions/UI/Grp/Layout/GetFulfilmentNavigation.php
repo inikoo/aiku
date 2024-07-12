@@ -281,21 +281,21 @@ class GetFulfilmentNavigation
 
             ];
             $navigation['setting'] = [
-                "root"  => "grp.org.fulfilments.show.setting.",
-                "icon"  => ["fal", "fa-sliders-h"], //TODO: Need icon for this
+                "root"  => "grp.org.fulfilments.show.settings.",
+                "icon"  => ["fal", "fa-sliders-h"],
                 "label" => __("Setting"),
                 "route" => [
-                    "name"       => 'grp.org.fulfilments.show.setting.dashboard',
+                    "name"       => 'grp.org.fulfilments.show.settings.edit',
                     "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                 ],
                 "topMenu" => [
                     "subSections" => [
                         [
-                            "tooltip" => __("Setting dashboard"),
-                            "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.fulfilments.show.setting.dashboard',
+                            "tooltip" => __("Fulfilment Setting"),
+                            "icon"    => ["fal", "fa-sliders-h"],
+                            'root'    => 'grp.org.fulfilments.show.settings.edit',
                             "route"   => [
-                                "name"       => 'grp.org.fulfilments.show.setting.dashboard',
+                                "name"       => 'grp.org.fulfilments.show.settings.edit',
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                             ],
                         ],
@@ -303,9 +303,9 @@ class GetFulfilmentNavigation
                             "label"   => __("outboxes"),
                             "tooltip" => __("outboxes"),
                             "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.fulfilments.show.setting.outboxes.index',
+                            'root'    => 'grp.org.fulfilments.show.settings.outboxes.index',
                             "route"   => [
-                                "name"       => "grp.org.fulfilments.show.setting.outboxes.index",
+                                "name"       => "grp.org.fulfilments.show.settings.outboxes.index",
                                 "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug],
                             ],
                         ],

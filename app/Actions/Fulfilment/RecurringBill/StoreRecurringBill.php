@@ -37,7 +37,7 @@ class StoreRecurringBill extends OrgAction
                 $modelData['start_date']->copy(),
                 Arr::get(
                     $rentalAgreement->fulfilment->settings,
-                    'rental_agreement_weekly_cut_off.'.$rentalAgreement->billing_cycle->value
+                    'rental_agreement_cut_off.'.$rentalAgreement->billing_cycle->value
                 )
             );
 

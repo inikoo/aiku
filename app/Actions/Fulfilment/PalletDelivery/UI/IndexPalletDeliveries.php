@@ -244,7 +244,7 @@ class IndexPalletDeliveries extends OrgAction
 
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $action = [
+            $action       = [
                 [
                     'type'    => 'button',
                     'style'   => 'create',

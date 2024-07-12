@@ -1,8 +1,12 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 11 Jul 2024 16:42:12 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Fulfilment\Setting;
+namespace App\Actions\Fulfilment\Fulfilment\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -10,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowFulfilmentSettingDashboard extends OrgAction
+class EditFulfilment extends OrgAction
 {
     public function handle(Fulfilment $fulfilment): Fulfilment
     {
@@ -24,9 +28,9 @@ class ShowFulfilmentSettingDashboard extends OrgAction
         return $this->handle($fulfilment);
     }
 
+
     public function htmlResponse(Fulfilment $fulfilment, ActionRequest $request): Response
     {
-        // dd($fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']);
         return Inertia::render(
             'EditModel',
             [
@@ -45,7 +49,7 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                             'title'  => __('recurring bill settings'),
                             'label'  => __('cut off day'),
                             'fields' => [
-                                'monthly_cut_off_day' => [
+                                'monthly_cut_off' => [
                                     'type'      => 'date_radio',
                                     'label'     => __('monthly cut off day'),
                                     'options'   => [
@@ -55,8 +59,8 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                                         31
                                     ],
                                     'value' => [
-                                        'date'          => $fulfilment->settings['rental_agreement_weekly_cut_off']['monthly']['day'],
-                                        'isWeekdays'    => false,
+                                        'date'          => $fulfilment->settings['rental_agreement_cut_off']['monthly']['day'],
+                                        'isWeekdays'    => $fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'],
                                     ]
                                 ],
                                 'weekly_cut_off_day' => [
@@ -83,20 +87,29 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                                             'label' => __('Friday'),
                                             'value' => 'Friday'
                                         ],
+                                        [
+                                            'label' => __('Saturday'),
+                                            'value' => 'Saturday'
+                                        ],
+                                        [
+                                            'label' => __('Sunday'),
+                                            'value' => 'Sunday'
+                                        ],
+
                                     ],
+                                    'valueProp' => 'value',
                                     'required'  => true,
                                     'label'     => __('weekly cut off day'),
-                                    'value'     => $fulfilment->settings['rental_agreement_weekly_cut_off']['weekly']['day']
-                                ],
+                                    'value'     => $fulfilment->settings['rental_agreement_cut_off']['weekly']['day']
+                                ]
                             ]
                         ]
 
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.org.fulfilment.update',
+                            'name'       => 'grp.models.fulfilment.update',
                             'parameters' => [
-                                'organisation' => $fulfilment->organisation_id,
                                 'fulfilment'   => $fulfilment->id
                                 ]
                         ],
@@ -111,7 +124,7 @@ class ShowFulfilmentSettingDashboard extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.fulfilments.show.setting.dashboard' =>
+            'grp.org.fulfilments.show.settings.edit' =>
                array_merge(
                    ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                    [
@@ -119,10 +132,10 @@ class ShowFulfilmentSettingDashboard extends OrgAction
                             'type'   => 'simple',
                             'simple' => [
                                 'route' => [
-                                    'name'       => 'grp.org.fulfilments.show.setting.dashboard',
+                                    'name'       => 'grp.org.fulfilments.show.settings.edit',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => __('Setting')
+                                'label' => __('Settings')
                             ]
                         ]
                     ]
