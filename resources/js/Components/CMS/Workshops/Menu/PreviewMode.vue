@@ -17,22 +17,21 @@ import { faHeart } from '@far';
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle);
 
 
-const props = defineProps<{
-    navigations : Array
-}>()
+const props = withDefaults(defineProps<{
+    navigations: Array<any>;
+    useHeader?: Boolean;
+}>(), {
+    useHeader: true
+});
 
 const emits = defineEmits()
-
-
-
 
 
 </script>
 
 <template>
     <!-- Top Bar -->
-    <div class="bg-gray-800 grid grid-cols-3 text-white flex justify-between items-center p-2 text-xs opacity-25 cursor-not-allowed">
-        <div></div>
+    <div v-if="useHeader" class="bg-gray-800 grid grid-cols-3 text-white flex justify-between items-center p-2 text-xs opacity-25 cursor-not-allowed">
         <div class="font-bold text-center">FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</div>
 
         <!-- Section: Logout, Cart, profile -->
@@ -57,9 +56,9 @@ const emits = defineEmits()
 
 
     <!-- Main Nav -->
-    <div class="bg-white shadow-md border-b-2 border-gray-700">
+    <div  class="bg-white shadow-md border-b-2 border-gray-700">
         <div class="container mx-auto flex flex-col justify-between items-center">
-            <div class="w-full grid grid-cols-3 items-center justify-between space-x-4 opacity-25 cursor-not-allowed">
+            <div v-if="useHeader" class="w-full grid grid-cols-3 items-center justify-between space-x-4 opacity-25 cursor-not-allowed">
                 <img src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
                     alt="Ancient Wisdom Logo" class="h-24">
                 <div class="relative w-fit justify-self-center">

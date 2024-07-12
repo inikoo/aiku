@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { Switch } from '@headlessui/vue'
-import { isNull } from 'lodash'
+import { isNull, get } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTimes, faCheck } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -76,5 +76,9 @@ watch(value, (newValue) => {
                 <FontAwesomeIcon v-else icon='fal fa-times' class='text-sm text-red-500' fixed-width aria-hidden='true' />
             </span>
         </Switch>
+
+        <p v-if="get(form, ['errors', `${fieldName}`])" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
+            {{ form.errors[fieldName] }}
+        </p>
     </div>
 </template>

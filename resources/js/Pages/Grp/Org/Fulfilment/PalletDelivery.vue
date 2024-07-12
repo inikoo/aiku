@@ -410,7 +410,11 @@ watch(() => props.data, (newValue) => {
                                     label="name"
                                     valueProp="id"
                                     @keydown.enter="() => onSubmitAddService(action, closed)"
-                                />
+                                >
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                    </template>
+                                </PureMultiselect>
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
                                 </p>
@@ -538,7 +542,13 @@ watch(() => props.data, (newValue) => {
             <div class="flex">
                 <div class="flex-shrink-0">
                     <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="h-5 w-5 text-amber-500"
-                        aria-hidden="true" />
+                        aria-hidden="true"
+                        :class="{
+                            'text-yellow-50': pallet_limits?.status === 'almost',
+                            'text-orange-200': pallet_limits?.status === 'limit',
+                            'text-red-600': pallet_limits?.status === 'exceeded',
+                        }"
+            />
                 </div>
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-yellow-800">{{ trans('Attention needed') }}</h3>

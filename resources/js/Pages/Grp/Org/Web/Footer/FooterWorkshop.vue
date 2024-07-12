@@ -1,59 +1,110 @@
-<!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 22 Aug 2023 19:44:06 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
-  -->
+<script setup lang="ts">
+import { ref, onMounted, inject } from 'vue'
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { capitalize } from "@/Composables/capitalize"
 
-<script setup>
-import Footer from "@/Components/CMS/Footer/index.vue"
-import {
-	menuTypeList,
-	menuTypeDescription,
-	menuTypeInfo,
-	footerDataLayout,
-	footerDataTools,
-} from "./Descriptor"
-import Tools from "./Tools.vue"
-import { useForm } from "@inertiajs/vue3"
-import { ref, watch } from "vue"
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import { Switch } from '@headlessui/vue'
+import Modal from '@/Components/Utils/Modal.vue'
+import { getComponent, getDescriptor } from '@/Components/Websites/Footer/Content'
+import ListFooter from '@/Components/Websites/Footer/ListFooter'
+import EmptyState from '@/Components/Utils/EmptyState.vue';
+import SideEditor from '@/Components/Websites/SideEditor.vue';
+import { v4 as uuidv4 } from 'uuid';
 
-//InitialData
-const ToolsBluprint = footerDataTools
-const toolsValue = useForm({
-	theme: "light-theme",
-	hand: "click",
-	columnType: null,
-})
-const footerDataLayoutForm = useForm({ ...footerDataLayout })
-const activeColumn = ref(null)
 
-const changeColumnType = (e) => {
-	const index = footerDataLayoutForm.initialColumns.findIndex((item) => item.column_id == activeColumn.value)
-	if (index != -1) {
-		if (e == "description") footerDataLayoutForm.initialColumns.splice(index, 1, menuTypeDescription())
-		if (e == "list") footerDataLayoutForm.initialColumns.splice(index, 1, menuTypeList())
-		if (e == "info") footerDataLayoutForm.initialColumns.splice(index, 1, menuTypeInfo())
-	}
+import { faPresentation, faCube, faText, faPaperclip } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faHeart } from '@far';
+import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage } from '@fas';
+library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
+
+const props = defineProps<{
+    pageHead: TSPageHeading
+    title: string
+    data: {}
+}>()
+
+const previewMode = ref(false)
+const loginMode = ref(true)
+const isModalOpen = ref(false)
+const usedTemplates = ref(null)
+const keyTemplates = ref(uuidv4())
+
+
+const onPickTemplate = (footer) => {
+    isModalOpen.value = false
+    const data = getDescriptor(footer.key)
+    usedTemplates.value = { key: footer.key, ...data }
 }
 
 </script>
 
-<template>
-	<div class="bg-white">
-		<div class="p-3 border border-gray-300 overflow-y-auto overflow-x-hidden">
-			<Tools
-				:toolsBluprint="ToolsBluprint"
-				v-model="toolsValue"
-				@changeColumnType="changeColumnType" />
-		</div>
-		<div
-			class="flex justify-center items-center bg-gray-200 border border-gray-300 transform scale-80 w-full h-screen">
-			<Footer
-				:tools="toolsValue"
-				:activeColumn="activeColumn"
-				:footerDataLayout="footerDataLayoutForm"
-				@changeActiveColumn="(e : string )=> activeColumn = e" />
-		</div>
-	</div>
-  <div @click="()=>console.log(footerDataLayoutForm)">set data to seee</div>
+<template>-
+
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead" />
+
+    <!-- <div @click="()=>console.log(usedTemplates)">see data</div> -->
+    <div class="grid grid-flow-row-dense grid-cols-4">
+        <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
+            <div class="flex justify-end">
+
+                <Button type="secondary" label="Templates" size="xs" icon="fas fa-th-large"
+                    @click="isModalOpen = true" />
+            </div>
+
+            <!-- <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
+                @update:modelValue="keyTemplates = uuidv4()" /> -->
+
+            <!-- New bottom div with red background and absolute positioning -->
+            <div class="absolute inset-x-0 bottom-0 bg-gray-300 p-4 text-white text-center">
+                <div class="flex items-center gap-x-2">
+                    <Switch @click="previewMode = !previewMode"
+                        class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                        <span aria-hidden="true"
+                            :class="previewMode ? 'translate-x-6 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
+                            class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
+                    </Switch>
+                    <div class="text-xs leading-none font-medium cursor-pointer select-none"
+                        :class="previewMode ? 'text-indigo-500' : ' text-gray-400'">
+                        Preview Mode
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-span-3 bg-gray-100 px-6 py-6 overflow-auto">
+            <section v-if="usedTemplates?.key" class="w-full">
+                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" v-model="usedTemplates.data"
+                    :keyTemplate="keyTemplates" />
+            </section>
+            <section v-else>
+                <EmptyState description="You need pick a template from list" title="Pick Templates"></EmptyState>
+            </section>
+        </div>
+
+    </div>
+
+
+    <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">
+        <div tag="div"
+            class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
+            <div v-for="footer in ListFooter.listTemplate" :key="footer.key" @click="() => onPickTemplate(footer)"
+                class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
+                <div class="flex items-center justify-center">
+                    <FontAwesomeIcon :icon='footer.icon' class='' fixed-width aria-hidden='true' />
+                </div>
+                <h3 class="text-sm font-medium">
+                    {{ footer.name }}
+                </h3>
+            </div>
+        </div>
+    </Modal>
+
 </template>
+
+
+<style scss></style>

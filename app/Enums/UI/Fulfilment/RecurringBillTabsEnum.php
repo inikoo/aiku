@@ -28,7 +28,7 @@ enum RecurringBillTabsEnum: string
     {
         return match ($this) {
             RecurringBillTabsEnum::SHOWCASE => [
-                'title' => __('stored item'),
+                'title' => __('showcase'),
                 'icon'  => 'fas fa-info-circle',
             ],
             RecurringBillTabsEnum::PALLETS => [

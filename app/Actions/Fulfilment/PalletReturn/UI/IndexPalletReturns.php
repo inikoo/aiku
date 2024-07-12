@@ -226,17 +226,7 @@ class IndexPalletReturns extends OrgAction
                                         'parameters' => [$this->parent->id]
                                     ]
                                 ] : false,
-                            default => $this->parent->stats->number_pallets_state_storing ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new pallet return'),
-                                'label'   => __('Pallet return'),
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                    'parameters' => [$this->parent->id]
-                                ]
-                            ] : false
+                            default => null
                         }
                     ]
                 ],

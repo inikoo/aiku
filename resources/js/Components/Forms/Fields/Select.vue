@@ -9,11 +9,13 @@ import Multiselect from "@vueform/multiselect"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from '@fas'
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { onMounted } from "vue"
 library.add(faExclamationCircle, faCheckCircle)
+
 const props = defineProps<{
     form: any
     fieldName: any
-    options: string[] | object
+    options: string[] | {label?: string, value: any}[]
     fieldData: {
         placeholder: string
         required: boolean
@@ -22,7 +24,13 @@ const props = defineProps<{
         readonly: boolean
     }
 }>()
-// console.log(props)
+
+// Auto assign to first option if 'required' and value is null
+onMounted(() => {
+    if(props.fieldData?.required && !props.form[props.fieldName]) {
+        props.form[props.fieldName] = props.options[0].value
+    }
+})
 </script>
 
 <template>

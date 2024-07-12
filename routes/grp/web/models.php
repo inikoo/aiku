@@ -32,6 +32,7 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
+use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
@@ -179,6 +180,9 @@ Route::prefix('clocking-machine/{clockingMachine:id}')->name('clocking_machine..
 
 
 
+Route::patch('fulfilment/{fulfilment:id}', UpdateFulfilment::class)->name('fulfilment.update');
+
+
 /*
 
 Route::patch('/clocking/{clocking:id}', UpdateClocking::class)->name('clocking.update');
@@ -201,6 +205,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post('shop', StoreShop::class)->name('shop.store');
     Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
+
 
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
