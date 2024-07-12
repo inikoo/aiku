@@ -8,14 +8,18 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\Sales\OrderResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Organisation;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UnSubmitOrder
+class UnSubmitOrder extends OrgAction
 {
     use WithActionUpdate;
     use AsAction;
@@ -26,7 +30,7 @@ class UnSubmitOrder
             'state' => OrderStateEnum::CREATING
         ]);
 
-        OrganisationHydrateOrders::run(app('currentTenant'));
+        OrganisationHydrateOrders::run($order->organisation);
         ShopHydrateOrders::run($order->shop);
 
         return $order;
@@ -37,8 +41,9 @@ class UnSubmitOrder
         return $this->handle($order);
     }
 
-    public function asController(Order $order): Order
+    public function asController(Organisation $organisation, Shop $shop,Order $order,ActionRequest $request): Order
     {
+        $this->initialisationFromShop($shop,$request);
         return $this->handle($order);
     }
 
