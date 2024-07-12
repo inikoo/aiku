@@ -43,7 +43,6 @@ const onPickTemplate = (footer) => {
 </script>
 
 <template>-
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
 
@@ -59,7 +58,6 @@ const onPickTemplate = (footer) => {
             <!-- <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
                 @update:modelValue="keyTemplates = uuidv4()" /> -->
 
-            <!-- New bottom div with red background and absolute positioning -->
             <div class="absolute inset-x-0 bottom-0 bg-gray-300 p-4 text-white text-center">
                 <div class="flex items-center gap-x-2">
                     <Switch @click="previewMode = !previewMode"
@@ -85,7 +83,6 @@ const onPickTemplate = (footer) => {
                 <EmptyState description="You need pick a template from list" title="Pick Templates"></EmptyState>
             </section>
         </div>
-
     </div>
 
 

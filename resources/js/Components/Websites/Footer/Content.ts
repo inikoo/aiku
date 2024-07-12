@@ -6,7 +6,7 @@ import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundCo
 
 
 //descriptor
-import { data as dataHeader1, bluprintForm as bluprintForm1  } from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
+import { data as dataFooter1, bluprintForm as bluprintForm1  } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
 
 export const getComponent = (componentName: string) => {
     const components: Component = {
@@ -19,7 +19,7 @@ export const getComponent = (componentName: string) => {
 
 export const getDescriptor = (componentName: string) => {
     const components: Component = {
-        'footer1': { data : dataHeader1, bluprint : bluprintForm1},
+        'footer1': { data : dataFooter1, bluprint : bluprintForm1},
     }
 
     return components[componentName]
