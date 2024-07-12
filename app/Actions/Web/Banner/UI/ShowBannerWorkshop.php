@@ -112,6 +112,14 @@ class ShowBannerWorkshop extends OrgAction
                         'banner'  => $banner->id
                     ]
                 ],
+                'galleryRoute' => [
+                    'stock_images' => [
+                        'name' => "grp.gallery.stock-images.banner.$banner->type.index"
+                    ],
+                    'uploaded_images' => [
+                        'name' => 'grp.gallery.uploaded-images.banner.index'
+                    ]
+                ],
             ]
         );
     }

@@ -52,7 +52,7 @@ const sidebarOpen = ref(false)
         </div>
 
         <!-- Main Content -->
-        <main class="h-screen pb-10 pt-20 md:pt-[52px] transition-all pl-2 md:pl-0 pr-2 "
+        <main class="h-screen pb-10 pt-14 md:pt-[52px] transition-all pl-2 md:pl-0 pr-2 "
             :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16']"
         >
             <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col pb-6 text-gray-700">

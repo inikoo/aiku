@@ -4,6 +4,7 @@ import type { Component } from 'vue'
 
 import PureInput from '@/Components/Pure/PureInput.vue'
 import UploadImage from '@/Components/Pure/UploadImage.vue'
+import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -27,6 +28,7 @@ const getComponent = (componentName: string) => {
     const components: Component = {
         'text': PureInput,
         'upload_image' : UploadImage,
+        'payment_templates' : Payments
         
     }
 

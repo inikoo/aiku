@@ -21,7 +21,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 // import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import { routeType } from "@/types/route"
 import { Table as TSTable } from '@/types/Table'
-import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
+import StoredItemsProperty from '@/Components/StoredItemsProperty.vue'
 import { inject, ref } from "vue"
 import TagPallet from "@/Components/TagPallet.vue"
 import { trans } from 'laravel-vue-i18n'
@@ -136,16 +136,12 @@ const typePallet = [
 
         <!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item }">
-			<StoredItemProperty
-          		v-if="item.state == 'in-process'"
+            <StoredItemsProperty
                 :pallet="item"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
                 @renderTable="() => emits('renderTableKey')"
             />
-			<div v-else class="pl-2.5 text-gray-400">
-                -
-            </div>
 		</template>
 
         <!-- Column: Actions -->
@@ -219,8 +215,7 @@ const typePallet = [
 
         <!-- Column: Icon -->
 		<template #cell(type_icon)="{ item: pallet }">
-            <TagPallet v-if="layout.app.name === 'retina'" :stateIcon="pallet.type_icon" />
-			<Icon v-else :data="pallet.type_icon" class="px-1" />
+            <TagPallet :stateIcon="pallet.type_icon" />
 		</template>
 	</Table>
 </template>
