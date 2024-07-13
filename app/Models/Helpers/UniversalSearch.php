@@ -36,6 +36,7 @@ use Laravel\Scout\Searchable;
  * @property string|null $section
  * @property string $title
  * @property string|null $description
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
@@ -47,6 +48,14 @@ use Laravel\Scout\Searchable;
 class UniversalSearch extends Model
 {
     use Searchable;
+
+    protected $casts = [
+        'data'                        => 'array',
+    ];
+
+    protected $attributes = [
+        'data'           => '{}',
+    ];
 
     protected $guarded = [];
 

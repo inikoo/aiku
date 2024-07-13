@@ -17,6 +17,10 @@ class LocationHydrateUniversalSearch
 
     public function handle(Location $location): void
     {
+        if($location->trashed()) {
+            return;
+        }
+
         $location->universalSearch()->updateOrCreate(
             [],
             [

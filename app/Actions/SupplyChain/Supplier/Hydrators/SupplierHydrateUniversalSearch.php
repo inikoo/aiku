@@ -18,6 +18,11 @@ class SupplierHydrateUniversalSearch
 
     public function handle(Supplier $supplier): void
     {
+
+        if($supplier->trashed()) {
+            return;
+        }
+
         $supplier->universalSearch()->updateOrCreate(
             [],
             [

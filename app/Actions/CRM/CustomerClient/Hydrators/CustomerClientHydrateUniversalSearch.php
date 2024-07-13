@@ -18,6 +18,11 @@ class CustomerClientHydrateUniversalSearch
 
     public function handle(CustomerClient $customerClient): void
     {
+
+        if($customerClient->trashed()) {
+            return;
+        }
+
         $customerClient->universalSearch()->updateOrCreate(
             [],
             [
@@ -27,7 +32,7 @@ class CustomerClientHydrateUniversalSearch
                 'shop_id'           => $customerClient->shop_id,
                 'shop_slug'         => $customerClient->shop->slug,
                 'customer_id'       => $customerClient->customer_id,
-                 'customer_slug'    => $customerClient->customer->slug,
+                'customer_slug'     => $customerClient->customer->slug,
                 'section'           => 'crm',
 
                 'title' => join(

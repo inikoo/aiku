@@ -39,6 +39,7 @@ return new class () extends Migration {
             $table->string('section')->nullable();
             $table->string('title');
             $table->string('description')->nullable();
+            $table->json('data');
             $table->timestampsTz();
         });
     }

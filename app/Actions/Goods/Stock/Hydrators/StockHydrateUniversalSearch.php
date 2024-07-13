@@ -17,6 +17,11 @@ class StockHydrateUniversalSearch
 
     public function handle(Stock $stock): void
     {
+
+        if($stock->trashed()) {
+            return;
+        }
+
         $stock->universalSearch()->updateOrCreate(
             [],
             [

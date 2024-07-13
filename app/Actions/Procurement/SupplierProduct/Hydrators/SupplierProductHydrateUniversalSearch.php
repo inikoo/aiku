@@ -17,6 +17,11 @@ class SupplierProductHydrateUniversalSearch
 
     public function handle(SupplierProduct $supplierProduct): void
     {
+
+        if($supplierProduct->trashed()) {
+            return;
+        }
+
         $supplierProduct->universalSearch()->updateOrCreate(
             [],
             [

@@ -17,6 +17,10 @@ class EmployeeHydrateUniversalSearch
 
     public function handle(Employee $employee): void
     {
+        if($employee->trashed()) {
+            return;
+        }
+
         $employee->universalSearch()->updateOrCreate(
             [],
             [

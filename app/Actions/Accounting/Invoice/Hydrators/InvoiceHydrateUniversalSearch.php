@@ -18,6 +18,10 @@ class InvoiceHydrateUniversalSearch
 
     public function handle(Invoice $invoice): void
     {
+        if($invoice->trashed()) {
+            return;
+        }
+
         $invoice->universalSearch()->updateOrCreate(
             [],
             [

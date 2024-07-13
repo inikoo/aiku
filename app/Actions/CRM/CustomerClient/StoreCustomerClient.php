@@ -63,29 +63,22 @@ class StoreCustomerClient extends OrgAction
     {
         $rules = [
 
-            'reference'        => ['nullable', 'string', 'max:255'],
-            'contact_name'     => ['nullable', 'string', 'max:255'],
-            'company_name'     => ['nullable', 'string', 'max:255'],
-            'email'            => ['nullable', 'string', 'max:255'],
-            'phone'            => ['nullable', 'string', 'max:255'],
-            'address'          => ['required', new ValidAddress()],
-            'source_id'        => 'sometimes|nullable|string|max:255',
-            'created_at'       => 'sometimes|nullable|date',
-            'deactivated_at'   => 'sometimes|nullable|date',
-            'status'           => ['sometimes', 'boolean'],
+            'reference'      => ['nullable', 'string', 'max:255'],
+            'contact_name'   => ['nullable', 'string', 'max:255'],
+            'company_name'   => ['nullable', 'string', 'max:255'],
+            'email'          => ['nullable', 'string', 'max:255'],
+            'phone'          => ['nullable', 'string', 'max:255'],
+            'address'        => ['required', new ValidAddress()],
+            'source_id'      => 'sometimes|nullable|string|max:255',
+            'created_at'     => 'sometimes|nullable|date',
+            'deactivated_at' => 'sometimes|nullable|date',
+            'status'         => ['sometimes', 'boolean'],
 
         ];
 
-        // if ($this->strict) {
-        //     $strictRules = [
-        //         'phone' => ['nullable', 'phone:AUTO'],
-        //         'email' => [
-        //             'nullable',
-        //             'email',
-        //         ],
-        //     ];
-        //     $rules       = array_merge($rules, $strictRules);
-        // }
+        if ($this->strict) {
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+        }
 
         return $rules;
     }

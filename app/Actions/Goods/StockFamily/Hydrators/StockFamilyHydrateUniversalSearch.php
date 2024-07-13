@@ -17,6 +17,11 @@ class StockFamilyHydrateUniversalSearch
 
     public function handle(StockFamily $stockFamily): void
     {
+
+        if($stockFamily->trashed()) {
+            return;
+        }
+
         $stockFamily->universalSearch()->updateOrCreate(
             [],
             [
