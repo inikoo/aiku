@@ -24,9 +24,15 @@ class FetchAuroraProspect extends FetchAurora
     {
         $state = Str::kebab($this->auroraModelData->{'Prospect Status'});
 
-        $customer_id = null;
+        $customerId = null;
         if ($this->auroraModelData->{'Prospect Customer Key'}) {
-            $customer_id = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Prospect Customer Key'})->id;
+            $customer= $this->parseCustomer(
+                $this->organisation->id.':'.
+                $this->auroraModelData->{'Prospect Customer Key'});
+
+
+            $customerId = $customer?->id; 
+            
         }
         $lastContacted = null;
         if ($this->parseDatetime($this->auroraModelData->{'Prospect Last Contacted Date'})) {
@@ -89,7 +95,7 @@ class FetchAuroraProspect extends FetchAurora
                 'phone'             => $phone,
                 'contact_website'   => $this->auroraModelData->{'Prospect Website'},
                 'source_id'         => $this->organisation->id.':'.$this->auroraModelData->{'Prospect Key'},
-                'customer_id'       => $customer_id,
+                'customer_id'       => $customerId,
                 'address'           => $this->parseAddress(prefix: 'Prospect', auAddressData: $this->auroraModelData)
             ];
         if ($this->parseDatetime($this->auroraModelData->{'Prospect Created Date'})) {
