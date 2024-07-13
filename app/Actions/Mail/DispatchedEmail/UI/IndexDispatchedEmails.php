@@ -7,7 +7,6 @@
 
 namespace App\Actions\Mail\DispatchedEmail\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
 use App\Actions\OrgAction;
 use App\Actions\UI\Marketing\MarketingHub;
@@ -30,7 +29,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDispatchedEmails extends OrgAction
 {
-
     private Organisation|Shop $parent;
 
     public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
@@ -139,17 +137,17 @@ class IndexDispatchedEmails extends OrgAction
     }
 
 
-    public function inOrganisation(Organisation $organisation,ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-$this->parent=$organisation;
-        $this->initialisation($organisation,$request);
+        $this->parent=$organisation;
+        $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
 
-    public function asController(Organisation $organisation,Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent=$shop;
-        $this->initialisationFromShop($shop,$request);
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($shop);
     }
 

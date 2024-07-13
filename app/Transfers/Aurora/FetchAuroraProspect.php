@@ -28,11 +28,12 @@ class FetchAuroraProspect extends FetchAurora
         if ($this->auroraModelData->{'Prospect Customer Key'}) {
             $customer= $this->parseCustomer(
                 $this->organisation->id.':'.
-                $this->auroraModelData->{'Prospect Customer Key'});
+                $this->auroraModelData->{'Prospect Customer Key'}
+            );
 
 
-            $customerId = $customer?->id; 
-            
+            $customerId = $customer?->id;
+
         }
         $lastContacted = null;
         if ($this->parseDatetime($this->auroraModelData->{'Prospect Last Contacted Date'})) {

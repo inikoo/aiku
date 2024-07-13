@@ -54,10 +54,8 @@ class StoreWebUser extends OrgAction
         );
         $webUser->stats()->create();
         $webUser->refresh();
-        // dd($customer);
-        CustomerHydrateWebUsers::run($webUser->customer);
-        // dd(CustomerHydrateWebUsers::dispatch($customer));
 
+        CustomerHydrateWebUsers::run($webUser->customer);
         return $webUser;
     }
 

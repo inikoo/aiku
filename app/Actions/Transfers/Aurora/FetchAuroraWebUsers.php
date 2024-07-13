@@ -23,7 +23,10 @@ class FetchAuroraWebUsers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WebUser
     {
         if ($webUserData = $organisationSource->fetchWebUser($organisationSourceId)) {
-            if ($webUserData['customer']) {
+
+            $customer=$webUserData['customer'];
+
+            if ($customer and !$customer->trashed()) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])
                     ->first()) {
                     try {
@@ -36,7 +39,7 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                     }
                 } else {
                     try {
-                        $webUser = StoreWebUser::make()->action($webUserData['customer'], $webUserData['webUser'], 60, false);
+                        $webUser = StoreWebUser::make()->action($customer, $webUserData['webUser'], 60, false);
                         $this->recordNew($organisationSource);
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $webUserData['webUser'], 'WebUser', 'store');
@@ -51,8 +54,6 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                     ->update(['aiku_id' => $webUser->id]);
 
                 return $webUser;
-            } else {
-                print "Warning web user $organisationSourceId do not have customer\n";
             }
         }
 

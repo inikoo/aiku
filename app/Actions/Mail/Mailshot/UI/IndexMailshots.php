@@ -7,7 +7,6 @@
 
 namespace App\Actions\Mail\Mailshot\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
@@ -138,10 +137,10 @@ class IndexMailshots extends OrgAction
     }
 
 
-    public function inOrganisation(Organisation $organisation,ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
 
-        $this->initialisation($organisation,$request);
+        $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
 
