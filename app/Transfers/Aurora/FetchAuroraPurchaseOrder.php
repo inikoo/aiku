@@ -56,11 +56,12 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 ->first();
 
 
+
+
             if ($supplierData) {
+
+
                 if($supplierData->aiku_ignore=='Yes') {
-
-                    // print $this->auroraModelData->{'Purchase Order Key'}.' '.$this->auroraModelData->{'Purchase Order Parent'}.' '.$this->auroraModelData->{'Purchase Order Parent Key'}.' '.$supplierData->{'Supplier Name'}. " is ignored\n";
-
                     return;
                 }
 
@@ -72,8 +73,13 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                     $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
                 );
 
+
             } else {
                 $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
+            }
+
+            if(!$parent){
+              return;
             }
 
             $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)
