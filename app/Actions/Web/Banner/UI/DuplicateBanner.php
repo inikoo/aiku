@@ -7,12 +7,13 @@
 
 namespace App\Actions\Web\Banner\UI;
 
-use App\Enums\Portfolio\Banner\BannerStateEnum;
-use App\Models\Portfolio\Banner;
+use App\Enums\Web\Banner\BannerStateEnum;
+use App\Models\Web\Banner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+//todo review carefully this action
 class DuplicateBanner
 {
     use AsAction;
@@ -33,7 +34,6 @@ class DuplicateBanner
                 $relation[0]->banners()->attach(
                     $newBanner->id,
                     [
-                        'tenant_id' => customer()->id,
                         'ulid'      => Str::ulid()
                     ]
                 );

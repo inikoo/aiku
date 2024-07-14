@@ -77,7 +77,7 @@ class WhistlGbPrepareShipment
             'service_type'          => $request->get('service_type'),
             'shipper_account'       => ['id' => $shipper->id],
             'shipment'              => [
-                'ship_from' => PostmenGetTenantAddress::run($shipper->data['tenant']),
+                'ship_from' => PostmenGetOrganisationAddress::run($shipper->data['organisation']),
                 'ship_to'   => $shipTo,
                 'parcels'   => $parcels
             ],

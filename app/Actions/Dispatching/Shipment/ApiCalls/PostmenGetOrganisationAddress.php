@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class PostmenGetTenantAddress
+class PostmenGetOrganisationAddress
 {
     use AsAction;
     use WithAttributes;
@@ -40,7 +40,7 @@ class PostmenGetTenantAddress
         }
         $credentials = array_filter($credentials);
 
-        $organisation = (new Shipper())->where('slug', $request->get('tenant'))->first();
+        $organisation = (new Shipper())->where('slug', $request->get('organisation'))->first();
 
         $params = [
             'slug'        => $request->get('shipper'),

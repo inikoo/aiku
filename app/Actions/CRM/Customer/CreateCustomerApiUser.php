@@ -12,7 +12,7 @@ namespace App\Actions\CRM\Customer;
 use App\Actions\CRM\WebUser\HydrateWebUser;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Models\CRM\Customer;
-use App\Models\SysAdmin\Organisation;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -21,7 +21,7 @@ class CreateCustomerApiUser
 {
     use AsAction;
 
-    public string $commandSignature   = 'customer:api-user {tenant_code} {customer_id}';
+    public string $commandSignature   = 'customer:api-user {customer_slug}';
     public string $commandDescription = 'Create an user with api token to the given customer.';
 
     public function handle(Customer $customer, $tokenData): string
@@ -39,25 +39,25 @@ class CreateCustomerApiUser
 
     public function asCommand(Command $command): int
     {
-        $organisation = Organisation::where('slug', ($command->argument('tenant_code')))->firstOrFail();
 
-        return $organisation->execute(function () use ($command) {
-            if ($customer = Customer::find($command->argument('customer_id'))) {
-                if (!$customer->shop->website) {
-                    $command->error("Shop {$customer->shop->name} do not have website");
+        try {
+            $customer=Customer::where('slug', $command->argument('customer_slug'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('WebUser not found');
+            return 1;
+        }
 
-                    return 1;
-                }
+        if (!$customer->shop->website) {
+            $command->error("Shop {$customer->shop->name} do not have website");
 
-                $token = $this->handle($customer, []);
-                $command->line("Customer access token: $token");
+            return 1;
+        }
 
-                return 0;
-            } else {
-                $command->error("Customer not found: {$command->argument('customer_id')}");
+        $token = $this->handle($customer, []);
+        $command->line("Customer access token: $token");
 
-                return 1;
-            }
-        });
+
+        return 0;
+
     }
 }

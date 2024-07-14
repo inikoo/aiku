@@ -8,6 +8,7 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Models\SysAdmin\Organisation;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class PrepareAuroraInstance
     use AsAction;
 
 
-    public string $commandSignature = 'fetch:prepare-aurora {token} {tenant_slug}';
+    public string $commandSignature = 'fetch:prepare-aurora {token} {organisation}';
 
     public function getCommandDescription(): string
     {
@@ -28,8 +29,12 @@ class PrepareAuroraInstance
 
     public function asCommand(Command $command): int
     {
-        $organisation = Organisation::where('slug', $command->argument('tenant_slug'))->first();
-
+        try {
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Organisation not found');
+            return 1;
+        }
         $aurora_db = Arr::get($organisation->data, 'source.aurora_db');
         if ($aurora_db) {
             $database_settings = data_get(config('database.connections'), 'aurora');
@@ -44,7 +49,7 @@ class PrepareAuroraInstance
             if (app()->environment('local') || app()->environment('staging') || app()->environment('production')) {
                 /** @noinspection HttpUrlsUsage */
                 DB::connection('aurora')->table('Account Data')
-                    ->update(['aiku_url' => (app()->isLocal() ? 'http://' : 'https://').$command->argument('tenant_slug').'.'.config('app.domain')]);
+                    ->update(['aiku_url' => (app()->isLocal() ? 'http://' : 'https://').$command->argument('organisation').'.'.config('app.domain')]);
             }
         }
 

@@ -10,7 +10,7 @@ namespace App\Actions\Ordering\Order;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
-use App\Models\SysAdmin\Organisation;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
@@ -18,7 +18,7 @@ class DeleteOrder
 {
     use WithActionUpdate;
 
-    public string $commandSignature = 'cancel:order {tenant} {id}';
+    public string $commandSignature = 'cancel:order {id}';
 
     /**
      * @throws \Illuminate\Validation\ValidationException
@@ -37,10 +37,20 @@ class DeleteOrder
         throw ValidationException::withMessages(['purchase_order' => 'You can not delete this order']);
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asCommand(Command $command): int
     {
-        Organisation::where('slug', $command->argument('tenant'))->first()->makeCurrent();
-        $this->handle(Order::findOrFail($command->argument('id')));
+
+        try {
+            $order=Order::findOrFail($command->argument('id'));
+        } catch (Exception) {
+            $command->error('Order not found');
+            return 1;
+        }
+
+        $this->handle($order);
 
         return 0;
     }

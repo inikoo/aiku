@@ -12,6 +12,7 @@ use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -28,7 +29,7 @@ class CreateUserFromEmployee
     use WithAttributes;
 
 
-    public string $commandSignature = 'create:user-from-employee {tenant : The tenant code} {employee : The employee identification code}';
+    public string $commandSignature = 'create:user-from-employee {{employee : The employee slug}';
 
     public function getCommandDescription(): string
     {
@@ -89,52 +90,40 @@ class CreateUserFromEmployee
 
     public function asCommand(Command $command): int
     {
-        $organisation = Organisation::where('slug', $command->argument('tenant'))->first();
-        if (!$organisation) {
-            $command->error("Organisation ".$command->argument('tenant')." not found");
+        try {
+            $employee = Employee::where('slug', $command->argument('employee'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Employee not found');
+
+            return 1;
+        }
+        if ($employee->user) {
+            $command->error("Employee already has an user");
 
             return 1;
         }
 
-
-        return (int)$organisation->execute(
-            function () use ($command) {
-                $employee = Employee::where('code', $command->argument('employee'))->first();
-                if (!$employee) {
-                    $command->error("Employee ".$command->argument('employee')." not found");
-
-                    return 1;
-                }
+        $password = (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
+        $user     = $this->handle($employee);
 
 
-                if ($employee->user) {
-                    $command->error("Employee already has an user");
+        $command->line("Employee user created $user->username");
 
-                    return 1;
-                }
+        $command->table(
+            ['Username', 'Password', 'Name', 'Roles'],
+            [
+                [
+                    $user->username,
+                    $password,
+                    $employee->contact_name,
+                    $user->getRoleNames()->implode(',')
+                ],
 
-
-                $password = (app()->isProduction() ? wordwrap(Str::random(), 4, '-', true) : 'hello');
-                $user     = $this->handle($employee);
-
-
-                $command->line("Employee user created $user->username");
-
-                $command->table(
-                    ['Username', 'Password', 'Name', 'Roles'],
-                    [
-                        [
-                            $user->username,
-                            $password,
-                            $employee->contact_name,
-                            $user->getRoleNames()->implode(',')
-                        ],
-
-                    ]
-                );
-
-                return 0;
-            }
+            ]
         );
+
+        return 0;
+
+
     }
 }

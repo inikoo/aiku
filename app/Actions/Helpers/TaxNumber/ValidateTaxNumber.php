@@ -10,6 +10,7 @@ namespace App\Actions\Helpers\TaxNumber;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Enums\Helpers\TaxNumber\TaxNumberTypeEnum;
 use App\Models\Helpers\TaxNumber;
+use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,7 +19,7 @@ class ValidateTaxNumber
     use AsAction;
     use WithOrganisationArgument;
 
-    public string $commandSignature = 'validate:tax-number {tenant} {tax_number_id}';
+    public string $commandSignature = 'validate:tax-number {tax_number_id}';
 
     protected array $deletedDependants;
 
@@ -35,7 +36,7 @@ class ValidateTaxNumber
 
     public function handle(TaxNumber $taxNumber): void
     {
-        if ($taxNumber->type==TaxNumberTypeEnum::EU_VAT) {
+        if ($taxNumber->type == TaxNumberTypeEnum::EU_VAT) {
             ValidateEuropeanTaxNumber::run($taxNumber);
         }
     }
@@ -43,14 +44,14 @@ class ValidateTaxNumber
 
     public function asCommand(Command $command): int
     {
-        $this->getTenant($command)->execute(
-            function () use ($command) {
-                $taxNumber=TaxNumber::findOrFail($command->argument('tax_number_id'));
-                $this->handle($taxNumber);
-            }
-        );
+        try {
+            $taxNumber = TaxNumber::findOrFail($command->argument('tax_number_id'));
+        } catch (Exception) {
+            $command->error('Tax Number not found');
 
-
+            return 1;
+        }
+        $this->handle($taxNumber);
 
         return 0;
     }

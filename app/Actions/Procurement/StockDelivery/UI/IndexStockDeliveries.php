@@ -72,7 +72,7 @@ class IndexStockDeliveries extends InertiaAction
             );
     }
 
-    public function asController(Organisation  $organisation,ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation  $organisation, ActionRequest $request): LengthAwarePaginator
     {
 
         $this->initialisation($request);

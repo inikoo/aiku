@@ -21,7 +21,7 @@ class PostmenPrepareShipment
         $parcels = [];
         $parcel  = new StdClass();
 
-        $organisation = $shipper->tenant;
+        $organisation = $shipper->organisation;
 
         $shipTo = array_filter($shipTo);
 

@@ -77,7 +77,7 @@ class PostmenCreateShipperAccount
             'service_type'          => $request->get('service_type'),
             'shipper_account'       => ['id' => $shipper->id],
             'shipment'              => [
-                'ship_from' => $this->getOrganisationAddress($shipper->data['tenant']),
+                'ship_from' => $this->getOrganisationAddress($shipper->data['organisation']),
                 'ship_to'   => $shipTo,
                 'parcels'   => $parcels
             ],

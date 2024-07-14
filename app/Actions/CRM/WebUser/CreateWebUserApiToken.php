@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Models\CRM\WebUser;
-use App\Models\SysAdmin\Organisation;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,7 +17,7 @@ class CreateWebUserApiToken
 {
     use AsAction;
 
-    public string $commandSignature   = 'web-user:token {tenant_code} {web_user_slug}';
+    public string $commandSignature   = 'web-user:token {web_user_slug}';
     public string $commandDescription = 'Add api token to web user.';
 
     public function handle(WebUser $webUser, $tokenData): string
@@ -33,19 +33,19 @@ class CreateWebUserApiToken
 
     public function asCommand(Command $command): int
     {
-        $organisation = Organisation::where('slug', ($command->argument('tenant_code')))->firstOrFail();
 
-        return $organisation->execute(function () use ($command) {
-            if ($webUser = WebUser::where('slug', $command->argument('web_user_slug'))->first()) {
-                $token = $this->handle($webUser, []);
-                $command->line("Web user access token: $token");
+        try {
+            $webUser=WebUser::where('slug', $command->argument('web_user_slug'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('WebUser not found');
+            return 1;
+        }
 
-                return 0;
-            } else {
-                $command->error("WebUser not found: {$command->argument('web_user_slug')}");
+        $token = $this->handle($webUser, []);
+        $command->line("Web user access token: $token");
 
-                return 1;
-            }
-        });
+        return 0;
+
+
     }
 }

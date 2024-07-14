@@ -13,7 +13,6 @@ use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\SysAdmin\Organisation;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -126,6 +125,9 @@ class FetchFromStack
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function asCommand(Command $command): int
     {
         $this->startTime = microtime(true);
@@ -136,21 +138,13 @@ class FetchFromStack
         $exitCode       = 0;
 
         foreach ($organisations as $organisation) {
-            $result = (int)$organisation->execute(
-                /**
-                 * @throws \Exception
-                 */
-                function (Organisation $organisation) use ($command) {
-                    $organisationSource = $this->getOrganisationSource($organisation);
-                    $organisationSource->initialisation($organisation);
 
-                    $this->handle($organisationSource);
-                }
-            );
+            $organisationSource = $this->getOrganisationSource($organisation);
+            $organisationSource->initialisation($organisation);
 
-            if ($result !== 0) {
-                $exitCode = $result;
-            }
+            $this->handle($organisationSource);
+
+
         }
 
         return $exitCode;

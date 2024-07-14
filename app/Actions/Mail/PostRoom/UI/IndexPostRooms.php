@@ -32,7 +32,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPostRooms extends OrgAction
 {
-
     private Organisation|Shop $parent;
 
     public function handle($prefix=null): LengthAwarePaginator
@@ -152,17 +151,17 @@ class IndexPostRooms extends OrgAction
     }
 
 
-    public function inOrganisation(Organisation $organisation,ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent=$organisation;
-        $this->initialisation($organisation,$request);
+        $this->initialisation($organisation, $request);
         return $this->handle();
     }
 
-    public function asController(Organisation $organisation,Shop $shop,ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent=$shop;
-        $this->initialisationFromShop($shop,$request);
+        $this->initialisationFromShop($shop, $request);
         return $this->handle();
     }
 
