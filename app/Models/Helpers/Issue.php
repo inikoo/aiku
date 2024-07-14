@@ -27,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $user_id
  * @property string $date
- * @property string $description
+ * @property string|null $description
  * @property array $data
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at

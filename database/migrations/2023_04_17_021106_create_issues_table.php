@@ -17,7 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->date('date');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->jsonb('data');
             $table->softDeletesTz();
             $table->timestampsTz();

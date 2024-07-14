@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->foreign('production_id')->references('id')->on('productions');
             $table->unsignedInteger('stock_id')->index()->nullable();
             $table->string('code', 64)->index()->collation('und_ns');
-            $table->string('description');
+            $table->text('description');
             $table->string('unit')->default(RawMaterialUnitEnum::UNIT->value);
             $table->decimal('unit_cost', 18, 3);
             $table->decimal('quantity_on_location', 18, 3)->default(0)->nullable();

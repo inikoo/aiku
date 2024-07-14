@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
 
             $table->dateTimeTz('schedule_at');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
 
             $table->string('state')->default(AppointmentStateEnum::BOOKED->value);
             $table->string('type');

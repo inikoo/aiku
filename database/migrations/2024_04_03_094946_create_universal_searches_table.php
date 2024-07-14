@@ -37,8 +37,8 @@ return new class () extends Migration {
             $table->string('customer_slug')->nullable();
             $table->nullableMorphs('model');
             $table->string('section')->nullable();
-            $table->string('title');
-            $table->string('description')->nullable();
+            $table->longText('title');
+            $table->longText('description')->nullable();
             $table->json('data');
             $table->timestampsTz();
         });
