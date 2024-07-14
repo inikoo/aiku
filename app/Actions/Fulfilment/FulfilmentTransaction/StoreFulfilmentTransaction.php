@@ -25,6 +25,8 @@ class StoreFulfilmentTransaction extends OrgAction
     public function handle(PalletDelivery|PalletReturn $parent, array $modelData): FulfilmentTransaction
     {
 
+        data_set($modelData, 'tax_category_id', $parent->tax_category_id, overwrite:false);
+
         $historicAsset = HistoricAsset::find($modelData['historic_asset_id']);
         $net           = $modelData['quantity']*$historicAsset->asset->price;
 

@@ -34,6 +34,10 @@ class StorePalletReturn extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
 
+        //todo: get tax category from a real action #546
+        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+        data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
+
         $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_RETURN);
 
 

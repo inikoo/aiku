@@ -22,14 +22,14 @@ class UpdateFulfilmentTransaction extends OrgAction
 
         $palletDeliveryTransaction->refresh();
 
-        $net = $palletDeliveryTransaction->asset->price * $palletDeliveryTransaction->quantity;
+        $netAmount = $palletDeliveryTransaction->asset->price * $palletDeliveryTransaction->quantity;
 
         $this->update(
             $palletDeliveryTransaction,
             [
-            'net'              => $net,
-            'grp_net_amount'   => $net * $palletDeliveryTransaction->grp_exchange,
-            'org_net_amount'   => $net * $palletDeliveryTransaction->org_exchange
+            'net_amount'              => $netAmount,
+            'grp_net_amount'          => $netAmount * $palletDeliveryTransaction->grp_exchange,
+            'org_net_amount'          => $netAmount * $palletDeliveryTransaction->org_exchange
         ]
         );
 

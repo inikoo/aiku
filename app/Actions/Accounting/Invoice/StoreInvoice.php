@@ -35,6 +35,10 @@ class StoreInvoice extends OrgAction
         Customer|Order $parent,
         array $modelData,
     ): Invoice {
+
+        //todo: get tax category from a real action #546
+        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+
         $billingAddressData = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
 
@@ -114,20 +118,14 @@ class StoreInvoice extends OrgAction
             'currency_id'      => ['required', 'exists:currencies,id'],
             'billing_address'  => ['required', new ValidAddress()],
             'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
-
             'net_amount'       => ['required', 'numeric'],
             'total_amount'     => ['required', 'numeric'],
-
-
-
-
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
-
             'source_id'        => ['sometimes', 'string'],
-            'tax_category_id'  => ['required', 'exists:tax_categories,id'],
+            'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
         ];
 
         if (!$this->strict) {

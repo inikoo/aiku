@@ -96,6 +96,7 @@ test('create order', function () {
     data_set($modelData, 'billing_address', $billingAddress);
     data_set($modelData, 'delivery_address', $deliveryAddress);
 
+
     $order = StoreOrder::make()->action($this->customer, $modelData);
     $this->customer->refresh();
 

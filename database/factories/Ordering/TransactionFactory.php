@@ -10,22 +10,20 @@ namespace Database\Factories\Ordering;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ordering\Transaction>
- */
 class TransactionFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
+
+        $grossAmount= fake()->randomFloat(2, 0, 100);
         return [
             'type'             => TransactionTypeEnum::ORDER,
             'quantity_bonus'   => fake()->numberBetween(0, 10),
             'quantity_ordered' => fake()->numberBetween(0, 10),
+            'gross_amount'     => $grossAmount,
+            'net_amount'       => $grossAmount,
+
+
         ];
     }
 }

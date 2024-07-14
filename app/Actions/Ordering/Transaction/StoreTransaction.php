@@ -25,6 +25,9 @@ class StoreTransaction extends OrgAction
 
     public function handle(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
     {
+        data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
+
+
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'group_id', $order->group_id);
@@ -56,7 +59,7 @@ class StoreTransaction extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'type'                => ['required', Rule::enum(TransactionTypeEnum::class)],
             'quantity_ordered'    => ['required', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
@@ -73,22 +76,22 @@ class StoreTransaction extends OrgAction
             'org_net_amount'      => ['sometimes', 'numeric'],
             'grp_net_amount'      => ['sometimes', 'numeric'],
             'created_at'          => ['sometimes', 'required', 'date'],
-            'tax_category_id'     => ['required', 'exists:tax_categories,id'],
+            'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
 
             'date'         => ['sometimes', 'required', 'date'],
             'submitted_at' => ['sometimes', 'required', 'date'],
         ];
 
         // when importing from other system
-        if(!$this->strict) {
-            $rules['in_warehouse_at']= ['sometimes', 'required', 'date'];
+        if (!$this->strict) {
+            $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
         }
 
 
         return $rules;
     }
 
-    public function action(Order $order, HistoricAsset $historicAsset, array $modelData, bool $strict=true): Transaction
+    public function action(Order $order, HistoricAsset $historicAsset, array $modelData, bool $strict = true): Transaction
     {
         $this->initialisationFromShop($order->shop, $modelData);
         $this->strict = $strict;

@@ -42,6 +42,10 @@ class StoreOrder extends OrgAction
         Shop|Customer|CustomerClient $parent,
         array $modelData,
     ): Order {
+
+        //todo: get tax category from a real action #546
+        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+
         $billingAddress = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
         /** @var Address $deliveryAddress */
@@ -66,7 +70,7 @@ class StoreOrder extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        $modelData=$this->processExchanges($modelData, $parent->shop);
+        $modelData = $this->processExchanges($modelData, $parent->shop);
 
         /** @var Order $order */
         $order = Order::create($modelData);
@@ -158,8 +162,8 @@ class StoreOrder extends OrgAction
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean'],
 
-            'source_id'        => ['sometimes', 'string', 'max:64'],
-            'tax_category_id'  => ['required', 'exists:tax_categories,id'],
+            'source_id'       => ['sometimes', 'string', 'max:64'],
+            'tax_category_id' => ['sometimes', 'required', 'exists:tax_categories,id'],
 
 
         ];
@@ -181,7 +185,6 @@ class StoreOrder extends OrgAction
             $rules['net_amount']   = ['sometimes', 'numeric'];
             $rules['tax_amount']   = ['sometimes', 'numeric'];
             $rules['total_amount'] = ['sometimes', 'numeric'];
-
         }
 
         return $rules;
@@ -189,14 +192,13 @@ class StoreOrder extends OrgAction
 
     public function prepareForValidation(): void
     {
-        if($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collection_address_id) {
+        if ($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collection_address_id) {
             abort(400, 'Collection orders require a collection address');
         }
 
-        if($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collectionAddress->country_id) {
+        if ($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collectionAddress->country_id) {
             abort(400, 'Invalid collection address');
         }
-
     }
 
     public function action(
