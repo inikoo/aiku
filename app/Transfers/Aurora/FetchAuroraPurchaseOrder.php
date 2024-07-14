@@ -78,8 +78,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
             }
 
-            if(!$parent){
-              return;
+            if(!$parent) {
+                return;
             }
 
             $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)

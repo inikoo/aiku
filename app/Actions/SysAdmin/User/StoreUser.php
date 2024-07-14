@@ -50,10 +50,9 @@ class StoreUser extends GrpAction
 
         GroupHydrateUsers::dispatch($user->group);
 
-        if($parent instanceof Employee or  $parent instanceof Guest) {
+        if ($parent instanceof Employee or $parent instanceof Guest) {
             SyncRolesFromJobPositions::run($user);
         }
-
 
 
         return $user;
@@ -71,26 +70,32 @@ class StoreUser extends GrpAction
     public function rules(): array
     {
         return [
-            'username'        => ['required', new AlphaDashDot(),
-                                  new IUnique(
-                                      table: 'users',
-                                      column: 'username',
-                                  ),
-                                  Rule::notIn(['export', 'create'])],
-            'password'        => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'username'        => [
+                'required',
+                new AlphaDashDot(),
+                new IUnique(
+                    table: 'users',
+                    column: 'username',
+                ),
+                Rule::notIn(['export', 'create'])
+            ],
+            'password'        => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
             'legacy_password' => ['sometimes', 'string'],
-            'email'           => ['sometimes', 'nullable', 'email',
-                                  new IUnique(
-                                      table: 'employees',
-                                      extraConditions: [
-                                          [
-                                              'column' => 'group_id',
-                                              'value'  => $this->group->id
-                                          ],
-                                      ]
-                                  ),
+            'email'           => [
+                'sometimes',
+                'nullable',
+                'email',
+                new IUnique(
+                    table: 'employees',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->group->id
+                        ],
+                    ]
+                ),
 
-                ],
+            ],
             'contact_name'    => ['sometimes', 'string', 'max:255'],
             'reset_password'  => ['sometimes', 'boolean'],
             'auth_type'       => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
@@ -109,9 +114,10 @@ class StoreUser extends GrpAction
     }
 
 
-    public function action(Guest|Employee $parent, array $modelData = []): User
+    public function action(Guest|Employee $parent, array $modelData = [], bool $strict = true): User
     {
         $this->asAction = true;
+        $this->strict   = $strict;
 
         $this->initialisation($parent->group, $modelData);
 

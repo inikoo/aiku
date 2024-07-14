@@ -77,7 +77,7 @@ class UpdateUser extends GrpAction
 
 
             ],
-            'password'        => ['sometimes','required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password'        => ['sometimes','required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
             'legacy_password' => ['sometimes', 'string'],
             'email'           => ['sometimes', 'nullable', 'email',
                                   new IUnique(
@@ -110,10 +110,11 @@ class UpdateUser extends GrpAction
         return $this->handle($user, $this->validatedData);
     }
 
-    public function action(User $user, $modelData): User
+    public function action(User $user, array $modelData, bool $strict = true): User
     {
         $this->user     =$user;
         $this->asAction = true;
+        $this->strict   = $strict;
         $this->initialisation($user->group, $modelData);
 
         return $this->handle($user, $this->validatedData);

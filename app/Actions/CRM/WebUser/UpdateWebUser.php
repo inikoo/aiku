@@ -88,7 +88,7 @@ class UpdateWebUser extends OrgAction
             ],
             'data'       => ['sometimes', 'array'],
             'deleted_at' => ['sometimes', 'nullable', 'date'],
-            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
         ];
 
         if ($this->strict) {

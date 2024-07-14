@@ -103,7 +103,7 @@ class StoreWebUser extends OrgAction
                 [
                     'sometimes',
                     'required',
-                    app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()
+                    app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()
                 ],
 
         ];
@@ -159,11 +159,12 @@ class StoreWebUser extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0): Webuser
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Webuser
     {
         $this->asAction       = true;
         $this->customer       = $customer;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisationFromShop($customer->shop, $modelData);
 
         return $this->handle($customer, $this->validatedData);

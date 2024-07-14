@@ -67,7 +67,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
                             [
                                 'legacy_password' => (string)Arr::get($employeeData, 'user.legacy_password'),
                                 'status'          => Arr::get($employeeData, 'user.status'),
-                            ]
+                            ],
+                            strict: false
                         );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'update');
@@ -86,7 +87,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
                                     'reset_password' => true,
                                     'auth_type'      => UserAuthTypeEnum::AURORA,
                                 ]
-                            )
+                            ),
+                            strict: false
                         );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
