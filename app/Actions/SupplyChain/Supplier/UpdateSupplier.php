@@ -24,7 +24,6 @@ class UpdateSupplier extends GrpAction
 
     private Supplier $supplier;
     private bool $action = false;
-    private mixed $strict;
 
     public function handle(Supplier $supplier, array $modelData): Supplier
     {

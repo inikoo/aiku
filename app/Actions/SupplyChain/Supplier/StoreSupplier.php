@@ -33,8 +33,6 @@ class StoreSupplier extends GrpAction
     use WithAttributes;
     use WithModelAddressActions;
 
-    private mixed $strict;
-
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
