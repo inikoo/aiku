@@ -9,7 +9,6 @@ namespace App\Actions\Helpers\Notifications;
 
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Models\Mail\DispatchedEmail;
-use App\Models\SysAdmin\Organisation;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -31,10 +30,6 @@ class GetSnsNotification
 
                 $messageId = $messageData['mail']['messageId'];
                 $timestamp = $messageData['mail']['timestamp'];
-
-                $currentTenant =  explode('.', explode('@', $messageData['mail']['source'])[1])[0];
-
-                Organisation::where('slug', $currentTenant)->first()->makeCurrent();
 
                 $dispatchedEmail = DispatchedEmail::where('ses_id', $messageId)->first();
                 UpdateDispatchedEmail::run($dispatchedEmail, [

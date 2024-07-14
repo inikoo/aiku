@@ -12,6 +12,7 @@ use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\StockDelivery;
+use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -71,12 +72,12 @@ class IndexStockDeliveries extends InertiaAction
             );
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation  $organisation,ActionRequest $request): LengthAwarePaginator
     {
 
         $this->initialisation($request);
 
-        return $this->handle(app('currentTenant'));
+        return $this->handle($organisation);
     }
 
 

@@ -7,10 +7,10 @@
 
 namespace App\Actions\Mail\PostRoom\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Mail\Outbox\UI\IndexOutboxes;
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Mail\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
@@ -18,7 +18,9 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Http\Resources\Mail\PostRoomResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
 use App\Models\Mail\PostRoom;
+use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,8 +30,11 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPostRooms extends InertiaAction
+class IndexPostRooms extends OrgAction
 {
+
+    private Organisation|Shop $parent;
+
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -102,7 +107,6 @@ class IndexPostRooms extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $postRoom, ActionRequest $request): Response
     {
-        $scope=app('currentTenant');
 
         return Inertia::render(
             'Mail/PostRooms',
@@ -130,33 +134,35 @@ class IndexPostRooms extends InertiaAction
                     : Inertia::lazy(fn () => PostRoomResource::collection($postRoom)),
 
                 PostRoomsTabsEnum::OUTBOXES->value => $this->tab == PostRoomsTabsEnum::OUTBOXES->value ?
-                    fn () => OutboxResource::collection(IndexOutboxes::run($scope, PostRoomsTabsEnum::OUTBOXES->value))
-                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($scope, PostRoomsTabsEnum::OUTBOXES->value))),
+                    fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))),
 
                 PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($scope))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($scope))),
+                    fn () => MailshotResource::collection(IndexMailshots::run($this->parent))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->parent))),
 
                 PostRoomsTabsEnum::DISPATCHED_EMAILS->value => $this->tab == PostRoomsTabsEnum::DISPATCHED_EMAILS->value ?
-                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($scope))
-                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($scope))),
+                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($this->parent))
+                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($this->parent))),
             ]
         )->table($this->tableStructure(prefix: 'post_rooms'))
-            ->table(IndexOutboxes::make()->tableStructure(parent:$scope, prefix: 'outboxes'))
-            ->table(IndexMailshots::make()->tableStructure(parent:$scope, prefix: 'mailshots'))
-            ->table(IndexDispatchedEmails::make()->tableStructure(parent:$scope, prefix: 'dispatched_emails'));
+            ->table(IndexOutboxes::make()->tableStructure(parent:$this->parent, prefix: 'outboxes'))
+            ->table(IndexMailshots::make()->tableStructure(parent:$this->parent, prefix: 'mailshots'))
+            ->table(IndexDispatchedEmails::make()->tableStructure(parent:$this->parent, prefix: 'dispatched_emails'));
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation,ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent=$organisation;
+        $this->initialisation($organisation,$request);
         return $this->handle();
     }
 
-    public function inShop(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation,Shop $shop,ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent=$shop;
+        $this->initialisationFromShop($shop,$request);
         return $this->handle();
     }
 

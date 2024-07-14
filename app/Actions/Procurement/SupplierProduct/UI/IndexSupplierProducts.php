@@ -14,6 +14,7 @@ use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -98,9 +99,9 @@ class IndexSupplierProducts extends InertiaAction
             );
     }
 
-    public function asController(): LengthAwarePaginator
+    public function asController(Organisation $organisation): LengthAwarePaginator
     {
-        return $this->handle(app('currentTenant'));
+        return $this->handle($organisation);
     }
 
     public function inAgent(Agent $agent): LengthAwarePaginator
@@ -119,7 +120,6 @@ class IndexSupplierProducts extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
-        //        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
         return Inertia::render(
             'Procurement/SupplierProducts',
             [

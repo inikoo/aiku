@@ -142,7 +142,7 @@ class FetchFromStack
                  */
                 function (Organisation $organisation) use ($command) {
                     $organisationSource = $this->getOrganisationSource($organisation);
-                    $organisationSource->initialisation(app('currentTenant'));
+                    $organisationSource->initialisation($organisation);
 
                     $this->handle($organisationSource);
                 }

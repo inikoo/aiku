@@ -14,7 +14,8 @@ class PostRoomRoutes
 {
     public function __invoke($parent): void
     {
-        Route::get('/post_rooms', [IndexPostRooms::class, $parent == 'organisation' ? 'inOrganisation' : 'inShop'])->name('post_rooms.index');
+        //todo review this
+        Route::get('/post_rooms', [IndexPostRooms::class, $parent == 'organisation' ? 'inOrganisation' : 'asController'])->name('post_rooms.index');
 
     }
 }
