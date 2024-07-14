@@ -23,6 +23,11 @@ class FetchAuroraTimesheets extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Timesheet
     {
         if ($timesheetData = $organisationSource->fetchTimesheet($organisationSourceId)) {
+
+            if(!$timesheetData['employee'] or $timesheetData['employee']->trashed()) {
+                return null;
+            }
+
             if ($timesheet = Timesheet::where('source_id', $timesheetData['timesheet']['source_id'])->first()) {
                 try {
                     $timesheet = UpdateTimesheet::make()->action(
