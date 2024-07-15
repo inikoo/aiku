@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Product;
@@ -612,5 +613,10 @@ class Organisation extends Model implements HasMedia, Auditable
     public function clients(): HasMany
     {
         return $this->hasMany(CustomerClient::class);
+    }
+
+    public function charges(): HasMany
+    {
+        return $this->hasMany(Charge::class);
     }
 }

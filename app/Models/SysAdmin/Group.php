@@ -14,6 +14,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Product;
@@ -565,6 +566,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function platforms(): HasMany
     {
         return $this->hasMany(Platform::class);
+    }
+
+    public function charges(): HasMany
+    {
+        return $this->hasMany(Charge::class);
     }
 
 

@@ -8,8 +8,16 @@
 namespace App\Models\Catalogue;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ChageStats extends Model
+class ChargeStats extends Model
 {
+    protected $table = 'charge_stats';
 
+    protected $guarded = [];
+
+    public function asset(): BelongsTo
+    {
+        return $this->belongsTo(Charge::class);
+    }
 }
