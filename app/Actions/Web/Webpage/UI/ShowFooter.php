@@ -84,6 +84,13 @@ class ShowFooter extends OrgAction
                     ]
                 ],
 
+                'autosaveRoute' => [
+                    'name'       => 'grp.models.website.autosave.footer',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ],
+
                 'data' => GetWebsiteWorkshopFooter::run($website)
             ]
         );
