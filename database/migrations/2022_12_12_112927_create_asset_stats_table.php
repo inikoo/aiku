@@ -25,9 +25,10 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('number_historic_assets')->default(0);
 
-            foreach (AssetTypeEnum::cases() as $case) {
-                $table->unsignedInteger('number_assets_type_'.$case->snake())->default(0);
-            }
+            $table->unsignedInteger('number_assets_type_product')->default(0);
+            $table->unsignedInteger('number_assets_type_service')->default(0);
+            $table->unsignedInteger('number_assets_type_subscription')->default(0);
+            $table->unsignedInteger('number_assets_type_rental')->default(0);
 
             foreach (AssetStateEnum::cases() as $case) {
                 $table->unsignedInteger('number_assets_state_'.$case->snake())->default(0);

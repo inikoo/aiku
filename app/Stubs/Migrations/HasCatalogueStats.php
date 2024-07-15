@@ -88,10 +88,11 @@ trait HasCatalogueStats
             $table->unsignedInteger('number_assets_state_'.$case->snake())->default(0);
         }
 
-        foreach (AssetTypeEnum::cases() as $case) {
-            $table->unsignedInteger('number_assets_type_'.$case->snake())->default(0);
-        }
 
+        $table->unsignedInteger('number_assets_type_product')->default(0);
+        $table->unsignedInteger('number_assets_type_service')->default(0);
+        $table->unsignedInteger('number_assets_type_subscription')->default(0);
+        $table->unsignedInteger('number_assets_type_rental')->default(0);
 
         return $table;
     }
