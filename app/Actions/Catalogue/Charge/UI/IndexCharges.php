@@ -10,6 +10,7 @@
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -100,7 +101,6 @@ class IndexCharges extends OrgAction
                 'charges.updated_at',
             ])
             ->leftJoin('charge_stats', 'charges.id', 'charge_stats.charge_id')
-            ->where('product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)
             ->allowedSorts(['code', 'name','shop_code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
