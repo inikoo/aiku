@@ -35,9 +35,9 @@ class UpdateFulfilment extends OrgAction
         }
 
         if(Arr::exists($modelData, 'monthly_cut_off')) {
-            $settings['rental_agreement_cut_off']['monthly']['day'] = $modelData['monthly_cut_off']['date'];
+            $settings['rental_agreement_cut_off']['monthly']['day']      = $modelData['monthly_cut_off']['date'];
             $settings['rental_agreement_cut_off']['monthly']['workdays'] = $modelData['monthly_cut_off']['isWeekdays'];
-            $updateSettings = true;
+            $updateSettings                                              = true;
             data_forget($modelData, 'monthly_cut_off');
             // data_forget($modelData, 'monthly_only_weekdays');
         }
@@ -66,7 +66,7 @@ class UpdateFulfilment extends OrgAction
     {
         return [
             'weekly_cut_off_day'     => ['sometimes','string', Rule::in(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']) ],
-            'monthly_cut_off' => [
+            'monthly_cut_off'        => [
                 'sometimes',
                 'array'
             ],
