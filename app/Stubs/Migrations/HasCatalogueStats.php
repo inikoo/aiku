@@ -10,7 +10,6 @@ namespace App\Stubs\Migrations;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;

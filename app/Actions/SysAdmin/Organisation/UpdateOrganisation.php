@@ -9,10 +9,13 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rules\File;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrganisation
@@ -31,6 +34,22 @@ class UpdateOrganisation
                 [
                     'location' => $organisation->address->getLocation()
                 ]
+            );
+        }
+
+        if (Arr::has($modelData, 'logo')) {
+            /** @var UploadedFile $image */
+            $image = Arr::get($modelData, 'logo');
+            data_forget($modelData, 'logo');
+            $imageData = [
+                'path'         => $image->getPathName(),
+                'originalName' => $image->getClientOriginalName(),
+                'extension'    => $image->getClientOriginalExtension(),
+            ];
+            $organisation = SaveModelImage::run(
+                model: $organisation,
+                imageData: $imageData,
+                scope: 'logo'
             );
         }
 
@@ -66,6 +85,12 @@ class UpdateOrganisation
             'timezone_id'             => ['sometimes', 'exists:timezones,id'],
             'currency_id'             => ['sometimes', 'exists:currencies,id'],
             'source'                  => ['sometimes', 'array'],
+            'logo'                    => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ]
         ];
     }
 

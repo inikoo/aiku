@@ -158,7 +158,7 @@ test('create fulfilment shop', function () {
     return $shop->fulfilment;
 });
 
-test('update fulfilment settings (weekly cut off day)', function(Fulfilment $fulfilment) {
+test('update fulfilment settings (weekly cut off day)', function (Fulfilment $fulfilment) {
     $Updatedfulfilment = UpdateFulfilment::make()->action(
         $fulfilment,
         [
@@ -171,12 +171,12 @@ test('update fulfilment settings (weekly cut off day)', function(Fulfilment $ful
     return $Updatedfulfilment;
 })->depends('create fulfilment shop');
 
-test('update fulfilment settings (monthly cut off day)', function(Fulfilment $fulfilment) {
+test('update fulfilment settings (monthly cut off day)', function (Fulfilment $fulfilment) {
     $Updatedfulfilment = UpdateFulfilment::make()->action(
         $fulfilment,
         [
             'monthly_cut_off'  => [
-                'date' => 12,
+                'date'       => 12,
                 'isWeekdays' => true
             ]
         ]
@@ -1145,32 +1145,36 @@ test('set second pallet delivery as booked in', function (PalletDelivery $pallet
 })->depends('set rental to only pallet in the second pallet delivery');
 
 test('recurring bill next cycle', function (PalletDelivery $palletDelivery) {
-   $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
-   $rentalAgreement = $fulfilmentCustomer->rentalAgreement;
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+    $rentalAgreement    = $fulfilmentCustomer->rentalAgreement;
 
-   $currentBill = $fulfilmentCustomer->currentRecurringBill;
-   $nextCycle = StoreRecurringBill::make()->action($rentalAgreement,
-   [
-        'start_date' => $currentBill->end_date
-   ]);
-   expect($nextCycle)->toBeInstanceOf(RecurringBill::class)
-        ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
+    $currentBill = $fulfilmentCustomer->currentRecurringBill;
+    $nextCycle   = StoreRecurringBill::make()->action(
+        $rentalAgreement,
+        [
+         'start_date' => $currentBill->end_date
+   ]
+    );
+    expect($nextCycle)->toBeInstanceOf(RecurringBill::class)
+         ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
 
     return $nextCycle;
 })->depends('set pallet delivery as booked in');
 
 test('second recurring bill next cycle', function (PalletDelivery $palletDelivery) {
-   $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
-   $rentalAgreement = $fulfilmentCustomer->rentalAgreement;
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+    $rentalAgreement    = $fulfilmentCustomer->rentalAgreement;
 
-   $currentBill = $fulfilmentCustomer->currentRecurringBill;
-   $nextCycle = StoreRecurringBill::make()->action($rentalAgreement,
-   [
-        'start_date' => $currentBill->end_date
-   ]);
+    $currentBill = $fulfilmentCustomer->currentRecurringBill;
+    $nextCycle   = StoreRecurringBill::make()->action(
+        $rentalAgreement,
+        [
+         'start_date' => $currentBill->end_date
+   ]
+    );
 
-   expect($nextCycle)->toBeInstanceOf(RecurringBill::class)
-        ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
+    expect($nextCycle)->toBeInstanceOf(RecurringBill::class)
+         ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
 
 
     return $nextCycle;

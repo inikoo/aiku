@@ -11,5 +11,4 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShippingStats extends Model
 {
-
 }

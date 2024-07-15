@@ -61,7 +61,7 @@ class EditOrganisationSettings extends OrgAction
                                 "logo" => [
                                     "type"  => "avatar",
                                     "label" => __("logo"),
-                                    "value" => $organisation->image_id,
+                                    "value" => $organisation->imageSources(320, 320),
                                 ],
                             ],
                         ],
