@@ -1,56 +1,138 @@
 <script setup lang='ts'>
-import { Link } from '@inertiajs/vue3'
+import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
+import { useColorTheme } from '@/Composables/useStockList'
+import ColorSchemeWorkshopWebsite from '@/Components/CMS/Workshops/ColorSchemeWorkshopWebsite.vue'
 import { routeType } from '@/types/route'
+
+import { ref } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faPaintBrushAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faPaintBrushAlt)
+
+
 const props = defineProps<{
     data: {
-        footerRoute: routeType
-        headerRoute: routeType
+        routeList: {
+            headerRoute: routeType
+            footerRoute: routeType
+            webpageRoute: routeType
+            notificationRoute: routeType
+            menuLeftRoute: routeType
+            menuRightRoute: routeType
+        }
     }
 }>()
 
+
+const listColorTheme = [...useColorTheme]
+
+const selectedColor = ref([...listColorTheme[0]])
+
+const onClickColor = (colorTheme: string[]) => {
+    selectedColor.value = [...colorTheme]
+}
 </script>
 
-<template>
-    <div class="max-w-2xl mx-auto mt-8 shadow-2xl">
-        <Link as="div" href="" class="bg-orange-100 hover:bg-orange-400 cursor-pointer w-full h-8 text-center">
-            Notification
-        </Link>
-
-        <Link as="div" :href="data?.headerRoute?.name ? route(data.headerRoute?.name, data.headerRoute?.parameters) : '#'"
-            class="bg-lime-100 hover:bg-lime-400 cursor-pointer w-full h-40 text-4xl flex items-center justify-center">
-            Header
-            <!-- Icon: Exterlink link  -->
-        </Link>
-
-        <div class="bg-slate-100 w-full h-[400px] grid grid-cols-9">
-            <div
-                class="bg-indigo-100 hover:bg-indigo-400 cursor-pointer col-span-2 flex justify-center items-center text-2xl">
-                <span class="-rotate-90">Menu left</span>
-            </div>
-
-            <div class="bg-gray-100 col-span-5 flex flex-col cursor-not-allowed">
-                <!-- <div class="bg-slate-100 h-16 flex justify-center items-center text-2xl">
-                    Content Header
-                </div> -->
-
-                <div class="bg-slate-300 flex flex-col justify-center items-center text-center text-gray-400 text-4xl h-full">
-                    Preserved for webpages
+<template>    
+    <div class="p-8 grid grid-cols-2">
+        <div class="space-y-6">
+            <div class="w-fit">
+                <div class="text-sm text-gray-500 font-semibold">Main Layout</div>
+                <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
+                    <div>
+                        <div class="text-sm">Background color</div>
+                        <div class="flex gap-x-2">
+                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[0]" @changeColor="(e) => selectedColor[0] = e.hex">
+                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                            </ColorPicker>
+                            <div>{{ selectedColor[0] }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm">Text color</div>
+                        <div class="flex gap-x-2">
+                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[1]" @changeColor="(e) => selectedColor[1] = e.hex">
+                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                            </ColorPicker>
+                            <div>{{ selectedColor[1] }}</div>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- <div class="bg-slate-100 h-24 flex justify-center items-center text-2xl">
-                    Content Footer
-                </div> -->
             </div>
-
-            <div
-                class="bg-violet-100 hover:bg-violet-400 cursor-pointer col-span-2 flex justify-center items-center text-2xl">
-                <span class="-rotate-90">Menu right</span>
+            <div class="w-fit">
+                <div class="text-sm text-gray-500 font-semibold">Navigation and box</div>
+                <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
+                    <div>
+                        <div class="text-sm">Background color</div>
+                        <div class="flex gap-x-2">
+                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[2]" @changeColor="(e) => selectedColor[2] = e.hex">
+                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                            </ColorPicker>
+                            <div>{{ selectedColor[2] }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm">Text color</div>
+                        <div class="flex gap-x-2">
+                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[3]" @changeColor="(e) => selectedColor[3] = e.hex">
+                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                            </ColorPicker>
+                            <div>{{ selectedColor[3] }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-fit">
+                <div class="text-sm text-gray-500 font-semibold">Button and mini box</div>
+                <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
+                    <div>
+                        <div class="text-sm">Background color</div>
+                        <div class="flex gap-x-2">
+                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[4]" @changeColor="(e) => selectedColor[4] = e.hex">
+                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                            </ColorPicker>
+                            <div>{{ selectedColor[4] }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm">Text color</div>
+                        <div class="flex gap-x-2">
+                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[5]" @changeColor="(e) => selectedColor[5] = e.hex">
+                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                            </ColorPicker>
+                            <div>{{ selectedColor[5] }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <Link :href="data?.footerRoute?.name ? route(data.footerRoute?.name, data.footerRoute?.parameters) : '#'"
-            class="bg-blue-100 hover:bg-blue-400 cursor-pointer w-full h-24 flex justify-center items-center text-2xl">
-            Footer
-        </Link>
+        <div class="space-y-4">
+            <ColorSchemeWorkshopWebsite
+                :routeList="data.routeList"
+                :color="selectedColor"
+            />
+
+            <div class="space-y-4">
+                <div class="flex items-center gap-x-2">
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
+                    <span class="whitespace-nowrap text-sm text-gray-500">Select theme</span>
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
+                </div>
+                <div class="flex flex-wrap justify-center gap-x-2 gap-y-3">
+                    <div v-for="colorTheme in listColorTheme" @click="() => onClickColor(colorTheme)"
+                        class="flex ring-1 ring-gray-400 hover:ring-indigo-500 shadow rounded overflow-hidden w-fit cursor-pointer">
+                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[0] }" />
+                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[1] }" />
+                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[2] }" />
+                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[3] }" />
+                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[4] }" />
+                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[5] }" />
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
 </template>

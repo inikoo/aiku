@@ -75,6 +75,7 @@ class ShowWebsite extends OrgAction
                 ] : null,
                 'pageHead'    => [
                     'title'     => $website->name,
+                    'model'     => __('Website'),
                     'icon'      => [
                         'title' => __('website'),
                         'icon'  => 'fal fa-globe'
