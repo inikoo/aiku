@@ -17,15 +17,16 @@ import Popover from '@/Components/Popover.vue'
 import PureInput from "@/Components/Pure/PureInput.vue"
 import InputUseOption from "@/Components/Pure/InputUseOption.vue"
 
-import { faPresentation, faLink } from "@fal"
+import { faPresentation, faLink, faExternalLink } from "@fal"
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
+import { Link } from "@inertiajs/vue3"
 
-library.add(faPresentation, faLink, faSpinnerThird)
+library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
 
 const props = defineProps<{
     modelValue: any
@@ -219,8 +220,8 @@ onMounted(() => {
                 {{ trans('Select banners') }}
             </div>
             
-            <div v-if="!isLoadingFetching">
-                <ul role="list" class="flex flex-wrap gap-x-4 gap-y-2.5">
+            <div v-if="!isLoadingFetching" class="">
+                <ul v-if="bannersList.length" role="list" class="flex flex-wrap gap-x-4 gap-y-2.5">
                     <li
                         v-for="banner in bannersList" :key="banner.slug"
                         @click="() => onPickBanner(banner)"
@@ -244,6 +245,13 @@ onMounted(() => {
                         </div>
                     </li>
                 </ul>
+
+                <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
+                    <div class="mb-2">{{ trans('You have no banner yet.') }}</div>
+                    <a target="_blank" :href="route('grp.org.shops.show.web.banners.index', [layout.currentParams.organisation, layout.currentParams.shop, layout.currentParams.website])">
+                        <Button label="Create banner" iconRight="fal fa-external-link" />
+                    </a>
+                </div>
             </div>
 
             <div v-else class="flex justify-center pt-32 items-center">

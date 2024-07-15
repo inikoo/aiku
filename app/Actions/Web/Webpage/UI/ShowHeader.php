@@ -79,6 +79,13 @@ class ShowHeader extends OrgAction
                     ],
                 ],
 
+                'uploadImageRoute' => [
+                    'name'       => 'grp.models.website.header.images.store',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ],
+
                 'data' => GetWebsiteWorkshopHeader::run($website)
             ]
         );

@@ -77,6 +77,13 @@ class ShowFooter extends OrgAction
                     ],
                 ],
 
+                'uploadImageRoute' => [
+                    'name'       => 'grp.models.website.footer.images.store',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ],
+
                 'data' => GetWebsiteWorkshopFooter::run($website)
             ]
         );
