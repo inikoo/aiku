@@ -227,7 +227,8 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			</div>
             
             <template v-else>
-                <Tag :label="pallet.location_code" />
+                <Tag v-if="pallet.location_code" :label="pallet.location_code" />
+                <div v-else class="pl-4 text-gray-400">-</div>
             </template>
 		</template>
 
