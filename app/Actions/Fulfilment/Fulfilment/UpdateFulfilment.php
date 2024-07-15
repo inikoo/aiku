@@ -28,21 +28,18 @@ class UpdateFulfilment extends OrgAction
         $settings       = $fulfilment->settings;
         $updateSettings = false;
 
-
         if(Arr::exists($modelData, 'weekly_cut_off_day')) {
             $settings['rental_agreement_cut_off']['weekly']['day'] = $modelData['weekly_cut_off_day'];
             $updateSettings                                        = true;
             data_forget($modelData, 'weekly_cut_off_day');
         }
 
-        if(Arr::exists($modelData, 'monthly_cut_off_day')) {
-            $settings['rental_agreement_cut_off']['monthly']['day'] = $modelData['monthly_cut_off_day'];
-            if(Arr::exists($modelData, 'monthly_only_weekdays')) {
-                $settings['rental_agreement_cut_off']['monthly']['workdays'] = $modelData['monthly_only_weekdays'];
-            }
+        if(Arr::exists($modelData, 'monthly_cut_off')) {
+            $settings['rental_agreement_cut_off']['monthly']['day'] = $modelData['monthly_cut_off']['date'];
+            $settings['rental_agreement_cut_off']['monthly']['workdays'] = $modelData['monthly_cut_off']['isWeekdays'];
             $updateSettings = true;
-            data_forget($modelData, 'monthly_cut_off_day');
-            data_forget($modelData, 'monthly_only_weekdays');
+            data_forget($modelData, 'monthly_cut_off');
+            // data_forget($modelData, 'monthly_only_weekdays');
         }
 
         if($updateSettings) {
@@ -69,11 +66,22 @@ class UpdateFulfilment extends OrgAction
     {
         return [
             'weekly_cut_off_day'     => ['sometimes','string', Rule::in(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']) ],
-            'monthly_cut_off_day'    => ['sometimes','integer', 'min:1', 'max:31'],
-            'monthly_only_weekdays'  => ['sometimes','boolean'],
+            'monthly_cut_off' => [
+                'sometimes',
+                'array'
+            ],
+            'monthly_cut_off.date' => [
+                'sometimes',
+                'integer',
+                'min:1',
+                'max:31'
+            ],
+            'monthly_cut_off.isWeekdays' => [
+                'sometimes',
+                'boolean',
+            ]
         ];
     }
-
 
     public function asController(Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
