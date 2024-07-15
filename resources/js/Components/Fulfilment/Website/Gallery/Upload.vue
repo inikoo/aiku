@@ -21,6 +21,8 @@ const props = defineProps<{
     uploadRoutes: string
     useCrop:Boolean,
     cropProps:Object
+    imagesUploadedRoutes : routeType,
+    stockImageRoutes : routeType
 }>()
 
 const isDragging = ref(false);

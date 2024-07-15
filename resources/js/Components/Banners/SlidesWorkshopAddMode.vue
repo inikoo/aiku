@@ -17,6 +17,10 @@ const props = defineProps<{
         type: string
     }
     imagesUploadRoute: routeType
+    galleryRoute:{
+        stock_images : routeType,
+        uploaded_images : routeType
+    }
 }>()
 
 
@@ -180,6 +184,8 @@ const onClickQuickStart = () => {
         @onPick="onPick"
         :tabs="['images_uploaded','stock_images']"
         @onUpload="route(imagesUploadRoute.name,imagesUploadRoute.parameters)"
+        :stockImageRoutes="galleryRoute.stock_images"
+        :imagesUploadedRoutes="galleryRoute.uploaded_images"
     >
     </Gallery>
     

@@ -22,12 +22,22 @@
       open: Boolean
       width?: String,
       uploadRoutes: String
+      stockImageRoutes?: routeType,
+      imagesUploadedRoutes?: routeType,
       tabs?: Array,
       useCrop? : Bollean,
       cropProps? : Object
     }>(), {
         tabs: ['upload','images_uploaded','stock_images'],
         useCrop : false,
+        stockImageRoutes : {
+            name : 'grp.gallery.stock-images.index',
+            parameters : ""
+        },
+        imagesUploadedRoutes : {
+            name : 'grp.gallery.stock-images.index',
+            parameters : ""
+        },
         cropProps : {
             ratio :  { w: 1, h: 1 } 
         }
@@ -109,8 +119,8 @@ const onUpload = (e) => {
                     'rounded-xl bg-white p-3 h-96 overflow-auto',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                    <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick"
-                        @onUpload="onUpload"  :useCrop="useCrop" :cropProps="cropProps"/>
+                    <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick" :imagesUploadedRoutes="imagesUploadedRoutes"
+                        @onUpload="onUpload"  :useCrop="useCrop" :cropProps="cropProps" :stockImageRoutes="stockImageRoutes" />
 
                 </TabPanel>
             </TabPanels>

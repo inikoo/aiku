@@ -38,6 +38,10 @@ const props = defineProps<{
     autoSaveRoute: routeType
     publishRoute: routeType
     currentView?: Object
+    galleryRoute:{
+        stock_images : routeType,
+        uploaded_images : routeType
+    }
 }>()
 
 
@@ -189,6 +193,7 @@ onBeforeUnmount(() => {
                 :imagesUploadRoute="imagesUploadRoute"
                 :user="user.username"
                 :banner="banner"
+                :galleryRoute="galleryRoute"
             />
         </div>
 
