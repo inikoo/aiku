@@ -34,6 +34,7 @@ const props = withDefaults(defineProps<{
     urlRoute?:string
     label?:string,
     valueProp?:string
+    isLoading?: boolean
 }>(), {
     type: 'text',
     min: 0,
@@ -117,6 +118,7 @@ const onChange = (value : Any) => {
             :modelValue="pallet.form[fieldName]"
             :placeholder="placeholder"
             :options="options"
+            :isLoading
             caret
             @OnChange="onChange"
             :required="required"

@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<{
     object?: boolean
     label?: string
     valueProp?: string
+    isLoading?: boolean
 }>(), {
     clearOnBlur: true
 })
@@ -39,6 +40,7 @@ const onInput = (keyOption : any) => {
         <Multiselect
             :value="modelValue"
             @input="onInput"
+            :loading="isLoading"
             :classes="{placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1', ...classes}"
             :options="props.options"
             :placeholder="placeholder ?? 'Select your option'"
@@ -50,7 +52,7 @@ const onInput = (keyOption : any) => {
             :clearOnBlur
             :object="object"
             :searchable="!!searchable"
-            :caret="caret ?? true"
+            :caret="isLoading ? false : caret ?? true"
             :label="label"
             :valueProp="valueProp"
         >
@@ -69,7 +71,7 @@ const onInput = (keyOption : any) => {
 
 <style>
 .multiselect-single-label {
-    padding-right: calc(0.25rem + var(--ms-px, .035rem)*3) !important;
+    padding-right: calc(1.5rem + var(--ms-px, .035rem)*3) !important;
 }
 
 .multiselect-search {
