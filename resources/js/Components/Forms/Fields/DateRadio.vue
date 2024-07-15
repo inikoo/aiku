@@ -6,21 +6,13 @@
 
 <script setup lang="ts">
 import PureCheckbox from '@/Components/Pure/PureCheckbox.vue'
-import { ref, watch } from "vue"
 import Popover from '@/Components/Popover.vue'
 import { get } from "lodash"
-
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { } from '@fas'
-import { } from '@fal'
-import { } from '@fad'
-import { library } from "@fortawesome/fontawesome-svg-core"
-library.add()
+import { useOrdinalSuffix } from '@/Composables/Utils'
 
 const props = defineProps<{
     form: any
     fieldName: string
-    options?: any
     fieldData: {
         type: string
         placeholder: string
@@ -32,6 +24,7 @@ const props = defineProps<{
 }>()
 
 const onSelectOption = (value: number) => {
+    props.form.errors[props.fieldName] = false
     props.form[props.fieldName].date = value
 }
 
@@ -42,8 +35,17 @@ const onSelectOption = (value: number) => {
     <div class="relative" :class="get(form, ['errors', `${fieldName}`]) ? 'errorShake' : ''">
         <Popover>
             <template #button="{ open, close }">
-                <div class="cursor-pointer underline">
-                    Date: {{ form[fieldName].date }} <span v-if="form[fieldName].isWeekdays">(Weekdays only)</span>
+                <div class="relative cursor-pointer underline">
+                    <div class="flex gap-x-1">
+                        Date
+                        <span class="relative">
+                            <Transition name="spin-to-down"><div :key="form[fieldName].date" class="">{{ useOrdinalSuffix(form[fieldName].date) }}</div></Transition>
+                        </span>
+                        on each month
+                        <span class="relative">
+                            <Transition name="spin-to-down"><div v-if="form[fieldName].isWeekdays" class="text-gray-500">(weekdays only)</div></Transition>
+                        </span>
+                    </div>
                 </div>
             </template>
 
@@ -64,8 +66,8 @@ const onSelectOption = (value: number) => {
 
                 <div class="flex items-center">
                 <!-- {{ form[fieldName].isWeekdays }} -->
-                    <label for="checkboxxx" class="cursor-pointer pr-3">Is weekday</label>
-                    <PureCheckbox v-model="form[fieldName].isWeekdays" />
+                    <label for="weekday_checkbox" class="cursor-pointer pr-3 select-none">Is weekday</label>
+                    <PureCheckbox v-model="form[fieldName].isWeekdays" @update:modelValue="() => props.form.errors[props.fieldName] = false" id="weekday_checkbox" />
                 </div>
             </template>
         </Popover>

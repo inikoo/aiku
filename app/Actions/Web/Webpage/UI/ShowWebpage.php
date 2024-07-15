@@ -135,6 +135,7 @@ class ShowWebpage extends OrgAction
                 'title'       => __('webpage'),
                 'pageHead'    => [
                     'title'   => $webpage->code,
+                    'model'   => __('Webpage'),
                     'icon'    => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'
