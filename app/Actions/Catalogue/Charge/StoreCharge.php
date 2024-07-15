@@ -8,6 +8,7 @@
 namespace App\Actions\Catalogue\Charge;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
+use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateUniversalSearch;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;
 use App\Actions\OrgAction;
@@ -80,6 +81,7 @@ class StoreCharge extends OrgAction
         ShopHydrateCharges::dispatch($shop);
         OrganisationHydrateCharges::dispatch($shop->organisation);
         GroupHydrateCharges::dispatch($shop->group);
+        ChargeHydrateUniversalSearch::dispatch($charge);
 
 
         return $charge;
