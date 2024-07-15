@@ -110,7 +110,7 @@ const generateQueryReverse = (query) => {
         const firstDayOfYear = new Date(year, 0, 1);
         const days = (week - 1) * 7;
         const resultDate = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() + days));
-        // Adjust to start of the week (Monday)
+        // Adjustment to start of the week (Monday)
         const dayOfWeek = resultDate.getUTCDay();
         const startOfWeek = resultDate.getUTCDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
         return [new Date(resultDate.setUTCDate(startOfWeek)).toISOString()];  // '2024-09-15T00:00:00.000Z'
