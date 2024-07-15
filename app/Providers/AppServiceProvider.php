@@ -167,7 +167,10 @@ class AppServiceProvider extends ServiceProvider
                 'Product'                       => 'App\Models\Catalogue\Product',
                 'Rental'                        => 'App\Models\Fulfilment\Rental',
                 'Service'                       => 'App\Models\Catalogue\Service',
-
+                'Charge'                        => 'App\Models\Catalogue\Service',
+                'Insurance'                     => 'App\Models\Catalogue\Insurance',
+                'Shipping'                      => 'App\Models\Catalogue\Shipping',
+                'Adjustment'                    => 'App\Models\Catalogue\Adjustment',
                 // Deals
                 'Offer'                         => 'App\Models\Marketing\Offer',
                 'OfferCampaign'                 => 'App\Models\Marketing\OfferCampaign',
