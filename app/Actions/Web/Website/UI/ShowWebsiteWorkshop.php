@@ -69,7 +69,8 @@ class ShowWebsiteWorkshop extends OrgAction
                 'pageHead'    => [
 
                     'title'     => __('Workshop'),
-                    'iconRight' =>
+                    'model'     => __('Website'),
+                    'icon'      =>
                         [
                             'icon'  => ['fal', 'drafting-compass'],
                             'title' => __("Website's workshop")
