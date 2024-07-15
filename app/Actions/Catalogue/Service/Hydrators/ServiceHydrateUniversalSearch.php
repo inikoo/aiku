@@ -7,8 +7,6 @@
 
 namespace App\Actions\Catalogue\Service\Hydrators;
 
-use App\Models\Catalogue\Charge;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use Lorisleiva\Actions\Concerns\AsAction;
 

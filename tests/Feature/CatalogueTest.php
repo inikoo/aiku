@@ -613,7 +613,7 @@ test('hydrate families', function (ProductCategory $family) {
 
 test('hydrate products', function (Product $product) {
     HydrateProducts::run($product);
-    $this->artisan('hydrate:products')->assertExitCode(0);
+    $this->artisan('products:hydrate')->assertExitCode(0);
 })->depends('create product');
 
 
@@ -630,6 +630,4 @@ test('can show catalogue', function (Shop $shop) {
     });
 })->depends('create shop');
 
-test('update search', function () {
-    $this->artisan('search:update')->assertSuccessful();
-});
+

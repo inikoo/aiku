@@ -5,12 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Catalogue\Charge;
+namespace App\Actions\Catalogue\Charge;
 
 use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateUniversalSearch;
-use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Models\Catalogue\Charge;
-use App\Models\SupplyChain\Supplier;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
