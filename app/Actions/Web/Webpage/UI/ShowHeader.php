@@ -86,6 +86,13 @@ class ShowHeader extends OrgAction
                     ]
                 ],
 
+                'autosaveRoute' => [
+                    'name'       => 'grp.models.website.autosave.header',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ],
+
                 'data' => GetWebsiteWorkshopHeader::run($website)
             ]
         );

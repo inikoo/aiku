@@ -422,7 +422,7 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('publish/header', [PublishWebsiteMarginal::class, 'header'])->name('publish.header');
     Route::post('publish/footer', [PublishWebsiteMarginal::class, 'footer'])->name('publish.footer');
 
-    Route::patch('autosave/footer', [PublishWebsiteMarginal::class, 'header'])->name('autosave.header');
+    Route::patch('autosave/header', [PublishWebsiteMarginal::class, 'header'])->name('autosave.header');
     Route::patch('autosave/footer', [PublishWebsiteMarginal::class, 'footer'])->name('autosave.footer');
 
     Route::patch('', UpdateWebsite::class)->name('update');
