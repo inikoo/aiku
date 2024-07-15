@@ -18,7 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditOrganisationSettings extends OrgAction
 {
-    //use WithTokenPath;
+    use WithTokenPath;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -77,7 +77,7 @@ class EditOrganisationSettings extends OrgAction
                                 ],
                             ],
                         ],
-                        /*
+
                         [
                             "title"  => __("google drive"),
                             "icon"   => "fab fa-google",
@@ -113,11 +113,11 @@ class EditOrganisationSettings extends OrgAction
                             ],
 
                         ],
-                        */
+
                     ],
                     "args"      => [
                         "updateRoute" => [
-                            "name"       => "grp.models.organisation.update",
+                            "name"       => "grp.models.org.update",
                             "parameters" => [$organisation->id],
                         ],
                     ],
