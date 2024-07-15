@@ -44,6 +44,10 @@ const props = defineProps<{
     user: string
     screenView: string
     isOpen?:Object
+    galleryRoute:{
+        stock_images : routeType,
+        uploaded_images : routeType
+    }
 }>()
 
 
@@ -377,6 +381,8 @@ onMounted(() => {
             @on-upload="uploadImageRespone"
             :use-crop="true" 
             :crop-props="{ratio: data.type == 'square' ? {w: 1, h: 1} : {w: 4, h: 1}}" 
+            :stockImageRoutes="galleryRoute.stock_images"
+            :imagesUploadedRoutes="galleryRoute.uploaded_images"
         />
 
 

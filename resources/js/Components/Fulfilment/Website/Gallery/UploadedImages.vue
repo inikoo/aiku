@@ -17,7 +17,8 @@ import EmptyState from "@/Components/Utils/EmptyState.vue"
 library.add(faSpinnerThird)
 
 const props = defineProps<{
-    modelValue: any
+    imagesUploadedRoutes : routeType,
+    stockImageRoutes : routeType
 }>()
 
 const stockImages = ref([])
@@ -30,7 +31,7 @@ const emits = defineEmits<{
 const getStockImages = async () => {
     try {
         loading.value = true
-        const response = await axios.get(route('grp.gallery.uploaded-images.index'));
+        const response = await axios.get(route(props.imagesUploadedRoutes.name,props.imagesUploadedRoutes.parameters));
         loading.value = false
         stockImages.value = response.data.data
     } catch (error: any) {

@@ -16,6 +16,8 @@ import { faSpinnerThird } from '@fad'
 library.add(faSpinnerThird)
 
 const props = defineProps<{
+    imagesUploadedRoutes : routeType,
+    stockImageRoutes : routeType
 }>()
 
 const stockImages = ref([])
@@ -28,7 +30,7 @@ const emits = defineEmits<{
 const getStockImages = async () => {
     try {
         loading.value = true
-        const response = await axios.get(route('grp.gallery.stock-images.index'));
+        const response = await axios.get(route(props.stockImageRoutes.name,props.stockImageRoutes.parameters));
         loading.value = false
         stockImages.value = response.data.data
     } catch (error: any) {

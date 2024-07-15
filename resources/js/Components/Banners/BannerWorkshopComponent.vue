@@ -12,6 +12,10 @@ const props = defineProps<{
     imagesUploadRoute: any
     user: any
     banner: any
+    galleryRoute:{
+        stock_images : routeType,
+        uploaded_images : routeType
+    }
 }>()
 
 const jumpToIndex = ref('')
@@ -41,11 +45,12 @@ const screenView = ref("")
             :imagesUploadRoute="imagesUploadRoute" 
             :user="user" 
             :screenView="screenView" 
+            :galleryRoute="galleryRoute"
         />
     </div>
 
     <!-- Section: Add slide if there is not exist -->
     <div v-else>
-        <SlidesWorkshopAddMode :data="data" :imagesUploadRoute="imagesUploadRoute" />
+        <SlidesWorkshopAddMode :data="data" :imagesUploadRoute="imagesUploadRoute" :galleryRoute="galleryRoute"/>
     </div>
 </template>
