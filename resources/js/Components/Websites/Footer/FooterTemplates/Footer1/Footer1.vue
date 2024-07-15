@@ -39,9 +39,11 @@ console.log(props)
                                 <Editor v-model="item.name" :toogle="toogle" />
                             </h2>
                             <ul v-for="sub in item['data']" class="hidden md:block space-y-1">
-                                <li><a href="#" class="text-sm block">
+                                <li>
+                                    <a href="#" class="text-sm block">
                                         <Editor v-model="sub.name" :toogle="toogle" />
-                                    </a></li>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </section>
@@ -113,11 +115,11 @@ console.log(props)
                         
 
                         <address class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                            <Editor v-model="modelValue.column.column_4.data.textBox1" toggle="toggle" />
+                            <Editor v-model="modelValue.column.column_4.data.textBox1" :toogle="toogle" />
                         </address>
 
                         <div class="flex justify-center gap-x-8 text-gray-300 md:block">
-                            <Editor v-model="modelValue.column.column_4.data.textBox2" toggle="toggle" />
+                            <Editor v-model="modelValue.column.column_4.data.textBox2" :toogle="toogle" />
                         </div>
                         <!-- Section: Get Social With Us -->
                         <div
@@ -142,15 +144,14 @@ console.log(props)
                     <div
                         class="border-b border-gray-500 md:border-none flex items-center space-x-2 px-5 pb-4 md:pb-0 md:px-0">
                         <i class="text-4xl md:text-3xl fab fa-whatsapp text-green-500"></i>
-                        <span class="w-10/12 md:w-full md:text-sm"> <Editor v-model="modelValue.column.column_4.data.textBox3" toggle="toggle" /></span>
+                        <span class="w-10/12 md:w-full md:text-sm"> <Editor v-model="modelValue.column.column_4.data.textBox3" :toogle="toogle" /></span>
                     </div>
                 </div>
             </div>
 
             <div
                 class="bg-[#9c7c64] md:bg-transparent text-[10px] md:text-base border-t border-gray-700 mt-8 pb-2 pt-2 md:pb-0 md:pt-4 text-center text-gray-800 md:text-[#d1d5db]">
-                Copyright © 2024 Aurora. All rights reserved. <a href="#" class="hover:underline">Terms of Use</a> | <a
-                    href="#" class="hover:underline">Privacy Policy</a>
+                <Editor v-model="modelValue.copyRight" :toogle="toogle" />
             </div>
         </div>
     </div>
