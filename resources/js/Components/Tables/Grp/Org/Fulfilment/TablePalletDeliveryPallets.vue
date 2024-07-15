@@ -79,7 +79,8 @@ const onSaved = async (pallet: { form: {} }, fieldName: string) => {
 }
 
 const onSavedRental = async (pallet: { form: {} }, fieldName: string) => {
-
+    isLoading.value = fieldName + pallet.id
+    // console.log('ee', pallet, '===', fieldName, '==', pallet.form.data())
 	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
 		pallet.form.processing = true
 		try {
@@ -96,6 +97,7 @@ const onSavedRental = async (pallet: { form: {} }, fieldName: string) => {
 			pallet.form.wasSuccessful = false
 		}, 3000)
 	}
+    isLoading.value = false
 }
 
 
@@ -231,12 +233,14 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 		<!-- Column: Rental -->
-		<template #cell(rental)="{ item: pallet }">  
+		<template #cell(rental)="{ item: pallet }">
 			<div v-if="props.state == 'booked-in'">{{ pallet.rental_name }}</div>
 			<div v-else class="w-64">
                 <FieldEditableTable
+                    :key="'rental_id' + pallet.id"
                     :options="props.rentalList"
                     :data="pallet"
+                    :isLoading="isLoading === 'rental_id' + pallet.id"
                     @onSave="onSavedRental"
                     fieldType="select"
                     fieldName="rental_id"

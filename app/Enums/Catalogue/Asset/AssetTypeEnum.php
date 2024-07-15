@@ -22,6 +22,11 @@ enum AssetTypeEnum: string
     case SUBSCRIPTION = 'subscription';
     case RENTAL       = 'rental';
 
+    case CHARGE      = 'charge';
+    case SHIPPING    = 'shipping';
+    case INSURANCE   = 'insurance';
+    case ADJUSTMENT  = 'adjustment';
+
     public static function labels(Shop|Organisation|ProductCategory $parent = null): array
     {
         $labels = [
@@ -29,6 +34,9 @@ enum AssetTypeEnum: string
             'service'      => __('Services'),
             'subscription' => __('Subscriptions'),
             'rental'       => __('Rentals'),
+            'charge'       => __('Charges'),
+            'shipping'     => __('Shipping'),
+            'insurance'    => __('Insurance'),
         ];
 
         if ($parent instanceof Shop) {

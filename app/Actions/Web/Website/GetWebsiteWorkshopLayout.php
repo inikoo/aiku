@@ -41,21 +41,35 @@ class GetWebsiteWorkshopLayout
             ];
         } else {
             $workshopRoutes=[
-                'headerRoute' => [
-                    'name'       => 'grp.org.shops.show.web.websites.workshop.header',
-                    'parameters' => [
-                        'organisation' => $website->organisation->slug,
-                        'shop'         => $website->shop->slug,
-                        'website'      => $website->slug,
-                    ]
-                ],
-                'footerRoute' => [
-                    'name'       => 'grp.org.shops.show.web.websites.workshop.footer',
-                    'parameters' => [
-                        'organisation' => $website->organisation->slug,
-                        'shop'         => $website->shop->slug,
-                        'website'      => $website->slug,
-                    ]
+                'routeList' => [
+                    'headerRoute' => [
+                        'name'       => 'grp.org.shops.show.web.websites.workshop.header',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'shop'         => $website->shop->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
+                    'footerRoute' => [
+                        'name'       => 'grp.org.shops.show.web.websites.workshop.footer',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'shop'         => $website->shop->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
+                    'webpageRoute'  => [
+                        'name'       => 'grp.org.shops.show.web.webpages.index',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'shop'         => $website->shop->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
+                    'notificationRoute'  => null,
+                    'menuLeftRoute'      => null,
+                    'menuRightRoute'     => null,
+
                 ]
             ];
         }
