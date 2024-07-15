@@ -11,7 +11,9 @@ use App\Actions\Catalogue\Subscription\Hydrators\SubscriptionHydrateHistoricAsse
 use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricAssets;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
+use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateHistoricAssets;
 use App\Actions\Catalogue\Service\Hydrators\ServiceHydrateHistoricAssets;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Subscription;
 use App\Models\Fulfilment\Rental;
 use App\Models\Catalogue\HistoricAsset;
@@ -24,7 +26,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription $assetModel, array $modelData = []): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge $assetModel, array $modelData = []): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),
@@ -72,6 +74,9 @@ class StoreHistoricAsset
         }
         if ($assetModel instanceof Subscription) {
             SubscriptionHydrateHistoricAssets::dispatch($assetModel);
+        }
+        if ($assetModel instanceof Charge) {
+            ChargeHydrateHistoricAssets::dispatch($assetModel);
         }
         AssetHydrateHistoricAssets::dispatch($assetModel->asset);
 

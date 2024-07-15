@@ -99,6 +99,38 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'shipping'       => [
+                'tooltip' => __('Shipping'),
+                'icon'    => 'fal fa-shipping-fast',
+                'app'     => [
+                    'name' => 'shipping-fast',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'charge'       => [
+                'tooltip' => __('Charges'),
+                'icon'    => 'fal fa-charging-station',
+                'app'     => [
+                    'name' => 'shipping-fast',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'insurances'       => [
+                'tooltip' => __('Insurances'),
+                'icon'    => 'fal fa-house-damage',
+                'app'     => [
+                    'name' => 'house-damage',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'adjustment'       => [
+                'tooltip' => __('Adjustments'),
+                'icon'    => 'fal fa-house-damage',
+                'app'     => [
+                    'name' => 'house-damage',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
         ];
     }
 
@@ -110,6 +142,10 @@ enum AssetTypeEnum: string
             'subscription' => $stats->number_assetd_type_subscription,
             'service'      => $stats->number_assets_type_service,
             'rental'       => $stats->number_assets_type_rental,
+            'charge'       => $stats->number_assets_type_charge,
+            'shipping'     => $stats->number_assets_type_shipping,
+            'insurance'    => $stats->number_assets_type_insurance,
+            'adjustment'   => $stats->number_assets_type_adjustment,
         ];
 
         if ($parent instanceof Shop) {

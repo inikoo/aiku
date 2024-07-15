@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;

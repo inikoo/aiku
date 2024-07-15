@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Charge\StoreCharge;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
@@ -30,6 +31,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\HistoricAsset;
@@ -573,6 +575,26 @@ test('update collection category', function ($collectionCategory) {
     return $collectionCategory;
 })->depends('create collection category');
 
+test('create charge', function ($shop) {
+    $charge = StoreCharge::make()->action(
+        $shop,
+        [
+            'code'        => 'MyFColl',
+            'name'        => 'My first collection',
+            'description' => 'My first collection description',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'charge',
+        ]
+    );
+    $shop->refresh();
+    expect($charge)->toBeInstanceOf(Charge::class)
+        ->and($shop->stats->number_assets_type_charge)->toBe(1)
+        ->and($shop->organisation->catalogueStats->number_assets_type_charge)->toBe(1)
+        ->and($shop->group->catalogueStats->number_assets_type_charge)->toBe(1);
+
+
+    return $charge;
+})->depends('create shop');
 
 test('hydrate shops', function (Shop $shop) {
     HydrateShops::run($shop);

@@ -153,13 +153,13 @@ class StoreRecurringBill extends OrgAction
     public function getEndDateWeekly(Carbon $startDate, array $setting): Carbon
     {
         $daysOfWeek = [
-            'Sunday' => Carbon::SUNDAY,
-            'Monday' => Carbon::MONDAY,
-            'Tuesday' => Carbon::TUESDAY,
+            'Sunday'    => Carbon::SUNDAY,
+            'Monday'    => Carbon::MONDAY,
+            'Tuesday'   => Carbon::TUESDAY,
             'Wednesday' => Carbon::WEDNESDAY,
-            'Thursday' => Carbon::THURSDAY,
-            'Friday' => Carbon::FRIDAY,
-            'Saturday' => Carbon::SATURDAY,
+            'Thursday'  => Carbon::THURSDAY,
+            'Friday'    => Carbon::FRIDAY,
+            'Saturday'  => Carbon::SATURDAY,
         ];
 
         $endDayOfWeek = $daysOfWeek[$setting['day']];

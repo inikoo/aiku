@@ -394,3 +394,15 @@ test('UI create product', function () {
             ->has('breadcrumbs', 5);
     });
 });
+
+test('UI Index Charges', function () {
+    $response = get(route('grp.org.shops.show.assets.charges.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Charges')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('data');
+    });
+});
