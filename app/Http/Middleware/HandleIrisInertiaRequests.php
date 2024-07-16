@@ -8,6 +8,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
@@ -18,15 +19,19 @@ class HandleIrisInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
+        $website                     = $request->get('website');
         $firstLoadOnlyProps['ziggy'] = function () use ($request) {
             return array_merge((new Ziggy())->toArray(), [
                 'location' => $request->url(),
             ]);
         };
 
-
         return array_merge(
             $firstLoadOnlyProps,
+            [
+                'iris_header' => Arr::get($website->published_layout, 'header'),
+                'iris_footer' => Arr::get($website->published_layout, 'footer')
+            ],
             parent::share($request),
         );
 
