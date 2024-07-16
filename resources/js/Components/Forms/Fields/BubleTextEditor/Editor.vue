@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import TextStyle from '@tiptap/extension-text-style'
@@ -27,45 +27,47 @@ library.add(faBold, faQuoteRight, faMarker, faHorizontalRule, faItalic, faUnderl
 
 const props = withDefaults(defineProps<{
     modelValue: string,
-    toogle?: Array[],
+    toogle?: string[],
     type?: string,
-}>(),{
+}>(), {
     type: 'Bubble',
-    toogle: [
+    toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
         'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear'
     ]
-});
+})
 
-const emit = defineEmits(['update:modelValue'])
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string): void
+}>()
 
 const toggleList = ref([
     { key: 'heading' },
-    { key: 'fontSize', active: 'fontsize'},
+    { key: 'fontSize', active: 'fontsize' },
     { key: 'bold', icon: 'fal fa-bold', action: () => onActionClick('bold'), active: 'bold' },
-    { key: 'italic', icon: 'fal fa-italic', action: () => onActionClick('italic') ,active: 'italic' },
+    { key: 'italic', icon: 'fal fa-italic', action: () => onActionClick('italic'), active: 'italic' },
     { key: 'underline', icon: 'fal fa-underline', action: () => onActionClick('underline'), active: 'underline' },
     { key: 'bulletList', icon: 'fal fa-list-ul', action: () => onActionClick('bulletList'), active: 'bulletList' },
     { key: 'orderedList', icon: 'fal fa-list-ol', action: () => onActionClick('orderedList'), active: 'orderedList' },
     { key: 'blockquote', icon: 'fas fa-quote-right', action: () => onActionClick('blockquote'), active: 'blockquote' }, // Added missing comma here
-    { key: 'divider', icon: 'fas fa-horizontal-rule', action: () => onActionClick('divider'), active:"divider" },
+    { key: 'divider', icon: 'fas fa-horizontal-rule', action: () => onActionClick('divider'), active: "divider" },
     { key: 'alignLeft', icon: 'fal fa-align-left', action: () => onActionClick('alignLeft'), active: { textAlign: 'left' } },
-    { key: 'alignRight', icon: 'fal fa-align-right', action: () => onActionClick('alignRight'), active: { textAlign: 'right' }},
+    { key: 'alignRight', icon: 'fal fa-align-right', action: () => onActionClick('alignRight'), active: { textAlign: 'right' } },
     { key: 'alignCenter', icon: 'fal fa-align-center', action: () => onActionClick('alignCenter'), active: { textAlign: 'center' } },
-    { key: 'link', icon: 'fal fa-link', action: () => onActionClick('link'), active: 'link'},
+    { key: 'link', icon: 'fal fa-link', action: () => onActionClick('link'), active: 'link' },
     { key: 'undo', icon: 'far fa-undo-alt', action: () => onActionClick('undo'), active: 'undo' },
     { key: 'redo', icon: 'far fa-redo-alt', action: () => onActionClick('redo'), active: 'redo' },
     { key: 'highlight', icon: 'fal fa-paint-brush-alt', action: () => onActionClick('highlight'), active: 'highlightcolor' },
     { key: 'color', icon: 'far fa-text', action: () => onActionClick('color'), active: 'textcolor' },
     { key: 'clear', icon: 'fal fa-eraser', action: () => onActionClick('clear'), active: 'clear' },
-]);
+])
 
 
 const editor = useEditor({
     content: props.modelValue,
     onUpdate: ({ editor }) => {
-        emit('update:modelValue', editor.getHTML())
+        emits('update:modelValue', editor.getHTML())
     },
     extensions: [
         StarterKit,
@@ -92,82 +94,88 @@ const editor = useEditor({
         }),
         Link,
     ],
-    attributes: {
-      class:
-      'border border-gray-400 p-4 min-h-[12rem] max-h-[12rem] overflow-y-auto outline-none prose max-w-none',
-    },
-});
+})
 
 const onActionClick = (key: string, option: string = '') => {
-    if (!editor.value) return;
+    if (!editor.value) return
 
-    const chain = editor.value.chain().focus();
+    const chain = editor.value.chain().focus()
     switch (key) {
         case 'bold':
-            chain.toggleBold().run();
-            break;
+            chain.toggleBold().run()
+            break
         case 'italic':
-            chain.toggleItalic().run();
-            break;
+            chain.toggleItalic().run()
+            break
         case 'underline':
-            chain.toggleUnderline().run();
-            break;
+            chain.toggleUnderline().run()
+            break
         case 'bulletList':
-            chain.toggleBulletList().run();
-            break;
+            chain.toggleBulletList().run()
+            break
         case 'orderedList':
-            chain.toggleOrderedList().run();
-            break;
+            chain.toggleOrderedList().run()
+            break
         case 'blockquote':
-            chain.toggleBlockquote().run();
-            break;
+            chain.toggleBlockquote().run()
+            break
         case 'divider':
-            chain.setHorizontalRule().run();
-            break;
+            chain.setHorizontalRule().run()
+            break
         case 'alignLeft':
-            chain.setTextAlign('left').run();
-            break;
+            chain.setTextAlign('left').run()
+            break
         case 'alignRight':
-            chain.setTextAlign('right').run();
-            break;
+            chain.setTextAlign('right').run()
+            break
         case 'alignCenter':
-            chain.setTextAlign('center').run();
-            break;
+            chain.setTextAlign('center').run()
+            break
         case 'link':
-            setLink();
-            break;
+            setLink()
+            break
         case 'undo':
-            chain.undo().run();
-            break;
+            chain.undo().run()
+            break
         case 'redo':
-            chain.redo().run();
-            break;
+            chain.redo().run()
+            break
         case 'clear':
             chain?.clearNodes().run()
             chain?.unsetAllMarks().run()
-            break;
+            break
         default:
-            console.warn(`Action not found for key: ${key}`);
-            break;
+            console.warn(`Action not found for key: ${key}`)
+            break
     }
 }
 
 
 
 const setLink = () => {
-    const previousUrl = editor.value?.getAttributes('link').href;
-    const url = window.prompt('URL', previousUrl) || '';
+    const previousUrl = editor.value?.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl) || ''
 
     if (url) {
-        editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+        editor.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
     } else {
-        editor.value.chain().focus().extendMarkRange('link').unsetLink().run();
+        editor.value?.chain().focus().extendMarkRange('link').unsetLink().run()
     }
 }
 
 onMounted(() => {
-    toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key));
-});
+    toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key))
+})
+
+// Listen to v-model from parent (so no need re-render the component)
+watch(() => props.modelValue, (newValue, oldValue) => {
+    const isSame = newValue === oldValue
+    if (isSame) {
+        return
+    }
+
+    editor.value?.commands.setContent(newValue, false)
+})
 
 </script>
 
@@ -179,7 +187,7 @@ onMounted(() => {
             </section>
         </BubbleMenu>
 
-        <section v-else="type == 'basic' && editor" class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-4">
+        <section v-else-if="type == 'basic' && editor" class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-4">
             <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
         </section>
 
