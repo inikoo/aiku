@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -143,5 +144,11 @@ class RecurringBill extends Model implements Auditable
     public function palletReturn(): MorphToMany
     {
         return $this->morphedByMany(PalletReturn::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+    }
+
+    public function invoices() : HasOne 
+    {
+        return $this->hasOne(Invoice::class);
+        
     }
 }

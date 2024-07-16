@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -78,6 +79,11 @@ class RecurringBillTransaction extends Model
     public function recurringBill(): BelongsTo
     {
         return $this->belongsTo(RecurringBill::class);
+    }
+
+    public function historicAsset() : BelongsTo 
+    {
+        return $this->belongsTo(HistoricAsset::class);
     }
 
 }
