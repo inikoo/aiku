@@ -7,15 +7,14 @@
 
 namespace App\Actions\Accounting\Invoice;
 
+use App\Actions\Helpers\GoogleDrive\UploadFileGoogleDrive;
 use App\Actions\Traits\WithExportData;
 use App\Models\Accounting\Invoice;
-use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
-use Symfony\Component\HttpFoundation\Response;
 
-class PdfInvoice
+class UploadPdfInvoice
 {
     use AsAction;
     use WithAttributes;
@@ -24,7 +23,7 @@ class PdfInvoice
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(Invoice $invoice): Response
+    public function handle(Invoice $invoice)
     {
         $totalItemsNet = (int) $invoice->total_amount;
         $totalShipping = (int) $invoice->order->shipping;
@@ -32,20 +31,13 @@ class PdfInvoice
         $totalNet = $totalItemsNet + $totalShipping;
 
         $filename = $invoice->slug . '-' . now()->format('Y-m-d');
-        $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
+
+        $path = PDF::loadView('invoices.templates.pdf.invoice', [
             'invoice'       => $invoice,
             'transactions'  => $invoice->invoiceTransactions,
             'totalNet'      => $totalNet
-        ]);
+        ])->save($filename);
 
-        return $pdf->stream($filename . '.pdf');
-    }
-
-    /**
-     * @throws \Mpdf\MpdfException
-     */
-    public function asController(Organisation $organisation, Invoice $invoice): Response
-    {
-        return $this->handle($invoice);
+        return UploadFileGoogleDrive::run($invoice->organisation, $path);
     }
 }
