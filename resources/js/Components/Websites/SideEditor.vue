@@ -29,7 +29,8 @@ const getComponent = (componentName: string) => {
     const components: Component = {
         'text': PureInput,
         'upload_image' : UploadImage,
-        'payment_templates' : Payments
+        'payment_templates' : Payments,
+        'editor' : Editor
         
     }
 
@@ -51,7 +52,7 @@ const onUpdateValue = (field,value) => {
         <section v-for="field in bluprint" :key="field.key" class="mb-3">
             <div class="font-medium text-sm mb-2">{{ field.name }}</div>
             <section class="w-full">
-                <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field,value)" :uploadRoutes="uploadImageRoute" />
+                <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field,value)" :uploadRoutes="uploadImageRoute" v-bind="field?.props_data" />
             </section>
         </section>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, watch, defineProps } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -15,6 +15,8 @@ import { v4 as uuidv4 } from 'uuid'
 import DummyCanvas from '@/Components/Websites/Header/DummyCanvas.vue'
 import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
+import axios from 'axios'
+import { debounce } from 'lodash'
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -29,8 +31,9 @@ library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 const props = defineProps<{
     pageHead: TSPageHeading
     title: string
-    uploadImageRoute:routeType
+    uploadImageRoute: routeType
     data: {}
+    autosaveRoute : routeType
 }>()
 
 const previewMode = ref(false)
@@ -48,7 +51,6 @@ const onPickTemplate = (header) => {
     usedTemplates.value = { key: header.key, ...data }
 }
 
-
 const onPublish = async (action) => {
     try {
         // Ensure action is defined and has necessary properties
@@ -61,7 +63,7 @@ const onPublish = async (action) => {
         // Make sure route and axios are defined and used correctly
         const response = await axios[action.method](route(action.name, action.parameters), {
             comment: comment.value,
-            layout : usedTemplates?.data
+            layout : usedTemplates.value
         })
 
         console.log(response)
@@ -82,6 +84,29 @@ const onPublish = async (action) => {
     }
 };
 
+const autoSave = async (data) => {
+    try {
+        const response = await axios.patch(
+            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+            { layout: data }
+        )
+    } catch (error: any) {
+        console.error('error', error)
+    }
+}
+
+const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
+
+const onUpdatedBlock = (data) => {
+    keyTemplates.value = uuidv4()
+}
+
+// Watch for changes in usedTemplates to trigger autoSave
+watch(usedTemplates, (newVal) => {
+    if (newVal) {
+        debouncedSendUpdate(newVal.data)
+    }
+}, { deep: true })
 
 </script>
 
@@ -129,7 +154,7 @@ const onPublish = async (action) => {
                     v-if="usedTemplates?.key"
                     v-model="usedTemplates.data"
                     :bluprint="usedTemplates.bluprint"
-                    @update:modelValue="keyTemplates = uuidv4()"
+                    @update:modelValue="onUpdatedBlock(usedTemplates)"
                     :uploadImageRoute="uploadImageRoute"
                 />
             </div>
