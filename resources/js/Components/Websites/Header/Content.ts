@@ -13,7 +13,7 @@ export const getComponent = (componentName: string) => {
         'header1': Header1,
     }
 
-    return components[componentName] ?? NotFoundComponents
+    return components[componentName] || NotFoundComponents
 }
 
 

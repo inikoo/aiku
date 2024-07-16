@@ -10,6 +10,7 @@ import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, 
 import { faHeart } from '@far';
 import Image from "@/Components/Image.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
+import { routeType } from '@/types/route'
 
 library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
 
@@ -21,6 +22,7 @@ const props = defineProps<{
     loginMode : boolean
     previewMode : boolean
     uploadImageRoute: routeType
+    isEditing?: boolean
 }>()
 
 
@@ -98,7 +100,7 @@ const onPickImageGalery = (e) => {
     </div>
 
 
-    <Gallery :open="isOpenGalleryImages" @on-close="() => isOpenGalleryImages = false" :key="keyTemplate"
+    <Gallery v-if="isEditing" :open="isOpenGalleryImages" @on-close="() => isOpenGalleryImages = false"
         :uploadRoutes="route(uploadImageRoute.name, uploadImageRoute.parameters)"
         :tabs="['upload', 'images_uploaded', 'stock_images']" @onPick="onPickImageGalery"
         @on-upload="uploadImageRespone" />
