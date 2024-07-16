@@ -115,7 +115,7 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'insurances'       => [
+            'insurance'       => [
                 'tooltip' => __('Insurances'),
                 'icon'    => 'fal fa-house-damage',
                 'app'     => [
