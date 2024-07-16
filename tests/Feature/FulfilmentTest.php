@@ -1357,8 +1357,7 @@ test('cancel pallet return', function (PalletReturn $palletReturn) {
 
     $canceledPalletReturn = CancelPalletReturn::make()->action(
         $fulfilmentCustomer,
-        $palletReturn,
-        []
+        $palletReturn
     );
     $fulfilmentCustomer->refresh();
     expect($canceledPalletReturn)->toBeInstanceOf(PalletReturn::class)
@@ -1376,8 +1375,7 @@ test('confirm pallet return', function (PalletReturn $palletReturn) {
 
     $confirmedPalletReturn = ConfirmPalletReturn::make()->action(
         $fulfilmentCustomer,
-        $palletReturn,
-        []
+        $palletReturn
     );
     $fulfilmentCustomer->refresh();
     expect($confirmedPalletReturn)->toBeInstanceOf(PalletReturn::class)
@@ -1394,8 +1392,7 @@ test('dispatch pallet return', function (PalletReturn $palletReturn) {
 
     $dispatchedPalletReturn = DispatchedPalletReturn::make()->action(
         $fulfilmentCustomer,
-        $palletReturn,
-        []
+        $palletReturn
     );
     $fulfilmentCustomer->refresh();
     expect($dispatchedPalletReturn)->toBeInstanceOf(PalletReturn::class)
@@ -1489,7 +1486,7 @@ test('Set pallet as damaged', function (Pallet $pallet) {
     $damagedPallet = SetPalletAsDamaged::make()->action(
         $pallet,
         [
-            'message' => 'ehe',
+            'message' => 'pallet damaged'
         ]
     );
 

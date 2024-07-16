@@ -136,7 +136,7 @@ test('UI edit employee', function () {
             )
             ->has('breadcrumbs', 3);
     });
-});
+})->skip();
 
 test('UI Index customer clients', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));

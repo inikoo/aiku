@@ -38,9 +38,7 @@ class SetPalletAsLost extends OrgAction
             ]
         ]);
 
-        $pallet = UpdatePallet::run($pallet, Arr::except($modelData, 'message'), ['data']);
-
-        return $pallet;
+        return UpdatePallet::run($pallet, Arr::except($modelData, 'message'), ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -65,10 +63,10 @@ class SetPalletAsLost extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function action(Pallet $pallet): Pallet
+    public function action(Pallet $pallet,array $modelData): Pallet
     {
         $this->asAction       = true;
-        $this->initialisationFromWarehouse($pallet->warehouse, []);
+        $this->initialisationFromWarehouse($pallet->warehouse, $modelData);
 
         return $this->handle($pallet, $this->validatedData);
     }
