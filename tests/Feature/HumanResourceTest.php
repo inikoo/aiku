@@ -6,6 +6,8 @@
  */
 
 use App\Actions\HumanResources\Clocking\StoreClocking;
+use App\Actions\HumanResources\ClockingMachine\GetClockingMachineAppQRCode;
+use App\Actions\HumanResources\ClockingMachine\HydrateClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
@@ -22,6 +24,7 @@ use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Clocking;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\JobPositionStats;
@@ -207,6 +210,17 @@ test('update clocking machines', function ($createdClockingMachine) {
     expect($updatedClockingMachine->name)->toBe($arrayData['name']);
 })->depends('create clocking machines');
 
+test('get clocking machine app qrcode', function (ClockingMachine $clockingMachine) {
+
+    $qr = GetClockingMachineAppQRCode::run($clockingMachine);
+    expect($qr)->not()->toBeNull()
+        ->and($qr)->toBeArray()
+        ->and($qr['code'])->toContain($clockingMachine->slug);
+
+    return $qr;
+        
+})->depends('create clocking machines');
+
 test('can show hr dashboard', function () {
     $response = get(route('grp.org.hr.dashboard', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
@@ -337,3 +351,8 @@ test('second clocking ', function (Timesheet $timesheet, Workplace $workplace) {
         ->and($timeTracker->end_clocking_id)->toBe($clocking->id);
 
 })->depends('create clocking', 'create working place successful');
+
+test('hydrate clocking machine', function (ClockingMachine $clockingMachine) {
+    HydrateClockingMachine::run($clockingMachine);
+    $this->artisan('hydrate:clocking-machine '.$this->organisation->slug)->assertExitCode(0);
+})->depends('create clocking machines')->todo();
