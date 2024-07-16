@@ -20,7 +20,11 @@ export const bluprintForm = [
     {
         name : 'Chip',
         key : 'chip_text',
-        type : 'text'
+        type : 'editor',
+        props_data : {
+            type : 'basic',
+            toogle : ['bold', 'fontSize', 'italic','underline','link','highlight','color','undo','redo','clear']
+        }
     },
     {
         name : 'Logo',
