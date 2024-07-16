@@ -185,19 +185,20 @@ watch(() => props.modelValue, (newValue, oldValue) => {
 <template>
     <div v-if="editable">
         <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
-            <section class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
+            <section class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200 min-w-52 max-w-[400px]">
                 <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
             </section>
         </BubbleMenu>
 
-        <section v-else-if="type == 'basic' && editor" class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-4">
+        <section v-else-if="type == 'basic' && editor" class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
             <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
         </section>
 
-        <EditorContent :editor="editor" :class="type == 'basic' ? 'bg-white' : ''"/>
+        <EditorContent :editor="editor" :class="type == 'basic' ? 'basic-content' : ''"/>
     </div>
     <div v-else><div v-html="modelValue"/></div>
 </template>
+
 
 
 <style lang="scss">
@@ -260,4 +261,26 @@ watch(() => props.modelValue, (newValue, oldValue) => {
     }
 
 }
+
+.fixed-width-bubble-menu {
+    width: 300px; /* Set your desired fixed width */
+}
+
+.basic-content {
+    .ProseMirror {
+        height: 150px;
+        width: 100%;
+        overflow-y: auto;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        outline: none;
+        background-color: white;
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        border: solid 2px #D1D5DB;
+        border-top: 0px;
+    }
+}
+
+
 </style>
