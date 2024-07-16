@@ -5,10 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Catalogue\Charge\Hydrators;
+namespace App\Actions\Catalogue\Charge\Hydrators;
 
 use App\Models\Catalogue\Charge;
-use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ChargeHydrateUniversalSearch

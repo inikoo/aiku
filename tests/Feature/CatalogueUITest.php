@@ -406,3 +406,15 @@ test('UI Index Charges', function () {
             ->has('data');
     });
 });
+
+test('UI Index Insurances', function () {
+    $response = get(route('grp.org.shops.show.assets.insurances.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Insurances')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('data');
+    });
+});

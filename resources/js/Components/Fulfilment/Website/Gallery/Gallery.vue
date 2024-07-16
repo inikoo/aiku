@@ -35,7 +35,7 @@
             parameters : ""
         },
         imagesUploadedRoutes : {
-            name : 'grp.gallery.stock-images.index',
+            name : 'grp.gallery.uploaded-images.index',
             parameters : ""
         },
         cropProps : {
@@ -50,7 +50,7 @@ const selectedTab = ref(0)
 
 const emits = defineEmits<{
     (e: 'onClose'): void
-    (e: 'onPick', value: Object): void
+    (e: 'onPick', value: Object): void 
     (e: 'onUpload', value: Object): void
 }>()
 
@@ -83,7 +83,7 @@ const getComponent = (componentName: string) => {
   return components[componentName] ?? null;
 };
 
-const OnPick = (e) => {
+const OnPickImage = (e) => {
     emits('onPick', e)
 }
 
@@ -119,7 +119,7 @@ const onUpload = (e) => {
                     'rounded-xl bg-white p-3 h-96 overflow-auto',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                    <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPick" :imagesUploadedRoutes="imagesUploadedRoutes"
+                    <component :is="getComponent(tab['key'])" :uploadRoutes="uploadRoutes" @pick="OnPickImage" :imagesUploadedRoutes="imagesUploadedRoutes"
                         @onUpload="onUpload"  :useCrop="useCrop" :cropProps="cropProps" :stockImageRoutes="stockImageRoutes" />
 
                 </TabPanel>

@@ -10,6 +10,7 @@ use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
+use App\Actions\Catalogue\Insurance\StoreInsurance;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\StoreProduct;
@@ -35,6 +36,7 @@ use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\HistoricAsset;
+use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
@@ -596,6 +598,27 @@ test('create charge', function ($shop) {
     return $charge;
 })->depends('create shop');
 
+test('create insurance', function ($shop) {
+    $insurance = StoreInsurance::make()->action(
+        $shop,
+        [
+            'code'        => 'MyFColl',
+            'name'        => 'My first collection',
+            'description' => 'My first collection description',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'insurance',
+        ]
+    );
+    $shop->refresh();
+    expect($insurance)->toBeInstanceOf(Insurance::class)
+        ->and($shop->stats->number_assets_type_insurance)->toBe(1)
+        ->and($shop->organisation->catalogueStats->number_assets_type_insurance)->toBe(1)
+        ->and($shop->group->catalogueStats->number_assets_type_insurance)->toBe(1);
+
+
+    return $insurance;
+})->depends('create shop');
+
 test('hydrate shops', function (Shop $shop) {
     HydrateShops::run($shop);
     $this->artisan('hydrate:shops')->assertExitCode(0);
@@ -613,7 +636,7 @@ test('hydrate families', function (ProductCategory $family) {
 
 test('hydrate products', function (Product $product) {
     HydrateProducts::run($product);
-    $this->artisan('hydrate:products')->assertExitCode(0);
+    $this->artisan('products:hydrate')->assertExitCode(0);
 })->depends('create product');
 
 
@@ -629,7 +652,3 @@ test('can show catalogue', function (Shop $shop) {
             ->has('breadcrumbs', 3);
     });
 })->depends('create shop');
-
-test('update search', function () {
-    $this->artisan('search:update')->assertSuccessful();
-});

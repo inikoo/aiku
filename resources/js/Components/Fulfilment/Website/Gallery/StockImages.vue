@@ -25,6 +25,7 @@ const loading = ref(false)
 
 const emits = defineEmits<{
     (e: 'pick', value: Object): void
+    (e: 'onUpload', value: Object): void
 }>()
 
 const getStockImages = async () => {

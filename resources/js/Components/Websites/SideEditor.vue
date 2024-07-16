@@ -18,6 +18,7 @@ library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight
 const props = defineProps<{
     modelValue: any,
     bluprint: Array
+    uploadImageRoute?:routeType
 }>()
 
 const emits = defineEmits<{
@@ -41,7 +42,6 @@ const onUpdateValue = (field,value) => {
     })
 }
 
-console.log('aa', props)
 
 </script>
 
@@ -51,7 +51,7 @@ console.log('aa', props)
         <section v-for="field in bluprint" :key="field.key" class="mb-3">
             <div class="font-medium text-sm mb-2">{{ field.name }}</div>
             <section class="w-full">
-                <component :is="getComponent(field.type)" v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field,value)"/>
+                <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field,value)" :uploadRoutes="uploadImageRoute" />
             </section>
         </section>
     </div>

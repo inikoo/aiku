@@ -258,31 +258,32 @@ export const data = {
     },
 	usePayment: true,
 	useSocial: true,
+	copyRight: "Copyright © 2024 Aurora. All rights reserved. Terms of UsePrivacy Policy",
 	PaymentData: {
 		data: [
             {
-				name: "Checkout.com",
-				key: "checkout.com",
+				label: "Checkout.com",
+				value: "checkout.com",
 				image: "https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png",
 			},
 			{
-				name: "visa",
-				key: "visa",
+				label: "visa",
+				value: "visa",
 				image: "https://e7.pngegg.com/pngimages/687/457/png-clipart-visa-credit-card-logo-payment-mastercard-usa-visa-blue-company.png",
 			},
 			{
-				name: "Paypal",
-				key: "paypal",
+				label: "Paypal",
+				value: "paypal",
 				image: "https://e7.pngegg.com/pngimages/292/77/png-clipart-paypal-logo-illustration-paypal-logo-icons-logos-emojis-tech-companies.png",
 			},
 			{
-				name: "Mastercard",
-				key: "mastercard",
+				label: "Mastercard",
+				value: "mastercard",
 				image: "https://i.pinimg.com/736x/38/2f/0a/382f0a8cbcec2f9d791702ef4b151443.jpg",
 			},
 			{
-				name: "PastPay",
-				key: "PastPay",
+				label: "PastPay",
+				value: "PastPay",
 				image: "https://pastpay.com/wp-content/uploads/2023/07/PastPay-logo-dark-edge.png",
 			},
 		],

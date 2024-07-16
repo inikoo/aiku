@@ -11,6 +11,7 @@ use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
+use App\Actions\Helpers\GoogleDrive\UploadFileGoogleDrive;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
@@ -85,6 +86,10 @@ class StoreInvoice extends OrgAction
         if($invoice->customer_id) {
             CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         }
+
+        // UploadPDFInvoices
+        // $path = PdfInvoice::make()->asSave($invoice);
+        // UploadFileGoogleDrive::run($parent->organisation, $path);
 
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);

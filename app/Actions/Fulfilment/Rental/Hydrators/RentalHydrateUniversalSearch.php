@@ -5,10 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Fulfilment\Rental\Hydrators;
+namespace App\Actions\Fulfilment\Rental\Hydrators;
 
-use App\Models\Catalogue\Charge;
-use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Rental;
 use Lorisleiva\Actions\Concerns\AsAction;
 

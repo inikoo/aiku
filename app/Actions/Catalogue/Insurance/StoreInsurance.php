@@ -5,30 +5,36 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Charge;
+namespace App\Actions\Catalogue\Insurance;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateUniversalSearch;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\Insurance\Hydrators\InsuranceHydrateUniversalSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInsurances;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCharges;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInsurances;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCharges;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInsurances;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
 use App\Models\Catalogue\Charge;
+use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
-class StoreCharge extends OrgAction
+class StoreInsurance extends OrgAction
 {
-    public function handle(Shop $shop, array $modelData): Charge
+    public function handle(Shop $shop, array $modelData): Insurance
     {
         $status = false;
-        if (Arr::get($modelData, 'state') == ChargeStateEnum::ACTIVE) {
+        if (Arr::get($modelData, 'state') == InsuranceStateEnum::ACTIVE) {
             $status = true;
         }
         data_set($modelData, 'status', $status);
@@ -38,33 +44,33 @@ class StoreCharge extends OrgAction
         data_set($modelData, 'currency_id', $shop->currency_id);
 
 
-        /** @var Charge $charge */
-        $charge = $shop->charges()->create($modelData);
-        $charge->stats()->create();
-        $charge->refresh();
+        /** @var Insurance $insurance */
+        $insurance = $shop->insurances()->create($modelData);
+        $insurance->stats()->create();
+        $insurance->refresh();
 
         $asset = StoreAsset::run(
-            $charge,
+            $insurance,
             [
-                'type'  => AssetTypeEnum::CHARGE,
-                'state' => match ($charge->state) {
-                    ChargeStateEnum::IN_PROCESS   => AssetStateEnum::IN_PROCESS,
-                    ChargeStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
-                    ChargeStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
+                'type'  => AssetTypeEnum::INSURANCE,
+                'state' => match ($insurance->state) {
+                    InsuranceStateEnum::IN_PROCESS   => AssetStateEnum::IN_PROCESS,
+                    InsuranceStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
+                    InsuranceStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
                 }
             ]
         );
 
-        $charge->updateQuietly(
+        $insurance->updateQuietly(
             [
                 'asset_id' => $asset->id
             ]
         );
 
         $historicAsset = StoreHistoricAsset::run(
-            $charge,
+            $insurance,
             [
-                'source_id' => $charge->historic_source_id
+                'source_id' => $insurance->historic_source_id
             ]
         );
         $asset->update(
@@ -72,19 +78,19 @@ class StoreCharge extends OrgAction
                 'current_historic_asset_id' => $historicAsset->id,
             ]
         );
-        $charge->updateQuietly(
+        $insurance->updateQuietly(
             [
                 'current_historic_asset_id' => $historicAsset->id,
             ]
         );
 
-        ShopHydrateCharges::dispatch($shop);
-        OrganisationHydrateCharges::dispatch($shop->organisation);
-        GroupHydrateCharges::dispatch($shop->group);
-        ChargeHydrateUniversalSearch::dispatch($charge);
+        ShopHydrateInsurances::dispatch($shop);
+        OrganisationHydrateInsurances::dispatch($shop->organisation);
+        GroupHydrateInsurances::dispatch($shop->group);
+        InsuranceHydrateUniversalSearch::dispatch($insurance);
 
 
-        return $charge;
+        return $insurance;
     }
 
     public function rules(): array
@@ -98,7 +104,7 @@ class StoreCharge extends OrgAction
                     table: 'services',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'state', 'operator' => '!=', 'value' => ChargeStateEnum::DISCONTINUED->value],
+                        ['column' => 'state', 'operator' => '!=', 'value' => InsuranceStateEnum::DISCONTINUED->value],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
@@ -106,14 +112,14 @@ class StoreCharge extends OrgAction
             'name'                     => ['required', 'max:250', 'string'],
             'price'                    => ['required', 'numeric', 'min:0'],
             'unit'                     => ['required', 'string'],
-            'state'                    => ['sometimes', 'required', Rule::enum(ChargeStateEnum::class)],
+            'state'                    => ['sometimes', 'required', Rule::enum(InsuranceStateEnum::class)],
             'data'                     => ['sometimes', 'array'],
             'created_at'               => ['sometimes', 'date'],
             'source_id'                => ['sometimes', 'string', 'max:63']
         ];
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Charge
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Insurance
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
