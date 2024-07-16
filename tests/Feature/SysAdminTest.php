@@ -38,6 +38,7 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -177,6 +178,21 @@ test('set organisation google key', function (Organisation $organisation) {
     ])->assertSuccessful();
 })->depends('create organisation by command');
 
+test('update organisation logo', function (Organisation $organisation) {
+    Storage::fake('public');
+
+    $fakeImage = UploadedFile::fake()->image('logo.jpg', 20, 20);
+
+    $organisation = UpdateOrganisation::make()->action(
+        $organisation,
+        [
+            'logo' => $fakeImage
+        ]
+        );
+    $organisation->refresh();
+    expect($organisation->images->count())->toBe(1)
+        ->and($organisation->image->name)->toBe('logo.jpg');
+})->depends('create organisation by command');
 
 test('roles are seeded', function () {
     expect(Role::count())->toBe(19);
