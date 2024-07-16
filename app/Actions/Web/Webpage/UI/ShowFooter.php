@@ -38,7 +38,7 @@ class ShowFooter extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Web/Footer/FooterWorkshop',
+            'Org/Web/Workshop/Footer/FooterWorkshop',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

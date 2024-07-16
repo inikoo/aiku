@@ -109,7 +109,8 @@ const sidebarOpen = ref(false)
 /* Navigation: Aiku */
 .navigationActive {
     @apply rounded py-2 font-semibold transition-all duration-0 ease-out;
-    border: v-bind('`1px solid color-mix(in srgb, ${layout?.app?.theme[2]} 85%, black)`') !important;
+    // border: v-bind('`1px solid color-mix(in srgb, ${layout?.app?.theme[2]} 85%, black)`') !important;
+    box-shadow: v-bind('`0 0 0 1px color-mix(in srgb, ${layout?.app?.theme[2]}, 20% white)`') !important;
     background-color: v-bind('layout?.app?.theme[2]');
     color: v-bind('layout?.app?.theme[3]')
 }

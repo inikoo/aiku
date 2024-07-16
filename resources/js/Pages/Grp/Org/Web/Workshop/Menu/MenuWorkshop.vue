@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
-import { navigation } from './Descriptor.ts'
+import { navigation } from '@/Components/Websites/Menu/Descriptor.js'
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
 
@@ -10,8 +10,8 @@ import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, 
 import { faHeart } from '@far';
 import { v4 as uuidv4 } from "uuid"
 import { Switch } from '@headlessui/vue'
-import EditMode from './EditMode.vue';
-import PreviewMode from './PreviewMode.vue';
+import EditMode from '@/Components/Websites/Menu/EditMode.vue';
+import PreviewMode from '@/Components/Websites/Menu/PreviewMode.vue';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars);
 

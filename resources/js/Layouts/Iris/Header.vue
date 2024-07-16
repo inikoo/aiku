@@ -1,6 +1,7 @@
 <script setup lang='ts'>
-
-import HeaderTypeA1 from '@/Components/Iris/Blocks/Header/HeaderTypeA1.vue'
+// import HeaderTypeA1 from '@/Components/Iris/Blocks/Header/HeaderTypeA1.vue'
+import { getComponent } from '@/Components/Websites/Header/Content'
+import { usePage } from '@inertiajs/vue3'
 
 const props = defineProps<{
     data: {
@@ -16,21 +17,24 @@ const props = defineProps<{
     }
 }>()
 
-const componentList = (componentName: string) => {
-    const components: any = {
-        'HeaderTypeA1': HeaderTypeA1,
-    }
+// const componentList = (componentName: string) => {
+//     const components: any = {
+//         'HeaderTypeA1': HeaderTypeA1,
+//     }
 
-    return components[componentName]
-}
+//     return components[componentName]
+// }
 
 
-console.log('props Header.vue', props.data)
+// console.log('props Header.vue', props.data)
 </script>
 
 <template>
+    <!-- <pre>{{ usePage().props.iris_header }}</pre> -->
     <div>
-        <component :is="componentList(data.header_name)" :data="data.header_data" />
+        <component :is="getComponent(usePage().props.iris_header.component)"
+            :modelValue="usePage().props.iris_header"
+        />
     </div>
 
 </template>
