@@ -29,7 +29,8 @@ const props = withDefaults(defineProps<{
     modelValue: string,
     toogle?: string[],
     type?: string,
-}>(), {
+    editable?:boolean
+}>(),{
     type: 'Bubble',
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
@@ -66,6 +67,7 @@ const toggleList = ref([
 
 const editor = useEditor({
     content: props.modelValue,
+    editable: props.editable,
     onUpdate: ({ editor }) => {
         emits('update:modelValue', editor.getHTML())
     },
