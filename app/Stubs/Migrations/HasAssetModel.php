@@ -7,6 +7,10 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
+use App\Enums\Catalogue\Shipping\ShippingStateEnum;
+use App\Enums\Catalogue\Subscription\SubscriptionStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasAssetModel
@@ -15,7 +19,6 @@ trait HasAssetModel
 
     public function assetModelFields(Blueprint $table): Blueprint
     {
-
         $table->string('slug')->unique()->collation('und_ns');
         $table->string('code')->index()->collation('und_ns');
         $table->string('name', 255)->nullable();
@@ -32,6 +35,7 @@ trait HasAssetModel
         $table->foreign('currency_id')->references('id')->on('currencies');
         $table->unsignedInteger('current_historic_asset_id')->index()->nullable();
         $table->foreign('current_historic_asset_id')->references('id')->on('historic_assets');
+
         return $table;
     }
 
@@ -45,6 +49,45 @@ trait HasAssetModel
         $table->foreign('asset_id')->references('id')->on('assets');
         $table->unsignedSmallInteger('family_id')->nullable();
         $table->unsignedSmallInteger('department_id')->nullable();
+
+        return $table;
+    }
+
+    public function billableFields(Blueprint $table): Blueprint
+    {
+        $table->smallIncrements('id');
+        $table = $this->groupOrgRelationship($table);
+        $table->unsignedSmallInteger('shop_id')->nullable();
+        $table->foreign('shop_id')->references('id')->on('shops');
+        $table->unsignedInteger('asset_id')->nullable();
+        $table->foreign('asset_id')->references('id')->on('assets');
+
+        if ($table->getTable() == 'shippings') {
+            $table->boolean('structural')->default(false);
+        }
+
+        $table->boolean('status')->default(false)->index();
+
+        if ($table->getTable() == 'charges') {
+            $table->string('state')->default(ChargeStateEnum::IN_PROCESS)->index();
+        } elseif ($table->getTable() == 'shippings') {
+            $table->string('state')->default(ShippingStateEnum::IN_PROCESS)->index();
+        } elseif ($table->getTable() == 'insurances') {
+            $table->string('state')->default(InsuranceStateEnum::IN_PROCESS)->index();
+        } elseif ($table->getTable() == 'subscriptions') {
+            $table->string('state')->default(SubscriptionStateEnum::IN_PROCESS)->index();
+        }
+
+        $table = $this->assetModelFields($table);
+        $table->timestampsTz();
+        if ($table->getTable() != 'adjustments') {
+            $table->softDeletes();
+        }
+        if ($table->getTable() != 'subscriptions') {
+            $table->string('source_id')->nullable()->unique();
+            $table->string('historic_source_id')->nullable()->unique();
+        }
+
         return $table;
     }
 

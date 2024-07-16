@@ -18,6 +18,50 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int|null $shop_id
+ * @property int|null $asset_id
+ * @property bool $status
+ * @property ChargeStateEnum $state
+ * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
+ * @property string|null $price
+ * @property string $units
+ * @property string $unit
+ * @property array $data
+ * @property array $settings
+ * @property int $currency_id
+ * @property int|null $current_historic_asset_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
+ * @property string|null $historic_source_id
+ * @property-read \App\Models\Catalogue\Asset|null $asset
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Helpers\Currency $currency
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop|null $shop
+ * @property-read \App\Models\Catalogue\ChargeStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Charge withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Charge extends Model implements Auditable
 {
     use SoftDeletes;

@@ -220,8 +220,8 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
     expect($service1)->toBeInstanceOf(Service::class)
         ->and($service1->asset)->toBeInstanceOf(Asset::class)
         ->and($service2->organisation->catalogueStats->number_assets_type_service)->toBe(2)
-        ->and($service2->organisation->catalogueStats->number_assets)->toBe(2)
-        ->and($service2->shop->stats->number_assets)->toBe(2)
+        ->and($service2->organisation->catalogueStats->number_assets)->toBe(4)
+        ->and($service2->shop->stats->number_assets)->toBe(4)
         ->and($service2->stats->number_historic_assets)->toBe(1);
 
     return $service1;
@@ -244,9 +244,9 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
 
     expect($rental)->toBeInstanceOf(Rental::class)
         ->and($rental->asset)->toBeInstanceOf(Asset::class)
-        ->and($rental->organisation->catalogueStats->number_assets)->toBe(3)
+        ->and($rental->organisation->catalogueStats->number_assets)->toBe(5)
         ->and($rental->organisation->catalogueStats->number_assets_type_rental)->toBe(1)
-        ->and($rental->shop->stats->number_assets)->toBe(3)
+        ->and($rental->shop->stats->number_assets)->toBe(5)
         ->and($rental->stats->number_historic_assets)->toBe(1);
 
     return $rental;
