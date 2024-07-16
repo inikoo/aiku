@@ -12,6 +12,8 @@ import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
 
+import { usePage } from '@inertiajs/vue3'
+
 // import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 const props = defineProps<{
@@ -24,7 +26,7 @@ console.log('data', props.data)
 
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
-
+console.log('ffffffffffff', usePage().props)
 // const features = [
 //     {
 //         name: 'Flexible Storage Options',
@@ -178,7 +180,7 @@ const people = [
         <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
             This page have no data
         </div>
-    
+
         <!-- <div class="">
             <iframe title="AW Fulfilment" style="width:100%;height: 100%; border: 0px;overflow:hidden;"
                 src="https://delivery.wowsbar.com/banners/01HDRV5VBPRY0DMEED42JGFGX4" ></iframe>
