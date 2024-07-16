@@ -464,7 +464,7 @@ test('create service', function (Shop $shop) {
         ->and($group->catalogueStats->number_assets_type_service)->toBe(1)
         ->and($organisation->catalogueStats->number_products)->toBe(1)
         ->and($organisation->catalogueStats->number_assets_type_service)->toBe(1)
-        ->and($shop->stats->number_assets)->toBe(2)
+        ->and($shop->stats->number_assets)->toBe(4)
         ->and($shop->stats->number_products)->toBe(1)
         ->and($shop->stats->number_assets_type_product)->toBe(1)
         ->and($shop->stats->number_assets_type_service)->toBe(1);

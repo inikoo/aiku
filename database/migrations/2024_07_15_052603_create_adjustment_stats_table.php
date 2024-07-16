@@ -13,7 +13,9 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('adjustment_stats', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
+            $table->unsignedInteger('adjustment_id')->index();
+            $table->foreign('adjustment_id')->references('id')->on('adjustments');
             $table->timestampsTz();
         });
     }
