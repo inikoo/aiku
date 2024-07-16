@@ -19,7 +19,9 @@ trait HasSalesTransactionParents
         $table->foreign('customer_id')->references('id')->on('customers');
         $table->unsignedInteger('order_id')->nullable()->index();
         $table->foreign('order_id')->references('id')->on('orders');
-
+        if($table->getTable() === 'invoices') {
+            $table->unsignedInteger('recurring_bill_id')->nullable()->index();
+        }
         return $table;
     }
 }

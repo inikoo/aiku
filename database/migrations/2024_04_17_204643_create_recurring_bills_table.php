@@ -32,19 +32,24 @@ return new class () extends Migration {
             $table->string('status')->nullable()->index()->default(RecurringBillStatusEnum::CURRENT->value);
             $table->dateTimeTz('start_date');
             $table->dateTimeTz('end_date')->nullable();
-
-            $table=$this->currencyFields($table);
-            $table=$this->orderTotalAmounts($table);
-
+            $table = $this->currencyFields($table);
+            $table = $this->orderTotalAmounts($table);
             $table->jsonb('data')->nullable();
             $table->timestampsTz();
             $table->softDeletes();
+        });
+
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->foreign('recurring_bill_id')->references('id')->on('recurring_bills');
         });
     }
 
 
     public function down(): void
     {
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->dropForeign('recurring_bill_id_foreign');
+        });
         Schema::dropIfExists('recurring_bills');
     }
 };

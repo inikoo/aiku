@@ -12,11 +12,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('recurring_bill_transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('recurring_bill_id')->index();
             $table->foreign('recurring_bill_id')->references('id')->on('recurring_bills');
             $table->unsignedInteger('fulfilment_id')->index();
@@ -42,11 +43,19 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->index();
         });
+
+        Schema::table('invoice_transactions', function (Blueprint $table) {
+            $table->foreign('recurring_bill_transaction_id')->references('id')->on('recurring_bill_transactions');
+        });
     }
 
 
     public function down(): void
     {
+        Schema::table('invoice_transactions', function (Blueprint $table) {
+            $table->dropForeign('recurring_bill_transaction_id_foreign');
+        });
+
         Schema::dropIfExists('recurring_bill_transactions');
     }
 };

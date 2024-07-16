@@ -46,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $order_id
+ * @property int|null $recurring_bill_id
  * @property int|null $address_id
  * @property int|null $billing_country_id
  * @property InvoiceTypeEnum $type
