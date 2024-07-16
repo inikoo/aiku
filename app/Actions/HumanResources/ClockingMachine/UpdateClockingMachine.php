@@ -13,10 +13,12 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateClockingMachines;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateClockingMachines;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateClockingMachine extends OrgAction
@@ -77,6 +79,7 @@ class UpdateClockingMachine extends OrgAction
                 ),
 
             ],
+            'type'       => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
             'source_id' => 'sometimes|string|max:255',
 
         ];

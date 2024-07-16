@@ -16,6 +16,7 @@ use App\Actions\HumanResources\Timesheet\StoreTimesheet;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
@@ -185,7 +186,7 @@ test('create user from employee', function (Employee $employee) {
 test('create clocking machines', function ($workplace) {
     $arrayData = [
         'name' => 'ABC',
-        'type' => 'static-nfc',
+        'type' => ClockingMachineTypeEnum::STATIC_NFC,
     ];
 
     $clockingMachine = StoreClockingMachine::run($workplace, $arrayData);
@@ -198,9 +199,10 @@ test('create clocking machines', function ($workplace) {
 test('update clocking machines', function ($createdClockingMachine) {
     $arrayData = [
         'name' => 'XYZ',
+        'type' => ClockingMachineTypeEnum::BIOMETRIC
     ];
 
-    $updatedClockingMachine = UpdateClockingMachine::run($createdClockingMachine, $arrayData);
+    $updatedClockingMachine = UpdateClockingMachine::make()->action($createdClockingMachine, $arrayData);
 
     expect($updatedClockingMachine->name)->toBe($arrayData['name']);
 })->depends('create clocking machines');

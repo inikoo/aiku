@@ -8,12 +8,14 @@
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class EditClockingMachine extends OrgAction
 {
@@ -84,7 +86,13 @@ class EditClockingMachine extends OrgAction
                                     'type'  => 'input',
                                     'label' => __('name'),
                                     'value' => $clockingMachine->name
-                                ]
+                                ],
+                                'type' => [
+                                    'type'    => 'select',
+                                    'options' => Options::forEnum(ClockingMachineTypeEnum::class),
+                                    'label'   => __('type'),
+                                    'value'   => $clockingMachine->type
+                                ],
                             ]
                         ]
 
