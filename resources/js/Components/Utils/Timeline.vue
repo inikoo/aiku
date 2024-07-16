@@ -11,18 +11,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { localesCode, OptionsTime, useFormatTime as useFormatTimeComposables } from '@/Composables/useFormatTime'
 /* import { useFormatTime } from '@/Composables/useFormatTime'; */
 library.add(faCalendarAlt, faSparkles, faSpellCheck, faSeedling)
-
-interface Step {
-    index?: number
-    label: string
-    icon?: string | string[]
-    tooltip?: string
-    timestamp: string | null
-    key?: string
-}
+import type { Timeline } from '@/types/Timeline'
 
 const props = defineProps<{
-    options: Step[] | {[key: string]: Step}
+    options: Timeline[] | {[key: string]: Timeline}
     state?: string
     width?: string | Number
     slidesPerView?: number
@@ -30,11 +22,11 @@ const props = defineProps<{
 
 // console.log('ssss',props)
 const emits = defineEmits<{
-    (e: 'updateButton', value: {step: Step, options: Step[]}): void
+    (e: 'updateButton', value: {step: Timeline, options: Timeline[]}): void
 }>()
 
 const _swiperRef = ref()
-const finalOptions = ref<Step[]>([])
+const finalOptions = ref<Timeline[]>([])
 
 
 const stepsWithIndex = (() => {
@@ -48,7 +40,7 @@ const stepsWithIndex = (() => {
     // console.log(finalData)
 });
 
-const setupState = (step: Step) => {
+const setupState = (step: Timeline) => {
     const foundState = finalOptions.value.find((item) => item.key === props.state)
     if(foundState){
         const set = step.key == props.state || step.index < foundState.index

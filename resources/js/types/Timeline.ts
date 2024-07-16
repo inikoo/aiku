@@ -1,6 +1,8 @@
 export interface Timeline {
-    key: string
+    key?: string
+    index?: number
     label: string
-    timestamp?: string
-    tooltip: string
+    icon?: string | string[]
+    tooltip?: string
+    timestamp: string | null
 }

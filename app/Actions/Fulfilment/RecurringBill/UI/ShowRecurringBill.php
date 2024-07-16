@@ -82,6 +82,10 @@ class ShowRecurringBill extends OrgAction
                     'model'        => __('Recurring Bill'),
                     'title'        => $recurringBill->slug
                 ],
+
+                'timeline_rb'   => [],
+                'box_stats'     => [],
+
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => RecurringBillTabsEnum::navigation(),
