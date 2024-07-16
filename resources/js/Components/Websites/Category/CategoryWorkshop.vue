@@ -9,9 +9,7 @@ import { faCube, faLink } from "@fal"
 import { faStar, faCircle } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import PureInput from "@/Components/Pure/PureInput.vue"
 import { ref } from "vue"
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
 
 library.add(faCube, faLink, faStar, faCircle)

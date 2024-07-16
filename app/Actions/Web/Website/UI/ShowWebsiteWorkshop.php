@@ -12,7 +12,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
-use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
 use App\Actions\Web\Website\GetWebsiteWorkshopLayout;
 use App\Actions\Web\Website\GetWebsiteWorkshopProduct;
 use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
@@ -59,7 +58,7 @@ class ShowWebsiteWorkshop extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Web/WebsiteWorkshop',
+            'Org/Web/Workshop/WebsiteWorkshop',
             [
                 'title'       => __("Website's workshop"),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -88,19 +87,18 @@ class ShowWebsiteWorkshop extends OrgAction
                         ]
                     ],
                 ],
+
+                'updateColorRoute' => [
+                    'name'       => 'grp.models.website.update.color',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ],
+
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => WebsiteWorkshopTabsEnum::navigation(),
                 ],
-
-                WebsiteWorkshopTabsEnum::COLOR_SCHEME->value => $this->tab == WebsiteWorkshopTabsEnum::COLOR_SCHEME->value
-                    ?
-                    fn () => GetWebsiteWorkshopColorScheme::run($website)
-                    : Inertia::lazy(
-                        fn () => GetWebsiteWorkshopColorScheme::run($website)
-                    ),
-
-
 
                 WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value ?
                     fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)

@@ -21,6 +21,7 @@ use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
@@ -32,7 +33,7 @@ class StoreInvoice extends OrgAction
     use WithOrderExchanges;
 
     public function handle(
-        Customer|Order $parent,
+        Customer|Order|RecurringBill $parent,
         array $modelData,
     ): Invoice {
 
@@ -157,7 +158,7 @@ class StoreInvoice extends OrgAction
         return $rules;
     }
 
-    public function action(Customer|Order $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
+    public function action(Customer|Order|RecurringBill $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
     {
         $this->asAction       = true;
         $this->strict         = $strict;

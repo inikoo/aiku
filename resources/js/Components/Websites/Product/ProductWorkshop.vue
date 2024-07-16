@@ -5,8 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import { ref } from "vue"
-import Selector from './Editor/Selector.vue'
-import DataSet from './DataSet/Product.js'
+
+import DataSet from '@/Components/Websites/Product/DataSet/Product.js'
 
 library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
 
