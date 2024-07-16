@@ -205,9 +205,9 @@ const fakePalletDelivery = {
 
     <div class="grid grid-cols-2">
         <div class="py-4 px-3">
-            <div class="flex flex-col h-full w-full rounded-md px-4 py-2 bg-gray-700 text-white">
-                <div class="text-gray-100">Status</div>
-                <div class="">Extended</div>
+            <div class="flex flex-col justify-center h-full w-full rounded-md px-4 py-2 bg-green-100 ring-1 ring-green-500 text-green-700">
+                <div class="text-xs">Status</div>
+                <div class="font-semibold">Current</div>
             </div>
         </div>
         <div class="py-1">
