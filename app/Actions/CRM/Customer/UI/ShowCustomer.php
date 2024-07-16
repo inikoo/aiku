@@ -132,7 +132,16 @@ class ShowCustomer extends OrgAction
                     ]),
                     'actions' => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('Edit Customer'),
+                            'label'   => __('Edit Customer'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.crm.customers.edit',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ],
                     ],
                     'subNavigation' => $subNavigation,
                 ],
@@ -181,7 +190,7 @@ class ShowCustomer extends OrgAction
                                 'label'   => __('Create Web User'),
                                 'route'   => [
                                     'method'     => 'get',
-                                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
+                                    'name'       => 'grp.org.shops.show.crm.customers.show.web-users.create',
                                     'parameters' => [
                                         $customer->organisation->slug,
                                         $customer->shop->slug,

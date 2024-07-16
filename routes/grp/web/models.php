@@ -185,6 +185,7 @@ Route::prefix('clocking-machine/{clockingMachine:id}')->name('clocking_machine..
 
 
 Route::patch('fulfilment/{fulfilment:id}', UpdateFulfilment::class)->name('fulfilment.update');
+Route::patch('customer/{customer:id}', UpdateCustomer::class)->name('customer.update')->withoutScopedBindings();
 
 
 /*
@@ -245,7 +246,6 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
-    Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
 
     Route::post('/shop/{shop:id}/customer/{customer:id}/client', [StoreCustomerClient::class, 'inCustomer'])->name('shop.customer.client.store')->withoutScopedBindings();
