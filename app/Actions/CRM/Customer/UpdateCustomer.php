@@ -157,10 +157,10 @@ class UpdateCustomer extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Customer
+    public function asController(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
     {
         $this->customer = $customer;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($customer->shop, $request);
 
         return $this->handle($customer, $this->validatedData);
     }

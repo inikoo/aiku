@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue\Insurance;
 
 use App\Actions\Catalogue\Insurance\Hydrators\InsuranceHydrateUniversalSearch;
-use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Insurance;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

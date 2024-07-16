@@ -66,6 +66,7 @@ class EditCustomer extends OrgAction
                     'blueprint' => [
                         [
                             'title'  => __('contact information'),
+                            'label'  => __('contact'),
                             'fields' => [
 
                                 'contact_name' => [
@@ -91,7 +92,7 @@ class EditCustomer extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.customer.update',
-                            'parameters' => $customer->id
+                            'parameters' => [$customer->id]
 
                         ],
                     ]

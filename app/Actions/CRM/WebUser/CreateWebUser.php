@@ -32,7 +32,7 @@ class CreateWebUser extends OrgAction
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         } elseif ($this->parent instanceof Customer) {
             return
-                $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+            $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
         }
 
         return false;
