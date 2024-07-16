@@ -629,5 +629,3 @@ test('can show catalogue', function (Shop $shop) {
             ->has('breadcrumbs', 3);
     });
 })->depends('create shop');
-
-

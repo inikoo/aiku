@@ -188,7 +188,7 @@ test('update organisation logo', function (Organisation $organisation) {
         [
             'logo' => $fakeImage
         ]
-        );
+    );
     $organisation->refresh();
     expect($organisation->images->count())->toBe(1)
         ->and($organisation->image->name)->toBe('logo.jpg');
@@ -519,5 +519,3 @@ test('should not show without authentication', function () {
     $response->assertStatus(302);
     $response->assertRedirect(route('grp.login.show'));
 });
-
-
