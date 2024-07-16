@@ -3,7 +3,7 @@
 import { Timeline } from "@/types/Timeline"
 import { routeType } from "@/types/route"
 import { Address, AddressValue } from "@/types/PureComponent/Address"
-
+import { Icon, StateIcon } from '@/types/Utils/Icon'
 
 
 export interface Pallet {
@@ -17,28 +17,10 @@ export interface Pallet {
     notes: string
     state: string
     state_label: string
-    state_icon: {
-        tooltip: string
-        icon: string
-        class: string
-        color: string
-        app: {
-            name: string
-            type: string
-        }
-    }
+    state_icon: StateIcon
     status: string
     status_label: string
-    status_icon: {
-        tooltip: string
-        icon: string
-        class: string
-        color: string
-        app: {
-            name: string
-            type: string
-        }
-    }
+    status_icon: StateIcon
     location: string
     location_code: string
     location_slug: string
@@ -85,11 +67,7 @@ export interface PieCustomer {
         value: string
         count: number
         label: string
-        icon: {
-            icon: string
-            tooltip: string
-            class: string
-        }
+        icon: Icon
     }[]
 }
 
@@ -134,7 +112,7 @@ export interface FieldOrderSummary {
 
 // Box Stats in Pallet Delivery
 export interface BoxStats {
-    delivery_status: PalletStatus
+    delivery_status: Icon
     fulfilment_customer: {
         address: Address
         addresses_list: AddressValue[]
@@ -168,11 +146,6 @@ export interface BoxStats {
     order_summary: FieldOrderSummary[][]
 }
 
-export interface PalletStatus {
-    tooltip: string
-    icon: string
-    class: string
-}
 
 // Pallet Delivery and Return notes
 export interface PDRNotes {
