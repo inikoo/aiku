@@ -43,6 +43,28 @@ const props = defineProps<{
             </div>
 
             <div class="flex justify-center gap-x-2">
+                <div class="w-[200px] bg-white rounded-sm px-2 text-[13px] text-gray-500">Search</div>
+            </div>
+
+            <div class="text-xxs flex gap-x-1.5">
+                <div>Register</div>
+                <div>Login</div>
+            </div>
+            
+            <div class="inset-0 bg-black/50 absolute items-center justify-center hidden group-hover:flex gap-x-1.5">
+                <span>Open Header workshop</span>
+                <FontAwesomeIcon icon='fal fa-external-link' class='' fixed-width aria-hidden='true' />
+            </div>
+        </a>
+        
+         <!-- Section: Menu  -->
+        <a target="_blank" :href="routeList?.headerRoute?.name ? route(routeList?.headerRoute?.name, routeList?.headerRoute?.parameters) : '#'"
+            class="group relative flex items-center justify-between h-10 px-4 cursor-pointer"
+            :style="{backgroundColor: color[0], color: color[1]}"
+        >
+            <div class=" text-black  px-0.5 aspect-square rounded-sm flex items-center text-[8px]"></div>
+
+            <div class="flex justify-center gap-x-2">
                 <div class="relative px-1 flex justify-center">
                     <div class="text-xs">Menu</div>
                     <div class="absolute -bottom-0.5 h-[2px] w-full rounded-full" :style="{backgroundColor: color[2]}"></div>
@@ -56,13 +78,10 @@ const props = defineProps<{
                 </div>
             </div>
 
-            <div class="text-xxs flex gap-x-1.5">
-                <div>Register</div>
-                <div>Login</div>
-            </div>
+            <div class="text-xxs flex gap-x-1.5"></div>
             
             <div class="inset-0 bg-black/50 absolute items-center justify-center hidden group-hover:flex gap-x-1.5">
-                <span>Open Header workshop</span>
+                <span>Open Menu workshop</span>
                 <FontAwesomeIcon icon='fal fa-external-link' class='' fixed-width aria-hidden='true' />
             </div>
         </a>
