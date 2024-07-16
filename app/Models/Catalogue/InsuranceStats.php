@@ -10,13 +10,27 @@ namespace App\Models\Catalogue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $insurance_id
+ * @property int $number_historic_assets
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Catalogue\Insurance $insurance
+ * @method static \Illuminate\Database\Eloquent\Builder|InsuranceStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InsuranceStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InsuranceStats query()
+ * @mixin \Eloquent
+ */
 class InsuranceStats extends Model
 {
     protected $table = 'insurance_stats';
 
     protected $guarded = [];
 
-    public function asset(): BelongsTo
+    public function insurance(): BelongsTo
     {
         return $this->belongsTo(Insurance::class);
     }

@@ -7,69 +7,34 @@
 
 namespace App\Enums\Catalogue\Insurance;
 
+use App\Enums\Catalogue\IsBillableState;
 use App\Enums\EnumHelperTrait;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 
 enum InsuranceStateEnum: string
 {
     use EnumHelperTrait;
+    use IsBillableState;
 
     case IN_PROCESS        = 'in-process';
     case ACTIVE            = 'active';
     case DISCONTINUED      = 'discontinued';
 
-    public static function labels(): array
+
+    public static function count(Shop|Organisation|Group $parent): array
     {
+        $stats = match (class_basename($parent)) {
+            'Shop' => $parent->stats,
+            'Organisation', 'Group' => $parent->catalogueStats,
+        };
+
+
         return [
-            'in-process'    => __('In Process'),
-            'active'        => __('Active'),
-            'discontinued'  => __('Discontinued'),
+            'in-process'   => $stats->number_insurances_state_in_process,
+            'active'       => $stats->number_insirances_state_active,
+            'discontinued' => $stats->number_insirances_state_discontinued
         ];
     }
-
-    public static function stateIcon(): array
-    {
-        return [
-            'in-process' => [
-                'tooltip' => __('In process'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
-                'app'     => [
-                    'name' => 'seedling',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'active' => [
-                'tooltip' => __('Active'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-green-500',
-                'color'   => 'green',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-
-            'discontinued' => [
-                'tooltip' => __('Discontinued'),
-                'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500',
-                'color'   => 'red',
-                'app'     => [
-                    'name' => 'times',
-                ]
-            ],
-        ];
-    }
-
-    // public static function count(Shop $parent): array
-    // {
-    //     $stats=$parent->stats;
-    //     return [
-    //         'in-process'                  => $stats->number_services_state_in_process,
-    //         'active'                      => $stats->number_services_state_active,
-    //         'discontinued'                => $stats->number_services_state_discontinued
-    //     ];
-    // }
 }

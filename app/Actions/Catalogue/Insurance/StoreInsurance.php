@@ -95,7 +95,7 @@ class StoreInsurance extends OrgAction
                 'max:32',
                 'alpha_dash',
                 new IUnique(
-                    table: 'services',
+                    table: 'insurances',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                         ['column' => 'state', 'operator' => '!=', 'value' => InsuranceStateEnum::DISCONTINUED->value],
