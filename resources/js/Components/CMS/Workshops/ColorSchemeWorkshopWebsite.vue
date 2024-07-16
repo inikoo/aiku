@@ -31,7 +31,7 @@ const props = defineProps<{
         </div>
 
         <!-- Section: Header  -->
-        <a target="_blank" :href="routeList.headerRoute?.name ? route(routeList.headerRoute?.name, routeList.headerRoute?.parameters) : '#'"
+        <a target="_blank" :href="routeList?.headerRoute?.name ? route(routeList?.headerRoute?.name, routeList?.headerRoute?.parameters) : '#'"
             class="group relative flex items-center justify-between h-10 px-4 cursor-pointer"
             :style="{backgroundColor: color[0], color: color[1]}"
         >
@@ -66,7 +66,7 @@ const props = defineProps<{
 
         <div class="grid grid-cols-7">
             <!-- Section: Menu Left -->
-            <a target="_blank" :href="routeList.menuLeftRoute?.name ? route(routeList.menuLeftRoute?.name, routeList.menuLeftRoute?.parameters) : '#'"
+            <a target="_blank" :href="routeList?.menuLeftRoute?.name ? route(routeList?.menuLeftRoute?.name, routeList?.menuLeftRoute?.parameters) : '#'"
                 class="group relative border-r border-gray-300 cursor-pointer flex justify-center items-center text-2xl"
             >
                 <span class="-rotate-90 whitespace-nowrap">Menu left</span>
@@ -80,7 +80,7 @@ const props = defineProps<{
             </a>
 
             <!-- Section: Webpage -->
-            <a target="_blank" :href="routeList.webpageRoute?.name ? route(routeList.webpageRoute?.name, routeList.webpageRoute?.parameters) : '#'" class="group relative col-span-5 pb-4 cursor-pointer">
+            <a target="_blank" :href="routeList?.webpageRoute?.name ? route(routeList?.webpageRoute?.name, routeList?.webpageRoute?.parameters) : '#'" class="group relative col-span-5 pb-4 cursor-pointer">
                 <div class="mt-3 font-black mx-auto text-center text-xl whitespace-pre-line px-4" :style="{color: color[0]}">
                     Lorem ipsum dolor, sit amet consectetur adipisicing elit!
                 </div>
@@ -107,7 +107,7 @@ const props = defineProps<{
             </a>
 
             <!-- Section: Menu Right -->
-            <a target="_blank" :href="routeList.menuRightRoute?.name ? route(routeList.menuRightRoute?.name, routeList.menuRightRoute?.parameters) : '#'"
+            <a target="_blank" :href="routeList?.menuRightRoute?.name ? route(routeList?.menuRightRoute?.name, routeList?.menuRightRoute?.parameters) : '#'"
                 class="group relative border-l border-gray-300 cursor-pointer flex justify-center items-center text-2xl"
             >
                 <span class="-rotate-90 whitespace-nowrap">Menu right</span>
@@ -123,7 +123,7 @@ const props = defineProps<{
 
         
         <!-- Section: Header  -->
-        <a target="_blank" :href="routeList.footerRoute?.name ? route(routeList.footerRoute?.name, routeList.footerRoute?.parameters) : '#'"
+        <a target="_blank" :href="routeList?.footerRoute?.name ? route(routeList?.footerRoute?.name, routeList?.footerRoute?.parameters) : '#'"
             class="group relative flex items-center justify-between cursor-pointer"
             :style="{backgroundColor: color[2], color: color[3]}"
         >

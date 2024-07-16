@@ -3,30 +3,59 @@ import { ref, Ref } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
-
+import Image from "@/Components/Image.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faPhotoVideo } from '@fal'
 import { routeType } from '@/types/route';
+import { notify } from "@kyvg/vue3-notification"
+import axios from 'axios'
+
 library.add(faImage, faPhotoVideo)
 
 
 const props = withDefaults(defineProps<{
-    modelValue: string | number | null
-    uploadRoute : routeType
+    modelValue: any
+    uploadRoutes: routeType
 }>(), {})
+
+console.log('lk', props)
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
-    (e: 'blur', value: string): void
-    (e: 'onEnter', value: string): void
-    (e: 'input', value: string): void
+    (e: 'onUpload', value: Files[]): void
 }>()
-
 
 const isOpenGalleryImages = ref(false)
 const isDragging = ref(false)
 const addedFiles = ref([])
+
+const onUpload = async () => {
+    try {
+        const formData = new FormData();
+        Array.from(addedFiles.value).forEach((file, index) => {
+            formData.append(`images[${index}]`, file);
+        });
+        const response = await axios.post(route(props.uploadRoutes.name, props.uploadRoutes.parameters), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        emits('update:modelValue', response.data.data[0])
+    } catch (error) {
+        console.error('error', error);
+        notify({
+            title: "Failed",
+            text: "Error while Uploading data",
+            type: "error"
+        })
+    }
+};
+
+const addComponent = (event) => {
+    addedFiles.value = event.target.files;
+    onUpload();
+}
 
 
 const dragOver = (e) => {
@@ -42,19 +71,22 @@ const drop = (e) => {
     e.preventDefault()
     addedFiles.value = e.dataTransfer.files
     isDragging.value = false
+    onUpload();
 }
 
 </script>
 
 <template>
-        <div class="w-full h-full space-y-2"  @dragover="dragOver" @dragleave="dragLeave" @drop="drop">
-        <div class="relative mt-2 flex justify-center rounded-lg border border-indigo-400 shadow-lg px-6 py-10 bg-gradient-to-r from-green-300 via-blue-500 to-purple-600 hover:bg-gray-400/20">
+    <div class="w-full h-full space-y-2" @dragover="dragOver" @dragleave="dragLeave" @drop="drop">
+        <div
+            class="relative mt-2 flex justify-center rounded-lg border border-indigo-400 shadow-lg px-6 py-10 bg-gradient-to-r  hover:bg-gray-400/20">
             <label for="fileInput"
                 class="absolute cursor-pointer rounded-md inset-0 focus-within:outline-none focus-within:ring-2 focus-within:ring-gray-400 focus-within:ring-offset-0">
-                <input type="file" multiple name="file" id="fileInput" class="sr-only"  ref="fileInput" />
+                <input type="file" multiple name="file" id="fileInput" class="sr-only" ref="fileInput"
+                    @change="addComponent" />
             </label>
 
-            <div class="text-center text-white">
+            <div v-if="!modelValue" class="text-center text-white">
                 <FontAwesomeIcon :icon="['fal', 'image']" class="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
                 <div class="mt-2 flex  justify-center text-3xl font-semibold leading-6 ">
                     <p class="pl-1">{{ trans("Upload Image") }}</p>
@@ -70,19 +102,19 @@ const drop = (e) => {
                         class="relative text-white hover:text-gray-700" @click="isOpenGalleryImages = true" />
                 </div>
             </div>
+            <div v-else>
+                <Image :src="modelValue?.source"
+                    class="w-full object-cover h-full object-center group-hover:opacity-75"></Image>
+            </div>
         </div>
+
     </div>
 
 
-    <Gallery 
-        :open="isOpenGalleryImages" 
-        @on-close="isOpenGalleryImages = false" 
-        :uploadRoutes="''"  
-        :tabs="['images_uploaded','stock_images']"
-    >
+    <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
+        :tabs="['images_uploaded', 'stock_images']">
     </Gallery>
 
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

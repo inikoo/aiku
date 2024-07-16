@@ -13,6 +13,8 @@ import EmptyState from '@/Components/Utils/EmptyState.vue';
 import SideEditor from '@/Components/Websites/SideEditor.vue';
 import { v4 as uuidv4 } from 'uuid';
 import DummyCanvas from '@/Components/Websites/Header/DummyCanvas.vue';
+import { notify } from "@kyvg/vue3-notification"
+import Publish from '@/Components/Publish.vue'
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -25,6 +27,7 @@ library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight
 const props = defineProps<{
     pageHead: TSPageHeading
     title: string
+    uploadImageRoute:routeType
     data: {}
 }>()
 
@@ -33,6 +36,8 @@ const loginMode = ref(true)
 const isModalOpen = ref(false)
 const usedTemplates = ref(null)
 const keyTemplates = ref(uuidv4())
+const isLoading = ref(false)
+const comment = ref('')
 
 
 const onPickTemplate = (header) => {
@@ -41,12 +46,52 @@ const onPickTemplate = (header) => {
     usedTemplates.value = { key: header.key, ...data }
 }
 
+
+const onPublish = async (action) => {
+    try {
+        // Ensure action is defined and has necessary properties
+        if (!action || !action.method || !action.name || !action.parameters) {
+            throw new Error('Invalid action parameters')
+        }
+
+        isLoading.value = true
+
+        // Make sure route and axios are defined and used correctly
+        const response = await axios[action.method](route(action.name, action.parameters), {
+            comment: comment.value,
+            layout : usedTemplates?.data
+        })
+
+        console.log(response)
+    } catch (error) {
+        // Ensure the error is logged properly
+        console.error('Error:', error)
+
+        // Ensure the error notification is user-friendly
+        const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
+        notify({
+            title: 'Something went wrong.',
+            text: errorMessage,
+            type: 'error',
+        })
+    } finally {
+        // Ensure loading state is updated
+        isLoading.value = false
+    }
+};
+
+
 </script>
 
 <template>-
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" :dataToSubmit="{ layout : usedTemplates?.data}">
+    <PageHeading :data="pageHead">
+        <template #button-publish="{ action }">
+            <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
+            <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
+                @onPublish="onPublish(action.route)" />
+        </template>
     </PageHeading>
 
     <!-- <div @click="()=>console.log(usedTemplates)">see data</div> -->
@@ -74,10 +119,8 @@ const onPickTemplate = (header) => {
                 </div>
 
                 <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
-                    @update:modelValue="keyTemplates = uuidv4()"></SideEditor>
+                    @update:modelValue="keyTemplates = uuidv4()" :uploadImageRoute="uploadImageRoute"></SideEditor>
             </div>
-
-            <!-- New bottom div with gray background and absolute positioning -->
         </div>
 
         <div class="bg-gray-100 px-6 py-6 h-full overflow-auto"
@@ -85,7 +128,7 @@ const onPickTemplate = (header) => {
             <div :class="usedTemplates?.key ? 'bg-white' : ''">
                 <section v-if="usedTemplates?.key">
                     <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" :previewMode="previewMode"
-                        v-model="usedTemplates.data" :keyTemplate="keyTemplates"></component>
+                        v-model="usedTemplates.data" :keyTemplate="keyTemplates" :uploadImageRoute="uploadImageRoute"></component>
                 </section>
                 <section v-else>
                     <EmptyState
@@ -98,7 +141,7 @@ const onPickTemplate = (header) => {
                         </template>
                     </EmptyState>
                 </section>
-                <DummyCanvas v-if="usedTemplates?.key" class="cursor-not-allowed"></DummyCanvas>
+                <DummyCanvas v-if="usedTemplates?.key"></DummyCanvas>
             </div>
         </div>
     </div>

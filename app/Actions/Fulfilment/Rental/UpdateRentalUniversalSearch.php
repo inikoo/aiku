@@ -7,12 +7,8 @@
 
 namespace App\Actions\Fulfilment\Rental;
 
-use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateUniversalSearch;
 use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateUniversalSearch;
-use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
-use App\Models\Catalogue\Charge;
 use App\Models\Fulfilment\Rental;
-use App\Models\SupplyChain\Supplier;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

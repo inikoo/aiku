@@ -188,7 +188,7 @@ const onPublish = async (action) => {
 
     <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-[85vh]">
         <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none h-full">
-            <div class="h-full col-span-3 overflow-auto border-2 border-dashed">
+            <div class="h-full overflow-auto border-2 border-dashed" :class="data.layout.web_blocks?.length > 0 ? 'col-span-3' : 'col-span-4'">
                 <div v-if="data.layout.web_blocks?.length">
                     <TransitionGroup tag="div" name="zzz" class="relative">
                         <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
@@ -201,22 +201,21 @@ const onPublish = async (action) => {
                     </TransitionGroup>
 
                     <div v-if="isAddBlockLoading" class="w-full h-32 skeleton">
-                    
                     </div>
                 </div>
 
-        <div v-else>
-          <EmptyState :data="{ title: 'Pick Frist Block For Your Website', description: 'Pick block from list' }">
-            <template #button-empty-state>
-              <div class="mt-4 block">
-                <Button @click="() => isModalBlocksList = true" label="Select block" type="tertiary" icon="fal fa-plus" />
-              </div>
-            </template>
-          </EmptyState>
-        </div>
+                <div v-else>
+                    <EmptyState :data="{ title: 'Pick Frist Block For Your Website', description: 'Pick block from list' }">
+                        <template #button-empty-state>
+                        <div class="mt-4 block">
+                            <Button @click="() => isModalBlocksList = true" label="Select block" type="tertiary" icon="fal fa-plus" />
+                        </div>
+                        </template>
+                    </EmptyState>
+                </div>
       </div>
 
-      <div class="col-span-1 h-screen">
+      <div v-if="data.layout.web_blocks?.length > 0" class="col-span-1 h-screen">
         <div class="border-2 bg-gray-200 p-3 h-full">
           <div class="flex justify-between">
             <h2 class="text-sm font-semibold leading-6">Block List</h2>

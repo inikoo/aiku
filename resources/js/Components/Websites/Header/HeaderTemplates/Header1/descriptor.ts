@@ -1,4 +1,5 @@
 export const data = {
+    component : 'header1',
     logo : null,
     headerText : 'FAIRLY TRADING WHOLESALE GIFTS SINCE 1995',
     chip_text : 'Become a Gold Reward Member',
