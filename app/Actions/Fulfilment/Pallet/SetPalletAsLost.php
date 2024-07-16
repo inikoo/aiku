@@ -63,7 +63,7 @@ class SetPalletAsLost extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function action(Pallet $pallet,array $modelData): Pallet
+    public function action(Pallet $pallet, array $modelData): Pallet
     {
         $this->asAction       = true;
         $this->initialisationFromWarehouse($pallet->warehouse, $modelData);
