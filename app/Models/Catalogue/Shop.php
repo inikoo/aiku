@@ -109,9 +109,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Adjustment> $adjustments
  * @property-read LaravelCollection<int, Appointment> $appointments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Charge> $charges
  * @property-read LaravelCollection<int, CustomerClient> $clients
  * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
@@ -125,6 +127,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Insurance> $insurances
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read \App\Models\Catalogue\ShopMailStats|null $mailStats
@@ -150,6 +153,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Shipping> $shippings
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
@@ -475,4 +479,15 @@ class Shop extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(Insurance::class);
     }
+
+    public function shippings(): HasMany
+    {
+        return $this->hasMany(Shipping::class);
+    }
+
+    public function adjustments(): HasMany
+    {
+        return $this->hasMany(Adjustment::class);
+    }
+
 }

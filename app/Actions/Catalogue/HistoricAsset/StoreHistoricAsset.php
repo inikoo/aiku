@@ -14,7 +14,9 @@ use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
 use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateHistoricAssets;
 use App\Actions\Catalogue\Insurance\Hydrators\InsuranceHydrateHistoricAssets;
 use App\Actions\Catalogue\Service\Hydrators\ServiceHydrateHistoricAssets;
+use App\Models\Catalogue\Adjustment;
 use App\Models\Catalogue\Charge;
+use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Subscription;
 use App\Models\Fulfilment\Rental;
 use App\Models\Catalogue\HistoricAsset;
@@ -28,7 +30,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|Insurance $assetModel, array $modelData = []): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|Insurance|Shipping|Adjustment $assetModel, array $modelData = []): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),

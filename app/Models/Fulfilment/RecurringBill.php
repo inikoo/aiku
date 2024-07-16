@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
+ * @property-read Invoice|null $invoices
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDelivery
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturn
@@ -146,9 +147,9 @@ class RecurringBill extends Model implements Auditable
         return $this->morphedByMany(PalletReturn::class, 'model', 'model_has_recurring_bills')->withTimestamps();
     }
 
-    public function invoices() : HasOne 
+    public function invoices(): HasOne
     {
         return $this->hasOne(Invoice::class);
-        
+
     }
 }

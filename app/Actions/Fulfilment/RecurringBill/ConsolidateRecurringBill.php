@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
-use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -24,9 +23,9 @@ class ConsolidateRecurringBill extends OrgAction
 
 
     public function handle(RecurringBill $recurringBill): RecurringBill
-    {  
+    {
         $modelData['status'] = RecurringBillStatusEnum::FORMER;
-        $recurringBill = $this->update($recurringBill, $modelData);
+        $recurringBill       = $this->update($recurringBill, $modelData);
 
 
         $invoiceData = [
@@ -37,12 +36,12 @@ class ConsolidateRecurringBill extends OrgAction
             'net_amount'       => $recurringBill->net_amount,
             'total_amount'     => $recurringBill->total_amount
         ];
-        $invoice = StoreInvoice::make()->action($recurringBill,$invoiceData);
+        $invoice = StoreInvoice::make()->action($recurringBill, $invoiceData);
 
         $transactions = $recurringBill->transactions;
 
         foreach ($transactions as $transaction) {
-    
+
             $data = [
                 'tax_category_id' => $transaction->recurringBill->tax_category_id,
                 'quantity'        => $transaction->quantity,
@@ -56,10 +55,9 @@ class ConsolidateRecurringBill extends OrgAction
         ->exists();
 
         if ($hasStoringPallet) {
-                $newRecurringBill = StoreRecurringBill::make()->action($recurringBill->fulfilmentCustomer->rentalAgrement, ['start_date' => now()]);
-                $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
-            }
-        else {
+            $newRecurringBill = StoreRecurringBill::make()->action($recurringBill->fulfilmentCustomer->rentalAgrement, ['start_date' => now()]);
+            $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
+        } else {
             $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => null]);
         }
 

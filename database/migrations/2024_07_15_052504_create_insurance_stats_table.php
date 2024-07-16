@@ -19,9 +19,7 @@ return new class () extends Migration {
             $table->foreign('insurance_id')->references('id')->on('insurances');
 
             $table->unsignedInteger('number_historic_assets')->default(0);
-            foreach (InsuranceStateEnum::cases() as $case) {
-                $table->unsignedInteger('number_insurances_state_'.$case->snake())->default(0);
-            }
+
             $table->timestampsTz();
         });
     }

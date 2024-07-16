@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 15 Jul 2024 13:35:44 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 16 Jul 2024 21:11:07 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -13,7 +13,10 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('shipping_stats', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
+            $table->unsignedInteger('shipping_id')->index();
+            $table->foreign('shipping_id')->references('id')->on('shippings');
+            $table->unsignedInteger('number_historic_assets')->default(0);
             $table->timestampsTz();
         });
     }

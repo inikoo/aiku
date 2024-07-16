@@ -114,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read \App\Models\SysAdmin\OrganisationCatalogueStats|null $catalogueStats
+ * @property-read LaravelCollection<int, Charge> $charges
  * @property-read LaravelCollection<int, CustomerClient> $clients
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
@@ -131,6 +132,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
+ * @property-read LaravelCollection<int, Insurance> $insurances
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, JobPosition> $jobPositions

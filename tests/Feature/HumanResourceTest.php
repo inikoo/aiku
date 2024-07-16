@@ -218,7 +218,7 @@ test('get clocking machine app qrcode', function (ClockingMachine $clockingMachi
         ->and($qr['code'])->toContain($clockingMachine->slug);
 
     return $qr;
-        
+
 })->depends('create clocking machines');
 
 test('can show hr dashboard', function () {

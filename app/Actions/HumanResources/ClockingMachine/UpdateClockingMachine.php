@@ -80,7 +80,7 @@ class UpdateClockingMachine extends OrgAction
 
             ],
             'type'       => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
-            'source_id' => 'sometimes|string|max:255',
+            'source_id'  => 'sometimes|string|max:255',
 
         ];
     }

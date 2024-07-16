@@ -89,15 +89,15 @@ class ShowRecurringBill extends OrgAction
                     'end_date'   => $recurringBill->end_date
                 ],
                 'box_stats'     => [
-                    'customer' => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
-                    'stats'    => $recurringBill->stats,
+                    'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
+                    'stats'         => $recurringBill->stats,
                     'order_summary' => [
                         [
                             [
-                                "label" => __("total"),
+                                "label"         => __("total"),
                                 'price_gross'   => $recurringBill->gross_amount,
-                                'price_net'   => $recurringBill->net_amount,
-                                "price_total" => $recurringBill->total_amount,
+                                'price_net'     => $recurringBill->net_amount,
+                                "price_total"   => $recurringBill->total_amount,
                                 // "information" => 777777,
                             ],
                         ],
