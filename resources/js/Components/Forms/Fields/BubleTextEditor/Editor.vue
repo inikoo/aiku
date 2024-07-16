@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
     type?: string,
     editable?:boolean
 }>(),{
+    editable : true,
     type: 'Bubble',
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
@@ -182,7 +183,7 @@ watch(() => props.modelValue, (newValue, oldValue) => {
 </script>
 
 <template>
-    <div>
+    <div v-if="editable">
         <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
             <section class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
                 <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
@@ -193,8 +194,9 @@ watch(() => props.modelValue, (newValue, oldValue) => {
             <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
         </section>
 
-        <EditorContent :editor="editor" />
+        <EditorContent :editor="editor" :class="type == 'basic' ? 'bg-white' : ''"/>
     </div>
+    <div v-else><div v-html="modelValue"/></div>
 </template>
 
 

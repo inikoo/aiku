@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, watch } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -14,6 +14,7 @@ import SideEditor from '@/Components/Websites/SideEditor.vue';
 import { v4 as uuidv4 } from 'uuid';
 import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
+import { debounce } from 'lodash'
 import Publish from '@/Components/Publish.vue'
 
 
@@ -28,6 +29,7 @@ const props = defineProps<{
     pageHead: TSPageHeading
     title: string
     data: {}
+    autosaveRoute : routeType
 }>()
 
 const previewMode = ref(false)
@@ -79,6 +81,31 @@ const onPublish = async (action) => {
 };
 
 
+const autoSave = async (data) => {
+    try {
+        const response = await axios.patch(
+            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+            { layout: data }
+        )
+    } catch (error: any) {
+        console.error('error', error)
+    }
+}
+
+const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
+
+const onUpdatedBlock = (data) => {
+    keyTemplates.value = uuidv4()
+}
+
+// Watch for changes in usedTemplates to trigger autoSave
+watch(usedTemplates, (newVal) => {
+    if (newVal) {
+        debouncedSendUpdate(newVal.data)
+    }
+}, { deep: true })
+
+
 </script>
 
 <template>-
@@ -116,7 +143,7 @@ const onPublish = async (action) => {
             </section>
                 <section v-else>
                     <EmptyState
-                        :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
+                        :data="{ description: 'You need pick a template from list', title: 'Pick Footer Templates' }">
                         <template #button-empty-state>
                             <div class="mt-4 block">
                                 <Button type="secondary" label="Templates" icon="fas fa-th-large"

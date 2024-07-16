@@ -11,7 +11,11 @@ export const bluprintForm = [
     {
         name : 'Title',
         key : 'headerText',
-        type : 'text'
+        type : 'editor',
+        props_data : {
+            type : 'basic',
+            toogle : ['bold', 'fontSize', 'italic','underline','link','highlight','color','undo','redo','clear']
+        }
     },
     {
         name : 'Chip',

@@ -9,11 +9,11 @@ import ContextMenu from '@/Components/ContextMenu.vue'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faShieldAlt } from "@fas"
+import { faShieldAlt, faPlus, faTrash } from "@fas"
 import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 import { faBars } from '@fal'
 
-library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars )
+library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash)
 
 const props = defineProps<{
     modelValue: object,
@@ -23,17 +23,17 @@ const props = defineProps<{
 
 const toogle = ['bold', 'italic', 'underline', 'link', 'undo', 'redo']
 const editable = ref(true)
-const editKey = ref(uuidv4()) 
 
 
-const onDrag = () =>{
+
+const onDrag = () => {
     editable.value = false
-    editKey.value = uuidv4()
+
 }
 
-const onDrop = () =>{
+const onDrop = () => {
     editable.value = true
-    editKey.value = uuidv4()
+
 }
 
 const addSubmenu = (data) => {
@@ -45,6 +45,10 @@ const addSubmenu = (data) => {
     )
 }
 
+
+const deleteMenu = (data, index) => {
+    data.splice(index, 1)
+}
 
 </script>
 
@@ -65,27 +69,31 @@ const addSubmenu = (data) => {
                                     <template #header="{ data }">
                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                             <h2 class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable"
-                                                    :key="editKey" />
+                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" />
                                             </h2>
                                         </div>
                                     </template>
                                     <template #content>
                                         <div>
-                                            <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                                                <li>
-                                                    <ul role="list" class="-mx-2 space-y-1">
-                                                        <li @click="()=>addSubmenu(item)">
-                                                            <a :class="['text-gray-700 hover:bg-gray-50 hover:text-indigo-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
-                                                                Add Sub Menu
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a :class="['text-gray-700 hover:bg-gray-50 hover:text-indigo-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
-                                                                Delete
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                            <ul role="list" class="-mx-2 space-y-1">
+                                                <li @click="() => addSubmenu(item)">
+                                                    <span
+                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-indigo-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                        <font-awesome-icon :icon="['fas', 'plus']"
+                                                            :class="['text-gray-400 group-hover:text-indigo-600', 'h-6 w-6 shrink-0']"
+                                                            aria-hidden="true" />
+                                                        Add Sub Menu
+                                                    </span>
+                                                </li>
+                                                <li
+                                                    @click="() => deleteMenu(modelValue.column['column_1']['data'], index)">
+                                                    <span
+                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-red-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                        <font-awesome-icon :icon="['fas', 'trash']"
+                                                            :class="['text-gray-400 group-hover:text-red-600', 'h-6 w-6 shrink-0']"
+                                                            aria-hidden="true" />
+                                                        Delete
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -100,11 +108,36 @@ const addSubmenu = (data) => {
                                         <li>
                                             <div class="flex items-center">
                                                 <FontAwesomeIcon icon="fal fa-bars"
-                                                    class="handle-sub text-sm text-white cursor-grab pr-2" />
-                                                <a href="#" class="text-sm block">
-                                                    <Editor v-model="sub.name" :toogle="toogle" :editable="editable"
-                                                        :key="editKey" />
-                                                </a>
+                                                    class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                <!--   <a href="#" class="text-sm block">
+                                                    <Editor v-model="sub.name" :toogle="toogle" :editable="editable" />
+                                                </a> -->
+                                                <ContextMenu>
+                                                    <template #header="{ data }">
+                                                        <div class="w-full" @contextmenu.prevent.stop="data.toggle">
+                                                            <a href="#" class="text-sm block">
+                                                                <Editor v-model="sub.name" :toogle="toogle"
+                                                                    :editable="editable" />
+                                                            </a>
+                                                        </div>
+                                                    </template>
+                                                    <template #content>
+                                                        <div>
+                                                            <ul role="list" class="-mx-2 space-y-1">
+
+                                                                <li @click="() => deleteMenu(item.data, index)">
+                                                                    <span
+                                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-red-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                                        <font-awesome-icon :icon="['fas', 'trash']"
+                                                                            :class="['text-gray-400 group-hover:text-red-600', 'h-6 w-6 shrink-0']"
+                                                                            aria-hidden="true" />
+                                                                        Delete
+                                                                    </span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </template>
+                                                </ContextMenu>
                                             </div>
                                         </li>
                                     </ul>
@@ -116,33 +149,193 @@ const addSubmenu = (data) => {
 
 
                 <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
-                    <section v-for="item in modelValue.column['column_2']['data']">
-                        <div class="cursor-pointer md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                            <h2 class="text-xl font-semibold w-fit">
-                                <Editor v-model="item.name" :toogle="toogle" />
-                            </h2>
-                            <ul v-for="sub in item['data']" class="hidden md:block space-y-1">
-                                <li><a href="#" class="text-sm block">
-                                        <Editor v-model="sub.name" :toogle="toogle" />
-                                    </a></li>
-                            </ul>
+                    <draggable :list="modelValue.column['column_2']['data']" group="row" itemKey="id" :animation="200"
+                    handle=".handle" @start="onDrag" @end="onDrop"
+                    class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                    <template #item="{ element: item, index: index }">
+                        <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                            <div class="flex">
+                                <FontAwesomeIcon icon="fal fa-bars"
+                                    class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+
+                                <ContextMenu>
+                                    <template #header="{ data }">
+                                        <div class="w-full" @contextmenu.prevent.stop="data.toggle">
+                                            <h2 class="text-xl font-semibold w-fit leading-6">
+                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" />
+                                            </h2>
+                                        </div>
+                                    </template>
+                                    <template #content>
+                                        <div>
+                                            <ul role="list" class="-mx-2 space-y-1">
+                                                <li @click="() => addSubmenu(item)">
+                                                    <span
+                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-indigo-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                        <font-awesome-icon :icon="['fas', 'plus']"
+                                                            :class="['text-gray-400 group-hover:text-indigo-600', 'h-6 w-6 shrink-0']"
+                                                            aria-hidden="true" />
+                                                        Add Sub Menu
+                                                    </span>
+                                                </li>
+                                                <li
+                                                    @click="() => deleteMenu(modelValue.column['column_1']['data'], index)">
+                                                    <span
+                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-red-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                        <font-awesome-icon :icon="['fas', 'trash']"
+                                                            :class="['text-gray-400 group-hover:text-red-600', 'h-6 w-6 shrink-0']"
+                                                            aria-hidden="true" />
+                                                        Delete
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </ContextMenu>
+
+                            </div>
+                            <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
+                                handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                <template #item="{ element: sub, index: subIndex }">
+                                    <ul class="hidden md:block space-y-1">
+                                        <li>
+                                            <div class="flex items-center">
+                                                <FontAwesomeIcon icon="fal fa-bars"
+                                                    class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                <!--   <a href="#" class="text-sm block">
+                                                    <Editor v-model="sub.name" :toogle="toogle" :editable="editable" />
+                                                </a> -->
+                                                <ContextMenu>
+                                                    <template #header="{ data }">
+                                                        <div class="w-full" @contextmenu.prevent.stop="data.toggle">
+                                                            <a href="#" class="text-sm block">
+                                                                <Editor v-model="sub.name" :toogle="toogle"
+                                                                    :editable="editable" />
+                                                            </a>
+                                                        </div>
+                                                    </template>
+                                                    <template #content>
+                                                        <div>
+                                                            <ul role="list" class="-mx-2 space-y-1">
+
+                                                                <li @click="() => deleteMenu(item.data, index)">
+                                                                    <span
+                                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-red-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                                        <font-awesome-icon :icon="['fas', 'trash']"
+                                                                            :class="['text-gray-400 group-hover:text-red-600', 'h-6 w-6 shrink-0']"
+                                                                            aria-hidden="true" />
+                                                                        Delete
+                                                                    </span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </template>
+                                                </ContextMenu>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </draggable>
                         </div>
-                    </section>
+                    </template>
+                </draggable>
+
+
                 </div>
 
                 <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
-                    <section v-for="item in modelValue.column['column_3']['data']">
-                        <div class="cursor-pointer md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                            <h2 class="text-xl font-semibold w-fit">
-                                <Editor v-model="item.name" :toogle="toogle" />
-                            </h2>
-                            <ul v-for="sub in item['data']" class="hidden md:block space-y-1">
-                                <li><a href="#" class="text-sm block">
-                                        <Editor v-model="sub.name" :toogle="toogle" />
-                                    </a></li>
-                            </ul>
+                    <draggable :list="modelValue.column['column_3']['data']" group="row" itemKey="id" :animation="200"
+                    handle=".handle" @start="onDrag" @end="onDrop"
+                    class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                    <template #item="{ element: item, index: index }">
+                        <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                            <div class="flex">
+                                <FontAwesomeIcon icon="fal fa-bars"
+                                    class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+
+                                <ContextMenu>
+                                    <template #header="{ data }">
+                                        <div class="w-full" @contextmenu.prevent.stop="data.toggle">
+                                            <h2 class="text-xl font-semibold w-fit leading-6">
+                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" />
+                                            </h2>
+                                        </div>
+                                    </template>
+                                    <template #content>
+                                        <div>
+                                            <ul role="list" class="-mx-2 space-y-1">
+                                                <li @click="() => addSubmenu(item)">
+                                                    <span
+                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-indigo-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                        <font-awesome-icon :icon="['fas', 'plus']"
+                                                            :class="['text-gray-400 group-hover:text-indigo-600', 'h-6 w-6 shrink-0']"
+                                                            aria-hidden="true" />
+                                                        Add Sub Menu
+                                                    </span>
+                                                </li>
+                                                <li
+                                                    @click="() => deleteMenu(modelValue.column['column_1']['data'], index)">
+                                                    <span
+                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-red-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                        <font-awesome-icon :icon="['fas', 'trash']"
+                                                            :class="['text-gray-400 group-hover:text-red-600', 'h-6 w-6 shrink-0']"
+                                                            aria-hidden="true" />
+                                                        Delete
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </ContextMenu>
+
+                            </div>
+                            <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
+                                handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                <template #item="{ element: sub, index: subIndex }">
+                                    <ul class="hidden md:block space-y-1">
+                                        <li>
+                                            <div class="flex items-center">
+                                                <FontAwesomeIcon icon="fal fa-bars"
+                                                    class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                <!--   <a href="#" class="text-sm block">
+                                                    <Editor v-model="sub.name" :toogle="toogle" :editable="editable" />
+                                                </a> -->
+                                                <ContextMenu>
+                                                    <template #header="{ data }">
+                                                        <div class="w-full" @contextmenu.prevent.stop="data.toggle">
+                                                            <a href="#" class="text-sm block">
+                                                                <Editor v-model="sub.name" :toogle="toogle"
+                                                                    :editable="editable" />
+                                                            </a>
+                                                        </div>
+                                                    </template>
+                                                    <template #content>
+                                                        <div>
+                                                            <ul role="list" class="-mx-2 space-y-1">
+
+                                                                <li @click="() => deleteMenu(item.data, index)">
+                                                                    <span
+                                                                        :class="['text-gray-700 hover:bg-gray-50 hover:text-red-600', 'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']">
+                                                                        <font-awesome-icon :icon="['fas', 'trash']"
+                                                                            :class="['text-gray-400 group-hover:text-red-600', 'h-6 w-6 shrink-0']"
+                                                                            aria-hidden="true" />
+                                                                        Delete
+                                                                    </span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </template>
+                                                </ContextMenu>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </draggable>
                         </div>
-                    </section>
+                    </template>
+                </draggable>
+
+
                 </div>
 
 
@@ -226,13 +419,6 @@ const addSubmenu = (data) => {
         </div>
     </div>
 
-
-    <ContextMenu :display="showContextMenu" ref="menu">
-        <ul>
-            <li> List item 1 </li>
-            <li> List item 2 </li>
-        </ul>
-    </ContextMenu>
 
 </template>
 
