@@ -94,14 +94,16 @@ const originUrl = location.origin
                 <div v-for="item in data.meta" class="flex items-center">
                     <slot :name="`tabs-${item.key}`" :data="item">
                         <FontAwesomeIcon v-if="item.leftIcon"
-                        :title="item.leftIcon.tooltip"
-                        fixed-width
-                        aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-0.5" />
+                            :title="item.leftIcon.tooltip"
+                            fixed-width
+                            aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-0.5" />
                         <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
                             :class="[
-                                item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
-                                ? 'text-gray-600 font-medium'
-                                : 'underline text-gray-400 hover:text-gray-500'
+                                item.href?.name
+                                ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                                    ? 'text-gray-600 font-medium'
+                                    : 'underline text-gray-400 hover:text-gray-500'
+                                : 'text-gray-400'
                             ]"
                         >
                             <MetaLabel :item="item" />

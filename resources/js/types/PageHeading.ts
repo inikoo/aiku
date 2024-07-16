@@ -1,6 +1,7 @@
 import { Button } from '@/types/Button'
 import { routeType } from '@/types/route'
-import { Action } from './Action'
+import { Action } from '@/types/Action'
+import { Icon } from '@/types/Utils/Icon'
 
 export interface PageHeading {
     actions: Action[]
@@ -19,7 +20,13 @@ export interface PageHeading {
         route: routeType
     }
     noCapitalise?: boolean  // Off capitalize in 'title'
-    meta?: any
+    meta?: {
+        key: string
+        label?: string
+        number?: number | string
+        leftIcon?: Icon
+        href?: routeType
+    }[]
     model: string  // Define the type page ('Pallet Delivery' or 'Pallet Returns', etc)
     icon: {
         icon: string | string[]

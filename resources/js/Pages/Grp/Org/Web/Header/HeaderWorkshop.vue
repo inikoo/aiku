@@ -4,15 +4,15 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 
-import Button from '@/Components/Elements/Buttons/Button.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Switch } from '@headlessui/vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import { getComponent, getDescriptor } from '@/Components/Websites/Header/Content'
 import ListHeader from '@/Components/Websites/Header/ListHeader'
-import EmptyState from '@/Components/Utils/EmptyState.vue';
-import SideEditor from '@/Components/Websites/SideEditor.vue';
-import { v4 as uuidv4 } from 'uuid';
-import DummyCanvas from '@/Components/Websites/Header/DummyCanvas.vue';
+import EmptyState from '@/Components/Utils/EmptyState.vue'
+import SideEditor from '@/Components/Websites/SideEditor.vue'
+import { v4 as uuidv4 } from 'uuid'
+import DummyCanvas from '@/Components/Websites/Header/DummyCanvas.vue'
 import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 
@@ -20,9 +20,11 @@ import Publish from '@/Components/Publish.vue'
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faHeart } from '@far';
-import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage } from '@fas';
-library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
+import { faHeart } from '@far'
+import { } from '@fas'
+import { faBrowser } from '@fal'
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -83,7 +85,7 @@ const onPublish = async (action) => {
 
 </script>
 
-<template>-
+<template>
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
@@ -113,13 +115,23 @@ const onPublish = async (action) => {
                         </div>
                     </div>
                     <div>
-                        <Button type="secondary" label="Templates" size="xs" icon="fas fa-th-large"
-                            @click="isModalOpen = true"></Button>
+                        <Button
+                            type="tertiary"
+                            label="List Templates"
+                            size="xs"
+                            icon="fas fa-th-large"
+                            @click="isModalOpen = true"
+                        />
                     </div>
                 </div>
 
-                <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
-                    @update:modelValue="keyTemplates = uuidv4()" :uploadImageRoute="uploadImageRoute"></SideEditor>
+                <SideEditor
+                    v-if="usedTemplates?.key"
+                    v-model="usedTemplates.data"
+                    :bluprint="usedTemplates.bluprint"
+                    @update:modelValue="keyTemplates = uuidv4()"
+                    :uploadImageRoute="uploadImageRoute"
+                />
             </div>
         </div>
 
@@ -127,8 +139,13 @@ const onPublish = async (action) => {
             :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
             <div :class="usedTemplates?.key ? 'bg-white' : ''">
                 <section v-if="usedTemplates?.key">
-                    <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" :previewMode="previewMode"
-                        v-model="usedTemplates.data" :keyTemplate="keyTemplates" :uploadImageRoute="uploadImageRoute"></component>
+                    <component
+                        :is="getComponent(usedTemplates.key)"
+                        :loginMode="loginMode"
+                        :previewMode="previewMode"
+                        v-model="usedTemplates.data"
+                        :uploadImageRoute="uploadImageRoute"
+                    />
                 </section>
                 <section v-else>
                     <EmptyState

@@ -28,7 +28,7 @@ const props = defineProps<{
 // Auto assign to first option if 'required' and value is null
 onMounted(() => {
     if(props.fieldData?.required && !props.form[props.fieldName]) {
-        props.form[props.fieldName] = props.options[0].value
+        props.form[props.fieldName] = props.options?.[0]?.value
     }
 })
 </script>

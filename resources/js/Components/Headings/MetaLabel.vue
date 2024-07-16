@@ -12,7 +12,7 @@ import { useLocaleStore } from "@/Stores/locale"
 const props = defineProps<{
     item: {
         label?: string
-        number?: string
+        number?: number | string
     }
 }>()
 
@@ -23,9 +23,20 @@ const locale = useLocaleStore()
 <template>
     <div class="xl:whitespace-nowrap">
         <span class="leading-none">{{ item.label }}</span>
-        <template v-if="typeof item.number == 'number'">
-            (<span v-if="item.number">{{ locale.number(item.number) }}</span>
-            <FontAwesomeIcon v-else icon="fal fa-empty-set" />)
-        </template>
+
+        <span v-if="item.number">
+            <template v-if="typeof item.number == 'number'">
+                <template v-if="item.number > 0">
+                    ({{ locale.number(item.number) }})
+                </template>
+                <template v-else>
+                    <FontAwesomeIcon icon='fal fa-empty-set' class='' fixed-width aria-hidden='true' />
+                </template>
+            </template>
+            <template v-else>
+                ({{ item.number }})
+            </template>
+        </span>
+
     </div>
 </template>

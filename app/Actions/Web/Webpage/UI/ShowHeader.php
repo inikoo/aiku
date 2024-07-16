@@ -46,12 +46,22 @@ class ShowHeader extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('footer'),
+                'title'       => __("Website Header's Workshop"),
                 'pageHead'    => [
-                    'title'    => $website->code,
+                    'title'    => __("Header's Workshop"),
+                    'model'    => $website->name,
                     'icon'     => [
-                        'title' => __('footer'),
-                        'icon'  => 'fal fa-browser'
+                        'tooltip' => __('Header'),
+                        'icon'    => 'fal fa-browser'
+                    ],
+                    'meta'      => [
+                        [
+                            'key'      => 'website',
+                            'label'    => $website->domain,
+                            'leftIcon' => [
+                                'icon'  => 'fal fa-globe'
+                            ]
+                        ]
                     ],
                     'actions'            => [
                         [

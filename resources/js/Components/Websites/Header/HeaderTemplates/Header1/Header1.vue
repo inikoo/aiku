@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
-
-import Button from '@/Components/Elements/Buttons/Button.vue';
+import { ref } from 'vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -15,12 +14,14 @@ import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
 library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
 
 const props = defineProps<{
-    modelValue: object,
-    loginMode: Boolean
-    keyTemplate: String
-    previewMode: Boolean
+    modelValue: {
+        headerText: string
+        chip_text: string
+    }
+    loginMode : boolean
+    previewMode : boolean
     uploadImageRoute: routeType
-}>();
+}>()
 
 
 const isOpenGalleryImages = ref(false)
@@ -45,7 +46,7 @@ const onPickImageGalery = (e) => {
     <div class="bg-gray-800 grid grid-cols-3 text-white  justify-between items-center p-2 text-xs ">
         <div></div>
         <div class="font-bold text-center">
-            <Editor :toogle="[]" v-model="modelValue.headerText" :key="keyTemplate" />
+            <Editor :toogle="[]" v-model="modelValue.headerText" />
         </div>
 
         <!-- Section: Logout, Cart, profile -->
@@ -86,12 +87,11 @@ const onPickImageGalery = (e) => {
                     <input type="text" placeholder="Search Products"
                         class="border border-gray-400 py-1 px-4 text-sm w-80">
                     <FontAwesomeIcon icon="fas fa-search"
-                        class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400"></FontAwesomeIcon>
+                        class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400" fixed-width aria-hidden='true' />
                 </div>
-                <button
-                    class="justify-self-end flex w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md">
-                    <Editor :toogle="[]" v-model="modelValue.chip_text" :key="keyTemplate" />
-                    <FontAwesomeIcon icon="fas fa-chevron-right" class="ml-1 text-xs"/>
+                <button class="justify-self-end flex w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md">
+                    <Editor :toogle="[]" v-model="modelValue.chip_text" />
+                    <FontAwesomeIcon icon='fas fa-chevron-right' class='' fixed-width aria-hidden='true' />
                 </button>
             </div>
         </div>
