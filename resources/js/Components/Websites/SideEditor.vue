@@ -59,4 +59,11 @@ const onUpdateValue = (field,value) => {
 </template>
 
 
-<style scss></style>
+<style scss scoped>
+.editor-content{
+    background-color: white;
+    border: solid;
+}
+
+
+</style>
