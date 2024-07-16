@@ -7,6 +7,7 @@
 
 use App\Actions\Catalogue\Asset\UI\CreateProduct;
 use App\Actions\Catalogue\Charge\UI\IndexCharges;
+use App\Actions\Catalogue\Insurance\UI\IndexInsurances;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\UI\Dropshipping\Assets\ShowAssetDashboard;
 use App\Stubs\UIDummies\EditDummy;
@@ -50,7 +51,7 @@ Route::name("services.")->prefix('services')
 
 Route::name("insurances.")->prefix('insurances')
     ->group(function () {
-        Route::get('', IndexDummies::class)->name('index');
+        Route::get('', IndexInsurances::class)->name('index');
         Route::get('create', EditDummy::class)->name('create');
 
         Route::prefix('{insurance}')->group(function () {

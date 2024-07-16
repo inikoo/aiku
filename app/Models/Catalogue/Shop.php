@@ -470,4 +470,9 @@ class Shop extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(Charge::class);
     }
+
+    public function insurances(): HasMany
+    {
+        return $this->hasMany(Insurance::class);
+    }
 }

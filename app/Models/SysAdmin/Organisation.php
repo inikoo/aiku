@@ -19,6 +19,7 @@ use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
@@ -618,5 +619,10 @@ class Organisation extends Model implements HasMedia, Auditable
     public function charges(): HasMany
     {
         return $this->hasMany(Charge::class);
+    }
+
+    public function insurances(): HasMany
+    {
+        return $this->hasMany(Insurance::class);
     }
 }
