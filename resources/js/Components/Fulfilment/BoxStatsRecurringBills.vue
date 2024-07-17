@@ -23,46 +23,8 @@ library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay)
 
 const locale = inject('locale', {})
 const props = defineProps<{
-    // dataPalletDelivery: PalletDelivery
     boxStats: BoxStats
 }>()
-
-
-// const disableBeforeToday = (date: Date) => {
-//     const today = new Date()
-//     // Set time to 00:00:00 for comparison purposes
-//     today.setHours(0, 0, 0, 0)
-//     return date < today
-// }
-
-// const isLoadingSetEstimatedDate = ref(false)
-// const onChangeEstimateDate = async (close: Function) => {
-//     router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
-//     {
-//         estimated_delivery_date : props.dataPalletDelivery.estimated_delivery_date
-//     },
-//     {
-//         onStart: () => isLoadingSetEstimatedDate.value = true,
-//         onError: () => {
-//             notify({
-//                 title: "Failed",
-//                 text: "Failed to update the Delivery date, try again.",
-//                 type: "error",
-//             })
-//         },
-//         onSuccess: () => close(),
-//         onFinish: () => isLoadingSetEstimatedDate.value = false,
-//     })
-// }
-
-// onMounted(() => {
-//     JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
-//         lineColor: "rgb(41 37 36)",
-//         width: 2,
-//         height: 50,
-//         displayValue: false
-//     })
-// })
 </script>
 
 <template>
@@ -145,7 +107,7 @@ const props = defineProps<{
                     <dd class="text-gray-500 text-base font-medium tabular-nums">{{ locale.number(boxStats.stats.number_pallets) }} <span class="text-gray-400 font-normal">{{ boxStats.stats.number_pallets > 1 ? trans('Pallets') : trans('Pallet') }}</span></dd>
                 </div>
 
-                <div v-tooltip="trans('Count of services')" class="w-fit flex items-center gap-x-3">
+                <div v-tooltip="trans('Count of stored item')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>

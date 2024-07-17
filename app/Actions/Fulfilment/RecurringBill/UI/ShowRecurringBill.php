@@ -97,13 +97,51 @@ class ShowRecurringBill extends OrgAction
 
                     ],
                     'order_summary' => [
+                        // [
+                        //     [
+                        //         "label"         => __("total"),
+                        //         'price_gross'   => $recurringBill->gross_amount,
+                        //         'price_net'     => $recurringBill->net_amount,
+                        //         "price_total"   => $recurringBill->total_amount,
+                        //         // "information" => 777777,
+                        //     ],
+                        // ],
                         [
                             [
-                                "label"         => __("total"),
-                                'price_gross'   => $recurringBill->gross_amount,
-                                'price_net'     => $recurringBill->net_amount,
-                                "price_total"   => $recurringBill->total_amount,
-                                // "information" => 777777,
+                                'label'         => __('Pallets'),
+                                'quantity'      => $recurringBill->number_pallets ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => 11111111
+                            ],
+                            [
+                                'label'         => __('Services'),
+                                'quantity'      => $recurringBill->stats->number_services ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => 1111111
+                            ],
+                            [
+                                'label'         => __('Physical Goods'),
+                                'quantity'      => $recurringBill->stats->number_physical_goods ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => 1111111
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Shipping'),
+                                'information'   => __('Shipping fee to your address using DHL service.'),
+                                'price_total'   => 1111
+                            ],
+                            [
+                                'label'         => __('Tax'),
+                                'information'   => __('Tax is based on 10% of total order.'),
+                                'price_total'   => 1111111
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Total'),
+                                'price_total'   => 222222222
                             ],
                         ],
                     ],
