@@ -29,9 +29,9 @@ class PublishWebsiteMarginal extends OrgAction
 
     public function handle(Website $website, string $marginal, array $modelData): Website
     {
-        $layout         = [];
         $this->marginal =  $marginal;
 
+        $layout = Arr::get($modelData, 'layout', []);
         if ($marginal == 'header') {
             $layout = Arr::get($modelData, 'layout') ?? $website->unpublishedHeaderSnapshot->layout;
         } elseif ($marginal == 'footer') {
@@ -47,7 +47,6 @@ class PublishWebsiteMarginal extends OrgAction
                 'published_until' => now()
             ]);
         }
-
 
         /** @var Snapshot $snapshot */
         $snapshot = StoreWebsiteSnapshot::run(
