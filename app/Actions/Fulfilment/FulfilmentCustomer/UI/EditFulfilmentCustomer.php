@@ -8,7 +8,9 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -89,10 +91,16 @@ class EditFulfilmentCustomer extends OrgAction
                                     'label' => __('Phone'),
                                     'value' => $fulfilmentCustomer->customer->phone
                                 ],
-
+                                'address'      => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make($fulfilmentCustomer->customer->address)->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ]
                             ]
                         ]
-
                     ],
                     'args'      => [
                         'updateRoute' => [

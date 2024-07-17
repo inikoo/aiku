@@ -9,8 +9,10 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
@@ -23,13 +25,14 @@ use OwenIt\Auditing\Events\AuditCustom;
 class UpdateFulfilmentCustomer extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithModelAddressActions;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
-        $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        $customerData       = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        $contactAddressData = Arr::get($modelData, 'address');
         UpdateCustomer::run($fulfilmentCustomer->customer, $customerData);
-        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone', 'address']);
 
         $oldData = [
             'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
@@ -37,9 +40,11 @@ class UpdateFulfilmentCustomer extends OrgAction
             'dropshipping'   => $fulfilmentCustomer->dropshipping
         ];
 
+        if(! blank($contactAddressData)) {
+            UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
+        }
+
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
-
-
 
         if($fulfilmentCustomer->wasChanged()) {
 
@@ -83,6 +88,7 @@ class UpdateFulfilmentCustomer extends OrgAction
             'pallets_storage' => ['sometimes', 'boolean'],
             'items_storage'   => ['sometimes', 'boolean'],
             'dropshipping'    => ['sometimes', 'boolean'],
+            'address'         => ['sometimes'],
         ];
     }
 
