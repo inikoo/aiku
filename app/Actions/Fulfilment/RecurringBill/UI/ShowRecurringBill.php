@@ -63,6 +63,10 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
+        $palletPriceTotal = 0;
+        foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
+             $palletPriceTotal += $transaction->item->rental->price;
+        }
         // dd(RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value)));
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
@@ -107,22 +111,16 @@ class ShowRecurringBill extends OrgAction
                         [
                             [
                                 'label'         => __('Pallets'),
-                                'quantity'      => $recurringBill->number_pallets ?? 0,
+                                'quantity'      => $recurringBill->stats->number_transactions_type_pallets ?? 0,
                                 'price_base'    => __('Multiple'),
-                                'price_total'   => 11111111
+                                'price_total'   => $palletPriceTotal ?? 0
                             ],
-                            [
-                                'label'         => __('Services'),
-                                'quantity'      => $recurringBill->stats->number_services ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => 1111111
-                            ],
-                            [
-                                'label'         => __('Physical Goods'),
-                                'quantity'      => $recurringBill->stats->number_physical_goods ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => 1111111
-                            ],
+                            // [
+                            //     'label'         => __('Stored Items'),
+                            //     'quantity'      => $recurringBill->stats->number_transactions_type_stored_items ?? 0,
+                            //     'price_base'    => __('Multiple'),
+                            //     'price_total'   => 1111111
+                            // ],
                         ],
                         [
                             [

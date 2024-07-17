@@ -307,7 +307,8 @@ class ShowPalletDelivery extends OrgAction
         $servicesNet      = $services->sum('net_amount');
         $palletPriceTotal = 0;
         foreach ($palletDelivery->pallets as $pallet) {
-            $palletPriceTotal += $pallet->rental->price;
+            $rentalPrice = $pallet->rental->price ?? 0;
+            $palletPriceTotal += $rentalPrice;
         }
 
         return Inertia::render(
