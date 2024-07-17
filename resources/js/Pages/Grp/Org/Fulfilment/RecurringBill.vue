@@ -24,8 +24,8 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-    showcase: {}
-    pallets: {}
+    // showcase: {}
+    // pallets: {}
     transactions: {}
     status_rb: string
     timeline_rb: {

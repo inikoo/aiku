@@ -21,6 +21,7 @@ use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -579,6 +580,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function insurances(): HasMany
     {
         return $this->hasMany(Insurance::class);
+    }
+
+    public function shippings(): HasMany
+    {
+        return $this->hasMany(Shipping::class);
     }
 
 

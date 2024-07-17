@@ -9,7 +9,11 @@ namespace App\Actions\Catalogue\Shipping;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\Shipping\Hydrators\ShippingHydrateUniversalSearch;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateShippings;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShippings;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShippings;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Shipping\ShippingStateEnum;
@@ -74,10 +78,10 @@ class StoreShipping extends OrgAction
             ]
         );
 
-        //ShopHydrateShippings::dispatch($shop);
-        //OrganisationHydrateShippings::dispatch($shop->organisation);
-        //GroupHydrateShippings::dispatch($shop->group);
-        //ShippingHydrateUniversalSearch::dispatch($shipping);
+        ShopHydrateShippings::dispatch($shop);
+        OrganisationHydrateShippings::dispatch($shop->organisation);
+        GroupHydrateShippings::dispatch($shop->group);
+        ShippingHydrateUniversalSearch::dispatch($shipping);
 
 
         return $shipping;
