@@ -9,13 +9,14 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,13 +25,14 @@ use OwenIt\Auditing\Events\AuditCustom;
 class UpdateFulfilmentCustomer extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithModelAddressActions;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
-        $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone','contact_address','delivery_address']);
+        $customerData       = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        $contactAddressData = Arr::get($modelData, 'address');
         UpdateCustomer::run($fulfilmentCustomer->customer, $customerData);
-        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone','contact_address','delivery_address']);
+        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone', 'address']);
 
         $oldData = [
             'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
@@ -38,9 +40,11 @@ class UpdateFulfilmentCustomer extends OrgAction
             'dropshipping'   => $fulfilmentCustomer->dropshipping
         ];
 
+        if(! blank($contactAddressData)) {
+            UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
+        }
+
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
-
-
 
         if($fulfilmentCustomer->wasChanged()) {
 
@@ -77,15 +81,14 @@ class UpdateFulfilmentCustomer extends OrgAction
     public function rules(): array
     {
         return [
-            'contact_name'             => ['sometimes', 'string'],
-            'company_name'             => ['sometimes', 'string'],
-            'email'                    => ['sometimes', 'string'],
-            'phone'                    => ['sometimes', 'string'],
-            'pallets_storage'          => ['sometimes', 'boolean'],
-            'items_storage'            => ['sometimes', 'boolean'],
-            'dropshipping'             => ['sometimes', 'boolean'],
-            'contact_address'          => ['sometimes', 'required', new ValidAddress()],
-            'delivery_address'         => ['sometimes', 'nullable', new ValidAddress()],
+            'contact_name'    => ['sometimes', 'string'],
+            'company_name'    => ['sometimes', 'string'],
+            'email'           => ['sometimes', 'string'],
+            'phone'           => ['sometimes', 'string'],
+            'pallets_storage' => ['sometimes', 'boolean'],
+            'items_storage'   => ['sometimes', 'boolean'],
+            'dropshipping'    => ['sometimes', 'boolean'],
+            'address'         => ['sometimes'],
         ];
     }
 

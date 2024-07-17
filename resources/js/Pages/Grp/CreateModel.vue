@@ -57,18 +57,24 @@ const form = useForm(
         : fields // This part executes if the condition is falsy
 );
 
-
-const handleFormSubmit = () => {
+const isLoading = ref(false)
+const handleFormSubmit = async () => {
     if (!props.formData.submitButton) {
         form.post(route(
             props.formData.route.name,
             props.formData.route.parameters
-        ))
+        ), {
+            onStart: () => isLoading.value = true,
+            onError: () => isLoading.value = false
+        })
     } else {
         form.post(route(
             ButtonActive.value.name,
             ButtonActive.value.parameters
-        ))
+        ), {
+            onStart: () => isLoading.value = true,
+            onError: () => isLoading.value = false
+        })
     }
 }
 
@@ -112,26 +118,34 @@ const onSelectSubmitChange = (value) => {
     <PageHeading :data="pageHead">
         <template v-if="formData?.submitPosition == 'top'" #button>
             <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
-                <Button v-if="!formData.submitButton"
-                    type="submit"
+                <Button
+                    v-if="!formData.submitButton"
                     :disabled="form.processing"
-                    :style="'primary'"
-                    size="m"
-                    icon="fas fa-save"
-                    @click="handleFormSubmit">
-                    {{ trans('Save') }}
-                </Button>
+                    type="save"
+                    @click="handleFormSubmit"
+                    :loading="isLoading"
+                />
 
                 <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
-                    <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
-                        class="rounded-r-none border-none" :style="'primary'" size="m" @click="handleFormSubmit">
-                        {{ ButtonActive.label }}
-                    </Button>
+                    <Button
+                        :key="ButtonActive.key"
+                        type="save"
+                        :disabled="form.processing"
+                        class="rounded-r-none border-none"
+                        size="m" @click="handleFormSubmit"
+                        :label="ButtonActive.label"
+                        :loading="isLoading"
+                    />
 
                     <Menu as="div" class="relative inline-block text-left">
                         <MenuButton as="template">
-                            <Button icon="fas fa-chevron-down" :disabled="form.processing"
-                                class="rounded-l-none border-none" :style="'tertiary'" size="l" />
+                            <Button
+                                icon="fas fa-chevron-down"
+                                :disabled="form.processing"
+                                class="rounded-l-none border-none"
+                                :style="'tertiary'"
+                                size="l"
+                            />
                         </MenuButton>
 
                         <transition enter-active-class="transition duration-100 ease-out"
@@ -249,11 +263,8 @@ const onSelectSubmitChange = (value) => {
                 <div v-if="!formData?.submitPosition || formData?.submitPosition != 'top'" class="pt-5 flex justify-end">
                     <Button
                         v-if="!formData.submitButton"
-                        :loading="form.processing"
-                        type="submit"
-                        size="m"
-                        icon="fas fa-save"
-                        label="Save"
+                        :loading="isLoading"
+                        type="save"
                         @click="handleFormSubmit"
                     />
 

@@ -7,7 +7,9 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -84,10 +86,16 @@ class EditCustomer extends OrgAction
                                     'label' => __('Phone'),
                                     'value' => $customer->phone
                                 ],
-
+                                'contact_address' => [
+                                    'type'    => 'address',
+                                    'label'   => __('Address'),
+                                    'value'   => AddressFormFieldsResource::make($customer->address)->getArray(),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ]
+                                ]
                             ]
                         ]
-
                     ],
                     'args'      => [
                         'updateRoute' => [
