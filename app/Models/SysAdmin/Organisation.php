@@ -23,6 +23,7 @@ use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
@@ -626,5 +627,10 @@ class Organisation extends Model implements HasMedia, Auditable
     public function insurances(): HasMany
     {
         return $this->hasMany(Insurance::class);
+    }
+
+    public function shippings(): HasMany
+    {
+        return $this->hasMany(Shipping::class);
     }
 }
