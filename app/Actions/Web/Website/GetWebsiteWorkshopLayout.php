@@ -82,7 +82,7 @@ class GetWebsiteWorkshopLayout
                             'website' => $website->id
                         ]
                     ],
-                
+
             ];
         }
 

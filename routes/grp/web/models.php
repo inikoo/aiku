@@ -425,6 +425,8 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::patch('autosave/header', [PublishWebsiteMarginal::class, 'header'])->name('autosave.header');
     Route::patch('autosave/footer', [PublishWebsiteMarginal::class, 'footer'])->name('autosave.footer');
 
+    Route::post('publish/menu', [PublishWebsiteMarginal::class, 'menu'])->name('publish.menu');
+
     Route::patch('color', [PublishWebsiteMarginal::class, 'color'])->name('update.color');
 
     Route::patch('', UpdateWebsite::class)->name('update');

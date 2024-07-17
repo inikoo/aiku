@@ -18,6 +18,7 @@ use App\Actions\Web\Webpage\UI\EditWebpage;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Webpage\UI\ShowFooter;
 use App\Actions\Web\Webpage\UI\ShowHeader;
+use App\Actions\Web\Webpage\UI\ShowMenu;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshop;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshopPreview;
@@ -46,6 +47,7 @@ Route::name('websites.')->group(function () {
                     Route::get('preview', ShowWebsiteWorkshopPreview::class)->name('.preview');
                     Route::get('footer', [ShowFooter::class, 'inShop'])->name('.footer');
                     Route::get('header', [ShowHeader::class, 'inShop'])->name('.header');
+                    Route::get('menu', [ShowMenu::class, 'inShop'])->name('.menu');
                 });
         });
 });

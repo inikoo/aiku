@@ -88,7 +88,7 @@ class ShowWebsiteWorkshop extends OrgAction
                     ],
                 ],
 
-              
+
 
                 'tabs'        => [
                     'current'    => $this->tab,
