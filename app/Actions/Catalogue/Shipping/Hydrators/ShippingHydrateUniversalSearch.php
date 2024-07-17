@@ -28,7 +28,7 @@ class ShippingHydrateUniversalSearch
                 'shop_id'           => $shipping->shop_id,
                 'shop_slug'         => $shipping->shop->slug,
                 'section'           => 'shops',
-                'title'             => $charge->name,
+                'title'             => $shipping->name,
             ]
         );
     }
