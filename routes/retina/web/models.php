@@ -43,7 +43,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
     Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
     Route::delete('pallet/{pallet:id}', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete')->withoutScopedBindings();
-    Route::post('transaction', [StoreFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
+    Route::post('transaction', [StoreFulfilmentTransaction::class,'fromRetinaInPalletReturn'])->name('transaction.store');
 });
 
 
@@ -55,7 +55,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('multiple-pallet', [StoreMultiplePalletsFromDelivery::class, 'fromRetina'])->name('multiple-pallets.store');
     Route::patch('update', [UpdatePalletDelivery::class, 'fromRetina'])->name('update');
     Route::patch('update-timeline', [UpdatePalletDeliveryTimeline::class, 'fromRetina'])->name('timeline.update');
-    Route::post('transaction', [StoreFulfilmentTransaction::class,'fromRetinaInPalletReturn'])->name('transaction.store');
+    Route::post('transaction', [StoreFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
 });
 
