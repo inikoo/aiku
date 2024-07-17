@@ -7,6 +7,7 @@
 
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPhysicalGoodInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexServiceInPalletDelivery;
@@ -14,8 +15,11 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
+use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -46,6 +50,44 @@ class ShowPalletDelivery extends RetinaAction
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
 
+        $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
+        $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
+
+        $totalPallets = $numberPallets + $numberStoredPallets;
+        $palletLimits    = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
+        $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
+        $palletLimitData = $palletLimits == null ? null : ($palletLimitLeft < 0
+        ? [
+                'status'  => 'exceeded',
+                'message' => __("Pallet has reached over the limit: $palletLimitLeft.")
+            ]
+        : ($palletLimitLeft == 0
+            ? [
+                    'status'  => 'limit',
+                    'message' => __("Pallet has reached the limit, no space left.")
+                ]
+            : ($palletLimitLeft <= 5
+                ? [
+                        'status'  => 'almost',
+                        'message' => __("Pallet almost reached the limit: $palletLimitLeft left.")
+                    ]
+                : null)));
+
+        $rentalList = [];
+
+        if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
+            $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
+        }
+
+        $physicalGoods    = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->get();
+        $physicalGoodsNet = $physicalGoods->sum('net_amount');
+        $services         = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
+        $servicesNet      = $services->sum('net_amount');
+        $palletPriceTotal = 0;
+        foreach ($palletDelivery->pallets as $pallet) {
+            $rentalPrice = $pallet->rental->price ?? 0;
+            $palletPriceTotal += $rentalPrice;
+        }
 
         return Inertia::render(
             'Storage/RetinaPalletDelivery',
@@ -209,6 +251,8 @@ class ShowPalletDelivery extends RetinaAction
                         'parameters' => []
                     ]
                 ],
+                
+                'rental_lists'         => $rentalList,
 
                 'service_list_route'   => [
                     'name'       => 'retina.storage.delivery.services.index',
@@ -228,7 +272,95 @@ class ShowPalletDelivery extends RetinaAction
                     'navigation' => PalletDeliveryTabsEnum::navigation($palletDelivery)
                 ],
 
+                'pallet_limits' => $palletLimitData,
+
                 'data' => PalletDeliveryResource::make($palletDelivery),
+                'box_stats'        => [
+                    'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
+                    'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'order_summary'                => [
+                        [
+                            [
+                                'label'         => __('Pallets'),
+                                'quantity'      => $palletDelivery->number_pallets ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => ceil($palletPriceTotal) ?? 0
+                            ],
+                            [
+                                'label'         => __('Services'),
+                                'quantity'      => $palletDelivery->stats->number_services ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => $servicesNet
+                            ],
+                            [
+                                'label'         => __('Physical Goods'),
+                                'quantity'      => $palletDelivery->stats->number_physical_goods ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => $physicalGoodsNet
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Shipping'),
+                                'information'   => __('Shipping fee to your address using DHL service.'),
+                                'price_total'   => 1111
+                            ],
+                            [
+                                'label'         => __('Tax'),
+                                'information'   => __('Tax is based on 10% of total order.'),
+                                'price_total'   => $palletDelivery->taxCategory->rate
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Total'),
+                                'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
+                            ],
+                        ],
+                        // 'currency_code'                => 'usd',  // TODO
+                        // // 'number_pallets'               => $palletDelivery->number_pallets,
+                        // // 'number_services'              => $palletDelivery->stats->number_services,
+                        // // 'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
+                        // 'pallets_price'                => 0,  // TODO
+                        // 'physical_goods_price'         => $physicalGoodsNet,
+                        // 'services_price'               => $servicesNet,
+                        // 'total_pallets_price'          => 0,  // TODO
+                        // // 'total_services_price'         => $palletDelivery->stats->total_services_price,
+                        // // 'total_physical_goods_price'   => $palletDelivery->stats->total_physical_goods_price,
+                        // 'shipping'                     => [
+                        //     'tooltip'           => __('Shipping fee to your address using DHL service.'),
+                        //     'fee'               => 11111, // TODO
+                        // ],
+                        // 'tax'                      => [
+                        //     'tooltip'           => __('Tax is based on 10% of total order.'),
+                        //     'fee'               => 99999, // TODO
+                        // ],
+                        // 'total_price'                  => $palletDelivery->stats->total_price
+                    ]
+                ],
+                'notes_data'             => [
+                    [
+                        'label'           => __('Customer'),
+                        'note'            => $palletDelivery->customer_notes ?? '',
+                        'editable'        => false,
+                        'bgColor'         => 'blue',
+                        'field'           => 'customer_notes'
+                    ],
+                    [
+                        'label'           => __('Public'),
+                        'note'            => $palletDelivery->public_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'pink',
+                        'field'           => 'public_notes'
+                    ],
+                    [
+                        'label'           => __('Private'),
+                        'note'            => $palletDelivery->internal_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'purple',
+                        'field'           => 'internal_notes'
+                    ],
+                ],
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))

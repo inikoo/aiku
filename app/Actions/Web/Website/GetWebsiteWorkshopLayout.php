@@ -10,6 +10,7 @@ namespace App\Actions\Web\Website;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetWebsiteWorkshopLayout
@@ -94,6 +95,10 @@ class GetWebsiteWorkshopLayout
             ];
         }
 
-        return $workshopRoutes;
+        $propsValue = [
+            'color' => Arr::get($website->published_layout, 'color')
+        ];
+
+        return array_merge($workshopRoutes, $propsValue);
     }
 }
