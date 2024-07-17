@@ -35,6 +35,7 @@ class UpdateRecurringBilling extends OrgAction
     public function rules(): array
     {
         return [
+            'end_date'         => ['sometimes', 'date'],
             'total'            => ['sometimes'],
             'payment'          => ['sometimes'],
             'net'              => ['sometimes'],

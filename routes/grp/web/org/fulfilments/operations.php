@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 
@@ -38,6 +39,7 @@ Route::get('returns/{palletReturn}', ShowPalletReturn::class)->name('pallet-retu
 Route::prefix('recurring_bills')->as('recurring_bills')->group(function () {
     Route::get('', IndexRecurringBills::class)->name('.index');
     Route::get('{recurringBill}', ShowRecurringBill::class)->name('.show');
+    Route::get('{recurringBill}/edit', EditRecurringBill::class)->name('.edit');
 });
 
 Route::prefix('invoices')->as('invoices')->group(function () {
