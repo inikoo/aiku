@@ -75,6 +75,14 @@ class GetWebsiteWorkshopLayout
                     'notificationRoute'  => null,
                     'menuLeftRoute'      => null,
                     'menuRightRoute'     => null,
+                    'menuRoute'          => [
+                        'name'       => 'grp.org.shops.show.web.websites.workshop.menu',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'shop'         => $website->shop->slug,
+                            'website'      => $website->slug
+                        ]
+                    ],
                 ],
                 'updateColorRoute' => [
                         'name'       => 'grp.models.website.update.color',

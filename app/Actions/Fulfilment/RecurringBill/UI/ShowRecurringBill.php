@@ -88,6 +88,7 @@ class ShowRecurringBill extends OrgAction
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
                 ],
+                'status'        => $recurringBill->status,
                 'box_stats'     => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
                     'stats'         => $recurringBill->stats,

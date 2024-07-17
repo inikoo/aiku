@@ -79,7 +79,7 @@ class IndexServiceInPalletDelivery extends OrgAction
             ->select([
                 'fulfilment_transactions.id',
                 'fulfilment_transactions.asset_id',
-                'fulfilment_transactions.net',
+                'fulfilment_transactions.net_amount',
                 'fulfilment_transactions.type as asset_type',
                 'fulfilment_transactions.historic_asset_id',
                 'services.slug as asset_slug',
@@ -128,7 +128,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('id');
         };

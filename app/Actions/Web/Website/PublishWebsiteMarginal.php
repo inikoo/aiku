@@ -25,10 +25,13 @@ class PublishWebsiteMarginal extends OrgAction
     use WithActionUpdate;
 
     public bool $isAction = false;
+    public string $marginal;
 
     public function handle(Website $website, string $marginal, array $modelData): Website
     {
-        $layout = [];
+        $layout         = [];
+        $this->marginal =  $marginal;
+
         if ($marginal == 'header') {
             $layout = Arr::get($modelData, 'layout') ?? $website->unpublishedHeaderSnapshot->layout;
         } elseif ($marginal == 'footer') {
@@ -71,11 +74,17 @@ class PublishWebsiteMarginal extends OrgAction
             ]
         );
 
-        $updateData = [
-            "live_{$marginal}_snapshot_id"    => $snapshot->id,
-            "published_layout->$marginal"     => $snapshot->layout,
-            "published_{$marginal}_checksum"  => md5(json_encode($snapshot->layout)),
-        ];
+        if(in_array($marginal, ['header', 'footer'])) {
+            $updateData = [
+                "live_{$marginal}_snapshot_id"    => $snapshot->id,
+                "published_layout->$marginal"     => $snapshot->layout,
+                "published_{$marginal}_checksum"  => md5(json_encode($snapshot->layout)),
+            ];
+        } else {
+            $updateData = [
+                "published_layout->$marginal"     => $snapshot->layout
+            ];
+        }
 
         $website->update($updateData);
 
@@ -84,11 +93,32 @@ class PublishWebsiteMarginal extends OrgAction
 
     public function htmlResponse(Website $website): Response
     {
-        return Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
-            'organisation' => $website->organisation->slug,
-            'shop'         => $website->shop->slug,
-            'website'      => $website->slug,
-        ]));
+        return match ($this->marginal) {
+            'header' =>
+            Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
+                'organisation' => $website->organisation->slug,
+                'shop'         => $website->shop->slug,
+                'website'      => $website->slug,
+            ])),
+            'footer' =>
+            Inertia::location(route('grp.org.shops.show.web.websites.workshop.footer', [
+                'organisation' => $website->organisation->slug,
+                'shop'         => $website->shop->slug,
+                'website'      => $website->slug,
+            ])),
+            'menu' =>
+            Inertia::location(route('grp.org.shops.show.web.websites.workshop.menu', [
+                'organisation' => $website->organisation->slug,
+                'shop'         => $website->shop->slug,
+                'website'      => $website->slug,
+            ])),
+            default =>
+            Inertia::location(route('grp.org.shops.show.web.websites.workshop', [
+                'organisation' => $website->organisation->slug,
+                'shop'         => $website->shop->slug,
+                'website'      => $website->slug,
+            ])),
+        };
     }
 
     public function authorize(ActionRequest $request): bool

@@ -424,13 +424,13 @@ class ShowPalletDelivery extends OrgAction
 
                 'rental_lists'         => $rentalList,
                 'service_list_route'   => [
-                    'name'       => 'grp.json.pallet-delivery.services.index',
+                    'name'       => 'grp.json.fulfilment.services.index',
                     'parameters' => [
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.json.pallet-delivery.physical-goods.index',
+                    'name'       => 'grp.json.fulfilment.physical-goods.index',
                     'parameters' => [
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
                     ]
