@@ -101,6 +101,11 @@ class ShowRecurringBill extends OrgAction
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
                 ],
+                'consolidateRoute'  => [
+                    'name'          => null,
+                    'parameters'    => null,
+                    'method'        => null
+                ],
                 'status_rb'        => $recurringBill->status,
                 'box_stats'        => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
