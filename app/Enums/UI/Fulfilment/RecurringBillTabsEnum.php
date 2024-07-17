@@ -15,10 +15,6 @@ enum RecurringBillTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE        = 'showcase';
-    case PALLETS         = 'pallets';
-    case SERVICES        = 'services';
-    case PHYSICAL_GOODS  = 'physical_goods';
     case TRANSACTIONS    = 'transactions';
 
     case DATA    = 'data';
@@ -27,22 +23,6 @@ enum RecurringBillTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            RecurringBillTabsEnum::SHOWCASE => [
-                'title' => __('showcase'),
-                'icon'  => 'fas fa-info-circle',
-            ],
-            RecurringBillTabsEnum::PALLETS => [
-                'title' => __('pallets'),
-                'icon'  => 'fal fa-pallet',
-            ],
-            RecurringBillTabsEnum::SERVICES => [
-                'title' => __('services'),
-                'icon'  => 'fal fa-concierge-bell',
-            ],
-            RecurringBillTabsEnum::PHYSICAL_GOODS => [
-                'title' => __('physical goods'),
-                'icon'  => 'fal fa-cube',
-            ],
             RecurringBillTabsEnum::TRANSACTIONS => [
                 'title' => __('transactions'),
                 'icon'  => 'fal fa-ballot',

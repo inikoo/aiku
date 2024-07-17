@@ -26,6 +26,7 @@ const props = defineProps<{
     tabs: TSTabs
     showcase: {}
     pallets: {}
+    transactions: {}
     status_rb: string
     timeline_rb: {
         start_date: string

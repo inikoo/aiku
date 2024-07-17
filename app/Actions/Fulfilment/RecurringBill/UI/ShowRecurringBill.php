@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Retina\Storage\RecurringBill\UI\IndexRecurringBillTransactions;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
@@ -21,6 +22,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
+use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -66,6 +68,7 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
+        // dd(RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value)));
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
@@ -97,13 +100,51 @@ class ShowRecurringBill extends OrgAction
 
                     ],
                     'order_summary' => [
+                        // [
+                        //     [
+                        //         "label"         => __("total"),
+                        //         'price_gross'   => $recurringBill->gross_amount,
+                        //         'price_net'     => $recurringBill->net_amount,
+                        //         "price_total"   => $recurringBill->total_amount,
+                        //         // "information" => 777777,
+                        //     ],
+                        // ],
                         [
                             [
-                                "label"         => __("total"),
-                                'price_gross'   => $recurringBill->gross_amount,
-                                'price_net'     => $recurringBill->net_amount,
-                                "price_total"   => $recurringBill->total_amount,
-                                // "information" => 777777,
+                                'label'         => __('Pallets'),
+                                'quantity'      => $recurringBill->number_pallets ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => 11111111
+                            ],
+                            [
+                                'label'         => __('Services'),
+                                'quantity'      => $recurringBill->stats->number_services ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => 1111111
+                            ],
+                            [
+                                'label'         => __('Physical Goods'),
+                                'quantity'      => $recurringBill->stats->number_physical_goods ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => 1111111
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Shipping'),
+                                'information'   => __('Shipping fee to your address using DHL service.'),
+                                'price_total'   => 1111
+                            ],
+                            [
+                                'label'         => __('Tax'),
+                                'information'   => __('Tax is based on 10% of total order.'),
+                                'price_total'   => 1111111
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Total'),
+                                'price_total'   => 222222222
                             ],
                         ],
                     ],
@@ -114,32 +155,16 @@ class ShowRecurringBill extends OrgAction
                     'navigation' => RecurringBillTabsEnum::navigation(),
                 ],
 
-                StoredItemTabsEnum::SHOWCASE->value => $this->tab == StoredItemTabsEnum::SHOWCASE->value ?
-                    fn () => RecurringBillResource::make($recurringBill)
-                    : Inertia::lazy(fn () => RecurringBillResource::make($recurringBill)),
-
-                // Todo @kirin fix this below
-                RecurringBillTabsEnum::PALLETS->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($recurringBill))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($recurringBill))),
-
-                // Todo @kirin fix this below
-                RecurringBillTabsEnum::SERVICES->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
-                    fn () => ServicesResource::collection(IndexFulfilmentServices::run($recurringBill))
-                    : Inertia::lazy(fn () => ServicesResource::collection(IndexFulfilmentServices::run($recurringBill))),
-
-                // Todo @kirin fix this below
-                RecurringBillTabsEnum::PHYSICAL_GOODS->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
-                    fn () => PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($recurringBill))
-                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($recurringBill))),
-
-                // Todo @kirin fix this below
-                RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
-
+                RecurringBillTabsEnum::TRANSACTIONS->value => $this->tab == RecurringBillTabsEnum::TRANSACTIONS->value ?
+                fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))
+                : Inertia::lazy(fn () => RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value))),
             ]
             // Todo @kirin please fix this below
+        )->table(
+            IndexRecurringBillTransactions::make()->tableStructure(
+                $recurringBill,
+                prefix: RecurringBillTabsEnum::TRANSACTIONS->value
+            )
         )->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
         //            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
         //            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
