@@ -65,7 +65,7 @@ class ShowRecurringBill extends OrgAction
     {
         $palletPriceTotal = 0;
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
-             $palletPriceTotal += $transaction->item->rental->price;
+            $palletPriceTotal += $transaction->item->rental->price;
         }
         // dd(RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value)));
         return Inertia::render(
@@ -89,6 +89,11 @@ class ShowRecurringBill extends OrgAction
                 'timeline_rb'   => [
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
+                ],
+                'consolidateRoute'  => [
+                    'name'          => null,
+                    'parameters'    => null,
+                    'method'        => null
                 ],
                 'status_rb'        => $recurringBill->status,
                 'box_stats'        => [
