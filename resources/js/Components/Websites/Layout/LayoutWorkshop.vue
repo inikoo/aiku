@@ -22,10 +22,11 @@ const props = defineProps<{
             notificationRoute: routeType
             menuLeftRoute: routeType
             menuRightRoute: routeType
+            menuRoute: routeType
         }
         updateColorRoute : routeType
     }
-   
+
 }>()
 console.log(props)
 
@@ -38,7 +39,7 @@ const onClickColor = (colorTheme: string[]) => {
 }
 </script>
 
-<template>    
+<template>
     <div class="p-8 grid grid-cols-2">
         <div class="space-y-6">
             <div class="w-fit flex justify-end">

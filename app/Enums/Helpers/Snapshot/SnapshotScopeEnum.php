@@ -16,6 +16,8 @@ enum SnapshotScopeEnum: string
     case WEBPAGE        = 'webpage';
     case HEADER         = 'header';
     case FOOTER         = 'footer';
+    case MENU           = 'menu';
+    case COLOR          = 'color';
     case BANNER         = 'banner';
     case EMAIL_TEMPLATE = 'email_template';
 
@@ -26,6 +28,8 @@ enum SnapshotScopeEnum: string
             'header'         => __('Header'),
             'footer'         => __('Footer'),
             'banner'         => __('Banner'),
+            'color'          => __('Color'),
+            'menu'           => __('Menu'),
             'email_template' => __('Email Template')
         ];
     }
