@@ -71,7 +71,7 @@ class StoreFulfilmentCustomer extends OrgAction
             'phone'                    => ['nullable', 'max:255'],
             'identity_document_number' => ['nullable', 'string'],
             'contact_website'          => ['nullable', 'string', 'max:255'],
-            'contact_address'          => ['sometimes', new ValidAddress()],
+            'contact_address'          => ['required', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
             'interest'                 => ['sometimes', 'required'],
             'timezone_id'              => ['nullable', 'exists:timezones,id'],
