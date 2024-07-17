@@ -66,7 +66,7 @@ const avatarUploaded = (file) => {
         <div class="absolute top-2 right-0 pr-3 flex items-center pointer-events-none">
             <FontAwesomeIcon v-if="form.errors[fieldName]" icon="fas fa-exclamation-circle" class="h-5 w-5 text-red-500" aria-hidden="true" />
             <FontAwesomeIcon v-if="form.recentlySuccessful" icon="fas fa-check-circle" class="h-5 w-5 text-green-500" aria-hidden="true" />
-            <FontAwesomeIcon v-if="form.processing" icon="fad fa-spinner-third" class="h-5 w-5 animate-spin"/>
+            <!-- <FontAwesomeIcon v-if="form.processing" icon="fad fa-spinner-third" class="h-5 w-5 animate-spin"/> -->
         </div>
 
         <div v-if="props.form.errors[props.fieldName]" class="text-red-700">
