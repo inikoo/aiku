@@ -16,6 +16,7 @@ use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
@@ -61,6 +62,26 @@ class ShowRecurringBill extends RetinaAction
                         ],
                     'model'        => __('Recurring Bill'),
                     'title'        => $recurringBill->slug
+                ],
+                'timeline_rb'   => [
+                    'start_date' => $recurringBill->start_date,
+                    'end_date'   => $recurringBill->end_date
+                ],
+                'status'        => $recurringBill->status,
+                'box_stats'     => [
+                    'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
+                    'stats'         => $recurringBill->stats,
+                    'order_summary' => [
+                        [
+                            [
+                                "label"         => __("total"),
+                                'price_gross'   => $recurringBill->gross_amount,
+                                'price_net'     => $recurringBill->net_amount,
+                                "price_total"   => $recurringBill->total_amount,
+                                // "information" => 777777,
+                            ],
+                        ],
+                    ],
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

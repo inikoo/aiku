@@ -32,6 +32,7 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use SebastianBergmann\CodeCoverage\Report\Xml\Totals;
 
 class ShowPalletDelivery extends OrgAction
 {
@@ -302,10 +303,13 @@ class ShowPalletDelivery extends OrgAction
         }
 
         $physicalGoods    = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->get();
-        $physicalGoodsNet = $physicalGoods->sum('net');
+        $physicalGoodsNet = $physicalGoods->sum('net_amount');
         $services         = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
-        $servicesNet      = $services->sum('net');
-
+        $servicesNet      = $services->sum('net_amount');
+        $palletPriceTotal = 0;
+        foreach ($palletDelivery->pallets as $pallet) {
+            $palletPriceTotal += $pallet->rental->price;
+        }
 
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
@@ -452,20 +456,20 @@ class ShowPalletDelivery extends OrgAction
                             [
                                 'label'         => __('Pallets'),
                                 'quantity'      => $palletDelivery->number_pallets ?? 0,
-                                'price_base'    => 999,
-                                'price_total'   => 1111 ?? 0
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => ceil($palletPriceTotal) ?? 0
                             ],
                             [
                                 'label'         => __('Services'),
                                 'quantity'      => $palletDelivery->stats->number_services ?? 0,
                                 'price_base'    => __('Multiple'),
-                                'price_total'   => $palletDelivery->stats->total_services_price ?? 0
+                                'price_total'   => $servicesNet
                             ],
                             [
                                 'label'         => __('Physical Goods'),
                                 'quantity'      => $palletDelivery->stats->number_physical_goods ?? 0,
                                 'price_base'    => __('Multiple'),
-                                'price_total'   => $palletDelivery->stats->total_physical_goods_price ?? 0
+                                'price_total'   => $physicalGoodsNet
                             ],
                         ],
                         [
@@ -477,13 +481,13 @@ class ShowPalletDelivery extends OrgAction
                             [
                                 'label'         => __('Tax'),
                                 'information'   => __('Tax is based on 10% of total order.'),
-                                'price_total'   => 1111
+                                'price_total'   => $palletDelivery->taxCategory->rate
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => $palletDelivery->stats->total_price
+                                'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
                             ],
                         ],
                         // 'currency_code'                => 'usd',  // TODO
