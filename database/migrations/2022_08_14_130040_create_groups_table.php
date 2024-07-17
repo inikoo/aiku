@@ -23,7 +23,6 @@ return new class () extends Migration {
             $table->string('name');
             $table = $this->assets($table);
             $table->smallInteger('number_organisations')->default(0);
-            $table->string('dropshipping_integration_token')->nullable();
             $table->softDeletesTz();
             $table->timestampsTz();
         });

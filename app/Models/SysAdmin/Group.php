@@ -90,7 +90,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id customer accounting currency
  * @property int|null $image_id
  * @property int $number_organisations
- * @property string|null $dropshipping_integration_token
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

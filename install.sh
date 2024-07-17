@@ -47,7 +47,6 @@ echo "🏢 create group"
 ./create_aurora_organisations.sh
 ./create_wowsbar_organisations.sh
 ${PHP} artisan fetch:aurora-organisations -d "${DB_SUFFIX}"
-${PHP} artisan group:seed-integration-token 1:hello
 ${PHP} artisan guest:create awg 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
 ${PHP} artisan production:create aroma AWA 'Aromatics' --state open --source_id '4:1' --created_at '2020-08-25 05:45:47'
 ${PHP} artisan production:create es AWapro 'AWA Production' --state open --source_id '3:213' --created_at '2021-06-01 07:52:01'

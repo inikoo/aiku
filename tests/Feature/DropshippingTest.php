@@ -16,6 +16,7 @@ use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Dropshipping\Portfolio\UpdatePortfolio;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
+use App\Actions\SysAdmin\Group\CreateAccessToken;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
@@ -34,7 +35,6 @@ use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\getJson;
-use function Pest\Laravel\postJson;
 
 beforeAll(function () {
     loadDB();
@@ -136,10 +136,9 @@ test('add platform to customer', function () {
 
 
 test('add platform to portfolio', function (Portfolio $portfolio) {
-
     expect($portfolio->platforms->count())->toBe(0)
         ->and($portfolio->platform())->toBeNull();
-    $portfolio= AttachPortfolioToPlatform::make()->action(
+    $portfolio = AttachPortfolioToPlatform::make()->action(
         $portfolio,
         [
             'reference' => 'test_shopify_reference_for_product'
@@ -153,17 +152,13 @@ test('add platform to portfolio', function (Portfolio $portfolio) {
         ->and($platformWithModelHasPlatformsPivotData->pivot->reference)->toBe('test_shopify_reference_for_product')
         ->and($portfolio->platform())->toBeInstanceOf(Platform::class)
         ->and($portfolio->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
-
-
-
 })->depends('add product to customer portfolio');
 
 
 test('change customer platform from shopify to tiktok', function (Customer $customer) {
-
     expect($customer->platforms->count())->toBe(1)
         ->and($customer->platform()->type)->toBe(PlatformTypeEnum::SHOPIFY);
-    $customer= UpdateCustomerPlatform::make()->action(
+    $customer = UpdateCustomerPlatform::make()->action(
         $customer,
         Platform::where('type', PlatformTypeEnum::TIKTOK->value)->first(),
         [
@@ -173,14 +168,10 @@ test('change customer platform from shopify to tiktok', function (Customer $cust
 
     expect($customer->platforms()->first())->toBeInstanceOf(Platform::class)
         ->and($customer->platform()->type)->toBe(PlatformTypeEnum::TIKTOK);
-
-
-
 })->depends('add platform to customer');
 
 
 test('add image to product', function () {
-
     Storage::fake('public');
 
     expect($this->product)->toBeInstanceOf(Product::class)
@@ -204,11 +195,9 @@ test('add image to product', function () {
 
     expect($this->product)->toBeInstanceOf(Product::class)
         ->and($this->product->images->count())->toBe(1);
-
 });
 
 test('add 2nd image to product', function () {
-
     Storage::fake('public');
 
     $fakeImage2 = UploadedFile::fake()->image('hello2.jpg', 20, 20);
@@ -233,37 +222,27 @@ test('add 2nd image to product', function () {
 });
 
 test('get product 1s1 images', function () {
-
-    $media1=$this->product->images->first();
+    $media1 = $this->product->images->first();
     expect($media1)->toBeInstanceOf(Media::class);
 
-    $image          = $media1->getImage();
+    $image = $media1->getImage();
     expect($image)->toBeInstanceOf(Image::class);
 
-    $imageSources1=GetPictureSources::run($image);
+    $imageSources1 = GetPictureSources::run($image);
 
     expect($imageSources1)->toBeArray()->toHaveCount(3);
-
-
 })->depends('add 2nd image to product');
 
 test('get product 2nd images and show resized sources', function () {
-
-
-
-
-
-    $media2=$this->product->images->last();
+    $media2 = $this->product->images->last();
     expect($media2)->toBeInstanceOf(Media::class);
 
 
-    $image2         = $media2->getImage()->resize(5, 5);
+    $image2 = $media2->getImage()->resize(5, 5);
     expect($image2)->toBeInstanceOf(Image::class);
 
-    $imageSources2=GetPictureSources::run($image2);
+    $imageSources2 = GetPictureSources::run($image2);
     expect($imageSources2)->toBeArray()->toHaveCount(6);
-
-
 })->depends('add 2nd image to product');
 
 
@@ -280,43 +259,14 @@ test('update customer portfolio', function (Portfolio $dropshippingCustomerPortf
 })->depends('add product to customer portfolio');
 
 
-test('update group dropshipping_integration_token', function () {
-    expect($this->group->dropshipping_integration_token)->toHaveLength(34)->toStartWith('1:');
-    $command = join(
-        ' ',
-        [
-            'group:seed-integration-token',
-            $this->group->id.':test_token'
-        ]
-    );
-    $this->group->refresh();
-    $this->artisan($command)->assertExitCode(0);
-    expect($this->group->dropshipping_integration_token)->not->toBe('test_token');
-});
-
 test('get dropshipping access token', function () {
-    $token = $this->group->dropshipping_integration_token;
-
-    $response = postJson(
-        route(
-            'ds_api.connect',
-            [
-                'token' => $token
-            ]
-        )
-    );
-
-
-    $response->assertOk();
-    $response->assertJsonStructure([
-        'api-key',
-    ]);
-
-    $this->token = $response->json('token');
+    $token = CreateAccessToken::make()->action($this->group, ['name' => 'test_token', 'abilities' => ['ds-api']]);
+    expect($token)->toBeString();
+    $this->token = $token;
 });
 
 test('api get dropshipping shops', function () {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
 
     $response = getJson(
         route(
@@ -333,7 +283,7 @@ test('api get dropshipping shops', function () {
 });
 
 test('api show shop', function ($shopId) {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
 
 
     $response = getJson(
@@ -348,7 +298,7 @@ test('api show shop', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api index customers', function ($shopId) {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
 
     $response = getJson(
         route(
@@ -362,7 +312,7 @@ test('api index customers', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api show customer', function () {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
 
 
     $response = getJson(
@@ -377,7 +327,7 @@ test('api show customer', function () {
 });
 
 test('api index products in shop', function ($shopId) {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
     $response = getJson(
         route(
             'ds_api.shops.show.products.index',
@@ -390,7 +340,7 @@ test('api index products in shop', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api show product', function () {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
     $response = getJson(
         route(
             'ds_api.products.show',
@@ -403,7 +353,7 @@ test('api show product', function () {
 });
 
 test('api index products in customer (portfolio) ', function ($shopId) {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
     $response = getJson(
         route(
             'ds_api.customers.show.products.index',
@@ -416,7 +366,7 @@ test('api index products in customer (portfolio) ', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api index customers in product', function () {
-    Sanctum::actingAs($this->group);
+    Sanctum::actingAs($this->group,['ds-api']);
     $response = getJson(
         route(
             'ds_api.products.show.customers.index',

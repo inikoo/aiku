@@ -46,6 +46,8 @@ use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 class Kernel extends HttpKernel
@@ -68,31 +70,31 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'ds-api'      => [
+        'ds-api' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
 
-        'han'      => [
+        'han' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SetHanAsAppScope::class,
             SubstituteBindings::class,
         ],
 
-        'maya'      => [
+        'maya' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
 
-        'api'      => [
+        'api' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
-        'grp'      => [
+        'grp' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -166,7 +168,6 @@ class Kernel extends HttpKernel
 
     ];
 
-
     protected $routeMiddleware = [
         'auth'              => Authenticate::class,
         'retina-auth'       => RetinaAuthenticate::class,
@@ -182,7 +183,8 @@ class Kernel extends HttpKernel
         'inertia'           => HandleInertiaGrpRequests::class,
         'bind_group'        => ApiBindGroupInstance::class,
         'grp-reset-pass'    => ResetUserPasswordMiddleware::class,
-        'retina-reset-pass' => ResetWebUserPasswordMiddleware::class
-
+        'retina-reset-pass' => ResetWebUserPasswordMiddleware::class,
+        'abilities'         => CheckAbilities::class,
+        'ability'           => CheckForAnyAbility::class,
     ];
 }

@@ -32,11 +32,6 @@ class StoreGroup
 
         /** @var Group $group */
         $group = Group::create($modelData);
-        $group->updateQuietly(
-            [
-                'dropshipping_integration_token'=> $group->id.':'.Str::random(32)
-            ]
-        );
 
         app()->instance('group', $group);
         SeedGroupPermissions::run($group);

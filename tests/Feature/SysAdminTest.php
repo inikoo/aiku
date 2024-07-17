@@ -507,7 +507,6 @@ test('update web block types', function (Group $group) {
 
 test('show log in', function () {
 
-    // $this->withoutExceptionHandling();
     $response = $this->get(route('grp.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page->component('SysAdmin/Login');
