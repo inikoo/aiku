@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 
@@ -11,13 +11,16 @@ import type { Component } from 'vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 
-
 import StartEndDate from '@/Components/Utils/StartEndDate.vue'
 import RecurringBillTransactions from '@/Pages/Grp/Org/Fulfilment/RecurringBillTransactions.vue'
 import BoxStatsRecurringBills from '@/Components/Fulfilment/BoxStatsRecurringBills.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { compareAsc } from 'date-fns'
+import { routeType } from '@/types/route'
 
 // import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 // import type { Timeline } from '@/types/Timeline'
+import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
 
 
 const props = defineProps<{
@@ -33,6 +36,7 @@ const props = defineProps<{
         end_date: string
     }
     box_stats: {}
+    consolidateRoute: routeType
 
 
 }>()
@@ -67,11 +71,25 @@ console.log(props)
 
     <div class="grid grid-cols-2">
         <div class="py-4 px-3">
-            <div class="flex flex-col justify-center h-full w-full rounded-md px-4 py-2"
+            <div class="flex flex-col md:flex-row justify-center md:justify-between md:items-center h-full w-full rounded-md px-4 py-2"
                 :class="[status_rb === 'current' ? 'bg-green-100 ring-1 ring-green-500 text-green-700' : 'bg-gray-200 ring-1 ring-gray-500 text-gray-700']"
             >
-                <div class="text-xs">Status</div>
-                <div class="font-semibold capitalize">{{ status_rb }}</div>
+                <div class="flex flex-col justify-center ">
+                    <div class="text-xs">Status</div>
+                    <div class="font-semibold capitalize">{{ status_rb }}</div>
+                    <div v-if="status_rb === 'current'" class="text-xs italic text-green-700/70">
+                        End date is {{ useDaysLeftFromToday(timeline_rb.end_date) }}
+                    </div>
+                </div>
+
+                <component
+                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
+                    :is="consolidateRoute?.name ? Link : 'div'"
+                    :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
+                    :method="consolidateRoute?.method"
+                >
+                    <Button label="Consolidate now" />
+                </component>
             </div>
         </div>
         <div class="py-1 px-3">

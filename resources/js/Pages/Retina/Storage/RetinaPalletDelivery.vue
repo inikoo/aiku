@@ -19,6 +19,7 @@ import { PalletDelivery, BoxStats } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import type { Component } from 'vue'
+import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 
 import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
 import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
@@ -85,8 +86,8 @@ const component = computed(() => {
     const components: Component = {
         pallets: RetinaTablePalletDeliveryPallets,
         stored_items: TableStoredItems,
-        services: TableServices,
-        physical_goods: TablePhysicalGoods,
+        services: TableFulfilmentTransactions,
+        physical_goods: TableFulfilmentTransactions,
         history: TableHistories
     }
     return components[currentTab.value]
@@ -184,9 +185,10 @@ const onOpenModalAddService = async () => {
         const xxx = await axios.get(
             route(props.service_list_route.name, props.service_list_route.parameters)
         )
+        console.log('xxx', xxx)
         dataServiceList.value = xxx.data.data
     } catch (error) {
-        
+        console.error(error)
     }
     isLoadingData.value = false
 }
@@ -221,7 +223,7 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
-        
+        console.error(error)
     }
     isLoadingData.value = false
 }

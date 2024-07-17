@@ -16,6 +16,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { inject, ref } from "vue"
 import PureInput from '@/Components/Pure/PureInput.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { routeType } from '@/types/route'
 
 library.add(faRobot)
 
@@ -25,7 +26,7 @@ const props = defineProps<{
     tab?: string
 }>()
 
-const isActionLoading = ref<string | boolean>(false)
+const layout = inject('layout', layoutStructure)
 const emits = defineEmits<{
     (e: 'renderTableKey'): void
 }>()
@@ -48,8 +49,16 @@ const emits = defineEmits<{
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
 const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
+    const routeDelete = <routeType>{}
+    if (layout.app.name === 'aiku') {
+        routeDelete.name = 'grp.models.fulfilment-transaction.update'
+        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
+    } else {
+        routeDelete.name = 'retina.models.fulfilment-transaction.update'
+        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
+    }
     router.patch(
-        route('grp.models.fulfilment-transaction.update', {fulfilmentTransaction: idFulfilmentTransaction}),
+        route(routeDelete.name, routeDelete.parameters),
         {
             quantity: value
         },
@@ -60,8 +69,16 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
     )
 }
 const onDeleteTransaction = (idFulfilmentTransaction: number) => {
+    const routeDelete = <routeType>{}
+    if (layout.app.name === 'aiku') {
+        routeDelete.name = 'grp.models.fulfilment-transaction.delete'
+        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
+    } else {
+        routeDelete.name = 'retina.models.fulfilment-transaction.delete'
+        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
+    }
     router.delete(
-        route('grp.models.fulfilment-transaction.delete', {fulfilmentTransaction: idFulfilmentTransaction}),
+        route(routeDelete.name, routeDelete.parameters),
         {
             onStart: () => isLoading.value = 'buttonReset' + idFulfilmentTransaction,
             onFinish: () => isLoading.value = false
