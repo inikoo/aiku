@@ -211,7 +211,8 @@ class ShowRecurringBill extends OrgAction
         $recurringBill = RecurringBill::where('slug', $routeParameters['recurringBill'])->first();
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show' => array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.edit' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
                 $headCrumb(
                     $recurringBill,
@@ -228,7 +229,8 @@ class ShowRecurringBill extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.operations.recurring_bills.show' => array_merge(
+            'grp.org.fulfilments.show.operations.recurring_bills.show',
+            'grp.org.fulfilments.show.operations.recurring_bills.edit' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment'])),
                 $headCrumb(
                     $recurringBill,
