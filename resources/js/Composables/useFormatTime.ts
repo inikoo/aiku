@@ -63,7 +63,9 @@ export const useDaysLeftFromToday = (isoDate?: string) => {
 
     if (daysLeft === 1) {
         return daysLeft + ' ' + trans('day left')
-    } else {
+    } else if (daysLeft === 0) {
+        return 'today'
+    } else  {
         return daysLeft + ' ' + trans('days left')
     }
 }
