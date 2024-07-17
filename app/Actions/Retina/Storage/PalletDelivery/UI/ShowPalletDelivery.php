@@ -255,13 +255,13 @@ class ShowPalletDelivery extends RetinaAction
                 'rental_lists'         => $rentalList,
 
                 'service_list_route'   => [
-                    'name'       => 'grp.json.fulfilment.services.index',
+                    'name'       => 'retina.json.fulfilment.services.index',
                     'parameters' => [
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.json.fulfilment.physical-goods.index',
+                    'name'       => 'retina.json.fulfilment.physical-goods.index',
                     'parameters' => [
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
                     ]

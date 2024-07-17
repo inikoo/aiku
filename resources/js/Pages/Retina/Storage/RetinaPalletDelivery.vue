@@ -223,7 +223,7 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
-        
+        console.error(error)
     }
     isLoadingData.value = false
 }
