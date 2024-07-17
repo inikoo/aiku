@@ -44,7 +44,7 @@ class ShowRecurringBill extends RetinaAction
     {
         $palletPriceTotal = 0;
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
-             $palletPriceTotal += $transaction->item->rental->price;
+            $palletPriceTotal += $transaction->item->rental->price;
         }
         return Inertia::render(
             'Billing/RetinaRecurringBill',
