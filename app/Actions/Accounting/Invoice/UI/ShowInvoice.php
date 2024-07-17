@@ -106,10 +106,7 @@ class ShowInvoice extends OrgAction
                     'icon'      => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->number
-                    ],
-                    'model'     => __('invoice'),
-
-
+                    ]
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
