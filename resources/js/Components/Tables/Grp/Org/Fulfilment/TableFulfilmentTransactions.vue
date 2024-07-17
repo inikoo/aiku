@@ -101,7 +101,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         </template>
 
         <!-- Column: Net -->
-        <template #cell(net)="{ item }">
+        <template #cell(net_amount)="{ item }">
             {{ useLocaleStore().currencyFormat(item.currency_code, item.total) }}
         </template>
 
