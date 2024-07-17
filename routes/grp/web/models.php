@@ -75,6 +75,7 @@ use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
+use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBilling;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -273,6 +274,10 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {
     Route::patch('', UpdateFulfilmentTransaction::class)->name('update');
     Route::delete('', DeleteFulfilmentTransaction::class)->name('delete');
+});
+
+Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->group(function () {
+    Route::patch('', UpdateRecurringBilling::class)->name('update');
 });
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {

@@ -78,8 +78,19 @@ class ShowRecurringBill extends OrgAction
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('recurring bill')
                         ],
-                    'model'        => __('Recurring Bill'),
-                    'title'        => $recurringBill->slug
+                    'model'              => __('Recurring Bill'),
+                    'title'              => $recurringBill->slug,
+                    'actions'            => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'label' => __('Edit'),
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.edit',
+                                'parameters' => array_values($request->route()->originalParameters()),
+                            ]
+                        ],
+                    ],
                 ],
 
                 'timeline_rb'   => [
