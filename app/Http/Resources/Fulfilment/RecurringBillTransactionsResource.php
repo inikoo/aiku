@@ -38,21 +38,21 @@ class RecurringBillTransactionsResource extends JsonResource
 
 
         return [
-            'id'                => $this->id,
-            'type'              => $this->item_type,
-            'asset_id'          => $this->asset_id,
-            'asset_slug'        => $this->asset_slug,
-            'asset_code'        => $this->asset_code,
+            'id'                 => $this->id,
+            'type'               => $this->item_type,
+            'asset_id'           => $this->asset_id,
+            'asset_slug'         => $this->asset_slug,
+            'asset_code'         => $this->asset_code,
             'asset_price'        => $this->asset_price,
-            'asset_name'        => $this->asset_name,
-            'asset_price'       => $this->asset_price,
-            'asset_unit'        => $this->asset_unit,
-            'asset_units'       => $this->asset_units,
-            'currency_code'     => $this->currency_code,
-            'unit_abbreviation' => $unitAbbreviation,
-            'unit_label'        => $unitLabel,
-            'quantity'          => (int) $this->quantity,
-            'total'             => $this->net_amount,
+            'asset_name'         => $this->asset_name,
+            'asset_price'        => $this->asset_price,
+            'asset_unit'         => $this->asset_unit,
+            'asset_units'        => $this->asset_units,
+            'currency_code'      => $this->currency_code,
+            'unit_abbreviation'  => $unitAbbreviation,
+            'unit_label'         => $unitLabel,
+            'quantity'           => (int) $this->quantity,
+            'total'              => $this->net_amount,
             // 'historic_assets_id'=> $this->historic_assets_id
 
 
