@@ -13,7 +13,6 @@ class GetWebsiteWorkshopMenu
     public function handle(Website $website): array
     {
         return [
-            'header' => Arr::get($website->published_layout, 'header'),
             'color'  => Arr::get($website->published_layout, 'color')
         ];
     }
