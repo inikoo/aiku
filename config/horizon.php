@@ -247,7 +247,7 @@ return [
     'environments' => [
         'production' => [
             'hydrators' => [
-                'maxProcesses'    => 45,
+                'maxProcesses'    => 32,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -279,7 +279,7 @@ return [
         ],
         'staging' => [
             'hydrators' => [
-                'maxProcesses'    => 15,
+                'maxProcesses'    => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
