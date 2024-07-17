@@ -3,6 +3,8 @@ import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import ColorSchemeWorkshopWebsite from '@/Components/Websites/Layout/ColorSchemeWorkshopWebsite.vue'
 import { routeType } from '@/types/route'
+import { Link } from '@inertiajs/vue3'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 
 import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -21,9 +23,11 @@ const props = defineProps<{
             menuLeftRoute: routeType
             menuRightRoute: routeType
         }
+        updateColorRoute : routeType
     }
+   
 }>()
-
+console.log(props)
 
 const listColorTheme = [...useColorTheme]
 
@@ -37,7 +41,12 @@ const onClickColor = (colorTheme: string[]) => {
 <template>    
     <div class="p-8 grid grid-cols-2">
         <div class="space-y-6">
-            <div class="w-fit">
+            <div class="w-fit flex justify-end">
+                    <Link :href="route(data.updateColorRoute.name,data.updateColorRoute.parameters)" method="patch" :data="{ color: selectedColor }">
+                        <Button label="apply" size="xs"  icon="fas fa-rocket" ></Button>
+                    </Link>
+                </div>
+            <div class="w-fit ">
                 <div class="text-sm text-gray-500 font-semibold">Main Layout</div>
                 <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
                     <div>

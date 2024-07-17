@@ -37,7 +37,13 @@ class GetWebsiteWorkshopLayout
                         'fulfilment'   => $website->shop->fulfilment->slug,
                         'website'      => $website->slug,
                     ]
-                ]
+                ],
+                'updateColorRoute' => [
+                    'name'       => 'grp.models.website.update.color',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ],
             ];
         } else {
             $workshopRoutes=[
@@ -69,8 +75,14 @@ class GetWebsiteWorkshopLayout
                     'notificationRoute'  => null,
                     'menuLeftRoute'      => null,
                     'menuRightRoute'     => null,
-
-                ]
+                ],
+                'updateColorRoute' => [
+                        'name'       => 'grp.models.website.update.color',
+                        'parameters' => [
+                            'website' => $website->id
+                        ]
+                    ],
+                
             ];
         }
 

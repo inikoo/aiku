@@ -88,12 +88,7 @@ class ShowWebsiteWorkshop extends OrgAction
                     ],
                 ],
 
-                'updateColorRoute' => [
-                    'name'       => 'grp.models.website.update.color',
-                    'parameters' => [
-                        'website' => $website->id
-                    ]
-                ],
+              
 
                 'tabs'        => [
                     'current'    => $this->tab,
