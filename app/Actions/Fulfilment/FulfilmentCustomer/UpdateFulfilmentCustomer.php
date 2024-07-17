@@ -15,6 +15,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,9 +28,9 @@ class UpdateFulfilmentCustomer extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
-        $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone','contact_address','delivery_address']);
         UpdateCustomer::run($fulfilmentCustomer->customer, $customerData);
-        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone','contact_address','delivery_address']);
 
         $oldData = [
             'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
@@ -76,13 +77,15 @@ class UpdateFulfilmentCustomer extends OrgAction
     public function rules(): array
     {
         return [
-            'contact_name'    => ['sometimes', 'string'],
-            'company_name'    => ['sometimes', 'string'],
-            'email'           => ['sometimes', 'string'],
-            'phone'           => ['sometimes', 'string'],
-            'pallets_storage' => ['sometimes', 'boolean'],
-            'items_storage'   => ['sometimes', 'boolean'],
-            'dropshipping'    => ['sometimes', 'boolean'],
+            'contact_name'             => ['sometimes', 'string'],
+            'company_name'             => ['sometimes', 'string'],
+            'email'                    => ['sometimes', 'string'],
+            'phone'                    => ['sometimes', 'string'],
+            'pallets_storage'          => ['sometimes', 'boolean'],
+            'items_storage'            => ['sometimes', 'boolean'],
+            'dropshipping'             => ['sometimes', 'boolean'],
+            'contact_address'          => ['sometimes', 'required', new ValidAddress()],
+            'delivery_address'         => ['sometimes', 'nullable', new ValidAddress()],
         ];
     }
 

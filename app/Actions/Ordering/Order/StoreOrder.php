@@ -7,6 +7,7 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFixedAddressActions;
@@ -43,14 +44,19 @@ class StoreOrder extends OrgAction
         array $modelData,
     ): Order {
 
-        //todo: get tax category from a real action #546
-        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+
+
+
+
 
         $billingAddress = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
         /** @var Address $deliveryAddress */
         $deliveryAddress = Arr::get($modelData, 'delivery_address');
         data_forget($modelData, 'delivery_address');
+
+
+
 
 
         if (class_basename($parent) == 'Customer') {
@@ -66,6 +72,29 @@ class StoreOrder extends OrgAction
             $modelData['currency_id'] = $parent->currency_id;
             $modelData['shop_id']     = $parent->id;
         }
+
+        if (!Arr::exists($modelData, 'tax_category_id')) {
+
+            if($parent instanceof Shop) {
+                $taxNumber =null;
+            } elseif($parent instanceof Customer) {
+                $taxNumber = $parent->taxNumber;
+            } else {
+                $taxNumber = $parent->customer->taxNumber;
+            }
+            data_set(
+                $modelData,
+                'tax_category_id',
+                GetTaxCategory::run(
+                    country: $this->organisation->country,
+                    taxNumber: $taxNumber,
+                    billingAddress: $billingAddress,
+                    deliveryAddress: $deliveryAddress
+                )->id
+            );
+
+        }
+
 
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);

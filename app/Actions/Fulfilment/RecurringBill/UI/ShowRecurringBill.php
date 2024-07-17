@@ -65,7 +65,7 @@ class ShowRecurringBill extends OrgAction
     {
         $palletPriceTotal = 0;
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
-             $palletPriceTotal += $transaction->item->rental->price;
+            $palletPriceTotal += $transaction->item->rental->price;
         }
         // dd(RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value)));
         return Inertia::render(

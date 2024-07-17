@@ -11,6 +11,7 @@ use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
@@ -25,6 +26,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
@@ -36,28 +38,42 @@ class StoreInvoice extends OrgAction
         Customer|Order|RecurringBill $parent,
         array $modelData,
     ): Invoice {
+        if (class_basename($parent) == 'Customer') {
+            $modelData['customer_id'] = $parent->id;
+        } else {
+            $modelData['customer_id'] = $parent->customer_id;
+        }
 
-        //todo: get tax category from a real action #546
-        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+        if (!Arr::exists($modelData, 'tax_category_id')) {
+            if ($parent instanceof Order || $parent instanceof RecurringBill) {
+                $modelData['tax_category_id'] = $parent->tax_category_id;
+            } else {
+                $customer = Customer::find($modelData['customer_id']);
+                data_set(
+                    $modelData,
+                    'tax_category_id',
+                    GetTaxCategory::run(
+                        country: $this->organisation->country,
+                        taxNumber: $customer->taxNumber,
+                        billingAddress: $modelData['billing_address'],
+                        deliveryAddress: $modelData['billing_address']
+                    )->id
+                );
+            }
+        }
+
 
         $billingAddressData = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
 
 
-        if (class_basename($parent) == 'Customer') {
-            $modelData['customer_id'] = $parent->id;
-        } else {
-
-            $modelData['customer_id'] = $parent->customer_id;
-
-        }
         $modelData['shop_id']     = $parent->shop_id;
         $modelData['currency_id'] = $parent->shop->currency_id;
 
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        $modelData=$this->processExchanges($modelData, $parent->shop);
+        $modelData = $this->processExchanges($modelData, $parent->shop);
 
 
         $date = now();
@@ -83,7 +99,7 @@ class StoreInvoice extends OrgAction
             ]
         );
 
-        if($invoice->customer_id) {
+        if ($invoice->customer_id) {
             CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         }
 
@@ -150,8 +166,6 @@ class StoreInvoice extends OrgAction
             $rules['net_amount']   = ['sometimes', 'numeric'];
             $rules['tax_amount']   = ['sometimes', 'numeric'];
             $rules['total_amount'] = ['sometimes', 'numeric'];
-
-
         }
 
 

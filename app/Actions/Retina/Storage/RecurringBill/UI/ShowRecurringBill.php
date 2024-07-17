@@ -14,14 +14,9 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
-use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
-use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\Fulfilment\RecurringBillTransactionsResource;
-use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use Inertia\Inertia;
@@ -49,7 +44,7 @@ class ShowRecurringBill extends RetinaAction
     {
         $palletPriceTotal = 0;
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
-             $palletPriceTotal += $transaction->item->rental->price;
+            $palletPriceTotal += $transaction->item->rental->price;
         }
         return Inertia::render(
             'Billing/RetinaRecurringBill',

@@ -53,7 +53,7 @@ class ShowPalletDelivery extends RetinaAction
         $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
         $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
 
-        $totalPallets = $numberPallets + $numberStoredPallets;
+        $totalPallets    = $numberPallets + $numberStoredPallets;
         $palletLimits    = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
         $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
         $palletLimitData = $palletLimits == null ? null : ($palletLimitLeft < 0
@@ -251,7 +251,7 @@ class ShowPalletDelivery extends RetinaAction
                         'parameters' => []
                     ]
                 ],
-                
+
                 'rental_lists'         => $rentalList,
 
                 'service_list_route'   => [
@@ -274,7 +274,7 @@ class ShowPalletDelivery extends RetinaAction
 
                 'pallet_limits' => $palletLimitData,
 
-                'data' => PalletDeliveryResource::make($palletDelivery),
+                'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],

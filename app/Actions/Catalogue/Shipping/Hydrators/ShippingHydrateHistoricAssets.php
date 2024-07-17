@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue\Shipping\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Shipping;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

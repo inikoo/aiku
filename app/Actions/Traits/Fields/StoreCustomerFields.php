@@ -59,7 +59,7 @@ trait StoreCustomerFields
                         'label' => __('User interest'),
                         'value' => ['pallets_storage']
                     ],
-                    'address'      => [
+                    'contact_address'      => [
                         'type'    => 'address',
                         'label'   => __('Address'),
                         'value'   => AddressFormFieldsResource::make(

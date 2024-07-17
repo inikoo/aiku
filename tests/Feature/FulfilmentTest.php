@@ -79,6 +79,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
+use App\Models\Helpers\Address;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
@@ -162,7 +163,7 @@ test('update fulfilment settings (weekly cut off day)', function (Fulfilment $fu
     $Updatedfulfilment = UpdateFulfilment::make()->action(
         $fulfilment,
         [
-            'weekly_cut_off_day'  => "Tuesday"
+            'weekly_cut_off_day' => "Tuesday"
         ]
     );
 
@@ -175,7 +176,7 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
     $Updatedfulfilment = UpdateFulfilment::make()->action(
         $fulfilment,
         [
-            'monthly_cut_off'  => [
+            'monthly_cut_off' => [
                 'date'       => 12,
                 'isWeekdays' => true
             ]
@@ -351,15 +352,15 @@ test('create fulfilment customer from customer', function (Fulfilment $fulfilmen
 })->depends('create fulfilment shop');
 
 test('create fulfilment customer', function (Fulfilment $fulfilment) {
-
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
         $fulfilment,
         [
-            'state'        => CustomerStateEnum::ACTIVE,
-            'status'       => CustomerStatusEnum::APPROVED,
-            'contact_name' => 'jacqueline',
-            'company_name' => 'ghost.o',
-            'interest'     => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'state'           => CustomerStateEnum::ACTIVE,
+            'status'          => CustomerStatusEnum::APPROVED,
+            'contact_name'    => 'jacqueline',
+            'company_name'    => 'ghost.o',
+            'interest'        => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'contact_address' => Address::factory()->definition(),
         ]
     );
 
@@ -391,15 +392,16 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
 })->depends('create fulfilment shop');
 
 test('create second fulfilment customer', function (Fulfilment $fulfilment) {
-
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
         $fulfilment,
         [
-            'state'        => CustomerStateEnum::ACTIVE,
-            'status'       => CustomerStatusEnum::APPROVED,
-            'contact_name' => 'John',
-            'company_name' => 'john.o',
-            'interest'     => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'state'           => CustomerStateEnum::ACTIVE,
+            'status'          => CustomerStatusEnum::APPROVED,
+            'contact_name'    => 'John',
+            'company_name'    => 'john.o',
+            'interest'        => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'contact_address' => Address::factory()->definition(),
+
         ]
     );
 
@@ -763,15 +765,12 @@ test('remove a pallet from pallet delivery', function (PalletDelivery $palletDel
 })->depends('add multiple pallets to pallet delivery');
 
 test('remove a service from pallet delivery', function (PalletDelivery $palletDelivery) {
-
-
     /** @var FulfilmentTransaction $serviceTransaction */
-    $serviceTransaction= $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->first();
+    $serviceTransaction = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->first();
 
     DeleteFulfilmentTransaction::make()->action(
         $serviceTransaction
     );
-
 
 
     $palletDelivery->refresh();
@@ -940,7 +939,7 @@ test('undo pallet state to received', function (PalletDelivery $palletDelivery) 
     $pallet->refresh();
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
-    ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
+        ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
 
     return $pallet;
 })->depends('start booking-in pallet delivery');
@@ -1136,7 +1135,7 @@ test('set second pallet delivery as booked in', function (PalletDelivery $pallet
         ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
-    $firstPallet  = $palletDelivery->pallets->first();
+    $firstPallet = $palletDelivery->pallets->first();
 
     expect($firstPallet->state)->toBe(PalletStateEnum::STORING);
 
@@ -1152,11 +1151,11 @@ test('recurring bill next cycle', function (PalletDelivery $palletDelivery) {
     $nextCycle   = StoreRecurringBill::make()->action(
         $rentalAgreement,
         [
-         'start_date' => $currentBill->end_date
-   ]
+            'start_date' => $currentBill->end_date
+        ]
     );
     expect($nextCycle)->toBeInstanceOf(RecurringBill::class)
-         ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
+        ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
 
     return $nextCycle;
 })->depends('set pallet delivery as booked in');
@@ -1169,12 +1168,12 @@ test('second recurring bill next cycle', function (PalletDelivery $palletDeliver
     $nextCycle   = StoreRecurringBill::make()->action(
         $rentalAgreement,
         [
-         'start_date' => $currentBill->end_date
-   ]
+            'start_date' => $currentBill->end_date
+        ]
     );
 
     expect($nextCycle)->toBeInstanceOf(RecurringBill::class)
-         ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
+        ->and($nextCycle->start_date)->not()->toBe($currentBill->start_date);
 
 
     return $nextCycle;
@@ -1206,7 +1205,6 @@ test('create pallet return', function (PalletDelivery $palletDelivery) {
 })->depends('set pallet delivery as booked in');
 
 test('update pallet return', function (PalletReturn $palletReturn) {
-
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $updatedPalletReturn = UpdatePalletReturn::make()->action(
@@ -1229,7 +1227,6 @@ test('update pallet return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 test('store pallet to return', function (PalletReturn $palletReturn) {
-
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $pallet = StorePallet::make()->action(
@@ -1262,7 +1259,6 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 test('update pallet item', function (PalletReturn $storedPallet) {
-
     $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
     $pallet             = $storedPallet->pallets->first()->pivot;
 
@@ -1281,7 +1277,6 @@ test('update pallet item', function (PalletReturn $storedPallet) {
 })->depends('store pallet to return');
 
 test('submit pallet return', function (PalletReturn $storedPallet) {
-
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
@@ -1303,9 +1298,7 @@ test('submit pallet return', function (PalletReturn $storedPallet) {
 })->depends('store pallet to return');
 
 
-
 test('picking pallet to return', function (PalletReturn $submittedPalletReturn) {
-
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
@@ -1328,7 +1321,6 @@ test('picking pallet to return', function (PalletReturn $submittedPalletReturn) 
 })->depends('submit pallet return');
 
 test('picked pallet to return', function (PalletReturn $pickingPalletReturn) {
-
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
@@ -1349,7 +1341,6 @@ test('picked pallet to return', function (PalletReturn $pickingPalletReturn) {
 })->depends('picking pallet to return');
 
 test('cancel pallet return', function (PalletReturn $palletReturn) {
-
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
@@ -1367,7 +1358,6 @@ test('cancel pallet return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 test('confirm pallet return', function (PalletReturn $palletReturn) {
-
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
@@ -1385,7 +1375,6 @@ test('confirm pallet return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 test('dispatch pallet return', function (PalletReturn $palletReturn) {
-
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
@@ -1432,7 +1421,6 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
 })->depends('create fulfilment shop');
 
 test('update pallet', function (Pallet $pallet) {
-
     $updatedPallet = UpdatePallet::make()->action(
         $pallet,
         [
@@ -1452,7 +1440,6 @@ test('update pallet', function (Pallet $pallet) {
 })->depends('create pallet no delivery');
 
 test('delete pallet', function (Pallet $pallet) {
-
     DeletePallet::make()->action(
         $pallet,
         []
@@ -1468,7 +1455,6 @@ test('delete pallet', function (Pallet $pallet) {
 })->depends('add pallet to pallet delivery');
 
 test('Return pallet to customer', function (Pallet $pallet) {
-
     $returnedPallet = ReturnPalletToCustomer::make()->action(
         $pallet,
     );
