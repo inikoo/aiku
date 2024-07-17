@@ -91,6 +91,7 @@ class IndexFulfilmentRentals extends OrgAction
                 'assets.price',
                 'rentals.description',
                 'currencies.code as currency_code',
+                'currencies.id as currency_id',
             ]);
 
 
