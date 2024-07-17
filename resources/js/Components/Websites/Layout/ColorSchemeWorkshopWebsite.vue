@@ -22,7 +22,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div @click="(e)=>console.log(color)">sdfsdfsdf</div>
     <div class="h-fit rounded-md overflow-hidden border-2 border-gray-400">
         <!-- Section: Notification -->
         <div class="group relative w-full h-4 bg-gray-200 text-gray-700 text-xxs text-center flex items-center justify-center cursor-pointer">
