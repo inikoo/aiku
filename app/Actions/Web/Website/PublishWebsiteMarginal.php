@@ -141,6 +141,12 @@ class PublishWebsiteMarginal extends OrgAction
         return $this->handle($website, 'color', $this->validatedData);
     }
 
+    public function menu(Website $website, ActionRequest $request): Website
+    {
+        $this->initialisationFromShop($website->shop, $request);
+        return $this->handle($website, 'menu', $this->validatedData);
+    }
+
     public function action(Website $website, $marginal, $modelData): string
     {
         $this->isAction = true;
