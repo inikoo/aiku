@@ -32,7 +32,6 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use SebastianBergmann\CodeCoverage\Report\Xml\Totals;
 
 class ShowPalletDelivery extends OrgAction
 {

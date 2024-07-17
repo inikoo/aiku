@@ -63,9 +63,9 @@ class GetInvoiceShowcase
 
             'transactions'     => $invoice->invoiceTransactions->map(function (InvoiceTransaction $transaction) {
                 return [
-                    'code'             => $transaction->item->code,
-                    'name'             => $transaction->item->name,
-                    'units'            => $transaction->item->units,
+                    'code'             => $transaction->asset->code,
+                    'name'             => $transaction->asset->name,
+                    'units'            => $transaction->asset->units,
                     'quantity'         => $transaction->quantity,
                     'net_amount'       => $transaction->net_amount,
                     'discounts_amount' => $transaction->discounts_amount,
