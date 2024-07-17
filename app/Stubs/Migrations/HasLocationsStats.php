@@ -24,7 +24,8 @@ trait HasLocationsStats
         $table->unsignedSmallInteger('number_locations_allow_dropshipping')->default(0);
 
 
-        $table->decimal('stock_value', 16)->default(0);
+        $table->decimal('stock_value', 14)->default(0);
+        $table->decimal('stock_commercial_value', 14)->default(0);
 
         return $table;
     }

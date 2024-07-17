@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table->string('status')->index()->default(LocationStatusEnum::OPERATIONAL->value);
             $table->string('code', 64)->index()->collation('und_ns');
             $table->decimal('stock_value', 16, 2)->default(0);
+            $table->decimal('stock_commercial_value', 16, 2)->default(0);
             $table->boolean('is_empty')->default(true);
             $table->decimal('max_weight', 16, 3)->nullable()->comment('Max weight in Kg');
             $table->decimal('max_volume', 16, 4)->nullable()->comment('Max volume in m3 (cbm)');

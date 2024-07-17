@@ -29,14 +29,17 @@ class LocationHydrateStockValue
 
     public function handle(Location $location): void
     {
-        $orgStockValue=0;
+        $orgStockValue          =0;
+        $orgStockCommercialValue=0;
         foreach($location->orgStocks as $orgStock) {
-            $orgStockValue+=$orgStock->pivot->quantity*$orgStock->unit_value;
+            $orgStockValue          +=$orgStock->pivot->quantity*$orgStock->unit_value;
+            $orgStockCommercialValue+=$orgStock->pivot->quantity*$orgStock->unit_commercial_value;
         }
 
 
         $location->update([
-            'stock_value' => $orgStockValue
+            'stock_value'            => $orgStockValue,
+            'stock_commercial_value' => $orgStockCommercialValue
         ]);
 
     }

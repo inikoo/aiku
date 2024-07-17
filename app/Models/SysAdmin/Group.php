@@ -149,6 +149,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Service> $services
+ * @property-read LaravelCollection<int, Shipping> $shippings
  * @property-read LaravelCollection<int, StockFamily> $stockFamilies
  * @property-read LaravelCollection<int, Stock> $stocks
  * @property-read LaravelCollection<int, Subscription> $subscriptions

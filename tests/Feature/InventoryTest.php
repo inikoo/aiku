@@ -11,9 +11,9 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
-use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\AuditLocation;
+use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
@@ -22,8 +22,10 @@ use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
 use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
+use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
+use App\Actions\Inventory\WarehouseArea\HydrateWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
@@ -330,8 +332,7 @@ test('create org stock', function (Stock $stock) {
 
     $orgStock = StoreOrgStock::make()->action(
         $this->organisation,
-        $stock,
-        []
+        $stock
     );
 
     expect($orgStock)->toBeInstanceOf($orgStock::class)
@@ -351,8 +352,7 @@ test('create org stock from 2nd stock (within stock family)', function (Stock $s
 
     $orgStock = StoreOrgStock::make()->action(
         $this->organisation,
-        $stock,
-        []
+        $stock
     );
     $this->organisation->refresh();
     expect($orgStock)->toBeInstanceOf($orgStock::class)
@@ -457,3 +457,21 @@ test('remove found stock', function ($lostAndFoundStock) {
     $lostAndFound = RemoveLostAndFoundStock::make()->action($lostAndFoundStock, 2);
     expect($lostAndFound->quantity)->toBe(2.0);
 })->depends('add found stock');
+
+
+
+test('hydrate warehouses', function (Warehouse $warehouse) {
+    HydrateWarehouse::run($warehouse);
+    $this->artisan('hydrate:warehouses')->assertExitCode(0);
+})->depends('create warehouse');
+
+
+test('hydrate warehouse areas', function () {
+    HydrateWarehouseArea::run(WarehouseArea::first());
+    $this->artisan('hydrate:warehouse-areas')->assertExitCode(0);
+});
+
+test('hydrate locations', function () {
+    HydrateLocation::run(Location::first());
+    $this->artisan('hydrate:locations')->assertExitCode(0);
+});

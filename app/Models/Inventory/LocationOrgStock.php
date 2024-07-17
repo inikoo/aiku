@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $org_stock_id
  * @property int $location_id
  * @property string $quantity in units
+ * @property string $value total value based in cost
+ * @property string $commercial_value total value based selling price
  * @property LocationStockTypeEnum $type
  * @property int|null $picking_priority
  * @property string|null $notes

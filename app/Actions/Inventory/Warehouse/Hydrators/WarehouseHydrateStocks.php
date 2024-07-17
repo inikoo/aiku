@@ -15,7 +15,6 @@ class WarehouseHydrateStocks
 {
     use AsAction;
 
-
     private Warehouse $warehouse;
 
     public function __construct(Warehouse $warehouse)
@@ -34,7 +33,8 @@ class WarehouseHydrateStocks
 
         $warehouse->stats()->update(
             [
-                'stock_value' => $warehouse->locations()->sum('stock_value')
+                'stock_value'            => $warehouse->locations()->sum('stock_value'),
+                'stock_commercial_value' => $warehouse->locations()->sum('stock_commercial_value'),
             ]
         );
     }

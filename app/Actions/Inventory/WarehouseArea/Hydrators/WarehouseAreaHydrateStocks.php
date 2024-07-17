@@ -9,29 +9,35 @@ namespace App\Actions\Inventory\WarehouseArea\Hydrators;
 
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class WarehouseAreaHydrateStocks implements ShouldBeUnique
 {
     use AsAction;
 
+    private WarehouseArea $warehouseArea;
+
+    public function __construct(WarehouseArea $warehouseArea)
+    {
+        $this->warehouseArea = $warehouseArea;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->warehouseArea->id))->dontRelease()];
+    }
 
     public function handle(WarehouseArea $warehouseArea): void
     {
-        $stockValue = 0;
-        foreach ($warehouseArea->locations as $location) {
-            $stockValue = +$location->stocks()->sum('value');
-        }
 
         $warehouseArea->stats()->update(
             [
-                'stock_value' => $stockValue
+                'stock_value'            => $warehouseArea->locations()->sum('stock_value'),
+                'stock_commercial_value' => $warehouseArea->locations()->sum('stock_commercial_value'),
             ]
         );
     }
 
-    public function getJobUniqueId(WarehouseArea $warehouseArea): int
-    {
-        return $warehouseArea->id;
-    }
+
 }

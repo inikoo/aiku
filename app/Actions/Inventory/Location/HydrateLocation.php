@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateLocation extends HydrateModel
 {
-    public string $commandSignature = 'location:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:locations {organisations?*} {--s|slugs=}';
 
 
     public function handle(Location $location): void
@@ -25,9 +25,6 @@ class HydrateLocation extends HydrateModel
         LocationHydrateStockValue::run($location);
         LocationHydratePallets::run($location);
     }
-
-
-
 
     protected function getModel(string $slug): Location
     {

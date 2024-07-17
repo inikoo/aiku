@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class HydrateWarehouseArea extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:warehouse-areas {organisations?*} {--i|id=}';
+    public string $commandSignature = 'hydrate:warehouse-areas {organisations?*} {--i|slugs=}';
 
     public function handle(WarehouseArea $warehouseArea): void
     {

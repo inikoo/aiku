@@ -34,8 +34,7 @@ return new class () extends Migration {
             $table->string('code')->index()->collation('und_ns');
             $table->string('name', 255)->nullable();
             $table->decimal('unit_value', 16)->nullable();
-
-
+            $table->decimal('unit_commercial_value', 16)->default(0);
 
             $table->boolean('is_sellable_in_organisation')->default(1)->index();
             $table->boolean('is_raw_material_in_organisation')->default(0)->index();

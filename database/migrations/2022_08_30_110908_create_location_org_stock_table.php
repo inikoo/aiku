@@ -20,6 +20,8 @@ return new class () extends Migration {
             $table->unsignedInteger('location_id')->index();
             $table->foreign('location_id')->references('id')->on('locations');
             $table->decimal('quantity', 16, 3)->default(0)->comment('in units');
+            $table->decimal('value', 12)->default(0)->comment('total value based in cost');
+            $table->decimal('commercial_value', 12)->default(0)->comment('total value based selling price');
             $table->string('type')->index()->default(LocationStockTypeEnum::PICKING->value);
             $table->smallInteger('picking_priority')->nullable()->index();
             $table->string('notes')->nullable();

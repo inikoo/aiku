@@ -42,6 +42,7 @@ use Spatie\Tags\HasTags;
  * @property LocationStatusEnum $status
  * @property string $code
  * @property string $stock_value
+ * @property string $stock_commercial_value
  * @property bool $is_empty
  * @property string|null $max_weight Max weight in Kg
  * @property string|null $max_volume Max volume in m3 (cbm)
