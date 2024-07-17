@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RecurringBill;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\RecurringBill;
+use App\Rules\EndDateValidation;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRecurringBilling extends OrgAction
@@ -35,7 +36,7 @@ class UpdateRecurringBilling extends OrgAction
     public function rules(): array
     {
         return [
-            'end_date'         => ['sometimes', 'date'],
+            'end_date'         => ['sometimes', 'date', new EndDateValidation()],
             'total'            => ['sometimes'],
             'payment'          => ['sometimes'],
             'net'              => ['sometimes'],
