@@ -86,6 +86,7 @@ class ShowInvoice extends OrgAction
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
         $this->validateAttributes();
+        // dd($invoice);
 
         return Inertia::render(
             'Org/Accounting/Invoice',
@@ -111,6 +112,84 @@ class ShowInvoice extends OrgAction
                 'tabs'=> [
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
+                ],
+
+                'order_summary'     => [
+                    [
+                        [
+                            'label'         => __('Services'),
+                            // 'quantity'      => $palletDelivery->number_pallets ?? 0,
+                            // 'price_base'    => __('Multiple'),
+                            'price_total'   => $invoice->services_amount
+                        ],
+                        [
+                            'label'         => __('Physical Goods'),
+                            // 'quantity'      => $palletDelivery->stats->number_services ?? 0,
+                            // 'price_base'    => __('Multiple'),
+                            'price_total'   => $invoice->goods_amount
+                        ],
+                        [
+                            'label'         => __('Rental'),
+                            // 'quantity'      => $palletDelivery->stats->number_services ?? 0,
+                            // 'price_base'    => __('Multiple'),
+                            'price_total'   => $invoice->rental_amount
+                        ],
+                    ],
+                    [
+                        [
+                            'label'         => __('Charges'),
+                            // 'information'   => __('Shipping fee to your address using DHL service.'),
+                            'price_total'   => $invoice->charges_amount
+                        ],
+                        [
+                            'label'         => __('Shipping'),
+                            // 'information'   => __('Tax is based on 10% of total order.'),
+                            'price_total'   => $invoice->shipping_amount
+                        ],
+                        [
+                            'label'         => __('Insurance'),
+                            // 'information'   => __('Tax is based on 10% of total order.'),
+                            'price_total'   => $invoice->insurance_amount
+                        ],
+                        [
+                            'label'         => __('Tax'),
+                            'information'   => __('Tax is based on 10% of total order.'),
+                            'price_total'   => $invoice->tax_amount
+                        ],
+                        [
+                            'label'         => __('Discount'),
+                            'information'   => __('Discounts applied within vouchers or seasonal promos.'),
+                            'price_total'   => $invoice->discounts_total
+                        ],
+                    ],
+                    [
+                        [
+                            'label'         => __('Total'),
+                            'price_total'   => $invoice->total_amount
+                        ],
+                    ],
+                ],
+
+                'invoice'   => [
+                    'number'                    => $invoice->number,
+                    'profit_amount'             => $invoice->profit_amount,
+                    'margin_percentage'         => $invoice->margin_percentage,
+                    'date'                      => $invoice->date,
+
+                    'currency_code'             => $invoice->currency->code,
+                    'items_net'                 => $invoice->items_net,
+                    'net_amount'                => $invoice->net_amount,
+                    'tax_percentage'            => $invoice->tax_percentage,
+                    'payment_amount'            => $invoice->payment_amount,
+
+                    // 'item_gross'                => $invoice->item_gross,
+                    // 'discounts_total'           => $invoice->discounts_total,
+                    // 'charges'                   => $invoice->charges,
+                    // 'shipping'                  => $invoice->shipping,
+                    // 'insurance'                 => $invoice->insurance,
+                    // 'tax_amount'       => $invoice->tax_amount,
+                    // 'total_amount'     => $invoice->total_amount,
+
                 ],
 
                 InvoiceTabsEnum::SHOWCASE->value => $this->tab == InvoiceTabsEnum::SHOWCASE->value ?
