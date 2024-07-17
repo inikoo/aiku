@@ -9,5 +9,5 @@ use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use Illuminate\Support\Facades\Route;
 
-Route::get('fulfilment/{fulfilment}/services', GetFulfilmentServices::class)->name('pallet-delivery.services.index');
-Route::get('fulfilment/{fulfilment}/physical-goods', GetFulfilmentPhysicalGoods::class)->name('pallet-delivery.physical-goods.index');
+Route::get('fulfilment/{fulfilment}/services', GetFulfilmentServices::class)->name('fulfilment.services.index');
+Route::get('fulfilment/{fulfilment}/physical-goods', GetFulfilmentPhysicalGoods::class)->name('fulfilment.physical-goods.index');
