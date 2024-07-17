@@ -43,7 +43,7 @@ const onClickColor = (colorTheme: string[]) => {
     <div class="p-8 grid grid-cols-2">
         <div class="space-y-6">
             <div class="w-fit flex justify-end">
-                    <Link :href="route(data.updateColorRoute.name,data.updateColorRoute.parameters)" method="patch" as="button" :data="{ layout: selectedColor }">
+                    <Link :href="route(data.updateColorRoute.name,data.updateColorRoute.parameters)" method="patch" as="button" :data="{ layout: {color: selectedColor} }">
                         <Button label="apply" size="xs"  icon="fas fa-rocket" ></Button>
                     </Link>
                 </div>
