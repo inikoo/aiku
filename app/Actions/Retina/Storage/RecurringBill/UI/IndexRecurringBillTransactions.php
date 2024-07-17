@@ -81,10 +81,12 @@ class IndexRecurringBillTransactions extends OrgAction
                 );
 
             $table
-                ->column(key: 'item_type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'asset_name', label: __('rental'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'asset_code', label: __('rental code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'asset_name', label: __('rental name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'asset_price', label: __('base price'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'total', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('id');
         };
     }

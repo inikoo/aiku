@@ -12,7 +12,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="relative grid lg:grid-cols-11 gap-y-1.5 p-4 xl:min-w-[600px] w-full">
+    <div class="relative grid lg:grid-cols-11 gap-y-1.5 p-4 xl:min-w-[400px] w-full">
         <div class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-gray-300 flex flex-col">
             <div class="text-xs text-gray-400">Start date</div>
             <div class="font-medium">
