@@ -88,10 +88,14 @@ class ShowRecurringBill extends OrgAction
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
                 ],
-                'status'        => $recurringBill->status,
-                'box_stats'     => [
+                'status_rb'        => $recurringBill->status,
+                'box_stats'        => [
                     'customer'      => FulfilmentCustomerResource::make($recurringBill->fulfilmentCustomer),
-                    'stats'         => $recurringBill->stats,
+                    'stats'         => [
+                        'number_pallets'         => $recurringBill->stats->number_transactions_type_pallets,
+                        'number_stored_items'    => $recurringBill->stats->number_transactions_type_stored_items,
+
+                    ],
                     'order_summary' => [
                         [
                             [
