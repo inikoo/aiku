@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RecurringBill;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateRecurringBills;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
@@ -26,8 +27,21 @@ class StoreRecurringBill extends OrgAction
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
     {
 
-        //todo: get tax category from a real action #546
-        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+
+        if (!Arr::exists($modelData, 'tax_category_id')) {
+            data_set(
+                $modelData,
+                'tax_category_id',
+                GetTaxCategory::run(
+                    country: $this->organisation->country,
+                    taxNumber: $rentalAgreement->fulfilmentCustomer->customer->taxNumber,
+                    billingAddress: $rentalAgreement->fulfilmentCustomer->customer->address,
+                    deliveryAddress: $rentalAgreement->fulfilmentCustomer->customer->address,
+                )->id
+            );
+        }
+
+
         data_set($modelData, 'currency_id', $rentalAgreement->fulfilment->shop->currency_id, overwrite: false);
 
         data_set($modelData, 'organisation_id', $rentalAgreement->organisation_id);

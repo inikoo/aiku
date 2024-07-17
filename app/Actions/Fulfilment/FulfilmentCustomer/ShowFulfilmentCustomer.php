@@ -62,7 +62,7 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-        $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
+        // $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
 
 
         $navigation = FulfilmentCustomerTabsEnum::navigation();
@@ -149,9 +149,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     ],
                     'model'        => __('Customer'),
                     'subNavigation'=> $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
-                    'meta'         => array_filter([
-                        $webUsersMeta,
-                    ]),
+                    // 'meta'         => array_filter([
+                    //     $webUsersMeta,
+                    // ]),
                     'title' => $fulfilmentCustomer->customer->name,
                     'edit'  => $this->canEdit ? [
                         'route' => [

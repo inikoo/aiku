@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateUniversalSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
@@ -20,6 +21,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,8 +36,19 @@ class StorePalletReturn extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
 
-        //todo: get tax category from a real action #546
-        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+        if (!Arr::exists($modelData, 'tax_category_id')) {
+            data_set(
+                $modelData,
+                'tax_category_id',
+                GetTaxCategory::run(
+                    country: $this->organisation->country,
+                    taxNumber: $fulfilmentCustomer->customer->taxNumber,
+                    billingAddress: $fulfilmentCustomer->customer->address,
+                    deliveryAddress: $fulfilmentCustomer->customer->address,
+                )->id
+            );
+        }
+
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
 
         $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_RETURN);

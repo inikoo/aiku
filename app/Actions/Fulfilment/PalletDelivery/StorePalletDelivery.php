@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Catalogue\HasRentalAgreement;
+use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
@@ -20,6 +21,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,8 +40,18 @@ class StorePalletDelivery extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
 
-        //todo: get tax category from a real action #546
-        data_set($modelData, 'tax_category_id', 1, overwrite: false);
+        if (!Arr::exists($modelData, 'tax_category_id')) {
+            data_set(
+                $modelData,
+                'tax_category_id',
+                GetTaxCategory::run(
+                    country: $this->organisation->country,
+                    taxNumber: $fulfilmentCustomer->customer->taxNumber,
+                    billingAddress: $fulfilmentCustomer->customer->address,
+                    deliveryAddress: $fulfilmentCustomer->customer->address,
+                )->id
+            );
+        }
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
 
