@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, watch } from 'vue'
 
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
@@ -19,12 +19,11 @@ const props = defineProps<{
     modelValue: object,
     loginMode: Boolean
     keyTemplate: String
+    previewMode:Boolean
 }>();
 
 const toogle = ['bold', 'italic', 'underline', 'link', 'undo', 'redo']
 const editable = ref(true)
-
-
 
 const onDrag = () => {
     editable.value = false
@@ -50,6 +49,11 @@ const deleteMenu = (data, index) => {
     data.splice(index, 1)
 }
 
+
+watch(() => props.previewMode, (newStatus, oldStatus) => {
+    editable.value = !newStatus
+});
+
 </script>
 
 <template>
@@ -62,7 +66,7 @@ const deleteMenu = (data, index) => {
                     <template #item="{ element: item, index: index }">
                         <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                             <div class="flex">
-                                <FontAwesomeIcon icon="fal fa-bars"
+                                <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
                                     class="handle text-xl text-white cursor-grab pr-3 mr-2" />
 
                                 <ContextMenu>
@@ -107,7 +111,7 @@ const deleteMenu = (data, index) => {
                                     <ul class="hidden md:block space-y-1">
                                         <li>
                                             <div class="flex items-center">
-                                                <FontAwesomeIcon icon="fal fa-bars"
+                                                <FontAwesomeIcon icon="fal fa-bars"  v-if="!previewMode"
                                                     class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                 <!--   <a href="#" class="text-sm block">
                                                     <Editor v-model="sub.name" :toogle="toogle" :editable="editable" />
@@ -155,7 +159,7 @@ const deleteMenu = (data, index) => {
                     <template #item="{ element: item, index: index }">
                         <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                             <div class="flex">
-                                <FontAwesomeIcon icon="fal fa-bars"
+                                <FontAwesomeIcon icon="fal fa-bars"  v-if="!previewMode"
                                     class="handle text-xl text-white cursor-grab pr-3 mr-2" />
 
                                 <ContextMenu>
@@ -200,7 +204,7 @@ const deleteMenu = (data, index) => {
                                     <ul class="hidden md:block space-y-1">
                                         <li>
                                             <div class="flex items-center">
-                                                <FontAwesomeIcon icon="fal fa-bars"
+                                                <FontAwesomeIcon icon="fal fa-bars"  v-if="!previewMode"
                                                     class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                 <!--   <a href="#" class="text-sm block">
                                                     <Editor v-model="sub.name" :toogle="toogle" :editable="editable" />
@@ -250,7 +254,7 @@ const deleteMenu = (data, index) => {
                     <template #item="{ element: item, index: index }">
                         <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                             <div class="flex">
-                                <FontAwesomeIcon icon="fal fa-bars"
+                                <FontAwesomeIcon icon="fal fa-bars"  v-if="!previewMode"
                                     class="handle text-xl text-white cursor-grab pr-3 mr-2" />
 
                                 <ContextMenu>
@@ -295,7 +299,7 @@ const deleteMenu = (data, index) => {
                                     <ul class="hidden md:block space-y-1">
                                         <li>
                                             <div class="flex items-center">
-                                                <FontAwesomeIcon icon="fal fa-bars"
+                                                <FontAwesomeIcon icon="fal fa-bars"  v-if="!previewMode"
                                                     class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                 <!--   <a href="#" class="text-sm block">
                                                     <Editor v-model="sub.name" :toogle="toogle" :editable="editable" />
@@ -376,11 +380,11 @@ const deleteMenu = (data, index) => {
 
                         <address
                             class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                            <Editor v-model="modelValue.column.column_4.data.textBox1" :toogle="toogle" />
+                            <Editor v-model="modelValue.column.column_4.data.textBox1" :toogle="toogle" :editable="editable"/>
                         </address>
 
                         <div class="flex justify-center gap-x-8 text-gray-300 md:block">
-                            <Editor v-model="modelValue.column.column_4.data.textBox2" :toogle="toogle" />
+                            <Editor v-model="modelValue.column.column_4.data.textBox2" :toogle="toogle" :editable="editable"/>
                         </div>
                         <!-- Section: Get Social With Us -->
                         <div

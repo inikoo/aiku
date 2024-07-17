@@ -49,11 +49,30 @@ const updatePayment = (index: number, value: any) => {
 <template>
     <div>
         <div v-for="(item, index) of modelValue.data" :key="index" class="p-1">
-            <PureMultiselect :modelValue="item" :options="payments" :object="true" :required="true" 
-                @update:modelValue="value => updatePayment(index, value)" />
+            <PureMultiselect :modelValue="item" :options="payments" :object="true" :required="true"
+                @update:modelValue="value => updatePayment(index, value)">
+                <template v-slot:singlelabel="{ value }">
+                    <div class="flex items-center border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full bg-gray-200 p-2 m-2">
+                        <img class="object-cover object-center group-hover:opacity-75 rounded-lg" :src="value.image">
+                        <div class="ml-4">
+                            {{ value.label }}
+                        </div>
+                    </div>
+                </template>
+
+                <template v-slot:option="{ option }">
+                    <div class="flex items-center border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full bg-gray-200 p-2 m-2">
+                        <img class="object-cover object-center group-hover:opacity-75 rounded-lg" :src="option.image">
+                        <div class="ml-4">
+                            {{ option.name }}
+                        </div>
+                    </div>
+                </template>
+
+
+            </PureMultiselect>
         </div>
-        <Button type="dashed" icon="fal fa-plus" label="Add Payments Method" full size="s" class="mt-2"
-            @click="addPayments" />
+        <Button type="dashed" icon="fal fa-plus" label="Add Payments Method" full size="s" class="mt-2" @click="addPayments" />
     </div>
 </template>
 
