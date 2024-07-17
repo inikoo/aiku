@@ -13,11 +13,11 @@ import { Tabs as TSTabs } from '@/types/Tabs'
 
 
 import StartEndDate from '@/Components/Utils/StartEndDate.vue'
-import RecurringBillShowcase from '@/Pages/Grp/Org/Fulfilment/RecurringBillShowcase.vue'
+import RecurringBillTransactions from '@/Pages/Grp/Org/Fulfilment/RecurringBillTransactions.vue'
 import BoxStatsRecurringBills from '@/Components/Fulfilment/BoxStatsRecurringBills.vue'
 
-import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
-import type { Timeline } from '@/types/Timeline'
+// import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
+// import type { Timeline } from '@/types/Timeline'
 
 
 const props = defineProps<{
@@ -42,8 +42,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components: Component = {
-        showcase: RecurringBillShowcase,
-        pallets: TablePallets
+        transactions: RecurringBillTransactions,
+        // pallets: TablePallets
     }
 
     return components[currentTab.value]
@@ -79,7 +79,7 @@ console.log(props)
         </div>
     </div>
 
-    <BoxStatsRecurringBills  :boxStats="box_stats" />
+    <BoxStatsRecurringBills :boxStats="box_stats" />
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />

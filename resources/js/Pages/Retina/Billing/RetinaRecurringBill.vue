@@ -8,6 +8,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { computed, defineAsyncComponent, ref } from 'vue'
 import type { Component } from 'vue'
 
+import StartEndDate from '@/Components/Utils/StartEndDate.vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 
@@ -17,7 +18,12 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-
+    status_rb: string
+    timeline_rb: {
+        start_date: string
+        end_date: string
+    }
+    box_stats: {}
     
 }>()
 
@@ -40,7 +46,21 @@ const component = computed(() => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
 
+    <div class="grid grid-cols-2">
+        <div class="py-4 px-3">
+            <div class="flex flex-col justify-center h-full w-full rounded-md px-4 py-2"
+                :class="[status_rb === 'current' ? 'bg-green-100 ring-1 ring-green-500 text-green-700' : 'bg-gray-200 ring-1 ring-gray-500 text-gray-700']"
+            >
+                <div class="text-xs">Status</div>
+                <div class="font-semibold capitalize">{{ status_rb }}</div>
+            </div>
+        </div>
+        <div class="py-1 px-3">
+            <StartEndDate :startDate="timeline_rb.start_date" :endDate="timeline_rb.end_date" />
+        </div>
+    </div>
+
+    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
 </template>
