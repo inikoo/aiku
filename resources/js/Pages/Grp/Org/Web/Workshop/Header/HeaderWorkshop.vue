@@ -36,10 +36,12 @@ const props = defineProps<{
     autosaveRoute : routeType
 }>()
 
+console.log(props)
+
 const previewMode = ref(false)
 const loginMode = ref(true)
 const isModalOpen = ref(false)
-const usedTemplates = ref(null)
+const usedTemplates = ref(props.data.header)
 const keyTemplates = ref(uuidv4())
 const isLoading = ref(false)
 const comment = ref('')

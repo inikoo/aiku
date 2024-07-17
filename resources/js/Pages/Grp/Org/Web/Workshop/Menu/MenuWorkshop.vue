@@ -3,6 +3,10 @@ import { ref, onMounted, inject } from 'vue'
 import { navigation } from '@/Components/Websites/Menu/Descriptor.js'
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { capitalize } from "@/Composables/capitalize"
+import Publish from '@/Components/Publish.vue'
+import { notify } from "@kyvg/vue3-notification"
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -15,9 +19,20 @@ import PreviewMode from '@/Components/Websites/Menu/PreviewMode.vue';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars);
 
+
+const props = defineProps<{
+  pageHead: TSPageHeading
+  title: string
+  uploadImageRoute: routeType
+  data: {}
+  autosaveRoute: routeType
+}>()
+
 const Navigation = ref(navigation)
 const selectedNav = ref(0)
 const previewMode = ref(false)
+const isLoading = ref(false)
+const comment = ref("")
 
 const addNavigation = () => {
   Navigation.value.push({
@@ -32,21 +47,65 @@ const deleteNavigation = (index) => {
   Navigation.value.splice(index, 1)
 }
 
+
+const onPublish = async (action) => {
+  try {
+    // Ensure action is defined and has necessary properties
+    if (!action || !action.method || !action.name || !action.parameters) {
+      throw new Error('Invalid action parameters')
+    }
+
+    isLoading.value = true
+
+    // Make sure route and axios are defined and used correctly
+    const response = await axios[action.method](route(action.name, action.parameters), {
+      comment: comment.value,
+      layout: Navigation.value
+    })
+
+    console.log(response)
+  } catch (error) {
+    // Ensure the error is logged properly
+    console.error('Error:', error)
+
+    // Ensure the error notification is user-friendly
+    const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
+    notify({
+      title: 'Something went wrong.',
+      text: errorMessage,
+      type: 'error',
+    })
+  } finally {
+    // Ensure loading state is updated
+    isLoading.value = false
+  }
+};
+
 </script>
 
 <template>
+
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead">
+    <template #button-publish="{ action }">
+      <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
+      <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment" @onPublish="onPublish(action.route)" />
+    </template>
+  </PageHeading>
   <div class="grid grid-flow-row-dense grid-cols-4">
     <div class="col-span-1 h-screen bg-slate-200 px-3 py-2 relative">
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
-        <Button type="create" label="Add Navigation" size="xs" v-if="Navigation.length < 8" @click="addNavigation"></Button>
+        <Button type="create" label="Add Navigation" size="xs" v-if="Navigation.length < 8"
+          @click="addNavigation"></Button>
       </div>
-      <draggable :list="Navigation" ghost-class="ghost" group="column" itemKey="id" class="mt-2 space-y-1"  :animation="200">
+      <draggable :list="Navigation" ghost-class="ghost" group="column" itemKey="id" class="mt-2 space-y-1"
+        :animation="200">
         <template #item="{ element, index }">
           <div @click="selectedNav = index"
-            :class="[selectedNav ==  index  ? 'ring-indigo-500' : 'ring-gray-200', 'flex-auto rounded-md p-3 ring-1 ring-inset  bg-white cursor-grab']">
+            :class="[selectedNav == index ? 'ring-indigo-500' : 'ring-gray-200', 'flex-auto rounded-md p-3 ring-1 ring-inset  bg-white cursor-grab']">
             <div class="flex justify-between gap-x-4">
-              <div :class="['py-0.5 text-xs leading-5', selectedNav !=  index  ? 'text-gray-500' : 'text-indigo-500']">
+              <div :class="['py-0.5 text-xs leading-5', selectedNav != index ? 'text-gray-500' : 'text-indigo-500']">
                 <span class="font-medium">{{ element.label }}</span>
               </div>
               <div class="flex-none py-0 text-xs leading-5 text-gray-500 cursor-pointer">
@@ -74,7 +133,7 @@ const deleteNavigation = (index) => {
     </div>
 
     <div class="col-span-3">
-      <EditMode v-if="!previewMode" :Navigation="Navigation" :selectedNav="selectedNav" ></EditMode>
+      <EditMode v-if="!previewMode" :Navigation="Navigation" :selectedNav="selectedNav"></EditMode>
       <PreviewMode v-if="previewMode" :navigations="Navigation"></PreviewMode>
     </div>
   </div>
