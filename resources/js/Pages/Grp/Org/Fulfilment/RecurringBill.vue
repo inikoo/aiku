@@ -20,6 +20,7 @@ import { routeType } from '@/types/route'
 
 // import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 // import type { Timeline } from '@/types/Timeline'
+import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
 
 
 const props = defineProps<{
@@ -76,6 +77,9 @@ console.log(props)
                 <div class="flex flex-col justify-center ">
                     <div class="text-xs">Status</div>
                     <div class="font-semibold capitalize">{{ status_rb }}</div>
+                    <div v-if="status_rb === 'current'" class="text-xs italic text-green-700/70">
+                        End date is {{ useDaysLeftFromToday(timeline_rb.end_date) }}
+                    </div>
                 </div>
 
                 <component
