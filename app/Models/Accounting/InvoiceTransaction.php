@@ -47,8 +47,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property int|null $source_alt_id
+ * @property-read Asset $asset
  * @property-read Model|\Eloquent $item
- * @property-read Asset|null $product
  * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
@@ -84,7 +84,7 @@ class InvoiceTransaction extends Model
         return $this->belongsTo(Transaction::class);
     }
 
-    public function product(): BelongsTo
+    public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
     }

@@ -57,7 +57,7 @@ class IndexInvoiceTransactions extends OrgAction
         }
 
         $queryBuilder->defaultSort('-invoice_transactions.updated_at')
-            ->leftJoin('products', 'invoice_transactions.product_id', 'products.id');
+            ->leftJoin('assets', 'invoice_transactions.asset_id', 'assets.id');
 
 
         return $queryBuilder->allowedSorts(['code'])
