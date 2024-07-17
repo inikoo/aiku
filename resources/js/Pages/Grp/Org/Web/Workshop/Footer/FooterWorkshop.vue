@@ -139,7 +139,7 @@ watch(usedTemplates, (newVal) => {
             <div :class="usedTemplates?.key ? 'bg-white' : ''">
                 <section v-if="usedTemplates?.key" class="w-full">
                 <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" v-model="usedTemplates.data"
-                    :keyTemplate="keyTemplates" />
+                    :keyTemplate="keyTemplates" :previewMode="previewMode" />
             </section>
                 <section v-else>
                     <EmptyState

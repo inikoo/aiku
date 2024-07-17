@@ -267,7 +267,7 @@ export const data = {
 				image: "https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png",
 			},
 			{
-				label: "visa",
+				label: "Visa",
 				value: "visa",
 				image: "https://e7.pngegg.com/pngimages/687/457/png-clipart-visa-credit-card-logo-payment-mastercard-usa-visa-blue-company.png",
 			},
