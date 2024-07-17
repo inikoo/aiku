@@ -172,6 +172,7 @@ watch(usedTemplates, (newVal) => {
                         :previewMode="previewMode"
                         v-model="usedTemplates.data"
                         :uploadImageRoute="uploadImageRoute"
+                        :colorThemed="props.data.color"
                     />
                 </section>
                 <section v-else>

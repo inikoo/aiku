@@ -23,8 +23,10 @@ const props = defineProps<{
     previewMode : boolean
     uploadImageRoute: routeType
     isEditing?: boolean
+    colorThemed?: Array
 }>()
 
+console.log('h1',props)
 
 const isOpenGalleryImages = ref(false)
 
