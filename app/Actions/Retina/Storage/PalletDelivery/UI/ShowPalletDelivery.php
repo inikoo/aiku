@@ -9,6 +9,7 @@ namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPhysicalGoodInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexServiceInPalletDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -363,8 +364,8 @@ class ShowPalletDelivery extends RetinaAction
                 ],
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))),
+                    fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery))),
 
                 PalletDeliveryTabsEnum::SERVICES->value => $this->tab == PalletDeliveryTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery))
@@ -375,7 +376,7 @@ class ShowPalletDelivery extends RetinaAction
                     : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery))),
             ]
         )->table(
-            IndexPallets::make()->tableStructure(
+            IndexPalletsInDelivery::make()->tableStructure(
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )
