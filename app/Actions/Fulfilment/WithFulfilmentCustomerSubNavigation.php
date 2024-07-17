@@ -32,23 +32,22 @@ trait WithFulfilmentCustomerSubNavigation
 
         ];
 
-        $subNavigation[]=[
-            'href' => [
-                'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
-                'parameters'=> $request->route()->originalParameters()
+        if($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->exists()) {  
+            $subNavigation[]=[
+                'href' => [
+                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
+                    'parameters'=> $request->route()->originalParameters()
 
-            ],
+                ],
 
-            'label'     => __('Web users'),
-            'leftIcon'  => [
-                'icon'    => 'fal fa-terminal',
-                'tooltip' => __('Web users'),
-            ],
-            'number'=> $fulfilmentCustomer->customer->stats->number_web_users
+                'label'     => __('Web users'),
+                'leftIcon'  => [
+                    'icon'    => 'fal fa-terminal',
+                    'tooltip' => __('Web users'),
+                ],
+                'number'=> $fulfilmentCustomer->customer->stats->number_web_users
 
-        ];
-
-        if($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->exists()) {
+            ];
             $subNavigation[]=[
                 'href' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
