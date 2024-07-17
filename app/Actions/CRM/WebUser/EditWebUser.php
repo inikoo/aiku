@@ -120,7 +120,7 @@ class EditWebUser extends OrgAction
                                 'email' => [
                                     'type'  => 'input',
                                     'label' => __('email'),
-                                    'value' => $webUser->customer->email
+                                    'value' => $webUser->email
                                 ],
                                 'username' => [
                                     'type'  => 'input',
@@ -135,7 +135,7 @@ class EditWebUser extends OrgAction
                                 'is_root' => [
                                     'type'  => 'toggle',
                                     'label' => __('Admin'),
-                                    'value' => false
+                                    'value' => $webUser->is_root
                                 ],
 
                             ]
