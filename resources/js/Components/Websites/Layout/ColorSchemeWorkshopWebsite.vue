@@ -15,6 +15,7 @@ const props = defineProps<{
         notificationRoute: routeType
         menuLeftRoute: routeType
         menuRightRoute: routeType
+        menuRoute: routeType
     }
 }>()
 
@@ -49,15 +50,15 @@ const props = defineProps<{
                 <div>Register</div>
                 <div>Login</div>
             </div>
-            
+
             <div class="inset-0 bg-black/50 absolute items-center justify-center hidden group-hover:flex gap-x-1.5">
                 <span>Open Header workshop</span>
                 <FontAwesomeIcon icon='fal fa-external-link' class='' fixed-width aria-hidden='true' />
             </div>
         </a>
-        
+
          <!-- Section: Menu  -->
-        <a target="_blank" :href="routeList?.headerRoute?.name ? route(routeList?.headerRoute?.name, routeList?.headerRoute?.parameters) : '#'"
+        <a target="_blank" :href="routeList?.menuRoute?.name ? route(routeList?.menuRoute?.name, routeList?.menuRoute?.parameters) : '#'"
             class="group relative flex items-center justify-between h-10 px-4 cursor-pointer"
             :style="{backgroundColor: color[0], color: color[1]}"
         >
@@ -78,7 +79,7 @@ const props = defineProps<{
             </div>
 
             <div class="text-xxs flex gap-x-1.5"></div>
-            
+
             <div class="inset-0 bg-black/50 absolute items-center justify-center hidden group-hover:flex gap-x-1.5">
                 <span>Open Menu workshop</span>
                 <FontAwesomeIcon icon='fal fa-external-link' class='' fixed-width aria-hidden='true' />
@@ -91,7 +92,7 @@ const props = defineProps<{
                 class="group relative border-r border-gray-300 cursor-pointer flex justify-center items-center text-2xl"
             >
                 <span class="-rotate-90 whitespace-nowrap">Menu left</span>
-                
+
                 <div class="inset-0 bg-black/60 text-white whitespace-nowrap text-sm absolute hidden group-hover:flex items-center justify-center gap-x-1.5">
                     <div class="-rotate-90 flex gap-x-1 justify-center items-center">
                         <span class="block">Open Left Menu workshop</span>
@@ -132,7 +133,7 @@ const props = defineProps<{
                 class="group relative border-l border-gray-300 cursor-pointer flex justify-center items-center text-2xl"
             >
                 <span class="-rotate-90 whitespace-nowrap">Menu right</span>
-                
+
                 <div class="inset-0 bg-black/60 text-white whitespace-nowrap text-sm absolute hidden group-hover:flex items-center justify-center gap-x-1.5">
                     <div class="-rotate-90 flex gap-x-1 justify-center items-center">
                         <span class="block">Open Left Menu workshop</span>
@@ -142,7 +143,7 @@ const props = defineProps<{
             </a>
         </div>
 
-        
+
         <!-- Section: Header  -->
         <a target="_blank" :href="routeList?.footerRoute?.name ? route(routeList?.footerRoute?.name, routeList?.footerRoute?.parameters) : '#'"
             class="group relative flex items-center justify-between cursor-pointer"
@@ -160,7 +161,7 @@ const props = defineProps<{
                         Contact us
                     </div>
                 </div>
-                
+
                 <div class="flex flex-col">
                     <div>
                         Terms of use
@@ -169,7 +170,7 @@ const props = defineProps<{
                         Privacy Policy
                     </div>
                 </div>
-                
+
                 <div class="flex flex-col text-justify text-[8px]">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut, placeat!
                 </div>
@@ -179,10 +180,10 @@ const props = defineProps<{
                         Logo
                     </div>
                 </div>
-            
+
             </div>
-            
-            
+
+
             <div class="inset-0 bg-black/50 text-white absolute items-center justify-center hidden group-hover:flex gap-x-1.5">
                 <span>Open Footer workshop</span>
                 <FontAwesomeIcon icon='fal fa-external-link' class='' fixed-width aria-hidden='true' />
