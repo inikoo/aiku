@@ -125,6 +125,11 @@ export const initialiseApp = () => {
             layout.app.theme = usePage().props.layout?.app_theme
         }
 
+        // Set App Environment
+        if(usePage().props?.environment) {
+            layout.app.environment = usePage().props?.environment
+        }
+
 
         // Set Organisations, Agents, Digital Agency (for Multiselect in TopBar)
         if (usePage().props.layout?.organisations) {

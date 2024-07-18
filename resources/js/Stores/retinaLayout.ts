@@ -69,6 +69,7 @@ export const useLayoutStore = defineStore("retinaLayout", {
                 color: null as unknown | Colors,  // Styling layout color
                 theme: useColorTheme[3] as string[],  // For styling app color
                 url: '#', // Homepage links
+                environment: null as string | null // 'local' | 'staging'
             },
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load

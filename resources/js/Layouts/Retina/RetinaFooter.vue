@@ -52,11 +52,11 @@ library.add(faHeart, faComputerClassic, faDiscord)
 
             <!-- Right: Tab Section -->
             <div class="flex items-end text-sm">
-                <div v-if="usePage().props?.environment === 'local'" class="bg-yellow-500 text-gray-700 h-full flex items-center justify-center px-2 mr-10">
+                <div v-if="layout.app.environment === 'local'" class="bg-yellow-500 text-gray-700 h-full flex items-center justify-center px-2 mr-10">
                     Local
                 </div>
                 <FooterLanguage :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
-                <RetinaFooterActiveUsers v-if="layout.liveUsers.enabled" :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
+                <RetinaFooterActiveUsers v-if="layout.liveUsers?.enabled" :isTabActive="isTabActive" @isTabActive="(value: any) => isTabActive = value" />
             </div>
         </div>
     </footer>

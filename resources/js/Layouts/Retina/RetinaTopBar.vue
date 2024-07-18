@@ -13,6 +13,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 
 import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue"
 import { inject } from "vue"
+import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 
 library.add(faChevronDown, faDotCircle, faTerminal, faCog)
 
@@ -36,14 +37,20 @@ const layout = inject('layout')
 //     fulfilmentSelect: trans("Select fulfilments")
 // }
 
+const isStaging = layout.app.environment === 'staging'
+console.log('environment', isStaging)
+
 </script>
 
 <template>
-    <Disclosure as="nav" class="fixed top-0 z-[21] w-full " v-slot="{ open }"
+    <Disclosure as="nav" class="fixed z-[21] w-full " v-slot="{ open }"
                 :style="{
             'color': layout.app.theme[2]
         }"
+        :class="isStaging ? 'top-3' : 'top-0'"
     >
+        <ScreenWarning v-if="isStaging" />
+    
         <div class="mt-1 flex h-11 lg:h-10 flex-shrink-0 gap-x-2">
             <div class="flex">
                 <!-- Mobile: Hamburger -->

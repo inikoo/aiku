@@ -75,6 +75,10 @@ export const initialiseRetinaApp = () => {
             layout.app = usePage().props.app;
         }
         layout.app.name = "retina";
+        // Set App Environment
+        if(usePage().props?.environment) {
+            layout.app.environment = usePage().props?.environment
+        }
 
         layout.webUser = usePage().props.auth?.webUser || null;
 

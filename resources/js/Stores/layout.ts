@@ -22,6 +22,7 @@ export const useLayoutStore = defineStore("layout", {
                 color: null as unknown | Colors,  // Styling layout color
                 theme: useColorTheme[0] as string[],  // For styling app color
                 url: null as string | null, // For url on logo top left
+                environment: null as string | null // 'local' | 'staging'
             },
             currentModule: "",
             currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
