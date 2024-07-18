@@ -10,6 +10,7 @@ import { loadLanguageAsync } from 'laravel-vue-i18n'
 import { breakpointType } from '@/Composables/useWindowSize'
 import { provide } from "vue"
 import { useLayoutStore } from "@/Stores/retinaLayout"
+import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
 provide('layout', useLayoutStore())
 
 if (usePage().props.language) {
@@ -19,6 +20,7 @@ if (usePage().props.language) {
 </script>
 
 <template>
+    <ScreenWarning v-if="usePage().props.ziggy.environment === 'staging'" />
     <div class="relative h-screen w-screen bg-gradient-to-tr from-slate-950 to-slate-800 pt-64 sm:px-6 lg:px-8">
         <div class="flex items-center justify-center gap-x-2">
             <img class="h-12 w-auto" src="/art/logo-yellow.svg" :alt="usePage().props.iris?.name || 'App'" />

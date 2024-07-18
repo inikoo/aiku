@@ -11,6 +11,7 @@ import { useLayoutStore } from "@/Stores/layout"
 import { usePage } from '@inertiajs/vue3'
 import { loadLanguageAsync } from 'laravel-vue-i18n'
 import { breakpointType } from '@/Composables/useWindowSize'
+import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 
 provide('layout', useLayoutStore())
 
@@ -22,6 +23,7 @@ if (usePage().props.language) {
 </script>
 
 <template>
+    <ScreenWarning v-if="usePage().props.ziggy.environment === 'staging'" />
     <div :style="{'background-image': `${'url(/art/background-guest.webp'}`, 'background-repeat': 'no-repeat', 'background-size': 'cover', 'background-position': 'center'}"
         class="relative h-screen w-screen bg-gradient-to-bl from-indigo-400 to-indigo-600 pt-64 sm:px-6 lg:px-8">
         <div class="absolute bottom-5 left-10 flex items-center justify-center gap-x-2">

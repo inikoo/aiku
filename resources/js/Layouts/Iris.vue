@@ -3,6 +3,9 @@ import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
 import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import Footer from '@/Layouts/Iris/Footer.vue'
+import { usePage } from '@inertiajs/vue3'
+import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
+
 
 const props = defineProps<{
     header?: {
@@ -43,6 +46,7 @@ const headerData = {
 
 <template>
     <div class="relative">
+        <ScreenWarning v-if="usePage().props.ziggy.environment === 'staging'" />
         <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- Section: Top header -->
             <!-- <IrisHeader :data="header" /> -->
