@@ -192,6 +192,8 @@ class IndexShops extends OrgAction
                     fn () => ShopResource::collection($shops)
                     : Inertia::lazy(fn () => ShopResource::collection($shops)),
 
+
+
                 ShopsTabsEnum::DEPARTMENTS->value => $this->tab == ShopsTabsEnum::DEPARTMENTS->value ?
                     fn () => DepartmentsResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))
                     : Inertia::lazy(fn () => DepartmentsResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))),

@@ -97,13 +97,13 @@ const label = {
     warehouseSelect: trans("Select warehouses"),
     fulfilmentSelect: trans("Select fulfilments")
 }
-console.log('environment:', usePage().props?.ziggy)
+console.log('environment:', usePage().props.environment)
 
 </script>
 
 <template>
     <Disclosure as="nav" class="fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
-        <ScreenWarning v-if="usePage().props.ziggy.environment === 'staging'" class="relative top-0" />
+        <ScreenWarning v-if="usePage().props?.environment === 'staging'" class="relative top-0" />
 
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
