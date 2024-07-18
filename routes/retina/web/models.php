@@ -33,8 +33,8 @@ Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::patch('/settings', UpdateCustomerSettings::class)->name('settings.update');
 
 Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilmentTransaction:id}')->group(function () {
-    Route::patch('', [UpdateFulfilmentTransaction::class,'inRetina'])->name('update');
-    Route::delete('', [DeleteFulfilmentTransaction::class,'inRetina'])->name('delete');
+    Route::patch('', [UpdateFulfilmentTransaction::class,'fromRetina'])->name('update');
+    Route::delete('', [DeleteFulfilmentTransaction::class,'fromRetina'])->name('delete');
 });
 
 Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
