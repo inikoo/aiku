@@ -41,13 +41,13 @@ const headerData = {
         },
     ]
 }
-console.log('environment:', usePage().props?.ziggy)
+console.log('environment:', usePage().props?.environment)
 
 </script>
 
 <template>
     <div class="relative">
-        <ScreenWarning v-if="usePage().props.ziggy.environment === 'staging'" />
+        <ScreenWarning v-if="usePage().props?.environment === 'staging'" />
         <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- Section: Top header -->
             <!-- <IrisHeader :data="header" /> -->

@@ -32,12 +32,13 @@ initialiseRetinaApp()
 
 const layout = useLayoutStore()
 const sidebarOpen = ref(false)
+console.log('environment:', usePage().props?.environment)
 
 </script>
 
 <template>
     <div class="fixed inset-0 bg-slate-100" />
-    <ScreenWarning v-if="usePage().props.ziggy.environment === 'staging'" />
+    <ScreenWarning v-if="usePage().props?.environment === 'staging'" />
 
     <div class="isolate relative min-h-full transition-all"
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">
