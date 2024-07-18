@@ -228,6 +228,24 @@ test('UI create fulfilment', function () {
     });
 });
 
+test('UI edit fulfilment', function () {
+    $response = get(route('grp.org.fulfilments.show.settings.edit', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 2)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.fulfilment.update')
+                        ->where('parameters', [$this->fulfilment->id])
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
 test('UI show fulfilment shop', function () {
 
     $fulfilment=$this->shop->fulfilment;

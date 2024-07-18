@@ -109,9 +109,7 @@ class EditFulfilment extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.fulfilment.update',
-                            'parameters' => [
-                                'fulfilment'   => $fulfilment->id
-                                ]
+                            'parameters' => [$fulfilment->id]
                         ],
                     ]
 
