@@ -8,13 +8,15 @@ import { notify } from '@kyvg/vue3-notification'
 import { router } from '@inertiajs/vue3'
 
 import Popover from '@/Components/Popover.vue'
-import { PalletDelivery, BoxStats, PalletReturn } from '@/types/Pallet'
+import { PalletDelivery, BoxStats, PalletReturn, PDRNotes } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { inject, ref } from 'vue'
 import { capitalize } from '@/Composables/capitalize'
 import { routeType } from "@/types/route"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import RetinaBoxNote from "@/Components/Retina/Storage/RetinaBoxNote.vue"
 
 
 const props = defineProps<{
@@ -23,10 +25,10 @@ const props = defineProps<{
     updateRoute: {
         route: routeType
     }
+    notes_data: PDRNotes[]
 }>()
 
-const layout = inject('layout', {})
-const isLoading = ref<string | boolean>(false)
+const layout = inject('layout', layoutStructure)
 const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
 
@@ -124,16 +126,26 @@ const disableBeforeToday = (date: Date) => {
         </BoxStatPallet>
 
         <!-- Box: Pallet -->
-        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
-            :tooltip="trans('Pallets')" :percentage="0">
-            <div class="flex items-end gap-x-3">
+        <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
+            :tooltip="trans('Notes')" :percentage="0">
+            <div class="grid gap-y-3">
+                <RetinaBoxNote
+                    v-for="(note, index) in notes_data"
+                    :key="index+note.label"
+                    :noteData="note"
+                    :updateRoute="updateRoute.route"
+                />
+
+            </div>
+            
+            <!-- <div class="flex items-end gap-x-3">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
                     <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data_pallet.number_pallets }}</dd>
-            </div>
+            </div> -->
         </BoxStatPallet>
     </div>
 </template>
