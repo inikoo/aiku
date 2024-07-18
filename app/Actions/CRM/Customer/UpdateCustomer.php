@@ -14,6 +14,7 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
@@ -25,6 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateCustomer extends OrgAction
 {
     use WithActionUpdate;
+    use WithModelAddressActions;
 
     private Customer $customer;
 
@@ -35,7 +37,19 @@ class UpdateCustomer extends OrgAction
             Arr::forget($modelData, 'contact_address');
 
 
-            UpdateAddress::run($customer->address, $contactAddressData);
+            if(! blank($contactAddressData)) {
+                if($customer->address) {
+                    UpdateAddress::run($customer->address, $contactAddressData);
+                } else {
+                    $this->addAddressToModel(
+                        model: $customer,
+                        addressData: $contactAddressData,
+                        scope: 'contact',
+                        updateLocation: false
+                    );
+                }
+            }
+
             $customer->updateQuietly(
                 [
                     'location' => $customer->address->getLocation()
