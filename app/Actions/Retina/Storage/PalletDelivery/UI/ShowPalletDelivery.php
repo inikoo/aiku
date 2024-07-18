@@ -340,25 +340,18 @@ class ShowPalletDelivery extends RetinaAction
                 ],
                 'notes_data'             => [
                     [
-                        'label'           => __('Customer'),
+                        'label'           => __("Delivery' note"),
                         'note'            => $palletDelivery->customer_notes ?? '',
-                        'editable'        => false,
-                        'bgColor'         => 'blue',
+                        'editable'        => true,
+                        // 'bgColor'         => 'blue',
                         'field'           => 'customer_notes'
                     ],
                     [
-                        'label'           => __('Public'),
+                        'label'           => __('Note from warehouse'),
                         'note'            => $palletDelivery->public_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'pink',
+                        'editable'        => false,
+                        // 'bgColor'         => 'pink',
                         'field'           => 'public_notes'
-                    ],
-                    [
-                        'label'           => __('Private'),
-                        'note'            => $palletDelivery->internal_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'purple',
-                        'field'           => 'internal_notes'
                     ],
                 ],
 

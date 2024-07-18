@@ -22,8 +22,8 @@ import type { Component } from 'vue'
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 
 import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
-import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
-import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
+// import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
+// import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import RetinaBoxStatsPD from "@/Components/Retina/Storage/RetinaBoxStatsPD.vue"
 
@@ -33,12 +33,12 @@ import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faU
 import { Action } from '@/types/Action'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import axios from 'axios'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
 
 const props = defineProps<{
     title: string
     tabs: TSTabs
-
 
     data: {
         data: PalletDelivery
@@ -73,7 +73,7 @@ const props = defineProps<{
     physical_good_list_route: routeType
 }>()
 
-const layout = inject('layout', {})
+const layout = inject('layout', layoutStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -104,7 +104,7 @@ const isLoadingButton = ref<string | boolean>(false)
 
 
 // Method: Add multiple pallet
-const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
+const onAddMultiplePallet = (data: {route: routeType}, closedPopover: Function) => {
     isLoading.value = 'addMultiplePallet'
     formMultiplePallet.post(route(
         data.route.name,
@@ -141,7 +141,7 @@ const onUploadOpen = (action) => {
     dataModal.value.isModalOpen = true
     dataModal.value.uploadRoutes = action.route
 }
-const onAddPallet = (data: {}, closedPopover: Function) => {
+const onAddPallet = (data: {route: routeType}, closedPopover: Function) => {
     isLoading.value = 'addSinglePallet'
     formAddPallet.post(route(
         data.route.name,
@@ -607,7 +607,12 @@ const typePallet = [
 
 
     <!-- Box: Stats -->
-    <RetinaBoxStatsPD :data_pallet="data.data" :box_stats="box_stats" :updateRoute />
+    <RetinaBoxStatsPD
+        :data_pallet="data.data"
+        :box_stats="box_stats"
+        :updateRoute
+        :notes_data
+    />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component

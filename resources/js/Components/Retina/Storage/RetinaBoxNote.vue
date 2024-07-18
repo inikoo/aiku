@@ -14,7 +14,7 @@ import { routeType } from '@/types/route'
 import { notify } from '@kyvg/vue3-notification'
 import { PDRNotes } from '@/types/Pallet'
 // import { layoutStructure } from '@/Composables/useLayoutStructure'
-import { useBasicColor } from '@/Composables/useColors'
+import { useTruncate } from '../../../Composables/useTruncate'
 library.add(faPencil, faStickyNote, faTrash, faPlus, faLock, faTimes)
 
 // const layout = inject('layout', layoutStructure)
@@ -47,68 +47,47 @@ const onSubmitNote = async () => {
     isModalOpen.value = false
 }
 
-const fallbackBgColor = '#f9fafb'  // Background
-const fallbackColor = '#374151'  // Color
 </script>
 
 <template>
-    <div class="relative w-full pt-4" >
+    <div class="relative w-full" >
         <!-- Section: Header -->
-        <div class="absolute top-0 left-0 w-full flex gap-x-1 lg:pr-0 justify-between lg:justify-normal">
-            <div class="w-full flex items-center justify-between text-xs truncate text-center py-0.5 pl-3 pr-3" :style="{
-                // borderBottom: `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 80%, black) solid 1px`,
-                backgroundColor: useBasicColor(noteData.bgColor) ? `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 40%, white)` : fallbackBgColor,
-                color: noteData.color || fallbackColor
-            }">
-                <div>
-                    <FontAwesomeIcon icon='fas fa-sticky-note' class='' fixed-width aria-hidden='true' />
-                    {{ noteData.label }}
+        <div class="flex gap-x-1 lg:pr-0 justify-between text-xs">
+            <div>
+                <FontAwesomeIcon icon='fas fa-sticky-note' class='text-xs text-gray-500' fixed-width aria-hidden='true' />
+                {{ noteData.label }}
+            </div>
+
+            <!-- Section: Actions -->
+            <template v-if="noteData.editable">
+                <!-- Icon: pencil (edit) -->
+                <div v-if="noteData.note" @click="isModalOpen = true" v-tooltip="trans('Edit note')" class="group px-0.5 cursor-pointer w-fit h-5 flex items-center">
+                    <FontAwesomeIcon icon='fas fa-pencil' size="xs" class='text-gray-500 group-hover:text-gray-700'
+                        fixed-width aria-hidden='true'
+                    />
                 </div>
 
-                <!-- Section: Actions -->
-                <template v-if="noteData.editable">
-                    <!-- Icon: pencil (edit) -->
-                    <div v-if="noteData.note" @click="isModalOpen = true" v-tooltip="trans('Edit note')" class="group px-0.5 cursor-pointer w-fit h-5 flex items-center">
-                        <FontAwesomeIcon icon='fas fa-pencil' size="xs" class='group-hover:text-gray-100'
-                            fixed-width aria-hidden='true'
-                            :style="{
-                                color: fallbackColor
-                            }"
-                        />
-                    </div>
-
-                    <!-- Icon: Plus (add note) -->
-                    <div v-else="!noteData.note" @click="isModalOpen = true" class="h-5 aspect-square flex items-center justify-center cursor-pointer">
-                        <FontAwesomeIcon v-tooltip="trans('Add note')" icon='far fa-plus' class='' fixed-width aria-hidden='true'
-                            :style="{
-                                color: fallbackColor
-                            }"
-                        />
-                    </div>
-                </template>
-
-                <!-- Icon: Lock -->
-                <div v-else v-tooltip="noteData.lockMessage || trans('This note is not editable')" class="h-5 flex items-center cursor-not-allowed">
-                    <FontAwesomeIcon icon='fas fa-lock' class='text-gray-400' fixed-width aria-hidden='true' />
+                <!-- Icon: Plus (add note) -->
+                <div v-else="!noteData.note" @click="isModalOpen = true" class="h-5 aspect-square flex items-center justify-center cursor-pointer">
+                    <FontAwesomeIcon v-tooltip="trans('Add note')" icon='far fa-plus' class='' fixed-width aria-hidden='true'
+                    />
                 </div>
+            </template>
+
+            <!-- Icon: Lock -->
+            <div v-else v-tooltip="noteData.lockMessage || trans('This note is not editable')" class="h-5 flex items-center cursor-not-allowed">
+                <FontAwesomeIcon icon='fas fa-lock' class='text-gray-400' fixed-width aria-hidden='true' />
             </div>
         </div>
 
         <!-- Section: Note -->
         <p @dblclick="noteData.editable ? isModalOpen = true : false"
             v-tooltip="noteData.editable ? trans('Double click to edit') : false"
-            class="h-full mx-auto items-center px-4 rounded-md pt-4 pb-2 text-xxs break-words"
-            :class="noteData.editable ? 'cursor-pointer' : ''"
-            :style="{
-                backgroundColor: useBasicColor(noteData.bgColor) + '11' || fallbackBgColor,
-                color: fallbackColor
-            }"
+            class="text-justify mx-auto items-center px-3 rounded py-2 ring-1 ring-gray-300 text-xxs break-words"
+            :class="noteData.editable ? 'cursor-pointer hover:bg-gray-50' : 'bg-gray-100 text-gray-500'"
         >
-            <template v-if="noteData.note">{{ noteData.note }}</template>
+            <template v-if="noteData.note">{{ useTruncate(noteData.note, 200) }}</template>
             <span v-else class="italic select-none"
-                :style="{
-                    color: fallbackColor + '55'
-                }"
             >
                 {{ trans('No note added') }}
             </span>
