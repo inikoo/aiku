@@ -32,7 +32,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     }
 
 
-    public function toMail(WebUser|User|Customer $notifiable): MailMessage
+    public function toMail(WebUser|User $notifiable): MailMessage
     {
         /** @var Outbox $outbox */
         $outbox = $notifiable->shop->outboxes()->where('type', OutboxTypeEnum::PASSWORD_REMINDER->value)
@@ -46,12 +46,23 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
                 'notes'  => 'If you did not request a password reset, no further action is required.',
         ];
 
-        return (new MailMessage())
+        $message= (new MailMessage())
             ->subject(Lang::get(Arr::get($data, 'subject')))
             ->line(Lang::get(Arr::get($data, 'header')))
             ->action(Lang::get(Arr::get($data, 'action')), $this->url)
             ->line(Lang::get(Arr::get($data, 'footer'), ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')]))
             ->line(Lang::get(Arr::get($data, 'notes')));
+
+        if(app()->isProduction()) {
+            if ($notifiable instanceof WebUser) {
+                $message->from($notifiable->shop->email);
+            } else {
+                $message->from($notifiable->group->email);
+            }
+        }
+
+        return $message;
+
     }
 
     /**
