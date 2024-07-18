@@ -209,7 +209,6 @@ class ShowPalletDelivery extends RetinaAction
                                 'parameters' => [
                                     'palletDelivery' => $palletDelivery->id
                                 ],
-                                'method'     => 'post'
                             ]
                         ]
                     ]
