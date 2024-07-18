@@ -97,7 +97,7 @@ const label = {
     warehouseSelect: trans("Select warehouses"),
     fulfilmentSelect: trans("Select fulfilments")
 }
-
+console.log('environment:', usePage().props?.ziggy)
 
 </script>
 

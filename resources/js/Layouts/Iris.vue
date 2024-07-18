@@ -41,6 +41,7 @@ const headerData = {
         },
     ]
 }
+console.log('environment:', usePage().props?.ziggy)
 
 </script>
 
