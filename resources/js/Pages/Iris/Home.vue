@@ -18,11 +18,12 @@ import { usePage } from '@inertiajs/vue3'
 
 const props = defineProps<{
     data: any,
-    blocks: any,
+    header : any,
+    blocks : any,
 }>()
 
 console.log('blocks from webpage', props.blocks.web_blocks)
-console.log('data', props.data)
+console.log('data', props)
 
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)

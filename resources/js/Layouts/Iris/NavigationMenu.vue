@@ -1,15 +1,27 @@
 <script setup lang='ts'>
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { Link } from '@inertiajs/vue3'
+import { getComponent } from "@/Components/Websites/Menu/Content"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBox, faDollarSign, faHome as fasHome, faUserPlus, faSignIn } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faHome, faInfoCircle, faPhone, faFile, faChevronDown } from '@fal'
 
+
 library.add(faBox, faDollarSign, fasHome, faUserPlus, faSignIn, faHome, faInfoCircle, faPhone, faFile, faChevronDown)
 
-interface SubNav {
+const props = defineProps<{
+    data: {
+        key: string,
+        data: object,
+        bluprint: object
+    }
+    colorThemed: object
+}>()
+
+
+/* interface SubNav {
     name: string
     label: string
     href: string
@@ -25,9 +37,9 @@ interface Navigation {
             [key: string]: SubNav
         }
     }
-}
+} */
 
-const navigations: Navigation = {
+/* const navigations: Navigation = {
     home: {
         name: 'home',
         label: 'Home',
@@ -93,11 +105,16 @@ const navigations: Navigation = {
             },
         }
     },
-}
+} */
 </script>
 
 <template>
-    <div class="w-full bg-indigo-600 flex justify-between h-10 pl-3 pr-5">
+
+    <div>
+        <component :is="getComponent(data.key)" :navigations="data.data" :colorThemed="colorThemed" />
+    </div>
+
+    <!-- <div class="w-full bg-indigo-600 flex justify-between h-10 pl-3 pr-5">
         <div class="flex gap-x-2">
             <Popover v-for="(navigation, idxNavigation) in navigations" :key="idxNavigation" v-slot="{ open }" as="div"
                 class="relative">
@@ -120,14 +137,10 @@ const navigations: Navigation = {
             </Popover>
         </div>
         <div class="flex gap-x-4 h-full items-center ">
-           <!--  <Link href="/app/login" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
-                <FontAwesomeIcon fixed-width icon='fas fa-user-plus' class='opacity-80' aria-hidden='true' />
-                Register
-            </Link> -->
             <a href="/app/login" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
                 <FontAwesomeIcon fixed-width icon='fas fa-sign-in' class='opacity-80' aria-hidden='true' />
                 Login
             </a>
         </div>
-    </div>
+    </div> -->
 </template>

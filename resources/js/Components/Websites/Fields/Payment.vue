@@ -5,11 +5,11 @@ import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { cloneDeep } from 'lodash'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faShieldAlt } from "@fas"
+import { faShieldAlt, faTimes } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 
-library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt)
+library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faTimes)
 
 const props = defineProps<{
     modelValue: any,
@@ -31,8 +31,8 @@ const addPayments = () => {
     let data = cloneDeep(props.modelValue.data);
     data.push(
         {
-            name: "visa",
-            key: "visa",
+            label: "visa",
+            value: "visa",
             image: "https://e7.pngegg.com/pngimages/687/457/png-clipart-visa-credit-card-logo-payment-mastercard-usa-visa-blue-company.png",
         },
     );
@@ -44,11 +44,20 @@ const updatePayment = (index: number, value: any) => {
     data[index] = { ...value };
     emits('update:modelValue', { data });
 };
+
+const deleteSocial = (event,index) => {
+    event.stopPropagation();
+    event.preventDefault();
+    let set = cloneDeep(props.modelValue.data);
+    set.splice(index,1)
+    emits('update:modelValue',{ data: set });
+}
 </script>
 
 <template>
     <div>
         <div v-for="(item, index) of modelValue.data" :key="index" class="p-1">
+        <div class="flex">
             <PureMultiselect :modelValue="item" :options="payments" :object="true" :required="true"
                 @update:modelValue="value => updatePayment(index, value)">
                 <template v-slot:singlelabel="{ value }">
@@ -68,9 +77,10 @@ const updatePayment = (index: number, value: any) => {
                         </div>
                     </div>
                 </template>
-
-
             </PureMultiselect>
+            <FontAwesomeIcon :icon="['fas', 'times']" class="text-red-500 my-auto px-2 cursor-pointer" @click="(e)=>deleteSocial(e,index)"/>
+        </div>
+            
         </div>
         <Button type="dashed" icon="fal fa-plus" label="Add Payments Method" full size="s" class="mt-2" @click="addPayments" />
     </div>

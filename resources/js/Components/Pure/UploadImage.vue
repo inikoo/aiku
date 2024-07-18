@@ -86,8 +86,8 @@ const drop = (e) => {
                     @change="addComponent" />
             </label>
 
-            <div v-if="!modelValue" class="text-center text-white">
-                <FontAwesomeIcon :icon="['fal', 'image']" class="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+            <div v-if="!modelValue" class="text-center ">
+                <FontAwesomeIcon :icon="['fal', 'image']" class="mx-auto h-12 w-12 " aria-hidden="true" />
                 <div class="mt-2 flex  justify-center text-3xl font-semibold leading-6 ">
                     <p class="pl-1">{{ trans("Upload Image") }}</p>
                 </div>
@@ -99,7 +99,7 @@ const drop = (e) => {
                 </p>
                 <div class="mt-2.5 flex items-center justify-center gap-x-2">
                     <Button id="gallery" :style="`tertiary`" :icon="'fal fa-photo-video'" label="Gallery" size="xs"
-                        class="relative text-white hover:text-gray-700" @click="isOpenGalleryImages = true" />
+                        class="relative  hover:text-gray-700" @click="isOpenGalleryImages = true" />
                 </div>
             </div>
             <div v-else>

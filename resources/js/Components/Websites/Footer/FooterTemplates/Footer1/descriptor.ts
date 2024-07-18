@@ -288,6 +288,38 @@ export const data = {
 			},
 		],
 	},
+	socialData : [
+		{ 
+			label: "Facebook",
+			icon : ['fab', 'facebook-f'],
+			link : ""
+		},
+		{ 
+			label: "Instagram",
+			icon : "fab fa-instagram",
+			link : ""
+		},
+		{ 
+			label: "Tik Tok",
+			icon : "fab fa-tiktok",
+			link : ""
+		},
+		{ 
+			label:  "Pinterest",
+			icon : "fab fa-pinterest",
+			link : ""
+		},
+		{ 
+			label: "Youtube",
+			icon : "fab fa-youtube",
+			link : ""
+		},
+		{ 
+			label: "Linkedin",
+			icon : "fab fa-linkedin-in",
+			link : ""
+		}
+	]
 }
 
 export const bluprintForm = [
@@ -295,5 +327,10 @@ export const bluprintForm = [
 		name: "Payments",
 		key: "PaymentData",
 		type: "payment_templates",
+	},
+	{
+		name: "Social Media",
+		key: "socialData",
+		type: "socialMedia",
 	},
 ]

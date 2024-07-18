@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
+/* import { useColorTheme } from '@/Composables/useStockList' */
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import draggable from "vuedraggable";
@@ -17,21 +18,24 @@ library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinked
 
 const props = defineProps<{
     modelValue: object,
-    loginMode: Boolean
     keyTemplate: String
     previewMode:Boolean
+    colorThemed?: Object
 }>();
 
+const selectedColor = props.colorThemed?.color
 const toogle = ['bold', 'italic', 'underline', 'link', 'undo', 'redo']
-const editable = ref(true)
+const editable = ref(!props.previewMode)
+const editKey = ref(uuidv4())
 
 const onDrag = () => {
     editable.value = false
-
+    editKey.value = uuidv4()
 }
 
 const onDrop = () => {
     editable.value = true
+    editKey.value = uuidv4()
 
 }
 
@@ -57,7 +61,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 </script>
 
 <template>
-    <div id="app" class="py-24 bg-gray-900 text-gray-100 md:px-7">
+    <div id="app" class="py-24 md:px-7" :style="{ backgroundColor : selectedColor[0], color : selectedColor[1]}">
         <div class="">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8">
                 <draggable :list="modelValue.column['column_1']['data']" group="row" itemKey="id" :animation="200"
@@ -73,7 +77,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                     <template #header="{ data }">
                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                             <h2 class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" />
+                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable"  :key="editKey"/>
                                             </h2>
                                         </div>
                                     </template>
@@ -121,7 +125,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                                             <a href="#" class="text-sm block">
                                                                 <Editor v-model="sub.name" :toogle="toogle"
-                                                                    :editable="editable" />
+                                                                    :editable="editable" :key="editKey" />
                                                             </a>
                                                         </div>
                                                     </template>
@@ -166,7 +170,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                     <template #header="{ data }">
                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                             <h2 class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" />
+                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" :key="editKey" />
                                             </h2>
                                         </div>
                                     </template>
@@ -214,7 +218,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                                             <a href="#" class="text-sm block">
                                                                 <Editor v-model="sub.name" :toogle="toogle"
-                                                                    :editable="editable" />
+                                                                    :editable="editable" :key="editKey"/>
                                                             </a>
                                                         </div>
                                                     </template>
@@ -261,7 +265,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                     <template #header="{ data }">
                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                             <h2 class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" />
+                                                <Editor v-model="item.name" :toogle="toogle" :editable="editable" :key="editKey" />
                                             </h2>
                                         </div>
                                     </template>
@@ -309,7 +313,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         <div class="w-full" @contextmenu.prevent.stop="data.toggle">
                                                             <a href="#" class="text-sm block">
                                                                 <Editor v-model="sub.name" :toogle="toogle"
-                                                                    :editable="editable" />
+                                                                    :editable="editable" :key="editKey" />
                                                             </a>
                                                         </div>
                                                     </template>
@@ -380,28 +384,18 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 
                         <address
                             class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                            <Editor v-model="modelValue.column.column_4.data.textBox1" :toogle="toogle" :editable="editable"/>
+                            <Editor v-model="modelValue.column.column_4.data.textBox1" :toogle="[...toogle,'color','highlight']"  :editable="editable"/>
                         </address>
 
                         <div class="flex justify-center gap-x-8 text-gray-300 md:block">
-                            <Editor v-model="modelValue.column.column_4.data.textBox2" :toogle="toogle" :editable="editable"/>
+                            <Editor v-model="modelValue.column.column_4.data.textBox2" :toogle="[...toogle,'color','highlight']"  :editable="editable"/>
                         </div>
                         <!-- Section: Get Social With Us -->
                         <div
                             class="hidden md:block mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
                             <h2 class="text-xl tracking-wider font-semibold md:mt-8 md:mb-4">Get Social with Us!</h2>
                             <div class="flex md:space-x-6 md:mb-4 justify-around md:justify-start">
-                                <a href="#"><font-awesome-icon :icon="['fab', 'facebook-f']" class="text-2xl" /></a>
-                                <a href="#"><font-awesome-icon icon="fab fa-instagram"
-                                        class="text-2xl"></font-awesome-icon></a>
-                                <a href="#"><font-awesome-icon icon="fab fa-tiktok"
-                                        class="text-2xl"></font-awesome-icon></a>
-                                <a href="#"><font-awesome-icon icon="fab fa-pinterest"
-                                        class="text-2xl"></font-awesome-icon></a>
-                                <a href="#"><font-awesome-icon icon="fab fa-youtube"
-                                        class="text-2xl"></font-awesome-icon></a>
-                                <a href="#"><font-awesome-icon icon="fab fa-linkedin-in"
-                                        class="text-2xl"></font-awesome-icon></a>
+                                <a v-for="item of modelValue.socialData" :key="item.icon" :href="item.link"><font-awesome-icon :icon="item.icon" class="text-2xl" /></a>
                             </div>
                         </div>
                     </div>
@@ -410,15 +404,15 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                         class="border-b border-gray-500 md:border-none flex items-center space-x-2 px-5 pb-4 md:pb-0 md:px-0">
                         <i class="text-4xl md:text-3xl fab fa-whatsapp text-green-500"></i>
                         <span class="w-10/12 md:w-full md:text-sm">
-                            <Editor v-model="modelValue.column.column_4.data.textBox3" :toogle="toogle" />
+                            <Editor v-model="modelValue.column.column_4.data.textBox3" :toogle="[...toogle,'color','highlight']" />
                         </span>
                     </div>
                 </div>
             </div>
 
             <div
-                class="bg-[#9c7c64] md:bg-transparent text-[10px] md:text-base border-t border-gray-700 mt-8 pb-2 pt-2 md:pb-0 md:pt-4 text-center text-gray-800 md:text-[#d1d5db]">
-                <Editor v-model="modelValue.copyRight" :toogle="toogle" />
+                class="bg-[#9c7c64] md:bg-transparent text-[10px] md:text-base border-t mt-8 pb-2 pt-2 md:pb-0 md:pt-4 text-center  md:text-[#d1d5db]" :style="{ borderColor : selectedColor[1], color : selectedColor[1]}">
+                <Editor v-model="modelValue.copyRight" :toogle="[...toogle,'color','highlight']"  />
             </div>
         </div>
     </div>

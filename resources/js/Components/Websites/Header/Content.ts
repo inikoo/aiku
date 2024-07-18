@@ -8,6 +8,9 @@ import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundCo
 //descriptor
 import { data as dataHeader1, bluprintForm as bluprintForm1  } from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
 
+//render componnets
+import RenderHeader1 from '@/Components/Websites/Header/HeaderTemplates/Header1/RenderHeader1.vue'
+
 export const getComponent = (componentName: string) => {
     const components: Component = {
         'header1': Header1,
@@ -23,4 +26,14 @@ export const getDescriptor = (componentName: string) => {
     }
 
     return components[componentName]
+}
+
+
+
+export const getRenderComponent = (componentName: string) => {
+    const components: Component = {
+        'header1': RenderHeader1,
+    }
+
+    return components[componentName] || NotFoundComponents
 }

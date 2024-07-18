@@ -4,7 +4,7 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 const props = defineProps({
   width: {
     type: String,
-    default: 'w-4/5',
+    default: 'w-fit',
   },
   position: {
     type: String,
@@ -15,7 +15,7 @@ const props = defineProps({
 
 <template>
   <Popover :popover-placement="'bottom-start'" class="focus-visible:ring-0">
-    <PopoverButton tabindex="-1" v-slot="{ open, close }"  class="focus-visible:ring-0">
+    <PopoverButton tabindex="-1" v-slot="{ open, close }"  class="focus-visible:ring-0 w-full">
       <slot name="button" :open="open" :close="close"></slot>
     </PopoverButton>
 
@@ -28,7 +28,7 @@ const props = defineProps({
       leave-to-class="opacity-0 scale-95"
     >
       <PopoverPanel v-slot="{ open, close }" ref="panelPopover"
-        :class="`absolute z-50 mt-3 transform py-3 px-4 bg-white border border-gray-200 rounded-md shadow-md w-fit ${position}`" >
+        :class="`absolute z-50 mt-3 transform py-3 px-4 bg-white border border-gray-200 rounded-md shadow-md  ${position} ${width}`" >
         <!-- Pass closePopover method to content slot -->
         <slot name="content" :open="open" :close="close"></slot>
       </PopoverPanel>

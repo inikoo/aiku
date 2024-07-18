@@ -25,14 +25,16 @@ const props = defineProps<{
             menuRoute: routeType
         }
         updateColorRoute : routeType
+        color: object
     }
 
 }>()
+
 console.log(props)
 
 const listColorTheme = [...useColorTheme]
 
-const selectedColor = ref([...listColorTheme[0]])
+const selectedColor = ref(props.data.color?.color ? props.data.color?.color :  [...listColorTheme[0]])
 
 const onClickColor = (colorTheme: string[]) => {
     selectedColor.value = [...colorTheme]

@@ -17,6 +17,7 @@ import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 import axios from 'axios'
 import { debounce } from 'lodash'
+import { useColorTheme } from '@/Composables/useStockList'
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -45,6 +46,7 @@ const usedTemplates = ref(props.data.header)
 const keyTemplates = ref(uuidv4())
 const isLoading = ref(false)
 const comment = ref('')
+const colorThemed = props.data?.color ? props.data?.color : {color : [...useColorTheme[0]]}
 
 
 const onPickTemplate = (header) => {
@@ -172,7 +174,7 @@ watch(usedTemplates, (newVal) => {
                         :previewMode="previewMode"
                         v-model="usedTemplates.data"
                         :uploadImageRoute="uploadImageRoute"
-                        :colorThemed="props.data.color"
+                        :colorThemed="colorThemed"
                     />
                 </section>
                 <section v-else>

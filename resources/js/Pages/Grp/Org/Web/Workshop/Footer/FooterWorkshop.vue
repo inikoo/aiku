@@ -16,6 +16,7 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
 import { debounce } from 'lodash'
 import Publish from '@/Components/Publish.vue'
+import { useColorTheme } from '@/Composables/useStockList'
 
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
@@ -33,12 +34,12 @@ const props = defineProps<{
 }>()
 
 const previewMode = ref(false)
-const loginMode = ref(true)
 const isModalOpen = ref(false)
-const usedTemplates = ref(null)
+const usedTemplates = ref(props.data.footer)
 const keyTemplates = ref(uuidv4())
 const isLoading = ref(false)
 const comment = ref('')
+const colorThemed = props.data?.color ? props.data?.color : {color : [...useColorTheme[0]]}
 
 
 const onPickTemplate = (footer) => {
@@ -59,7 +60,7 @@ const onPublish = async (action) => {
         // Make sure route and axios are defined and used correctly
         const response = await axios[action.method](route(action.name, action.parameters), {
             comment: comment.value,
-            layout : usedTemplates?.data
+            layout : usedTemplates.value
         })
 
         console.log(response)
@@ -120,7 +121,7 @@ watch(usedTemplates, (newVal) => {
 
     <div @click="()=>console.log(usedTemplates)">see data</div>
     <div class="h-screen grid grid-flow-row-dense grid-cols-4">
-        <div v-if="usedTemplates?.key" class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col justify-between h-full">
+        <div v-if="usedTemplates?.key" class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col justify-between" :style="{height : 'calc(100vh - 50px)', overflowY : 'auto'}">
             <div>
                 <div class="flex justify-end">
                     <div>
@@ -138,8 +139,8 @@ watch(usedTemplates, (newVal) => {
             :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
             <div :class="usedTemplates?.key ? 'bg-white' : ''">
                 <section v-if="usedTemplates?.key" class="w-full">
-                <component :is="getComponent(usedTemplates.key)" :loginMode="loginMode" v-model="usedTemplates.data"
-                    :keyTemplate="keyTemplates" :previewMode="previewMode" />
+                <component :is="getComponent(usedTemplates.key)"  v-model="usedTemplates.data"
+                    :keyTemplate="keyTemplates" :previewMode="previewMode" :colorThemed="colorThemed" />
             </section>
                 <section v-else>
                     <EmptyState

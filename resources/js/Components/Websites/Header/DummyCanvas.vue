@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue'
-import MenuPreviewMode from '@/Components/CMS/Workshops/Menu/PreviewMode.vue';
-import { navigation as MenuDescriptor } from '@/Components/Websites/Menu/Descriptor'
+import { navigation as MenuDescriptor} from '@/Components/Websites/Menu/Descriptor'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 const props = defineProps<{
