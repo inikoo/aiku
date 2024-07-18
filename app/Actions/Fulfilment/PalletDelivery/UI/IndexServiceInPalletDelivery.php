@@ -132,7 +132,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('id');
             if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
-                    $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello');
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello');
             }
         };
     }
