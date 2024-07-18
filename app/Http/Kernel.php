@@ -141,8 +141,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
-            RetinaPreparingAccount::class
+            AddLinkHeadersForPreloadedAssets::class
         ],
 
 
@@ -171,22 +170,23 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'auth'              => Authenticate::class,
-        'retina-auth'       => RetinaAuthenticate::class,
-        'auth.basic'        => AuthenticateWithBasicAuth::class,
-        'auth.session'      => AuthenticateSession::class,
-        'cache.headers'     => SetCacheHeaders::class,
-        'can'               => Authorize::class,
-        'guest'             => RedirectIfAuthenticated::class,
-        'password.confirm'  => RequirePassword::class,
-        'signed'            => ValidateSignature::class,
-        'throttle'          => ThrottleRequests::class,
-        'verified'          => EnsureEmailIsVerified::class,
-        'inertia'           => HandleInertiaGrpRequests::class,
-        'bind_group'        => ApiBindGroupInstance::class,
-        'grp-reset-pass'    => ResetUserPasswordMiddleware::class,
-        'retina-reset-pass' => ResetWebUserPasswordMiddleware::class,
-        'abilities'         => CheckAbilities::class,
-        'ability'           => CheckForAnyAbility::class,
+        'auth'                   => Authenticate::class,
+        'retina-auth'            => RetinaAuthenticate::class,
+        'auth.basic'             => AuthenticateWithBasicAuth::class,
+        'auth.session'           => AuthenticateSession::class,
+        'cache.headers'          => SetCacheHeaders::class,
+        'can'                    => Authorize::class,
+        'guest'                  => RedirectIfAuthenticated::class,
+        'password.confirm'       => RequirePassword::class,
+        'signed'                 => ValidateSignature::class,
+        'throttle'               => ThrottleRequests::class,
+        'verified'               => EnsureEmailIsVerified::class,
+        'inertia'                => HandleInertiaGrpRequests::class,
+        'bind_group'             => ApiBindGroupInstance::class,
+        'grp-reset-pass'         => ResetUserPasswordMiddleware::class,
+        'retina-reset-pass'      => ResetWebUserPasswordMiddleware::class,
+        'retina-prepare-account' => RetinaPreparingAccount::class,
+        'abilities'              => CheckAbilities::class,
+        'ability'                => CheckForAnyAbility::class,
     ];
 }

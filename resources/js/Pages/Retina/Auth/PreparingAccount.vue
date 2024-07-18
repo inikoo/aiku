@@ -12,11 +12,11 @@ library.add(faArrowLeft, faCheckCircle)
 </script>
 
 <template>
-    <Head title="Preparing you accounr" />
-    <template>
+    <Head title="Preparing you account" />
+    <div>
         <div class="text-center font-bold text-xl">We still prepare your account</div>
         <div class="mt-2 mb-4 text-sm text-gray-600 italic">
-            We will email you a password reset link that will allow you to choose a new one.
+            please come back shortly.
         </div>
-    </template>
+    </div>
 </template>

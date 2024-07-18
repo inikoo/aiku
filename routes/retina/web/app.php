@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-Route::middleware(["retina-auth:retina"])->group(function () {
+Route::middleware(["retina-auth:retina", 'retina-prepare-account'])->group(function () {
     Route::get('/', function () {
         return redirect('/app/dashboard');
     })->name('home');

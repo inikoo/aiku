@@ -1,9 +1,4 @@
 <?php
-/*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Jul 2024 13:21:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
 
 namespace App\Http\Middleware;
 
@@ -12,13 +7,19 @@ use Illuminate\Http\Request;
 
 class RetinaPreparingAccount
 {
-
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function handle(Request $request, Closure $next)
     {
-
-            if($request->user() && blank($request->user()->customer->fulfilmentCustomer->rentalAgreement)) {
-                abort(403, 'We still preparing your account');
-            }
+        if(! blank($request->user()->customer->fulfilmentCustomer->rentalAgreement)) {
+            return redirect()->route('retina.prepare-account.show');
+        }
 
         return $next($request);
     }
