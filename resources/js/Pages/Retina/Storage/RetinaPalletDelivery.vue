@@ -15,7 +15,7 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { Table } from '@/types/Table'
-import { PalletDelivery, BoxStats } from '@/types/Pallet'
+import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import type { Component } from 'vue'
@@ -57,6 +57,11 @@ const props = defineProps<{
         store: routeType
     }
     box_stats: BoxStats
+    notes_data: PDRNotes[]
+    pallet_limits?: {
+        status: string
+        message: string
+    }
 
     pallets?: Table
     stored_items?: Table
@@ -78,8 +83,8 @@ const dataModal = ref({ isModalOpen: false })
 
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
-const formAddService = useForm({ service_id: '', quantity: 1 })
-const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
+const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 
 
 const component = computed(() => {
@@ -95,8 +100,7 @@ const component = computed(() => {
 })
 
 const isLoadingData = ref<string | boolean>(false)
-
-
+const isLoadingButton = ref<string | boolean>(false)
 
 
 // Method: Add multiple pallet
@@ -127,13 +131,9 @@ const changeTableKey = () => {
 }
 
 
-
 const changePalletType=(form,fieldName,value)=>{
     form[fieldName] = value
 }
-
-
-
 
 
 // Tabs: Pallet
@@ -177,6 +177,7 @@ const onSubmitPallet = async (action: routeType) => {
 }
 
 
+
 // Tabs: Services
 const dataServiceList = ref([])
 const onOpenModalAddService = async () => {
@@ -193,20 +194,25 @@ const onOpenModalAddService = async () => {
     isLoadingData.value = false
 }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
-    isLoading.value = 'addService'
+    const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
+    
+    formAddService.historic_asset_id = selectedHistoricAssetId
+    isLoadingButton.value = 'addService'
+
     formAddService.post(
-        route( data.route?.name, data.route?.parameters),
+        route(data.route?.name, {...data.route?.parameters }),
         {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddService.reset('quantity', 'service_id')
-                isLoading.value = false
+                formAddService.reset()
             },
             onError: (errors) => {
-                isLoading.value = false
                 console.error('Error during form submission:', errors)
             },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
         }
     )
 }
@@ -223,25 +229,29 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
-        console.error(error)
+        
     }
     isLoadingData.value = false
 }
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
-    isLoading.value = 'addPGood'
+    const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
+    formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
+
+    isLoadingButton.value = 'addPGood'
     formAddPhysicalGood.post(
-        route( data.route?.name, data.route?.parameters ),
+        route(data.route?.name, data.route?.parameters),
         {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddPhysicalGood.reset('quantity', 'outer_id')
-                isLoading.value = false
+                formAddPhysicalGood.reset()
             },
             onError: (errors) => {
-                isLoading.value = false
                 console.error('Error during form submission:', errors)
             },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
         }
     )
 }
@@ -428,12 +438,16 @@ const typePallet = [
                                     caret
                                     required
                                     searchable
-                                    placeholder="Services"
+                                    placeholder="Select service"
                                     :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
                                     @keydown.enter="() => onSubmitAddService(action, closed)"
-                                />
+                                >
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                    </template>
+                                </PureMultiselect>
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
                                     class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
@@ -448,12 +462,12 @@ const typePallet = [
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button
-                                    :key="'submitAddService' + isLoading"
-                                    :style="'save'"
-                                    :loading="isLoading === 'addService'"
-                                    full
-                                    :label="'save'"
                                     @click="() => onSubmitAddService(action, closed)"
+                                    :style="'save'"
+                                    :loading="isLoadingButton == 'addService'"
+                                    :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
+                                    label="Save"
+                                    full
                                 />
                             </div>
 
@@ -512,10 +526,11 @@ const typePallet = [
                                 </p>
                             </div>
                             <div class="mt-3">
-                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddPhysicalGood.quantity"
                                     placeholder="Quantity"
+                                    @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
                                     class="mt-2 text-sm text-red-600">
@@ -524,9 +539,12 @@ const typePallet = [
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button
+                                    :key="'button' + formAddPhysicalGood.outer_id + formAddPhysicalGood.quantity"
                                     :style="'save'"
-                                    :loading="isLoading === 'addPGood'"
-                                    label="save"
+                                    :loading="isLoadingButton == 'addPGood'"
+                                    :disabled="!formAddPhysicalGood.outer_id || !(formAddPhysicalGood.quantity > 0)"
+                                    :label="'save'"
+                                    full
                                     @click="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                             </div>
@@ -550,6 +568,36 @@ const typePallet = [
                 :loading="isLoading === 'submitPallet'" />
         </template>
     </PageHeading>
+
+    <!-- Section: Pallet Warning -->
+    <div v-if="pallet_limits?.status">
+        <div class="p-4"
+            :class="{
+                'bg-yellow-50': pallet_limits?.status === 'almost',
+                'bg-orange-200': pallet_limits?.status === 'limit',
+                'bg-red-200': pallet_limits?.status === 'exceeded',
+            }"
+        >
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="h-5 w-5 text-amber-500"
+                        aria-hidden="true"
+                        :class="{
+                            'text-yellow-50': pallet_limits?.status === 'almost',
+                            'text-orange-200': pallet_limits?.status === 'limit',
+                            'text-red-600': pallet_limits?.status === 'exceeded',
+                        }"
+            />
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">{{ trans('Attention needed') }}</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>{{ pallet_limits?.message }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Section: Timeline -->

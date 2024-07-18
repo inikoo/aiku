@@ -88,10 +88,12 @@ const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
 const timeline = ref({ ...props.data?.data })
 const dataModal = ref({ isModalOpen: false })
+
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
+
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 const typePallet = [
     { label : 'Pallet', value : 'pallet'},
@@ -409,7 +411,6 @@ watch(() => props.data, (newValue) => {
                                     :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => onSubmitAddService(action, closed)"
                                 >
                                     <template #option="{ option, isSelected, isPointed }">
                                         <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
@@ -480,7 +481,6 @@ watch(() => props.data, (newValue) => {
                                     :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)"
                                 >
                                     <template #label="{ value }">
                                         <div class="w-full text-left pl-4">{{ value.name }} <span class="text-gray-400">({{ value.code }})</span></div>
