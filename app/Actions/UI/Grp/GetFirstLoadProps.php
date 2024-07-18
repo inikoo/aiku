@@ -38,7 +38,8 @@ class GetFirstLoadProps
                     'languageOptions' => GetLanguagesOptions::make()->translated(),
                 ],
 
-            'layout' => GetLayout::run($user)
+            'layout' => GetLayout::run($user),
+            'environment' => app()->environment(),
 
 
 

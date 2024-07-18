@@ -178,6 +178,18 @@ return [
             'timeout'      => 150,
             'nice'         => 0,
         ],
+        'urgent' => [
+            'connection'   => 'redis',
+            'queue'        => ['default'],
+            'balance'      => 'auto',
+            'maxProcesses' => 20,
+            'maxTime'      => 0,
+            'maxJobs'      => 0,
+            'memory'       => 128,
+            'tries'        => 1,
+            'timeout'      => 150,
+            'nice'         => 0,
+        ],
         'universal-search' => [
             'connection'   => 'redis',
             'queue'        => ['universal-search'],
@@ -203,6 +215,7 @@ return [
             'timeout'             => 3600,
             'nice'                => 0,
         ],
+
         'ses' => [
             'connection'          => 'redis-ses',
             'queue'               => ['ses'],
@@ -251,6 +264,11 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'urgent' => [
+                'maxProcesses'    => 32,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
             'long-running' => [
                 'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
@@ -279,6 +297,11 @@ return [
         ],
         'staging' => [
             'hydrators' => [
+                'maxProcesses'    => 16,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'urgent' => [
                 'maxProcesses'    => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
@@ -312,6 +335,11 @@ return [
         'local' => [
             'hydrators' => [
                 'maxProcesses'    => 10,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'urgent' => [
+                'maxProcesses'    => 20,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

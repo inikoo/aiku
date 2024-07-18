@@ -20,6 +20,7 @@ class HandleAikuPublicInertiaRequests extends Middleware
     {
         $firstLoadOnlyProps = [
             'grpDomain'  => (app()->environment('local') ? 'http' : 'https').'://app.'.config('app.domain'),
+            'environment' => app()->environment(),
             'navigation' => [
                 [
                     'title' => 'Home',

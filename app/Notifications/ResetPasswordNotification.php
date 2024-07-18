@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\User;
@@ -21,8 +22,8 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
 
     public function __construct(string $url)
     {
-        $this->queue = '';
-        $this->url   = $url;
+        $this->url = $url;
+        $this->queue= 'urgent';
     }
 
 

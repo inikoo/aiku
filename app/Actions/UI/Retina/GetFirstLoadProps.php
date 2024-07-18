@@ -44,6 +44,7 @@ class GetFirstLoadProps
             'liveUsers'=> [
                 'enabled'   => true,
             ],
+            'environment' => app()->environment(),
         ];
     }
 }
