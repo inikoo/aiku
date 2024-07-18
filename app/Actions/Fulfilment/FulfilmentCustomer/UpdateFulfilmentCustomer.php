@@ -41,7 +41,16 @@ class UpdateFulfilmentCustomer extends OrgAction
         ];
 
         if(! blank($contactAddressData)) {
-            UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
+            if($fulfilmentCustomer->customer->address) {
+                UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
+            } else {
+                $this->addAddressToModel(
+                    model: $fulfilmentCustomer->customer,
+                    addressData: $contactAddressData,
+                    scope: 'contact',
+                    updateLocation: false
+                );
+            }
         }
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
