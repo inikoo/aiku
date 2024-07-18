@@ -19,10 +19,12 @@ import Notification from '@/Components/Utils/Notification.vue'
 import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage } from '@fal'
 import { faSearch, faBell } from '@far'
 import { ref, provide } from 'vue'
+import { useLocaleStore } from "@/Stores/locale"
 
 // console.log('sss', useLayoutStore().app.theme)
 
 provide('layout', useLayoutStore())
+provide('locale', useLocaleStore())
 
 library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faSearch, faBell )
 
