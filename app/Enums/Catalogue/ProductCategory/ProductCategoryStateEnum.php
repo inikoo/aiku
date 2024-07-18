@@ -10,6 +10,7 @@ namespace App\Enums\Catalogue\ProductCategory;
 use App\Enums\EnumHelperTrait;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 
 enum ProductCategoryStateEnum: string
 {
@@ -75,9 +76,14 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countDepartment(Shop $parent): array
+    public static function countDepartment(Shop|Organisation $parent): array
     {
-        $stats = $parent->stats;
+        if($parent instanceof Organisation){
+            $stats = $parent->catalogueStats;
+        }else{
+            $stats = $parent->stats;
+        }
+
         return [
             'in-process'            => $stats->number_departments_state_in_process,
             'active'                => $stats->number_departments_state_active,
@@ -86,9 +92,13 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countFamily(Shop|ProductCategory $parent): array
+    public static function countFamily(Shop|ProductCategory|Organisation $parent): array
     {
-        $stats = $parent->stats;
+        if($parent instanceof Organisation){
+            $stats = $parent->catalogueStats;
+        }else{
+            $stats = $parent->stats;
+        }
 
         return [
             'in-process'            => $stats->number_families_state_in_process,
