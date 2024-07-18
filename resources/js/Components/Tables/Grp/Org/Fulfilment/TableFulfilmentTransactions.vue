@@ -50,7 +50,7 @@ const emits = defineEmits<{
 const isLoading = ref<string | boolean>(false)
 const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
     const routeDelete = <routeType>{}
-    if (layout.app.name === 'aiku') {
+    if (layout.app.name === 'Aiku') {
         routeDelete.name = 'grp.models.fulfilment-transaction.update'
         routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
     } else {
@@ -70,7 +70,7 @@ const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
 }
 const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     const routeDelete = <routeType>{}
-    if (layout.app.name === 'aiku') {
+    if (layout.app.name === 'Aiku') {
         routeDelete.name = 'grp.models.fulfilment-transaction.delete'
         routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
     } else {
