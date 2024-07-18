@@ -8,6 +8,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiBindGroupInstance;
+use App\Http\Middleware\RetinaPreparingAccount;
 use App\Http\Middleware\SetHanAsAppScope;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
@@ -141,6 +142,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            RetinaPreparingAccount::class
         ],
 
 

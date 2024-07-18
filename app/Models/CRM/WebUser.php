@@ -160,4 +160,9 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsTo(Website::class);
     }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }
