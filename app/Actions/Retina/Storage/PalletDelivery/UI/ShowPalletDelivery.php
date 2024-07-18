@@ -196,7 +196,23 @@ class ShowPalletDelivery extends RetinaAction
                                 ]
                             ]
                         ],
-                    ] : []
+                    ] : [
+                        [
+                            'type'   => 'button',
+                            'style'  => 'tertiary',
+                            'label'  => 'PDF',
+                            'target' => '_blank',
+                            'icon'   => 'fal fa-file-pdf',
+                            'key'    => 'action',
+                            'route'  => [
+                                'name'       => 'retina.models.pallet-delivery.pdf',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ],
+                                'method'     => 'post'
+                            ]
+                        ]
+                    ]
                 ],
 
                 'box_stats'        => [

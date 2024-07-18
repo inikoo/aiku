@@ -17,6 +17,7 @@ import { routeType } from "@/types/route"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import RetinaBoxNote from "@/Components/Retina/Storage/RetinaBoxNote.vue"
+import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 
 
 const props = defineProps<{
@@ -71,7 +72,7 @@ const disableBeforeToday = (date: Date) => {
 </script>
 
 <template>
-    <div class="h-min grid md:grid-cols-4 border-b border-gray-200 divide-y md:divide-y-0 divide-x md:divide-x-0 divide-gray-300">
+    <div class="h-min grid md:grid-cols-4 border-b border-gray-200 divide-y md:divide-y-0 divide-x divide-gray-200">
         <!-- Box: Status -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
@@ -146,6 +147,20 @@ const disableBeforeToday = (date: Date) => {
                 </dt>
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data_pallet.number_pallets }}</dd>
             </div> -->
+        </BoxStatPallet>
+
+        <!-- Box: Order summary -->
+        <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
+            <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
+                <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2>
+
+                <OrderSummary :order_summary="box_stats.order_summary" />
+
+                <!-- <div class="mt-6">
+                    <button type="submit"
+                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
+                </div> -->
+            </section>
         </BoxStatPallet>
     </div>
 </template>
