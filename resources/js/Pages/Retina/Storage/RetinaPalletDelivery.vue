@@ -29,12 +29,12 @@ import RetinaBoxStatsPD from "@/Components/Retina/Storage/RetinaBoxStatsPD.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil } from '@fal'
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil } from '@fal'
 import { Action } from '@/types/Action'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
 
 const props = defineProps<{
     title: string

@@ -58,7 +58,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::patch('update-timeline', [UpdatePalletDeliveryTimeline::class, 'fromRetina'])->name('timeline.update');
     Route::post('transaction', [StoreFulfilmentTransaction::class,'fromRetinaInPalletDelivery'])->name('transaction.store');
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
-    Route::post('pdf', PdfPalletDelivery::class)->name('pdf');
+    Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
