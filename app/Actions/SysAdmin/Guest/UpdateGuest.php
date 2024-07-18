@@ -11,6 +11,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -56,7 +57,7 @@ class UpdateGuest
         $phoneValidation = ['sometimes', 'nullable'];
 
         if ($this->validatePhone) {
-            $phoneValidation[] = 'phone:AUTO';
+            $phoneValidation[] = new Phone();
         }
 
 

@@ -18,6 +18,7 @@ use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -94,7 +95,7 @@ class StoreSupplier extends GrpAction
             'contact_name' => ['nullable', 'string', 'max:255'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'email'        => ['nullable', 'email'],
-            'phone'        => ['nullable', 'phone:AUTO'],
+            'phone'        => ['nullable', new Phone()],
             'address'      => ['required', new ValidAddress()],
             'currency_id'  => ['required', 'exists:currencies,id'],
             'source_id'    => ['sometimes', 'nullable', 'string'],
