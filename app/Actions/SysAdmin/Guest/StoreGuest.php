@@ -21,6 +21,7 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Rules\AlphaDashDot;
+use App\Rules\Phone;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
@@ -154,7 +155,7 @@ class StoreGuest
         $phoneValidation = ['sometimes', 'nullable'];
 
         if ($this->validatePhone) {
-            $phoneValidation[] = 'phone:AUTO';
+            $phoneValidation[] = new Phone();
         }
 
 

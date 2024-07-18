@@ -10,6 +10,7 @@ use App\Actions\CRM\WebUser\Retina\Login;
 use App\Actions\CRM\WebUser\Retina\Logout;
 use App\Actions\CRM\WebUser\Retina\Register;
 use App\Actions\CRM\WebUser\Retina\UI\ShowLogin;
+use App\Actions\CRM\WebUser\Retina\UI\ShowPrepareAccount;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowResetWebUserPassword;
 use App\Actions\CRM\WebUser\Retina\UpdateWebUserPassword;
@@ -27,7 +28,6 @@ Route::middleware('guest:retina')->group(function () {
     Route::get('email-reset-password', ShowPasswordResetLink::class)->name('email.reset-password.edit');
     Route::get('reset-password', ShowResetWebUserPassword::class)->name('email.reset-password.show');
     Route::post('reset/password/link', PasswordResetLink::class)->name('password.email');
-
     Route::patch('reset/password/email', UpdateWebUserPasswordViaEmail::class)->name('reset-password.email.update');
 });
 
@@ -36,4 +36,5 @@ Route::middleware('retina-auth:retina')->group(function () {
     Route::get('reset/password', ShowResetWebUserPassword::class)->name('reset-password.edit');
     Route::patch('reset/password', UpdateWebUserPassword::class)->name('reset-password.update');
 
+    Route::get('prepare-account', ShowPrepareAccount::class)->name('prepare-account.show');
 });

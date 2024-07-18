@@ -8,6 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { data as headerData, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
 import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
 import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
+import { usePage } from '@inertiajs/vue3'
+import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
+
 
 const props = defineProps<{
    header : any
@@ -25,6 +28,7 @@ const keyTemplate = uuidv4()
 
 <template>
     <div class="relative">
+        <ScreenWarning v-if="usePage().props?.environment === 'staging'" />
         <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- <IrisHeader :data="header" /> -->
             <IrisHeader :data="header" :colorThemed="colorThemed"/>

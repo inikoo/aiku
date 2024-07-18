@@ -15,6 +15,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -96,7 +97,7 @@ class StoreAgent extends GrpAction
             ],
             'name'        => ['nullable', 'string', 'max:255'],
             'email'       => ['nullable', 'email'],
-            'phone'       => ['nullable', 'phone:AUTO'],
+            'phone'       => ['nullable', new Phone()],
             'address'     => ['required', new ValidAddress()],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],

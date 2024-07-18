@@ -19,8 +19,9 @@ class HandleAikuPublicInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $firstLoadOnlyProps = [
-            'grpDomain'  => (app()->environment('local') ? 'http' : 'https').'://app.'.config('app.domain'),
-            'navigation' => [
+            'grpDomain'   => (app()->environment('local') ? 'http' : 'https').'://app.'.config('app.domain'),
+            'environment' => app()->environment(),
+            'navigation'  => [
                 [
                     'title' => 'Home',
                     'link'  => route('aiku-public.features')

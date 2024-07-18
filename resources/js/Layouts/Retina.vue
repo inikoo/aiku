@@ -19,10 +19,12 @@ import Notification from '@/Components/Utils/Notification.vue'
 import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage } from '@fal'
 import { faSearch, faBell } from '@far'
 import { ref, provide } from 'vue'
+import { useLocaleStore } from "@/Stores/locale"
 
 // console.log('sss', useLayoutStore().app.theme)
 
 provide('layout', useLayoutStore())
+provide('locale', useLocaleStore())
 
 library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faSearch, faBell )
 
@@ -30,11 +32,13 @@ initialiseRetinaApp()
 
 const layout = useLayoutStore()
 const sidebarOpen = ref(false)
+console.log('environment:', usePage().props?.environment)
 
 </script>
 
 <template>
     <div class="fixed inset-0 bg-slate-100" />
+    <ScreenWarning v-if="usePage().props?.environment === 'staging'" />
 
     <div class="isolate relative min-h-full transition-all"
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">

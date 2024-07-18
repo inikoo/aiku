@@ -19,6 +19,7 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,8 +38,8 @@ class UpdateCustomer extends OrgAction
             Arr::forget($modelData, 'contact_address');
 
 
-            if(! blank($contactAddressData)) {
-                if($customer->address) {
+            if (!blank($contactAddressData)) {
+                if ($customer->address) {
                     UpdateAddress::run($customer->address, $contactAddressData);
                 } else {
                     $this->addAddressToModel(
@@ -55,13 +56,11 @@ class UpdateCustomer extends OrgAction
                     'location' => $customer->address->getLocation()
                 ]
             );
-
         }
         if (Arr::has($modelData, 'delivery_address')) {
             $deliveryAddressData = Arr::get($modelData, 'delivery_address');
             Arr::forget($modelData, 'delivery_address');
             UpdateAddress::run($customer->deliveryAddress, $deliveryAddressData);
-
         }
 
         if (Arr::has($modelData, 'tax_number')) {
@@ -84,10 +83,8 @@ class UpdateCustomer extends OrgAction
                 } else {
                     UpdateTaxNumber::run($customer->taxNumber, $taxNumberData);
                 }
-            } else {
-                if ($customer->taxNumber) {
-                    DeleteTaxNumber::run($customer->taxNumber);
-                }
+            } elseif ($customer->taxNumber) {
+                DeleteTaxNumber::run($customer->taxNumber);
             }
         }
 
@@ -147,7 +144,7 @@ class UpdateCustomer extends OrgAction
 
         if ($this->strict) {
             $strictRules = [
-                'phone'           => ['sometimes', 'nullable', 'phone:AUTO'],
+                'phone'           => ['sometimes', 'nullable', new Phone()],
                 'contact_website' => ['sometimes', 'nullable', 'active_url'],
                 'email'           => [
                     'sometimes',

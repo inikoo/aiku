@@ -196,7 +196,22 @@ class ShowPalletDelivery extends RetinaAction
                                 ]
                             ]
                         ],
-                    ] : []
+                    ] : [
+                        [
+                            'type'   => 'button',
+                            'style'  => 'tertiary',
+                            'label'  => 'PDF',
+                            'target' => '_blank',
+                            'icon'   => 'fal fa-file-pdf',
+                            'key'    => 'action',
+                            'route'  => [
+                                'name'       => 'retina.models.pallet-delivery.pdf',
+                                'parameters' => [
+                                    'palletDelivery' => $palletDelivery->id
+                                ],
+                            ]
+                        ]
+                    ]
                 ],
 
                 'box_stats'        => [
@@ -340,25 +355,18 @@ class ShowPalletDelivery extends RetinaAction
                 ],
                 'notes_data'             => [
                     [
-                        'label'           => __('Customer'),
+                        'label'           => __("Delivery' note"),
                         'note'            => $palletDelivery->customer_notes ?? '',
-                        'editable'        => false,
-                        'bgColor'         => 'blue',
+                        'editable'        => true,
+                        // 'bgColor'         => 'blue',
                         'field'           => 'customer_notes'
                     ],
                     [
-                        'label'           => __('Public'),
+                        'label'           => __('Note from warehouse'),
                         'note'            => $palletDelivery->public_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'pink',
+                        'editable'        => false,
+                        // 'bgColor'         => 'pink',
                         'field'           => 'public_notes'
-                    ],
-                    [
-                        'label'           => __('Private'),
-                        'note'            => $palletDelivery->internal_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'purple',
-                        'field'           => 'internal_notes'
                     ],
                 ],
 

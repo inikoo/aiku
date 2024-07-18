@@ -20,6 +20,7 @@ use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -128,7 +129,7 @@ class UpdateProspect extends OrgAction
                 'phone'           => [
                     'sometimes',
                     'nullable',
-                    // 'phone:AUTO',
+                    new Phone(),
                     new IUnique(
                         table: 'prospects',
                         extraConditions: [

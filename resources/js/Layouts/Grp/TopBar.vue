@@ -14,6 +14,7 @@ import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
+import { usePage } from "@inertiajs/vue3"
 import { faChevronDown } from "@far"
 import {
     faTerminal,
@@ -65,6 +66,7 @@ import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
 import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { faBallot } from "@fas"
+import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,faStream,
@@ -95,12 +97,14 @@ const label = {
     warehouseSelect: trans("Select warehouses"),
     fulfilmentSelect: trans("Select fulfilments")
 }
-
+console.log('environment:', usePage().props.environment)
 
 </script>
 
 <template>
     <Disclosure as="nav" class="fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
+        <ScreenWarning v-if="usePage().props?.environment === 'staging'" class="relative top-0" />
+
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
                 <div class="flex">

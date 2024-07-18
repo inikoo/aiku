@@ -8,6 +8,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiBindGroupInstance;
+use App\Http\Middleware\RetinaPreparingAccount;
 use App\Http\Middleware\SetHanAsAppScope;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
@@ -140,7 +141,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             HandleRetinaInertiaRequests::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            AddLinkHeadersForPreloadedAssets::class
         ],
 
 
@@ -169,22 +170,23 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'auth'              => Authenticate::class,
-        'retina-auth'       => RetinaAuthenticate::class,
-        'auth.basic'        => AuthenticateWithBasicAuth::class,
-        'auth.session'      => AuthenticateSession::class,
-        'cache.headers'     => SetCacheHeaders::class,
-        'can'               => Authorize::class,
-        'guest'             => RedirectIfAuthenticated::class,
-        'password.confirm'  => RequirePassword::class,
-        'signed'            => ValidateSignature::class,
-        'throttle'          => ThrottleRequests::class,
-        'verified'          => EnsureEmailIsVerified::class,
-        'inertia'           => HandleInertiaGrpRequests::class,
-        'bind_group'        => ApiBindGroupInstance::class,
-        'grp-reset-pass'    => ResetUserPasswordMiddleware::class,
-        'retina-reset-pass' => ResetWebUserPasswordMiddleware::class,
-        'abilities'         => CheckAbilities::class,
-        'ability'           => CheckForAnyAbility::class,
+        'auth'                   => Authenticate::class,
+        'retina-auth'            => RetinaAuthenticate::class,
+        'auth.basic'             => AuthenticateWithBasicAuth::class,
+        'auth.session'           => AuthenticateSession::class,
+        'cache.headers'          => SetCacheHeaders::class,
+        'can'                    => Authorize::class,
+        'guest'                  => RedirectIfAuthenticated::class,
+        'password.confirm'       => RequirePassword::class,
+        'signed'                 => ValidateSignature::class,
+        'throttle'               => ThrottleRequests::class,
+        'verified'               => EnsureEmailIsVerified::class,
+        'inertia'                => HandleInertiaGrpRequests::class,
+        'bind_group'             => ApiBindGroupInstance::class,
+        'grp-reset-pass'         => ResetUserPasswordMiddleware::class,
+        'retina-reset-pass'      => ResetWebUserPasswordMiddleware::class,
+        'retina-prepare-account' => RetinaPreparingAccount::class,
+        'abilities'              => CheckAbilities::class,
+        'ability'                => CheckForAnyAbility::class,
     ];
 }

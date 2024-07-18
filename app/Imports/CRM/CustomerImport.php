@@ -11,6 +11,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Imports\WithImport;
 use App\Models\Catalogue\Shop;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Support\Arr;
@@ -96,7 +97,7 @@ class CustomerImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
             'contact_address'=> ['nullable', new ValidAddress()],
             'company'        => ['nullable', 'string', 'max:255'],
             'email'          => ['nullable', 'email', 'iunique:customers', 'iunique:users'],
-            'phone'          => ['nullable', 'phone:AUTO'],
+            'phone'          => ['nullable', new Phone()],
             'website'        => ['nullable'],
             'password'       => ['sometimes', 'string', 'min:8', 'max:64'],
             'reset_password' => ['sometimes', 'boolean'],
