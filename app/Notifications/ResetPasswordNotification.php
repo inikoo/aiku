@@ -23,6 +23,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     public function __construct(string $url)
     {
         $this->url = $url;
+        $this->queue= 'urgent';
     }
 
 
