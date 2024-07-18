@@ -6,13 +6,16 @@ use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\User;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Lang;
 
-class ResetPasswordNotification extends Notification
+class ResetPasswordNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
 
     public string $url;
 
@@ -38,11 +41,11 @@ class ResetPasswordNotification extends Notification
 
 
         $message= (new MailMessage())
-            ->subject(Lang::get(Arr::get($data, 'subject','Reset Password Notification')))
+            ->subject(Lang::get(Arr::get($data, 'subject', 'Reset Password Notification')))
             ->line(Lang::get(Arr::get($data, 'header', 'You are receiving this email because we received a password reset request for your account.')))
-            ->action(Lang::get(Arr::get($data, 'action','Reset Password')), $this->url)
-            ->line(Lang::get(Arr::get($data, 'footer','This password reset link will expire in :count minutes.'), ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')]))
-            ->line(Lang::get(Arr::get($data, 'notes','If you did not request a password reset, no further action is required.')));
+            ->action(Lang::get(Arr::get($data, 'action', 'Reset Password')), $this->url)
+            ->line(Lang::get(Arr::get($data, 'footer', 'This password reset link will expire in :count minutes.'), ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')]))
+            ->line(Lang::get(Arr::get($data, 'notes', 'If you did not request a password reset, no further action is required.')));
 
         if(app()->isProduction()) {
             if ($notifiable instanceof WebUser) {

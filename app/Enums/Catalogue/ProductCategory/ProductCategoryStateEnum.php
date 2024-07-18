@@ -78,9 +78,9 @@ enum ProductCategoryStateEnum: string
 
     public static function countDepartment(Shop|Organisation $parent): array
     {
-        if($parent instanceof Organisation){
+        if($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;
-        }else{
+        } else {
             $stats = $parent->stats;
         }
 
@@ -94,9 +94,9 @@ enum ProductCategoryStateEnum: string
 
     public static function countFamily(Shop|ProductCategory|Organisation $parent): array
     {
-        if($parent instanceof Organisation){
+        if($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;
-        }else{
+        } else {
             $stats = $parent->stats;
         }
 
