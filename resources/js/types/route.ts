@@ -1,5 +1,5 @@
 export interface routeType {
     name: string
     parameters?: string[]
-    method?: string
+    method?: 'get' | 'post' | 'patch' | 'delete'
 }

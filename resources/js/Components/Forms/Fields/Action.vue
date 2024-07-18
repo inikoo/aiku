@@ -51,9 +51,17 @@ const handleClick = (action: Action) => {
         <slot v-for="(button, index) in action.buttonGroup" :name="'button' + index">
             <Link
                 :href="button.route?.name ? route(button.route?.name, button.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'"
-                class="" :method="button.route?.method || 'get'" as="a" :target="button.target">
-                <Button :style="button.style" :label="button.label" :icon="button.icon" :iconRight="button.iconRight"
-                    :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
+                class=""
+                :method="button.route?.method || 'get'"
+                as="a"
+                :target="button.target"
+            >
+                <Button
+                    :style="button.style"
+                    :label="button.label"
+                    :icon="button.icon" :iconRight="button.iconRight"
+                    :key="`ActionButton${button.label}${button.style}`"
+                    :tooltip="button.tooltip"
                     class="rounded-none text-sm border-none focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
                 </Button>
             </Link>
@@ -69,9 +77,16 @@ const handleClick = (action: Action) => {
             :tooltip="action.tooltip" :loading="isLoading" />
         </a>
 
-        <Button v-else @click="handleClick(action)" :style="action.style" :label="action.label"
-            :icon="action.icon" :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
-            :tooltip="action.tooltip" :loading="isLoading" />
+        <Button v-else
+            @click="handleClick(action)"
+            :style="action.style"
+            :label="action.label"
+            :icon="action.icon"
+            :iconRight="action.iconRight"
+            :key="`ActionButton${action.label}${action.style}`"
+            :tooltip="action.tooltip"
+            :loading="isLoading"
+        />
     </template>
 
 </template>
