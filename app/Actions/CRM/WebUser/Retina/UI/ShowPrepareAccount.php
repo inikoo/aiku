@@ -19,7 +19,12 @@ class ShowPrepareAccount
 
     public function handle(ActionRequest $request): Response
     {
-        return Inertia::render('Auth/PreparingAccount');
+        return Inertia::render('Errors/ErrorInApp', [
+            'error' => [
+                'code'        => 403,
+                'title'       => 'We still prepare your account',
+                'description' => 'please come back shortly.'
+            ]
+        ]);
     }
-
 }

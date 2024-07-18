@@ -17,7 +17,7 @@ class RetinaPreparingAccount
      */
     public function handle(Request $request, Closure $next)
     {
-        if(! blank($request->user()->customer->fulfilmentCustomer->rentalAgreement)) {
+        if($request->user() && is_null($request->user()?->customer?->fulfilmentCustomer?->rentalAgreement)) {
             return redirect()->route('retina.prepare-account.show');
         }
 

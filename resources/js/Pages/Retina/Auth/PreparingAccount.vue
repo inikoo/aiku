@@ -8,7 +8,7 @@ import { faArrowLeft, faCheckCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
 import InputError from '@/Components/InputError.vue'
-library.add(faArrowLeft, faCheckCircle)
+defineOptions({ layout: null })
 </script>
 
 <template>
