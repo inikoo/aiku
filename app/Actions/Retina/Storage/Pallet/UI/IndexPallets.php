@@ -167,9 +167,10 @@ class IndexPallets extends RetinaAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('pallets'),
-                    'icon'    => ['fal', 'fa-pallet'],
-                    'actions' => [
+                    'model'       => __('storage'),
+                    'title'       => __('pallets'),
+                    'icon'        => ['fal', 'fa-pallet'],
+                    'actions'     => [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
