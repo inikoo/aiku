@@ -34,6 +34,7 @@ class HandleRetinaInertiaRequests extends Middleware
             $firstLoadOnlyProps['ziggy'] = function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
                     'location' => $request->url(),
+                    'environment' => app()->environment(),
                 ]);
             };
         }
