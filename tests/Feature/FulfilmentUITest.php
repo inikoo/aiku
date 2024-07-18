@@ -937,3 +937,20 @@ test('UI edit stored item', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Index Recurring Bills', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/RecurringBills')
+            ->has('title')
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'recurring bills')
+                        ->has('subNavigation')
+                        ->etc()
+            );
+    });
+});
