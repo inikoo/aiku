@@ -14,6 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\SupplyChain\Supplier;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -88,7 +89,7 @@ class UpdateSupplier extends GrpAction
             'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'        => ['sometimes', 'nullable', 'email'],
-            'phone'        => ['sometimes', 'nullable', 'phone:AUTO'],
+            'phone'        => ['sometimes', 'nullable', new Phone()],
             'address'      => ['sometimes', 'required', new ValidAddress()],
             'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
             'archived_at'  => ['sometimes', 'nullable', 'date'],

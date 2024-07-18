@@ -15,6 +15,7 @@ use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -67,7 +68,7 @@ class UpdateCustomerClient extends OrgAction
 
         if ($this->strict) {
             $strictRules = [
-                'phone' => ['sometimes', 'nullable', 'phone:AUTO'],
+                'phone' => ['sometimes', 'nullable', new Phone()],
                 'email' => [
                     'nullable',
                     'email',

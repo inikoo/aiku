@@ -118,7 +118,7 @@ class IndexPalletsInDelivery extends OrgAction
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if (!($palletDelivery instanceof PalletDelivery and $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS)) {
+            if (!($palletDelivery instanceof PalletDelivery and $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS || $palletDelivery->state == PalletDeliveryStateEnum::SUBMITTED)) {
                 $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             }
 
