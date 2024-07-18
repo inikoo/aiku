@@ -112,7 +112,7 @@ const isUndoLoading = ref(false)
         <!-- Column: Pallet Reference -->
 		<template #cell(customer_reference)="{ item }">
 			<div class="space-x-1 space-y-2">
-				<span v-if="item.customer_reference">{{ item.customer_reference }}</span>
+				<span v-if="item.customer_reference" class="font-semibold">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
 					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
@@ -121,6 +121,10 @@ const isUndoLoading = ref(false)
 			</div>
 		</template>
 
+        <template #cell(rental)="{ item }">
+                {{ item.rental_name }}
+            
+        </template>
 
         <!-- Column: State -->
 		<!-- <template #cell(state)="{ item: palletDelivery }">
