@@ -23,6 +23,7 @@ use App\Models\Helpers\Timezone;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
@@ -137,7 +138,7 @@ class StoreOrganisation
             'code'        => ['required', 'unique:organisations', 'max:12', 'alpha'],
             'name'        => ['required', 'max:255'],
             'email'       => ['required', 'nullable', 'email', 'unique:organisations'],
-            'phone'       => ['sometimes', 'nullable', 'phone:AUTO'],
+            'phone'       => ['sometimes', 'nullable', new Phone()],
             'currency_id' => ['required', 'exists:currencies,id'],
             'country_id'  => ['required', 'exists:countries,id'],
             'language_id' => ['required', 'exists:languages,id'],

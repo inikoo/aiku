@@ -17,6 +17,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SupplyChain\AgentResource;
 use App\Models\SupplyChain\Agent;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -94,7 +95,7 @@ class UpdateAgent extends GrpAction
             ],
             'name'        => ['sometimes', 'required', 'string', 'max:255'],
             'email'       => ['nullable', 'email'],
-            'phone'       => ['nullable', 'phone:AUTO'],
+            'phone'       => ['nullable', new Phone()],
             'address'     => ['sometimes', 'required', new ValidAddress()],
             'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
             'country_id'  => ['sometimes', 'required', 'exists:countries,id'],

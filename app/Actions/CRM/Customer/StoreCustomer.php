@@ -26,6 +26,7 @@ use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
@@ -199,7 +200,7 @@ class StoreCustomer extends OrgAction
 
         if ($this->strict) {
             $strictRules = [
-                'phone'           => ['nullable', 'phone:AUTO'],
+                'phone'           => ['nullable', new Phone()],
                 'contact_website' => ['nullable', 'active_url'],
                 'email'           => [
                     'nullable',
