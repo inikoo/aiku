@@ -238,7 +238,7 @@ onMounted(() => {
         <Button label="Put all rentals" type="secondary" @click="() => onPutAllRentals()" />
         
         <div class="flex" v-if="(bulkData.length > 0)">
-            <Popover width="w-full" class="relative h-full">
+            <Popover class="relative h-full">
                 <template #button>
                     <Button :key="bulkData.length" label="Set all discount (%)"
                         :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon='["far", "fa-pencil"]' class="mr-2" />

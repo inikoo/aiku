@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, useForm, usePage } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk, faChevronDown } from '@fas'
@@ -205,6 +205,15 @@ const onSelectSubmitChange = (value) => {
             <form
                 :class="['px-4 sm:px-6 md:px-10 gap-y-8 pb-8 divide-y divide-gray-200', formData.fullLayout ? 'col-span-12' : 'col-span-9']"
                 @submit.prevent="handleFormSubmit">
+
+                <Transition name="spin-to-down">
+                    <div v-if="usePage().props?.errors?.error_in_models" class="max-w-3xl mt-3 flex gap-x-1 items-center bg-red-500 w-full p-3 text-white rounded">
+                        <FontAwesomeIcon v-if="usePage().props?.errors?.error_in_models?.match(/^(\d{3}):\s(.+)$/)?.[1] === '403'" icon='far fa-ban' class='text-lg' fixed-width aria-hidden='true' />
+                        <div class="">{{ usePage().props.errors.error_in_models }}</div>
+                    </div>
+                </Transition>
+
+
                 <template v-for="(sectionData, sectionIdx ) in formData['blueprint']" :key="sectionIdx">
                     <!-- If Section: all fields is not hidden -->
                     <div v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))"
@@ -225,35 +234,32 @@ const onSelectSubmitChange = (value) => {
                         <div class="mt-2 pt-4 sm:pt-5">
                             <template v-for="(fieldData, fieldName, index ) in sectionData.fields" :key="index">
                                 <!-- If Field is not hidden = true -->
-                                <div v-if="!fieldData.hidden" class="mt-1 ">
-                                    <dl class="divide-y divide-green-200  ">
-                                        <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4"
-                                            :class="fieldData.full ? '' : 'max-w-2xl'">
-                                            <!-- Title of Field -->
-                                            <dt class="text-sm font-medium text-gray-500 capitalize">
-                                                <div class="inline-flex items-start leading-none">
-                                                    <!-- Icon: Required -->
-                                                    <FontAwesomeIcon v-if="fieldData.required"
-                                                        :icon="['fas', 'asterisk']"
-                                                        class="font-light text-[12px] text-red-400 mr-1" />
-                                                    <span>{{ fieldData.label }}</span>
-                                                </div>
-                                            </dt>
-                                            <!-- Field (Full: to full the component field i.e create Prospects Mailshot) -->
-                                            <dd :class="fieldData.full ? 'sm:col-span-3' : 'sm:col-span-2'">
-                                                <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
-                                                    <div class="relative flex-grow">
-                                                        <!-- Dynamic component -->
-                                                        <component :is="getComponent(fieldData['type'])" :form="form"
-                                                            :fieldName="fieldName" :options="fieldData['options']"
-                                                            :fieldData="fieldData" :key="index">
-                                                        </component>
-                                                    </div>
-                                                </div>
-                                            </dd>
+                                <dl v-if="!fieldData.hidden" class="mt-1 pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4"
+                                    :class="fieldData.full ? '' : 'max-w-3xl'">
+                                    <!-- Title of Field -->
+                                    <dt class="text-sm font-medium text-gray-500 capitalize">
+                                        <div class="inline-flex items-start leading-none">
+                                            <!-- Icon: Required -->
+                                            <FontAwesomeIcon v-if="fieldData.required"
+                                                :icon="['fas', 'asterisk']"
+                                                class="font-light text-[12px] text-red-400 mr-1" />
+                                            <span>{{ fieldData.label }}</span>
                                         </div>
-                                    </dl>
-                                </div>
+                                    </dt>
+                                    
+                                    <!-- Field (Full: to full the component field i.e create Prospects Mailshot) -->
+                                    <dd :class="fieldData.full ? 'sm:col-span-3' : 'sm:col-span-2'">
+                                        <div class="mt-1 flex text-sm text-gray-700 sm:mt-0">
+                                            <div class="relative flex-grow">
+                                                <!-- Dynamic component -->
+                                                <component :is="getComponent(fieldData['type'])" :form="form"
+                                                    :fieldName="fieldName" :options="fieldData['options']"
+                                                    :fieldData="fieldData" :key="index">
+                                                </component>
+                                            </div>
+                                        </div>
+                                    </dd>
+                                </dl>
                             </template>
                         </div>
                     </div>

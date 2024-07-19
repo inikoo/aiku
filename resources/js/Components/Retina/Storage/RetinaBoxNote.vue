@@ -36,6 +36,7 @@ const onSubmitNote = async () => {
         })
         props.noteData.note = noteModalValue.value
     } catch (error) {
+        console.log(error)
         notify({
 			title: "Failed",
 			text: "Failed to update the note, try again.",
@@ -84,10 +85,10 @@ const onSubmitNote = async () => {
         <p @dblclick="noteData.editable ? isModalOpen = true : false"
             v-tooltip="noteData.editable ? trans('Double click to edit') : false"
             class="text-justify mx-auto items-center px-3 rounded py-2 ring-1 ring-gray-300 text-xxs break-words"
-            :class="noteData.editable ? 'cursor-pointer hover:bg-gray-50' : 'bg-gray-100 text-gray-500'"
+            :class="noteData.editable ? 'cursor-pointer hover:bg-gray-50' : 'bg-gray-50 text-gray-500'"
         >
             <template v-if="noteData.note">{{ useTruncate(noteData.note, 200) }}</template>
-            <span v-else class="italic select-none"
+            <span v-else class="italic select-none text-gray-400"
             >
                 {{ trans('No note added') }}
             </span>

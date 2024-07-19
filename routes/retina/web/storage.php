@@ -7,11 +7,7 @@
 
 
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
-use App\Actions\Fulfilment\PalletDelivery\UI\IndexUnselectedPhysicalGoodsPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\UI\IndexUnselectedServicePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
-use App\Actions\Fulfilment\PalletReturn\UI\IndexUnselectedPhysicalGoodsPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\UI\IndexUnselectedServicePalletReturn;
 use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
@@ -49,9 +45,3 @@ Route::prefix('stored-item-returns')->as('stored-item-returns.')->group(function
     Route::get('{storedItemReturn}', ShowStoredItemReturn::class)->name('show');
     Route::post('{storedItemReturn}/stored-item', [StoreStoredItemToStoredItemReturn::class, 'fromRetina'])->name('stored-item.store');
 });
-
-Route::get('pallet-delivery/{palletDelivery}/services', [IndexUnselectedServicePalletDelivery::class, 'fromRetina'])->name('delivery.services.index');
-Route::get('pallet-delivery/{palletDelivery}/physical-goods', [IndexUnselectedPhysicalGoodsPalletDelivery::class, 'fromRetina'])->name('delivery.outers.index');
-
-Route::get('pallet-return/{palletReturn}/services', [IndexUnselectedServicePalletReturn::class, 'fromRetina'])->name('return.services.index');
-Route::get('pallet-return/{palletReturn}/physical-goods', [IndexUnselectedPhysicalGoodsPalletReturn::class, 'fromRetina'])->name('return.outers.index');
