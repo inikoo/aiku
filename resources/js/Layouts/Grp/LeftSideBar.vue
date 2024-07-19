@@ -59,12 +59,15 @@ const onLogoutAuth = () => {
 </script>
 
 <template>
-    <div class="mt-11 pb-32 lg:pb-40 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 h-full transition-all duration-200 ease-in-out"
+    <div class="pb-32 lg:pb-40 fixed md:flex md:flex-col md:inset-y-0 h-full transition-all duration-300 ease-in-out"
         :style="{
             'background-color': layout.app.theme[0],
             'color': layout.app.theme[2]
         }"
-        :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-12']"
+        :class="[
+            layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-12',
+            layout.app.environment === 'staging' ? 'mt-11 lg:mt-16' : 'mt-11 lg:mt-10'
+        ]"
         id="leftSidebar"
     >
         <!-- Toggle: collapse-expand LeftSideBar -->

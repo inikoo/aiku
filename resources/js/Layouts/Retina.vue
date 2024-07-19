@@ -34,6 +34,8 @@ const layout = useLayoutStore()
 const sidebarOpen = ref(false)
 console.log('environment:', layout.app.environment)
 
+const isStaging = layout.app.environment
+
 </script>
 
 <template>
@@ -55,8 +57,11 @@ console.log('environment:', layout.app.environment)
         </div>
 
         <!-- Main Content -->
-        <main class="h-screen pb-10 pt-14 md:pt-[52px] transition-all pl-2 md:pl-0 pr-2 "
-            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16']"
+        <main class="h-screen pb-10 transition-all pl-2 md:pl-0 pr-2 "
+            :class="[
+                layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-16',
+                isStaging ? 'pt-14 md:pt-[59px]' : ' pt-14 md:pt-[52px]',
+            ]"
         >
             <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col pb-6 text-gray-700">
                 <!-- Section: Breadcrumbs -->

@@ -50,8 +50,11 @@ const sidebarOpen = ref(false)
             :logoRoute="`grp.dashboard.show`" urlPrefix="grp." />
 
         <!-- Section: Breadcrumbs -->
-        <Breadcrumbs class="bg-white fixed top-11 lg:top-10 z-[19] w-full transition-all duration-200 ease-in-out"
-            :class="[layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12']"
+        <Breadcrumbs class="bg-white fixed z-[19] w-full transition-all duration-200 ease-in-out"
+            :class="[
+                layout.leftSidebar.show ? 'left-0 md:left-48' : 'left-0 md:left-12',
+                layout.app.environment === 'staging' ? 'top-11 lg:top-16' : 'top-11 lg:top-10'
+            ]"
             :breadcrumbs="usePage().props.breadcrumbs ?? []" :navigation="usePage().props.navigation ?? []"
             :layout="layout"    
         />
@@ -61,14 +64,17 @@ const sidebarOpen = ref(false)
             <!-- Mobile Helper: background to close hamburger -->
             <div class="bg-gray-200/80 fixed top-0 w-screen h-screen z-10 md:hidden" v-if="sidebarOpen"
                 @click="sidebarOpen = !sidebarOpen" />
-            <LeftSideBar class="-left-2/3 transition-all duration-300 ease-in-out z-20 block md:left-[0]"
-                :class="{ 'left-[0]': sidebarOpen }" @click="sidebarOpen = !sidebarOpen" />
+            <LeftSideBar class="-left-2/3 z-20 block md:left-[0]"
+                :class="[{ 'left-[0]': sidebarOpen }]" @click="sidebarOpen = !sidebarOpen" />
         </div>
 
         <!-- Main Content -->
         <main
             class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
-            :class="[layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-12']">
+            :class="[
+                layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-12',
+                layout.app.environment === 'staging' ? 'mt-6' : ''
+            ]">
             <slot />
         </main>
 

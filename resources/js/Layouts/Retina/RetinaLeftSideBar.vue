@@ -21,14 +21,22 @@ const handleToggleLeftBar = () => {
     localStorage.setItem('leftSideBar', (!layout.leftSidebar.show).toString())
     layout.leftSidebar.show = !layout.leftSidebar.show
 }
+
+const isStaging = layout.app.environment
 </script>
 
 <template>
-    <div class="mt-9 pb-20 px-2 pt-3 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 h-full transition-all"
+    <div class="pb-20 px-2 pt-3 fixed md:flex md:flex-col md:inset-y-0 h-full transition-all"
         :style="{
             'background-color': layout.app.theme[0] + '00',
             'color': layout.app.theme[1]
-        }" :class="[layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-16']" id="leftSidebar">
+        }"
+        :class="[
+            layout.leftSidebar.show ? 'w-8/12 md:w-48' : 'w-8/12 md:w-16',
+            isStaging ? 'mt-9 lg:mt-12' : 'mt-9 lg:mt-10'
+        ]"
+        id="leftSidebar"
+    >
             <!-- Toggle: collapse-expand LeftSideBar -->
             <div @click="handleToggleLeftBar"
                 class="hidden absolute z-10 right-0 top-2/4 -translate-y-full translate-x-1/4 w-5 aspect-square border border-gray-300 rounded-full md:flex md:justify-center md:items-center cursor-pointer"
