@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -37,6 +38,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
@@ -200,6 +202,18 @@ beforeEach(function () {
         );
     }
     $this->rentalAgreement = $rentalAgreement;
+
+    $recurringBill = RecurringBill::first();
+    if (!$recurringBill) {
+        data_set($storeData, 'start_date', now());
+
+        $recurringBill = StoreRecurringBill::make()->action(
+            $this->rentalAgreement,
+            $storeData
+        );
+    }
+
+    $this->recurringBill = $recurringBill;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -970,5 +984,28 @@ test('UI Index Recurring Bills', function () {
                         ->has('subNavigation')
                         ->etc()
             );
+    });
+});
+
+test('UI show Recurring Bill', function () {
+        $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.show', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/RecurringBill')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->recurringBill->slug)
+                        ->etc()
+            )
+            ->has('timeline_rb')
+            ->has('consolidateRoute')
+            ->has('status_rb')
+            ->has('box_stats')
+            ->has('tabs');
+
     });
 });
