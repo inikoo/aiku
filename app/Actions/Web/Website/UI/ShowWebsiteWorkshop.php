@@ -111,9 +111,9 @@ class ShowWebsiteWorkshop extends OrgAction
 
                 WebsiteWorkshopTabsEnum::PRODUCT->value => $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
                     ?
-                    fn () => GetWebsiteWorkshopProduct::run($website,$product)
+                    fn () => GetWebsiteWorkshopProduct::run($website, $product)
                     : Inertia::lazy(
-                        fn () => GetWebsiteWorkshopProduct::run($website,$product)
+                        fn () => GetWebsiteWorkshopProduct::run($website, $product)
                     ),
 
             ]
