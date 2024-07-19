@@ -16,6 +16,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue"
 import OperationsInvoiceShowcase from "@/Components/Showcases/Grp/Fulfilment/OperationsInvoiceShowcase.vue"
+import Button from '@/Components/Elements/Buttons/Button.vue'
 // import TableOperationsInvoiceItems from "@/Components/Tables/TableOperationsInvoiceItems.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { capitalize } from "@/Composables/capitalize"
@@ -29,8 +30,8 @@ import { FieldOrderSummary } from '@/types/Pallet'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign } from '@fal'
-import { faClock, faFileInvoice } from '@fas'
-library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign)
+import { faClock, faFileInvoice, faFilePdf } from '@fas'
+library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -114,15 +115,13 @@ console.log('pp', props)
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #other >
-            <Link v-if="showcase.exportPdfRoute.name" :href="route(showcase.exportPdfRoute.name, showcase.exportPdfRoute.parameters)"
-                class="active:ring-2 active:ring-gray-500"
-            >
-                <img src="@/../art/app/pdf.svg" class="h-7 rounded-md cursor-pointer" />
-            </Link>
+        
+            <a v-if="showcase.exportPdfRoute.name" :href="route(showcase.exportPdfRoute.name, showcase.exportPdfRoute.parameters)" target="_blank" class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
+                    <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
+                </a>
         
         </template>
     </PageHeading>
-    
     
     <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <!-- Box: Customer -->
