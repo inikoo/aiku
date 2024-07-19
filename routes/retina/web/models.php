@@ -24,6 +24,7 @@ use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
@@ -41,6 +42,7 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('pallet', [StorePalletToReturn::class, 'fromRetina'])->name('pallet.store');
+    Route::patch('update', [UpdatePalletReturn::class, 'fromRetina'])->name('update');
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');
     Route::post('cancel', [CancelPalletReturn::class, 'fromRetina'])->name('cancel');
     Route::delete('pallet/{pallet:id}', [DeletePalletFromReturn::class, 'fromRetina'])->name('pallet.delete')->withoutScopedBindings();

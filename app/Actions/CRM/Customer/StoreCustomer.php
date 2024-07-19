@@ -97,7 +97,8 @@ class StoreCustomer extends OrgAction
         $customer = $this->addAddressToModel(
             model: $customer,
             addressData: $contactAddressData,
-            scope: 'contact'
+            scope: 'billing',
+            canShip: true
         );
         $customer->refresh();
 

@@ -57,6 +57,9 @@ class ShowWebsiteWorkshop extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
+
+        $product = $website->shop->products()->first();
+
         return Inertia::render(
             'Org/Web/Workshop/WebsiteWorkshop',
             [
@@ -108,9 +111,9 @@ class ShowWebsiteWorkshop extends OrgAction
 
                 WebsiteWorkshopTabsEnum::PRODUCT->value => $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
                     ?
-                    fn () => GetWebsiteWorkshopProduct::run($website)
+                    fn () => GetWebsiteWorkshopProduct::run($website,$product)
                     : Inertia::lazy(
-                        fn () => GetWebsiteWorkshopProduct::run($website)
+                        fn () => GetWebsiteWorkshopProduct::run($website,$product)
                     ),
 
             ]

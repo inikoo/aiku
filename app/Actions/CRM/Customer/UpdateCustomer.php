@@ -45,8 +45,9 @@ class UpdateCustomer extends OrgAction
                     $this->addAddressToModel(
                         model: $customer,
                         addressData: $contactAddressData,
-                        scope: 'contact',
-                        updateLocation: false
+                        scope: 'billing',
+                        updateLocation: false,
+                        canShip: true
                     );
                 }
             }

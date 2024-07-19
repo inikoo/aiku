@@ -47,8 +47,9 @@ class UpdateFulfilmentCustomer extends OrgAction
                 $this->addAddressToModel(
                     model: $fulfilmentCustomer->customer,
                     addressData: $contactAddressData,
-                    scope: 'contact',
-                    updateLocation: false
+                    scope: 'billing',
+                    updateLocation: false,
+                    canShip: true
                 );
             }
         }
