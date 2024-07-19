@@ -10,6 +10,12 @@ import DataSet from '@/Components/Websites/Product/DataSet/Product.js'
 
 library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
 
+const props = defineProps<{
+    product : any
+}>()
+
+console.log(props)
+
 const selectedProduct = ref(0)
 const emits = defineEmits(['update:modelValue', 'autoSave'])
 
@@ -33,6 +39,7 @@ const option = [
 </script>
 
 <template>
+    <pre>{{ props }}</pre>
     <div class="p-5 mx-auto max-w-5xl m-4">
         <div class="grid grid-cols-2 gap-2">
             <div>
