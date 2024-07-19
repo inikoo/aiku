@@ -139,7 +139,7 @@ class IndexPalletsInReturn extends OrgAction
             if(!$request->user() instanceof WebUser) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
-           
+
 
 
             $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);

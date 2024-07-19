@@ -42,7 +42,7 @@ class UpdatePallet extends OrgAction
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
         $originalType = $pallet->type;
-        $pallet = $this->update($pallet, $modelData, ['data']);
+        $pallet       = $this->update($pallet, $modelData, ['data']);
 
 
         if (Arr::hasAny($pallet->getChanges(), ['state'])) {

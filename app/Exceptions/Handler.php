@@ -63,28 +63,35 @@ class Handler extends ExceptionHandler
         $response = parent::render($request, $e);
 
         if (!app()->environment(['local', 'testing'])
-            && in_array($response->status(), [500, 503, 404, 403, 422])
+            && in_array($response->getStatusCode(), [500, 503, 404, 403, 422])
             && !(!$request->inertia() && $request->expectsJson())
         ) {
 
-            $errorData=match ($response->status()) {
+            if(str_starts_with($request->route()->getName(), 'grp.models')) {
+
+                return back()->withErrors([
+                    'error_in_models' => $response->getStatusCode().': '.$e->getMessage()
+                ]);
+            }
+
+            $errorData=match ($response->getStatusCode()) {
                 403 => [
-                    'status'      => $response->status(),
+                    'status'      => $response->getStatusCode(),
                     'title'       => __('Forbidden'),
                     'description' => __('Sorry, you are forbidden from accessing this page.')
                 ],
                 404 => [
-                    'status'      => $response->status(),
+                    'status'      => $response->getStatusCode(),
                     'title'       => __('Page Not Found'),
                     'description' => __('Sorry, the page you are looking for could not be found.')
                 ],
                 422 => [
-                    'status'      => $response->status(),
+                    'status'      => $response->getStatusCode(),
                     'title'       => __('Unprocessable request'),
                     'description' => __('Sorry, is impossible to process this page.')
                 ],
                 503 => [
-                    'status'      => $response->status(),
+                    'status'      => $response->getStatusCode(),
                     'title'       => __('Service Unavailable'),
                     'description' => __('Sorry, we are doing some maintenance. Please check back soon.')
                 ],
@@ -127,8 +134,8 @@ class Handler extends ExceptionHandler
                 $errorData
             )
                 ->toResponse($request)
-                ->setStatusCode($response->status());
-        } elseif ($response->status() === 419) {
+                ->setStatusCode($response->getStatusCode());
+        } elseif ($response->getStatusCode() === 419) {
             return back()->with([
                                     'message' => 'The page expired, please try again.',
                                 ]);
@@ -146,8 +153,6 @@ class Handler extends ExceptionHandler
                 'description' => __('This domain was not been configured yet.')
             ];
         }
-
-
 
         return [
             'status'      => 500,
@@ -167,6 +172,9 @@ class Handler extends ExceptionHandler
         $page='Errors/Error';
 
         if($app=='grp' or $app=='retina') {
+
+
+
             $page= Auth::check() ? 'Errors/ErrorInApp' : 'Errors/Error';
         }
 
