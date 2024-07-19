@@ -28,13 +28,14 @@ export const initialiseApp = () => {
         echoPersonal.subscribe(usePage().props.auth.user.id)
 
         router.on('navigate', (event) => {
+            console.log('layout env', layout.app.environment)
             layout.currentParams = route().v().params  // current params
             layout.currentRoute = route().current()  // current route
 
             const currentRouteSplit = layout.currentRoute.split('.')  // to handle grp with route grp.xxx.zzz with org with route grp.org.xxx.zzz
             layout.currentModule = currentRouteSplit[1] == 'org' ? layout.currentRoute.split('.')[2] : layout.currentRoute.split('.')[1]  // grp.org.xxx.yyy.zzz to xxx
 
-            if(layout.currentParams?.organisation) {
+            if (layout.currentParams?.organisation) {
                 // Set current shop, current warehouse, current fulfilment
                 layout.organisationsState = {
                     ...layout.organisationsState,
@@ -57,7 +58,7 @@ export const initialiseApp = () => {
                 }))
             }
 
-            if(layout.currentParams?.agent) {
+            if (layout.currentParams?.agent) {
                 // Set current shop, current warehouse, current fulfilment
                 layout.agentsState = {
                     ...layout.agentsState,
@@ -96,9 +97,9 @@ export const initialiseApp = () => {
             }
 
             // To avoid emit on logout
-            if(dataActiveUser.id){
+            if (dataActiveUser.id) {
                 // Set to self
-                useLiveUsers().liveUsers[usePage().props.auth.user.id ] = dataActiveUser
+                useLiveUsers().liveUsers[usePage().props.auth.user.id] = dataActiveUser
 
                 // Websockets: broadcast to others
                 window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
@@ -121,12 +122,12 @@ export const initialiseApp = () => {
 
 
         // Set App theme
-        if(usePage().props.layout?.app_theme) {
+        if (usePage().props.layout?.app_theme) {
             layout.app.theme = usePage().props.layout?.app_theme
         }
 
         // Set App Environment
-        if(usePage().props?.environment) {
+        if (usePage().props?.environment) {
             layout.app.environment = usePage().props?.environment
         }
 
@@ -145,7 +146,7 @@ export const initialiseApp = () => {
 
         // Set Navigation (for LeftSidebar)
         if (usePage().props.layout?.navigation) {
-            layout.navigation = usePage().props.layout.navigation ?? null;
+            layout.navigation = usePage().props.layout.navigation ?? null
         }
 
 

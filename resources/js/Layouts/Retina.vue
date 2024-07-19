@@ -34,7 +34,7 @@ const layout = useLayoutStore()
 const sidebarOpen = ref(false)
 console.log('environment:', layout.app.environment)
 
-const isStaging = layout.app.environment
+const isStaging = layout.app.environment === 'staging'
 
 </script>
 
