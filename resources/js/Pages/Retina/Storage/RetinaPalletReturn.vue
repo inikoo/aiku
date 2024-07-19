@@ -233,11 +233,19 @@ watch(
                                     caret
                                     required
                                     searchable
-                                    placeholder="Services"
-                                    :options="dataServiceList"
+                                    placeholder="Physical Goods"
+                                    :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
-                                />
+                                >
+                                    <template #label="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                    </template>
+                                </PureMultiselect>
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
                                 </p>
