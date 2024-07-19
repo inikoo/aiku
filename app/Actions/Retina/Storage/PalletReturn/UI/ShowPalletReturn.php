@@ -89,7 +89,7 @@ class ShowPalletReturn extends RetinaAction
                                     'icon'  => 'fal fa-plus',
                                     'label' => __('add service'),
                                     'route' => [
-                                        'name'       => 'retina.models.pallet-return.pallet.store',
+                                        'name'       => 'retina.models.pallet-return.transaction.store',
                                         'parameters' => [
                                             'palletReturn'       => $palletReturn->id
                                         ]
@@ -101,7 +101,7 @@ class ShowPalletReturn extends RetinaAction
                                     'icon'  => 'fal fa-plus',
                                     'label' => __('add physical good'),
                                     'route' => [
-                                        'name'       => 'retina.models.pallet-return.physical_good.store',
+                                        'name'       => 'retina.models.pallet-return.transaction.store',
                                         'parameters' => [
                                             'palletReturn'       => $palletReturn->id
                                         ]
@@ -143,17 +143,20 @@ class ShowPalletReturn extends RetinaAction
                 ],
 
                 'service_list_route'   => [
-                    'name'       => 'retina.storage.return.services.index',
+                    'name'       => 'retina.json.fulfilment.return.services.index',
                     'parameters' => [
-                        'palletReturn' => $palletReturn->slug,
+                        'fulfilment'     => $palletReturn->fulfilment->slug,
+                        'scope'          => $palletReturn->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'retina.storage.return.outers.index',
+                    'name'       => 'retina.json.fulfilment.return.physical-goods.index',
                     'parameters' => [
-                        'palletReturn' => $palletReturn->slug,
+                        'fulfilment'     => $palletReturn->fulfilment->slug,
+                        'scope'          => $palletReturn->slug
                     ]
                 ],
+
 
                 'updateRoute' => [
                     'route' => [
