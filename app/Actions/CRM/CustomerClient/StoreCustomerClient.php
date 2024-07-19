@@ -42,6 +42,8 @@ class StoreCustomerClient extends OrgAction
         $customerClient = $this->addAddressToModel(
             model: $customerClient,
             addressData: $address,
+            scope: 'delivery',
+            canShip: true
         );
 
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);

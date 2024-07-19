@@ -56,7 +56,7 @@ trait WithModelAddressActions
         }
     }
 
-    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id')
+    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id',bool $canShip=null)
     {
         if (!$addressData) {
             return $model;
@@ -69,12 +69,25 @@ trait WithModelAddressActions
         data_set($addressData, 'group_id', $groupId);
 
         $address = Address::create($addressData);
+
+
+        $pivotData = [
+            'scope'    => $scope,
+            'group_id' => $groupId
+        ];
+
+        if($canShip===null and $scope=='delivery') {
+            $canShip=$model->canShip($address);
+        }
+
+        if($canShip!==null) {
+            $pivotData['can_ship']=$canShip;
+        }
+
+
         $model->addresses()->attach(
             $address->id,
-            [
-                'scope'    => $scope,
-                'group_id' => $groupId
-            ]
+            $pivotData
         );
 
         AddressHydrateUsage::dispatch($address);

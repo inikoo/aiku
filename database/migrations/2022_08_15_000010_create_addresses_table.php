@@ -47,13 +47,15 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-
             $table->unsignedInteger('address_id')->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->string('model_type');
             $table->unsignedInteger('model_id');
             $table->string('scope')->nullable()->index();
             $table->string('sub_scope')->nullable()->index();
+            $table->string('label')->nullable();
+            $table->boolean('can_ship')->index()->nullable()->comment('e.g. for customer: delivery address');
+
             $table->boolean('is_historic')->index()->default(false);
             $table->dateTimeTz('valid_until')->nullable()->index();
             $table->timestampsTz();
