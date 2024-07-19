@@ -1,24 +1,61 @@
 <script setup lang='ts'>
 import { isToday } from 'date-fns'
+import Popover from '@/Components/Popover.vue'
+import { router } from '@inertiajs/vue3'
+import DatePicker from '@vuepic/vue-datepicker'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faArrowRight } from '@far'
-import { faExclamationTriangle } from '@fal'
+import { faExclamationTriangle, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useFormatTime } from '@/Composables/useFormatTime'
-library.add(faArrowRight, faExclamationTriangle)
+import { notify } from '@kyvg/vue3-notification'
+import { routeType } from '@/types/route'
+import { ref } from 'vue'
+library.add(faArrowRight, faExclamationTriangle, faPencil)
     
 const props = defineProps<{
     startDate: string
     endDate: string
+    updateRoute: routeType
 }>()
 
 const isEndDateToday = isToday(new Date(props.endDate))
+
+
+// Method: Set end date
+const disableBeforeToday = (date: Date) => {
+    const today = new Date()
+    // Set time to 00:00:00 for comparison purposes
+    today.setHours(0, 0, 0, 0)
+    return date < today
+}
+const isLoadingSetEstimatedDate = ref(false)
+const onChangeEstimateDate = async (close: Function) => {
+    router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
+    {
+        end_date : props.endDate
+    },
+    {
+        onStart: () => isLoadingSetEstimatedDate.value = true,
+        onError: () => {
+            notify({
+                title: "Failed",
+                text: "Failed to update the Delivery date, try again.",
+                type: "error",
+            })
+        },
+        onSuccess: () => close(),
+        onFinish: () => isLoadingSetEstimatedDate.value = false,
+    })
+}
 </script>
 
 <template>
-    <div class="relative grid lg:grid-cols-11 gap-y-1.5 p-4 xl:min-w-[400px] w-full">
-        <div class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-gray-300 flex flex-col">
-            <div class="text-xs text-gray-400">Start date</div>
+    <div class="relative grid lg:grid-cols-11 gap-y-1.5 xl:min-w-[400px] w-full text-gray-600">
+        <div class="bg-black/10 lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-gray-300 flex flex-col">
+            <div class="text-xs text-gray-500">Start date</div>
             <div class="font-medium">
                 {{ useFormatTime(startDate)}}
             </div>
@@ -30,15 +67,37 @@ const isEndDateToday = isToday(new Date(props.endDate))
 
         <div
             class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-gray-300 flex flex-col"
-            :class="[ isEndDateToday ? 'bg-red-100 text-gray-600' : 'text-gray-400']"
-            v-tooltip="isEndDateToday ? 'Today is the end date' : undefined"
+            :class="[ isEndDateToday ? 'bg-red-100 text-gray-500' : 'bg-black/10']"
+            
         >
             <div class="flex justify-between text-xs">
-                <div>End date</div>
-                <FontAwesomeIcon v-if="isEndDateToday" icon='fal fa-exclamation-triangle' class='text-base text-red-500' fixed-width aria-hidden='true' />
+                <div class="text-xs text-gray-500">End date</div>
+                <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? 'Today is the end date' : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' />
             </div>
-            <div class="font-medium text-gray-700">
-                {{ useFormatTime(endDate)}}
+            <div class="font-medium">
+                <Popover position="">
+                    <template #button>
+                        <div class="flex flex-nowrap items-center gap-x-1">
+                            <div>{{ useFormatTime(endDate)}}</div>
+                            <div class="px-1 flex items-center py-1 hover:text-gray-700">
+                                <FontAwesomeIcon icon='fal fa-pencil' class='text-xs' fixed-width aria-hidden='true' />
+                            </div>
+                        </div>
+                    </template>
+
+                    <template #content="{ close }">
+                        <DatePicker
+                            :modelValue="endDate"
+                            @update:modelValue="() => onChangeEstimateDate(close)"
+                            inline auto-apply
+                            :disabled-dates="disableBeforeToday"
+                            :enable-time-picker="false"
+                        />
+                        <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
+                            <LoadingIcon class="text-5xl" />
+                        </div>
+                    </template>
+                </Popover>
             </div>
         </div>
     </div>

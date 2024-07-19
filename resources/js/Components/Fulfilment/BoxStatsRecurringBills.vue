@@ -31,20 +31,17 @@ const props = defineProps<{
     <div class="h-min grid grid-cols-2 sm:grid-cols-4 border-t border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
         <BoxStatPallet class="py-1 sm:py-2 px-4" :label="'dataPalletDelivery.customer_name'" icon="fal fa-user">
-            <div class="">
-                Data customer
-            </div>
             
             <!-- Field: Reference -->
             <Link as="a" v-if="boxStats.customer.data.customer.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.customer.data.fulfilment.slug, boxStats.customer.data.slug])"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
-            <dt v-tooltip="'Company name'" class="flex-none">
-                <span class="sr-only">Reference</span>
-                <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
-                    aria-hidden='true' />
-            </dt>
-            <dd class="text-xs text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Reference</span>
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->

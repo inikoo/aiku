@@ -49,14 +49,14 @@ export const useDaysLeftFromToday = (isoDate?: string) => {
             targetDate = parseISO(isoDate)
         }
     } catch {
-        return trans('Invalid date')
+        return trans('invalid date')
     }
 
     const today = startOfDay(new Date())
     targetDate = startOfDay(targetDate)
 
     if (!isAfter(targetDate, today)) {
-        return trans('The date has passed.')
+        return trans('passed')
     }
 
     const daysLeft = differenceInDays(targetDate, today)

@@ -23,6 +23,13 @@ import { routeType } from '@/types/route'
 import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
 
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faWaveSine } from '@far'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
+library.add(faWaveSine)
+
+
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
@@ -31,6 +38,7 @@ const props = defineProps<{
     // pallets: {}
     transactions: {}
     status_rb: string
+    updateRoute: routeType
     timeline_rb: {
         start_date: string
         end_date: string
@@ -71,29 +79,36 @@ console.log(props)
 
     <div class="grid grid-cols-2">
         <div class="py-4 px-3">
-            <div class="flex flex-col md:flex-row justify-center md:justify-between md:items-center h-full w-full rounded-md px-4 py-2"
+            <div class="flex flex-col gap-y-6 h-full w-full rounded-md px-4 py-2"
                 :class="[status_rb === 'current' ? 'bg-green-100 ring-1 ring-green-500 text-green-700' : 'bg-gray-200 ring-1 ring-gray-500 text-gray-700']"
             >
-                <div class="flex flex-col justify-center ">
-                    <div class="text-xs">Status</div>
-                    <div class="font-semibold capitalize">{{ status_rb }}</div>
-                    <div v-if="status_rb === 'current'" class="text-xs italic text-green-700/70">
-                        End date is {{ useDaysLeftFromToday(timeline_rb.end_date) }}
+                <div class=" flex w-full justify-between items-center">
+                    <div class="flex flex-col justify-center ">
+                        <!-- <div class="text-xs">Status</div> -->
+                        <div class="font-semibold capitalize text-lg">
+                            {{ status_rb === 'current' ? trans('On going') : trans('Expired') }}
+                            <FontAwesomeIcon icon='far fa-wave-sine' class='' fixed-width aria-hidden='true' />
+                        </div>
+                        <div v-if="status_rb === 'current'" class="text-xs italic text-green-700/70">
+                            End date is {{ useDaysLeftFromToday(timeline_rb.end_date) }}
+                        </div>
                     </div>
+                    <component
+                        v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
+                        :is="consolidateRoute?.name ? Link : 'div'"
+                        :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
+                        :method="consolidateRoute?.method"
+                    >
+                        <Button label="Consolidate now" />
+                    </component>
                 </div>
-
-                <component
-                    v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
-                    :is="consolidateRoute?.name ? Link : 'div'"
-                    :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
-                    :method="consolidateRoute?.method"
-                >
-                    <Button label="Consolidate now" />
-                </component>
+                
+                <StartEndDate
+                    :startDate="timeline_rb.start_date"
+                    :endDate="timeline_rb.end_date"
+                    :updateRoute
+                />
             </div>
-        </div>
-        <div class="py-1 px-3">
-            <StartEndDate :startDate="timeline_rb.start_date" :endDate="timeline_rb.end_date" />
         </div>
     </div>
 
