@@ -43,14 +43,15 @@ const createPallet = async (option, select) => {
 			{ headers: { "Content-Type": "multipart/form-data" } }
 		)
 		props.form.errors = {}
+		console.log(response)
 		_selectQuery.value.page = 1
 		return response.data
 	} catch (error: any) {
 		console.log(error)
-		/* props.form.errors.id = error.response.data.message */
+		props.form.errors.id = error.response.data.message
 		notify({
 			title: "Failed to add new stored items",
-			text: error,
+			text: error.data.message ? error.data.message : 'failed to create stored item',
 			type: "error",
 		})
 		return false
