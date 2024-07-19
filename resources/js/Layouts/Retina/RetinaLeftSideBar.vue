@@ -22,7 +22,7 @@ const handleToggleLeftBar = () => {
     layout.leftSidebar.show = !layout.leftSidebar.show
 }
 
-const isStaging = layout.app.environment
+const isStaging = layout.app.environment === 'staging'
 </script>
 
 <template>
