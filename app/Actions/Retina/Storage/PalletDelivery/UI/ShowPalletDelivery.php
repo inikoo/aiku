@@ -356,7 +356,7 @@ class ShowPalletDelivery extends RetinaAction
                 ],
                 'notes_data'             => [
                     [
-                        'label'           => __("Delivery' note"),
+                        'label'           => __("Delivery's note"),
                         'note'            => $palletDelivery->customer_notes ?? '',
                         'editable'        => true,
                         // 'bgColor'         => 'blue',

@@ -34,41 +34,41 @@ const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
 
 // Method: On change estimated date
-const onChangeEstimateDate = async (close: Function) => {
-    try {
-        router.patch(
-            route(props.updateRoute.route.name, props.updateRoute.route.parameters),
-            {
-                estimated_delivery_date: props.data_pallet.estimated_delivery_date
-            },
-            {
-                onStart: () => isLoadingSetEstimatedDate.value = true,
-                onError: () => {
-                    notify({
-                        title: "Failed",
-                        text: "Failed to update the Delivery date, try again.",
-                        type: "error",
-                    })
-                },
-                onSuccess: () => close(),
-                onFinish: () => isLoadingSetEstimatedDate.value = false,
-            })
-    } catch (error) {
-        console.log(error)
-        notify({
-            title: "Failed",
-            text: "Failed to update the Delivery date, try again.",
-            type: "error",
-        })
-    }
-}
+// const onChangeEstimateDate = async (close: Function) => {
+//     try {
+//         router.patch(
+//             route(props.updateRoute.route.name, props.updateRoute.route.parameters),
+//             {
+//                 estimated_delivery_date: props.data_pallet.estimated_delivery_date
+//             },
+//             {
+//                 onStart: () => isLoadingSetEstimatedDate.value = true,
+//                 onError: () => {
+//                     notify({
+//                         title: "Failed",
+//                         text: "Failed to update the Delivery date, try again.",
+//                         type: "error",
+//                     })
+//                 },
+//                 onSuccess: () => close(),
+//                 onFinish: () => isLoadingSetEstimatedDate.value = false,
+//             })
+//     } catch (error) {
+//         console.log(error)
+//         notify({
+//             title: "Failed",
+//             text: "Failed to update the Delivery date, try again.",
+//             type: "error",
+//         })
+//     }
+// }
 
-const disableBeforeToday = (date: Date) => {
-    const today = new Date()
-    // Set time to 00:00:00 for comparison purposes
-    today.setHours(0, 0, 0, 0)
-    return date < today
-}
+// const disableBeforeToday = (date: Date) => {
+//     const today = new Date()
+//     // Set time to 00:00:00 for comparison purposes
+//     today.setHours(0, 0, 0, 0)
+//     return date < today
+// }
 </script>
 
 <template>
@@ -92,7 +92,7 @@ const disableBeforeToday = (date: Date) => {
                         fixed-width aria-hidden='true' />
                 </dt>
 
-                <Popover v-if="data_pallet.state === 'in-process'" position="">
+                <!-- <Popover v-if="data_pallet.state === 'in-process'" position="">
                     <template #button>
                         <div v-if="data_pallet.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"
@@ -121,12 +121,12 @@ const disableBeforeToday = (date: Date) => {
                 <div v-else>
                     <dd class="text-xs text-gray-500">{{ data_pallet.estimated_delivery_date ?
                         useFormatTime(data_pallet.estimated_delivery_date) : 'Not Set' }}</dd>
-                </div>
+                </div> -->
 
             </div>
         </BoxStatPallet>
 
-        <!-- Box: Pallet -->
+        <!-- Box: Notes -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
             :tooltip="trans('Notes')" :percentage="0">
             <div class="grid gap-y-3">

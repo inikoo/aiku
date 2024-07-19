@@ -25,10 +25,11 @@ import { Action } from '@/types/Action'
 
 
 import TablePalletReturnPallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
-import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
-import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
+// import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
+// import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue"
+import RetinaBoxStatsReturn from "@/Components/Retina/Storage/RetinaBoxStatsReturn.vue"
 
 import Popover from "@/Components/Popover.vue"
 import PureInput from "@/Components/Pure/PureInput.vue"
@@ -54,12 +55,19 @@ const props = defineProps<{
 	data?: {}
 	history?: {}
 	pageHead: PageHeadingTypes
-	updateRoute: routeType
+
+	updateRoute: {
+        route: routeType
+    }
 	uploadRoutes: routeType
+
     palletRoute : {
 		index : routeType,
 		store : routeType
 	}
+
+    box_stats: {}
+    notes_data: {}
 
 	pallets?: {}
     stored_items?: {}
@@ -69,6 +77,9 @@ const props = defineProps<{
     physical_goods?: {}
     physical_good_list_route: routeType
 }>()
+
+console.log('box stats', props.box_stats)
+console.log('notes data', props.notes_data)
 
 
 const currentTab = ref(props.tabs.current)
@@ -234,7 +245,7 @@ watch(
                                     required
                                     searchable
                                     placeholder="Physical Goods"
-                                    :options="dataPGoodList"
+                                    :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
                                 >
@@ -369,13 +380,15 @@ watch(
         />
     </div>
 
-    <!-- Todo -->
-    <!-- Box: Notes -->
-    <!-- <BoxStatPallet class="pb-2 pt-6 px-2" tooltip="Notes">
-        <div class="h-full w-full px-2 flex flex-col items-center">
-            <PureTextarea full :placeholder="trans('Enter notes for this pallet return')" />
-        </div>
-    </BoxStatPallet> -->
+<!-- {{ updateRoute }} -->
+
+    <!-- Box: Stats -->
+    <RetinaBoxStatsReturn
+        :data_pallet="data?.data"
+        :box_stats
+        :updateRoute
+        :notes_data
+    />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 

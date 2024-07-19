@@ -20,9 +20,10 @@ import { inject } from 'vue'
 
 import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH, faCog } from '@fal'
 import { faBrowser } from '@fal'
-import { Head } from '@inertiajs/vue3'
+import { faBan } from '@far'
+import { Head, usePage } from '@inertiajs/vue3'
 
-library.add(faBrowser, faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
+library.add(faBan, faBrowser, faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
 
 
 const props = defineProps<{
@@ -125,6 +126,12 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', updateViewportWidth)
 })
 
+// Error
+// const errorInModels = usePage().props?.errors?.error_in_models
+// const splitError = usePage().props?.errors?.error_in_models?.match(/^(\d{3}):\s(.+)$/)?.[1]
+// const statusError = splitError?.[1]
+// const messageError = splitError?.[2]
+
 </script>
 
 
@@ -169,8 +176,16 @@ onBeforeUnmount(() => {
                 </div>
             </aside>
 
-            <!-- Content of forms -->
+            <!-- Section: Fields Form -->
             <div :class="['px-4 sm:px-6 md:px-4', formData.fullLayout ? 'col-span-12' : 'col-span-9']">
+                <!-- Section: Error in models -->
+                <Transition name="spin-to-down">
+                    <div v-if="usePage().props?.errors?.error_in_models" class="mt-3 flex gap-x-1 items-center bg-red-500 w-full p-3 text-white rounded">
+                        <FontAwesomeIcon v-if="usePage().props?.errors?.error_in_models?.match(/^(\d{3}):\s(.+)$/)?.[1] === '403'" icon='far fa-ban' class='text-lg' fixed-width aria-hidden='true' />
+                        <div class="">{{ usePage().props.errors.error_in_models }}</div>
+                    </div>
+                </Transition>
+
                 <template v-for="(sectionData, sectionIdx ) in formData.blueprint" :key="sectionIdx">
                     <!-- If Section: all fields is not hidden -->
                     <template v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))">
