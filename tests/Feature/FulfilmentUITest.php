@@ -1009,3 +1009,21 @@ test('UI show Recurring Bill', function () {
 
     });
 });
+
+test('UI edit recurring bill', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 1)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.recurring-bill.update')
+                        ->where('parameters.recurringBill', $this->recurringBill->id) 
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
