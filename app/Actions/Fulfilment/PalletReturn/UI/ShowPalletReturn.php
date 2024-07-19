@@ -437,15 +437,17 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 'service_list_route'   => [
-                    'name'       => 'grp.json.fulfilment.services.index',
+                    'name'       => 'grp.json.fulfilment.return.services.index',
                     'parameters' => [
                         'fulfilment'     => $palletReturn->fulfilment->slug,
+                        'scope'          => $palletReturn->slug
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'grp.json.fulfilment.physical-goods.index',
+                    'name'       => 'grp.json.fulfilment.return.physical-goods.index',
                     'parameters' => [
                         'fulfilment'     => $palletReturn->fulfilment->slug,
+                        'scope'          => $palletReturn->slug
                     ]
                 ],
 

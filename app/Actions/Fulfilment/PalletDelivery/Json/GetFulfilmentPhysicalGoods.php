@@ -12,6 +12,8 @@ use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFulfilmentPhysicalGoods extends OrgAction
 {
-    public function handle(Fulfilment $parent): LengthAwarePaginator
+    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn $scope): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,6 +37,8 @@ class GetFulfilmentPhysicalGoods extends OrgAction
         $queryBuilder->where('products.shop_id', $parent->shop_id);
         $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+
+        $queryBuilder->whereNotIn('products.asset_id', $scope->products()->pluck('asset_id'));
 
 
 
@@ -74,11 +78,18 @@ class GetFulfilmentPhysicalGoods extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function inPalletDelivery(Fulfilment $fulfilment, PalletDelivery $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, $scope);
+    }
+
+    public function inPalletReturn(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $scope);
     }
 
     public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection

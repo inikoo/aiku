@@ -12,6 +12,8 @@ use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetFulfilmentServices extends OrgAction
 {
-    public function handle(Fulfilment $parent): LengthAwarePaginator
+    public function handle(Fulfilment $parent, PalletDelivery|PalletReturn $scope): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -39,7 +41,7 @@ class GetFulfilmentServices extends OrgAction
         $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
-
+        $queryBuilder->whereNotIn('services.asset_id', $scope->services()->pluck('asset_id'));
 
         $queryBuilder
             ->defaultSort('services.id')
@@ -82,11 +84,18 @@ class GetFulfilmentServices extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function inPalletDelivery(Fulfilment $fulfilment, PalletDelivery $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, $scope);
+    }
+
+    public function inPalletReturn(Fulfilment $fulfilment, PalletReturn $scope, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $scope);
     }
 
     public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
