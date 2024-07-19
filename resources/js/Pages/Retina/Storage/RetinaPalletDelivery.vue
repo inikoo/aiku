@@ -461,8 +461,12 @@ const typePallet = [
                                     valueProp="id"
                                     @keydown.enter="() => onSubmitAddService(action, closed)"
                                 >
+                                    <template #label="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
+                                    </template>
+
                                     <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
                                 </PureMultiselect>
                                 <p v-if="get(formAddService, ['errors', 'service_id'])"
@@ -530,11 +534,11 @@ const typePallet = [
                                     valueProp="id"
                                 >
                                     <template #label="{ value }">
-                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-gray-400">({{ value.code }})</span></div>
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
                                     </template>
 
                                     <template #option="{ option, isSelected, isPointed }">
-                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                        <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
                                 </PureMultiselect>
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
