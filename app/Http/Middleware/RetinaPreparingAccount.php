@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RetinaPreparingAccount
 {
@@ -13,12 +14,18 @@ class RetinaPreparingAccount
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Inertia\Response
      */
     public function handle(Request $request, Closure $next)
     {
         if($request->user() && is_null($request->user()?->customer?->fulfilmentCustomer?->rentalAgreement)) {
-            return redirect()->route('retina.prepare-account.show');
+            return Inertia::render('Errors/ErrorInApp', [
+                'error' => [
+                    'code'        => 403,
+                    'title'       => 'We still prepare your account',
+                    'description' => 'please come back shortly.'
+                ]
+            ]);
         }
 
         return $next($request);

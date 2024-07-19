@@ -17,65 +17,76 @@ use App\Models\Fulfilment\FulfilmentTransaction;
 
 class AutoAssignServicesToPalletDelivery extends OrgAction
 {
-    public function handle(PalletDelivery  $palletDelivery, $subject): PalletDelivery
+    public function handle(PalletDelivery $palletDelivery, $subject, $previousType = null): PalletDelivery
     {
+        if ($previousType) {
+            // Update or delete the service associated with the previous type
+            $previousService = $palletDelivery->fulfilment->shop->services()->where([
+                ['is_auto_assign', true],
+                ['auto_assign_trigger', class_basename($palletDelivery)],
+                ['auto_assign_subject', class_basename($subject)],
+                ['auto_assign_subject_type', $previousType]
+            ])->first();
 
+            if ($previousService) {
+                $previousAsset = $previousService->asset;
+                $previousTransaction = $palletDelivery->transactions()->where('asset_id', $previousAsset->id)->first();
+                if ($previousTransaction) {
+                    $previousQuantity = $palletDelivery->pallets()->where('type', $previousType)->count();
+                    if ($previousQuantity == 0) {
+                        DeleteFulfilmentTransaction::run($previousTransaction);
+                    } else {
+                        $previousModelData = ['quantity' => $previousQuantity];
+                        UpdateFulfilmentTransaction::make()->action($previousTransaction, $previousModelData);
+                    }
+                }
+            }
+        }
 
         /** @var Service $service */
-        $service=$palletDelivery->fulfilment->shop->services()->where([
+        $service = $palletDelivery->fulfilment->shop->services()->where([
             ['is_auto_assign', true],
             ['auto_assign_trigger', class_basename($palletDelivery)],
             ['auto_assign_subject', class_basename($subject)],
             ['auto_assign_subject_type', $subject->type]
         ])->first();
 
-        if(!$service) {
+        if (!$service) {
             return $palletDelivery;
         }
 
-        $asset    =$service->asset;
+        $asset = $service->asset;
         $quantity = $palletDelivery->pallets()->where('type', $subject->type)->count();
+        $modelData = [];
+
         data_set($modelData, 'quantity', $quantity);
         data_set($modelData, 'is_auto_assign', true);
 
-
         /** @var FulfilmentTransaction $transaction */
-        $transaction=$palletDelivery->transactions()->where('asset_id', $asset->id)->first();
+        $transaction = $palletDelivery->transactions()->where('asset_id', $asset->id)->first();
 
-        if($quantity == 0) {
-            if($transaction) {
+        if ($quantity == 0) {
+            if ($transaction) {
                 DeleteFulfilmentTransaction::run($transaction);
             }
-
             return $palletDelivery;
         }
 
-
-        if($transaction) {
-
-            if($transaction->historic_asset_id!=$asset->current_historic_asset_id) {
-
+        if ($transaction) {
+            if ($transaction->historic_asset_id != $asset->current_historic_asset_id) {
                 DeleteFulfilmentTransaction::run($transaction);
                 data_set($modelData, 'historic_asset_id', $asset->current_historic_asset_id);
                 StoreFulfilmentTransaction::make()->action($palletDelivery, $modelData);
             } else {
                 UpdateFulfilmentTransaction::make()->action($transaction, $modelData);
             }
-
-
         } else {
             data_set($modelData, 'historic_asset_id', $asset->current_historic_asset_id);
-
             StoreFulfilmentTransaction::make()->action($palletDelivery, $modelData);
-
         }
-
-
-
 
         return $palletDelivery;
     }
-
 
 
 }
