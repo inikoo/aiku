@@ -107,9 +107,7 @@ class UpdateWebsite extends OrgAction
     public function asController(Website $website, ActionRequest $request): Website
     {
         $this->website  = $website;
-
         $this->initialisation($website->organisation, $request);
-
         return $this->handle($website, $this->validatedData);
     }
 
@@ -118,7 +116,6 @@ class UpdateWebsite extends OrgAction
     {
         $this->website  = $website;
         $this->initialisation($shop->organisation, $request);
-
         return $this->handle($website, $this->validatedData);
     }
 
