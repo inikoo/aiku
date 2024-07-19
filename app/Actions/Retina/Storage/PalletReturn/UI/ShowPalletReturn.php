@@ -10,19 +10,23 @@ namespace App\Actions\Retina\Storage\PalletReturn\UI;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPhysicalGoodInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Catalogue\ServicesResource;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Helpers\Address;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -47,6 +51,7 @@ class ShowPalletReturn extends RetinaAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
+        $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
         return Inertia::render(
             'Storage/RetinaPalletReturn',
             [
@@ -221,6 +226,104 @@ class ShowPalletReturn extends RetinaAction
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletReturnTabsEnum::navigation($palletReturn)
+                ],
+                'box_stats'        => [
+                    'fulfilment_customer'          => array_merge(
+                        FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
+                        [
+                            'address'      => [
+                                'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
+                                'options' => [
+                                    'countriesAddressData' => GetAddressData::run()
+                                ]
+                            ],
+                            'addresses_list'   => $addressHistories,
+                        ]
+                    ),
+                    'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
+                    'order_summary'                => [
+                        [
+                            [
+                                'label'         => __('Pallets'),
+                                'quantity'      => $palletReturn->number_pallets ?? 0,
+                                'price_base'    => 999,
+                                'price_total'   => 1111 ?? 0
+                            ],
+                            [
+                                'label'         => __('Services'),
+                                'quantity'      => $palletReturn->stats->number_services ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => $palletReturn->stats->total_services_price ?? 0
+                            ],
+                            [
+                                'label'         => __('Physical Goods'),
+                                'quantity'      => $palletReturn->stats->number_physical_goods ?? 0,
+                                'price_base'    => __('Multiple'),
+                                'price_total'   => $palletReturn->stats->total_physical_goods_price ?? 0
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Shipping'),
+                                'information'   => __('Shipping fee to your address using DHL service.'),
+                                'price_total'   => 1111
+                            ],
+                            [
+                                'label'         => __('Tax'),
+                                'information'   => __('Tax is based on 10% of total order.'),
+                                'price_total'   => 1111
+                            ],
+                        ],
+                        [
+                            [
+                                'label'         => __('Total'),
+                                'price_total'   => $palletReturn->stats->total_price
+                            ],
+                        ],
+
+                        // 'currency_code'                => 'usd',  // TODO
+                        // 'number_pallets'               => $palletReturn->number_pallets,
+                        // 'number_services'              => $palletReturn->stats->number_services,
+                        // 'number_physical_goods'        => $palletReturn->stats->number_physical_goods,
+                        // 'pallets_price'                => 0,  // TODO
+                        // 'physical_goods_price'         => 0,  // TODO
+                        // 'services_price'               => 0,  // TODO
+                        // 'total_pallets_price'          => 0,  // TODO
+                        // 'total_services_price'         => $palletReturn->stats->total_services_price,
+                        // 'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,
+                        // 'shipping'                     => [
+                        //     'tooltip'           => __('Shipping fee to your address using DHL service.'),
+                        //     'fee'               => 11111, // TODO
+                        // ],
+                        // 'tax'                      => [
+                        //     'tooltip'           => __('Tax is based on 10% of total order.'),
+                        //     'fee'               => 99999, // TODO
+                        // ],
+                        // 'total_price'                  => $palletReturn->stats->total_price
+                    ]
+                ],
+                'notes_data'             => [
+                    [
+                        'label'           => __('Customer'),
+                        'note'            => $palletReturn->customer_notes ?? '',
+                        'editable'        => false,
+                        'bgColor'         => 'blue',
+                        'field'           => 'customer_notes'
+                    ],
+                    [
+                        'label'           => __('Public'),
+                        'note'            => $palletReturn->public_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'pink',
+                        'field'           => 'public_notes'
+                    ],
+                    [
+                        'label'           => __('Private'),
+                        'note'            => $palletReturn->internal_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'purple',
+                        'field'           => 'internal_notes'
+                    ],
                 ],
 
                 'data' => PalletReturnResource::make($palletReturn),
