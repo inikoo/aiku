@@ -1,10 +1,11 @@
-name: Deploy Aiku staging
+name: Deploy staging
 
 on:
   push:
     branches: [ "staging" ]
 
-concurrency: staging_environment
+concurrency:
+  group: staging_deployments
 
 permissions:
   contents: write
@@ -12,7 +13,7 @@ permissions:
 jobs:
   deployment:
     name: Deploy aiku staging 🎭
-    runs-on: [ ubuntu-latest, cloud ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
