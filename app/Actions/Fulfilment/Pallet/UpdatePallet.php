@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
@@ -40,6 +41,7 @@ class UpdatePallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
+        $originalType = $pallet->type;
         $pallet = $this->update($pallet, $modelData, ['data']);
 
 
@@ -56,6 +58,10 @@ class UpdatePallet extends OrgAction
             FulfilmentHydratePallets::dispatch($pallet->fulfilment);
             OrganisationHydratePallets::dispatch($pallet->organisation);
             WarehouseHydratePallets::dispatch($pallet->warehouse);
+        }
+
+        if ($originalType !== $pallet->type) {
+            AutoAssignServicesToPalletDelivery::make()->handle($pallet->palletDelivery, $pallet, $originalType);
         }
 
         return $pallet;
