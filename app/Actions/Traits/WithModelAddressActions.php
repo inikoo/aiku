@@ -56,7 +56,7 @@ trait WithModelAddressActions
         }
     }
 
-    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id',bool $canShip=null)
+    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip=null)
     {
         if (!$addressData) {
             return $model;
