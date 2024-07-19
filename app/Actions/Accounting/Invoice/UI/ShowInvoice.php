@@ -88,7 +88,9 @@ class ShowInvoice extends OrgAction
     {
         $this->validateAttributes();
         // dd($invoice);
-        $address = AddressResource::make($invoice->billingAddress);
+        $billingAddress = AddressResource::make($invoice->billingAddress);
+        $address = AddressResource::make($invoice->address);
+        $fixedAddresses = AddressResource::collection($invoice->fixedAddresses);
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
@@ -115,6 +117,8 @@ class ShowInvoice extends OrgAction
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
                 'address'   => $address,
+                'billing_address' => $billingAddress,
+                'fixed_addresses' => $fixedAddresses,
                 'order_summary'     => [
                     [
                         [
