@@ -182,14 +182,14 @@ class PalletReturn extends Model
         return $this->morphMany(FulfilmentTransaction::class, 'parent');
     }
 
-    public function services() 
+    public function services()
     {
         $transactions = $this->transactions()->where('type', 'service')->get();
 
         return $transactions;
     }
 
-    public function products() 
+    public function products()
     {
         $transactions = $this->transactions()->where('type', 'product')->get();
 

@@ -988,7 +988,7 @@ test('UI Index Recurring Bills', function () {
 });
 
 test('UI show Recurring Bill', function () {
-        $this->withoutExceptionHandling();
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.fulfilments.show.operations.recurring_bills.show', [$this->organisation->slug, $this->fulfilment->slug, $this->recurringBill->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -1022,7 +1022,7 @@ test('UI edit recurring bill', function () {
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.recurring-bill.update')
-                        ->where('parameters.recurringBill', $this->recurringBill->id) 
+                        ->where('parameters.recurringBill', $this->recurringBill->id)
             )
             ->has('breadcrumbs', 4);
     });
