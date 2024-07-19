@@ -11,7 +11,7 @@ const props = defineProps<{
         title: string
         description: string
     }
-    
+
     navigations: {
         route: routeType
         button: ButtonTS
@@ -22,6 +22,9 @@ const props = defineProps<{
 </script>
 
 <template>
+  {{error}}
+
+  {{navigations}}
     <main class="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
         <div class="text-center">
             <p class="text-base font-semibold text-indigo-600">{{ error.code || 404 }}</p>

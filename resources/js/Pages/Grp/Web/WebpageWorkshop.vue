@@ -12,6 +12,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
 import draggable from "vuedraggable"
+import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Modal from "@/Components/Utils/Modal.vue"
@@ -188,15 +189,25 @@ const onPublish = async (action) => {
 
     <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-[85vh]">
         <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none h-full">
-            <div class="h-full overflow-auto border-2 border-dashed" :class="data.layout.web_blocks?.length > 0 ? 'col-span-3' : 'col-span-4'">
+            <div class="h-full overflow-auto border-2 border-dashed p-2" :class="data.layout.web_blocks?.length > 0 ? 'col-span-3' : 'col-span-4'">
                 <div v-if="data.layout.web_blocks?.length">
                     <TransitionGroup tag="div" name="zzz" class="relative">
-                        <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
+                        <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" 
+                            :style="{
+                                paddingTop : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.unit}`, 
+                                paddingBottom : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingBottom?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingBottom?.unit}`, 
+                                paddingRight : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingRight?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingRight?.unit}` ,
+                                paddingLeft : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingLeft?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingLeft?.unit}`,
+                                marginTop : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginTop?.unit}`,
+                                marginBottom : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginBottom?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginBottom?.unit}`,
+                                marginRight : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginRight?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginRight?.unit}`,
+                                marginLeft : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginLeft?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginLeft?.unit}`,
+                            }"
                             :key="activityItem.id" @click="() => selectedBlock = activityItem" class="w-full">
                             <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                 :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
                                 v-model="activityItem.web_block.layout.data.fieldValue"
-                                @autoSave="() => onUpdatedBlock(activityItem)" />
+                                @autoSave="() => onUpdatedBlock(activityItem)"/>
                         </section>
                     </TransitionGroup>
 
@@ -252,7 +263,7 @@ const onPublish = async (action) => {
                   </DisclosureButton>
                   <DisclosurePanel
                     class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
-                    will be form padding
+                <BlockGap v-model="element.web_block.layout.data.blockLayout"  @update:modelValue="() => onUpdatedBlock(element)" />
                   </DisclosurePanel>
                 </Disclosure>
               </div>

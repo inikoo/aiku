@@ -29,7 +29,7 @@ class AutoAssignServicesToPalletDelivery extends OrgAction
             ])->first();
 
             if ($previousService) {
-                $previousAsset = $previousService->asset;
+                $previousAsset       = $previousService->asset;
                 $previousTransaction = $palletDelivery->transactions()->where('asset_id', $previousAsset->id)->first();
                 if ($previousTransaction) {
                     $previousQuantity = $palletDelivery->pallets()->where('type', $previousType)->count();
@@ -55,8 +55,8 @@ class AutoAssignServicesToPalletDelivery extends OrgAction
             return $palletDelivery;
         }
 
-        $asset = $service->asset;
-        $quantity = $palletDelivery->pallets()->where('type', $subject->type)->count();
+        $asset     = $service->asset;
+        $quantity  = $palletDelivery->pallets()->where('type', $subject->type)->count();
         $modelData = [];
 
         data_set($modelData, 'quantity', $quantity);

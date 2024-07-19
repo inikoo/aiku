@@ -368,7 +368,7 @@ const typePallet = [
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action }">
             <div v-if="currentTab === 'pallets'" class="md:relative">
-                <Popover width="w-full">
+                <Popover>
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
@@ -433,7 +433,7 @@ const typePallet = [
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
             <div class="relative" v-if="currentTab === 'services'">
-                <Popover width="w-full">
+                <Popover>
                     <template #button="{ open }">
                         <Button
                             @click="() => open ? false : onOpenModalAddService()"
@@ -506,7 +506,7 @@ const typePallet = [
         <!-- Button: Add physical good (single) -->
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
-                <Popover width="w-full">
+                <Popover>
                     <template #button="{ open }">
                         <Button
                             @click="() => open ? false : onOpenModalAddPGood()"

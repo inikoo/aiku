@@ -292,7 +292,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         <!-- Button: Add physical good (single) -->
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
-                <Popover width="w-full">
+                <Popover>
                     <template #button="{ open }">
                         <Button
                             @click="open ? false : onOpenModalAddPGood()"

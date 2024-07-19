@@ -129,7 +129,7 @@ const showAll = () => {
             </div>
         </div>
 
-        <Popover width="w-full" class="relative h-full">
+        <Popover class="relative h-full">
             <template #button>
                 <Button v-if="bulkData.length" :key="bulkData.length" label="Set all discount (%)"
                     :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon="['fal', 'list-alt']" class="mr-2" />
