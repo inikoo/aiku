@@ -25,7 +25,7 @@ import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaT
 // import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 // import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
-import RetinaBoxStatsPD from "@/Components/Retina/Storage/RetinaBoxStatsPD.vue"
+import RetinaBoxStatsDelivery from "@/Components/Retina/Storage/RetinaBoxStatsDelivery.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -628,7 +628,7 @@ const typePallet = [
 
 
     <!-- Box: Stats -->
-    <RetinaBoxStatsPD
+    <RetinaBoxStatsDelivery
         :data_pallet="data.data"
         :box_stats="box_stats"
         :updateRoute
