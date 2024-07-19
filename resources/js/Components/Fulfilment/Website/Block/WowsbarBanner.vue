@@ -164,7 +164,7 @@ onMounted(() => {
         <!-- Icon: Edit -->
         <div class="absolute top-2 right-2 flex space-x-2 z-10">
             <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs" @click="() => { isModalOpen = true, getBannersList() }" />
-            <!-- <Popover width="w-full" class="relative h-full">
+            <!-- <Popover class="relative h-full">
         <template #button>
             <Button :icon="['far', 'fa-pencil']" size="xs" />
         </template>
