@@ -5,8 +5,7 @@ on:
     branches: [ "staging" ]
 
 concurrency:
-  group: staging_environment
-  cancel-in-progress: true
+  group: staging_deployments
 
 permissions:
   contents: write
