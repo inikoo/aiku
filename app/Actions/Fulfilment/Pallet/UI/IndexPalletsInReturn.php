@@ -21,6 +21,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\InertiaTable\InertiaTable;
+use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
@@ -87,9 +88,9 @@ class IndexPalletsInReturn extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(PalletReturn $palletReturn, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(PalletReturn $palletReturn, $prefix = null, $request, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($prefix, $modelOperations, $palletReturn) {
+        return function (InertiaTable $table) use ($prefix, $modelOperations, $request, $palletReturn) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -135,8 +136,10 @@ class IndexPalletsInReturn extends OrgAction
 
             $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
 
-
-            $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+            if(!$request->user() instanceof WebUser) {
+                $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+            }
+           
 
 
             $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);

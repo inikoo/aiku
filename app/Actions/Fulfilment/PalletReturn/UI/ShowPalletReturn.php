@@ -464,7 +464,8 @@ class ShowPalletReturn extends OrgAction
         )->table(
             IndexPalletsInReturn::make()->tableStructure(
                 $palletReturn,
-                prefix: PalletReturnTabsEnum::PALLETS->value
+                prefix: PalletReturnTabsEnum::PALLETS->value,
+                request: $request
             )
         )->table(
             IndexServiceInPalletReturn::make()->tableStructure(
