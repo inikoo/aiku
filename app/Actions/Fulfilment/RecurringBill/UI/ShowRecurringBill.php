@@ -79,7 +79,7 @@ class ShowRecurringBill extends OrgAction
                 'pageHead'    => [
                     'icon'          =>
                         [
-                            'icon'  => ['fa', 'fa-narwhal'],
+                            'icon'  => 'fal fa-receipt',
                             'title' => __('recurring bill')
                         ],
                     'model'              => __('Recurring Bill'),
@@ -96,7 +96,10 @@ class ShowRecurringBill extends OrgAction
                         ],
                     ],
                 ],
-
+                'updateRoute'   => [
+                    'name'       => 'grp.models.recurring-bill.update',
+                    'parameters' => [$recurringBill->id]
+                ],
                 'timeline_rb'   => [
                     'start_date' => $recurringBill->start_date,
                     'end_date'   => $recurringBill->end_date
