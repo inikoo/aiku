@@ -162,12 +162,9 @@ class ShowPalletReturn extends RetinaAction
 
                 'updateRoute' => [
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.timeline.update',
+                        'name'       => 'retina.models.pallet-return.update',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->slug
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ],
@@ -302,14 +299,14 @@ class ShowPalletReturn extends RetinaAction
                 'notes_data'             => [
                     [
                         'label'           => __("Return's note"),
-                        'note'            => $palletDelivery->customer_notes ?? '',
+                        'note'            => $palletReturn->customer_notes ?? '',
                         'editable'        => true,
                         // 'bgColor'         => 'blue',
                         'field'           => 'customer_notes'
                     ],
                     [
                         'label'           => __('Note from warehouse'),
-                        'note'            => $palletDelivery->public_notes ?? '',
+                        'note'            => $palletReturn->public_notes ?? '',
                         'editable'        => false,
                         // 'bgColor'         => 'pink',
                         'field'           => 'public_notes'
