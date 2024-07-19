@@ -25,24 +25,24 @@ const isEndDateToday = isToday(new Date(props.endDate))
 
 
 // Method: Set end date
-const disableBeforeToday = (date: Date) => {
+const getTomorrowDate = () => {
     const today = new Date()
-    // Set time to 00:00:00 for comparison purposes
-    today.setHours(0, 0, 0, 0)
-    return date < today
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+    return tomorrow
 }
 const isLoadingSetEstimatedDate = ref(false)
-const onChangeEstimateDate = async (close: Function) => {
+const onChangeEstimateDate = async (newDate: Date, close: Function) => {
     router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
     {
-        end_date : props.endDate
+        end_date : newDate
     },
     {
         onStart: () => isLoadingSetEstimatedDate.value = true,
-        onError: () => {
+        onError: (error) => {
             notify({
                 title: "Failed",
-                text: "Failed to update the Delivery date, try again.",
+                text: error?.end_date || "Failed to update the end date, try again.",
                 type: "error",
             })
         },
@@ -78,7 +78,9 @@ const onChangeEstimateDate = async (close: Function) => {
                 <Popover position="">
                     <template #button>
                         <div class="flex flex-nowrap items-center gap-x-1">
-                            <div>{{ useFormatTime(endDate)}}</div>
+                            <Transition name="spin-to-down">
+                                <div :key="endDate">{{ useFormatTime(endDate)}}</div>
+                            </Transition>
                             <div class="px-1 flex items-center py-1 hover:text-gray-700">
                                 <FontAwesomeIcon icon='fal fa-pencil' class='text-xs' fixed-width aria-hidden='true' />
                             </div>
@@ -88,10 +90,10 @@ const onChangeEstimateDate = async (close: Function) => {
                     <template #content="{ close }">
                         <DatePicker
                             :modelValue="endDate"
-                            @update:modelValue="() => onChangeEstimateDate(close)"
+                            @update:modelValue="(newVal: Date) => onChangeEstimateDate(newVal, close)"
                             inline auto-apply
-                            :disabled-dates="disableBeforeToday"
                             :enable-time-picker="false"
+                            :min-date="getTomorrowDate()"
                         />
                         <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
                             <LoadingIcon class="text-5xl" />
