@@ -14,16 +14,14 @@ import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
-const props = defineProps<{
-   header : any
-}>()
+const props = defineProps<{}>()
 
 const layout = inject('layout', layoutStructure)
 
-const header = { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
-const footer = { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
-const navigation = { key : "menu1" , data : navigationData }
-const colorThemed = {color : [...useColorTheme[2]]}
+const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
+const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
+const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData }
+const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
 const keyTemplate = uuidv4()
 
 </script>

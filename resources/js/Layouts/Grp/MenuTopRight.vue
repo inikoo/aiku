@@ -72,7 +72,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
 
                 <!-- Button: Notifications -->
                 <div class="relative px-2 rounded-full flex items-center">
-                    <Popover width="w-full">
+                    <Popover>
                         <template #button>
                             <div tabindex="-1" class="relative text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                                 <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />

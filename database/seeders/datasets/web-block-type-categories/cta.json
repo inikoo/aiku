@@ -17,8 +17,41 @@
 					"description": "<p><span style='color: #FFFFFF'>Provide your customers with informed advice.</span></p><p></p>",
 					"button": "Read blog",
 					"image": null
-
-				}
+				},
+				"blockLayout" : {
+					"paddingTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingLeft":{
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginLeft" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    }
+                }
 			}
 		},
 		{
@@ -31,7 +64,41 @@
 					"headline": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2>",
 					"description": "<p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
 					"button": "Get Started"
-				}
+				},
+				"blockLayout" : {
+                    "paddingTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingLeft":{
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginLeft" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    }
+                }
 			}
 		}
 	]

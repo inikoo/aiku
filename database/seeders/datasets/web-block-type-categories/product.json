@@ -14,7 +14,41 @@
 				"icon": ["fal", "cube"],
 				"fieldValue": {
 					"value": ""
-				}
+				},
+				"blockLayout" : {
+                    "paddingTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingLeft":{
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginLeft" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    }
+                }
 			}
 		}
 	]

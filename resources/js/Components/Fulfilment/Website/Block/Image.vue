@@ -19,10 +19,10 @@ library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
     modelValue: any
-    webpageData: any
-    web_block : Object
-    id: Number,
-    type : String
+    webpageData?: any
+    web_block?: Object
+    id?: Number,
+    type?: String
 }>()
 
 
