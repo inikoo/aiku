@@ -11,7 +11,7 @@ import DataSet from '@/Components/Websites/Product/DataSet/Product.js'
 library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
 
 const props = defineProps<{
-    product : any
+    data : any
 }>()
 
 console.log(props)

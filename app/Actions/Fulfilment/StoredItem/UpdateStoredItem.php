@@ -39,7 +39,7 @@ class UpdateStoredItem extends OrgAction
         return [
             'reference'   => ['sometimes', 'required', 'unique:stored_items', 'max:24', 'alpha'],
             'type'        => ['sometimes', 'required', Rule::enum(StoredItemTypeEnum::class)],
-            'location_id' => ['required', 'exists:locations,id']
+            'location_id' => ['sometimes', 'exists:locations,id']
         ];
     }
 

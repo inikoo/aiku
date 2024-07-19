@@ -85,6 +85,7 @@ use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Fulfilment\StoredItemReturn\DeleteStoredItemFromStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
@@ -478,7 +479,7 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
 Route::patch('/job-order/{jobOrder:id}', UpdateJobOrder::class)->name('job-order.update');
 
 
-
+Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
 
 
 
@@ -496,7 +497,7 @@ Route::delete('/shop/{shop:id}/department/{department:id}', [DeleteProductCatego
 
 
 Route::post('stored-items/customer/{customer:id}', StoreStoredItem::class)->name('stored-items.store');
-Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
+
 
 Route::delete('/website/{website:id}', DeleteWebsite::class)->name('website.delete');
 

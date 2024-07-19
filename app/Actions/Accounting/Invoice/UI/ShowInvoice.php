@@ -16,6 +16,7 @@ use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -87,7 +88,7 @@ class ShowInvoice extends OrgAction
     {
         $this->validateAttributes();
         // dd($invoice);
-
+        $address = AddressResource::make($invoice->billingAddress);
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
@@ -113,7 +114,7 @@ class ShowInvoice extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
-
+                'address'   => $address,
                 'order_summary'     => [
                     [
                         [

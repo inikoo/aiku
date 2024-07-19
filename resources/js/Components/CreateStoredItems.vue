@@ -47,7 +47,6 @@ const createPallet = async (option, select) => {
 		_selectQuery.value.page = 1
 		return response.data
 	} catch (error: any) {
-		console.log(error)
 		props.form.errors.id = error.response.data.message
 		notify({
 			title: "Failed to add new stored items",
