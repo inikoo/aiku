@@ -19,13 +19,16 @@ if (usePage().props.language) {
     loadLanguageAsync(usePage().props.language)
 }
 
+const layout = useLayoutStore()
+
+
 console.log('environment:', useLayoutStore().app.environment)
 
 
 </script>
 
 <template>
-    <ScreenWarning v-if="layout.app.environment === 'staging'" />
+    <ScreenWarning v-if="layout.app?.environment === 'staging'" />
     <div :style="{'background-image': `${'url(/art/background-guest.webp'}`, 'background-repeat': 'no-repeat', 'background-size': 'cover', 'background-position': 'center'}"
         class="relative h-screen w-screen bg-gradient-to-bl from-indigo-400 to-indigo-600 pt-64 sm:px-6 lg:px-8">
         <div class="absolute bottom-5 left-10 flex items-center justify-center gap-x-2">
