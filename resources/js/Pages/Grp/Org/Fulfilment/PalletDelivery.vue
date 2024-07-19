@@ -41,6 +41,7 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
 import axios from 'axios'
 import { Action } from '@/types/Action'
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
+import { notify } from '@kyvg/vue3-notification'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
 
@@ -164,7 +165,11 @@ const onOpenModalAddService = async () => {
         )
         dataServiceList.value = xxx?.data?.data || []
     } catch (error) {
-        
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Services list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
@@ -183,7 +188,11 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
                 formAddService.reset()
             },
             onError: (errors) => {
-                console.error('Error during form submission:', errors)
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to add service, please try again.',
+                    type: 'error',
+                })
             },
             onFinish: () => {
                 isLoadingButton.value = false
@@ -203,7 +212,11 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
-        
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Physical Goods list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
@@ -221,7 +234,11 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 formAddPhysicalGood.reset()
             },
             onError: (errors) => {
-                console.error('Error during form submission:', errors)
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to add physical good, please try again.',
+                    type: 'error',
+                })
             },
             onFinish: () => {
                 isLoadingButton.value = false

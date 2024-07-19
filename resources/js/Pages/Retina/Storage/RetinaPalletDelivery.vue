@@ -19,8 +19,8 @@ import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import type { Component } from 'vue'
-import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 
+import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue"
 import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
 // import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 // import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
@@ -34,6 +34,7 @@ import { Action } from '@/types/Action'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import axios from 'axios'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { notify } from '@kyvg/vue3-notification'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross, faUser, faFilePdf, faTruckCouch, faPallet, faCalendarDay, faConciergeBell, faCube, faSortSizeUp, faBox, faPencil)
 
 const props = defineProps<{
@@ -189,7 +190,11 @@ const onOpenModalAddService = async () => {
         console.log('xxx', xxx)
         dataServiceList.value = xxx.data.data
     } catch (error) {
-        console.error(error)
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Services list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
@@ -208,7 +213,11 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
                 formAddService.reset()
             },
             onError: (errors) => {
-                console.error('Error during form submission:', errors)
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to add service, please try again.',
+                    type: 'error',
+                })
             },
             onFinish: () => {
                 isLoadingButton.value = false
@@ -229,7 +238,11 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
-        
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Physical Goods list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
@@ -247,7 +260,11 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 formAddPhysicalGood.reset()
             },
             onError: (errors) => {
-                console.error('Error during form submission:', errors)
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to add physical good, please try again.',
+                    type: 'error',
+                })
             },
             onFinish: () => {
                 isLoadingButton.value = false

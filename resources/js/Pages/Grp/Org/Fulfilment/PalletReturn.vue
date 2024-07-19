@@ -41,6 +41,7 @@ import { Action } from "@/types/Action"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import axios from "axios"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
+import { notify } from "@kyvg/vue3-notification"
 
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
@@ -115,7 +116,12 @@ const onOpenModalAddService = async () => {
         )
         dataServiceList.value = xxx?.data?.data || []
     } catch (error) {
-        console.log('error on open add service', error)
+        console.error(error)
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Services list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
@@ -134,7 +140,11 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
                 formAddService.reset()
             },
             onError: (errors) => {
-                console.error('Error during form submission:', errors)
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to add service, please try again.',
+                    type: 'error',
+                })
             },
             onFinish: () => {
                 isLoadingButton.value = false
@@ -154,7 +164,11 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
-        
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Physical Goods list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
@@ -174,8 +188,15 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             },
             onError: (errors) => {
                 isLoadingButton.value = false
-                console.error('Error during form submission:', errors)
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to add physical good, please try again.',
+                    type: 'error',
+                })
             },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
         }
     )
 }
@@ -215,6 +236,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                         class="rounded-l-none border-transparent "
                     />
                 </template>
+
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
                         <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
@@ -229,7 +251,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                 :options="dataServiceList"
                                 label="name"
                                 valueProp="id"
-                                @keydown.enter="() => onSubmitAddService(action, closed)"
                             />
                             <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                 {{ formAddService.errors.service_id }}
@@ -267,6 +288,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             <div v-else></div>
         </template>
 
+
         <!-- Button: Add physical good (single) -->
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
@@ -296,7 +318,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                     :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)" 
                                 >
                                     <template #label="{ value }">
                                         <div class="w-full text-left pl-4">{{ value.name }} <span class="text-gray-400">({{ value.code }})</span></div>
@@ -314,7 +335,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                                 <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddPhysicalGood.quantity"
-                                    placeholder="Qty"
+                                    :placeholder="trans('Quantity')"
                                     @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">

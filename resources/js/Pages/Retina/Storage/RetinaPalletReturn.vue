@@ -28,6 +28,7 @@ import TablePalletReturnPallets from "@/Components/Tables/Grp/Org/Fulfilment/Tab
 import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue"
 
 import Popover from "@/Components/Popover.vue"
 import PureInput from "@/Components/Pure/PureInput.vue"
@@ -66,7 +67,7 @@ const props = defineProps<{
     service_list_route: routeType
 
     physical_goods?: {}
-    physical_good_list_route?: routeType
+    physical_good_list_route: routeType
 }>()
 
 
@@ -74,18 +75,19 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
-const isLoading = ref<string | boolean>(false)
+
+const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
 
-const formAddService = useForm({ service_id: '', quantity: 1 })
-const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
+const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
 
 const component = computed(() => {
 	const components: Component = {
 		pallets: TablePalletReturnPallets,
         stored_items: TableStoredItems,
-        services: TableServices,
-        physical_goods: TablePhysicalGoods,
+        services: TableFulfilmentTransactions,
+        physical_goods: TableFulfilmentTransactions,
 		history: TableHistories,
 	}
 	return components[currentTab.value]
@@ -96,31 +98,42 @@ const component = computed(() => {
 const dataServiceList = ref([])
 const onOpenModalAddService = async () => {
     isLoadingData.value = 'addService'
+    console.log('props', props.service_list_route.name)
     try {
         const xxx = await axios.get(
             route(props.service_list_route.name, props.service_list_route.parameters)
         )
-        dataServiceList.value = xxx.data.data
+        dataServiceList.value = xxx?.data?.data || []
     } catch (error) {
-        
+        console.error(error)
+        notify({
+            title: 'Something went wrong.',
+            text: 'Failed to fetch Services list',
+            type: 'error',
+        })
     }
     isLoadingData.value = false
 }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
-    isLoading.value = 'addService'
+    const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
+    
+    formAddService.historic_asset_id = selectedHistoricAssetId
+    isLoadingButton.value = 'addService'
+
     formAddService.post(
-        route( data.route?.name, data.route?.parameters),
+        route(data.route?.name, {...data.route?.parameters }),
         {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddService.reset('quantity', 'service_id')
-                isLoading.value = false
+                formAddService.reset()
             },
             onError: (errors) => {
-                isLoading.value = false
                 console.error('Error during form submission:', errors)
             },
+            onFinish: () => {
+                isLoadingButton.value = false
+            }
         }
     )
 }
@@ -136,27 +149,31 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
+        console.error(error)
         notify({
             title: 'Something went wrong.',
-            text: 'Failed to fetch Physical Good list',
+            text: 'Failed to fetch Physical Goods list',
             type: 'error',
         })
     }
     isLoadingData.value = false
 }
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
-    isLoading.value = 'addPGood'
+    const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
+    formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
+
+    isLoadingButton.value = 'addPGood'
     formAddPhysicalGood.post(
         route( data.route?.name, data.route?.parameters ),
         {
             preserveScroll: true,
             onSuccess: () => {
                 closedPopover()
-                formAddPhysicalGood.reset('quantity', 'outer_id')
-                isLoading.value = false
+                formAddPhysicalGood.reset()
+                isLoadingButton.value = false
             },
             onError: (errors) => {
-                isLoading.value = false
+                isLoadingButton.value = false
                 console.error('Error during form submission:', errors)
             },
         }
@@ -195,15 +212,14 @@ watch(
         <template #button-group-add-service="{ action }">
             <div class="relative" v-if="currentTab === 'services'">
                 <Popover width="w-full">
-                    <template #button>
+                    <template #button="{ open }">
                         <Button
-                            @click="() => onOpenModalAddService()"
+                            @click="() => open ? false : onOpenModalAddService()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
-                            :disabled="isLoadingData == 'addService'"
+                            :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            :key="`ActionButton${action.label}${action.style}${isLoadingData == 'addService'}`"
                         />
                     </template>
 
@@ -216,14 +232,13 @@ watch(
                                     autofocus
                                     caret
                                     required
+                                    searchable
                                     placeholder="Services"
                                     :options="dataServiceList"
                                     label="name"
                                     valueProp="id"
-                                    @keydown.enter="() => onSubmitAddService(action, closed)"
                                 />
-                                <p v-if="get(formAddService, ['errors', 'service_id'])"
-                                    class="mt-2 text-sm text-red-500">
+                                <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
                                 </p>
                             </div>
@@ -231,7 +246,7 @@ watch(
                                 <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddService.quantity"
-                                    placeholder="Quantity"
+                                    :placeholder="trans('Quantity')"
                                     @keydown.enter="() => onSubmitAddService(action, closed)"
                                 />
                                 <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-500">
@@ -240,15 +255,15 @@ watch(
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button
-                                    :key="'submitAddService' + isLoading"
                                     :style="'save'"
-                                    :loading="isLoading === 'addService'"
-                                    full
+                                    :loading="isLoadingButton == 'addService'"
                                     :label="'save'"
+                                    :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
+                                    full
                                     @click="() => onSubmitAddService(action, closed)"
                                 />
                             </div>
-                            
+                                
                             <!-- Loading: fetching service list -->
                             <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
@@ -265,9 +280,9 @@ watch(
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
-                    <template #button>
+                    <template #button="{ open }">
                         <Button
-                            @click="() => onOpenModalAddPGood()"
+                            @click="open ? false : onOpenModalAddPGood()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
@@ -285,13 +300,21 @@ watch(
                                     autofocus
                                     caret
                                     required
+                                    searchable
                                     placeholder="Physical Goods"
                                     :options="dataPGoodList"
                                     label="name"
                                     valueProp="id"
-                                />
-                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
-                                    class="mt-2 text-sm text-red-500">
+                                >
+                                    <template #label="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-gray-400">({{ value.code }})</span></div>
+                                    </template>
+
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="">{{ option.name }} <span :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                    </template>
+                                </PureMultiselect>
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
                             </div>
@@ -299,7 +322,8 @@ watch(
                                 <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
                                 <PureInput
                                     v-model="formAddPhysicalGood.quantity"
-                                    placeholder="Quantity"
+                                    :placeholder="trans('Quantity')"
+                                    @keydown.enter="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
                                     class="mt-2 text-sm text-red-500">
@@ -309,14 +333,16 @@ watch(
                             <div class="flex justify-end mt-3">
                                 <Button
                                     :style="'save'"
-                                    :loading="isLoading === 'addPGood'"
-                                    label="save"
+                                    :loading="isLoadingButton == 'addPGood'"
+                                    :disabled="!formAddPhysicalGood.outer_id || !(formAddPhysicalGood.quantity > 0)"
+                                    :label="'save'"
+                                    full
                                     @click="() => onSubmitAddPhysicalGood(action, closed)"
                                 />
                             </div>
-                            
-                            <!-- Loading: fetching service list -->
-                            <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+
+                            <!-- Loading: fetching pgood list -->
+                            <div v-if="isLoadingData === 'addPGood'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div>
                         </div>
@@ -349,9 +375,33 @@ watch(
         app="retina" />
 
     <Modal :isOpen="openModal" @onClose="openModal = false">
-        <div class="p-2 overflow-auto">
-            <TablePalletReturn :dataRoute="palletRoute.index" :saveRoute="palletRoute.store"
-                @onClose="()=>openModal = false" :descriptor="palletReturnDescriptor" />
+        <div class="">
+            <TablePalletReturn
+				:dataRoute="palletRoute.index"
+                :saveRoute="palletRoute.store"
+				@onClose="() => openModal = false"
+				:descriptor="palletReturnDescriptor"
+			>
+                <template #column-stored_items="{data}">
+                    <!-- {{ data.columnData.stored_items }} -->
+                    <div class="flex gap-x-1 flex-wrap">
+                        <template v-if="data.columnData.stored_items.length">
+                            <Tag v-for="item of data.columnData.stored_items"
+                                :label="`${item.reference} (${item.quantity})`"
+                                :closeButton="false"
+                                :stringToColor="true">
+                                <template #label>
+                                    <div class="whitespace-nowrap text-xs">
+                                        {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                                    </div>
+                                </template>
+                            </Tag>
+                        </template>
+                        <span v-else class="text-xs text-gray-400 italic">Have no stored items.</span>
+                    </div>
+                </template>
+
+            </TablePalletReturn>
         </div>
     </Modal>
 </template>
