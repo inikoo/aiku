@@ -47,7 +47,7 @@ console.log('environment', isStaging)
                 :style="{
             'color': layout.app.theme[2]
         }"
-        :class="isStaging ? 'top-3' : 'top-0'"
+        :class="isStaging ? 'top-4' : 'top-0'"
     >
         <ScreenWarning v-if="isStaging" />
     

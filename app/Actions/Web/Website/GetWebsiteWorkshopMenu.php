@@ -15,7 +15,7 @@ class GetWebsiteWorkshopMenu
         return [
             'header'  => Arr::get($website->published_layout, 'header'),
             'color'   => Arr::get($website->published_layout, 'color'),
-            'menu'   => Arr::get($website->published_layout, 'menu')
+            'menu'    => Arr::get($website->published_layout, 'menu')
         ];
     }
 }

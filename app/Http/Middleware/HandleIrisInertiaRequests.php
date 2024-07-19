@@ -30,8 +30,12 @@ class HandleIrisInertiaRequests extends Middleware
         return array_merge(
             $firstLoadOnlyProps,
             [
-                'iris_header' => Arr::get($website->published_layout, 'header'),
-                'iris_footer' => Arr::get($website->published_layout, 'footer')
+                'iris' => [
+                    'header' => Arr::get($website->published_layout, 'header'),
+                    'footer' => Arr::get($website->published_layout, 'footer'),
+                    'menu'   => Arr::get($website->published_layout, 'menu'),
+                    'color'  => Arr::get($website->published_layout, 'color')
+                ]
             ],
             parent::share($request),
         );
