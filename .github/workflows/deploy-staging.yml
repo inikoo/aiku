@@ -1,4 +1,4 @@
-name: Deploy Aiku staging
+name: Deploy staging
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 jobs:
   deployment:
     name: Deploy aiku staging 🎭
-    runs-on: [ ubuntu-latest, cloud ]
+    runs-on: cloud
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
