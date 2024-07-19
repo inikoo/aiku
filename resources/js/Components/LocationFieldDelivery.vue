@@ -51,7 +51,7 @@ const onSaveError = (errorValue: any) => {
 <template>
     <div class="relative">
     <!-- <pre>{{ pallet.state }}</pre> -->
-        <Popover width="w-full">
+        <Popover>
             <template #button>
                 <!-- <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
                     tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" /> -->

@@ -65,7 +65,7 @@
           </iframe>
           <!-- Buttons -->
           <div class="absolute top-2 right-2 flex space-x-2">
-              <Popover width="w-full" class="relative h-full">
+              <Popover class="relative h-full">
                   <template #button>
                       <Button :icon="['far', 'fa-pencil']" size="xs"/>
                   </template>

@@ -286,7 +286,7 @@ watch(() => props.data, (newValue) => {
 
         <!-- Button: Add multiple pallet -->
         <template #button-group-multiple="{ action }">
-            <Popover width="w-full" class="relative h-full">
+            <Popover  class="relative h-full">
                 <template #button>
                     <Button v-if="currentTab === 'pallets'" :style="action.style" :icon="action.icon"
                         :iconRight="action.iconRight"
@@ -339,7 +339,7 @@ watch(() => props.data, (newValue) => {
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action }">
             <div class="relative" v-if="currentTab === 'pallets'">
-                <Popover width="w-full">
+                <Popover>
                     <template #button>
                         <Button
                             :style="action.style"
@@ -403,7 +403,7 @@ watch(() => props.data, (newValue) => {
         <!-- Button: Add service -->
         <template #button-group-add-service="{ action }">
             <div class="relative" v-if="currentTab === 'services'">
-                <Popover width="w-full">
+                <Popover>
                     <template #button="{open}">
                         <Button
                             @click="() => open ? false : onOpenModalAddService()"
@@ -477,7 +477,7 @@ watch(() => props.data, (newValue) => {
         <!-- Button: Add physical good -->
         <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
-                <Popover width="w-full">
+                <Popover>
                     <template #button="{ open }">
                         <Button
                             @click="open ? false : onOpenModalAddPGood()"
