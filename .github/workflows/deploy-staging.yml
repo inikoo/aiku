@@ -13,7 +13,7 @@ permissions:
 jobs:
   deployment:
     name: Deploy aiku staging 🎭
-    runs-on: cloud
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
