@@ -1,16 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 
-const props = defineProps({
-  width: {
-    type: String,
-    default: 'w-fit',
-  },
-  position: {
-    type: String,
-    default: 'right-0',
-  },
-});
+
+const props = withDefaults(defineProps<{
+  width?: string | number | null | any
+  position?: string
+}>(), {
+  width: 'w-fit',
+  position: 'right-0'
+})
+
 </script>
 
 <template>

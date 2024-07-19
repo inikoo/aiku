@@ -14,6 +14,40 @@
 				"icon": ["fal", "image"],
 				"fieldValue": {
 					"value": null
+				},
+				"blockLayout": {
+					"paddingTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingLeft":{
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginLeft" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    }
 				}
 			}
 		},
@@ -24,30 +58,64 @@
 				"component": "Gallery",
 				"icon": ["fal", "images"],
 				"fieldValue": {
-					"value":  [
-			  {
-				"id": 1,
-				"image": null,
-				"text" :  "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
-			  },
-			  {
-				"id": 2,
-				"image": null,
-				"text" :   "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
-			  },
-			  {
-				"id": 3,
-				"image": null,
-				"text" :   "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
-			  },
-			  {
-				"id": 4,
-				"image": null,
-				"text" :  "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
-			  }
-			]
+					"value": [
+						{
+							"id": 1,
+							"image": null,
+							"text": "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+						},
+						{
+							"id": 2,
+							"image": null,
+							"text": "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+						},
+						{
+							"id": 3,
+							"image": null,
+							"text": "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+						},
+						{
+							"id": 4,
+							"image": null,
+							"text": "<h2><span style='font-size: 36px'>haloo</span></h2><p>lorem ipsum test tstetsbjsd<br>hello everyone</p>"
+						}
+					]
+				},
+				"blockLayout": {
+					"paddingTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingLeft":{
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "paddingBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginBottom" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginTop" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginLeft" :  {
+                        "value": "0",
+                        "unit": "px"
+                    },
+                    "marginRight" :  {
+                        "value": "0",
+                        "unit": "px"
+                    }
+				}
 			}
-		}
 		}
 	]
 }
