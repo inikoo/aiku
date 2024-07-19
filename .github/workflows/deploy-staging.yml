@@ -4,7 +4,9 @@ on:
   push:
     branches: [ "staging" ]
 
-concurrency: staging_environment
+concurrency:
+  group: staging_environment
+  cancel-in-progress: true
 
 permissions:
   contents: write
