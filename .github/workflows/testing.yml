@@ -20,7 +20,7 @@ jobs:
       - name: Composer install
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Prepare environment
-        run:  |
+        run: |
           ln -s ../../../../.pgpass .pgpass
           ln -s ../../../../env.aiku.testing .env.testing
           ln -s ../../../../env.aiku.testing .env
