@@ -34,10 +34,8 @@ defineProps<{
 
 <template>
     <div class="grid grid-cols-2 gap-y-2.5 gap-x-3 text-gray-600">
-
-
         <div
-            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums col-span-2">
+            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums col-span-2">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallets.label }}</dt>
                 <dd class="mt-2 flex justify-between gap-x-2">
@@ -55,28 +53,28 @@ defineProps<{
                         </div>
 
                         <div class="">
-                            <div v-if="stats.pallets.state.damaged.count || stats.pallets.state.lost.count || stats.pallets.state['other-incident'].count" class="text-sm text-red-400 border border-red-300 bg-red-50 rounded px-2 py-2 font-normal">
-                                <div v-if="!stats.pallets.state.damaged.count">
+                            <div class="text-sm text-red-400 border border-red-300 bg-red-50 rounded px-2 py-2 font-normal">
+                                <div>
                                     <FontAwesomeIcon :icon='stats.pallets.state.damaged.icon.icon' :class='stats.pallets.state.damaged.icon.class' fixed-width aria-hidden='true' />
                                     Damaged:
                                     {{ stats.pallets.state.damaged.count }}
                                 </div>
-                                <div v-if="!stats.pallets.state.lost.count">
+                                <div>
                                     <FontAwesomeIcon :icon='stats.pallets.state.lost.icon.icon' :class='stats.pallets.state.lost.icon.class' fixed-width aria-hidden='true' />
                                     Lost:
                                     {{ stats.pallets.state.lost.count }}
                                 </div>
-                                <div v-if="!stats.pallets.state['other-incident'].count">
-                                    <FontAwesomeIcon :icon='stats.pallets.state["other-incident"].icon.icon' :class='stats.pallets.state["other-incident"].icon.class' fixed-width aria-hidden='true' />
+                                <div>
+                                    <FontAwesomeIcon :icon='stats.pallets.state.other_incident.icon.icon' :class='stats.pallets.state.other_incident.icon.class' fixed-width aria-hidden='true' />
                                     Other incident:
-                                    {{ stats.pallets.state['other-incident'].count }}
+                                    {{ stats.pallets.state.other_incident.count }}
                                 </div>
                             </div>
-
+<!--
                             <div v-else class="font-normal text-sm text-green-400">
                                 <FontAwesomeIcon icon='fal fa-check' class='' fixed-width aria-hidden='true' />
                                 All pallets are fine.
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </dd>
@@ -84,7 +82,7 @@ defineProps<{
         </div>
 
         <div
-            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums">
+            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_deliveries.label }}
                 </dt>
@@ -111,7 +109,7 @@ defineProps<{
 
 
         <div
-            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums">
+            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_returns.label }}</dt>
                 <dd class="mt-2 flex justify-between gap-x-2">

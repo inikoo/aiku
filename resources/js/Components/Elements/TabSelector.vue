@@ -74,7 +74,7 @@ const onClickRadio = async (value: string) => {
 <template>
     <div class="flex gap-x-1 sm:gap-x-2">
         <button v-for="radio in optionRadio" @click.prevent="(e) => onClickRadio(radio.value)"
-            class="hover:bg-slate-400/20 text-xs sm:text-base flex items-center text-left gap-x-1.5 sm:gap-x-2 rounded-lg w-fit px-2 sm:px-3 py-2 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
+            class="hover:bg-slate-400/20 text-xs sm:text-base flex items-center text-left gap-x-1.5 sm:gap-x-2 rounded-lg w-full px-2 sm:px-3 py-2 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
             :disabled="radioLoading[radio.value]">
             <FontAwesomeIcon v-if="radioLoading[radio.value]" icon='fad fa-spinner-third'
                 class='animate-spin text-gray-700' fixed-width aria-hidden='true' />
