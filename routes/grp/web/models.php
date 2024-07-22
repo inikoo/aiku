@@ -50,7 +50,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
+use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
@@ -61,7 +61,6 @@ use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -71,7 +70,7 @@ use App\Actions\Fulfilment\PalletReturn\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
-use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\SyncPalletReturnItem;
@@ -326,7 +325,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
-    Route::patch('', UpdatePalletItem::class)->name('update');
+    Route::patch('', SetPalletInReturnAsPicked::class)->name('update');
     Route::patch('not-picked', NotPickedPalletFromReturn::class)->name('not-picked');
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
 });
@@ -355,7 +354,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         });
 
         Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
-        Route::post('submit', SubmitPalletReturn::class)->name('submit');
+        Route::post('submit-and-confirm', SubmitAndConfirmPalletReturn::class)->name('submit_and_confirm');
         Route::post('delivery', PickingPalletReturn::class)->name('picking');
         Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
         Route::post('received', PickedPalletReturn::class)->name('picked');

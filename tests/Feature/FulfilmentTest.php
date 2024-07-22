@@ -42,7 +42,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePalletItem;
+use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -1265,7 +1265,7 @@ test('update pallet item', function (PalletReturn $storedPallet) {
     $palletReturnItemId = $pallet->id;
     $palletReturnItem   = PalletReturnItem::find($palletReturnItemId);
     // dd($palletReturnItem);
-    $updatedPalletItem = UpdatePalletItem::make()->action(
+    $updatedPalletItem = SetPalletInReturnAsPicked::make()->action(
         $palletReturnItem,
         ['state' => PalletReturnItemStateEnum::CONFIRMED]
     );
