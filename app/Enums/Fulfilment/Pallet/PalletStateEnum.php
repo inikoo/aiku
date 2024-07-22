@@ -23,11 +23,11 @@ enum PalletStateEnum: string
     case IN_PROCESS = 'in_process';
 
     // Status: receiving
-    case SUBMITTED = 'submitted';
-    case CONFIRMED = 'confirmed';
-    case RECEIVED = 'received';
+    case SUBMITTED  = 'submitted';
+    case CONFIRMED  = 'confirmed';
+    case RECEIVED   = 'received';
     case BOOKING_IN = 'booking_in';
-    case BOOKED_IN = 'booked_in';
+    case BOOKED_IN  = 'booked_in';
 
     // Status: not-received
     case NOT_RECEIVED = 'not_received';
@@ -37,11 +37,11 @@ enum PalletStateEnum: string
 
     // Status: returning
     case PICKING = 'picking';
-    case PICKED = 'picked';
+    case PICKED  = 'picked';
 
     // Status: incident
-    case DAMAGED = 'damaged';
-    case LOST = 'lost';
+    case DAMAGED        = 'damaged';
+    case LOST           = 'lost';
     case OTHER_INCIDENT = 'other_incident';
 
     // Status: returned

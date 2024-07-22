@@ -14,7 +14,6 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Catalogue\RentalAgreementResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
