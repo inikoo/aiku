@@ -20,17 +20,17 @@ enum PalletStateEnum: string
     use EnumHelperTrait;
 
     // Status: in-process
-    case IN_PROCESS = 'in_process';
+    case IN_PROCESS = 'in-process';
 
     // Status: receiving
     case SUBMITTED  = 'submitted';
     case CONFIRMED  = 'confirmed';
     case RECEIVED   = 'received';
-    case BOOKING_IN = 'booking_in';
-    case BOOKED_IN  = 'booked_in';
+    case BOOKING_IN = 'booking-in';
+    case BOOKED_IN  = 'booked-in';
 
     // Status: not-received
-    case NOT_RECEIVED = 'not_received';
+    case NOT_RECEIVED = 'not-received';
 
     // Status: storing
     case STORING = 'storing';
@@ -42,7 +42,7 @@ enum PalletStateEnum: string
     // Status: incident
     case DAMAGED        = 'damaged';
     case LOST           = 'lost';
-    case OTHER_INCIDENT = 'other_incident';
+    case OTHER_INCIDENT = 'other-incident';
 
     // Status: returned
     case DISPATCHED = 'dispatched';
@@ -51,27 +51,27 @@ enum PalletStateEnum: string
     public static function labels(): array
     {
         return [
-            'in_process'     => __('In process'),
+            'in-process'     => __('In process'),
             'submitted'      => __('Submitted'),
             'confirmed'      => __('Confirmed'),
-            'not_received'   => __('Not Received'),
+            'not-received'   => __('Not Received'),
             'received'       => __('Received'),
-            'booking_in'     => __('Booking in'),
-            'booked_in'      => __('Booked in'),
+            'booking-in'     => __('Booking in'),
+            'booked-in'      => __('Booked in'),
             'storing'        => __('Storing'),
             'picking'        => __('Picking'),
             'picked'         => __('Picked'),
             'dispatched'     => __('Dispatched'),
             'lost'           => __('Lost'),
             'damaged'        => __('Damaged'),
-            'other_incident' => __('Other'),
+            'other-incident' => __('Other'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in_process'   => [
+            'in-process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -111,7 +111,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not_received' => [
+            'not-received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -121,7 +121,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booking_in'   => [
+            'booking-in'   => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
@@ -131,7 +131,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booked_in'    => [
+            'booked-in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-300',
@@ -202,7 +202,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'other_incident' => [
+            'other-incident' => [
                 'tooltip' => __('Other incident'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
@@ -227,20 +227,20 @@ enum PalletStateEnum: string
         }
 
         return [
-            'in_process'     => $stats->number_pallets_state_in_process,
+            'in-process'     => $stats->number_pallets_state_in_process,
             'submitted'      => $stats->number_pallets_state_submitted,
             'confirmed'      => $stats->number_pallets_state_confirmed,
-            'not_received'   => $stats->number_pallets_state_not_received,
+            'not-received'   => $stats->number_pallets_state_not_received,
             'received'       => $stats->number_pallets_state_received,
-            'booking_in'     => $stats->number_pallets_state_booking_in,
-            'booked_in'      => $stats->number_pallets_state_booked_in,
+            'booking-in'     => $stats->number_pallets_state_booking_in,
+            'booked-in'      => $stats->number_pallets_state_booked_in,
             'storing'        => $stats->number_pallets_state_storing,
             'picking'        => $stats->number_pallets_state_picking,
             'picked'         => $stats->number_pallets_state_picked,
             'dispatched'     => $stats->number_pallets_state_disoatched,
             'lost'           => $stats->number_pallets_state_lost,
             'damaged'        => $stats->number_pallets_state_damaged,
-            'other_incident' => $stats->number_pallets_state_other
+            'other-incident' => $stats->number_pallets_state_other
         ];
     }
 }
