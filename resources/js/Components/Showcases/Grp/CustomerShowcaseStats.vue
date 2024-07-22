@@ -21,7 +21,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const locale = useLocaleStore()
 
 const props = defineProps<{
-    pieData: {
+  dashboardData: {
         [key: string]: PieCustomer
     }
     warehouseSummary: {
@@ -54,16 +54,7 @@ const options = {
 
 <template>
     <div class="grid grid-cols-2 gap-y-2.5 gap-x-3 text-gray-600">
-        <!-- <div class="bg-gray-50 px-4 py-5 sm:p-6 rounded-lg border border-gray-100 shadow ">
-            <div class="font-medium text-lg mb-4">
-                Warehouse summary
-            </div>
 
-            <div class="flex flex-col">
-                <div>Pallets stored: {{ warehouseSummary?.pallets_stored || 0 }}</div>
-                <div>Total items: {{ warehouseSummary?.total_items || 0 }} ({{ warehouseSummary?.unique_items || 0 }} unique items) </div>
-            </div>
-        </div> -->
         
         <div v-for="(pie, index) in pieData" class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums"
             :class="[index === 'pallets' ? 'col-span-2' : '']"
@@ -93,16 +84,7 @@ const options = {
                 </dd>
             </div>
 
-            <!-- Pie -->
-            <!-- <div class="w-20">
-                <Pie :data="{
-                    labels: Object.entries(pie.cases).map(([, value]) => value.label),
-                    datasets: [{
-                        data: Object.entries(pie.cases).map(([, value]) => value.count),
-                        hoverOffset: 4
-                    }]
-                }" :options="options" />
-            </div> -->
+
         </div>
 
         

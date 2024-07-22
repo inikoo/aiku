@@ -62,7 +62,7 @@ class GetFulfilmentCustomerShowcase
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
             ],
-            'pieData'               => $this->getDashboardData($fulfilmentCustomer),
+            'dashboardData'               => $this->getDashboardData($fulfilmentCustomer),
             'warehouse_summary'     => [
                 'pallets_stored'    => $fulfilmentCustomer->fulfilment->warehouses->sum(function (Warehouse $warehouse) {
                     return $warehouse->stats->number_pallets;
