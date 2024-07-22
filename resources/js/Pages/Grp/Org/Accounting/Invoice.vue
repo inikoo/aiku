@@ -13,6 +13,7 @@ import { Link } from '@inertiajs/vue3'
 import { computed, defineAsyncComponent, ref } from "vue"
 import type { Component } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
+import AddressSelector from "@/Components/DataDisplay/AddressSelector.vue"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue"
 import OperationsInvoiceShowcase from "@/Components/Showcases/Grp/Fulfilment/OperationsInvoiceShowcase.vue"
@@ -29,9 +30,9 @@ import { FieldOrderSummary } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign } from '@fal'
+import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt } from '@fal'
 import { faClock, faFileInvoice, faFilePdf } from '@fas'
-library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf)
+library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -66,6 +67,7 @@ const props = defineProps<{
         // items: TableTS
     }
     order_summary: FieldOrderSummary[][]
+    address: {}
     invoice: {
         date: string
         currency_code: string
@@ -125,7 +127,7 @@ console.log('pp', props)
     
     <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <!-- Box: Customer -->
-        <BoxStatPallet class=" pb-2 py-5 px-3" :tooltip="trans('Customer')" icon="fal fa-user">
+        <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
 
             <!-- Field: Registration Number -->
             <Link as="a" v-if="showcase?.customer.reference"
@@ -193,10 +195,22 @@ console.log('pp', props)
                 </dt>
                 <dd class="text-xs text-gray-500">{{ showcase?.customer.phone }}</dd>
             </div>
+
+            <!-- Field: Address -->
+            <div class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Phone'" class="flex-none">
+                    <span class="sr-only">Phone</span>
+                    <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">
+                    <AddressSelector />
+                </dd>
+            </div>
         </BoxStatPallet>
 
         <!-- Section: Detail -->
-        <BoxStatPallet class="pb-2 py-5 px-3" tooltip="Detail">
+        <BoxStatPallet class="py-2 px-3">
             <div class="mt-1">
                 <div v-for="field in boxFieldDetail" v-tooltip="field.tooltip" class="flex items-center w-full flex-none gap-x-2">
                     <dt class="flex-none">
@@ -214,12 +228,12 @@ console.log('pp', props)
         </BoxStatPallet>
 
         <!-- Section: Order Summary -->
-        <BoxStatPallet class="col-start-3 col-span-2 pb-2 py-5 px-3" tooltip="Order Summary">
+        <BoxStatPallet class="col-start-3 col-span-2 py-2 px-3">
             <OrderSummary :order_summary :currency_code="invoice.currency_code" />
         </BoxStatPallet>
 
         <!-- Section: Invoice Information (looping) -->
-        <!-- <BoxStatPallet class="col-start-4 pb-2 py-5 px-3" :tooltip="trans('Invoice information')">
+        <!-- <BoxStatPallet class="col-start-4 py-2 px-3"')">
             <div class="pt-1 text-gray-500">
                 <template v-for="invoiceGroup in boxInvoiceInformation">
                     <div class="space-y-1">
