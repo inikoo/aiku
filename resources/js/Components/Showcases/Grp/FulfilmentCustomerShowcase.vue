@@ -18,12 +18,12 @@ import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
-import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink } from '@fal'
+import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faLongArrowRight)
+library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faLongArrowRight)
 
 const props = defineProps<{
     data: {
@@ -181,11 +181,11 @@ const isLoading = ref<string | boolean>(false)
                                             <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
                                         </div>
 
-                                        <!-- Field: Phone -->
+                                        <!-- Field: Location -->
                                         <div v-if="data.customer?.location" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Phone'" class="flex-none">
                                                 <span class="sr-only">Location</span>
-                                                <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">
                                                 <AddressLocation :data="data.customer?.location" />

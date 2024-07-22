@@ -10,7 +10,7 @@ import { trans } from "laravel-vue-i18n"
 import { capitalize } from '@/Composables/capitalize'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import { useLocaleStore } from "@/Stores/locale"
-import { PalletCustomer, PieCustomer } from '@/types/Pallet'
+import { PalletCustomer, FulfilmentCustomerStats } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
@@ -27,8 +27,8 @@ ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const props = defineProps<{
     title: string
     customer: PalletCustomer
-    pieData: {
-        [key: string]: PieCustomer
+    storageData: {
+        [key: string]: FulfilmentCustomerStats
     }
 }>()
 
@@ -82,22 +82,22 @@ const options = {
                     </div>
                 </div>
                 
-                <div class="space-y-3 text-sm text-slate-500">
+                <div class="mt-4 space-y-3 text-sm text-slate-500">
                     <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Phone</h3>
-                        <address class="text-base font-bold not-italic text-slate-700">
+                        <address class="text-base font-medium not-italic text-gray-600">
                             <p>{{ customer?.phone || '-' }}</p>
                         </address>
                     </div>
                     <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Email</h3>
-                        <address class="text-base font-bold not-italic text-slate-700">
+                        <address class="text-base font-medium not-italic text-gray-600">
                             <p>{{ customer?.email || '-' }}</p>
                         </address>
                     </div>
                     <div class="border-l-2 border-slate-500 pl-4">
                         <h3 class="font-light">Member since</h3>
-                        <address class="text-base font-bold not-italic text-slate-700">
+                        <address class="text-base font-medium not-italic text-gray-600">
                             <p>{{ useFormatTime(customer?.created_at) || '-' }}</p>
                         </address>
                     </div>
@@ -106,46 +106,92 @@ const options = {
 
             <!-- Section: Stats box -->
             <div class="grid md:grid-cols-2 gap-y-3 gap-x-2 text-gray-600">
-                <div v-for="(prospectState, keyObject) in pieData"
-                    class="bg-slate-50 flex justify-between px-4 py-5 sm:p-6 rounded-lg border border-gray-200 tabular-nums"
-                    :class="keyObject === 'pallets' ? 'md:col-span-2' : ''"
-                >
+
+                <div
+                    class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums col-span-2">
                     <div class="">
-                        <dt class="text-base font-medium text-gray-400 capitalize">{{ prospectState.label }}</dt>
+                        <dt class="text-base font-medium text-gray-400 capitalize">{{ storageData.pallets.label }}</dt>
                         <dd class="mt-2 flex justify-between gap-x-2">
-                            <div class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
+                            <div
+                                class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                                 <!-- In Total -->
                                 <div class="flex gap-x-2 items-end">
-                                    <CountUp :endVal="prospectState.count" :duration="1.5" :scrollSpyOnce="true" :options="{
-                                        formattingFn: (value: number) => locale.number(value)
-                                    }" />
-                                    <span class="text-sm font-medium leading-4 text-gray-500 ">{{ trans('in total') }}</span>
+                                    <CountUp :endVal="storageData.pallets.count" :duration="1.5" :scrollSpyOnce="true"
+                                        :options="{
+                                            formattingFn: (value: number) => locale.number(value)
+                                        }" />
+                                    <span class="text-sm font-medium leading-4 text-gray-400 ">
+                                        {{ storageData.pallets.description }}
+                                    </span>
                                 </div>
-                                <!-- Statistic -->
-                                <div class="text-sm text-gray-500 flex gap-x-5 gap-y-1 items-center flex-wrap">
-                                    <div v-for="dCase in prospectState.cases" class="flex gap-x-0.5 items-center font-normal"
-                                        v-tooltip="capitalize(dCase.icon.tooltip)">
-                                        <FontAwesomeIcon :icon='dCase.icon.icon' :class='dCase.icon.class' fixed-width aria-hidden='true' />
-                                        <span class="font-semibold">
-                                            {{ locale.number(dCase.count) }}
-                                        </span>
+
+                                <div v-if="storageData.pallets.state?.damaged?.count || storageData.pallets.state?.lost?.count || storageData.pallets.state?.['other-incident'].count" class="">
+                                    <div class="text-sm text-red-400 border border-red-300 bg-red-50 rounded px-2 py-2 font-normal">
+                                        <div v-if="!storageData.pallets.state?.damaged?.count">
+                                            <FontAwesomeIcon :icon='storageData.pallets.state?.damaged?.icon.icon' :class='storageData.pallets.state?.damaged?.icon.class' fixed-width aria-hidden='true' />
+                                            <!-- Damaged: -->
+                                            {{ storageData.pallets.state?.damaged?.count }}
+                                        </div>
+                                        <div v-if="!storageData.pallets.state?.lost?.count">
+                                            <FontAwesomeIcon :icon='storageData.pallets.state?.lost?.icon.icon' :class='storageData.pallets.state?.lost?.icon.class' fixed-width aria-hidden='true' />
+                                            <!-- Lost: -->
+                                            {{ storageData.pallets.state?.lost?.count }}
+                                        </div>
+                                        <div v-if="!storageData.pallets.state?.['other-incident'].count">
+                                            <FontAwesomeIcon :icon="storageData.pallets.state?.['other-incident']?.icon?.icon" :class="storageData.pallets.state?.['other-incident']?.icon?.class" fixed-width aria-hidden='true' />
+                                            <!-- Other incident: -->
+                                            {{ storageData.pallets.state?.['other-incident'].count }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </dd>
                     </div>
+                </div>
 
-                    <!-- Pie -->
-                    <div class="hidden md:block w-20">
-                        <Pie :data="{
-                            labels: Object.entries(prospectState.cases).map(([, value]) => value.label),
-                            datasets: [{
-                                data: Object.entries(prospectState.cases).map(([, value]) => value.count),
-                                hoverOffset: 4
-                            }]
-                        }" :options="options" />
+                <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
+                    <div class="">
+                        <dt class="text-base font-medium text-gray-400 capitalize">{{ storageData.pallet_deliveries.label }}
+                        </dt>
+                        <dd class="mt-2 flex justify-between gap-x-2">
+                            <div
+                                class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
+                                <!-- In Total -->
+                                <div class="flex gap-x-2 items-end">
+                                    <CountUp :endVal="storageData.pallet_deliveries.count" :duration="1.5" :scrollSpyOnce="true"
+                                        :options="{
+                                            formattingFn: (value: number) => locale.number(value)
+                                        }" />
+                                    <span class="text-sm font-medium leading-4 text-gray-500 ">
+                                        {{ storageData.pallet_deliveries.description }}
+                                    </span>
+                                </div>
+                            </div>
+                        </dd>
                     </div>
                 </div>
+
+
+                <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
+                    <div class="">
+                        <dt class="text-base font-medium text-gray-400 capitalize">{{ storageData.pallet_returns.label }}</dt>
+                        <dd class="mt-2 flex justify-between gap-x-2">
+                            <div
+                                class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
+                                <!-- In Total -->
+                                <div class="flex gap-x-2 items-end">
+                                    <CountUp :endVal="storageData.pallet_returns.count" :duration="1.5" :scrollSpyOnce="true"
+                                        :options="{
+                                            formattingFn: (value: number) => locale.number(value)
+                                        }" />
+                                    <span class="text-sm font-medium leading-4 text-gray-500 ">{{
+                                        storageData.pallet_returns.description }}</span>
+                                </div>
+                            </div>
+                        </dd>
+                    </div>
+                </div>
+
             </div>
         </div>
         <!-- <pre>{{ props }}</pre> -->
