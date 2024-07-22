@@ -104,7 +104,7 @@ class ShowInvoice extends OrgAction
                 ];
             }
         } else {
-            $recurringBillRoute = [];
+            $recurringBillRoute = null;
         }
         return Inertia::render(
             'Org/Accounting/Invoice',
