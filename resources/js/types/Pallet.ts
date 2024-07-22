@@ -73,6 +73,13 @@ export interface PieCustomer {
 
 export interface CustomerPalletData {
     label: string
+    state: {
+        [key: string]: {
+            count: number
+            icon: Icon
+        }
+    }
+    description: string
     count: number
     cases: {
         value: string
