@@ -42,7 +42,6 @@ Route::name('websites.')->group(function () {
                     Route::get('header', [ShowHeader::class,'inFulfilment'])->name('.header');
                     Route::get('menu', [ShowMenu::class, 'inFulfilment'])->name('.menu');
                 });
-
         });
 });
 
