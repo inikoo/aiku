@@ -14,7 +14,6 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Catalogue\RentalAgreementResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -81,9 +80,9 @@ class GetFulfilmentCustomerShowcase
 
 
         $stats['pallets'] = [
-            'label' => __('Pallets'),
-            'count' => $fulfillmentCustomer->number_pallets_status_storing,
-            'tooltip' => __('Pallets in warehouse'),
+            'label'       => __('Pallets'),
+            'count'       => $fulfillmentCustomer->number_pallets_status_storing,
+            'tooltip'     => __('Pallets in warehouse'),
             'description' => __('in warehouse'),
 
         ];
@@ -98,9 +97,9 @@ class GetFulfilmentCustomerShowcase
         }
 
         $stats['pallet_deliveries'] = [
-            'label' => __('Deliveries'),
-            'count' => $fulfillmentCustomer->number_pallet_deliveries,
-            'tooltip' => __('Total number pallet deliveries'),
+            'label'       => __('Deliveries'),
+            'count'       => $fulfillmentCustomer->number_pallet_deliveries,
+            'tooltip'     => __('Total number pallet deliveries'),
             'description' => ''
         ];
         foreach (PalletDeliveryStateEnum::cases() as $case) {
