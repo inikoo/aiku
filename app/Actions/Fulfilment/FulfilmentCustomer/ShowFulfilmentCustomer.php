@@ -112,6 +112,7 @@ class ShowFulfilmentCustomer extends OrgAction
         ];
 
 
+
         if($fulfilmentCustomer->number_pallets_status_storing > 0) {
             $additionalActions[] =
                         [

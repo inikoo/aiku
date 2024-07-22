@@ -114,7 +114,13 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
-        if (($fulfilmentCustomer->pallets_storage || $fulfilmentCustomer->dropshipping) && $fulfilmentCustomer->palletDeliveries()->exists()) {
+        if (($fulfilmentCustomer->pallets_storage || $fulfilmentCustomer->dropshipping) &&
+            (
+                $fulfilmentCustomer->number_pallets_status_storing ||
+                $fulfilmentCustomer->number_pallets_status_returning ||
+                $fulfilmentCustomer->number_pallets_status_returned
+
+            )) {
 
 
             $subNavigation[]=[
