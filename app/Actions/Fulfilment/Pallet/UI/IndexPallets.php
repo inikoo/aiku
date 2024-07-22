@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -17,7 +16,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -37,11 +35,11 @@ class IndexPallets extends OrgAction
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    private FulfilmentCustomer|Fulfilment|Location $parent;
+    private Fulfilment|Location $parent;
 
     private bool $selectStoredPallets = false;
 
-    protected function getElementGroups(FulfilmentCustomer|Fulfilment|Location $parent): array
+    protected function getElementGroups(Fulfilment|Location $parent): array
     {
         return [
             'status' => [
@@ -60,7 +58,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(FulfilmentCustomer|Fulfilment|Location $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Location $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -78,9 +76,6 @@ class IndexPallets extends OrgAction
 
 
         switch (class_basename($parent)) {
-            case "FulfilmentCustomer":
-                $query->where('fulfilment_customer_id', $parent->id);
-                break;
             case "Fulfilment":
                 $query->where('pallets.fulfilment_id', $parent->id);
                 break;
@@ -142,7 +137,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer|Fulfilment|Location $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Fulfilment|Location $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
@@ -163,18 +158,12 @@ class IndexPallets extends OrgAction
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => __('No pallets found'),
-                'count' => match (class_basename($parent)) {
-                    'FulfilmentCustomer' => $parent->number_pallets,
-                    default              => $parent->stats->number_pallets
-                }
+                'count' => $parent->stats->number_pallets
             ];
 
 
-            if ($parent instanceof Fulfilment) {
-                $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-            } else {
-                $emptyStateData['description'] = __("This customer don't have any pallets");
-            }
+            $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
+
 
             $table->withGlobalSearch();
 
@@ -214,12 +203,14 @@ class IndexPallets extends OrgAction
     {
         $subNavigation = [];
 
-        if ($this->parent instanceof Fulfilment) {
-            $stats = $this->parent->stats;
-        } else {
-            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $stats         = $this->parent;
-        }
+
+        $title      = __('Pallets');
+        $icon       = ['fal', 'fa-pallet'];
+        $afterTitle = null;
+        $iconRight  = null;
+
+
+        $stats = $this->parent->stats;
 
 
         return Inertia::render(
@@ -231,11 +222,10 @@ class IndexPallets extends OrgAction
                 ),
                 'title'       => __('Returned Pallets'),
                 'pageHead'    => [
-                    'title' => $this->parent instanceof Fulfilment ? __('Returned Pallets') : __('Customer Pallets'),
-                    'icon'  => [
-                        'icon' => ['fal', 'fa-pallet'],
-                    ],
-                    // 'model' => __('Returned'),
+                    'title'      => $title,
+                    'afterTitle' => $afterTitle,
+                    'iconRight'  => $iconRight,
+                    'icon'       => $icon,
 
                     'subNavigation' => $subNavigation,
                     'actions'       => [
@@ -299,6 +289,7 @@ class IndexPallets extends OrgAction
         return $this->handle($fulfilment, 'pallets');
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Location $location, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $location;
@@ -307,57 +298,28 @@ class IndexPallets extends OrgAction
         return $this->handle($location, 'pallets');
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer, 'pallets');
-    }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallets.index' =>
-            array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+        return array_merge(
+            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+            [
                 [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
-                                'parameters' => $routeParameters,
-                            ],
-                            'label' => __('Pallets'),
-                            'icon'  => 'fal fa-bars',
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                            'parameters' => [
+                                'organisation' => $routeParameters['organisation'],
+                                'fulfilment'   => $routeParameters['fulfilment'],
+                            ]
                         ],
+                        'label' => __('Pallets'),
+                        'icon'  => 'fal fa-bars',
+                    ],
 
-                    ]
                 ]
-            ),
-            default => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                                'parameters' => [
-                                    'organisation' => $routeParameters['organisation'],
-                                    'fulfilment'   => $routeParameters['fulfilment'],
-                                ]
-                            ],
-                            'label' => __('Pallets'),
-                            'icon'  => 'fal fa-bars',
-                        ],
-
-                    ]
-                ]
-            )
-        };
+            ]
+        );
     }
 }

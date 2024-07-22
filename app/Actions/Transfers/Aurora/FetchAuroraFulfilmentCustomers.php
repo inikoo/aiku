@@ -62,11 +62,16 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
                 $rentalAgreementData['email']    = $customer->email;
             }
 
-            StoreRentalAgreement::make()->action(
+
+            $rentalAgreement=StoreRentalAgreement::make()->action(
                 $customer->fulfilmentCustomer,
                 $rentalAgreementData
             );
+            //
+            // dd($rentalAgreement);
         }
+
+        //  exit('xxx');
 
         $storingPalletsCount = DB::connection('aurora')
             ->table('Fulfilment Asset Dimension')
@@ -141,9 +146,10 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
     public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
-            ->table('Customer Dimension')
-            ->where('Customer Fulfilment', 'Yes')
-            ->select('Customer Key as source_id')
+            ->table('Customer Dimension');
+        $query->leftJoin('Store Dimension', 'Customer Store Key', '=', 'Store Key');
+        $query->where('Store Type', 'Fulfilment');
+        $query->select('Customer Key as source_id')
             ->orderBy('source_id');
 
         if ($this->onlyNew) {
@@ -161,7 +167,8 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Customer Dimension');
-        $query->where('Customer Fulfilment', 'Yes');
+        $query->leftJoin('Store Dimension', 'Customer Store Key', '=', 'Store Key');
+        $query->where('Store Type', 'Fulfilment');
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }

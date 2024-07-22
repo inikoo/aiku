@@ -147,7 +147,7 @@ class ShowPallet extends OrgAction
                     'model'         => __('Pallet'),
                     'iconRight'     => $pallet->status->statusIcon()[$pallet->status->value],
                     'noCapitalise'  => true,
-                    'after_title'   => [
+                    'afterTitle'    => [
                         'label'     => '(' . $this->pallet->customer_reference . ')'
                     ],
                     'subNavigation' => $subNavigation,

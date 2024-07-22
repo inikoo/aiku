@@ -46,15 +46,12 @@ class ShowFulfilmentCustomer extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(
-        Organisation $organisation,
-        Fulfilment $fulfilment,
-        FulfilmentCustomer $fulfilmentCustomer,
-        ActionRequest $request
-    ): FulfilmentCustomer {
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
+    {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer);
@@ -62,7 +59,7 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-        // $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
+        $additionalActions = [];
 
 
         $navigation = FulfilmentCustomerTabsEnum::navigation();
@@ -71,36 +68,15 @@ class ShowFulfilmentCustomer extends OrgAction
             unset($navigation[FulfilmentCustomerTabsEnum::AGREED_PRICES->value]);
         }
 
-        /*
-                if (!$fulfilmentCustomer->pallets_storage) {
-                    unset($navigation[FulfilmentCustomerTabsEnum::PALLETS->value]);
-                    unset($navigation[FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value]);
-                    unset($navigation[FulfilmentCustomerTabsEnum::PALLET_RETURNS->value]);
-                }
-                if (!$fulfilmentCustomer->items_storage) {
-                    unset($navigation[FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value]);
-                    unset($navigation[FulfilmentCustomerTabsEnum::STORED_ITEMS->value]);
-                }
-        */
-        // todo
-        //if (!$fulfilmentCustomer->dropshipping) {
-        //}
-        /*
-                if(!$fulfilmentCustomer->rentalAgreement || ($fulfilmentCustomer->rentalAgreement->state != RentalAgreementStateEnum::ACTIVE)) {
-                    unset($navigation[FulfilmentCustomerTabsEnum::PALLETS->value]);
-                    unset($navigation[FulfilmentCustomerTabsEnum::INVOICES->value]);
-                    unset($navigation[FulfilmentCustomerTabsEnum::RECURRING_BILLS->value]);
-                    unset($navigation[FulfilmentCustomerTabsEnum::PALLET_RETURNS->value]);
-                }
-        */
-        if($fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT) {
+
+        if ($fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT) {
             $additionalActions = [
                 [
-                    'type'     => 'button',
-                    'style'    => 'create',
-                    'tooltip'  => __('Create a Rental Agreement'),
-                    'label'    => __('Rental Agreement'),
-                    'route'    => [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('Create a Rental Agreement'),
+                    'label'   => __('Rental Agreement'),
+                    'route'   => [
                         'method'     => 'get',
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
                         'parameters' => array_values($request->route()->originalParameters())
@@ -109,13 +85,13 @@ class ShowFulfilmentCustomer extends OrgAction
             ];
         }
 
-        if($fulfilmentCustomer->rentalAgreement()->exists()) {
+        if ($fulfilmentCustomer->rentalAgreement()->exists()) {
             $additionalActions[] = [
-                'type'     => 'button',
-                'style'    => 'create',
-                'tooltip'  => __('Create a pallet Delivery'),
-                'label'    => __('Delivery'),
-                'route'    => [
+                'type'    => 'button',
+                'style'   => 'create',
+                'tooltip' => __('Create a pallet Delivery'),
+                'label'   => __('Delivery'),
+                'route'   => [
                     'method'     => 'post',
                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                     'parameters' => [
@@ -126,22 +102,21 @@ class ShowFulfilmentCustomer extends OrgAction
         }
 
 
-        if($fulfilmentCustomer->number_pallets_status_storing > 0) {
+        if ($fulfilmentCustomer->number_pallets_status_storing > 0) {
             $additionalActions[] =
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create Return'),
-                            'label'   => __('Return'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                'parameters' => [
-                                    'fulfilmentCustomer' => $fulfilmentCustomer->id
-                                ]
-                            ]
-                        ];
-
+                [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'tooltip' => __('Create Return'),
+                    'label'   => __('Return'),
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $fulfilmentCustomer->id
+                        ]
+                    ]
+                ];
         }
 
         return Inertia::render(
@@ -151,29 +126,28 @@ class ShowFulfilmentCustomer extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($fulfilmentCustomer, $request),
                     'next'     => $this->getNext($fulfilmentCustomer, $request),
                 ],
-                'pageHead' => [
-                    'icon' => [
+                'pageHead'    => [
+                    'icon'          => [
                         'title' => __('customer'),
                         'icon'  => 'fal fa-user',
 
                     ],
-                    'model'        => __('Customer'),
-                    'subNavigation'=> $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
-                    // 'meta'         => array_filter([
-                    //     $webUsersMeta,
-                    // ]),
-                    'title' => $fulfilmentCustomer->customer->name,
-                    'edit'  => $this->canEdit ? [
+                    'subNavigation' => $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
+                    'title'         => $fulfilmentCustomer->customer->name,
+                    'afterTitle'    => [
+                        'label'     => '('.$fulfilmentCustomer->customer->reference.')',
+                    ],
+                    'edit'          => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => [
+                    'actions'       => [
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
@@ -185,8 +159,8 @@ class ShowFulfilmentCustomer extends OrgAction
                             ]
                         ],
                         [
-                            'type'      => 'buttonGroup',
-                            'button'    => $additionalActions
+                            'type'   => 'buttonGroup',
+                            'button' => $additionalActions
                         ]
                     ]
                 ],
@@ -244,7 +218,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
@@ -258,6 +232,7 @@ class ShowFulfilmentCustomer extends OrgAction
         }
 
         $fulfilmentCustomer = FulfilmentCustomer::where('slug', $fulfilmentCustomer)->first();
+
         return array_merge(
             ShowFulfilment::make()->getBreadcrumbs(
                 Arr::only($routeParameters, ['organisation', 'fulfilment'])

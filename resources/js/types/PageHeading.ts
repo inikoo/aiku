@@ -6,7 +6,7 @@ import { Icon } from '@/types/Utils/Icon'
 export interface PageHeading {
     actions: Action[]
     actionActualMethod?: string
-    after_title?: {
+    afterTitle?: {
         label: string
         class?: string
     }
@@ -38,6 +38,6 @@ export interface PageHeading {
         icon: string
         class: string
     }
-    title: string
+    title: string,
     subNavigation?: any
 }
