@@ -132,10 +132,8 @@ class ShowPalletReturn extends OrgAction
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'post',
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.submit',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                             'palletReturn'       => $palletReturn->id
                         ]

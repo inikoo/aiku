@@ -10,6 +10,7 @@
 import { inject, ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
+import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 
 import { routeType } from '@/types/route'
 import { PalletCustomer, PieCustomer,FulfilmentCustomerStats } from '@/types/Pallet'
@@ -17,12 +18,12 @@ import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
-import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink } from '@fal'
+import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faLongArrowRight)
+library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faLongArrowRight)
 
 const props = defineProps<{
     data: {
@@ -105,22 +106,20 @@ const isLoading = ref<string | boolean>(false)
 
 <template>
     <!-- Section: Stats box -->
-    <div class="px-4 py-5 md:px-6 lg:px-8 flex flex-col md:flex-row gap-x-8 lg:gap-x-12 gap-y-3">
+    <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-3">
 
         <div class="space-y-3">
             <!-- Section: Radio -->
-            <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
             
             <div class="space-y-3 relative">
                 <!-- Section: Profile box -->
-                <Transition name="headlessui" mode="out-in">
-                    <div v-if="props.data.fulfilment_customer.radioTabs.dropshipping" class="col-span-2 grid grid-cols-2">
-                        <div class="w-fit">
-                            <h2 class="sr-only">Customer profile</h2>
-                            <div class="rounded-lg shadow-sm ring-1 ring-gray-900/5">
+                <!-- <Transition name="headlessui" mode="out-in"> -->
+                    <div class="col-span-2 grid ">
+                        <div class="w-full">
+                            <div class="rounded-lg shadow-sm ring-1 ring-gray-300">
                                 <dl class="flex flex-wrap">
                                     <!-- Profile: Header -->
-                                    <div class="flex w-full py-6">
+                                    <!-- <div class="flex w-full py-6">
                                         <div class="flex-auto pl-6">
                                             <dt class="text-sm font-semibold leading-6 text-gray-900">Total Clients</dt>
                                             <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.customer.number_current_clients || 0 }}</dd>
@@ -131,9 +130,10 @@ const isLoading = ref<string | boolean>(false)
                                                 {{ data.customer.reference }}
                                             </dd>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <!-- Section: Field -->
                                     <div class="flex flex-col gap-y-3 border-t border-gray-900/5 w-full py-6">
+
                                         <!-- Field: Contact name -->
                                         <div v-if="data.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Contact name'" class="flex-none">
@@ -142,6 +142,7 @@ const isLoading = ref<string | boolean>(false)
                                             </dt>
                                             <dd class="text-gray-500">{{ data.customer.contact_name }}</dd>
                                         </div>
+
                                         <!-- Field: Contact name -->
                                         <div v-if="data.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Company name'" class="flex-none">
@@ -150,6 +151,7 @@ const isLoading = ref<string | boolean>(false)
                                             </dt>
                                             <dd class="text-gray-500">{{ data.customer.company_name }}</dd>
                                         </div>
+
                                         <!-- Field: Created at -->
                                         <div v-if="data.customer?.created_at" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Created at'" class="flex-none">
@@ -160,6 +162,7 @@ const isLoading = ref<string | boolean>(false)
                                                 <time datetime="2023-01-31">{{ useFormatTime(data.customer?.created_at) }}</time>
                                             </dd>
                                         </div>
+
                                         <!-- Field: Email -->
                                         <div v-if="data.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Email'" class="flex-none">
@@ -168,6 +171,7 @@ const isLoading = ref<string | boolean>(false)
                                             </dt>
                                             <dd class="text-gray-500">{{ data.customer?.email }}</dd>
                                         </div>
+                                        
                                         <!-- Field: Phone -->
                                         <div v-if="data.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Phone'" class="flex-none">
@@ -176,101 +180,117 @@ const isLoading = ref<string | boolean>(false)
                                             </dt>
                                             <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
                                         </div>
+
+                                        <!-- Field: Location -->
+                                        <div v-if="data.customer?.location" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Phone'" class="flex-none">
+                                                <span class="sr-only">Location</span>
+                                                <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
+                                            </dt>
+                                            <dd class="text-gray-500">
+                                                <AddressLocation :data="data.customer?.location" />
+                                            </dd>
+                                        </div>
                                     </div>
                                 </dl>
                             </div>
                         </div>
                     </div>
-                </Transition>
+                <!-- </Transition> -->
 
                 <!-- Box Group: Pallets -->
                 <CustomerShowcaseStats :stats="data.stats" />
             </div>
         </div>
 
-        <!-- Section: Rental Agreement box -->
-        <div class="w-full max-w-full md:max-w-96">
-            <!-- Section: Recurring Bills -->
-            <div v-if="data.recurring_bill" class="block group relative w-full gap-x-2 bg-slate-50d border border-gray-200 px-4 py-4 rounded-lg mb-4">
-                <!-- <FontAwesomeIcon icon='fal fa-receipt' class='text-3xl text-gray-400' fixed-width aria-hidden='true' /> -->
-                <div class="border-l-4 border-indigo-500 pl-2 leading-none text-lg">
-                    <div class="block text-xl font-semibold">Recurring Bills</div>
-                    <div class="text-sm flex items-center gap-x-1">
-                        {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0) }}
-                    </div>
-                </div>
-
-                <!-- State Date & End Date -->
-                <div class="pl-1 mt-4 w-80 grid grid-cols-9 gap-x-3">
-                    <div class="col-span-4 text-sm">
-                        <div class="text-gray-400">Start date</div>
-                        <div class="font-semibold">{{ useFormatTime(data.recurring_bill.start_date) }}</div>
-                    </div>
-                    <div class="flex justify-center items-center">
-                        <FontAwesomeIcon icon='fal fa-chevron-right' class='text-xs' fixed-width aria-hidden='true' />
-                    </div>
-                    <div class="col-span-4 text-sm">
-                        <div class="text-gray-400">End date</div>
-                        <div class="font-semibold">{{ useFormatTime(data.recurring_bill.end_date) }}</div>
-                    </div>
-                </div>
-
-                <div class="pl-1 mt-4 w-full flex items-end justify-between">
-                    <div class="flex h-fit">
-                        <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
-                            <template #label>
-                                <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'" icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width aria-hidden='true' />
-                                <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' : 'Past' }}</span>
-                            </template>
-                        </Tag>
+        <!-- Section: -->
+        <div class="w-full space-y-4">
+            <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
+            
+            <div class="border-t border-gray-200 pt-4 w-full max-w-full">
+                <!-- Section: Recurring Bills -->
+                <div v-if="data.recurring_bill" class="block group relative w-full gap-x-2 border border-gray-300 px-4 py-4 rounded-lg mb-4">
+                    <!-- <FontAwesomeIcon icon='fal fa-receipt' class='text-3xl text-gray-400' fixed-width aria-hidden='true' /> -->
+                    <div class="border-l-4 border-indigo-500 pl-2 leading-none text-lg">
+                        <div class="block text-lg font-semibold">Recurring Bills</div>
+                        <div class="text-sm flex items-center gap-x-1">
+                            {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0) }}
+                        </div>
                     </div>
 
-                    <Link :href="route(data.recurring_bill.route.name, data.recurring_bill.route.parameters)"
-                        @start="() => isLoading = 'loadingVisitRecurring'"
-                        @error="() => isLoading = false"
-                    >
-                        <Button
-                            :type="'tertiary'"
-                            :loading="isLoading === 'loadingVisitRecurring'"
-                            size="s"
-                            label="See details"
-                            iconRight="fal fa-external-link"
-                        />
-                    </Link>
-                </div>
-            </div>
+                    <!-- State Date & End Date -->
+                    <div class="pl-1 mt-4 w-80 lg:w-96 grid grid-cols-9 gap-x-3">
+                        <div class="col-span-4 text-sm">
+                            <div class="text-gray-400">Start date</div>
+                            <div class="font-medium">{{ useFormatTime(data.recurring_bill.start_date) }}</div>
+                        </div>
 
-            <div class="rounded-lg ring-1 ring-gray-200">
-                <div class="bg-slate-100 border-b border-gray-300 py-4 px-4 flex justify-between">
-                    <div class="font-semibold text-2xl">{{ trans('Rental Agreement') }}</div>
-                    <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data.route.name, data.rental_agreement.stats?.data.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
-                        <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>
-                    </Link>
-                </div>
+                        <div class="flex justify-center items-center">
+                            <FontAwesomeIcon icon='fal fa-chevron-right' class='text-xs' fixed-width aria-hidden='true' />
+                        </div>
 
-                <!-- Stats -->
-                <div v-if="data.rental_agreement.stats" class="p-5 space-y-5">
-                    <div class="flex flex-col">
-                        <div class="text-sm text-gray-500">{{ trans('Reference') }}:</div>
-                        <div class="font-semibold text-xl text-gray-600">#{{ data.rental_agreement.stats?.data.reference }}</div>
+                        <div class="col-span-4 text-sm">
+                            <div class="text-gray-400">End date</div>
+                            <div class="font-medium">{{ useFormatTime(data.recurring_bill.end_date) }}</div>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col">
-                        <div class="text-sm text-gray-500">{{ trans('Billing Cycle') }}:</div>
-                        <div class="font-semibold text-xl text-gray-600 capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}</div>
-                    </div>
-
-                    <div class="flex flex-col">
-                        <div class="text-sm text-gray-500">{{ trans('Pallet Limit') }}:</div>
-                        <div class="font-semibold text-xl text-gray-600">{{ data.rental_agreement.stats?.data.pallets_limit || trans('No limit') }}</div>
+                    <div class="pl-1 mt-6 w-full flex items-end justify-between">
+                        <div class="flex h-fit">
+                            <Tag :theme="data.recurring_bill.status === 'current' ? 3 : undefined" size="xxs">
+                                <template #label>
+                                    <FontAwesomeIcon v-if="data.recurring_bill.status === 'current'" icon='fas fa-circle' class='text-green-500 animate-pulse text-[7px]' fixed-width aria-hidden='true' />
+                                    <span class="capitalize">{{ data.recurring_bill.status === 'current' ? 'Active' : 'Past' }}</span>
+                                </template>
+                            </Tag>
+                        </div>
+                        
+                        <Link :href="route(data.recurring_bill.route.name, data.recurring_bill.route.parameters)"
+                            @start="() => isLoading = 'loadingVisitRecurring'"
+                            @error="() => isLoading = false"
+                        >
+                            <Button
+                                :type="'tertiary'"
+                                :loading="isLoading === 'loadingVisitRecurring'"
+                                size="s"
+                                label="See details"
+                                iconRight="fal fa-external-link"
+                            />
+                        </Link>
                     </div>
                 </div>
                 
-                <div v-else class="text-center py-16">
-                    <div class="text-gray-500 text-xs mb-1">The rental agreement is not created yet.</div>
-                    <Link :href="route(data.rental_agreement.createRoute.name, data.rental_agreement.createRoute.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
-                        <Button type="secondary" label="Create Rental Agreement" :loading="isLoadingButtonRentalAgreement"/>
-                    </Link>
+                <!-- Section: Rental Agreement -->
+                <div class="rounded-lg ring-1 ring-gray-300">
+                    <div class="border-b border-gray-300 py-4 px-4 flex items-center justify-between">
+                        <div class="text-gray-400">{{ trans('Rental Agreement') }}</div>
+                        <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data.route.name, data.rental_agreement.stats?.data.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
+                            <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>
+                        </Link>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div v-if="data.rental_agreement.stats" class="p-5 space-y-5">
+                        <div class="flex flex-col">
+                            <div class="text-sm text-gray-400">{{ trans('Reference') }}:</div>
+                            <div class="font-medium">#{{ data.rental_agreement.stats?.data.reference }}</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="text-sm text-gray-400">{{ trans('Billing Cycle') }}:</div>
+                            <div class="font-medium capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="text-sm text-gray-400">{{ trans('Pallet Limit') }}:</div>
+                            <div class="font-medium">{{ data.rental_agreement.stats?.data.pallets_limit || trans('No limit') }}</div>
+                        </div>
+                    </div>
+            
+                    <div v-else class="text-center py-16">
+                        <div class="text-gray-500 text-xs mb-1">The rental agreement is not created yet.</div>
+                        <Link :href="route(data.rental_agreement.createRoute.name, data.rental_agreement.createRoute.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
+                            <Button type="secondary" label="Create Rental Agreement" :loading="isLoadingButtonRentalAgreement"/>
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

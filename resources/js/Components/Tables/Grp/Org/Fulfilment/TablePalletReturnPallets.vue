@@ -47,12 +47,12 @@ const listStatusNotPicked = [
         value: 'lost'
     },
     {
-        label: trans('Other'),
-        value: 'other'
+        label: trans('Other incident'),
+        value: 'other-incident'
     }
 ]
 const selectedStatusNotPicked = reactive({
-    status: 'other',
+    status: 'other-incident',
     notes: ''
 })
 const errorNotPicked = reactive({
@@ -206,7 +206,7 @@ const isUndoLoading = ref(false)
                 </Link>
 
                 <!-- Button: Set as not picked -->
-                <Popover v-if="pallet.state === 'picking'" width="w-full">
+                <Popover v-if="pallet.state === 'picking'">
                     <template #button="{ open }">
                         <Button icon="fal fa-times"
                             v-tooltip="trans('Set as not picked')"

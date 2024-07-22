@@ -91,7 +91,7 @@ class GetFulfilmentCustomerShowcase
             $stats['pallets']['state'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletStateEnum::stateIcon()[$case->value],
-                'count' => PalletStateEnum::count($fulfillmentCustomer)[$case->value],
+                'count' => PalletStateEnum::count($fulfillmentCustomer)[$case->value] ?? 0,
                 'label' => PalletStateEnum::labels()[$case->value]
             ];
         }

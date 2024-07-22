@@ -9,6 +9,8 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Models\CRM\WebUser;
@@ -17,26 +19,27 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePalletItem extends OrgAction
+class SetPalletInReturnAsPicked extends OrgAction
 {
     use WithActionUpdate;
 
 
     private PalletReturnItem $pallet;
 
-    public function handle(PalletReturnItem $palletReturnItem, array $modelData): PalletReturnItem
+    public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
-        if($modelData['state'] == PalletReturnItemStateEnum::PICKED->value) {
-            data_set($modelData, 'picked_from_location_id', $palletReturnItem->pallet->location_id);
-        }
+
+        $modelData=[];
+        data_set($modelData, 'picked_from_location_id', $palletReturnItem->pallet->location_id);
+        data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
 
         $this->update($palletReturnItem, $modelData);
 
-        data_forget($modelData, 'picked_from_location_id');
-        data_forget($modelData, 'state');
+        $modelData=[];
+        data_set($modelData, 'state', PalletStateEnum::PICKED);
+        data_set($modelData, 'status', PalletStatusEnum::RETURNING);
 
         UpdatePallet::run($palletReturnItem->pallet, $modelData);
 
@@ -59,12 +62,7 @@ class UpdatePalletItem extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'state'              => [
-                'sometimes',
-                Rule::enum(PalletReturnItemStateEnum::class)
-            ]
-        ];
+        return [];
     }
 
     public function fromRetina(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
@@ -76,7 +74,7 @@ class UpdatePalletItem extends OrgAction
 
         $this->initialisation($request->get('website')->organisation, $request);
 
-        return $this->handle($palletReturnItem, $this->validatedData);
+        return $this->handle($palletReturnItem);
     }
 
     public function asController(PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
@@ -84,15 +82,16 @@ class UpdatePalletItem extends OrgAction
         $this->pallet = $palletReturnItem;
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturnItem, $this->validatedData);
+        return $this->handle($palletReturnItem);
     }
+
 
     public function fromApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, PalletReturnItem $palletReturnItem, ActionRequest $request): PalletReturnItem
     {
         $this->pallet = $palletReturnItem;
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $request);
 
-        return $this->handle($palletReturnItem, $this->validatedData);
+        return $this->handle($palletReturnItem);
     }
 
     public function action(PalletReturnItem $palletReturnItem, array $modelData, int $hydratorsDelay = 0): PalletReturnItem
@@ -102,7 +101,7 @@ class UpdatePalletItem extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromFulfilment($palletReturnItem->palletReturn->fulfilment, $modelData);
 
-        return $this->handle($palletReturnItem, $this->validatedData);
+        return $this->handle($palletReturnItem);
     }
 
     public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemsResource

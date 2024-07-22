@@ -12,6 +12,6 @@ import { usePage } from '@inertiajs/vue3'
 <template>
     <!-- <pre>{{ usePage() }}</pre> -->
     <div class="p-10 text-4xl font-bold">
-        Welcome in Retina Dashboard!
+        Welcome!
     </div>
 </template>

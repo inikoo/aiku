@@ -61,6 +61,7 @@ import {
     faHouseDamage,
     faSign
 } from "@fal"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
 import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue"
