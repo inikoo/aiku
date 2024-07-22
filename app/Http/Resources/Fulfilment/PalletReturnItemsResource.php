@@ -112,7 +112,7 @@ class PalletReturnItemsResource extends JsonResource
             'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return.pallet.delete',
-                    'parameters' => [$this->pallet_return_id, $this->id]
+                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
                 ],
                 default => [
                     'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.delete',
