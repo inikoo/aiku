@@ -134,7 +134,7 @@ const originUrl = location.origin
                                             :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
                                             :method="button.route?.method || 'get'"
                                             @start="() => isButtonLoading = 'buttonGroup' + index"
-                                            @finish="() => isButtonLoading = false"
+                                            @error="() => isButtonLoading = false"
                                             :as="button.target ? 'a' : 'div'"
                                             :target="button.target"
                                         >
