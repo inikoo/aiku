@@ -20,29 +20,29 @@ enum PalletStateEnum: string
     use EnumHelperTrait;
 
     // Status: in-process
-    case IN_PROCESS   = 'in-process';
+    case IN_PROCESS = 'in_process';
 
     // Status: receiving
-    case SUBMITTED    = 'submitted';
-    case CONFIRMED    = 'confirmed';
-    case RECEIVED     = 'received';
-    case BOOKING_IN   = 'booking-in';
-    case BOOKED_IN    = 'booked-in';
+    case SUBMITTED = 'submitted';
+    case CONFIRMED = 'confirmed';
+    case RECEIVED = 'received';
+    case BOOKING_IN = 'booking_in';
+    case BOOKED_IN = 'booked_in';
 
     // Status: not-received
-    case NOT_RECEIVED = 'not-received';
+    case NOT_RECEIVED = 'not_received';
 
     // Status: storing
-    case STORING    = 'storing';
+    case STORING = 'storing';
 
     // Status: returning
     case PICKING = 'picking';
-    case PICKED  = 'picked';
+    case PICKED = 'picked';
 
     // Status: incident
-    case DAMAGED    = 'damaged';
-    case LOST       = 'lost';
-    case OTHER      = 'other';
+    case DAMAGED = 'damaged';
+    case LOST = 'lost';
+    case OTHER_INCIDENT = 'other_incident';
 
     // Status: returned
     case DISPATCHED = 'dispatched';
@@ -51,27 +51,27 @@ enum PalletStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process'   => __('In process'),
-            'submitted'    => __('Submitted'),
-            'confirmed'    => __('Confirmed'),
-            'not-received' => __('Not Received'),
-            'received'     => __('Received'),
-            'booking-in'   => __('Booking in'),
-            'booked-in'    => __('Booked in'),
-            'storing'      => __('Storing'),
-            'picking'      => __('Picking'),
-            'picked'       => __('Picked'),
-            'dispatched'   => __('Dispatched'),
-            'lost'         => __('Lost'),
-            'damaged'      => __('Damaged'),
-            'other'        => __('Other'),
+            'in_process'     => __('In process'),
+            'submitted'      => __('Submitted'),
+            'confirmed'      => __('Confirmed'),
+            'not_received'   => __('Not Received'),
+            'received'       => __('Received'),
+            'booking_in'     => __('Booking in'),
+            'booked_in'      => __('Booked in'),
+            'storing'        => __('Storing'),
+            'picking'        => __('Picking'),
+            'picked'         => __('Picked'),
+            'dispatched'     => __('Dispatched'),
+            'lost'           => __('Lost'),
+            'damaged'        => __('Damaged'),
+            'other_incident' => __('Other'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in_process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -81,7 +81,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'submitted' => [
+            'submitted'    => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
@@ -91,7 +91,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'confirmed' => [
+            'confirmed'    => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
@@ -101,7 +101,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'received' => [
+            'received'     => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
@@ -111,7 +111,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'not-received' => [
+            'not_received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -121,7 +121,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booking-in' => [
+            'booking_in'   => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
@@ -131,7 +131,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booked-in' => [
+            'booked_in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-300',
@@ -141,7 +141,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'storing' => [
+            'storing'      => [
                 'tooltip' => __('Storing'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
@@ -152,7 +152,7 @@ enum PalletStateEnum: string
                 ]
             ],
 
-            'dispatched' => [
+            'dispatched'     => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-gray-400',
@@ -162,7 +162,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picking' => [
+            'picking'        => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
@@ -172,7 +172,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picked' => [
+            'picked'         => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
@@ -182,7 +182,7 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'damaged' => [
+            'damaged'        => [
                 'tooltip' => __('Damaged'),
                 'icon'    => 'fal fa-fragile',
                 'class'   => 'text-red-400',
@@ -192,7 +192,7 @@ enum PalletStateEnum: string
                     'type' => 'material-community'
                 ]
             ],
-            'lost' => [
+            'lost'           => [
                 'tooltip' => __('Lost'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
@@ -202,8 +202,8 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'other' => [
-                'tooltip' => __('Other'),
+            'other_incident' => [
+                'tooltip' => __('Other incident'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
                 'color'   => 'red',
@@ -227,20 +227,20 @@ enum PalletStateEnum: string
         }
 
         return [
-            'in-process'   => $stats->number_pallets_state_in_process,
-            'submitted'    => $stats->number_pallets_state_submitted,
-            'confirmed'    => $stats->number_pallets_state_confirmed,
-            'not-received' => $stats->number_pallets_state_not_received,
-            'received'     => $stats->number_pallets_state_received,
-            'booking-in'   => $stats->number_pallets_state_booking_in,
-            'booked-in'    => $stats->number_pallets_state_booked_in,
-            'storing'      => $stats->number_pallets_state_storing,
-            'picking'      => $stats->number_pallets_state_picking,
-            'picked'       => $stats->number_pallets_state_picked,
-            'dispatched'   => $stats->number_pallets_state_disoatched,
-            'lost'         => $stats->number_pallets_state_lost,
-            'damaged'      => $stats->number_pallets_state_damaged,
-            'other'        => $stats->number_pallets_state_other
+            'in_process'     => $stats->number_pallets_state_in_process,
+            'submitted'      => $stats->number_pallets_state_submitted,
+            'confirmed'      => $stats->number_pallets_state_confirmed,
+            'not_received'   => $stats->number_pallets_state_not_received,
+            'received'       => $stats->number_pallets_state_received,
+            'booking_in'     => $stats->number_pallets_state_booking_in,
+            'booked_in'      => $stats->number_pallets_state_booked_in,
+            'storing'        => $stats->number_pallets_state_storing,
+            'picking'        => $stats->number_pallets_state_picking,
+            'picked'         => $stats->number_pallets_state_picked,
+            'dispatched'     => $stats->number_pallets_state_disoatched,
+            'lost'           => $stats->number_pallets_state_lost,
+            'damaged'        => $stats->number_pallets_state_damaged,
+            'other_incident' => $stats->number_pallets_state_other
         ];
     }
 }

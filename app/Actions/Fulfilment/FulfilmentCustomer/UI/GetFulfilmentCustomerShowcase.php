@@ -87,12 +87,15 @@ class GetFulfilmentCustomerShowcase
         $stats = [];
 
         $stats['pallets'] = [
-            'label' => __('Pallet'),
-            'count' => $parent->number_pallets
+            'label' => __('Pallets'),
+            'count' => $parent->number_pallets_status_storing,
+            'tooltip' => __('Pallets in warehouse'),
+            'description' => __('in warehouse'),
+
         ];
 
         foreach (PalletStateEnum::cases() as $case) {
-            $stats['pallets']['cases'][$case->value] = [
+            $stats['pallets']['state'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletStateEnum::stateIcon()[$case->value],
                 'count' => PalletStateEnum::count($parent)[$case->value],
@@ -100,9 +103,11 @@ class GetFulfilmentCustomerShowcase
             ];
         }
 
-        $stats['pallet_delivery'] = [
+        $stats['pallet_deliveries'] = [
             'label' => __('Pallet Delivery'),
-            'count' => $parent->number_pallet_deliveries
+            'count' => $parent->number_pallet_deliveries,
+            'tooltip' => __('Total number pallet deliveries'),
+            'description' => ''
         ];
         foreach (PalletDeliveryStateEnum::cases() as $case) {
             $stats['pallet_delivery']['cases'][$case->value] = [
@@ -113,7 +118,7 @@ class GetFulfilmentCustomerShowcase
             ];
         }
 
-        $stats['pallet_return'] = [
+        $stats['pallet_returns'] = [
             'label' => __('Pallet Return'),
             'count' => $parent->number_pallet_returns
         ];

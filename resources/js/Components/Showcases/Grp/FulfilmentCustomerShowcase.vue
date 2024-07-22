@@ -12,7 +12,7 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
 import { routeType } from '@/types/route'
-import { PalletCustomer, PieCustomer } from '@/types/Pallet'
+import { PalletCustomer, PieCustomer,CustomerPalletData } from '@/types/Pallet'
 import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -38,8 +38,8 @@ const props = defineProps<{
             number_pallets_returns?: number
         }
         updateRoute: routeType
-        pieData: {
-            [key: string]: PieCustomer
+        dashboardData: {
+            [key: string]: CustomerPalletData
         }
         warehouse_summary: {
             [key: string]: number
@@ -184,7 +184,7 @@ const isLoading = ref<string | boolean>(false)
                 </Transition>
 
                 <!-- Box Group: Pallets -->
-                <CustomerShowcaseStats :pieData="data.pieData" :warehouseSummary="data.warehouse_summary" />
+                <CustomerShowcaseStats :dashboardData="data.dashboardData" />
             </div>
         </div>
 

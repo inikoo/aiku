@@ -71,6 +71,17 @@ export interface PieCustomer {
     }[]
 }
 
+export interface CustomerPalletData {
+    label: string
+    count: number
+    cases: {
+        value: string
+        count: number
+        label: string
+        icon: Icon
+    }[]
+}
+
 export interface PalletDelivery {
     id: number
     customer_name: string
