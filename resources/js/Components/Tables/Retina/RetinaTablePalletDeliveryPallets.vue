@@ -6,15 +6,11 @@
 
 <script setup lang="ts">
 import Table from "@/Components/Table/Table.vue"
-import { library } from "@fortawesome/fontawesome-svg-core"
 
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
-import { faTimesSquare } from "@fas"
-import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 // import ButtonEditTable from "@/Components/ButtonEditTable.vue"
@@ -26,7 +22,12 @@ import { inject, ref } from "vue"
 import TagPallet from "@/Components/TagPallet.vue"
 import { trans } from 'laravel-vue-i18n'
 
-library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTimesSquare } from "@fas"
+import { faTrashAlt, faPaperPlane, faInventory } from "@far"
+import { faSignOutAlt, faTruckLoading, faTimes, faStickyNote } from "@fal"
+library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes, faStickyNote )
 const props = defineProps<{
 	data: TSTable
 	tab?: string
@@ -100,7 +101,7 @@ const typePallet = [
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
 
-        <!-- Column: Customer Reference -->
+        <!-- Column: Pallet Reference (Customer's), Notes-->
 		<template #cell(customer_reference)="{ item }">
             <div v-if="state == 'in-process'" class="min-w-48">
                 <FieldEditableTable
@@ -109,13 +110,16 @@ const typePallet = [
                     fieldName="customer_reference"
                     placeholder="Enter code 1-64 characters" />
             </div>
+
 			<div v-else>
-                <div v-if="item.customer_reference">
-                    {{ item.customer_reference }}
-                </div>
-                <div v-else class="italic text-sm text-gray-400">
-                    {{ trans('No reference') }}
-                </div>
+                <div class="space-x-1 space-y-2">
+				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
+				<span v-if="item.notes" class="text-gray-400 text-xs">
+					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+					{{ item.notes }}
+				</span>
+                <span v-else class="text-gray-400 text-xs">-</span>
+			</div>
             </div>
 		</template>
 

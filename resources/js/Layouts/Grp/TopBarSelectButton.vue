@@ -7,7 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faPalletAlt)
 
 const props = defineProps<{
-    activeButton: boolean
+    activeButton?: boolean
     icon: string | string[]
     label?: string
 }>()

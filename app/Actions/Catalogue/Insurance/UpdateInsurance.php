@@ -5,53 +5,53 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shipping;
+namespace App\Actions\Catalogue\Insurance;
 
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Shipping\ShippingStateEnum;
+use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
+use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Service;
-use App\Models\Catalogue\Shipping;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateShipping extends OrgAction
+class UpdateInsurance extends OrgAction
 {
     use WithActionUpdate;
 
 
-    private Shipping $shipping;
+    private Insurance $insurance;
 
-    public function handle(Shipping $shipping, array $modelData): Shipping
+    public function handle(Insurance $insurance, array $modelData): Insurance
     {
 
         if(Arr::exists($modelData, 'state')) {
             $status = false;
-            if (Arr::get($modelData, 'state') == ShippingStateEnum::ACTIVE) {
+            if (Arr::get($modelData, 'state') == InsuranceStateEnum::ACTIVE) {
                 $status = true;
             }
             data_set($modelData, 'status', $status);
         }
 
-        $shipping = $this->update($shipping, $modelData);
-        $changed  = $shipping->getChanges();
+        $insurance = $this->update($insurance, $modelData);
+        $changed   = $insurance->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
-            $historicAsset = StoreHistoricAsset::run($shipping);
-            $shipping->updateQuietly(
+            $historicAsset = StoreHistoricAsset::run($insurance);
+            $insurance->updateQuietly(
                 [
                     'current_historic_asset_id' => $historicAsset->id,
                 ]
             );
         }
 
-        UpdateAsset::run($shipping->asset);
+        UpdateAsset::run($insurance->asset);
 
-        return $shipping;
+        return $insurance;
     }
 
     // public function authorize(ActionRequest $request): bool
@@ -71,10 +71,10 @@ class UpdateShipping extends OrgAction
                 'max:32',
                 'alpha_dash',
                 new IUnique(
-                    table: 'shippings',
+                    table: 'insurances',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'state', 'operator' => '!=', 'value' => ShippingStateEnum::DISCONTINUED->value],
+                        ['column' => 'state', 'operator' => '!=', 'value' => InsuranceStateEnum::DISCONTINUED->value],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
@@ -83,9 +83,7 @@ class UpdateShipping extends OrgAction
             'price'                    => ['sometimes', 'required', 'numeric', 'min:0'],
             'unit'                     => ['sometimes', 'string'],
             'data'                     => ['sometimes', 'array'],
-            'state'                    => ['sometimes', 'required', Rule::enum(ShippingStateEnum::class)],
-            'structural'               => ['sometimes', 'boolean'],
-
+            'state'                    => ['sometimes', 'required', Rule::enum(InsuranceStateEnum::class)],
         ];
     }
 
@@ -97,14 +95,14 @@ class UpdateShipping extends OrgAction
     //     return $this->handle($service, $this->validatedData);
     // }
 
-    public function action(Shipping $shipping, array $modelData, int $hydratorsDelay = 0): Shipping
+    public function action(Insurance $insurance, array $modelData, int $hydratorsDelay = 0): Insurance
     {
-        $this->asAction        = true;
-        $this->shipping        = $shipping;
-        $this->hydratorsDelay  = $hydratorsDelay;
-        $this->initialisationFromShop($shipping->shop, $modelData);
+        $this->asAction         = true;
+        $this->insurance        = $insurance;
+        $this->hydratorsDelay   = $hydratorsDelay;
+        $this->initialisationFromShop($insurance->shop, $modelData);
 
-        return $this->handle($shipping, $this->validatedData);
+        return $this->handle($insurance, $this->validatedData);
     }
 
 

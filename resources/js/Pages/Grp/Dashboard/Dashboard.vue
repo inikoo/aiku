@@ -366,7 +366,7 @@ const groupCurrency = [
                                             class="flex items-center gap-x-1"
                                             :class="
                                             isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
-                                                ? 'text-green-500'
+                                                ? ''
                                                 : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
                                                     ? 'text-red-500'
                                                     : ''
