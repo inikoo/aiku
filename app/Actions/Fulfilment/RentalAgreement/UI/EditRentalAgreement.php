@@ -70,7 +70,17 @@ class EditRentalAgreement extends OrgAction
                 ),
                 'title'       => __('edit rental agreement'),
                 'pageHead'    => [
-                    'title' => __('edit rental agreement')
+                    'title' => __('edit rental agreement'),
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ],
                 ],
                 'formData'    => [
                     'fullLayout' => true,

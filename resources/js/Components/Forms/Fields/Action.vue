@@ -59,6 +59,7 @@ const handleClick = (action: Action) => {
                 <Button
                     :style="button.style"
                     :label="button.label"
+                    :size="button.size"
                     :icon="button.icon" :iconRight="button.iconRight"
                     :key="`ActionButton${button.label}${button.style}`"
                     :tooltip="button.tooltip"
@@ -82,6 +83,7 @@ const handleClick = (action: Action) => {
             :style="action.style"
             :label="action.label"
             :icon="action.icon"
+            :size="action.size"
             :iconRight="action.iconRight"
             :key="`ActionButton${action.label}${action.style}`"
             :tooltip="action.tooltip"

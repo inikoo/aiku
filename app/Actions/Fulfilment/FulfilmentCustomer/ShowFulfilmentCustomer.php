@@ -93,24 +93,37 @@ class ShowFulfilmentCustomer extends OrgAction
                     unset($navigation[FulfilmentCustomerTabsEnum::PALLET_RETURNS->value]);
                 }
         */
+        if($fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT){
+            $additionalActions = [
+                [
+                    'type'     => 'button',
+                    'style'    => 'create',
+                    'tooltip'  => __('Create a Rental Agreement'),
+                    'label'    => __('Rental Agreement'),
+                    'route'    => [
+                        'method'     => 'get',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ]
+                ],
+            ];
+        }
 
-        $additionalActions = [
-                    [
-                        'type'     => 'button',
-                        'style'    => 'create',
-                        'tooltip'  => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT ? __('Rental Agreement is not exist') : __('Create a pallet Delivery'),
-                        'label'    => __('Delivery'),
-                        'disabled' => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT,
-                        'route'    => [
-                            'method'     => 'post',
-                            'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                            'parameters' => [
-                                'fulfilmentCustomer' => $fulfilmentCustomer->id
-                            ]
-                        ]
-                    ],
-        ];
-
+        if($fulfilmentCustomer->rentalAgreement()->exists()){
+            $additionalActions[] = [
+                'type'     => 'button',
+                'style'    => 'create',
+                'tooltip'  =>  __('Create a pallet Delivery'),
+                'label'    => __('Delivery'),
+                'route'    => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $fulfilmentCustomer->id
+                    ]
+                ]
+            ];
+        }
 
 
         if($fulfilmentCustomer->number_pallets_status_storing > 0) {
