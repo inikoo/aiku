@@ -70,6 +70,9 @@ trait HasAssetModel
 
         if ($table->getTable() == 'charges') {
             $table->string('state')->default(ChargeStateEnum::IN_PROCESS)->index();
+
+            $table->string('trigger')->nullable();
+
         } elseif ($table->getTable() == 'shippings') {
             $table->string('state')->default(ShippingStateEnum::IN_PROCESS)->index();
         } elseif ($table->getTable() == 'insurances') {

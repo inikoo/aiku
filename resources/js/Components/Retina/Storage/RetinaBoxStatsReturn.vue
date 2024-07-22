@@ -32,6 +32,7 @@ const props = defineProps<{
 const layout = inject('layout', layoutStructure)
 const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
+console.log('fff', props.box_stats)
 
 // Method: On change estimated date
 // const onChangeEstimateDate = async (close: Function) => {
@@ -73,7 +74,7 @@ const isLoadingSetEstimatedDate = ref<string | boolean>(false)
 
 <template>
     <div class="h-min grid md:grid-cols-4 border-b border-gray-200 divide-y md:divide-y-0 divide-x divide-gray-200">
-        <!-- Box: Status -->
+        <!-- Box: Detail -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
@@ -84,47 +85,8 @@ const isLoadingSetEstimatedDate = ref<string | boolean>(false)
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
             </div>
-
-            <div class="flex items-center w-full flex-none gap-x-2">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon="['fal', 'calendar-day']" :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-
-                <!-- <Popover v-if="data_pallet.state === 'in-process'" position="">
-                    <template #button>
-                        <div v-if="data_pallet.estimated_delivery_date"
-                            v-tooltip="useDaysLeftFromToday(data_pallet.estimated_delivery_date)"
-                            class="group text-xs text-gray-500">
-                            {{ useFormatTime(data_pallet.estimated_delivery_date) }}
-                            <FontAwesomeIcon icon='fal fa-pencil' size="sm"
-                                class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
-                        </div>
-
-                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
-                            {{ trans('Set estimated date') }}
-                        </div>
-                    </template>
-
-                    <template #content="{ close }">
-                        <DatePicker v-model="data_pallet.estimated_delivery_date"
-                            @update:modelValue="() => onChangeEstimateDate(close)" inline auto-apply
-                            :disabled-dates="disableBeforeToday" :enable-time-picker="false" />
-                        
-                        <div v-if="isLoadingSetEstimatedDate" class="absolute inset-0 bg-white/70 flex items-center justify-center">
-                            <LoadingIcon class="text-5xl" />
-                        </div>
-                    </template>
-                </Popover>
-
-                <div v-else>
-                    <dd class="text-xs text-gray-500">{{ data_pallet.estimated_delivery_date ?
-                        useFormatTime(data_pallet.estimated_delivery_date) : 'Not Set' }}</dd>
-                </div> -->
-
-            </div>
         </BoxStatPallet>
+
 
         <!-- Box: Notes -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
@@ -148,6 +110,7 @@ const isLoadingSetEstimatedDate = ref<string | boolean>(false)
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data_pallet.number_pallets }}</dd>
             </div> -->
         </BoxStatPallet>
+
 
         <!-- Box: Order summary -->
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">

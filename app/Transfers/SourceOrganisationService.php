@@ -127,4 +127,6 @@ interface SourceOrganisationService
 
     public function fetchPortfolio($id);
 
+    public function fetchCharge($id);
+
 }

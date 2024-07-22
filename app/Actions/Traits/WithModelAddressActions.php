@@ -77,7 +77,7 @@ trait WithModelAddressActions
         ];
 
         if($canShip===null and $scope=='delivery') {
-            $canShip=$model->canShip($address);
+            $canShip=true;
         }
 
         if($canShip!==null) {
