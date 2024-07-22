@@ -84,6 +84,12 @@ class SubmitPalletDelivery extends OrgAction
         return $this->handle($palletDelivery);
     }
 
+    public function action(PalletDelivery $palletDelivery): PalletDelivery
+    {
+        $this->palletDelivery = $palletDelivery;
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
+        return $this->handle($palletDelivery);
+    }
 
 
 }
