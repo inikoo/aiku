@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, defineProps } from 'vue'
+import { ref, watch, defineProps } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -24,7 +24,6 @@ import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeart } from '@far'
-import { } from '@fas'
 import { faBrowser } from '@fal'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)

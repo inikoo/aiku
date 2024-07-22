@@ -1,6 +1,4 @@
-import TextAlign from "@tiptap/extension-text-align";
-
-export default {
+export const data = {
     title : {
         fontWeight : 700,
         fontSize: '1.5rem',

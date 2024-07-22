@@ -134,6 +134,7 @@ class ShowFooter extends OrgAction
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
         $this->parent = $website;
+        $this->scope  = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $website;
