@@ -9,13 +9,10 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
@@ -56,7 +53,7 @@ class SubmitAndConfirmPalletReturn extends OrgAction
         return new PalletReturnResource($palletReturn);
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer,PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->palletReturn = $palletReturn;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
