@@ -191,7 +191,7 @@ class ShowPalletDelivery extends OrgAction
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.pallet-delivery.submit',
+                                'name'       => 'grp.models.pallet-delivery.submit_and_confirm',
                                 'parameters' => [
                                     'palletDelivery' => $palletDelivery->id
                                 ]

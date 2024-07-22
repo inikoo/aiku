@@ -60,6 +60,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
@@ -283,7 +284,8 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
     Route::patch('/', UpdatePalletDelivery::class)->name('update');
-    Route::post('submit', SubmitPalletDelivery::class)->name('submit');
+    Route::post('submit-and-confirm', SubmitAndConfirmPalletDelivery::class)->name('submit_and_confirm');
+
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
     Route::post('received', ReceivedPalletDelivery::class)->name('received');
     Route::post('booking', StartBookingPalletDelivery::class)->name('booking');
