@@ -62,15 +62,8 @@ class GetFulfilmentCustomerShowcase
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
             ],
-            'dashboardData'               => $this->getDashboardData($fulfilmentCustomer),
-            'warehouse_summary'     => [
-                'pallets_stored'    => $fulfilmentCustomer->fulfilment->warehouses->sum(function (Warehouse $warehouse) {
-                    return $warehouse->stats->number_pallets;
-                }),
-                'total_items'       => $fulfilmentCustomer->fulfilment->warehouses->sum(function (Warehouse $warehouse) {
-                    return $warehouse->stats->number_stored_items;
-                })
-            ],
+            'stats'               => $this->getFulfilmentCustomerStats($fulfilmentCustomer),
+
             'webhook'               => [
                 'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key,
                 'domain'                => (app()->environment('local') ? 'http://' : 'https://') . $irisDomain.'/webhooks/',
@@ -82,13 +75,14 @@ class GetFulfilmentCustomerShowcase
         ];
     }
 
-    public function getDashboardData(FulfilmentCustomer $parent): array
+    public function getFulfilmentCustomerStats(FulfilmentCustomer $fulfillmentCustomer): array
     {
         $stats = [];
 
+
         $stats['pallets'] = [
             'label' => __('Pallets'),
-            'count' => $parent->number_pallets_status_storing,
+            'count' => $fulfillmentCustomer->number_pallets_status_storing,
             'tooltip' => __('Pallets in warehouse'),
             'description' => __('in warehouse'),
 
@@ -98,14 +92,14 @@ class GetFulfilmentCustomerShowcase
             $stats['pallets']['state'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletStateEnum::stateIcon()[$case->value],
-                'count' => PalletStateEnum::count($parent)[$case->value],
+                'count' => PalletStateEnum::count($fulfillmentCustomer)[$case->value],
                 'label' => PalletStateEnum::labels()[$case->value]
             ];
         }
 
         $stats['pallet_deliveries'] = [
             'label' => __('Deliveries'),
-            'count' => $parent->number_pallet_deliveries,
+            'count' => $fulfillmentCustomer->number_pallet_deliveries,
             'tooltip' => __('Total number pallet deliveries'),
             'description' => ''
         ];
@@ -113,20 +107,20 @@ class GetFulfilmentCustomerShowcase
             $stats['pallet_delivery']['cases'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletDeliveryStateEnum::stateIcon()[$case->value],
-                'count' => PalletDeliveryStateEnum::count($parent)[$case->value],
+                'count' => PalletDeliveryStateEnum::count($fulfillmentCustomer)[$case->value],
                 'label' => PalletDeliveryStateEnum::labels()[$case->value]
             ];
         }
 
         $stats['pallet_returns'] = [
             'label' => __('Returns'),
-            'count' => $parent->number_pallet_returns
+            'count' => $fulfillmentCustomer->number_pallet_returns
         ];
         foreach (PalletReturnStateEnum::cases() as $case) {
             $stats['pallet_return']['cases'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletReturnStateEnum::stateIcon()[$case->value],
-                'count' => PalletReturnStateEnum::count($parent)[$case->value],
+                'count' => PalletReturnStateEnum::count($fulfillmentCustomer)[$case->value],
                 'label' => PalletReturnStateEnum::labels()[$case->value]
             ];
         }

@@ -4,7 +4,7 @@ import { trans } from "laravel-vue-i18n"
 import { capitalize } from '@/Composables/capitalize'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import { useLocaleStore } from "@/Stores/locale"
-import { CustomerPalletData, PieCustomer } from "@/types/Pallet";
+import { FulfilmentCustomerStats, PieCustomer } from "@/types/Pallet";
 
 import '@/Composables/Icon/PalletStateEnum.ts'
 import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
@@ -21,9 +21,9 @@ library.add(faCheckCircle, faInfoCircle, faExclamationTriangle)
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const locale = useLocaleStore()
 
-const props = defineProps<{
-  dashboardData: {
-        [key: string]: CustomerPalletData
+defineProps<{
+  stats: {
+        [key: string]: FulfilmentCustomerStats
     }
 
 }>()
@@ -38,24 +38,24 @@ const props = defineProps<{
         
         <div  class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums col-span-2">
             <div class="">
-                <dt class="text-base font-medium text-gray-400 capitalize">{{ dashboardData.pallets.label }}</dt>
+                <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallets.label }}</dt>
                 <dd class="mt-2 flex justify-between gap-x-2">
                     <div class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                         <!-- In Total -->
                         <div class="flex gap-x-2 items-end">
-                            <CountUp :endVal="dashboardData.pallets.count" :duration="1.5" :scrollSpyOnce="true" :options="{
+                            <CountUp :endVal="stats.pallets.count" :duration="1.5" :scrollSpyOnce="true" :options="{
                                 formattingFn: (value: number) => locale.number(value)
                             }" />
-                            <span class="text-sm font-medium leading-4 text-gray-500 ">{{ dashboardData.pallets.description }}</span>
+                            <span class="text-sm font-medium leading-4 text-gray-500 ">{{ stats.pallets.description }}</span>
                         </div>
 
                         <div class="text-sm text-gray-500 flex gap-x-5 gap-y-1 items-center flex-wrap">
 
 
                               <div class="border border-red-500">
-                                <FontAwesomeIcon :icon='dashboardData.pallets.state.damaged.icon.icon' :class='dashboardData.pallets.state.damaged.icon.class' fixed-width aria-hidden='true' />
-                                <FontAwesomeIcon :icon='dashboardData.pallets.state.lost.icon.icon' :class='dashboardData.pallets.state.lost.icon.class' fixed-width aria-hidden='true' />
-                                <FontAwesomeIcon :icon='dashboardData.pallets.state.other_incident.icon.icon' :class='dashboardData.pallets.state.other_incident.icon.class' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon :icon='stats.pallets.state.damaged.icon.icon' :class='stats.pallets.state.damaged.icon.class' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon :icon='stats.pallets.state.lost.icon.icon' :class='stats.pallets.state.lost.icon.class' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon :icon='stats.pallets.state.other_incident.icon.icon' :class='stats.pallets.state.other_incident.icon.class' fixed-width aria-hidden='true' />
 
                               </div>
 
@@ -75,15 +75,15 @@ const props = defineProps<{
 
           <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums">
             <div class="">
-              <dt class="text-base font-medium text-gray-400 capitalize">{{ dashboardData.pallet_deliveries.label }}</dt>
+              <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_deliveries.label }}</dt>
               <dd class="mt-2 flex justify-between gap-x-2">
                 <div class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                   <!-- In Total -->
                   <div class="flex gap-x-2 items-end">
-                    <CountUp :endVal="dashboardData.pallet_deliveries.count" :duration="1.5" :scrollSpyOnce="true" :options="{
+                    <CountUp :endVal="stats.pallet_deliveries.count" :duration="1.5" :scrollSpyOnce="true" :options="{
                                 formattingFn: (value: number) => locale.number(value)
                             }" />
-                    <span class="text-sm font-medium leading-4 text-gray-500 ">{{ dashboardData.pallet_deliveries.description }}</span>
+                    <span class="text-sm font-medium leading-4 text-gray-500 ">{{ stats.pallet_deliveries.description }}</span>
                   </div>
 
 
@@ -96,15 +96,15 @@ const props = defineProps<{
 
           <div  class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-100 shadow tabular-nums">
               <div class="">
-                <dt class="text-base font-medium text-gray-400 capitalize">{{ dashboardData.pallet_returns.label }}</dt>
+                <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_returns.label }}</dt>
                 <dd class="mt-2 flex justify-between gap-x-2">
                   <div class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
                     <!-- In Total -->
                     <div class="flex gap-x-2 items-end">
-                      <CountUp :endVal="dashboardData.pallet_returns.count" :duration="1.5" :scrollSpyOnce="true" :options="{
+                      <CountUp :endVal="stats.pallet_returns.count" :duration="1.5" :scrollSpyOnce="true" :options="{
                                 formattingFn: (value: number) => locale.number(value)
                             }" />
-                      <span class="text-sm font-medium leading-4 text-gray-500 ">{{ dashboardData.pallet_returns.description }}</span>
+                      <span class="text-sm font-medium leading-4 text-gray-500 ">{{ stats.pallet_returns.description }}</span>
                     </div>
 
 

@@ -71,7 +71,7 @@ export interface PieCustomer {
     }[]
 }
 
-export interface CustomerPalletData {
+export interface FulfilmentCustomerStats {
     label: string
     count: number
     cases: {
