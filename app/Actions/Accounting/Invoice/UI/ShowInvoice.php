@@ -92,7 +92,7 @@ class ShowInvoice extends OrgAction
         $address        = AddressResource::make($invoice->address);
         $fixedAddresses = AddressResource::collection($invoice->fixedAddresses);
         if ($invoice->recurringBill()->exists()) {
-            if ( $this->parent instanceof Fulfilment) {
+            if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
                     'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.show',
                     'parameters' => [$invoice->organisation->slug, $this->parent->slug, $invoice->recurringBill->slug]
@@ -131,11 +131,11 @@ class ShowInvoice extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
-                'address'           => $address,
-                'billing_address'   => $billingAddress,
-                'fixed_addresses'   => $fixedAddresses,
+                'address'              => $address,
+                'billing_address'      => $billingAddress,
+                'fixed_addresses'      => $fixedAddresses,
                 'recurring_bill_route' => $recurringBillRoute,
-                'order_summary'     => [
+                'order_summary'        => [
                     [
                         [
                             'label'         => __('Services'),

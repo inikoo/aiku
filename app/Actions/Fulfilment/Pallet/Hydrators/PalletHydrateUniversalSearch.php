@@ -30,7 +30,7 @@ class PalletHydrateUniversalSearch
                 'warehouse_slug'    => $pallet->warehouse->slug,
                 'section'           => 'fulfilment',
                 'title'             => $pallet->reference??$pallet->id,
-                'slug'              => 'pal-'.$pallet->slug,
+                'slug'              => $pallet->slug,
             ]
         );
     }

@@ -89,16 +89,16 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
-        $this->palletDelivery = $palletDelivery;
+        $this->palletDelivery   = $palletDelivery;
         $this->sendNotifications=true;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }
 
-    public function action(PalletDelivery $palletDelivery,bool $sendNotification=false): PalletDelivery
+    public function action(PalletDelivery $palletDelivery, bool $sendNotification=false): PalletDelivery
     {
-        $this->asAction       = true;
-        $this->palletDelivery = $palletDelivery;
+        $this->asAction          = true;
+        $this->palletDelivery    = $palletDelivery;
         $this->sendNotifications = $sendNotification;
 
         $this->initialisation($palletDelivery->organisation, []);

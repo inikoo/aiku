@@ -94,7 +94,7 @@ class SubmitPalletReturn extends OrgAction
 
     public function action(PalletReturn $palletReturn, bool $sendNotification=false): PalletReturn
     {
-        $this->asAction = true;
+        $this->asAction          = true;
         $this->sendNotifications = $sendNotification;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
         return $this->handle($palletReturn, []);
@@ -103,8 +103,8 @@ class SubmitPalletReturn extends OrgAction
     public function fromRetina(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $fulfilmentCustomer      = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment        = $fulfilmentCustomer->fulfilment;
         $this->sendNotifications = true;
         $this->initialisation($request->get('website')->organisation, $request);
         return $this->handle($palletReturn, $this->validatedData);

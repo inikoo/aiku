@@ -21,7 +21,7 @@ class ShopHydrateUniversalSearch
         $shop->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'shops',
+                'section'     => 'catalogue',
                 'title'       => trim($shop->code.' '.$shop->name),
                 'description' => ''
             ]

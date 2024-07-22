@@ -93,7 +93,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     unset($navigation[FulfilmentCustomerTabsEnum::PALLET_RETURNS->value]);
                 }
         */
-        if($fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT){
+        if($fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT) {
             $additionalActions = [
                 [
                     'type'     => 'button',
@@ -109,11 +109,11 @@ class ShowFulfilmentCustomer extends OrgAction
             ];
         }
 
-        if($fulfilmentCustomer->rentalAgreement()->exists()){
+        if($fulfilmentCustomer->rentalAgreement()->exists()) {
             $additionalActions[] = [
                 'type'     => 'button',
                 'style'    => 'create',
-                'tooltip'  =>  __('Create a pallet Delivery'),
+                'tooltip'  => __('Create a pallet Delivery'),
                 'label'    => __('Delivery'),
                 'route'    => [
                     'method'     => 'post',
