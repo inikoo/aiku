@@ -91,6 +91,18 @@ class ShowInvoice extends OrgAction
         $billingAddress = AddressResource::make($invoice->billingAddress);
         $address        = AddressResource::make($invoice->address);
         $fixedAddresses = AddressResource::collection($invoice->fixedAddresses);
+
+        if ( $this->parent instanceof Fulfilment) {
+            $recurringBillRoute = [
+                'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.show',
+                'parameters' => [$invoice->organisation->slug, $this->parent->slug, $invoice->recurringBill->slug]
+            ];
+        } else {
+            $recurringBillRoute = [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                'parameters' => [$invoice->organisation->slug, $this->parent->fulfilment->slug, $this->parent->slug, $invoice->recurringBill->slug]
+            ];
+        }
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
@@ -119,6 +131,7 @@ class ShowInvoice extends OrgAction
                 'address'           => $address,
                 'billing_address'   => $billingAddress,
                 'fixed_addresses'   => $fixedAddresses,
+                'recurring_bill_route' => $recurringBillRoute,
                 'order_summary'     => [
                     [
                         [
