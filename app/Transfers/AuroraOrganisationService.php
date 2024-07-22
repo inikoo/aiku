@@ -11,6 +11,7 @@ use App\Models\Accounting\Invoice;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
 use App\Transfers\Aurora\FetchAuroraBarcode;
+use App\Transfers\Aurora\FetchAuroraCharge;
 use App\Transfers\Aurora\FetchAuroraClockingMachine;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraCustomerClient;
@@ -369,6 +370,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchPortfolio($id): ?array
     {
         return (new FetchAuroraPortfolio($this))->fetch($id);
+    }
+
+    public function fetchCharge($id): ?array
+    {
+        return (new FetchAuroraCharge($this))->fetch($id);
     }
 
 }
