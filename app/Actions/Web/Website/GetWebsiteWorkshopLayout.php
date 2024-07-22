@@ -23,21 +23,31 @@ class GetWebsiteWorkshopLayout
 
 
             $workshopRoutes=[
-                'headerRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.web.websites.workshop.header',
-                    'parameters' => [
-                        'organisation' => $website->organisation->slug,
-                        'fulfilment'   => $website->shop->fulfilment->slug,
-                        'website'      => $website->slug,
-                    ]
-                ],
-                'footerRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.web.websites.workshop.footer',
-                    'parameters' => [
-                        'organisation' => $website->organisation->slug,
-                        'fulfilment'   => $website->shop->fulfilment->slug,
-                        'website'      => $website->slug,
-                    ]
+                'routeList' => [
+                    'headerRoute' => [
+                        'name'       => 'grp.org.fulfilments.show.web.websites.workshop.header',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'fulfilment'   => $website->shop->fulfilment->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
+                    'footerRoute' => [
+                        'name'       => 'grp.org.fulfilments.show.web.websites.workshop.footer',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'fulfilment'   => $website->shop->fulfilment->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
+                    'menuRoute'          => [
+                        'name'       => 'grp.org.fulfilments.show.web.websites.workshop.menu',
+                        'parameters' => [
+                            'organisation' => $website->organisation->slug,
+                            'fulfilment'   => $website->shop->fulfilment->slug,
+                            'website'      => $website->slug,
+                        ]
+                    ],
                 ],
                 'updateColorRoute' => [
                     'name'       => 'grp.models.website.update.color',

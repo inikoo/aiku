@@ -9,12 +9,9 @@ namespace App\Actions\Catalogue\Charge;
 
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Service;
 use App\Rules\IUnique;
@@ -40,7 +37,7 @@ class UpdateCharge extends OrgAction
             data_set($modelData, 'status', $status);
         }
 
-        $charge = $this->update($charge, $modelData);
+        $charge  = $this->update($charge, $modelData);
         $changed = $charge->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
@@ -102,7 +99,7 @@ class UpdateCharge extends OrgAction
     public function action(Charge $charge, array $modelData, int $hydratorsDelay = 0): Charge
     {
         $this->asAction       = true;
-        $this->charge        = $charge;
+        $this->charge         = $charge;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($charge->shop, $modelData);
 
