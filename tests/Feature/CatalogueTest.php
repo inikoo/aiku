@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Catalogue\Charge\StoreCharge;
+use App\Actions\Catalogue\Charge\UpdateCharge;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
@@ -25,6 +26,7 @@ use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
@@ -583,7 +585,6 @@ test('create charge', function ($shop) {
         [
             'code'        => 'MyFColl',
             'name'        => 'My first collection',
-            'description' => 'My first collection description',
             'price'       => fake()->numberBetween(100, 2000),
             'unit'        => 'charge',
         ]
@@ -597,6 +598,30 @@ test('create charge', function ($shop) {
 
     return $charge;
 })->depends('create shop');
+
+test('update charge', function ($charge) {
+    $updatedCharge = UpdateCharge::make()->action(
+        $charge,
+        [
+            'code'        => 'MyFColl2',
+            'name'        => 'Charge1',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'charge',
+            'state'       => ChargeStateEnum::ACTIVE
+        ]
+    );
+    $updatedCharge->refresh();
+    expect($updatedCharge)->toBeInstanceOf(Charge::class)
+        ->and($updatedCharge->name)->toBe('Charge1')
+        ->and($updatedCharge->state)->toBe(ChargeStateEnum::ACTIVE)
+        ->and($updatedCharge->status)->toBe(true)
+        ->and($updatedCharge->shop->stats->number_assets_type_charge)->toBe(1)
+        ->and($updatedCharge->organisation->catalogueStats->number_assets_type_charge)->toBe(1)
+        ->and($updatedCharge->group->catalogueStats->number_assets_type_charge)->toBe(1);
+
+
+    return $charge;
+})->depends('create charge');
 
 test('create insurance', function ($shop) {
     $insurance = StoreInsurance::make()->action(
