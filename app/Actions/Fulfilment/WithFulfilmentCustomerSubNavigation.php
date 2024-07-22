@@ -118,7 +118,8 @@ trait WithFulfilmentCustomerSubNavigation
             (
                 $fulfilmentCustomer->number_pallets_status_storing ||
                 $fulfilmentCustomer->number_pallets_status_returning ||
-                $fulfilmentCustomer->number_pallets_status_returned
+                $fulfilmentCustomer->number_pallets_status_returned ||
+                $fulfilmentCustomer->number_pallet_returns
 
             )) {
 

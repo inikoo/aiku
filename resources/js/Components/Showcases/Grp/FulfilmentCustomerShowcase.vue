@@ -262,7 +262,7 @@ const isLoading = ref<string | boolean>(false)
                 
                 <!-- Section: Rental Agreement -->
                 <div class="rounded-lg ring-1 ring-gray-300">
-                    <div class="border-b border-gray-300 py-4 px-4 flex items-center justify-between">
+                    <div class="border-b border-gray-300 py-2 px-2  pl-4 flex items-center justify-between">
                         <div class="text-gray-400">{{ trans('Rental Agreement') }}</div>
                         <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data.route.name, data.rental_agreement.stats?.data.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
                             <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>

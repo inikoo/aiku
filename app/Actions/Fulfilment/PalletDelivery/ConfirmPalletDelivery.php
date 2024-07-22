@@ -25,6 +25,7 @@ class ConfirmPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
     private PalletDelivery $palletDelivery;
+    private bool $sendNotifications=false;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
@@ -61,9 +62,9 @@ class ConfirmPalletDelivery extends OrgAction
         }
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
-
-        SendPalletDeliveryNotification::dispatch($palletDelivery);
-
+        if($this->sendNotifications) {
+            SendPalletDeliveryNotification::dispatch($palletDelivery);
+        }
         return $palletDelivery;
     }
 
@@ -89,14 +90,17 @@ class ConfirmPalletDelivery extends OrgAction
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->palletDelivery = $palletDelivery;
+        $this->sendNotifications=true;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }
 
-    public function action(PalletDelivery $palletDelivery): PalletDelivery
+    public function action(PalletDelivery $palletDelivery,bool $sendNotification=false): PalletDelivery
     {
         $this->asAction       = true;
         $this->palletDelivery = $palletDelivery;
+        $this->sendNotifications = $sendNotification;
+
         $this->initialisation($palletDelivery->organisation, []);
         return $this->handle($palletDelivery);
     }

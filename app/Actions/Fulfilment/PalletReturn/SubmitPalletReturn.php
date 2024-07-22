@@ -28,6 +28,8 @@ class SubmitPalletReturn extends OrgAction
     use WithActionUpdate;
 
 
+    private bool $sendNotifications=false;
+
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
@@ -57,7 +59,9 @@ class SubmitPalletReturn extends OrgAction
         $palletReturn = $this->update($palletReturn, $modelData);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
-        SendPalletReturnNotification::run($palletReturn);
+        if($this->sendNotifications) {
+            SendPalletReturnNotification::run($palletReturn);
+        }
 
         return $palletReturn;
     }
@@ -82,16 +86,17 @@ class SubmitPalletReturn extends OrgAction
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
+        $this->sendNotifications = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(PalletReturn $palletReturn): PalletReturn
+    public function action(PalletReturn $palletReturn, bool $sendNotification=false): PalletReturn
     {
         $this->asAction = true;
+        $this->sendNotifications = $sendNotification;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, []);
-
         return $this->handle($palletReturn, []);
     }
 
@@ -100,7 +105,7 @@ class SubmitPalletReturn extends OrgAction
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-
+        $this->sendNotifications = true;
         $this->initialisation($request->get('website')->organisation, $request);
         return $this->handle($palletReturn, $this->validatedData);
     }

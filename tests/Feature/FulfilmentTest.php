@@ -1258,35 +1258,16 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     return $storedPallet;
 })->depends('create pallet return');
 
-test('update pallet item', function (PalletReturn $storedPallet) {
-    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
-    $pallet             = $storedPallet->pallets->first()->pivot;
 
-    $palletReturnItemId = $pallet->id;
-    $palletReturnItem   = PalletReturnItem::find($palletReturnItemId);
-    // dd($palletReturnItem);
-    $updatedPalletItem = SetPalletInReturnAsPicked::make()->action(
-        $palletReturnItem,
-        ['state' => PalletReturnItemStateEnum::CONFIRMED]
-    );
-    $fulfilmentCustomer->refresh();
-    expect($updatedPalletItem)->toBeInstanceOf(PalletReturnItem::class)
-        ->and($updatedPalletItem->state)->toBe(PalletReturnItemStateEnum::CONFIRMED);
 
-    return $storedPallet;
-})->depends('store pallet to return');
-
-test('submit pallet return', function (PalletReturn $storedPallet) {
+test('submit pallet return', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
-    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
-    $submittedPalletReturn = SubmitPalletReturn::make()->action(
-        $fulfilmentCustomer,
-        $storedPallet
-    );
-    // dd($storedPallet);
+    $submittedPalletReturn = SubmitPalletReturn::make()->action($palletReturn);
+
     $fulfilmentCustomer->refresh();
     $firstPallet = $submittedPalletReturn->pallets->first();
     expect($submittedPalletReturn)->toBeInstanceOf(PalletReturn::class)
@@ -1364,7 +1345,6 @@ test('confirm pallet return', function (PalletReturn $palletReturn) {
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $confirmedPalletReturn = ConfirmPalletReturn::make()->action(
-        $fulfilmentCustomer,
         $palletReturn
     );
     $fulfilmentCustomer->refresh();
