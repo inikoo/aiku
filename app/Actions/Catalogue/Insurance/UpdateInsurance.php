@@ -9,14 +9,9 @@ namespace App\Actions\Catalogue\Insurance;
 
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Service;
 use App\Rules\IUnique;
@@ -43,7 +38,7 @@ class UpdateInsurance extends OrgAction
         }
 
         $insurance = $this->update($insurance, $modelData);
-        $changed = $insurance->getChanges();
+        $changed   = $insurance->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
             $historicAsset = StoreHistoricAsset::run($insurance);
@@ -102,9 +97,9 @@ class UpdateInsurance extends OrgAction
 
     public function action(Insurance $insurance, array $modelData, int $hydratorsDelay = 0): Insurance
     {
-        $this->asAction       = true;
+        $this->asAction         = true;
         $this->insurance        = $insurance;
-        $this->hydratorsDelay = $hydratorsDelay;
+        $this->hydratorsDelay   = $hydratorsDelay;
         $this->initialisationFromShop($insurance->shop, $modelData);
 
         return $this->handle($insurance, $this->validatedData);
