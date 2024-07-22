@@ -5,11 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 import { reactive, inject } from "vue"
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue"
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue"
-import { Menu, MenuItems } from "@headlessui/vue"
+import { Menu, MenuItems, MenuItem } from "@headlessui/vue"
 import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
@@ -98,13 +98,12 @@ const label = {
     fulfilmentSelect: trans("Select fulfilments")
 }
 console.log('environment:', usePage().props.environment)
-const layout = inject('layout', layoutStructure)
 
 </script>
 
 <template>
     <Disclosure as="nav" class="fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
-        <ScreenWarning v-if="layout.app.environment === 'staging'" class="relative top-0" />
+        <ScreenWarning v-if="layoutStore.app.environment === 'staging'" class="relative top-0" />
 
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
@@ -223,8 +222,83 @@ const layout = inject('layout', layoutStructure)
                                 </transition>
                             </Menu>
 
+
+                            <!-- Dropdown: Go to shop (only show in Organisation Dashboard) -->
+                            <Menu
+                                v-if="layoutStore.currentRoute.includes('grp.org.dashboard.')"
+                                as="div" class="relative inline-block text-left"
+                                v-slot="{ close: closeMenu }"
+                            >
+                                <TopBarSelectButton
+                                    :icon="layoutStore.isFulfilmentPage ? 'fal fa-hand-holding-box' : 'fal fa-store-alt'"
+                                    :label="trans('Go to shop')"
+                                    :key="`shop` + layoutStore.currentParams.shop + layoutStore.currentParams.fulfilment"
+                                />
+
+                                <transition>
+                                    <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <!-- Shops -->
+                                        <div class="px-1 py-1">
+                                            <!-- Show All -->
+                                            <div @click="() => (router.visit(route(layoutStore.navigation.org[layoutStore.currentParams.organisation].shops_index?.route?.name, layoutStore.navigation.org[layoutStore.currentParams.organisation].shops_index?.route?.parameters)), closeMenu())"
+                                                class="flex gap-x-2 items-center pl-2 py-1.5 rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer">
+                                                <FontAwesomeIcon icon="fal fa-store-alt" class='text-xxs' aria-hidden='true' />
+                                                <span class="text-[9px] leading-none font-semibold">Show all shops</span>
+                                            </div>
+                                            <hr class="w-11/12 mx-auto border-t border-gray-200 mt-1 mb-1">
+
+                                            <!-- List -->
+                                            <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                <template v-for="(showare, idxSH) in layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops">
+                                                    <MenuItem v-if="showare.state != 'closed'"
+                                                        v-slot="{ active }"
+                                                        as="div"
+                                                        @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))"
+                                                        class="rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm">
+                                                            <div class="font-semibold">{{ showare.label }}</div>
+                                                    </MenuItem>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <!-- Fulfilments -->
+                                        <div class="px-1 py-1">
+                                            <!-- Show All -->
+                                            <div @click="() => (router.visit(route(layoutStore.navigation.org[layoutStore.currentParams.organisation].fulfilments_index?.route?.name, layoutStore.navigation.org[layoutStore.currentParams.organisation].fulfilments_index?.route?.parameters)), closeMenu())"
+                                                class="flex gap-x-2 items-center pl-2 py-1.5 rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer">
+                                                <FontAwesomeIcon icon="fal fa-store-alt" class='text-xxs' aria-hidden='true' />
+                                                <span class="text-[9px] leading-none font-semibold">Show all fulfilments</span>
+                                            </div>
+                                            <hr class="w-11/12 mx-auto border-t border-gray-200 mt-1 mb-1">
+
+                                            <!-- List -->
+                                            <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                <template v-for="(showare, idxSH) in layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments">
+                                                    <MenuItem v-if="showare.state != 'closed'"
+                                                        v-slot="{ active }"
+                                                        as="div"
+                                                        @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))"
+                                                        class="rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm">
+                                                            <div class="font-semibold">{{ showare.label }}</div>
+                                                    </MenuItem>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        <!-- <MenuPopoverList
+                                            v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
+                                            icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
+                                        <MenuPopoverList
+                                            v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
+                                            icon="fal fa-hand-holding-box" :navKey="'fulfilment'" :closeMenu="closeMenu" /> -->
+                                    </MenuItems>
+                                </transition>
+                            </Menu>
+
+
                             <!-- Dropdown: Shops and Fulfilment-->
-                            <Menu v-if="layoutStore.currentParams?.organisation && (layoutStore.isShopPage || layoutStore.isFulfilmentPage)"
+                            <Menu
+                                v-if="layoutStore.currentParams?.organisation && (layoutStore.isShopPage || layoutStore.isFulfilmentPage)"
                                 as="div" class="relative inline-block text-left"
                                 v-slot="{ close: closeMenu }"
                             >

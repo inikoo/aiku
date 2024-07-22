@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channel\CustomMailMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -32,8 +33,7 @@ class SendEmailRentalAgreementCreated extends Notification implements ShouldQueu
 
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage())
-
+        return (new CustomMailMessage($notifiable))
                     ->line('Here is your credentials to login to retina web app.')
                     ->line("Username: $notifiable->username")
                     ->line("Password: $this->password")

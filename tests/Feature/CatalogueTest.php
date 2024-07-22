@@ -6,11 +6,13 @@
  */
 
 use App\Actions\Catalogue\Charge\StoreCharge;
+use App\Actions\Catalogue\Charge\UpdateCharge;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
 use App\Actions\Catalogue\Insurance\StoreInsurance;
+use App\Actions\Catalogue\Insurance\UpdateInsurance;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\StoreProduct;
@@ -22,13 +24,18 @@ use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
+use App\Actions\Catalogue\Shipping\StoreShipping;
+use App\Actions\Catalogue\Shipping\UpdateShipping;
 use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Catalogue\Shipping\ShippingStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Asset;
@@ -40,6 +47,7 @@ use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -583,7 +591,6 @@ test('create charge', function ($shop) {
         [
             'code'        => 'MyFColl',
             'name'        => 'My first collection',
-            'description' => 'My first collection description',
             'price'       => fake()->numberBetween(100, 2000),
             'unit'        => 'charge',
         ]
@@ -597,6 +604,30 @@ test('create charge', function ($shop) {
 
     return $charge;
 })->depends('create shop');
+
+test('update charge', function ($charge) {
+    $updatedCharge = UpdateCharge::make()->action(
+        $charge,
+        [
+            'code'        => 'MyFColl2',
+            'name'        => 'Charge1',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'charge',
+            'state'       => ChargeStateEnum::ACTIVE
+        ]
+    );
+    $updatedCharge->refresh();
+    expect($updatedCharge)->toBeInstanceOf(Charge::class)
+        ->and($updatedCharge->name)->toBe('Charge1')
+        ->and($updatedCharge->state)->toBe(ChargeStateEnum::ACTIVE)
+        ->and($updatedCharge->status)->toBe(true)
+        ->and($updatedCharge->shop->stats->number_assets_type_charge)->toBe(1)
+        ->and($updatedCharge->organisation->catalogueStats->number_assets_type_charge)->toBe(1)
+        ->and($updatedCharge->group->catalogueStats->number_assets_type_charge)->toBe(1);
+
+
+    return $updatedCharge;
+})->depends('create charge');
 
 test('create insurance', function ($shop) {
     $insurance = StoreInsurance::make()->action(
@@ -618,6 +649,76 @@ test('create insurance', function ($shop) {
 
     return $insurance;
 })->depends('create shop');
+
+test('update insurance', function ($insurance) {
+    $updatedInsurance = UpdateInsurance::make()->action(
+        $insurance,
+        [
+            'code'        => 'Insurance',
+            'name'        => 'insuranceeee',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'insurance',
+            'state'       => InsuranceStateEnum::ACTIVE,
+        ]
+    );
+    $updatedInsurance->refresh();
+    expect($updatedInsurance)->toBeInstanceOf(Insurance::class)
+        ->and($updatedInsurance->name)->toBe('insuranceeee')
+        ->and($updatedInsurance->state)->toBe(InsuranceStateEnum::ACTIVE)
+        ->and($updatedInsurance->status)->toBe(true)
+        ->and($updatedInsurance->shop->stats->number_assets_type_insurance)->toBe(1)
+        ->and($updatedInsurance->organisation->catalogueStats->number_assets_type_insurance)->toBe(1)
+        ->and($updatedInsurance->group->catalogueStats->number_assets_type_insurance)->toBe(1);
+
+
+    return $updatedInsurance;
+})->depends('create insurance');
+
+test('create shipping', function ($shop) {
+    $shipping = StoreShipping::make()->action(
+        $shop,
+        [
+            'code'        => 'Shipping',
+            'name'        => 'Shippingers',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'shipping',
+            'structural'  => false
+        ]
+    );
+    $shop->refresh();
+    expect($shipping)->toBeInstanceOf(Shipping::class)
+        ->and($shop->stats->number_assets_type_shipping)->toBe(2)
+        ->and($shop->organisation->catalogueStats->number_assets_type_shipping)->toBe(3)
+        ->and($shop->group->catalogueStats->number_assets_type_shipping)->toBe(3);
+
+
+    return $shipping;
+})->depends('create shop');
+
+test('update shipping', function ($shipping) {
+    $updatedShipping = UpdateShipping::make()->action(
+        $shipping,
+        [
+            'code'        => 'Shipping2',
+            'name'        => 'shippingers2',
+            'price'       => fake()->numberBetween(100, 2000),
+            'unit'        => 'shipping',
+            'state'       => ShippingStateEnum::ACTIVE,
+            'structural'  => true
+        ]
+    );
+    $updatedShipping->refresh();
+    expect($updatedShipping)->toBeInstanceOf(Shipping::class)
+        ->and($updatedShipping->name)->toBe('shippingers2')
+        ->and($updatedShipping->state)->toBe(ShippingStateEnum::ACTIVE)
+        ->and($updatedShipping->status)->toBe(true)
+        ->and($updatedShipping->shop->stats->number_assets_type_shipping)->toBe(2)
+        ->and($updatedShipping->organisation->catalogueStats->number_assets_type_shipping)->toBe(3)
+        ->and($updatedShipping->group->catalogueStats->number_assets_type_shipping)->toBe(3);
+
+
+    return $updatedShipping;
+})->depends('create shipping');
 
 test('hydrate shops', function (Shop $shop) {
     HydrateShops::run($shop);

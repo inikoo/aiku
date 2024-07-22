@@ -95,24 +95,25 @@ const isUndoLoading = ref(false)
         <!-- Column: Type Icon -->
 		<template #cell(type_icon)="{ item: palletDelivery }">
 
-            <!-- Icon: Type -->
-            <div v-if="layout.app.name == 'retina'" class="px-3">
-                <TagPallet :stateIcon="palletDelivery.type_icon" />
+            <div class="space-x-1 space-y-1">
+                <!-- Icon: Type -->
+                <div v-if="layout.app.name == 'retina'" class="px-3">
+                    <TagPallet :stateIcon="palletDelivery.type_icon" />
+                </div>
+                <FontAwesomeIcon v-else v-tooltip="palletDelivery.type_icon.tooltip" :icon='palletDelivery.type_icon.icon' :class='palletDelivery.type_icon.class' fixed-width aria-hidden='true' />
+                <!-- Icon: State -->
+                <div v-if="layout.app.name == 'retina'" class="px-3">
+                    <TagPallet :stateIcon="palletDelivery.state_icon" />
+                </div>
+                            <Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
             </div>
-            <FontAwesomeIcon v-else v-tooltip="palletDelivery.type_icon.tooltip" :icon='palletDelivery.type_icon.icon' :class='palletDelivery.type_icon.class' fixed-width aria-hidden='true' />
-
-            <!-- Icon: State -->
-            <div v-if="layout.app.name == 'retina'" class="px-3">
-                <TagPallet :stateIcon="palletDelivery.state_icon" />
-            </div>
-			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 
 		</template>
 
         <!-- Column: Pallet Reference -->
 		<template #cell(customer_reference)="{ item }">
 			<div class="space-x-1 space-y-2">
-				<span v-if="item.customer_reference" class="font-semibold">{{ item.customer_reference }}</span>
+				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
 					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
@@ -121,6 +122,7 @@ const isUndoLoading = ref(false)
 			</div>
 		</template>
 
+        <!-- Column: Rental -->
         <template #cell(rental)="{ item }">
                 {{ item.rental_name }}
             

@@ -53,4 +53,8 @@ export const layoutStructure = {
         username: string,
         notifications: Notification[]
     },
+
+    isShopPage: false as boolean,
+    isFulfilmentPage: false as boolean,
+    // isShopPage: false as boolean,
 }
