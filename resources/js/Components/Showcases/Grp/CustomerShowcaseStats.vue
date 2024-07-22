@@ -55,19 +55,19 @@ defineProps<{
                         <div class="">
                             <div class="text-sm text-red-400 border border-red-300 bg-red-50 rounded px-2 py-2 font-normal">
                                 <div>
-                                    <FontAwesomeIcon :icon='stats.pallets.state.damaged.icon.icon' :class='stats.pallets.state.damaged.icon.class' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon :icon='stats.pallets.state?.damaged?.icon.icon' :class='stats.pallets.state?.damaged?.icon.class' fixed-width aria-hidden='true' />
                                     Damaged:
-                                    {{ stats.pallets.state.damaged.count }}
+                                    {{ stats.pallets.state?.damaged?.count }}
                                 </div>
                                 <div>
-                                    <FontAwesomeIcon :icon='stats.pallets.state.lost.icon.icon' :class='stats.pallets.state.lost.icon.class' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon :icon='stats.pallets.state?.lost?.icon.icon' :class='stats.pallets.state?.lost?.icon.class' fixed-width aria-hidden='true' />
                                     Lost:
-                                    {{ stats.pallets.state.lost.count }}
+                                    {{ stats.pallets.state?.lost?.count }}
                                 </div>
                                 <div>
-                                    <FontAwesomeIcon :icon='stats.pallets.state.other_incident.icon.icon' :class='stats.pallets.state.other_incident.icon.class' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon :icon="stats.pallets.state?.['other-incident']?.icon?.icon" :class="stats.pallets.state?.['other-incident']?.icon?.class" fixed-width aria-hidden='true' />
                                     Other incident:
-                                    {{ stats.pallets.state.other_incident.count }}
+                                    {{ stats.pallets.state['other-incident'].count }}
                                 </div>
                             </div>
 <!--
