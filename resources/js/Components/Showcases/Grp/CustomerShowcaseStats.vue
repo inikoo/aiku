@@ -94,7 +94,7 @@ const options = {
             </div>
 
             <!-- Pie -->
-            <div class="w-20">
+            <!-- <div class="w-20">
                 <Pie :data="{
                     labels: Object.entries(pie.cases).map(([, value]) => value.label),
                     datasets: [{
@@ -102,7 +102,7 @@ const options = {
                         hoverOffset: 4
                     }]
                 }" :options="options" />
-            </div>
+            </div> -->
         </div>
 
         
