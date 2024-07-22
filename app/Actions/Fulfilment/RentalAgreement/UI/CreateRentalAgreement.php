@@ -50,11 +50,12 @@ class CreateRentalAgreement extends OrgAction
                 ),
                 'title'    => __('new rental agreement'),
                 'pageHead' => [
-                    'title' => __('new rental agreement'),
+                    'title'     => __('new rental agreement'),
                     'actions'   => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
+                            'size'  => 'l',
                             'route' => [
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show',
                                 'parameters' => array_values($request->route()->originalParameters())

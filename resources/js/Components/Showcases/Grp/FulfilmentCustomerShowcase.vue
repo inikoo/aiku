@@ -199,7 +199,7 @@ const isLoading = ref<string | boolean>(false)
                 <!-- </Transition> -->
 
                 <!-- Box Group: Pallets -->
-                <CustomerShowcaseStats :stats="data.stats" />
+                <CustomerShowcaseStats v-if="data?.rental_agreement?.stats" :stats="data.stats" />
             </div>
         </div>
 
