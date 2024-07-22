@@ -28,6 +28,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $customer_slug
  * @property mixed $currency_code
  * @property mixed $currency_symbol
+ * @property mixed $tax_liability_at
+ * @property mixed $paid_at
  *
  */
 class InvoicesResource extends JsonResource
@@ -42,7 +44,6 @@ class InvoicesResource extends JsonResource
             'state'            => $this->state,
             'date'             => $this->date,
             'type'             => $this->type,
-            'date'             => $this->date,
             'tax_liability_at' => $this->tax_liability_at,
             'paid_at'          => $this->paid_at,
             'created_at'       => $this->created_at,
