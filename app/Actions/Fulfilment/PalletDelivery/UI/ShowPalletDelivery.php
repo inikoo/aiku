@@ -474,6 +474,7 @@ class ShowPalletDelivery extends OrgAction
                                 'price_total'   => $physicalGoodsNet
                             ],
                         ],
+                        /*
                         [
                             [
                                 'label'         => __('Shipping'),
@@ -492,6 +493,7 @@ class ShowPalletDelivery extends OrgAction
                                 'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
                             ],
                         ],
+                        */
                         // 'currency_code'                => 'usd',  // TODO
                         // // 'number_pallets'               => $palletDelivery->number_pallets,
                         // // 'number_services'              => $palletDelivery->stats->number_services,
