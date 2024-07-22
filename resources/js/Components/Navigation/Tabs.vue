@@ -14,12 +14,12 @@ import { capitalize } from "@/Composables/capitalize"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faInfoCircle, faPallet, faCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
-import { faRoad, faClock, faDatabase, faNetworkWired, faEye } from '@fal'
+import { faRoad, faClock, faDatabase, faNetworkWired, faEye, faThLarge } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import type { Navigation } from '@/types/Tabs'
 
-library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faCircle, faNetworkWired, faSpinnerThird, faEye)
+library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faCircle, faNetworkWired, faSpinnerThird, faEye, faThLarge)
 
 const layoutStore = inject('layout', layoutStructure)
 
