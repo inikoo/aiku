@@ -30,9 +30,9 @@ import { FieldOrderSummary } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt } from '@fal'
+import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil } from '@fal'
 import { faClock, faFileInvoice, faFilePdf } from '@fas'
-library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt)
+library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -68,6 +68,8 @@ const props = defineProps<{
     }
     order_summary: FieldOrderSummary[][]
     address: {}
+    billing_address: {}
+    fixed_addresses: {}
     invoice: {
         date: string
         currency_code: string
@@ -78,6 +80,10 @@ const props = defineProps<{
     details: {}
     history: {}
 }>()
+
+console.log('aaa', props.address)
+console.log('bbb', props.billing_address)
+console.log('ccc', props.fixed_addresses)
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -197,14 +203,21 @@ console.log('pp', props)
             </div>
 
             <!-- Field: Address -->
-            <div class="flex items-center w-full flex-none gap-x-2">
+            <div class="flex items-start w-full gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Phone</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">
-                    <AddressSelector />
+                
+                <dd class="text-xs text-gray-500 w-full">
+                    <div v-if="address" class="relative bg-gray-50 border border-gray-300 rounded px-2 py-1">
+                        <div v-html="address.formatted_address" /> 
+                        <div class="absolute right-2 bottom-1 px-1 text-gray-400 hover:text-gray-600 cursor-pointer">
+                            <FontAwesomeIcon icon='fal fa-pencil' class='' fixed-width aria-hidden='true' />
+                        </div>
+                    </div>
+                    <AddressSelector v-else :addressList="fixed_addresses.data" />
                 </dd>
             </div>
         </BoxStatPallet>
