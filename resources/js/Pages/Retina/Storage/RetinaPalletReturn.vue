@@ -23,6 +23,9 @@ import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletR
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { Action } from '@/types/Action'
 
+import '@/Composables/Icon/PalletReturnStateEnum'
+import '@/Composables/Icon/Pallet/PalletType'
+
 
 import TablePalletReturnPallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 // import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"

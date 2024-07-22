@@ -126,6 +126,7 @@ const disableBeforeToday = (date: Date) => {
             </div>
         </BoxStatPallet>
 
+
         <!-- Box: Notes -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
             :tooltip="trans('Notes')" :percentage="0">
@@ -148,6 +149,7 @@ const disableBeforeToday = (date: Date) => {
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data_pallet.number_pallets }}</dd>
             </div> -->
         </BoxStatPallet>
+        
 
         <!-- Box: Order summary -->
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">

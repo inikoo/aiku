@@ -28,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $asset_id
  * @property bool $status
  * @property ChargeStateEnum $state
+ * @property string|null $trigger
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -79,6 +80,7 @@ class Charge extends Model implements Auditable
         'status'   => 'boolean',
         'data'     => 'array',
         'settings' => 'array',
+
     ];
 
     protected $attributes = [

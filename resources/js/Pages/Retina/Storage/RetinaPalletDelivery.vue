@@ -238,6 +238,7 @@ const onOpenModalAddPGood = async () => {
         )
         dataPGoodList.value = xxx.data.data
     } catch (error) {
+        console.log(error)
         notify({
             title: 'Something went wrong.',
             text: 'Failed to fetch Physical Goods list',
@@ -302,9 +303,9 @@ const typePallet = [
             />
         </template>
 
-        <!-- Button: Add many pallets -->
+        <!-- Button: Add multiple pallets -->
         <template #button-group-multiple="{ action }">
-            <Popover v-if="currentTab === 'pallets'" width="w-full" class="md:relative h-full">
+            <Popover v-if="currentTab === 'pallets'" position="-right-32" class="md:relative h-full">
                 <template #button>
                     <Button
                         :style="action.style"
