@@ -23,6 +23,13 @@ class RecurringBillsResource extends JsonResource
             'id'          => $this->id,
             'slug'        => $this->slug,
             'reference'   => $this->reference,
+            'customer_name' => $this->customer_name,
+            'fulfilment_customer_slug' => $this->fulfilment_customer_slug,
+            'net_amount'  => $this->net_amount,
+            'start_date'  => $this->start_date,
+            'end_date'    => $this->end_date,
+            'currency_code'    => $this->currency_code,
+            'currency_symbol'  => $this->currency_symbol,
         ];
     }
 }
