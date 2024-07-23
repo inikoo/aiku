@@ -58,7 +58,6 @@ class ShowWebsiteWorkshop extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-
         $product    = $website->shop->products()->first();
         $family     = $website->shop->families()->first();
         $department = $website->shop->departments()->first();

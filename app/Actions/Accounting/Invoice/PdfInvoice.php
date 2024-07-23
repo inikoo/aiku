@@ -27,7 +27,7 @@ class PdfInvoice
     public function handle(Invoice $invoice): Response
     {
         $totalItemsNet = (int) $invoice->total_amount;
-        $totalShipping = (int) $invoice->order->shipping;
+        $totalShipping = (int) $invoice->order?->shipping_amount ?? 0;
 
         $totalNet = $totalItemsNet + $totalShipping;
 

@@ -107,7 +107,7 @@
             </td>
 
             <td style="text-align: right;">Order Number<br/>
-                <b>{{ $invoice->order['number'] }}</b>
+                <b>{{ $invoice->order?->number }}</b>
             </td>
 
         </tr>
@@ -136,7 +136,7 @@
             </div>
 
             <div style="text-align: right">
-                Order Date: <b>{{ $invoice->order->date->format('j F Y') }}</b>
+                Order Date: <b>{{ $invoice->order?->date->format('j F Y') }}</b>
             </div>
         </td>
     </tr>
@@ -146,7 +146,7 @@
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;">
             <div>
                 <div>
-                    Payment State: <b>{{ $invoice->order['payment'] }}</b>
+                    Payment State: <b>{{ $invoice->order?->payment }}</b>
                 </div>
                 <div>
                     Customer: <b>{{ $invoice->customer['name'] }}</b>
@@ -231,13 +231,13 @@
 
     @foreach($transactions as $transaction)
     <tr class="@if($loop->last) last @endif">
-        <td style="text-align:left">{{ $transaction->product['code'] }}</td>
+        <td style="text-align:left">{{ $transaction->asset['code'] }}</td>
 
         <td style="text-align:left">
-            {{ $transaction->product['description'] }}
+            {{ $transaction->asset['description'] }}
         </td>
         <td style="text-align:left">{{ $transaction->discounts_amount }}</td>
-        <td style="text-align:left">{{ $transaction->item['price'] }}</td>
+        <td style="text-align:left">{{ $transaction->asset['price'] }}</td>
 
         <td style="text-align:right">{{ $transaction->quantity }}</td>
 
@@ -256,7 +256,7 @@
     <tr>
         <td style="border:none" colspan="4"></td>
         <td>Shipping</td>
-        <td>{{ $invoice->order['shipping'] }}</td>
+        <td>{{ $invoice->order?->shipping_amount }}</td>
     </tr>
 
     <tr class="total_net">
@@ -268,7 +268,7 @@
     <tr>
         <td style="border:none" colspan="4"></td>
         <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
-        <td class="totals">{{ $invoice->order['tax'] }}</td>
+        <td class="totals">{{ $invoice->order?->tax }}</td>
     </tr>
 
     <tr class="total">
@@ -296,7 +296,7 @@
     </tr>
 
     <tbody>
-    @foreach($invoice->order->payments as $payment)
+    @foreach($invoice->order?->payments ?? [] as $payment)
     <tr class="@if($loop->last) last @endif">
         <td style="text-align:left">
             {{ $payment->paymentAccount['name'] }}

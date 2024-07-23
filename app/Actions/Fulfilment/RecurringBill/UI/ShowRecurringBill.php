@@ -76,6 +76,10 @@ class ShowRecurringBill extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
+                'navigation' => [
+                    'previous' => $this->getPrevious($recurringBill, $request),
+                    'next'     => $this->getNext($recurringBill, $request),
+                ],
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -187,6 +191,55 @@ class ShowRecurringBill extends OrgAction
     public function jsonResponse(RecurringBill $recurringBill): RecurringBillResource
     {
         return new RecurringBillResource($recurringBill);
+    }
+
+    public function getPrevious(RecurringBill $recurringBill, ActionRequest $request): ?array
+    {
+        $previous = FulfilmentCustomer::where('slug', '<', $recurringBill->slug)
+            ->where('recurring_bills.fulfilment_id', $recurringBill->fulfilment_id)
+            ->orderBy('slug', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(RecurringBill $recurringBill, ActionRequest $request): ?array
+    {
+        $next = RecurringBill::where('slug', '>', $recurringBill->slug)
+            ->where('recurring_bills.fulfilment_id', $recurringBill->fulfilment_id)
+            ->orderBy('slug')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?RecurringBill $recurringBill, string $routeName): ?array
+    {
+        if (!$recurringBill) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show' => [
+                'label' => $recurringBill->slug,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'       => $recurringBill->organisation->slug,
+                        'fulfilment'         => $this->fulfilment->slug,
+                        'fulfilmentCustomer' => $recurringBill->fulfilmentCustomer->slug
+                    ]
+                ]
+            ],
+            'grp.org.fulfilments.show.operations.recurring_bills.show' => [
+                'label' => $recurringBill->slug,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'       => $recurringBill->organisation->slug,
+                        'fulfilment'         => $this->fulfilment->slug
+                    ]
+                ]
+            ]
+        };
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
