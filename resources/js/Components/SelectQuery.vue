@@ -186,13 +186,14 @@ defineExpose({
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
         @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
         >
-        <template
-            #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
+        <template #tag="{ option, handleTagRemove, disabled }">
+        <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
             <div class="px-0.5 py-[3px]">
-                <Tag :theme="option[valueProp]" :label="option[label]" :closeButton="true" :stringToColor="true"
+                <Tag :theme="option[props.valueProp]" :label="option[props.label]" :closeButton="true" :stringToColor="true"
                     size="sm" @onClose="(event) => handleTagRemove(option, event)" />
             </div>
-        </template>
+        </slot>
+    </template>
     </Multiselect>
 </template>
 

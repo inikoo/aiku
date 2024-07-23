@@ -48,7 +48,7 @@ class ShowOutboxWorkshop extends OrgAction
     public function htmlResponse(EmailTemplate $emailTemplate, ActionRequest $request): Response
     {
         return Inertia::render(
-            'CRM/Prospects/WorkshopEmailTemplate', //NEED VUE FILE
+            'Org/Web/Workshop/Outbox/OutboxWorkshop', //NEED VUE FILE
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
