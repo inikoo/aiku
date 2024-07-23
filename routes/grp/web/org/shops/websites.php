@@ -9,6 +9,7 @@ use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Mail\Outbox\UI\IndexOutboxes;
 use App\Actions\Mail\Outbox\UI\ShowOutbox;
+use App\Actions\Mail\Outbox\UI\ShowOutboxWorkshop;
 use App\Actions\Web\Banner\UI\CreateBanner;
 use App\Actions\Web\Banner\UI\IndexBanners;
 use App\Actions\Web\Banner\UI\ShowBanner;
@@ -40,6 +41,7 @@ Route::name('websites.')->group(function () {
             Route::get('edit', EditWebsite::class)->name('edit');
             Route::get('outboxes', [IndexOutboxes::class, 'inWebsite'])->name('outboxes');
             Route::get('outboxes/{outbox}', [ShowOutbox::class, 'inWebsite'])->name('outboxes.show');
+            Route::get('outboxes/{outbox}/workshop', [ShowOutboxWorkshop::class, 'inWebsite'])->name('outboxes.workshop');
 
             Route::name('workshop')->prefix('workshop')
                 ->group(function () {
