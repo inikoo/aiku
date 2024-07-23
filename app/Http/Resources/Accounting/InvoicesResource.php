@@ -37,13 +37,17 @@ class InvoicesResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'             => $this->slug,
-            'number'           => $this->number,
-            'total_amount'     => $this->total_amount,
-            'net_amount'       => $this->net_amount,
-            'state'            => $this->state,
+            'slug'            => $this->slug,
+            'number'          => $this->number,
+            'total_amount'    => $this->total_amount,
+            'net_amount'      => $this->net_amount,
+            'state'           => $this->state,
+            'date'            => $this->date,
+            'type'            => [
+                'label'      => $this->type->labels()[$this->type->value],
+                'icon'       => $this->type->typeIcon()[$this->type->value],
+            ],
             'date'             => $this->date,
-            'type'             => $this->type,
             'tax_liability_at' => $this->tax_liability_at,
             'paid_at'          => $this->paid_at,
             'created_at'       => $this->created_at,

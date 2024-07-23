@@ -15,6 +15,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Mail\EmailTemplate;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -37,6 +38,12 @@ class ShowOutboxWorkshop extends OrgAction
         return $this->handle($outbox->emailTemplate);
     }
 
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): EmailTemplate
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($outbox->emailTemplate);
+    }
 
     public function htmlResponse(EmailTemplate $emailTemplate, ActionRequest $request): Response
     {

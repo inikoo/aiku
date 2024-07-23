@@ -16,7 +16,7 @@ enum InvoiceTabsEnum: string
     use HasTabs;
 
     case SHOWCASE               = 'showcase';
-    case ITEMS                  = 'items';
+    // case ITEMS                  = 'items';
     case HISTORY                = 'history';
     case PAYMENTS               = 'payments';
 
@@ -39,13 +39,13 @@ enum InvoiceTabsEnum: string
                 'align' => 'right',
             ],
             InvoiceTabsEnum::SHOWCASE => [
-                'title' => __('invoice'),
-                'icon'  => 'fas fa-file-invoice',
-            ],
-            InvoiceTabsEnum::ITEMS => [
                 'title' => __('items'),
                 'icon'  => 'fas fa-file-invoice',
             ],
+            // InvoiceTabsEnum::ITEMS => [
+            //     'title' => __('items'),
+            //     'icon'  => 'fas fa-file-invoice',
+            // ],
         };
     }
 }

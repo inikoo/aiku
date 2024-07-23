@@ -34,7 +34,7 @@ class RecurringBillHydratePallets
     {
         $stats = [
             'number_pallets'                => RecurringBillTransaction::where('recurring_bill_id', $recurringBill->id)->where('item_type', 'Pallet')->count(),
-            'number_stored_items'           =>  RecurringBillTransaction::where('recurring_bill_id', $recurringBill->id)->where('item_type', 'StoreItem')->count(),
+            'number_stored_items'           => RecurringBillTransaction::where('recurring_bill_id', $recurringBill->id)->where('item_type', 'StoreItem')->count(),
             'number_pallet_deliveries'      => $recurringBill->palletDelivery()->count(),
             'number_pallet_returns'         => $recurringBill->palletReturn()->count(),
 

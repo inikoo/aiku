@@ -191,6 +191,25 @@ class ShowInvoice extends OrgAction
                     ],
                 ],
 
+                'exportPdfRoute' => [
+                    'name'       => 'grp.org.accounting.invoices.download',
+                    'parameters' => [
+                        'organisation' => $invoice->organisation->slug,
+                        'invoice'      => $invoice->slug
+                    ]
+                ],
+                'box_stats'         => [
+                    'customer' => [
+                        'slug'         => $invoice->customer->slug,
+                        'reference'    => $invoice->customer->reference,
+                        'contact_name' => $invoice->customer->contact_name,
+                        'company_name' => $invoice->customer->company_name,
+                        'location'     => $invoice->customer->location,
+                        'phone'        => $invoice->customer->phone,
+                        // 'address'      => AddressResource::collection($invoice->customer->addresses),
+                    ],
+                ],
+
                 'invoice'   => [
                     'number'                    => $invoice->number,
                     'profit_amount'             => $invoice->profit_amount,
@@ -220,9 +239,9 @@ class ShowInvoice extends OrgAction
                     fn () => GetInvoiceShowcase::run($invoice)
                     : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
 
-                InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                // InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
+                //     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                //     : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
                     fn () => PaymentsResource::collection(IndexPayments::run($invoice))
@@ -232,7 +251,7 @@ class ShowInvoice extends OrgAction
 
             ]
         )->table(IndexPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
-            ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
+        ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::SHOWCASE->value));
     }
 
     public function prepareForValidation(ActionRequest $request): void

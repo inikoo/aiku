@@ -15,6 +15,7 @@ import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
 import MenuEditor from './MenuEditor.vue'
+import Placeholder from '@tiptap/extension-placeholder'
 
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -30,9 +31,11 @@ const props = withDefaults(defineProps<{
     toogle?: string[],
     type?: string,
     editable?:boolean
+    placeholder?:any | String
 }>(),{
     editable : true,
     type: 'Bubble',
+    placeholder : '',
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
@@ -80,6 +83,10 @@ const editor = useEditor({
         TextStyle,
         BulletList,
         ListItem,
+        Placeholder.configure({
+          // Use a placeholder:
+          placeholder: props.placeholder,
+        }),
         TextAlign.configure({
             types: ['heading', 'paragraph'],
         }),
@@ -281,6 +288,15 @@ watch(() => props.modelValue, (newValue, oldValue) => {
         border-top: 0px;
     }
 }
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
 
 
 </style>
