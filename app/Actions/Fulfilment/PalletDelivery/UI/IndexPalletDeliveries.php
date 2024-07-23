@@ -242,6 +242,24 @@ class IndexPalletDeliveries extends OrgAction
 
         $subNavigation=[];
 
+        $icon      =['fal', 'fa-truck-couch'];
+        $title     =__('deliveries');
+        $afterTitle=null;
+        $iconRight =null;
+
+        if($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-truck-couch',
+            ];
+            $afterTitle= [
+
+                'label'     => __('Deliveries')
+            ];
+        }
+
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $action       = [
@@ -268,9 +286,11 @@ class IndexPalletDeliveries extends OrgAction
                 ),
                 'title'       => __('pallet deliveries'),
                 'pageHead'    => [
-                    'title'         => __('deliveries'),
+                    'title'        => $title,
+                    'afterTitle'   => $afterTitle,
+                    'iconRight'    => $iconRight,
+                    'icon'         => $icon,
                     'subNavigation' => $subNavigation,
-                    'icon'          => ['fal', 'fa-truck-couch'],
                     'actions'       => [
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
