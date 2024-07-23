@@ -279,14 +279,18 @@ class ShowInvoice extends OrgAction
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {
-        $previous = Invoice::where('number', '<', $invoice->number)->orderBy('number', 'desc')->first();
+        $previous = Invoice::where('number', '<', $invoice->number)
+            ->where('invoices.shop_id', $invoice->shop_id)
+            ->orderBy('number', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
     {
-        $next = Invoice::where('number', '>', $invoice->number)->orderBy('number')->first();
+        $next = Invoice::where('number', '>', $invoice->number)
+            ->where('invoices.shop_id', $invoice->shop_id)
+            ->orderBy('number')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
