@@ -138,10 +138,10 @@ class IndexStoredItems extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
                 'pageHead'    => [
-                    'title'        => $title,
-                    'afterTitle'   => $afterTitle,
-                    'iconRight'    => $iconRight,
-                    'icon'         => $icon,
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         'buttons' => [

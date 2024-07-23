@@ -26,7 +26,7 @@ return new class () extends Migration {
             Schema::create('pallet_returns', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->getPalletIOFields($table);
-                $table->string('type')->default('Pallet')->comment('Pallet|StoredItem');
+                $table->string('type')->default('Pallet')->comment('Pallet|StoredItem')->index();
                 $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
 
                 foreach (PalletReturnStateEnum::cases() as $state) {

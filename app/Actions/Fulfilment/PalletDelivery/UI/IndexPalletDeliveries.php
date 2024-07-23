@@ -17,7 +17,6 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
-use App\Http\Resources\Inventory\WarehouseResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -273,10 +272,10 @@ class IndexPalletDeliveries extends OrgAction
                 ),
                 'title'       => __('pallet deliveries'),
                 'pageHead'    => [
-                    'title'        => $title,
-                    'afterTitle'   => $afterTitle,
-                    'iconRight'    => $iconRight,
-                    'icon'         => $icon,
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         match (class_basename($this->parent)) {

@@ -305,7 +305,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
-//todo this new action
+    //todo this new action
     Route::post('stored-item', StoreStoredItemToReturn::class)->name('stored_item.store');
 
     Route::patch('/', UpdatePalletReturn::class)->name('update');

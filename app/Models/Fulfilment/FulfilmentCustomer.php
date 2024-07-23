@@ -80,9 +80,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets_state_lost
  * @property int $number_pallets_with_cartons_state_lost
  * @property int $number_pallets_with_stored_items_state_lost
- * @property int $number_pallets_state_other
- * @property int $number_pallets_with_cartons_state_other
- * @property int $number_pallets_with_stored_items_state_other
+ * @property int $number_pallets_state_other_incident
+ * @property int $number_pallets_with_cartons_state_other_incident
+ * @property int $number_pallets_with_stored_items_state_other_incident
  * @property int $number_pallets_state_dispatched
  * @property int $number_pallets_with_cartons_state_dispatched
  * @property int $number_pallets_with_stored_items_state_dispatched

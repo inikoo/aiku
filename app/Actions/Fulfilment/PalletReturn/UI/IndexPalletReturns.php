@@ -220,19 +220,19 @@ class IndexPalletReturns extends OrgAction
                 ),
                 'title'       => __('pallet returns'),
                 'pageHead'    => [
-                    'title'        => $title,
-                    'afterTitle'   => $afterTitle,
-                    'iconRight'    => $iconRight,
-                    'icon'         => $icon,
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'actions' => [
+                    'actions'       => [
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
                                 $this->parent->number_pallets_status_storing ? [
                                     'type'    => 'button',
                                     'style'   => 'create',
-                                    'tooltip' =>  $this->parent->number_stored_items_status_storing?__('Create new return (whole pallet)'):__('Create new return'),
-                                    'label'   => $this->parent->number_stored_items_status_storing?__('Return (whole pallet)'):__('Return'),
+                                    'tooltip' => $this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                                    'label'   => $this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-return.store',

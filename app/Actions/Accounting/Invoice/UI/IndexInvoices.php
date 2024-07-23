@@ -184,16 +184,12 @@ class IndexInvoices extends OrgAction
                 ),
                 'title'       => __('invoices'),
                 'pageHead'    => [
-                    'title'     => __('invoices'),
-                    'icon'      => [
-                        'icon' => ['fal', 'fa-file-invoice-dollar'],
-                    ],
-                    'title'        => $title,
-                    'afterTitle'   => $afterTitle,
-                    'iconRight'    => $iconRight,
-                    'icon'         => $icon,
+
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'subNavigation'=> $subNavigation,
 
                 ],
                 'data'        => InvoicesResource::collection($invoices),

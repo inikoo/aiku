@@ -16,7 +16,7 @@ enum PalletReturnTabsEnum: string
     use EnumHelperTrait;
     use HasTabsWithQuantity;
 
-    case PALLETS      = 'pallets';
+    case PALLETS           = 'pallets';
     case STORED_ITEMS      = 'stored_items';
 
     case SERVICES       = 'services';

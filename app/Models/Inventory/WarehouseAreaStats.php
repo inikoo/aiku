@@ -70,9 +70,9 @@ use Illuminate\Support\Carbon;
  * @property int $number_pallets_state_lost
  * @property int $number_pallets_with_cartons_state_lost
  * @property int $number_pallets_with_stored_items_state_lost
- * @property int $number_pallets_state_other
- * @property int $number_pallets_with_cartons_state_other
- * @property int $number_pallets_with_stored_items_state_other
+ * @property int $number_pallets_state_other_incident
+ * @property int $number_pallets_with_cartons_state_other_incident
+ * @property int $number_pallets_with_stored_items_state_other_incident
  * @property int $number_pallets_state_dispatched
  * @property int $number_pallets_with_cartons_state_dispatched
  * @property int $number_pallets_with_stored_items_state_dispatched
@@ -134,8 +134,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_customers_interest_items_storage
  * @property int $number_customers_interest_dropshipping
  * @property int $number_customers_status_no_rental_agreement
- * @property int $number_customers_status_inactive
  * @property int $number_customers_status_active
+ * @property int $number_customers_status_inactive
  * @property int $number_customers_status_lost
  * @property int $number_customers_with_stored_items
  * @property int $number_customers_with_pallets
