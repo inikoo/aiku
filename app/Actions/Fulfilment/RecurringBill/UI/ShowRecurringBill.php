@@ -195,7 +195,7 @@ class ShowRecurringBill extends OrgAction
 
     public function getPrevious(RecurringBill $recurringBill, ActionRequest $request): ?array
     {
-        $previous = FulfilmentCustomer::where('slug', '<', $recurringBill->slug)
+        $previous = RecurringBill::where('slug', '<', $recurringBill->slug)
             ->where('recurring_bills.fulfilment_id', $recurringBill->fulfilment_id)
             ->orderBy('slug', 'desc')->first();
 
@@ -225,7 +225,8 @@ class ShowRecurringBill extends OrgAction
                     'parameters' => [
                         'organisation'       => $recurringBill->organisation->slug,
                         'fulfilment'         => $this->fulfilment->slug,
-                        'fulfilmentCustomer' => $recurringBill->fulfilmentCustomer->slug
+                        'fulfilmentCustomer' => $recurringBill->fulfilmentCustomer->slug,
+                        'recurringBill'      => $recurringBill->slug
                     ]
                 ]
             ],
@@ -235,7 +236,8 @@ class ShowRecurringBill extends OrgAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'       => $recurringBill->organisation->slug,
-                        'fulfilment'         => $this->fulfilment->slug
+                        'fulfilment'         => $this->fulfilment->slug,
+                        'recurringBill'      => $recurringBill->slug
                     ]
                 ]
             ]

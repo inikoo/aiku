@@ -107,7 +107,7 @@ console.log(props)
                         <Button label="Consolidate now" />
                     </component>
                 </div>
-                
+
                 <StartEndDate
                     :startDate="timeline_rb.start_date"
                     :endDate="timeline_rb.end_date"
@@ -119,6 +119,6 @@ console.log(props)
 
     <BoxStatsRecurringBills :boxStats="box_stats" />
 
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
 </template>
