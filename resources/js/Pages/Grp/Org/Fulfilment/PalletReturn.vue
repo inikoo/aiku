@@ -18,6 +18,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
+import TableStoredItem from "@/Components/StoredItemMovement/TableStoredItem.vue"
 import TablePalletReturnPallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
@@ -26,8 +27,6 @@ import Tag from "@/Components/Tag.vue"
 import { BoxStats, PDRNotes, PalletReturn } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 
-import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
-import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from "laravel-vue-i18n"
 import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
@@ -38,12 +37,14 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import Popover from "@/Components/Popover.vue"
 import { Tabs as TSTabs } from "@/types/Tabs"
 import { Action } from "@/types/Action"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import axios from "axios"
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 import { notify } from "@kyvg/vue3-notification"
 
-library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt, faNarwhal )
 
 const props = defineProps<{
     title: string
@@ -63,7 +64,11 @@ const props = defineProps<{
     updateRoute: routeType
     uploadRoutes: routeType
     palletRoute: {
-        index: routeType,
+        index: routeType
+        store: routeType
+    }
+    storedItemRoute: {
+        index: routeType
         store: routeType
     }
     box_stats: BoxStats
@@ -76,6 +81,7 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
+const isModalStoredItems = ref(false)
 const loading = ref(false)
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
@@ -103,7 +109,29 @@ watch(
     { deep: true }
 )
 
-
+const storedItemDescriptor = {
+    useSearch : true,
+    title : 'Stored Item',
+    key : 'stored_item',
+    column : [
+        {
+            label : "",
+            key   : 'type_icon'
+        },
+        {
+            label : "Stored Item",
+            key   : 'stored_item'
+        },
+        {
+            label : "Location",
+            key   : 'location'
+        },
+        {
+            label : "Pallet",
+            key   : 'Pallet'
+        },
+    ]
+}
 
 
 // Tabs: Services
@@ -207,8 +235,9 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+
+        <!-- Button: Add Pallet -->
         <template #button-group-add-pallet="{ action }">
-        <!-- {{ action }} -->
             <Button
                 v-if="currentTab === 'pallets'"
                 :style="action.style"
@@ -218,6 +247,21 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 :key="`ActionButton${action.label}${action.style}`"
                 :tooltip="action.tooltip"
                 @click="() => (openModal = true)"
+            />
+            <div v-else />
+        </template>
+
+        <!-- Button: Add Stored Items -->
+        <template #button-group-add-stored-items="{ action }">
+            <Button
+                v-if="currentTab === 'stored_items'"
+                :style="action.style"
+                :label="action.label"
+                :icon="action.icon"
+                :iconRight="action.iconRight"
+                :key="`ActionButton${action.label}${action.style}`"
+                :tooltip="action.tooltip"
+                @click="() => isModalStoredItems = true"
             />
             <div v-else />
         </template>
@@ -285,7 +329,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </div>
                 </template>
             </Popover>
-            <div v-else></div>
+            <div v-else />
         </template>
 
 
@@ -381,6 +425,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" />
 
+    <!-- Modal: Add Pallet -->
     <Modal :isOpen="openModal" @onClose="openModal = false">
         <div class="">
             <TablePalletReturn
@@ -408,6 +453,20 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                     </div>
                 </template>
 
+            </TablePalletReturn>
+        </div>
+    </Modal>
+
+
+    <!-- Modal: Add stored items -->
+    <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false">
+        <div class="">
+            <TablePalletReturn
+                :dataRoute="storedItemRoute.index"
+                :saveRoute="storedItemRoute.store"
+				@onClose="() => isModalStoredItems = false"
+				:descriptor="storedItemDescriptor"
+			>
             </TablePalletReturn>
         </div>
     </Modal>
