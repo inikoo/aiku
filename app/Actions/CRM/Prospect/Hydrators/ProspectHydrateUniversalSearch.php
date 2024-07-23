@@ -26,9 +26,9 @@ class ProspectHydrateUniversalSearch
                 'organisation_slug' => $prospect->organisation->slug,
                 'shop_id'           => $prospect->shop_id,
                 'shop_slug'         => $prospect->shop->slug,
-                'section'           => 'crm',
-                'title'             => trim($prospect->name.' '.$prospect->contact_name),
-                'description'       => trim($prospect->email.' '.$prospect->company_name)
+                'sections'          => ['crm'],
+                'haystack_tier_1'   => trim($prospect->name.' '.$prospect->contact_name),
+                'haystack_tier_2'   => trim($prospect->email.' '.$prospect->company_name)
             ]
         );
     }

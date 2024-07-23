@@ -21,10 +21,9 @@ class AgentHydrateUniversalSearch
         $agent->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'       => $agent->group_id,
-                'section'        => 'procurement',
-                'title'          => trim($agent->organisation->name.' '.$agent->organisation->email.' '.$agent->organisation->phone),
-                'description'    => ''
+                'group_id'                 => $agent->group_id,
+                'sections'                 => ['supply-chain'],
+                'haystack_tier_1'          => trim($agent->organisation->name.' '.$agent->organisation->email.' '.$agent->organisation->phone),
             ]
         );
     }

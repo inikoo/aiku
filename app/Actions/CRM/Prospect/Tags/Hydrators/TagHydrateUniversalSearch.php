@@ -21,9 +21,9 @@ class TagHydrateUniversalSearch
         $tag->universalSearch()->updateOrCreate(
             [],
             [
-                'section'         => 'crm',
-                'title'           => trim($tag->label),
-                'description'     => trim($tag->number_subjects)
+                'sections'        => ['crm'],
+                'haystack_tier_1' => trim($tag->label),
+                'haystack_tier_2' => trim($tag->number_subjects)
             ]
         );
     }

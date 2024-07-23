@@ -13,22 +13,21 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StockHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(Stock $stock): void
     {
-
-        if($stock->trashed()) {
+        if ($stock->trashed()) {
             return;
         }
 
         $stock->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'    => $stock->group_id,
-                'section'     => 'goods',
-                'title'       => trim($stock->code.' '.$stock->name),
-                'description' => ''
+                'group_id'        => $stock->group_id,
+                'sections'        => ['goods'],
+                'haystack_tier_1' => trim($stock->code.' '.$stock->name),
             ]
         );
     }

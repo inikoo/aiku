@@ -28,7 +28,7 @@ class RefreshElasticsearch
      */
     public function handle(): void
     {
-        $indices = ['search', 'content_blocks', 'web_users_requests', 'users_requests'];
+        $indices = ['search', 'retina_search', 'iris_search', 'content_blocks', 'web_users_requests', 'users_requests'];
 
         $client = BuildElasticsearchClient::run();
         if ($client instanceof Exception) {

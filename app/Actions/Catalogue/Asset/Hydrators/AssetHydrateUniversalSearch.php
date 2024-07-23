@@ -26,9 +26,9 @@ class AssetHydrateUniversalSearch
                 'organisation_slug' => $asset->organisation->slug,
                 'shop_id'           => $asset->shop_id,
                 'shop_slug'         => $asset->shop->slug,
-                'section'           => 'shops',
-                'title'             => $asset->name,
-                'description'       => $asset->code
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $asset->code,
+                'haystack_tier_2'   => $asset->name
             ]
         );
     }

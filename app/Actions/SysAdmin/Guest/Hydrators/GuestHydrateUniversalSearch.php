@@ -13,18 +13,18 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GuestHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(Guest $guest): void
     {
-
         $guest->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'    => $guest->group_id,
-                'section'     => 'sysadmin',
-                'title'       => trim($guest->slug.' '.$guest->contact_name),
-                'description' => $guest->contact_name.' '.$guest->email.' '.$guest->phone.' '.$guest->company_name
+                'group_id'        => $guest->group_id,
+                'sections'        => ['supply-sysadmin'],
+                'haystack_tier_1' => trim($guest->slug.' '.$guest->contact_name),
+                'haystack_tier_2' => $guest->contact_name.' '.$guest->email.' '.$guest->phone.' '.$guest->company_name
             ]
         );
     }

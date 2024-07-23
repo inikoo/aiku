@@ -28,9 +28,9 @@ class ShipmentHydrateUniversalSearch
                 'shop_slug'         => $shipment->shop->slug,
                 'customer_id'       => $shipment->customer_id,
                 'customer_slug'     => $shipment->customer->slug,
-                'section'           => 'dispatch',
-                'title'             => $shipment->tracking??'',
-                'description'       => ''
+                'sections'          => ['dispatching'],
+                'haystack_tier_1'   => $shipment->tracking ?? '',
+                'haystack_tier_2'   => ''
             ]
         );
     }

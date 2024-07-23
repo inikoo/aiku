@@ -13,11 +13,12 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class LocationHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(Location $location): void
     {
-        if($location->trashed()) {
+        if ($location->trashed()) {
             return;
         }
 
@@ -29,9 +30,8 @@ class LocationHydrateUniversalSearch
                 'organisation_slug' => $location->organisation->slug,
                 'warehouse_id'      => $location->warehouse_id,
                 'warehouse_slug'    => $location->warehouse->slug,
-                'section'           => 'inventory',
-                'title'             => $location->code,
-                'slug'              => $location->slug,
+                'sections'          => ['inventory'],
+                'haystack_tier_1'   => $location->code,
             ]
         );
     }

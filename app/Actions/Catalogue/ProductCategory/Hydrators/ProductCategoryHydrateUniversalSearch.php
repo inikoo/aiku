@@ -26,9 +26,9 @@ class ProductCategoryHydrateUniversalSearch
                 'organisation_slug' => $productCategory->organisation->slug,
                 'shop_id'           => $productCategory->shop_id,
                 'shop_slug'         => $productCategory->shop->slug,
-                'section'           => 'shops',
-                'title'             => $productCategory->name,
-                'description'       => $productCategory->code
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $productCategory->name,
+                'haystack_tier_2'   => $productCategory->code
             ]
         );
     }

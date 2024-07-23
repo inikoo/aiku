@@ -14,7 +14,6 @@ return new class () extends Migration {
     {
         Schema::create('universal_searches', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->nullable()->index();
             $table->unsignedSmallInteger('group_id')->nullable()->index();
             $table->foreign('group_id')->references('id')->on('groups');
             $table->unsignedSmallInteger('organisation_id')->nullable()->index();
@@ -36,10 +35,15 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('customer_slug')->nullable();
             $table->nullableMorphs('model');
-            $table->string('section')->nullable();
-            $table->longText('title');
-            $table->longText('description')->nullable();
-            $table->json('data');
+
+            $table->longText('haystack_tier_1')->nullable();
+            $table->longText('haystack_tier_2')->nullable();
+            $table->longText('haystack_tier_3')->nullable();
+            $table->jsonb('sections');
+            $table->jsonb('permissions');
+
+            $table->jsonb('result');
+
             $table->timestampsTz();
         });
     }

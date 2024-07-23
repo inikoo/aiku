@@ -28,8 +28,8 @@ class ServiceHydrateUniversalSearch
                 'organisation_slug' => $service->organisation->slug,
                 'shop_id'           => $service->shop_id,
                 'shop_slug'         => $service->shop->slug,
-                'section'           => 'catalogue',
-                'title'             => $service->name,
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $service->name,
             ];
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {

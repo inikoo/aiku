@@ -13,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoredItemHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(StoredItem $storedItem): void
@@ -22,10 +23,9 @@ class StoredItemHydrateUniversalSearch
             [
                 'group_id'        => $storedItem->group_id,
                 'organisation_id' => $storedItem->organisation_id,
-                'section'         => 'fulfilment',
-                'title'           => $storedItem->code,
-                'description'     => $storedItem->notes,
-                'slug'            => 'sto-'.$storedItem->code,
+                'sections'        => ['fulfilment'],
+                'haystack_tier_1' => $storedItem->reference,
+                'haystack_tier_2' => $storedItem->notes,
             ]
         );
     }

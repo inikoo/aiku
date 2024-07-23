@@ -13,22 +13,21 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SupplierProductHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(SupplierProduct $supplierProduct): void
     {
-
-        if($supplierProduct->trashed()) {
+        if ($supplierProduct->trashed()) {
             return;
         }
 
         $supplierProduct->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'       => $supplierProduct->group_id,
-                'section'        => 'procurement',
-                'title'          => trim($supplierProduct->code.' '.$supplierProduct->name),
-                'description'    => ''
+                'group_id'        => $supplierProduct->group_id,
+                'sections'        => ['supply-chain'],
+                'haystack_tier_1' => trim($supplierProduct->code.' '.$supplierProduct->name),
             ]
         );
     }

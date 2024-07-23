@@ -26,9 +26,9 @@ class CollectionHydrateUniversalSearch
                 'organisation_slug' => $collection->organisation->slug,
                 'shop_id'           => $collection->shop_id,
                 'shop_slug'         => $collection->shop->slug,
-                'section'           => 'shops',
-                'title'             => $collection->name,
-                'description'       => $collection->code
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $collection->name,
+                'haystack_tier_2'   => $collection->code
             ]
         );
     }

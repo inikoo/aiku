@@ -48,13 +48,19 @@ return [
                     'customer_slug'     => [
                         'type' => 'keyword',
                     ],
-                    'section'     => [
+                    'sections'     => [
                         'type' => 'keyword',
                     ],
-                    'title'       => [
+                    'permissions'     => [
+                        'type' => 'keyword',
+                    ],
+                    'haystack_tier_1'       => [
                         'type' => 'text',
                     ],
-                    'description' => [
+                    'haystack_tier_2' => [
+                        'type' => 'text',
+                    ],
+                    'haystack_tier_3' => [
                         'type' => 'text',
                     ],
                 ],

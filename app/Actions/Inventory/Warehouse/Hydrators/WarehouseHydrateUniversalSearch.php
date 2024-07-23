@@ -25,9 +25,9 @@ class WarehouseHydrateUniversalSearch
                 'group_id'          => $warehouse->group_id,
                 'organisation_id'   => $warehouse->organisation_id,
                 'organisation_slug' => $warehouse->organisation->slug,
-                'section'           => 'inventory',
-                'title'             => trim($warehouse->name.' '.$warehouse->code),
-                'description'       => ''
+                'sections'          => ['inventory'],
+                'haystack_tier_1'   => trim($warehouse->name.' '.$warehouse->code),
+
             ]
         );
     }

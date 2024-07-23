@@ -26,8 +26,8 @@ class FulfilmentCustomerHydrateUniversalSearch
                 'organisation_slug' => $fulfilmentCustomer->organisation->slug,
                 'fulfilment_id'     => $fulfilmentCustomer->fulfilment_id,
                 'fulfilment_slug'   => $fulfilmentCustomer->fulfilment->slug,
-                'section'           => 'crm',
-                'title'             => trim($fulfilmentCustomer->customer->email.' '.$fulfilmentCustomer->customer->contact_name.' '.$fulfilmentCustomer->customer->company_name),
+                'sections'          => ['crm'],
+                'haystack_tier_1'   => trim($fulfilmentCustomer->customer->email.' '.$fulfilmentCustomer->customer->contact_name.' '.$fulfilmentCustomer->customer->company_name),
             ]
         );
     }
