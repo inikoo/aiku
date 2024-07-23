@@ -74,6 +74,11 @@ const drop = (e) => {
     onUpload();
 }
 
+const onPickImage =(e)=>{
+    isOpenGalleryImages.value = false
+    emits('update:modelValue', e)
+}
+
 </script>
 
 <template>
@@ -111,7 +116,7 @@ const drop = (e) => {
     </div>
 
 
-    <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
+    <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''" @onPick="onPickImage"
         :tabs="['images_uploaded', 'stock_images']">
     </Gallery>
 

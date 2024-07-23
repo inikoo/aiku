@@ -153,6 +153,8 @@ class IndexInvoices extends OrgAction
     {
         $subNavigation=[];
 
+        $modelPageHead='';
+
         if($this->parent instanceof FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }

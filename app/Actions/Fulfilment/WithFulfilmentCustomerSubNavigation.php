@@ -64,6 +64,25 @@ trait WithFulfilmentCustomerSubNavigation
 
             ];
 
+            if($fulfilmentCustomer->items_storage) {
+
+                $subNavigation[]=[
+                    'href' => [
+                        'name'      => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'parameters'=> $request->route()->originalParameters()
+                    ],
+
+                    'label'     => __('Stored Items'),
+                    'leftIcon'  => [
+                        'icon'    => 'fal fa-narwhal',
+                        'tooltip' => __('Stored Items'),
+                    ],
+                    'number'=> $fulfilmentCustomer->number_stored_items
+
+                ];
+
+            }
+
             $subNavigation[]=[
                 'href' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
@@ -95,24 +114,7 @@ trait WithFulfilmentCustomerSubNavigation
             ];
         }
 
-        if($fulfilmentCustomer->items_storage) {
 
-            $subNavigation[]=[
-                'href' => [
-                    'name'      => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                    'parameters'=> $request->route()->originalParameters()
-                ],
-
-                'label'     => __('Stored Items'),
-                'leftIcon'  => [
-                    'icon'    => 'fal fa-narwhal',
-                    'tooltip' => __('Stored Items'),
-                ],
-                'number'=> $fulfilmentCustomer->number_stored_items
-
-            ];
-
-        }
 
         if (($fulfilmentCustomer->pallets_storage || $fulfilmentCustomer->dropshipping) &&
             (
@@ -140,7 +142,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
-        if($fulfilmentCustomer->number_recurring_bills > 0) {
+        if($fulfilmentCustomer->rentalAgreement()->exists()) {
 
             $subNavigation[]=[
                 'href' => [

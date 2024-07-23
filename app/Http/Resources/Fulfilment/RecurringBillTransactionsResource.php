@@ -36,10 +36,10 @@ class RecurringBillTransactionsResource extends JsonResource
             $unitLabel        = __('unit');
         }
 
-
         return [
             'id'                 => $this->id,
             'type'               => $this->item_type,
+            'type_icon'          => $this->typeIcon($this->item_type),
             'asset_id'           => $this->asset_id,
             'asset_slug'         => $this->asset_slug,
             'asset_code'         => $this->asset_code,
@@ -58,5 +58,21 @@ class RecurringBillTransactionsResource extends JsonResource
 
 
         ];
+    }
+
+    public function typeIcon($type)
+    {
+        if($type == 'Pallet') {
+            return [
+                'tooltip' => __('Pallet'),
+                'icon'    => 'fal fa-pallet',
+                // 'app'     => [
+                //     'name' => 'bell',
+                //     'type' => 'font-awesome-5'
+                // ]
+            ];
+        } else {
+            return null;
+        }
     }
 }

@@ -76,13 +76,28 @@ class IndexRecurringBills extends OrgAction
         $queryBuilder = QueryBuilder::for(RecurringBill::class);
 
         if ($parent instanceof FulfilmentCustomer) {
-            $queryBuilder->where('fulfilment_customer_id', $parent->id);
+            $queryBuilder->where('recurring_bills.fulfilment_customer_id', $parent->id);
         } else {
-            $queryBuilder->where('fulfilment_id', $parent->id);
+            $queryBuilder->where('recurring_bills.fulfilment_id', $parent->id);
         }
+        $queryBuilder->join('fulfilment_customers', 'recurring_bills.fulfilment_customer_id', '=', 'fulfilment_customers.id');
+        $queryBuilder->join('customers', 'fulfilment_customers.customer_id', '=', 'customers.id');
+        $queryBuilder->join('currencies', 'recurring_bills.currency_id', '=', 'currencies.id');
 
         return $queryBuilder
             ->defaultSort('reference')
+            ->select([
+                'recurring_bills.id',
+                'recurring_bills.slug',
+                'recurring_bills.reference',
+                'recurring_bills.start_date',
+                'recurring_bills.end_date',
+                'recurring_bills.net_amount',
+                'fulfilment_customers.slug as fulfilment_customer_slug',
+                'customers.name as customer_name',
+                'currencies.code as currency_code',
+                'currencies.symbol as currency_symbol',
+            ])
             ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -114,8 +129,14 @@ class IndexRecurringBills extends OrgAction
                             'count'       => $parent->number_recurring_bills
                         ]
                     }
-                )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+                );
+                $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+                if ($parent instanceof Fulfilment) {
+                    $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
+                };
+                $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'start_date', label: __('start date'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'end_date', label: __('end date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -161,7 +182,7 @@ class IndexRecurringBills extends OrgAction
             ]
         )->table(
             $this->tableStructure(
-                parent: $this->fulfilment,
+                parent: $this->parent,
                 prefix: RecurringBillsTabsEnum::RECURRING_BILLS->value
             )
         );
