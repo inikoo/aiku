@@ -328,6 +328,22 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ]
                 ],
+                'storedItemRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
+                        ]
+                    ],
+                    'store' => [
+                        'name'       => 'grp.models.pallet-return.stored_item.store',
+                        'parameters' => [
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ],
 
                 'tabs' => [
                     'current'    => $this->tab,
