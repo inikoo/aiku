@@ -70,7 +70,7 @@ class EditRentalAgreement extends OrgAction
                 ),
                 'title'       => __('edit rental agreement'),
                 'pageHead'    => [
-                    'title' => __('edit rental agreement'),
+                    'title'     => __('edit rental agreement'),
                     'actions'   => [
                         [
                             'type'  => 'button',

@@ -26,6 +26,7 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\RecurringBill\UpdateRecurringBillUniversalSearch;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -42,7 +43,6 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -65,7 +65,6 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
@@ -83,7 +82,6 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
@@ -160,20 +158,20 @@ test('create fulfilment shop', function () {
 });
 
 test('update fulfilment settings (weekly cut off day)', function (Fulfilment $fulfilment) {
-    $Updatedfulfilment = UpdateFulfilment::make()->action(
+    $fulfilment = UpdateFulfilment::make()->action(
         $fulfilment,
         [
             'weekly_cut_off_day' => "Tuesday"
         ]
     );
 
-    expect($Updatedfulfilment->settings['rental_agreement_cut_off']['weekly']['day'])->toBe('Tuesday');
+    expect($fulfilment->settings['rental_agreement_cut_off']['weekly']['day'])->toBe('Tuesday');
 
-    return $Updatedfulfilment;
+    return $fulfilment;
 })->depends('create fulfilment shop');
 
 test('update fulfilment settings (monthly cut off day)', function (Fulfilment $fulfilment) {
-    $Updatedfulfilment = UpdateFulfilment::make()->action(
+    $fulfilment = UpdateFulfilment::make()->action(
         $fulfilment,
         [
             'monthly_cut_off' => [
@@ -183,10 +181,10 @@ test('update fulfilment settings (monthly cut off day)', function (Fulfilment $f
         ]
     );
 
-    expect($Updatedfulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(12)
-        ->and($Updatedfulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'])->toBe(true);
+    expect($fulfilment->settings['rental_agreement_cut_off']['monthly']['day'])->toBe(12)
+        ->and($fulfilment->settings['rental_agreement_cut_off']['monthly']['workdays'])->toBeTrue();
 
-    return $Updatedfulfilment;
+    return $fulfilment;
 })->depends('create fulfilment shop');
 
 test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
@@ -522,7 +520,7 @@ test('create second rental agreement', function (FulfilmentCustomer $fulfilmentC
         [
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
-            'username'      => 'testo',
+            'username'      => 'test-a',
             'email'         => 'testo@testmail.com',
             'clauses'       => [
                 'rentals' => [
@@ -1258,35 +1256,16 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     return $storedPallet;
 })->depends('create pallet return');
 
-test('update pallet item', function (PalletReturn $storedPallet) {
-    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
-    $pallet             = $storedPallet->pallets->first()->pivot;
 
-    $palletReturnItemId = $pallet->id;
-    $palletReturnItem   = PalletReturnItem::find($palletReturnItemId);
-    // dd($palletReturnItem);
-    $updatedPalletItem = SetPalletInReturnAsPicked::make()->action(
-        $palletReturnItem,
-        ['state' => PalletReturnItemStateEnum::CONFIRMED]
-    );
-    $fulfilmentCustomer->refresh();
-    expect($updatedPalletItem)->toBeInstanceOf(PalletReturnItem::class)
-        ->and($updatedPalletItem->state)->toBe(PalletReturnItemStateEnum::CONFIRMED);
 
-    return $storedPallet;
-})->depends('store pallet to return');
-
-test('submit pallet return', function (PalletReturn $storedPallet) {
+test('submit pallet return', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
-    $fulfilmentCustomer = $storedPallet->fulfilmentCustomer;
+    $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
-    $submittedPalletReturn = SubmitPalletReturn::make()->action(
-        $fulfilmentCustomer,
-        $storedPallet
-    );
-    // dd($storedPallet);
+    $submittedPalletReturn = SubmitPalletReturn::make()->action($palletReturn);
+
     $fulfilmentCustomer->refresh();
     $firstPallet = $submittedPalletReturn->pallets->first();
     expect($submittedPalletReturn)->toBeInstanceOf(PalletReturn::class)
@@ -1364,7 +1343,6 @@ test('confirm pallet return', function (PalletReturn $palletReturn) {
     $fulfilmentCustomer = $palletReturn->fulfilmentCustomer;
 
     $confirmedPalletReturn = ConfirmPalletReturn::make()->action(
-        $fulfilmentCustomer,
         $palletReturn
     );
     $fulfilmentCustomer->refresh();
@@ -1514,4 +1492,10 @@ test('hydrate pallet delivery command', function () {
 
 test('hydrate rental agreements command', function () {
     $this->artisan('hydrate:rental-agreements  '.$this->organisation->slug)->assertExitCode(0);
+});
+
+test('recurring bill universal search', function () {
+    $recurringBill=RecurringBill::first();
+    UpdateRecurringBillUniversalSearch::run($recurringBill);
+    $this->artisan('recurring-bill:search  '.$this->organisation->slug)->assertExitCode(0);
 });

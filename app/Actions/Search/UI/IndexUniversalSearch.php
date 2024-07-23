@@ -29,7 +29,12 @@ class IndexUniversalSearch extends InertiaAction
         ?string $websiteSlug,
         ?string $fulfilmentSlug
     ): Collection {
+
+
+
         $query = UniversalSearch::search($query)->where('group_id', group()->id);
+
+
 
         //        if ($sections && count($sections) > 0) {
         //            $query->whereIn('section', $sections);
@@ -39,21 +44,22 @@ class IndexUniversalSearch extends InertiaAction
             $query->where('organisation_slug', $organisationSlug);
         }
 
-        //        if ($shopSlug) {
-        //            $query->where('shop_slug', $shopSlug);
-        //        }
-        //
-        //        if ($warehouseSlug) {
-        //            $query->where('warehouse_slug', $warehouseSlug);
-        //        }
-        //
-        //        if ($websiteSlug) {
-        //            $query->where('website_slug', $websiteSlug);
-        //        }
-        //
-        //        if ($fulfilmentSlug) {
-        //            $query->where('fulfilment_slug', $fulfilmentSlug);
-        //        }
+        if ($shopSlug) {
+            $query->where('shop_slug', $shopSlug);
+        }
+
+        if ($warehouseSlug) {
+            $query->where('warehouse_slug', $warehouseSlug);
+        }
+
+        if ($websiteSlug) {
+            $query->where('website_slug', $websiteSlug);
+        }
+
+        if ($fulfilmentSlug) {
+            $query->where('fulfilment_slug', $fulfilmentSlug);
+        }
+
 
         return $query->get();
     }

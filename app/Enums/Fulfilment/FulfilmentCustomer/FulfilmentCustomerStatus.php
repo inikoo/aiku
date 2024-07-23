@@ -15,16 +15,16 @@ enum FulfilmentCustomerStatus: string
     use EnumHelperTrait;
 
     case NO_RENTAL_AGREEMENT = 'no_rental_agreement';
-    case INACTIVE            = 'inactive';
     case ACTIVE              = 'active';
+    case INACTIVE            = 'inactive';
     case LOST                = 'lost';
 
     public static function labels(): array
     {
         return [
             'no_rental_agreement' => __('No Rental Agreement'),
-            'inactive'            => __('Inactive'),
             'active'              => __('Active'),
+            'inactive'            => __('Loosing'),
             'lost'                => __('Lost'),
         ];
     }
@@ -36,8 +36,8 @@ enum FulfilmentCustomerStatus: string
 
         return [
             'no_rental_agreement' => $stats->number_customers_status_no_rental_agreement,
-            'inactive'            => $stats->number_customers_status_inactive,
             'active'              => $stats->number_customers_status_active,
+            'inactive'            => $stats->number_customers_status_inactive,
             'lost'                => $stats->number_customers_status_lost,
         ];
     }

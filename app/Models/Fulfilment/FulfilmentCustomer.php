@@ -200,7 +200,7 @@ class FulfilmentCustomer extends Model
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
 

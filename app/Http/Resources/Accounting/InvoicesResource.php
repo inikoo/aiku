@@ -28,6 +28,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $customer_slug
  * @property mixed $currency_code
  * @property mixed $currency_symbol
+ * @property mixed $tax_liability_at
+ * @property mixed $paid_at
  *
  */
 class InvoicesResource extends JsonResource

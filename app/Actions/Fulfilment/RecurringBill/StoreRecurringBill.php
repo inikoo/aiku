@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateRecurringBills;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
+use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
@@ -87,6 +88,8 @@ class StoreRecurringBill extends OrgAction
         OrganisationHydrateRecurringBills::dispatch($rentalAgreement->organisation);
         FulfilmentHydrateRecurringBills::dispatch($rentalAgreement->fulfilment);
         FulfilmentCustomerHydrateRecurringBills::dispatch($rentalAgreement->fulfilmentCustomer);
+
+        RecurringBillHydrateUniversalSearch::dispatch($recurringBill);
 
         return $recurringBill;
     }

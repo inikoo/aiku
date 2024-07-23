@@ -17,9 +17,6 @@ class UpdateUniversalSearch extends HydrateModel
 
     public string $commandSignature = 'search:update';
 
-
-
-
     public function asCommand(Command $command): int
     {
         $command->line('Guests');
@@ -32,6 +29,11 @@ class UpdateUniversalSearch extends HydrateModel
 
         $command->line('Products');
         $command->call('products:search');
+
+        $command->line('Services');
+        $command->call('services:search');
+
+
         $command->line('Product categories');
         $command->call('product-category:search');
 
@@ -44,8 +46,11 @@ class UpdateUniversalSearch extends HydrateModel
         $command->line('Invoices');
         $command->call('invoice:search');
 
-        $command->line('Employees');
+        $command->line('Fulfilment customer');
         $command->call('fulfilment-customer:search');
+
+        $command->line('Recurring Bill');
+        $command->call('recurring-bill:search');
 
         $command->line('Stock');
         $command->call('stocks:search');
