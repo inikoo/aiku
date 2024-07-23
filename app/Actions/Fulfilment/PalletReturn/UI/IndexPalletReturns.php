@@ -193,8 +193,22 @@ class IndexPalletReturns extends OrgAction
     {
         $subNavigation=[];
 
+        $icon      =['fal', 'fa-sign-out-alt'];
+        $title     =__('returns');
+        $afterTitle=null;
+        $iconRight =null;
+
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-sign-out-alt',
+            ];
+            $afterTitle= [
+
+                'label'     => __('returns')
+            ];
         }
 
         return Inertia::render(
@@ -206,12 +220,11 @@ class IndexPalletReturns extends OrgAction
                 ),
                 'title'       => __('pallet returns'),
                 'pageHead'    => [
-                    'title'         => __('returns'),
+                    'title'        => $title,
+                    'afterTitle'   => $afterTitle,
+                    'iconRight'    => $iconRight,
+                    'icon'         => $icon,
                     'subNavigation' => $subNavigation,
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-sign-out-alt'],
-                        'title' => __('returns')
-                    ],
                     'actions' => [
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
