@@ -115,8 +115,22 @@ class IndexStoredItems extends OrgAction
         // dd($this->parent);
         $subNavigation=[];
 
+        $icon      =['fal', 'fa-narwhal'];
+        $title     =__('stored items');
+        $afterTitle=null;
+        $iconRight =null;
+
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-narwhal',
+            ];
+            $afterTitle= [
+
+                'label'     => __('stored items')
+            ];
         }
         return Inertia::render(
             'Org/Fulfilment/StoredItems',
@@ -124,8 +138,10 @@ class IndexStoredItems extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
                 'pageHead'    => [
-                    'title'         => __('stored items'),
-                    'icon'          => ['fal', 'fa-narwhal'],
+                    'title'        => $title,
+                    'afterTitle'   => $afterTitle,
+                    'iconRight'    => $iconRight,
+                    'icon'         => $icon,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         'buttons' => [
