@@ -60,7 +60,7 @@ trait WithFulfilmentCustomerSubNavigation
                     'icon'    => 'fal fa-pallet',
                     'tooltip' => __('Pallets'),
                 ],
-                'number'=> $fulfilmentCustomer->number_pallets
+                'number'=> $fulfilmentCustomer->number_pallets_status_storing
 
             ];
 
@@ -140,7 +140,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
-        if($fulfilmentCustomer->dropshipping) {
+        if($fulfilmentCustomer->number_recurring_bills > 0) {
 
             $subNavigation[]=[
                 'href' => [
