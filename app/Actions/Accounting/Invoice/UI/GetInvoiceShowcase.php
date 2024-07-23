@@ -21,16 +21,7 @@ class GetInvoiceShowcase
     public function handle(Invoice $invoice): array
     {
         return [
-            'items'    => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value)),
-            'customer' => [
-                'slug'         => $invoice->customer->slug,
-                'reference'    => $invoice->customer->reference,
-                'contact_name' => $invoice->customer->contact_name,
-                'company_name' => $invoice->customer->company_name,
-                'location'     => $invoice->customer->location,
-                'phone'        => $invoice->customer->phone,
-                // 'address'      => AddressResource::collection($invoice->customer->addresses),
-            ],
+            'items'    => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::SHOWCASE->value)),
             // 'invoice_information'   => [
             //     'number'                    => $invoice->number,
             //     'profit_amount'             => $invoice->profit_amount,
@@ -71,13 +62,6 @@ class GetInvoiceShowcase
                     'tax_amount'       => $transaction->tax_amount,
                 ];
             }),
-            'exportPdfRoute' => [
-                'name'       => 'grp.org.accounting.invoices.download',
-                'parameters' => [
-                    'organisation' => $invoice->organisation->slug,
-                    'invoice'      => $invoice->slug
-                ]
-            ]
         ];
     }
 }
