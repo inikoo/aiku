@@ -7,8 +7,9 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer\Hydrators;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -33,19 +34,66 @@ class FulfilmentCustomerHydrateStatus
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
     {
-        $status = FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT;
+        $status = FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT;
 
         if ($fulfilmentCustomer->rentalAgreement) {
             if ($fulfilmentCustomer->rentalAgreement->state == RentalAgreementStateEnum::ACTIVE) {
-                $status = FulfilmentCustomerStatus::ACTIVE;
-
+                $status = $this->getStatusWhenActiveRentalAgreement($fulfilmentCustomer);
             } elseif ($fulfilmentCustomer->rentalAgreement->state == RentalAgreementStateEnum::CLOSED) {
-                $status = FulfilmentCustomerStatus::LOST;
+                $status = FulfilmentCustomerStatusEnum::LOST;
+            }
+        } else {
+            $createdAt = $fulfilmentCustomer->created_at;
+
+            if ($createdAt->lessThan(now()->subMonths(3))) {
+                $status = FulfilmentCustomerStatusEnum::UNACCOMPLISHED;
             }
         }
+
         $fulfilmentCustomer->update(
             ['status' => $status]
         );
+
+        if ($fulfilmentCustomer->wasChanged()) {
+            FulfilmentHydrateCustomers::run($fulfilmentCustomer->fulfilment);
+        }
+    }
+
+    protected function getStatusWhenActiveRentalAgreement(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomerStatusEnum
+    {
+        $createdAt = $fulfilmentCustomer->rentalAgreement->created_at;
+        if ($createdAt->lessThan($createdAt->addMonths(3))
+            or $fulfilmentCustomer->number_pallets_status_storing
+            or $fulfilmentCustomer->number_pallets_status_returning
+            or $fulfilmentCustomer->number_pallets_status_receiving
+            or $fulfilmentCustomer->number_recurring_bills_status_current
+
+        ) {
+            return FulfilmentCustomerStatusEnum::ACTIVE;
+        }
+
+        if ($fulfilmentCustomer->customer->last_invoiced_at) {
+            $lastInvoicesAt = $fulfilmentCustomer->customer->last_invoiced_at;
+            if ($lastInvoicesAt->lessThan($createdAt->addMonths(3))) {
+                return FulfilmentCustomerStatusEnum::ACTIVE;
+            }
+        }
+
+        return FulfilmentCustomerStatusEnum::INACTIVE;
+    }
+
+    public string $commandSignature = 'hydrate:fulfilment-customers-status';
+
+    public function asCommand(): int
+    {
+        foreach (
+            FulfilmentCustomer::where('status', '!=', FulfilmentCustomerStatusEnum::LOST)
+                ->get() as $fulfilmentCustomer
+        ) {
+            $this->handle($fulfilmentCustomer);
+        }
+
+        return 0;
     }
 
 }

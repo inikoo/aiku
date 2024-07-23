@@ -12,6 +12,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
         $schedule->command('cloudflare:reload')->daily();
         $schedule->command('domain:check-cloudflare-status')->hourly();
+
+        $schedule->command('hydrate:fulfilment-customers-status')->daily();
+
     }
 
 

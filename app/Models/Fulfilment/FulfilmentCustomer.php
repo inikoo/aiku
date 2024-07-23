@@ -7,7 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property FulfilmentCustomerStatus $status
+ * @property FulfilmentCustomerStatusEnum $status
  * @property string $slug
  * @property int $customer_id
  * @property int $fulfilment_id
@@ -178,7 +178,7 @@ class FulfilmentCustomer extends Model
     protected $guarded = [];
     protected $casts   = [
         'data'   => 'array',
-        'status' => FulfilmentCustomerStatus::class
+        'status' => FulfilmentCustomerStatusEnum::class
 
     ];
 

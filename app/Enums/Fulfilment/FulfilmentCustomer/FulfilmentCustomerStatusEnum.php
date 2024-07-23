@@ -10,12 +10,13 @@ namespace App\Enums\Fulfilment\FulfilmentCustomer;
 use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
 
-enum FulfilmentCustomerStatus: string
+enum FulfilmentCustomerStatusEnum: string
 {
     use EnumHelperTrait;
 
     case NO_RENTAL_AGREEMENT = 'no_rental_agreement';
     case ACTIVE              = 'active';
+    case UNACCOMPLISHED      = 'unaccomplished';
     case INACTIVE            = 'inactive';
     case LOST                = 'lost';
 
@@ -24,6 +25,7 @@ enum FulfilmentCustomerStatus: string
         return [
             'no_rental_agreement' => __('No Rental Agreement'),
             'active'              => __('Active'),
+            'unaccomplished'      => __('Unaccomplished'),
             'inactive'            => __('Loosing'),
             'lost'                => __('Lost'),
         ];
@@ -36,6 +38,7 @@ enum FulfilmentCustomerStatus: string
 
         return [
             'no_rental_agreement' => $stats->number_customers_status_no_rental_agreement,
+            'unaccomplished'      => $stats->number_customers_status_unaccomplished,
             'active'              => $stats->number_customers_status_active,
             'inactive'            => $stats->number_customers_status_inactive,
             'lost'                => $stats->number_customers_status_lost,
@@ -51,6 +54,16 @@ enum FulfilmentCustomerStatus: string
                 'color'   => 'lime',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'unaccomplished'      => [
+                'tooltip' => __('Unaccomplished'),
+                'icon'    => 'fal fa-skull-cow',
+                'class'   => 'text-yellow-500',
+                'color'   => 'yellow',
+                'app'     => [
+                    'name' => 'skull-cow',
                     'type' => 'font-awesome-5'
                 ]
             ],

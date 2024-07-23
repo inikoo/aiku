@@ -55,12 +55,8 @@ class CreateFulfilmentCustomer extends OrgAction
                     'blueprint' => $this->getBlueprint($fulfilment->shop),
 
                     'route'     => [
-                        'name'      => 'grp.models.org.shop.fulfilment-customer.store',
-                        'parameters'=> [
-                            'organisation'       => $fulfilment->organisation->id,
-                            'shop'               => $fulfilment->shop->id,
-                            'fulfilment'         => $fulfilment->id
-                        ]
+                        'name'      => 'grp.models.fulfilment.fulfilment_customer.store',
+                        'parameters'=> [$fulfilment->id]
                     ]
                 ]
             ]

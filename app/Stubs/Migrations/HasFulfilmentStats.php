@@ -7,7 +7,7 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
@@ -88,7 +88,7 @@ trait HasFulfilmentStats
         $table->unsignedInteger('number_customers_interest_dropshipping')->default(0);
 
 
-        foreach (FulfilmentCustomerStatus::cases() as $case) {
+        foreach (FulfilmentCustomerStatusEnum::cases() as $case) {
             $table->unsignedInteger("number_customers_status_{$case->snake()}")->default(0);
         }
 
