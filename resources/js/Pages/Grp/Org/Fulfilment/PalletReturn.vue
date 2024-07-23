@@ -258,7 +258,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         <!-- Button: Add Stored Items -->
         <template #button-group-add-stored-item="{ action }">
             <Button
-                v-if="currentTab !== 'stored_items'"
+                v-if="currentTab === 'stored_items'"
                 :style="action.style"
                 :label="action.label"
                 :icon="action.icon"
