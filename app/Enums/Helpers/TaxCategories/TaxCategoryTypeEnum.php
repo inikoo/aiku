@@ -13,15 +13,14 @@ enum TaxCategoryTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case STANDARD    = 'standard';
-    case REDUCED     = 'reduced';
-    case OUTSIDE     = 'outside';
-    case EXEMPT      = 'exempt';
-    case EU_VTC      = 'eu_vtc';
-    case SPECIAL     = 'special';
-    case STANDARD_RE = 'standard_re';
-    case REDUCED_RE  = 'reduced_re';
-    case LEGACY      = 'legacy';
+    case STANDARD         = 'standard';
+    case REDUCED          = 'reduced';
+    case OUTSIDE          = 'outside';
+    case EXEMPT           = 'exempt';
+    case EU_VTC           = 'eu_vtc';
+    case SPECIAL          = 'special';
+    case REDUCED_SPECIAL  = 'reduced_special';
+    case LEGACY           = 'legacy';
 
 
 }

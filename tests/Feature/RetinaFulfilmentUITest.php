@@ -49,7 +49,7 @@ beforeEach(function () {
 
         $rentalAgreement = StoreRentalAgreement::make()->action(
             $this->customer->fulfilmentCustomer,
-            $storeData
+            $storeData,
         );
     }
     $this->rentalAgreement = $rentalAgreement;

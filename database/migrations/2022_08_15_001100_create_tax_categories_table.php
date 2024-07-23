@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('type')->index();
             $table->string('type_name')->index();
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('label')->collation('und_ci');
             $table->string('name')->collation('und_ci');
             $table->boolean('status')->default(true)->index();

@@ -14,11 +14,23 @@
   {
     "Tax Category Key": 2,
     "Tax Category Type": "EU_VTC",
-    "Tax Category Type Name": "EU with valid tax code",
+    "Tax Category Type Name": "EU with valid tax number",
     "Tax Category Code": "EU",
-    "Tax Category Name": "EU with valid tax code",
+    "Tax Category Name": "EU with valid tax number",
     "Tax Category Rate": 0.000000,
     "Tax Category Active": "Yes",
+    "Tax Category Country 2 Alpha Code": "",
+    "Tax Category Metadata": "{}",
+    "aiku_id": null
+  },
+  {
+    "Tax Category Key": 9,
+    "Tax Category Type": "Exempt",
+    "Tax Category Type Name": "Exempt from tax",
+    "Tax Category Code": "EX",
+    "Tax Category Name": "Exempt from tax",
+    "Tax Category Rate": 0.000000,
+    "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "",
     "Tax Category Metadata": "{}",
     "aiku_id": null
@@ -72,30 +84,6 @@
     "aiku_id": null
   },
   {
-    "Tax Category Key": 9,
-    "Tax Category Type": "Exempt",
-    "Tax Category Type Name": "Exempt from VAT",
-    "Tax Category Code": "EX",
-    "Tax Category Name": "Exempt from VAT",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "GB",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 11,
-    "Tax Category Type": "Exempt",
-    "Tax Category Type Name": "Exempt from VAT",
-    "Tax Category Code": "EX",
-    "Tax Category Name": "Exento",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
     "Tax Category Key": 12,
     "Tax Category Type": "Standard",
     "Tax Category Type Name": "IVA",
@@ -109,7 +97,7 @@
   },
   {
     "Tax Category Key": 13,
-    "Tax Category Type": "RE",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "Recargo de equivalencia",
     "Tax Category Code": "S2",
     "Tax Category Name": "RE",
@@ -121,14 +109,14 @@
   },
   {
     "Tax Category Key": 14,
-    "Tax Category Type": "Standard_Re",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "IVA",
     "Tax Category Code": "S3",
     "Tax Category Name": "IVA 20%",
     "Tax Category Rate": 0.200000,
     "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{\"Is_RE\": true}",
+    "Tax Category Metadata": "{\"is_re\": true}",
     "aiku_id": null
   },
   {
@@ -145,19 +133,19 @@
   },
   {
     "Tax Category Key": 17,
-    "Tax Category Type": "IVA",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "IVA",
     "Tax Category Code": "S5",
     "Tax Category Name": "IVA 22%",
     "Tax Category Rate": 0.220000,
     "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{\"Is_RE\": true}",
+    "Tax Category Metadata": "{\"is_re\": true}",
     "aiku_id": null
   },
   {
     "Tax Category Key": 19,
-    "Tax Category Type": "IVA",
+    "Tax Category Type": "Standard",
     "Tax Category Type Name": "IVA",
     "Tax Category Code": "S6",
     "Tax Category Name": "IVA 21%",
@@ -169,7 +157,7 @@
   },
   {
     "Tax Category Key": 21,
-    "Tax Category Type": "RE",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "Recargo de equivalencia",
     "Tax Category Code": "S7",
     "Tax Category Name": "RE (5,2%)",
@@ -181,14 +169,14 @@
   },
   {
     "Tax Category Key": 23,
-    "Tax Category Type": "IVA+RE",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "IVA y Recargo de equivalencia",
     "Tax Category Code": "S8",
     "Tax Category Name": "IVA+RE (26,2%)",
     "Tax Category Rate": 0.262000,
     "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{\"Is_RE\": true}",
+    "Tax Category Metadata": "{\"is_re\": true}",
     "aiku_id": null
   },
   {
@@ -200,78 +188,6 @@
     "Tax Category Rate": 0.200000,
     "Tax Category Active": "Yes",
     "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 25,
-    "Tax Category Type": "Outside",
-    "Tax Category Type Name": "Outside scope",
-    "Tax Category Code": "OUT",
-    "Tax Category Name": "Outside the scope of Tax",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 26,
-    "Tax Category Type": "Exempt",
-    "Tax Category Type Name": "Exempt from VAT",
-    "Tax Category Code": "EX",
-    "Tax Category Name": "Exempt from VAT",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 27,
-    "Tax Category Type": "EU_VTC",
-    "Tax Category Type Name": "EU with valid tax code",
-    "Tax Category Code": "EU",
-    "Tax Category Name": "EU with valid tax code",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "GB",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 28,
-    "Tax Category Type": "EU_VTC",
-    "Tax Category Type Name": "EU with valid tax code",
-    "Tax Category Code": "EU",
-    "Tax Category Name": "EU with valid tax code",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 29,
-    "Tax Category Type": "EU_VTC",
-    "Tax Category Type Name": "EU with valid tax code",
-    "Tax Category Code": "EU",
-    "Tax Category Name": "EU with valid tax code",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "Yes",
-    "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 30,
-    "Tax Category Type": "Outside",
-    "Tax Category Type Name": "Outside scope",
-    "Tax Category Code": "OUT",
-    "Tax Category Name": "Outside the scope of VAT",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "ES",
     "Tax Category Metadata": "{}",
     "aiku_id": null
   },
@@ -300,99 +216,27 @@
     "aiku_id": null
   },
   {
-    "Tax Category Key": 38,
-    "Tax Category Type": "Outside",
-    "Tax Category Type Name": "Outside scope",
-    "Tax Category Code": "XOU",
-    "Tax Category Name": "Outside the scope of Tax",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "GB",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 39,
-    "Tax Category Type": "Outside",
-    "Tax Category Type Name": "Outside scope",
-    "Tax Category Code": "XOU",
-    "Tax Category Name": "Outside the scope of Tax",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 40,
-    "Tax Category Type": "Exempt",
-    "Tax Category Type Name": "Exempt from VAT",
-    "Tax Category Code": "XEX",
-    "Tax Category Name": "Exempt from VAT",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "GB",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 41,
-    "Tax Category Type": "Exempt",
-    "Tax Category Type Name": "Exempt from VAT",
-    "Tax Category Code": "XEX",
-    "Tax Category Name": "Exempt from VAT",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 42,
-    "Tax Category Type": "EU_VTC",
-    "Tax Category Type Name": "EU with valid tax code",
-    "Tax Category Code": "XEU",
-    "Tax Category Name": "EU with valid tax code",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "GB",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
-    "Tax Category Key": 43,
-    "Tax Category Type": "EU_VTC",
-    "Tax Category Type Name": "EU with valid tax code",
-    "Tax Category Code": "XEU",
-    "Tax Category Name": "EU with valid tax code",
-    "Tax Category Rate": 0.000000,
-    "Tax Category Active": "No",
-    "Tax Category Country 2 Alpha Code": "SK",
-    "Tax Category Metadata": "{}",
-    "aiku_id": null
-  },
-  {
     "Tax Category Key": 46,
-    "Tax Category Type": "Item",
+    "Tax Category Type": "Reduced",
     "Tax Category Type Name": "IVA (alimentos)",
     "Tax Category Code": "S9",
     "Tax Category Name": "IVA 10%",
     "Tax Category Rate": 0.100000,
     "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{\"With_RE\": [47, \"S10\", \"0.152\"]}",
+    "Tax Category Metadata": "{\"with_re\": [47, \"S10\", \"0.152\"]}",
     "aiku_id": null
   },
   {
     "Tax Category Key": 47,
-    "Tax Category Type": "Item",
+    "Tax Category Type": "ReducedSpecial",
     "Tax Category Type Name": "IVA (alimentos) + RE",
     "Tax Category Code": "S10",
     "Tax Category Name": "IVA+RE (11,4%)",
     "Tax Category Rate": 0.114000,
     "Tax Category Active": "No",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{\"Is_RE\": true}",
+    "Tax Category Metadata": "{\"is_re\": true}",
     "aiku_id": null
   },
   {
@@ -673,7 +517,7 @@
   },
   {
     "Tax Category Key": 87,
-    "Tax Category Type": "Standard",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "Imposto sobre o Valor Acrescentado (Azores)",
     "Tax Category Code": "PT-SR-RAA",
     "Tax Category Name": "IVA 18% (RAA)",
@@ -685,7 +529,7 @@
   },
   {
     "Tax Category Key": 88,
-    "Tax Category Type": "Standard",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "Imposto sobre o Valor Acrescentado (Madeira)",
     "Tax Category Code": "PT-SR-RAM",
     "Tax Category Name": "IVA 22% (RAM)",
@@ -757,14 +601,14 @@
   },
   {
     "Tax Category Key": 95,
-    "Tax Category Type": "Standard+RE",
+    "Tax Category Type": "Special",
     "Tax Category Type Name": "Impuesto al valor agragado + Recargo de equivalencia",
     "Tax Category Code": "ES-SR+RE",
     "Tax Category Name": "IVA+RE (26,2%)",
     "Tax Category Rate": 0.262000,
     "Tax Category Active": "Yes",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{}",
+    "Tax Category Metadata": "{\"is_re\": true}",
     "aiku_id": null
   },
   {
@@ -781,14 +625,14 @@
   },
   {
     "Tax Category Key": 97,
-    "Tax Category Type": "Reduced+RE",
+    "Tax Category Type": "ReducedSpecial",
     "Tax Category Type Name": "Impuesto al valor agragado (Reduced) + Recargo de equivalencia",
     "Tax Category Code": "ES-RR+RE",
     "Tax Category Name": "IVA+RE (11,4%)",
     "Tax Category Rate": 0.114000,
     "Tax Category Active": "Yes",
     "Tax Category Country 2 Alpha Code": "ES",
-    "Tax Category Metadata": "{\"Is_RE\": true}",
+    "Tax Category Metadata": "{\"is_re\": true}",
     "aiku_id": null
   },
   {

@@ -10,7 +10,6 @@ namespace App\Transfers\Aurora;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
-use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -69,8 +68,7 @@ class FetchAuroraTransaction extends FetchAurora
                 $quantityBonus = 0;
             }
 
-            $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Order Transaction Tax Category Key'})
-                ->firstOrFail();
+            $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
             $this->parsedData['transaction'] = [
                 'date'                => $date,

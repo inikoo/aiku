@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StoreRentalAgreement extends OrgAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
+    private bool $sendEmail=true;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
@@ -84,8 +85,9 @@ class StoreRentalAgreement extends OrgAction
             $webUser=$this->fulfilmentCustomer->customer->webUsers()->first();
         }
 
-        $webUser?->notify(new SendEmailRentalAgreementCreated($password));
-
+        if($this->sendEmail) {
+            $webUser?->notify(new SendEmailRentalAgreementCreated($password));
+        }
         StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot: true);
 
 
@@ -160,15 +162,6 @@ class StoreRentalAgreement extends OrgAction
 
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
-    {
-        $this->asAction           = true;
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
-
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
-    }
-
     public function prepareForValidation(): void
     {
         $clauses = $this->get('clauses', []);
@@ -180,6 +173,16 @@ class StoreRentalAgreement extends OrgAction
             }
         }
         $this->set('clauses', $clauses);
+    }
+
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, bool $sendEmail=false): RentalAgreement
+    {
+        $this->asAction           = true;
+        $this->sendEmail          =$sendEmail;
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
