@@ -39,15 +39,12 @@ function outboxRoute(outbox: Outbox) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
-
-
+    <Table :resource="data" :name="tab">
         <template #cell(name)="{ item: outbox }">
-            <Link :href="outboxRoute(outbox)">
+            <Link :href="outboxRoute(outbox)" class="primaryLink">
                 {{ outbox["name"] }}
             </Link>
         </template>
-
     </Table>
 </template>
 
