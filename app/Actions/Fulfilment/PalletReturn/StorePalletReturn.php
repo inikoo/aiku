@@ -33,8 +33,13 @@ class StorePalletReturn extends OrgAction
 
     private bool $action = false;
 
+    private bool $withStoredItems=false;
+
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
+
+        //todo remove this
+        data_forget($modelData, 'type');
 
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
@@ -89,6 +94,13 @@ class StorePalletReturn extends OrgAction
             $warehouse = $this->fulfilment->warehouses()->first();
             $this->fill(['warehouse_id' =>$warehouse->id]);
         }
+
+        if($this->withStoredItems){
+            $this->set('type' ,'StoredItem');
+        }else{
+            $this->set('type' ,'Pallet');
+        }
+
     }
 
 
@@ -104,6 +116,7 @@ class StorePalletReturn extends OrgAction
         }
 
         return [
+            'type'=>['sometimes','required','string','in:Pallet,StoredItem'],
             'warehouse_id'  => ['required','integer','exists:warehouses,id'],
             'customer_notes'=> ['sometimes','nullable','string'],
             ...$rules
@@ -113,6 +126,17 @@ class StorePalletReturn extends OrgAction
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
     {
+        array_merge($request->all(), ['type' => 'Pallet']);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function withStoredItems(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
+    {
+        $this->withStoredItems=true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);

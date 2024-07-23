@@ -41,7 +41,7 @@ const props = defineProps<{
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
+                <dd class="text-sm text-gray-500">{{ boxStats.customer.data.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -52,7 +52,7 @@ const props = defineProps<{
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.customer.data.customer.contact_name }}</dd>
+                <dd class="text-sm text-gray-500">{{ boxStats.customer.data.customer.contact_name }}</dd>
             </div>
 
 
@@ -64,7 +64,7 @@ const props = defineProps<{
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.customer.data.customer.company_name }}</dd>
+                <dd class="text-sm text-gray-500">{{ boxStats.customer.data.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -74,7 +74,7 @@ const props = defineProps<{
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500 white w-full truncate">{{ boxStats.customer.data?.customer.email }}</dd>
+                <dd class="text-sm text-gray-500 white w-full truncate">{{ boxStats.customer.data?.customer.email }}</dd>
             </div>
 
             <!-- Field: Phone -->
@@ -84,16 +84,16 @@ const props = defineProps<{
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.customer.data?.customer.phone }}</dd>
+                <dd class="text-sm text-gray-500">{{ boxStats.customer.data?.customer.phone }}</dd>
             </div>
         </BoxStatPallet>
 
 
         <!-- Box: Status -->
-        <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize('dataPalletDelivery.state')" icon="fal fa-truck-couch">
-            <div>
+        <BoxStatPallet class="py-1 sm:py-3 px-3" :label="capitalize('dataPalletDelivery.state')" icon="fal fa-truck-couch">
+            <!-- <div>
                 Stats
-            </div>
+            </div> -->
 
             <!-- Stats: count Pallets, Services, Physical Goods -->
             <div class="space-y-0.5">

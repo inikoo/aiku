@@ -109,7 +109,7 @@ class IndexInvoices extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            $table->column(key: 'type', label: __(''), canBeHidden: false, sortable: false, searchable: true)
+            $table->column(key: 'type', label: __(''), type: 'icon', canBeHidden: false, sortable: false, searchable: true)
                 ->defaultSort('number');
             $table
                 ->withGlobalSearch()
@@ -153,18 +153,27 @@ class IndexInvoices extends OrgAction
     {
         $subNavigation=[];
 
-        $modelPageHead='';
+        $icon      =['fal', 'fa-file-invoice-dollar'];
+        $title     =__('invoices');
+        $afterTitle=null;
+        $iconRight =null;
 
         if($this->parent instanceof FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-file-invoice-dollar',
+            ];
+            $afterTitle= [
+
+                'label'     => __('invoices')
+            ];
         }
 
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
-
-        if ($this->parent instanceof Fulfilment) {
-            $modelPageHead = __('operations');
-        }
+        $modelPageHead   = null;
 
         return Inertia::render(
             'Org/Accounting/Invoices',
@@ -179,7 +188,11 @@ class IndexInvoices extends OrgAction
                     'icon'      => [
                         'icon' => ['fal', 'fa-file-invoice-dollar'],
                     ],
-                    'model'        => $modelPageHead,
+                    'title'        => $title,
+                    'afterTitle'   => $afterTitle,
+                    'iconRight'    => $iconRight,
+                    'icon'         => $icon,
+                    'subNavigation' => $subNavigation,
                     'subNavigation'=> $subNavigation,
 
                 ],

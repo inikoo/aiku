@@ -5,17 +5,20 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Pallet;
+namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
@@ -24,33 +27,29 @@ use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
-class StorePalletToReturn extends OrgAction
+class StoreStoredItemToReturn extends OrgAction
 {
     use AsCommand;
 
-    public $commandSignature = 'pallet:store-to-return {palletReturn}';
+    public $commandSignature = 'stored-item:store-to-return {palletReturn}';
 
     private PalletReturn $parent;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $palletIds = Arr::get($modelData, 'pallets');
+        $storedItemIds = Arr::get($modelData, 'stored_items');
 
-        $palletReturn->pallets()->syncWithoutDetaching($palletIds);
+        $palletReturn->storedItems()->syncWithoutDetaching($storedItemIds); // No storedItems Function yet
 
-        $pallets = Pallet::findOrFail($palletIds);
+        $storedItems = StoredItem::findOrFail($storedItemIds);
 
-        Pallet::whereIn('id', $palletIds)->update([
+        StoredItem::whereIn('id', $storedItemIds)->update([
                     'pallet_return_id' => $palletReturn->id,
-                    'status'           => PalletStatusEnum::STORING,
-                    'state'            => PalletStateEnum::IN_PROCESS
+                    'status'           => StoredItemStatusEnum::STORING,
+                    'state'            => StoredItemStateEnum::IN_PROCESS
                 ]);
 
         $palletReturn->refresh();
-
-        foreach ($pallets as $pallet) {
-            AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
-        }
 
         HydratePalletReturns::run($palletReturn);
 
@@ -74,7 +73,7 @@ class StorePalletToReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'pallets' => ['required', 'array']
+            'stored_items' => ['required', 'array']
         ];
     }
 
@@ -132,7 +131,7 @@ class StorePalletToReturn extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.pallet-return.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+            'grp.models.pallet-return.stored_item.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
