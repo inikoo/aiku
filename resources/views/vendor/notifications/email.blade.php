@@ -1,4 +1,4 @@
-<x-mail::message :shop="$shop">
+<x-mail::message :shop="$shop" :shop_url="$shop_url">
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}
@@ -40,7 +40,7 @@
 {{ $salutation }}
 @else
 @lang('Regards'),<br>
-{{ config('app.name') }}
+{{ $shop }}
 @endif
 
 {{-- Subcopy --}}

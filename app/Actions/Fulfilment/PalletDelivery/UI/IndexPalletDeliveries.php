@@ -168,7 +168,7 @@ class IndexPalletDeliveries extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Fulfilment' => [
-                            'title'       => __('No pallet deliveries found for this shop'),
+                            'title'       => __('No deliveries found for this shop'),
                             'count'       => $parent->stats->number_pallet_deliveries
                         ],
                         'Warehouse' => [
@@ -178,25 +178,11 @@ class IndexPalletDeliveries extends OrgAction
                         ],
                         'FulfilmentCustomer' => [
                             'title'       => __($hasRentalAgreementActive ?
-                                __('We did not find any pallet deliveries for this customer')
+                                __('We did not find any deliveries for this customer')
                                 : (!$hasRentalAgreement ? 'You dont have rental agreement active yet. Please create rental agreement below'
                                 : 'You have rental agreement but its ' . $parent->rentalAgreement->state->value)),
                             'count'       => $parent->number_pallet_deliveries,
-                            'action'      => $hasRentalAgreementActive ? [
-                                // 'type'    => 'button',
-                                // 'style'   => 'create',
-                                // 'tooltip' => __('Create new delivery'),
-                                // 'label'   => __('New delivery'),
-                                // 'options' => [
-                                //     'warehouses' => WarehouseResource::collection($parent->fulfilment->warehouses)
-                                // ],
-                                // 'disabled' => !$this->hasRentalAgreement($parent),
-                                // 'route'    => [
-                                //     'method'     => 'post',
-                                //     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                //     'parameters' => [$parent->id]
-                                // ]
-                            ] : (!$parent->rentalAgreement ? [
+                            'action'      => $hasRentalAgreementActive ? [] : (!$parent->rentalAgreement ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('Create new rental agreement'),
@@ -210,6 +196,7 @@ class IndexPalletDeliveries extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+
 
 
 
@@ -297,8 +284,8 @@ class IndexPalletDeliveries extends OrgAction
                                  [
                                     'type'    => 'button',
                                     'style'   => 'create',
-                                    'tooltip' => __('Create new pallet delivery'),
-                                    'label'   => __('Pallet delivery'),
+                                    'tooltip' => __('Create new delivery'),
+                                    'label'   => __('Delivery'),
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
@@ -308,24 +295,6 @@ class IndexPalletDeliveries extends OrgAction
                             default => null
                         }
                     ]
-                    /*
-                    'actions' => [
-                        ($this->canEdit && $this->parent instanceof FulfilmentCustomer) ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new delivery order'),
-                            'label'   => __('New pallet delivery'),
-                            'options' => [
-                                'warehouses' => WarehouseResource::collection([$this->fulfilment->warehouses])
-                            ],
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$this->parent->id]
-                            ]
-                        ] : null
-                    ]
-                    */
                 ],
                 'data'        => PalletDeliveriesResource::collection($customers),
 

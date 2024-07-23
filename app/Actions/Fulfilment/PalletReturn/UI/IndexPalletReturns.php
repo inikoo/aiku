@@ -228,17 +228,34 @@ class IndexPalletReturns extends OrgAction
                     'actions' => [
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
-                                $this->parent->number_pallets_state_storing ? [
+                                $this->parent->number_pallets_status_storing ? [
                                     'type'    => 'button',
                                     'style'   => 'create',
-                                    'tooltip' => __('Create new pallet return'),
-                                    'label'   => __('Pallet return'),
+                                    'tooltip' =>  $this->parent->number_stored_items_status_storing?__('Create new return (whole pallet)'):__('Create new return'),
+                                    'label'   => $this->parent->number_stored_items_status_storing?__('Return (whole pallet)'):__('Return'),
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                                         'parameters' => [$this->parent->id]
                                     ]
                                 ] : false,
+
+                            default => null
+                        },
+                        match (class_basename($this->parent)) {
+                            'FulfilmentCustomer' =>
+                            $this->parent->number_stored_items_status_storing ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new return (stored items)'),
+                                'label'   => __('Return (Stored items)'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                                    'parameters' => [$this->parent->id]
+                                ]
+                            ] : false,
+
                             default => null
                         }
                     ]

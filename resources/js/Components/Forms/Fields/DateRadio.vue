@@ -51,8 +51,8 @@ const onSelectOption = (value: number) => {
 
             <template #content="{ open, close }">
                 <div class="mb-3">
-                    <div>Select date:</div>
-                    <div class="w-80 grid grid-cols-5 gap-x-2 gap-y-1.5">
+
+                    <div class="w-80 grid grid-cols-5 gap-x-2 gap-y-1.5 mt-4">
                         <div
                             v-for="option in fieldData.options"
                             @click="() => onSelectOption(option)"
@@ -66,7 +66,7 @@ const onSelectOption = (value: number) => {
 
                 <div class="flex items-center">
                 <!-- {{ form[fieldName].isWeekdays }} -->
-                    <label for="weekday_checkbox" class="cursor-pointer pr-3 select-none">Is weekday</label>
+                    <label for="weekday_checkbox" class="cursor-pointer pr-3 select-none">Only on weekday</label>
                     <PureCheckbox v-model="form[fieldName].isWeekdays" @update:modelValue="() => props.form.errors[props.fieldName] = false" id="weekday_checkbox" />
                 </div>
             </template>

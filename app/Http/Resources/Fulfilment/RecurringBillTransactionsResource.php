@@ -62,8 +62,7 @@ class RecurringBillTransactionsResource extends JsonResource
 
     public function typeIcon($type)
     {
-        if($type == 'Pallet')
-        {
+        if($type == 'Pallet') {
             return [
                 'tooltip' => __('Pallet'),
                 'icon'    => 'fal fa-pallet',
