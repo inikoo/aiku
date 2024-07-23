@@ -233,11 +233,6 @@ class FulfilmentCustomer extends Model
         return $this->hasMany(RecurringBill::class);
     }
 
-    public function storedItemReturns(): HasMany
-    {
-        return $this->hasMany(StoredItemReturn::class);
-    }
-
     public function serialReferences(): MorphMany
     {
         return $this->morphMany(SerialReference::class, 'container');

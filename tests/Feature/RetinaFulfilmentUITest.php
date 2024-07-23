@@ -311,5 +311,3 @@ test('show pallet return (physical goods tab)', function () {
 
     });
 });
-
-

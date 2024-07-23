@@ -33,7 +33,7 @@ class StorePalletToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $palletIds = Arr::get($modelData, 'pallets');
+        $palletIds  = Arr::get($modelData, 'pallets');
         $palletsData= [];
         foreach ($palletIds as $palletId) {
             $palletsData[$palletId] = [
