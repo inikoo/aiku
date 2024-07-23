@@ -20,7 +20,6 @@ class GetInvoiceShowcase
 
     public function handle(Invoice $invoice): array
     {
-        // dd($invoice);
         return [
             'items'    => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value)),
             'customer' => [
