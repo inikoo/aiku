@@ -34,7 +34,7 @@ beforeEach(function () {
     if (!$paymentServiceProvider) {
         data_set($storeData, 'type', PaymentServiceProviderEnum::ACCOUNTS);
         data_set($storeData, 'name', 'test');
-        data_set($storeData, 'code', 'testcode');
+        data_set($storeData, 'code', 'test-code');
 
         $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
             $this->paymentServiceProvider,
@@ -45,7 +45,7 @@ beforeEach(function () {
 
     $orgPaymentServiceProvider = OrgPaymentServiceProvider::first();
     if (!$orgPaymentServiceProvider) {
-        data_set($storeData, 'code', 'testcode');
+        data_set($storeData, 'code', 'test-code');
 
         $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
             $this->paymentServiceProvider,
@@ -59,7 +59,7 @@ beforeEach(function () {
     if (!$paymentAccount) {
         data_set($storeData, 'type', PaymentAccountTypeEnum::ACCOUNT);
         data_set($storeData, 'name', 'testname');
-        data_set($storeData, 'code', 'testcode');
+        data_set($storeData, 'code', 'test-code');
 
 
         $paymentAccount = StorePaymentAccount::make()->action(
