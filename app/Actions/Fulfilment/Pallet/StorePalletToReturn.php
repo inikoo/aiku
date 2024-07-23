@@ -34,8 +34,14 @@ class StorePalletToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $palletIds = Arr::get($modelData, 'pallets');
+        $palletsData= [];
+        foreach ($palletIds as $palletId) {
+            $palletsData[$palletId] = [
+                'quantity_ordered' => 1
+            ];
+        }
 
-        $palletReturn->pallets()->syncWithoutDetaching($palletIds);
+        $palletReturn->pallets()->syncWithoutDetaching($palletsData);
 
         $pallets = Pallet::findOrFail($palletIds);
 
