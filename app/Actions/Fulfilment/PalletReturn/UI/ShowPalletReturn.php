@@ -72,6 +72,9 @@ class ShowPalletReturn extends OrgAction
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
 
+        //todo this should be $palletReturn->type
+        //$type='StoredItem';
+        $type='Pallet';
 
         $actions = [];
 
@@ -87,11 +90,8 @@ class ShowPalletReturn extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('add pallet'),
                             'route' => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                                'name'       => 'grp.models.pallet-return.pallet.store',
                                 'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->id,
-                                    'fulfilment'         => $palletReturn->fulfilment->id,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                     'palletReturn'       => $palletReturn->id
                                 ]
                             ]
@@ -320,11 +320,8 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ],
                     'store' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                        'name'       => 'grp.models.pallet-return.pallet.store',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                             'palletReturn'       => $palletReturn->id
                         ]
                     ]
@@ -461,6 +458,10 @@ class ShowPalletReturn extends OrgAction
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),
 
+                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
+                    fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn)) //todo change this
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))), //todo change this
+
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))
                     : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
@@ -473,6 +474,12 @@ class ShowPalletReturn extends OrgAction
             IndexPalletsInReturn::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PALLETS->value,
+                request: $request
+            )
+        )->table( //todo stored items here
+            IndexPalletsInReturn::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::STORED_ITEMS->value,
                 request: $request
             )
         )->table(
