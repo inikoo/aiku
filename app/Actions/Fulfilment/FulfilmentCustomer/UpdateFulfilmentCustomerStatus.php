@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
@@ -27,8 +28,13 @@ class UpdateFulfilmentCustomerStatus extends OrgAction
         $status    = FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT;
         $createdAt = $fulfilmentCustomer->rentalAgreement->created_at;
 
+        $palletStoringExists = $fulfilmentCustomer->pallets()
+            ->where('state', PalletStateEnum::STORING->value)
+            ->exists();
+
         if($fulfilmentCustomer->rentalAgreement
-            && $createdAt->lessThan($createdAt->addDays(30))) {
+            && $createdAt->lessThan($createdAt->addDays(30))
+            && $palletStoringExists) {
             $status = FulfilmentCustomerStatus::ACTIVE;
         }
 
