@@ -42,10 +42,10 @@ class ShowStorageDashboard
         ];
 
         foreach (PalletStateEnum::cases() as $case) {
-            $stats['pallets']['cases'][$case->value] = [
+            $stats['pallets']['state'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => PalletStateEnum::stateIcon()[$case->value],
-                'count' => PalletStateEnum::count($parent)[$case->value],
+                'count' => PalletStateEnum::count($parent)[$case->value] ?? 0,
                 'label' => PalletStateEnum::labels()[$case->value]
             ];
         }

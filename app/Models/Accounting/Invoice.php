@@ -10,6 +10,7 @@ namespace App\Models\Accounting;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\UniversalSearch;
@@ -199,5 +200,9 @@ class Invoice extends Model implements Auditable
         return $this->morphToMany(Payment::class, 'model', 'model_has_payments')->withTimestamps()->withPivot(['amount', 'share']);
     }
 
+    public function recurringBill(): BelongsTo
+    {
+        return $this->belongsTo(RecurringBill::class);
+    }
 
 }

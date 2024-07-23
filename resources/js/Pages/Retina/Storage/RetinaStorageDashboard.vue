@@ -20,6 +20,8 @@ import { useFormatTime } from '@/Composables/useFormatTime'
 import CountUp from 'vue-countup-v3'
 import { Head } from '@inertiajs/vue3'
 
+import '@/Composables/Icon/PalletStateEnum'
+
 library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross)
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)

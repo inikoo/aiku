@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\Product\Hydrators;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -16,20 +17,31 @@ class ProductHydrateUniversalSearch
 
     public string $jobQueue = 'universal-search';
 
-    public function handle(Product $outer): void
+    public function handle(Product $product): void
     {
-        $outer->universalSearch()->updateOrCreate(
+
+        $shop=$product->shop;
+
+        $modelData = [
+            'group_id'          => $product->group_id,
+            'organisation_id'   => $product->organisation_id,
+            'organisation_slug' => $product->organisation->slug,
+            'shop_id'           => $product->shop_id,
+            'shop_slug'         => $product->shop->slug,
+            'section'           => 'catalogue',
+            'title'             => $product->code,
+            'description'       => $product->name.' '.$product->description
+        ];
+
+        if($shop->type==ShopTypeEnum::FULFILMENT) {
+            $modelData['fulfilment_id']     = $shop->fulfilment->id;
+            $modelData['fulfilment_slug']   = $shop->fulfilment->slug;
+        }
+
+
+        $product->universalSearch()->updateOrCreate(
             [],
-            [
-                'group_id'          => $outer->group_id,
-                'organisation_id'   => $outer->organisation_id,
-                'organisation_slug' => $outer->organisation->slug,
-                'shop_id'           => $outer->shop_id,
-                'shop_slug'         => $outer->shop->slug,
-                'section'           => 'shops',
-                'title'             => $outer->name,
-                'description'       => $outer->code
-            ]
+            $modelData
         );
     }
 

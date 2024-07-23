@@ -19,7 +19,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\EditFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
@@ -73,7 +73,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('stored-items/{storedItem}/edit', [EditStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.edit');
 
     Route::prefix('pallets')->as('.pallets.')->group(function () {
-        Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');
+        Route::get('', IndexPalletsInCustomer::class)->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
     });
 

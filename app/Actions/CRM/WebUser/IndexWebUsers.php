@@ -94,8 +94,23 @@ class IndexWebUsers extends OrgAction
 
         $subNavigation=[];
 
+        $icon      =['fal', 'fa-terminal'];
+        $title     =__('web users');
+        $afterTitle=null;
+        $iconRight =null;
+
+
         if($this->parent instanceof FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-terminal',
+            ];
+            $afterTitle= [
+
+                'label'     => __('Web users')
+            ];
         }
 
         return Inertia::render(
@@ -107,8 +122,10 @@ class IndexWebUsers extends OrgAction
                 ),
                 'title'       => __('web users'),
                 'pageHead'    => [
-                    'title'        => __('web users'),
-                    'icon'         => ['fal', 'fa-terminal'],
+                    'title'        => $title,
+                    'afterTitle'   => $afterTitle,
+                    'iconRight'    => $iconRight,
+                    'icon'         => $icon,
                     'subNavigation'=> $subNavigation,
                     'actions'      => [
                         ($this->canEdit &&  ($this->parent instanceof Customer || $this->parent instanceof  FulfilmentCustomer)) ? [

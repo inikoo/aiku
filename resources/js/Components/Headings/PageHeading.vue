@@ -81,8 +81,8 @@ const originUrl = location.origin
                                 :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
                                 aria-hidden="true"
                             />
-                            <div v-if="data.after_title" class="text-gray-400 font-normal text-lg leading-none">
-                                {{ data.after_title.label }}
+                            <div v-if="data.afterTitle" class="text-gray-400 font-normal text-lg leading-none">
+                                {{ data.afterTitle.label }}
                             </div>
                         </div>
                     </slot>
@@ -134,7 +134,7 @@ const originUrl = location.origin
                                             :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
                                             :method="button.route?.method || 'get'"
                                             @start="() => isButtonLoading = 'buttonGroup' + index"
-                                            @finish="() => isButtonLoading = false"
+                                            @error="() => isButtonLoading = false"
                                             :as="button.target ? 'a' : 'div'"
                                             :target="button.target"
                                         >

@@ -38,7 +38,7 @@ class IndexInvoices extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('invoices.number', $value);
+                $query->whereWith('invoices.number', $value);
             });
         });
 

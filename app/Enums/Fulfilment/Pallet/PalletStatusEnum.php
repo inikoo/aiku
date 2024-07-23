@@ -90,7 +90,7 @@ enum PalletStatusEnum: string
             ],
             'storing'      => [
                 'tooltip' => __('Storing'),
-                'icon'    => 'fal fa-check-double',
+                'icon'    => 'fal fa-warehouse-alt',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple',
                 'app'     => [
@@ -120,11 +120,9 @@ enum PalletStatusEnum: string
             ],
             'returned'     => [
                 'tooltip' => __('Returned'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-green-400',
-                'color'   => 'green',
+                'icon'    => 'fal fa-arrow-alt-from-left',
                 'app'     => [
-                    'name' => 'check',
+                    'name' => 'check',//todo need to change icon
                     'type' => 'font-awesome-5'
                 ]
             ],

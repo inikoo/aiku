@@ -222,7 +222,7 @@ onUnmounted(() => {
 </template> -->
 
 
-        <template #button-delivery="{ action }">
+        <!-- <template #button-delivery="{ action }">
             <Button
                 @click="() => onButtonCreateDeliveryClick(action)"
                 :style="action.style"
@@ -234,7 +234,7 @@ onUnmounted(() => {
                 :key="`ActionButton${action.label}${action.style}`"
                 :tooltip="action.tooltip"
             />
-        </template>
+        </template> -->
 
     </PageHeading>
 

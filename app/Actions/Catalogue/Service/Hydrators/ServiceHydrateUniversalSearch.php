@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\Service\Hydrators;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Service;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,17 +19,27 @@ class ServiceHydrateUniversalSearch
 
     public function handle(Service $service): void
     {
-        $service->universalSearch()->updateOrCreate(
-            [],
+        $shop = $service->shop;
+
+        $modelData =
             [
                 'group_id'          => $service->group_id,
                 'organisation_id'   => $service->organisation_id,
                 'organisation_slug' => $service->organisation->slug,
                 'shop_id'           => $service->shop_id,
                 'shop_slug'         => $service->shop->slug,
-                'section'           => 'shops',
+                'section'           => 'catalogue',
                 'title'             => $service->name,
-            ]
+            ];
+
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            $modelData['fulfilment_id']   = $shop->fulfilment->id;
+            $modelData['fulfilment_slug'] = $shop->fulfilment->slug;
+        }
+
+        $service->universalSearch()->updateOrCreate(
+            [],
+            $modelData
         );
     }
 

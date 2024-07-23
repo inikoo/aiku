@@ -19,6 +19,11 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_transactions')->default(0);
             $table->unsignedSmallInteger('number_transactions_type_pallets')->default(0);
             $table->unsignedSmallInteger('number_transactions_type_stored_items')->default(0);
+            $table->unsignedSmallInteger('number_pallets')->default(0);
+            $table->unsignedSmallInteger('number_stored_items')->default(0);
+            $table->unsignedSmallInteger('number_pallet_deliveries')->default(0);
+            $table->unsignedSmallInteger('number_pallet_returns')->default(0);
+
             $table->timestampsTz();
         });
     }

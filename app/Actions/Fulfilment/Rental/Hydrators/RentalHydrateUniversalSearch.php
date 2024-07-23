@@ -26,7 +26,9 @@ class RentalHydrateUniversalSearch
                 'organisation_slug' => $rental->organisation->slug,
                 'shop_id'           => $rental->shop_id,
                 'shop_slug'         => $rental->shop->slug,
-                'section'           => 'shops',
+                'fulfilment_id'     => $rental->shop->fulfilment->id,
+                'fulfilment_slug'   => $rental->shop->fulfilment->slug,
+                'section'           => 'catalogue',
                 'title'             => $rental->name,
             ]
         );
