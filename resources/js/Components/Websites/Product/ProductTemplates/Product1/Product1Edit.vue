@@ -2,8 +2,9 @@
 import { faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare } from "@fortawesome/free-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import InlineInput from '@/Components/Websites/Fields/InlineInput.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import UploadImage from '@/Components/Pure/UploadImage.vue'
 import { ref } from "vue"
 
 import DataSet from '@/Components/Websites/Product/DataSet/Product.js'
@@ -21,8 +22,7 @@ console.log(props)
 
 const selectedProduct = ref(0)
 const emits = defineEmits(['update:modelValue', 'autoSave'])
-
-const data = ref(props.modelValue)
+console.log(props)
 
 const dataProduct = ref({
     images: [
@@ -37,22 +37,18 @@ const dataProduct = ref({
 
 <template>
     <div class="p-5 mx-auto max-w-5xl m-4">
-        <div class="border-2 border-gray-400 border-dashed my-2 p-4">
+        <div class=" border-gray-400  my-2 p-4">
             <div id="app" class="text-gray-600">
                 <div class="grid grid-cols-5 gap-x-10 mb-12">
                     <div class="col-span-3">
-                        <div>
-                            <Selector v-model="data.title">
-                                <template #content-area>
-                                    <div :style="data.title">8x Monkey Bath Bomb 90g - Guava & Strawberry</div>
-                                </template>
-                            </Selector>
+                        <div class="font-bold text-lg">
+                            <InlineInput v-model="modelValue.data.name"></InlineInput>
                         </div>
 
 
                         <div class="mb-1 flex gap-x-10">
                             <div class="text-sm">
-                                Product code: BKB-07
+                                Product code: {{ modelValue.data.code }}
                             </div>
                             <div class="flex gap-x-[1px] items-center">
                                 <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
@@ -75,9 +71,9 @@ const dataProduct = ref({
                         </div>
 
                         <!-- Images product -->
-                        <div class="grid grid-cols-5 mb-10 gap-x-2">
+                        <div v-if="modelValue.data.images.length" class="grid grid-cols-5 mb-10 gap-x-2">
                             <div class="flex flex-col gap-y-1.5">
-                                <div v-for="(product, idxProduct) in dataProduct.images"
+                                <div v-for="(product, idxProduct) in modelValue.data.images"
                                     @click="() => selectedProduct = idxProduct" class="aspect-square cursor-pointer"
                                     :class="selectedProduct == idxProduct ? 'ring-2 ring-gray-400' : 'hover:ring-1 hover:ring-gray-300'">
                                     <img :src="product" alt="">
@@ -101,21 +97,14 @@ const dataProduct = ref({
                             </div>
                         </div>
 
+                        <div v-else class="mb-10 gap-x-2">
+                            <UploadImage  v-model="selectedProduct" :uploadRoutes="{name : '', parameters : ''}"/>
+                        </div>
+
                         <!-- Section: Description -->
                         <div class="space-y-4 mb-6">
                             <div class="text-xs text-gray-500">
-                                Introducing our <span class="font-bold">Wholesale Monkey Shaped Bath Bomb</span>
-                                weighing 90g
-                                and infused with the delightful fusion of
-                                Guava & Strawberry. This bulk package is perfect for retailers, spas, or anyone looking
-                                to add a
-                                touch of fun and tropical fragrance to their bath and body products.
-                                <br>
-                                Each bath bomb is meticulously crafted
-                                into an adorable monkey shape, bringing a sense of whimsy and playfulness to any bathing
-                                routine. The attention to detail and vibrant colours make these bath bombs visually
-                                appealing and
-                                irresistible to customers of all ages.
+                                <Editor  v-model="modelValue.data.description" placeholder="write something ...." />
                             </div>
                             <div class="font-bold text-xs underline">Read More</div>
                         </div>
@@ -163,22 +152,22 @@ const dataProduct = ref({
                     <!-- Column: Right -->
                     <div class="col-span-2">
                         <div class="mb-2">
-                            <Selector v-model="data.price_non_member">
+                          <!--   <Selector v-model="data.price_non_member">
                                 <template #content-area>
                                     <div :style="data.price_non_member">£9.60 (£1.20/Piece)</div>
                                 </template>
-                            </Selector>
+                            </Selector> -->
                         </div>
                         <div class="mb-2">
-                            <Selector v-model="data.price_member">
+                          <!--   <Selector v-model="data.price_member">
                                 <template #content-area>
                                     <div :style="data.price_member">£8.00 (£1.00/Piece)</div>
                                 </template>
-                            </Selector>
+                            </Selector> -->
                         </div>
 
                         <div>  
-                            <Selector v-model="data.member_price">
+                           <!--  <Selector v-model="data.member_price">
                                 <template #content-area>
                                     <div class="mb-2 space-x-2">
                                         <FontAwesomeIcon icon="fas fa-medal" :style="{ color : data.member_price.backgroundColor}"></FontAwesomeIcon>
@@ -186,7 +175,7 @@ const dataProduct = ref({
                                         <span class="text-xs underline cursor-pointer">Membership Info</span>
                                     </div>
                                 </template>
-                            </Selector>
+                            </Selector> -->
                          </div>
 
 

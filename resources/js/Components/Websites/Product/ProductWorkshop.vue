@@ -9,20 +9,20 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import EditorProduct from '@/Components/Websites/Product/EditorProduct.vue'
 import Modal from '@/Components/Utils/Modal.vue'
-import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import { getComponent, getDescriptor } from '@/Components/Websites/Product/Content'
+import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 
-import { faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare } from "@fortawesome/free-solid-svg-icons"
+import { faCube, faChevronLeft, faChevronRight } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
+library.add(faCube,faChevronLeft,faChevronRight)
 
 const props = defineProps<{
-    data : any
+    data : {
+        product : Object
+    }
 }>()
 
 console.log(props)
@@ -30,53 +30,57 @@ console.log(props)
 
 const emits = defineEmits(['update:modelValue', 'autoSave'])
 
-const usedTemplates = ref(props.data.header)
-const keyTemplates = ref(uuidv4())
+const usedTemplates = ref({data : props.data.product, key : 'product1'})
 const previewMode = ref(false)
 const isModalOpen = ref(false)
 const isLoading = ref(false)
 const comment = ref('')
 const colorThemed = props.data?.color ? props.data?.color : {color : [...useColorTheme[0]]}
+const option = [
+    {label : 'aku1', value : 'ini1'},
+    {label : 'aku2', value : 'ini2'},
+    {label : 'aku3', value : 'ini3'}
+] 
+const valueSelect = ref('ini1')
 
 
 const onPickTemplate = (header) => {
     isModalOpen.value = false
-    const data = getDescriptor(header.key)
-    usedTemplates.value = { key: header.key, ...data }
+    usedTemplates.value = { key: header.key, data : props.data.product }
 }
 
 </script>
 
 <template>
-   <Head :title="capitalize(title)" />
+
+    <Head :title="capitalize(title)" />
     <div class="h-screen grid grid-flow-row-dense grid-cols-4">
-        <div  class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col justify-between h-full">
-            <div>
-                <div class="h-screen flex justify-end">
+        <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col justify-between h-full">
+          <div>
+                <div class=" flex justify-end">
                     <div>
-                        <Button
-                            type="tertiary"
-                            label="List Templates"
-                            size="xs"
-                            icon="fas fa-th-large"
-                            @click="isModalOpen = true"
-                        />
+                        <Button type="tertiary" label="List Templates" size="xs" icon="fas fa-th-large"
+                            @click="isModalOpen = true" />
                     </div>
                 </div>
-              <!--   sideEdit -->
+
+                <div class="flex items-center mt-4">
+                    <font-awesome-icon :icon="['fas', 'chevron-left']" class="px-4"/>
+                    <PureMultiselect :options="option" required label="label" valueProp="value" v-model="valueSelect"
+                        class="mx-2" />
+                    <font-awesome-icon :icon="['far', 'chevron-right']" class="px-4" />
+                </div>
             </div>
+            <!-- sideEdit -->
         </div>
+
 
         <div class="bg-gray-100 px-6 py-6 h-full overflow-auto"
             :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
             <div :class="usedTemplates?.key ? 'bg-white' : ''">
                 <section v-if="usedTemplates?.key">
-                    <component
-                        :is="getComponent(usedTemplates.key)"
-                        :previewMode="previewMode"
-                        v-model="usedTemplates.data"
-                        :colorThemed="colorThemed"
-                    />
+                    <component :is="getComponent(usedTemplates.key)" :previewMode="previewMode"
+                        v-model="usedTemplates.data" :colorThemed="colorThemed" />
                 </section>
                 <section v-else>
                     <EmptyState
@@ -93,7 +97,7 @@ const onPickTemplate = (header) => {
             </div>
         </div>
     </div>
-    <div  class="bg-gray-300 p-4 text-white text-center fixed bottom-5 w-full">
+    <div class="bg-gray-300 p-4 text-white text-center fixed bottom-5 w-full">
         <div class="flex items-center gap-x-2">
             <Switch @click="previewMode = !previewMode"
                 class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
