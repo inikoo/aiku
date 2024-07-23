@@ -158,7 +158,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()

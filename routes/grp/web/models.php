@@ -87,10 +87,6 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
-use App\Actions\Fulfilment\StoredItemReturn\DeleteStoredItemFromStoredItemReturn;
-use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
-use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
-use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Tag\StoreTag;
@@ -149,7 +145,6 @@ use App\Actions\Web\Website\PublishWebsiteMarginal;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Actions\Web\Website\UploadImagesToWebsite;
-use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use App\Stubs\UIDummies\ImportDummy;
 use Illuminate\Support\Facades\Route;
 
@@ -343,7 +338,6 @@ Route::patch('{storedItem:id}/stored-items/return', SetReturnStoredItem::class)-
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
 
-    Route::post('stored-item-return', StoreStoredItemReturn::class)->name('stored-item-return.store');
     Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
@@ -368,11 +362,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
     });
 
-    Route::prefix('stored-item-return/{storedItemReturn:id}')->name('stored-item-return.')->group(function () {
-        Route::delete('stored-item/{storedItem:id}', DeleteStoredItemFromStoredItemReturn::class)->name('stored-item.delete');
-        Route::post('stored-item', StoreStoredItemToStoredItemReturn::class)->name('stored-item.store');
-        Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());
-    });
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
         Route::post('/', StoreRentalAgreement::class)->name('store');

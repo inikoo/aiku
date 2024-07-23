@@ -32,10 +32,8 @@ use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\UI\EditStoredItem;
-use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
-use App\Actions\Fulfilment\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
@@ -92,10 +90,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
     });
 
-    Route::prefix('stored-item-returns')->as('.stored-item-returns.')->group(function () {
-        Route::get('{storedItemReturn}', [ShowStoredItemReturn::class, 'inFulfilmentCustomer'])->name('show');
-        Route::get('stored-items/booked-in', [IndexBookedInStoredItems::class, 'inFulfilmentCustomer'])->name('stored-items.booked-in.index');
-    });
+
 
     Route::prefix('recurring-bills')->as('.recurring_bills.')->group(function () {
         Route::get('', [IndexRecurringBills::class, 'inFulfilmentCustomer'])->name('index');
