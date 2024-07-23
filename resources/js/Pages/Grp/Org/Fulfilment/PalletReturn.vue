@@ -114,21 +114,25 @@ const storedItemDescriptor = {
     title : 'Stored Item',
     key : 'stored_item',
     column : [
+        // {
+        //     label : "",
+        //     key   : 'type_icon'
+        // },
         {
-            label : "",
-            key   : 'type_icon'
+            label : "Reference",
+            key   : 'reference'
         },
         {
-            label : "Stored Item",
-            key   : 'stored_item'
+            label : "Quantity",
+            key   : 'quantity'
+        },
+        {
+            label : "Notes",
+            key   : 'notes'
         },
         {
             label : "Location",
             key   : 'location'
-        },
-        {
-            label : "Pallet",
-            key   : 'Pallet'
         },
     ]
 }
@@ -252,9 +256,9 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         </template>
 
         <!-- Button: Add Stored Items -->
-        <template #button-group-add-stored-items="{ action }">
+        <template #button-group-add-stored-item="{ action }">
             <Button
-                v-if="currentTab === 'stored_items'"
+                v-if="currentTab !== 'stored_items'"
                 :style="action.style"
                 :label="action.label"
                 :icon="action.icon"

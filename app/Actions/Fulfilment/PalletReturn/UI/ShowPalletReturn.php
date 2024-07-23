@@ -102,6 +102,19 @@ class ShowPalletReturn extends OrgAction
                             'type'    => 'button',
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-plus',
+                            'label'   => __('add Stored Item'),
+                            // 'tooltip' => __('Add single service'),
+                            // 'route'   => [
+                            //     'name'       => 'grp.models.pallet-return.transaction.store',
+                            //     'parameters' => [
+                            //         'palletReturn' => $palletReturn->id
+                            //     ]
+                            // ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
                             'label'   => __('add service'),
                             'tooltip' => __('Add single service'),
                             'route'   => [
