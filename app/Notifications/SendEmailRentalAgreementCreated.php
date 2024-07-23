@@ -34,13 +34,12 @@ class SendEmailRentalAgreementCreated extends Notification implements ShouldQueu
     public function toMail($notifiable): MailMessage
     {
         return (new CustomMailMessage($notifiable))
-                    ->line('Here is your credentials to login to retina web app.')
+                    ->line("Here is your credentials to login to {$notifiable->shop->name}.")
                     ->line("Username: $notifiable->username")
-                    ->line("Password: $this->password")
-                    ->action('Login', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->line(!$this->password ? "Password: $this->password" : null)
+                    ->action('Login', $notifiable->shop->website->domain.'/app/login')
+                    ->line("Thank you for using {$notifiable->shop->name}.");
     }
-
 
     public function toArray($notifiable): array
     {

@@ -54,7 +54,7 @@
         "@tiptap/extension-highlight": "^2.2.3",
         "@tiptap/extension-link": "^2.2.4",
         "@tiptap/extension-list-item": "^2.0.3",
-        "@tiptap/extension-placeholder": "^2.0.3",
+        "@tiptap/extension-placeholder": "^2.5.5",
         "@tiptap/extension-subscript": "^2.2.3",
         "@tiptap/extension-superscript": "^2.2.3",
         "@tiptap/extension-text-align": "^2.2.3",
