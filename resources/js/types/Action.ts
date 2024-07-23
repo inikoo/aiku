@@ -8,6 +8,7 @@ export interface Action {
     label?: string
     iconRight?: string | string[]
     style?: string
+    size?: string
     route?: routeType
     href?: routeType  // Safety for old code, should be in 'route' 
     tooltip?: string
@@ -20,6 +21,7 @@ export interface Action {
         icon?: string | string[]
         label?: string
         iconRight?: string | string[]
+        size?: string
         style?: string
         route?: routeType
         tooltip?: string
