@@ -109,7 +109,7 @@ class IndexInvoices extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            $table->column(key: 'type', label: __(''), canBeHidden: false, sortable: false, searchable: true)
+            $table->column(key: 'type', label: __(''), type: 'icon', canBeHidden: false, sortable: false, searchable: true)
                 ->defaultSort('number');
             $table
                 ->withGlobalSearch()
@@ -159,6 +159,7 @@ class IndexInvoices extends OrgAction
 
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
+        $modelPageHead   = null;
 
         if ($this->parent instanceof Fulfilment) {
             $modelPageHead = __('operations');

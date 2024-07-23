@@ -6,7 +6,10 @@
 <script setup lang="ts">
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { useLocaleStore } from "@/Stores/locale"
+import { faEmptySet } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { inject } from "vue"
+library.add(faEmptySet)
 
 
 const props = defineProps<{
@@ -16,7 +19,7 @@ const props = defineProps<{
     }
 }>()
 
-const locale = useLocaleStore()
+const locale = inject('locale', {})
 
 </script>
 

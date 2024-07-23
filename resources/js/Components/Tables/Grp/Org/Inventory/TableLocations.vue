@@ -184,10 +184,10 @@ onUnmounted(() => {
                         trackBy="slug"
                         label="name"
                         @change="(tags) => (updateTagItemTable(tags, item.id))"
-                        :close-on-select="false"
-                        :searchable="true"
-                        :create-option="true"
-                        :on-create="(tag: tag) => addNewTag(tag, item.id)"
+                        :closeOnSelect="false"
+                        searchable
+                        createOption
+                        :onCreate="(tag: tag) => addNewTag(tag, item.id)"
                         :caret="false"
                         :options="tagsListTemp"
                         noResultsText="No one left. Type to add new one."
@@ -205,7 +205,6 @@ onUnmounted(() => {
                             </div>
                         </template>
                     </Multiselect>
-
                     <div class="text-gray-400 italic text-xs">
                         Press Esc to finish edit or <span @click="() => onEditLocation = false" class="hover:text-gray-500 cursor-pointer">click here</span>.
                     </div>
