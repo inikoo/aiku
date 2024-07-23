@@ -351,26 +351,29 @@ class ShowPalletReturn extends OrgAction
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
                     'order_summary'                => [
                         [
+
                             [
                                 'label'         => __('Pallets'),
                                 'quantity'      => $palletReturn->number_pallets ?? 0,
-                                'price_base'    => 999,
-                                'price_total'   => 1111 ?? 0
+                                'price_base'    => '',
+                                'price_total'   => ''
                             ],
                             [
                                 'label'         => __('Services'),
                                 'quantity'      => $palletReturn->stats->number_services ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $palletReturn->stats->total_services_price ?? 0
+                                'price_base'    => '',
+                                'price_total'   => ''
                             ],
                             [
                                 'label'         => __('Physical Goods'),
                                 'quantity'      => $palletReturn->stats->number_physical_goods ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $palletReturn->stats->total_physical_goods_price ?? 0
+                                'price_base'    => '',
+                                'price_total'   => ''
                             ],
+
                         ],
                         [
+                            /*
                             [
                                 'label'         => __('Shipping'),
                                 'information'   => __('Shipping fee to your address using DHL service.'),
@@ -381,12 +384,17 @@ class ShowPalletReturn extends OrgAction
                                 'information'   => __('Tax is based on 10% of total order.'),
                                 'price_total'   => 1111
                             ],
+                            */
                         ],
                         [
+                            /*
+
+                             *
                             [
                                 'label'         => __('Total'),
                                 'price_total'   => $palletReturn->stats->total_price
                             ],
+                            */
                         ],
 
                         // 'currency_code'                => 'usd',  // TODO

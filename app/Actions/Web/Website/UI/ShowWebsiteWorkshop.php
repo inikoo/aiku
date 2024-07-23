@@ -58,10 +58,17 @@ class ShowWebsiteWorkshop extends OrgAction
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-
         $product    = $website->shop->products()->first();
         $family     = $website->shop->families()->first();
         $department = $website->shop->departments()->first();
+
+        $navigation = WebsiteWorkshopTabsEnum::navigation();
+
+        if($this->scope instanceof Fulfilment) {
+            unset($navigation[WebsiteWorkshopTabsEnum::PRODUCT->value]);
+            unset($navigation[WebsiteWorkshopTabsEnum::DEPARTMENT->value]);
+            unset($navigation[WebsiteWorkshopTabsEnum::FAMILY->value]);
+        }
 
         return Inertia::render(
             'Org/Web/Workshop/WebsiteWorkshop',
@@ -98,7 +105,7 @@ class ShowWebsiteWorkshop extends OrgAction
 
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => WebsiteWorkshopTabsEnum::navigation(),
+                    'navigation' => $navigation,
                 ],
 
                 WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value ?

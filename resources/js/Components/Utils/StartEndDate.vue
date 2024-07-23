@@ -54,7 +54,7 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
 
 <template>
     <div class="relative grid lg:grid-cols-11 gap-y-1.5 xl:min-w-[400px] w-full text-gray-600">
-        <div class="bg-black/10 lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-gray-300 flex flex-col">
+        <div class="bg-black/10 lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-black/20 flex flex-col">
             <div class="text-xs text-gray-500">Start date</div>
             <div class="font-medium">
                 {{ useFormatTime(startDate)}}
@@ -66,7 +66,7 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
         </div>
 
         <div
-            class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-gray-300 flex flex-col"
+            class="lg:col-span-5 px-4 py-2 rounded-md ring-1 ring-black/20 flex flex-col"
             :class="[ isEndDateToday ? 'bg-red-100 text-gray-500' : 'bg-black/10']"
             
         >
@@ -75,7 +75,7 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
                 <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? 'Today is the end date' : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' />
             </div>
             <div class="font-medium">
-                <Popover position="">
+                <Popover position="right-0">
                     <template #button>
                         <div class="flex flex-nowrap items-center gap-x-1">
                             <Transition name="spin-to-down">

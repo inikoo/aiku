@@ -116,7 +116,7 @@ const onSelectSubmitChange = (value) => {
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template v-if="formData?.submitPosition == 'top'" #button>
+        <template v-if="formData?.submitPosition == 'top'" #other>
             <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
                 <Button
                     v-if="!formData.submitButton"

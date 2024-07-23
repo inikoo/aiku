@@ -52,6 +52,12 @@ const props = defineProps<{
     showcase: {
         // invoice_information: Calculation 
         currency: string
+        items: {
+            data: ProductTransaction[]
+        }
+        // items: TableTS
+    }
+    box_stats: {
         customer: {
             company_name: string
             contact_name: string
@@ -60,16 +66,14 @@ const props = defineProps<{
             reference: string
             slug: string
         }
-        items: {
-            data: ProductTransaction[]
-        }
-        exportPdfRoute: routeType
-        // items: TableTS
+
     }
+    exportPdfRoute: routeType
     order_summary: FieldOrderSummary[][]
     address: {}
     billing_address: {}
     fixed_addresses: {}
+    recurring_bill_route: routeType
     invoice: {
         date: string
         currency_code: string
@@ -81,9 +85,9 @@ const props = defineProps<{
     history: {}
 }>()
 
-console.log('aaa', props.address)
-console.log('bbb', props.billing_address)
-console.log('ccc', props.fixed_addresses)
+// console.log('aaa', props.address)
+// console.log('bbb', props.billing_address)
+// console.log('ccc', props.fixed_addresses)
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -102,6 +106,11 @@ const component = computed(() => {
 
 const boxFieldDetail = [
     {
+        icon: 'fal fa-receipt',
+        label: 'xxxdd',
+        tooltip: 'Recurring bill'
+    },
+    {
         icon: 'fal fa-calendar-alt',
         label: useFormatTime(props.invoice.date),
         tooltip: 'Invoice created'
@@ -113,7 +122,7 @@ const boxFieldDetail = [
     },
 ]
 
-console.log('pp', props)
+console.log('pp', props.recurring_bill_route)
 </script>
 
 
@@ -124,7 +133,7 @@ console.log('pp', props)
     <PageHeading :data="pageHead">
         <template #other >
         
-            <a v-if="showcase.exportPdfRoute.name" :href="route(showcase.exportPdfRoute.name, showcase.exportPdfRoute.parameters)" target="_blank" class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
+            <a v-if="exportPdfRoute?.name" :href="route(exportPdfRoute.name, exportPdfRoute.parameters)" target="_blank" class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
                     <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
                 </a>
         
@@ -136,7 +145,7 @@ console.log('pp', props)
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
 
             <!-- Field: Registration Number -->
-            <Link as="a" v-if="showcase?.customer.reference"
+            <Link as="a" v-if="box_stats?.customer.reference"
                 :href="'#'"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
                 <dt v-tooltip="'Company name'" class="flex-none">
@@ -144,62 +153,62 @@ console.log('pp', props)
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">#{{ showcase?.customer.reference }}</dd>
+                <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
-            <div v-if="showcase?.customer.contact_name"
+            <div v-if="box_stats?.customer.contact_name"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <span class="sr-only">Contact name</span>
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ showcase?.customer.contact_name }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
-            <div v-if="showcase?.customer.company_name"
+            <div v-if="box_stats?.customer.company_name"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Company name</span>
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ showcase?.customer.company_name }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Tax number -->
-            <!-- <div v-if="showcase?.customer.tax_number"
+            <!-- <div v-if="box_stats?.customer.tax_number"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
                     <span class="sr-only">Tax Number</span>
                     <FontAwesomeIcon icon='fal fa-passport' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ showcase?.customer.tax_number }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.tax_number }}</dd>
             </div> -->
 
             <!-- Field: Location -->
-            <div v-if="showcase?.customer.location"
+            <div v-if="box_stats?.customer.location"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
                     <span class="sr-only">Location</span>
                     <FontAwesomeIcon icon='fal fa-map-marked-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ showcase?.customer.location.join(', ') }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.location.join(', ') }}</dd>
             </div>
 
             <!-- Field: Phone -->
-            <div v-if="showcase?.customer.phone"
+            <div v-if="box_stats?.customer.phone"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Phone</span>
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ showcase?.customer.phone }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.phone }}</dd>
             </div>
 
             <!-- Field: Address -->
@@ -213,11 +222,15 @@ console.log('pp', props)
                 <dd class="text-xs text-gray-500 w-full">
                     <div v-if="address" class="relative bg-gray-50 border border-gray-300 rounded px-2 py-1">
                         <div v-html="address.formatted_address" /> 
-                        <div class="absolute right-2 bottom-1 px-1 text-gray-400 hover:text-gray-600 cursor-pointer">
+                        <!-- <div class="absolute right-2 bottom-1 px-1 text-gray-400 hover:text-gray-600 cursor-pointer">
                             <FontAwesomeIcon icon='fal fa-pencil' class='' fixed-width aria-hidden='true' />
-                        </div>
+                        </div> -->
                     </div>
-                    <AddressSelector v-else :addressList="fixed_addresses.data" />
+
+                    <div v-else class="text-gray-400 italic">
+                        No address
+                    </div>
+                    <!-- <AddressSelector v-else :addressList="fixed_addresses.data" /> -->
                 </dd>
             </div>
         </BoxStatPallet>
@@ -254,7 +267,7 @@ console.log('pp', props)
                             :class="invoice.label == 'Total' ? 'font-semibold' : ''"
                         >
                             <div>{{ invoice.label }} <span v-if="invoice.label == 'Tax'" class="text-sm text-gray-400">(VAT {{invoice.tax_percentage || 0}}%)</span></div>
-                            <div>{{ locale.currencyFormat(showcase?.currency, invoice.value || 0) }}</div>
+                            <div>{{ locale.currencyFormat(box_stats?.currency, invoice.value || 0) }}</div>
                         </div>
                     </div>
                     <hr class="last:hidden my-1.5 border-gray-300">

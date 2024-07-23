@@ -38,7 +38,7 @@ class IndexInvoices extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('invoices.number', $value);
+                $query->whereWith('invoices.number', $value);
             });
         });
 
@@ -109,6 +109,8 @@ class IndexInvoices extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+            $table->column(key: 'type', label: __(''), canBeHidden: false, sortable: false, searchable: true)
+                ->defaultSort('number');
             $table
                 ->withGlobalSearch()
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
@@ -121,7 +123,7 @@ class IndexInvoices extends OrgAction
             }
 
 
-            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'total_amount', label: __('total'), type: 'number', canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };
     }
@@ -158,6 +160,10 @@ class IndexInvoices extends OrgAction
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
+        if ($this->parent instanceof Fulfilment) {
+            $modelPageHead = __('operations');
+        }
+
         return Inertia::render(
             'Org/Accounting/Invoices',
             [
@@ -171,6 +177,7 @@ class IndexInvoices extends OrgAction
                     'icon'      => [
                         'icon' => ['fal', 'fa-file-invoice-dollar'],
                     ],
+                    'model'        => $modelPageHead,
                     'subNavigation'=> $subNavigation,
 
                 ],

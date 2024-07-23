@@ -18,12 +18,12 @@ import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
-import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink } from '@fal'
+import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faLongArrowRight)
+library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faLongArrowRight)
 
 const props = defineProps<{
     data: {
@@ -181,11 +181,11 @@ const isLoading = ref<string | boolean>(false)
                                             <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
                                         </div>
 
-                                        <!-- Field: Phone -->
+                                        <!-- Field: Location -->
                                         <div v-if="data.customer?.location" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Phone'" class="flex-none">
                                                 <span class="sr-only">Location</span>
-                                                <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">
                                                 <AddressLocation :data="data.customer?.location" />
@@ -199,7 +199,7 @@ const isLoading = ref<string | boolean>(false)
                 <!-- </Transition> -->
 
                 <!-- Box Group: Pallets -->
-                <CustomerShowcaseStats :stats="data.stats" />
+                <CustomerShowcaseStats v-if="data?.rental_agreement?.stats" :stats="data.stats" />
             </div>
         </div>
 
@@ -262,7 +262,7 @@ const isLoading = ref<string | boolean>(false)
                 
                 <!-- Section: Rental Agreement -->
                 <div class="rounded-lg ring-1 ring-gray-300">
-                    <div class="border-b border-gray-300 py-4 px-4 flex items-center justify-between">
+                    <div class="border-b border-gray-300 py-2 px-2  pl-4 flex items-center justify-between">
                         <div class="text-gray-400">{{ trans('Rental Agreement') }}</div>
                         <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data.route.name, data.rental_agreement.stats?.data.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
                             <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>

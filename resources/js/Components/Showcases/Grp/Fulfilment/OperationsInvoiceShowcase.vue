@@ -22,6 +22,7 @@ const props = defineProps<{
         exportPdfRoute: routeType
         // items: TableTS
     }
+    tab: string
 }>()
 
 
@@ -35,11 +36,14 @@ const props = defineProps<{
 
         <!-- Section Calculation -->
         <div class="rounded-md">
-            <Table :data="data.items.data" name="items" />
+            <Table :data="data.items" :name="tab">
+
+            </Table>
             <!-- For Retina (don't delete) -->
             <!-- <FulfilmentInvoiceCalculation :pdfRoute="data.exportPdfRoute" :dataCalculations="data.calculation" :dataTable="data.items.data" /> -->
         </div>
 
+    <pre>{{ data.items }}</pre>
         
 
         <!-- TODO: Order link, Category, Date -->

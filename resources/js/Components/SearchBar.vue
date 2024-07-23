@@ -13,6 +13,8 @@ import { trans } from 'laravel-vue-i18n'
 import { debounce } from 'lodash'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import SearchResultPallet from '@/Components/Search/SearchResultPallet.vue'
+import SearchResultCustomer from '@/Components/Search/SearchResultCustomer.vue'
+import SearchResultFulfilmentCustomer from '@/Components/Search/SearchResultFulfilmentCustomer.vue'
 import SearchResult from '@/Components/Search/SearchResult.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
@@ -50,8 +52,9 @@ const fetchApi = debounce(async (query: string) => {
             .then(response => {
                 response.json().then((data: { data: {} }) => {
                     resultsSearch.value = data.data
-                    console.log('result', resultsSearch.value)
+                    console.log('query:', query, resultsSearch.value)
                     isLoadingSearch.value = false
+                    selectedTab.value = null
                 })
             })
             .catch(err => console.log(err))
@@ -121,7 +124,7 @@ function countModelTypes(data) {
                                 <button v-else as="button"
                                     @click="() => selectedTab = null"
                                     key="All"
-                                    class="min-w-28 w-min rounded-lg py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
+                                    class="min-w-28 w-min rounded py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
                                     :class="[
                                         !selectedTab
                                             ? 'bg-indigo-600 text-white'
@@ -133,7 +136,7 @@ function countModelTypes(data) {
                                 <button v-if="!isLoadingSearch && resultsSearch" v-for="(tabCount, tabName, tabIdx) in countModelTypes(resultsSearch)" as="button"
                                     @click="() => selectedTab = tabName"
                                     :key="tabName+tabIdx"
-                                    class="min-w-28 w-fit rounded-lg py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
+                                    class="min-w-28 w-fit rounded py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
                                     :class="[
                                         tabName == selectedTab
                                             ? 'bg-indigo-600 text-white'
@@ -168,7 +171,9 @@ function countModelTypes(data) {
                                     v-tooltip="result.model_type"
                                     class="bg-white hover:bg-slate-50 py-3 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
                                 >
-                                    <SearchResultPallet v-if="result.model_type == 'Pallet'" :key="result.model_type + resultIdx" :data="result.model" />
+                                    <SearchResultPallet v-if="result.model_type == 'Pallet'" :data="result.model" />
+                                    <SearchResultCustomer v-else-if="result.model_type == 'Customer'" :data="result.model" />
+                                    <SearchResultFulfilmentCustomer v-else-if="result.model_type == 'FulfilmentCustomer'" :data="result.model" />
                                     <SearchResult v-else :data="result.model" @finishVisit="() => emits('close', false)" />
                                 </li>
                             </TransitionGroup >

@@ -31,7 +31,7 @@ class LocationHydrateUniversalSearch
                 'warehouse_slug'    => $location->warehouse->slug,
                 'section'           => 'inventory',
                 'title'             => $location->code,
-                'slug'              => 'loc-'.$location->slug,
+                'slug'              => $location->slug,
             ]
         );
     }

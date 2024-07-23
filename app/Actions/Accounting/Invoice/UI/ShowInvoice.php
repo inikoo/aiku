@@ -91,6 +91,21 @@ class ShowInvoice extends OrgAction
         $billingAddress = AddressResource::make($invoice->billingAddress);
         $address        = AddressResource::make($invoice->address);
         $fixedAddresses = AddressResource::collection($invoice->fixedAddresses);
+        if ($invoice->recurringBill()->exists()) {
+            if ($this->parent instanceof Fulfilment) {
+                $recurringBillRoute = [
+                    'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.show',
+                    'parameters' => [$invoice->organisation->slug, $this->parent->slug, $invoice->recurringBill->slug]
+                ];
+            } else {
+                $recurringBillRoute = [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
+                    'parameters' => [$invoice->organisation->slug, $this->parent->fulfilment->slug, $this->parent->slug, $invoice->recurringBill->slug]
+                ];
+            }
+        } else {
+            $recurringBillRoute = null;
+        }
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
@@ -116,10 +131,11 @@ class ShowInvoice extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
-                'address'           => $address,
-                'billing_address'   => $billingAddress,
-                'fixed_addresses'   => $fixedAddresses,
-                'order_summary'     => [
+                'address'              => $address,
+                'billing_address'      => $billingAddress,
+                'fixed_addresses'      => $fixedAddresses,
+                'recurring_bill_route' => $recurringBillRoute,
+                'order_summary'        => [
                     [
                         [
                             'label'         => __('Services'),
@@ -175,6 +191,25 @@ class ShowInvoice extends OrgAction
                     ],
                 ],
 
+                'exportPdfRoute' => [
+                    'name'       => 'grp.org.accounting.invoices.download',
+                    'parameters' => [
+                        'organisation' => $invoice->organisation->slug,
+                        'invoice'      => $invoice->slug
+                    ]
+                ],
+                'box_stats'         => [
+                    'customer' => [
+                        'slug'         => $invoice->customer->slug,
+                        'reference'    => $invoice->customer->reference,
+                        'contact_name' => $invoice->customer->contact_name,
+                        'company_name' => $invoice->customer->company_name,
+                        'location'     => $invoice->customer->location,
+                        'phone'        => $invoice->customer->phone,
+                        // 'address'      => AddressResource::collection($invoice->customer->addresses),
+                    ],
+                ],
+
                 'invoice'   => [
                     'number'                    => $invoice->number,
                     'profit_amount'             => $invoice->profit_amount,
@@ -186,6 +221,9 @@ class ShowInvoice extends OrgAction
                     'net_amount'                => $invoice->net_amount,
                     'tax_percentage'            => $invoice->tax_percentage,
                     'payment_amount'            => $invoice->payment_amount,
+                    'date'                      => $invoice->date,
+                    'tax_liability_at'          => $invoice->tax_liability_at,
+                    'paid_at'                   => $invoice->paid_at,
 
                     // 'item_gross'                => $invoice->item_gross,
                     // 'discounts_total'           => $invoice->discounts_total,
@@ -201,9 +239,9 @@ class ShowInvoice extends OrgAction
                     fn () => GetInvoiceShowcase::run($invoice)
                     : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
 
-                InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                // InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
+                //     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                //     : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
                     fn () => PaymentsResource::collection(IndexPayments::run($invoice))
@@ -213,7 +251,7 @@ class ShowInvoice extends OrgAction
 
             ]
         )->table(IndexPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
-            ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
+        ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::SHOWCASE->value));
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -260,14 +298,18 @@ class ShowInvoice extends OrgAction
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {
-        $previous = Invoice::where('number', '<', $invoice->number)->orderBy('number', 'desc')->first();
+        $previous = Invoice::where('number', '<', $invoice->number)
+            ->where('invoices.shop_id', $invoice->shop_id)
+            ->orderBy('number', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
     {
-        $next = Invoice::where('number', '>', $invoice->number)->orderBy('number')->first();
+        $next = Invoice::where('number', '>', $invoice->number)
+            ->where('invoices.shop_id', $invoice->shop_id)
+            ->orderBy('number')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
