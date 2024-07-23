@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_interest_items_storage
  * @property int $number_customers_interest_dropshipping
  * @property int $number_customers_status_no_rental_agreement
+ * @property int $number_customers_status_unaccomplished
  * @property int $number_customers_status_active
  * @property int $number_customers_status_inactive
  * @property int $number_customers_status_lost
