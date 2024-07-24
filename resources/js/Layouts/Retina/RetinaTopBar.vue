@@ -95,26 +95,8 @@ console.log('environment', isStaging)
             </div>
 
             <div class="flex items-center w-full justify-between pr-6 space-x-3">
-
-                <!-- Section: Dropdown + subsections -->
-                <div class="flex items-center gap-x-2">
-
-                    <!-- Section: Subsections (Something will teleport to this section) -->
-                    <div class="flex h-full" id="RetinaTopBarSubsections">
-                        <!-- <div class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4">
-                            <FontAwesomeIcon icon="fas fa-dot-circle" fixed-width class="h-5" aria-hidden="true" />
-                            <span class="hidden lg:inline capitalize whitespace-nowrap">hello 1</span>
-                        </div>
-                        <div class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4">
-                            <FontAwesomeIcon icon="fas fa-dot-circle" fixed-width class="h-5" aria-hidden="true" />
-                            <span class="hidden lg:inline capitalize whitespace-nowrap">hello 2</span>
-                        </div>
-                        <div class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4">
-                            <FontAwesomeIcon icon="fas fa-dot-circle" fixed-width class="h-5" aria-hidden="true" />
-                            <span class="hidden lg:inline capitalize whitespace-nowrap">hello 3</span>
-                        </div> -->
-                    </div>
-
+                <!-- Section: Subsections (Something will teleport to this section) -->
+                <div class="flex h-full" id="RetinaTopBarSubsections">
                 </div>
 
                 <!-- Section: Search, Notification, Profile -->

@@ -9,13 +9,18 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import Table from "@/Components/Table/Table.vue"
 import { RecurringBill } from '@/types/recurring_bill'
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faReceipt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faReceipt)
+
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     data: {}
-    
+
 }>()
 
 function recurringBillRoute(recurringBill: RecurringBill) {
@@ -26,7 +31,6 @@ function recurringBillRoute(recurringBill: RecurringBill) {
                 [
                     recurringBill.slug
                 ])
-
     }
 }
 
@@ -34,6 +38,7 @@ function recurringBillRoute(recurringBill: RecurringBill) {
 
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Table :resource="data" class="mt-5">

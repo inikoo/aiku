@@ -7,6 +7,9 @@ import { ref } from "vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
+
+import '@/Composables/Icon/PalletStateEnum'
+import '@/Composables/Icon/PalletStatusEnum'
 import { Link } from "@inertiajs/vue3"
 import RetinaTablePallets from "@/Components/Tables/Retina/RetinaTablePallets.vue"
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
