@@ -76,6 +76,10 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
             <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
         </template>
 
+        <template #cell(type)="{ item: palletReturn }">
+            <Icon :data="palletReturn['type_icon']" class="px-1"/>
+        </template>
+
         <!-- Column: Pallets -->
         <template #cell(pallets)="{ item: palletReturn }">
             <div class="tabular-nums">

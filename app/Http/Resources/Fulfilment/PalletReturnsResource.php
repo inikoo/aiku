@@ -24,8 +24,8 @@ class PalletReturnsResource extends JsonResource
             'state_label'        => $palletReturn->state->labels()[$palletReturn->state->value],
             'state_icon'         => $palletReturn->state->stateIcon()[$palletReturn->state->value],
             'type'               => $palletReturn->type,
-            // 'type_label'         => $palletReturn->type->labels()[$palletReturn->type->value],
-            // 'type_icon'          => $palletReturn->type->stateIcon()[$palletReturn->type->value],
+            'type_label'         => $palletReturn->type->labels()[$palletReturn->type->value],
+            'type_icon'          => $palletReturn->type->stateIcon()[$palletReturn->type->value],
             'customer_reference' => $palletReturn->customer_reference,
             'number_pallets'     => $palletReturn->number_pallets,
             'dispatched_date'    => $palletReturn->dispatched_at
