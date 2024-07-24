@@ -13,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class WebpageHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(Webpage $webpage): void
@@ -27,9 +28,8 @@ class WebpageHydrateUniversalSearch
                 'shop_slug'         => $webpage->website->shop->slug,
                 'organisation_id'   => $webpage->organisation_id,
                 'organisation_slug' => $webpage->organisation->slug,
-                'section'           => 'web',
-                'title'             => trim($webpage->code.' '.$webpage->url),
-                'description'       => ''
+                'sections'          => ['web'],
+                'haystack_tier_1'   => trim($webpage->code.' '.$webpage->url),
             ]
         );
     }

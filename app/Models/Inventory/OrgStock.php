@@ -52,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $discontinued_in_organisation_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \App\Models\Inventory\LocationOrgStock $pivot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read Organisation $organisation

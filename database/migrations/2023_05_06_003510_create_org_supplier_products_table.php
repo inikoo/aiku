@@ -25,7 +25,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('org_supplier_id')->nullable();
             $table->foreign('org_supplier_id')->references('id')->on('org_suppliers');
-
+            $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('status')->default(true)->index();
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();

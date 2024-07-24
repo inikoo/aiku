@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Procurement\OrgSupplier
@@ -25,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $slug
  * @property string $code mirror of parent
  * @property string $name mirror of parent
  * @property int $supplier_id
@@ -49,10 +52,27 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class OrgSupplier extends Model
 {
     use InOrganisation;
+    use HasSlug;
 
     protected $table = 'org_suppliers';
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                return $this->supplier->code.'-'.$this->organisation->code;
+            })
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function supplier(): BelongsTo
     {

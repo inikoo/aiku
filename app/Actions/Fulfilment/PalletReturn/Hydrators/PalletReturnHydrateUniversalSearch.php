@@ -15,6 +15,7 @@ class PalletReturnHydrateUniversalSearch
     use AsAction;
 
     public string $jobQueue = 'universal-search';
+
     public function handle(PalletReturn $palletReturn): void
     {
         $palletReturn->universalSearch()->updateOrCreate(
@@ -27,9 +28,8 @@ class PalletReturnHydrateUniversalSearch
                 'warehouse_slug'    => $palletReturn->warehouse->slug,
                 'fulfilment_id'     => $palletReturn->fulfilment_id,
                 'fulfilment_slug'   => $palletReturn->fulfilment->slug,
-                'section'           => 'fulfilment',
-                'title'             => $palletReturn->reference,
-                'slug'              => 'par-'.$palletReturn->slug,
+                'sections'          => ['fulfilment'],
+                'haystack_tier_1'   => $palletReturn->reference,
             ]
         );
     }

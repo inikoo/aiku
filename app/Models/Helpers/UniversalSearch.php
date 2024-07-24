@@ -14,10 +14,9 @@ use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
 
 /**
- * App\Models\Search\UniversalSearch
+ *
  *
  * @property int $id
- * @property string|null $slug
  * @property int|null $group_id
  * @property int|null $organisation_id
  * @property string|null $organisation_slug
@@ -33,13 +32,15 @@ use Laravel\Scout\Searchable;
  * @property string|null $customer_slug
  * @property string|null $model_type
  * @property int|null $model_id
- * @property string|null $section
- * @property string $title
- * @property string|null $description
- * @property array $data
+ * @property string|null $haystack_tier_1
+ * @property string|null $haystack_tier_2
+ * @property string|null $haystack_tier_3
+ * @property array $sections
+ * @property array $permissions
+ * @property array $result
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Model|\Eloquent $model
+ * @property-read Model|\Eloquent|null $model
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()
  * @method static Builder|UniversalSearch query()
@@ -50,11 +51,15 @@ class UniversalSearch extends Model
     use Searchable;
 
     protected $casts = [
-        'data'                        => 'array',
+        'sections'    => 'array',
+        'permissions' => 'array',
+        'result'      => 'array',
     ];
 
     protected $attributes = [
-        'data'           => '{}',
+        'sections'    => '{}',
+        'permissions' => '{}',
+        'result'      => '{}',
     ];
 
     protected $guarded = [];
@@ -68,7 +73,13 @@ class UniversalSearch extends Model
 
     public function toSearchableArray(): array
     {
-        return Arr::except($this->toArray(), ['updated_at', 'created_at']);
+        return Arr::except($this->toArray(), [
+            'updated_at',
+            'created_at',
+            'result',
+            'model_type',
+            'model_id'
+        ]);
     }
 
     public function model(): MorphTo

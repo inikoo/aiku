@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Stubs\Migrations\HasFulfilmentStats;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
@@ -23,7 +23,7 @@ return new class () extends Migration {
             Schema::create('fulfilment_customers', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->groupOrgRelationship($table);
-                $table->string('status')->default(FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT->value)->index();
+                $table->string('status')->default(FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT->value)->index();
                 $table->string('slug')->unique()->collation('und_ns');
                 $table->unsignedInteger('customer_id');
                 $table->foreign('customer_id')->references('id')->on('customers');

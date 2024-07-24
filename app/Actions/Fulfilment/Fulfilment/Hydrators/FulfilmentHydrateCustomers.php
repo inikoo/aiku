@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Fulfilment\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -45,7 +45,7 @@ class FulfilmentHydrateCustomers
         $stats=array_merge($stats, $this->getEnumStats(
             model:'customers',
             field: 'status',
-            enum: FulfilmentCustomerStatus::class,
+            enum: FulfilmentCustomerStatusEnum::class,
             models: FulfilmentCustomer::class,
             where: function ($q) use ($fulfilment) {
                 $q->where('fulfilment_id', $fulfilment->id);

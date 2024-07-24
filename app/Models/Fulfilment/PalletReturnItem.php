@@ -15,9 +15,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\PalletReturnItem
  *
  * @property int $id
- * @property int $pallet_id
+ * @property string $type Pallet|StoredItem
  * @property int $pallet_return_id
- * @property int|null $picked_from_location_id
+ * @property int $pallet_id
+ * @property int|null $stored_item_id
+ * @property string $quantity_ordered
+ * @property string $quantity_dispatched
+ * @property string $quantity_fail
+ * @property string $quantity_cancelled
+ * @property int|null $picking_location_id
  * @property PalletReturnItemStateEnum $state
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

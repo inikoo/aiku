@@ -12,7 +12,7 @@ permissions:
 jobs:
   deployment:
     name: Deploy aiku 🚀
-    runs-on: cloud
+    runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Checkout repo

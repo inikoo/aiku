@@ -193,8 +193,22 @@ class IndexPalletReturns extends OrgAction
     {
         $subNavigation=[];
 
+        $icon      =['fal', 'fa-sign-out-alt'];
+        $title     =__('returns');
+        $afterTitle=null;
+        $iconRight =null;
+
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-sign-out-alt',
+            ];
+            $afterTitle= [
+
+                'label'     => __('returns')
+            ];
         }
 
         return Inertia::render(
@@ -206,26 +220,42 @@ class IndexPalletReturns extends OrgAction
                 ),
                 'title'       => __('pallet returns'),
                 'pageHead'    => [
-                    'title'         => __('returns'),
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-sign-out-alt'],
-                        'title' => __('returns')
-                    ],
-                    'actions' => [
+                    'actions'       => [
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
-                                $this->parent->number_pallets_state_storing ? [
+                                $this->parent->number_pallets_status_storing ? [
                                     'type'    => 'button',
                                     'style'   => 'create',
-                                    'tooltip' => __('Create new pallet return'),
-                                    'label'   => __('Pallet return'),
+                                    'tooltip' => $this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                                    'label'   => $this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                                         'parameters' => [$this->parent->id]
                                     ]
                                 ] : false,
+
+                            default => null
+                        },
+                        match (class_basename($this->parent)) {
+                            'FulfilmentCustomer' =>
+                            $this->parent->number_stored_items_status_storing ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new return (stored items)'),
+                                'label'   => __('Return (Stored items)'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return-stored-items.store',
+                                    'parameters' => [$this->parent->id]
+                                ]
+                            ] : false,
+
                             default => null
                         }
                     ]

@@ -13,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ArtefactHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(Artefact $artefact): void
@@ -23,9 +24,8 @@ class ArtefactHydrateUniversalSearch
                 'group_id'          => $artefact->group_id,
                 'organisation_id'   => $artefact->organisation_id,
                 'organisation_slug' => $artefact->organisation->slug,
-                'section'           => 'manufacture',
-                'title'             => trim($artefact->name.' '.$artefact->code),
-                'description'       => ''
+                'sections'          => ['manufacture'],
+                'haystack_tier_1'   => trim($artefact->name.' '.$artefact->code),
             ]
         );
     }

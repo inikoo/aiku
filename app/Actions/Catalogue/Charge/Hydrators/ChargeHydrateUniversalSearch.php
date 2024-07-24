@@ -26,8 +26,8 @@ class ChargeHydrateUniversalSearch
                 'organisation_slug' => $charge->organisation->slug,
                 'shop_id'           => $charge->shop_id,
                 'shop_slug'         => $charge->shop->slug,
-                'section'           => 'shops',
-                'title'             => $charge->name,
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $charge->name,
             ]
         );
     }

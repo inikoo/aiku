@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -32,8 +32,8 @@ class IndexFulfilmentCustomers extends OrgAction
             'status' => [
                 'label'    => __('Status'),
                 'elements' => array_merge_recursive(
-                    FulfilmentCustomerStatus::labels(),
-                    FulfilmentCustomerStatus::count($parent)
+                    FulfilmentCustomerStatusEnum::labels(),
+                    FulfilmentCustomerStatusEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {

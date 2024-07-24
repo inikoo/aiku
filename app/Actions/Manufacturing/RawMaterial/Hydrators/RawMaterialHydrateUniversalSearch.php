@@ -13,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class RawMaterialHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(RawMaterial $rawMaterial): void
@@ -23,9 +24,8 @@ class RawMaterialHydrateUniversalSearch
                 'group_id'          => $rawMaterial->group_id,
                 'organisation_id'   => $rawMaterial->organisation_id,
                 'organisation_slug' => $rawMaterial->organisation->slug,
-                'section'           => 'manufacture',
-                'title'             => trim($rawMaterial->code.' '.$rawMaterial->description),
-                'description'       => ''
+                'sections'          => ['manufacture'],
+                'haystack_tier_1'   => trim($rawMaterial->code.' '.$rawMaterial->description),
             ]
         );
     }

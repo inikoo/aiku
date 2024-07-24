@@ -13,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrgStockFamilyHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(OrgStockFamily $orgStockFamily): void
@@ -23,9 +24,9 @@ class OrgStockFamilyHydrateUniversalSearch
                 'group_id'          => $orgStockFamily->group_id,
                 'organisation_id'   => $orgStockFamily->organisation_id,
                 'organisation_slug' => $orgStockFamily->organisation->slug,
-                'section'           => 'inventory',
-                'title'             => trim($orgStockFamily->code.' '.$orgStockFamily->name),
-                'description'       => ''
+                'sections'          => ['inventory'],
+                'haystack_tier_1'   => trim($orgStockFamily->code.' '.$orgStockFamily->name),
+
             ]
         );
     }

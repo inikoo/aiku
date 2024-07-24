@@ -26,8 +26,8 @@ class RecurringBillHydrateUniversalSearch
                 'organisation_slug' => $recurringBill->organisation->slug,
                 'fulfilment_id'     => $recurringBill->fulfilment_id,
                 'fulfilment_slug'   => $recurringBill->fulfilment->slug,
-                'section'           => 'fulfilment-operations',
-                'title'             => $recurringBill->reference
+                'sections'          => ['fulfilment-operations'],
+                'haystack_tier_1'   => $recurringBill->reference
             ]
         );
     }

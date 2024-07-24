@@ -28,8 +28,8 @@ class RentalHydrateUniversalSearch
                 'shop_slug'         => $rental->shop->slug,
                 'fulfilment_id'     => $rental->shop->fulfilment->id,
                 'fulfilment_slug'   => $rental->shop->fulfilment->slug,
-                'section'           => 'catalogue',
-                'title'             => $rental->name,
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $rental->name,
             ]
         );
     }

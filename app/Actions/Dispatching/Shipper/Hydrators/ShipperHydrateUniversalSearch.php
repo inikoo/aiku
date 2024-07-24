@@ -21,8 +21,8 @@ class ShipperHydrateUniversalSearch
         $shipper->universalSearch()->updateOrCreate(
             [],
             [
-                'section'           => 'dispatch',
-                'title'             => $shipper->name,
+                'sections'                    => ['dispatching'],
+                'haystack_tier_1'             => $shipper->name,
             ]
         );
     }

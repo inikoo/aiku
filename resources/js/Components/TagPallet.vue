@@ -7,24 +7,26 @@ library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faSortSiz
     
 defineProps<{
     stateIcon: {
-        tooltip: string
+        tooltip?: string
         icon: string | string[]
-        color: string
+        color?: string
     }
 }>()
 
 
-const getClass = (colorName: string) => {
+const getClass = (colorName: string | undefined) => {
+    if (!colorName) return
+    
     return `bg-${colorName}-100 border border-${colorName}-200 text-${colorName}-500`
 }
 
 </script>
 
 <template>
-    <Tag :label="stateIcon.tooltip" :class="getClass(stateIcon.color)">
+    <Tag :label="stateIcon.tooltip" :class="getClass(stateIcon?.color)">
         <template #label>
             <FontAwesomeIcon :icon='stateIcon.icon' class='' fixed-width aria-hidden='true' />
-            <span class="whitespace-nowrap capitalize">{{ stateIcon.tooltip }}</span>
+            <span class="whitespace-nowrap capitalize">{{ stateIcon?.tooltip }}</span>
         </template>
     </Tag>
 </template>

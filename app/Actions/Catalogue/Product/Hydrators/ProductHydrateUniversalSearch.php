@@ -23,14 +23,14 @@ class ProductHydrateUniversalSearch
         $shop=$product->shop;
 
         $modelData = [
-            'group_id'          => $product->group_id,
-            'organisation_id'   => $product->organisation_id,
-            'organisation_slug' => $product->organisation->slug,
-            'shop_id'           => $product->shop_id,
-            'shop_slug'         => $product->shop->slug,
-            'section'           => 'catalogue',
-            'title'             => $product->code,
-            'description'       => $product->name.' '.$product->description
+            'group_id'                    => $product->group_id,
+            'organisation_id'             => $product->organisation_id,
+            'organisation_slug'           => $product->organisation->slug,
+            'shop_id'                     => $product->shop_id,
+            'shop_slug'                   => $product->shop->slug,
+            'sections'                    => ['catalogue'],
+            'haystack_tier_1'             => $product->code,
+            'haystack_tier_2'             => $product->name.' '.$product->description
         ];
 
         if($shop->type==ShopTypeEnum::FULFILMENT) {

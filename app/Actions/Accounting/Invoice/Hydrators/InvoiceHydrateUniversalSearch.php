@@ -19,13 +19,13 @@ class InvoiceHydrateUniversalSearch
 
     public function handle(Invoice $invoice): void
     {
-        if($invoice->trashed()) {
+        if ($invoice->trashed()) {
             return;
         }
 
-        $shop=$invoice->shop;
+        $shop = $invoice->shop;
 
-        $modelData=[
+        $modelData = [
             'group_id'          => $invoice->group_id,
             'organisation_id'   => $invoice->organisation_id,
             'organisation_slug' => $invoice->organisation->slug,
@@ -33,13 +33,13 @@ class InvoiceHydrateUniversalSearch
             'shop_slug'         => $shop->slug,
             'customer_id'       => $invoice->customer_id,
             'customer_slug'     => $invoice->customer->slug,
-            'section'           => 'accounting',
-            'title'             => $invoice->number,
+            'sections'          => ['accounting'],
+            'haystack_tier_1'   => $invoice->number,
         ];
 
-        if($shop->type==ShopTypeEnum::FULFILMENT) {
-            $modelData['fulfilment_id']     = $shop->fulfilment->id;
-            $modelData['fulfilment_slug']   = $shop->fulfilment->slug;
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            $modelData['fulfilment_id']   = $shop->fulfilment->id;
+            $modelData['fulfilment_slug'] = $shop->fulfilment->slug;
         }
 
 

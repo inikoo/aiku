@@ -8,6 +8,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ManufactureTaskHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(ManufactureTask $manufactureTask): void
@@ -18,9 +19,8 @@ class ManufactureTaskHydrateUniversalSearch
                 'group_id'          => $manufactureTask->group_id,
                 'organisation_id'   => $manufactureTask->organisation_id,
                 'organisation_slug' => $manufactureTask->organisation->slug,
-                'section'           => 'manufacture',
-                'title'             => trim($manufactureTask->name.' '.$manufactureTask->code),
-                'description'       => ''
+                'sections'          => ['manufacture'],
+                'haystack_tier_1'   => trim($manufactureTask->name.' '.$manufactureTask->code),
             ]
         );
     }

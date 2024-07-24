@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -25,6 +26,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
+use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -72,6 +74,9 @@ class ShowPalletReturn extends OrgAction
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
 
+        //todo this should be $palletReturn->type
+        //$type='StoredItem';
+        $type='Pallet';
 
         $actions = [];
 
@@ -87,14 +92,24 @@ class ShowPalletReturn extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('add pallet'),
                             'route' => [
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                                'name'       => 'grp.models.pallet-return.pallet.store',
                                 'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->id,
-                                    'fulfilment'         => $palletReturn->fulfilment->id,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                     'palletReturn'       => $palletReturn->id
                                 ]
                             ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
+                            'label'   => __('add Stored Item'),
+                            // 'tooltip' => __('Add single service'),
+                            // 'route'   => [
+                            //     'name'       => 'grp.models.pallet-return.transaction.store',
+                            //     'parameters' => [
+                            //         'palletReturn' => $palletReturn->id
+                            //     ]
+                            // ]
                         ],
                         [
                             'type'    => 'button',
@@ -320,11 +335,24 @@ class ShowPalletReturn extends OrgAction
                         ]
                     ],
                     'store' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                        'name'       => 'grp.models.pallet-return.pallet.store',
+                        'parameters' => [
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ],
+                'storedItemRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
+                        ]
+                    ],
+                    'store' => [
+                        'name'       => 'grp.models.pallet-return.stored_item.store',
+                        'parameters' => [
                             'palletReturn'       => $palletReturn->id
                         ]
                     ]
@@ -461,6 +489,10 @@ class ShowPalletReturn extends OrgAction
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),
 
+                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
+                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn)) //todo idk if this is right
+                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))), //todo idk if this is right
+
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))
                     : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
@@ -473,6 +505,12 @@ class ShowPalletReturn extends OrgAction
             IndexPalletsInReturn::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PALLETS->value,
+                request: $request
+            )
+        )->table( //todo stored items here
+            IndexPalletsInReturn::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::STORED_ITEMS->value,
                 request: $request
             )
         )->table(

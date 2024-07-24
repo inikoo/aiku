@@ -18,7 +18,7 @@ class CustomerHydrateUniversalSearch
 
     public function handle(Customer $customer): void
     {
-        if($customer->trashed()) {
+        if ($customer->trashed()) {
             return;
         }
 
@@ -30,8 +30,8 @@ class CustomerHydrateUniversalSearch
                 'organisation_slug' => $customer->organisation->slug,
                 'shop_id'           => $customer->shop_id,
                 'shop_slug'         => $customer->shop->slug,
-                'section'           => 'crm',
-                'title'             => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
+                'sections'          => ['crm'],
+                'haystack_tier_1'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
             ]
         );
     }

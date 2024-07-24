@@ -84,12 +84,9 @@ use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
-use App\Actions\Fulfilment\StoredItemReturn\DeleteStoredItemFromStoredItemReturn;
-use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
-use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
-use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Tag\StoreTag;
@@ -148,7 +145,6 @@ use App\Actions\Web\Website\PublishWebsiteMarginal;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Actions\Web\Website\UploadImagesToWebsite;
-use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use App\Stubs\UIDummies\ImportDummy;
 use Illuminate\Support\Facades\Route;
 
@@ -248,7 +244,6 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
-    Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
 
     Route::post('/shop/{shop:id}/customer/{customer:id}/client', [StoreCustomerClient::class, 'inCustomer'])->name('shop.customer.client.store')->withoutScopedBindings();
 
@@ -303,6 +298,10 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
+    Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
+    //todo this new action
+    Route::post('stored-item', StoreStoredItemToReturn::class)->name('stored_item.store');
+
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
 });
@@ -338,7 +337,6 @@ Route::patch('{storedItem:id}/stored-items/return', SetReturnStoredItem::class)-
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
 
-    Route::post('stored-item-return', StoreStoredItemReturn::class)->name('stored-item-return.store');
     Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
@@ -346,6 +344,8 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
     Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
+    Route::post('pallet-return-stored-items', [StorePalletReturn::class,'withStoredItems'])->name('pallet-return-stored-items.store');
+
     Route::post('', [StoreWebUser::class, 'inFulfilmentCustomer'])->name('web-user.store');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
@@ -353,7 +353,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
             Route::delete('', DeletePalletFromReturn::class)->name('pallet.delete');
         });
 
-        Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
+
         Route::post('submit-and-confirm', SubmitAndConfirmPalletReturn::class)->name('submit_and_confirm');
         Route::post('delivery', PickingPalletReturn::class)->name('picking');
         Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
@@ -361,11 +361,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
     });
 
-    Route::prefix('stored-item-return/{storedItemReturn:id}')->name('stored-item-return.')->group(function () {
-        Route::delete('stored-item/{storedItem:id}', DeleteStoredItemFromStoredItemReturn::class)->name('stored-item.delete');
-        Route::post('stored-item', StoreStoredItemToStoredItemReturn::class)->name('stored-item.store');
-        Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());
-    });
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
         Route::post('/', StoreRentalAgreement::class)->name('store');
@@ -399,8 +394,12 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
         });
     });
 });
+
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
     Route::post('website', [StoreWebsite::class, 'inFulfilment'])->name('website.store');
+    Route::post('fulfilment-customer', StoreFulfilmentCustomer::class)->name('fulfilment_customer.store');
+
+
 });
 
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {

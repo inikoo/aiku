@@ -14,6 +14,7 @@ class OrderHydrateUniversalSearch
 {
     use AsAction;
 
+    public string $jobQueue = 'universal-search';
 
     public function handle(Order $order): void
     {
@@ -27,9 +28,8 @@ class OrderHydrateUniversalSearch
                 'shop_slug'         => $order->shop->slug,
                 'customer_id'       => $order->customer_id,
                 'customer_slug'     => $order->customer->slug,
-                'section'           => 'oms',
-                'title'             => $order->number,
-                'description'       => ''
+                'sections'          => ['ordering'],
+                'haystack_tier_1'   => $order->number,
             ]
         );
     }

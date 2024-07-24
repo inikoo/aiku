@@ -149,8 +149,22 @@ class IndexRecurringBills extends OrgAction
     {
         $subNavigation=[];
 
+        $icon      =['fal', 'fa-receipt'];
+        $title     =__('recurring bills');
+        $afterTitle=null;
+        $iconRight =null;
+
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-receipt',
+            ];
+            $afterTitle= [
+
+                'label'     => __('recurring bills')
+            ];
         }
 
         return Inertia::render(
@@ -162,11 +176,11 @@ class IndexRecurringBills extends OrgAction
                 ),
                 'title'       => __('recurring bills'),
                 'pageHead'    => [
-                    'title'         => __('recurring bills'),
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-receipt'],
-                    ],
                 ],
 
                 'tabs'        => [

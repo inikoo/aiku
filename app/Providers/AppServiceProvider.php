@@ -98,7 +98,6 @@ class AppServiceProvider extends ServiceProvider
                 'StoredItem'                    => 'App\Models\Fulfilment\StoredItem',
                 'Fulfilment'                    => 'App\Models\Fulfilment\Fulfilment',
                 'StoredItemMovement'            => 'App\Models\Fulfilment\StoredItemMovement',
-                'StoredItemReturn'              => 'App\Models\Fulfilment\StoredItemReturn',
                 'PalletStoredItem'              => 'App\Models\Fulfilment\PalletStoredItem',
                 'PalletDeliveryPallet'          => 'App\Models\Fulfilment\PalletDeliveryPallet',
                 'MovementPallet'                => 'App\Models\Fulfilment\MovementPallet',

@@ -33,9 +33,8 @@ class CustomerClientHydrateUniversalSearch
                 'shop_slug'         => $customerClient->shop->slug,
                 'customer_id'       => $customerClient->customer_id,
                 'customer_slug'     => $customerClient->customer->slug,
-                'section'           => 'crm',
-
-                'title' => join(
+                'sections'          => ['crm'],
+                'haystack_tier_1'   => join(
                     ' ',
                     array_unique([
                         $customerClient->name,

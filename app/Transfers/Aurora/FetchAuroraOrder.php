@@ -13,7 +13,6 @@ use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -125,8 +124,7 @@ class FetchAuroraOrder extends FetchAurora
             $billingLocked  = true;
         }
 
-        $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Order Tax Category Key'})->firstOrFail();
-
+        $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Order Tax Category Key'});
 
         $shop = $parent->shop;
 

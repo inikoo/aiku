@@ -84,7 +84,7 @@ console.log(props)
             <div class="flex flex-col lg:flex-row w-full justify-start lg:justify-between items-start lg:items-center gap-y-2 pr-4">
                 <div class="flex flex-col justify-center ">
                     <!-- <div class="text-xs">Status</div> -->
-                    <div class="font-semibold capitalize text-lg">
+                    <div class="font-semibold capitalize">
                         {{ status_rb === 'current' ? trans('On going') : trans('Expired') }}
                         <FontAwesomeIcon icon='far fa-wave-sine' class='' fixed-width aria-hidden='true' />
                     </div>

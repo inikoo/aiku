@@ -26,8 +26,8 @@ class ShippingHydrateUniversalSearch
                 'organisation_slug' => $shipping->organisation->slug,
                 'shop_id'           => $shipping->shop_id,
                 'shop_slug'         => $shipping->shop->slug,
-                'section'           => 'shops',
-                'title'             => $shipping->name,
+                'sections'          => ['catalogue'],
+                'haystack_tier_1'   => $shipping->name,
             ]
         );
     }
