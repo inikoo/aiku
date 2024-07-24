@@ -38,13 +38,13 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::get('export', ExportOrgAgents::class)->name('export');
     Route::get('{orgAgent}/edit', EditOrgAgent::class)->name('edit');
 
-    Route::prefix('{orgAgent}')->as('show.')->group(function () {
+    Route::prefix('{orgAgent}')->as('show')->group(function () {
         Route::get('', ShowOrgAgent::class);
-        Route::get('suppliers', [IndexOrgSuppliers::class, 'inOrgAgent'])->name('suppliers.index');
-        Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('suppliers.show');
-        Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('suppliers.edit');
-        Route::get('supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('supplier_products.index');
-        Route::get('supplier-products/{orfSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('supplier_products.show');
+        Route::get('suppliers', [IndexOrgSuppliers::class, 'inOrgAgent'])->name('.suppliers.index');
+        Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
+        Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
+        Route::get('supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
+        Route::get('supplier-products/{orfSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('.supplier_products.show');
     });
 });
 

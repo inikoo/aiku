@@ -7,11 +7,12 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableAgents from "@/Components/Tables/Grp/Org/Procurement/TableOrgAgents.vue";
+import TableOrgAgents from "@/Components/Tables/Grp/Org/Procurement/TableOrgAgents.vue";
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps <{
-    pageHead: object
+defineProps <{
+    pageHead: PageHeadingTypes
     title: string
     data:object
 }>()
@@ -20,6 +21,6 @@ const props = defineProps <{
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableAgents :data="data" />
+    <TableOrgAgents :data="data" />
 </template>
 

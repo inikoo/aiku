@@ -5,39 +5,39 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Agent} from "@/types/agent";
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { Agent } from "@/types/agent";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 
-const props = defineProps<{
-    data: object,
-    tab?: string
-}>()
+defineProps<{
+  data: object,
+  tab?: string
+}>();
 
-
+console.log(route().current())
 function agentRoute(agent: Agent) {
-    switch (route().current()) {
-        case 'grp.org.procurement.agents.index':
-            return route(
-                'grp.org.procurement.agents.show',
-                [route().params['organisation'],agent.slug]);
-    }
+  switch (route().current()) {
+    case "grp.org.procurement.org_agents.index":
+      return route(
+        "grp.org.procurement.org_agents.show",
+        [route().params["organisation"], agent.slug]);
+  }
 }
 
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: agent }">
-            <Link :href="agentRoute(agent)">
-                {{ agent['code'] }}
-            </Link>
-        </template>
-        <template #cell(location)="{ item: agent }">
-            <AddressLocation :data="agent['location']"/>
-        </template>
-    </Table>
+  <Table :resource="data" :name="tab" class="mt-5">
+    <template #cell(code)="{ item: agent }">
+      <Link :href="agentRoute(agent)" class="primaryLink">
+        {{ agent["code"] }}
+      </Link>
+    </template>
+    <template #cell(location)="{ item: agent }">
+      <AddressLocation :data="agent['location']" />
+    </template>
+  </Table>
 </template>
 
 

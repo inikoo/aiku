@@ -47,7 +47,7 @@ class IndexOrgAgents extends OrgAction
 
         return $queryBuilder
             ->defaultSort('organisations.code')
-            ->select(['organisations.code','organisations.name', 'agents.slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
+            ->select(['organisations.code','organisations.name', 'org_agents.slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
             ->leftJoin('agents', 'agents.id', 'org_agents.agent_id')
             ->leftJoin('organisations', 'organisations.id', 'agents.organisation_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
