@@ -30,11 +30,8 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Location;
-use Illuminate\Testing\Fluent\AssertableJson;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
-
 
 beforeAll(function () {
     loadDB();
@@ -86,7 +83,7 @@ beforeEach(function () {
 
     $this->customer = createCustomer($this->shop);
 
-    
+
     $pallet = Pallet::first();
     if (!$pallet) {
         $storeData = Pallet::factory()->definition();
@@ -171,28 +168,28 @@ beforeEach(function () {
 });
 
 test('UI Index fulfilment services (delivery)', function () {
-    $response = $this->get(route('grp.json.fulfilment.delivery.services.index', [$this->fulfilment->slug, $this->palletDelivery->slug]));
+    $response     = $this->get(route('grp.json.fulfilment.delivery.services.index', [$this->fulfilment->slug, $this->palletDelivery->slug]));
     $responseData = $response->json('data');
     $this->assertNotEmpty($responseData);
     $response->assertStatus(200);
 });
 
 test('UI Index fulfilment services (return)', function () {
-    $response = $this->get(route('grp.json.fulfilment.return.services.index', [$this->fulfilment->slug, $this->palletReturn->slug]));
+    $response     = $this->get(route('grp.json.fulfilment.return.services.index', [$this->fulfilment->slug, $this->palletReturn->slug]));
     $responseData = $response->json('data');
     $this->assertNotEmpty($responseData);
     $response->assertStatus(200);
 });
 
 test('UI Index fulfilment physical goods (delivery)', function () {
-    $response = $this->get(route('grp.json.fulfilment.delivery.physical-goods.index', [$this->fulfilment->slug, $this->palletDelivery->slug]));
+    $response     = $this->get(route('grp.json.fulfilment.delivery.physical-goods.index', [$this->fulfilment->slug, $this->palletDelivery->slug]));
     $responseData = $response->json('data');
     $this->assertNotEmpty($responseData);
     $response->assertStatus(200);
 });
 
 test('UI Index fulfilment physical goods (return)', function () {
-    $response = $this->get(route('grp.json.fulfilment.return.physical-goods.index', [$this->fulfilment->slug, $this->palletReturn->slug]));
+    $response     = $this->get(route('grp.json.fulfilment.return.physical-goods.index', [$this->fulfilment->slug, $this->palletReturn->slug]));
     $responseData = $response->json('data');
     $this->assertNotEmpty($responseData);
     $response->assertStatus(200);
