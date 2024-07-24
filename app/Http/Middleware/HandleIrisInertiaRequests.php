@@ -31,13 +31,17 @@ class HandleIrisInertiaRequests extends Middleware
             $firstLoadOnlyProps,
             [
                 'iris' => [
-                    'header'     => Arr::get($website->published_layout, 'header'),
+                    'header'     => array_merge(
+                        Arr::get($website->published_layout, 'header'),
+                        [
+                            'loginRoute' => [
+                            'name' => 'retina.login.show'
+                        ]
+                    ]
+                    ),
                     'footer'     => Arr::get($website->published_layout, 'footer'),
                     'menu'       => Arr::get($website->published_layout, 'menu'),
-                    'color'      => Arr::get($website->published_layout, 'color'),
-                    'loginRoute' => [
-                        'name' => 'retina.login.show'
-                    ]
+                    'color'      => Arr::get($website->published_layout, 'color')
                 ],
                 'user'     => $request->user()
             ],
