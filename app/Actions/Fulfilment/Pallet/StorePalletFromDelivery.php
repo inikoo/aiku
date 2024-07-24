@@ -49,7 +49,7 @@ class StorePalletFromDelivery extends OrgAction
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
-        if(Arr::exists($modelData, 'stored_item')) {
+        if(Arr::exists($modelData, 'stored_item') && Arr::get($modelData, 'with_stored_item')) {
             $storedItem = StoreStoredItem::run($pallet->fulfilmentCustomer, [
                 'reference' => Arr::get($modelData, 'stored_item')
             ]);

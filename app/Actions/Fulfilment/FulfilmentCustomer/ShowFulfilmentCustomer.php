@@ -64,7 +64,7 @@ class ShowFulfilmentCustomer extends OrgAction
 
         $navigation = FulfilmentCustomerTabsEnum::navigation();
 
-        if (!$fulfilmentCustomer->rentalAgreement && $fulfilmentCustomer->rentalAgreement->clauses()->count() < 1) {
+        if (!$fulfilmentCustomer->rentalAgreement || $fulfilmentCustomer->rentalAgreement?->clauses()->count() < 1) {
             unset($navigation[FulfilmentCustomerTabsEnum::AGREED_PRICES->value]);
         }
 

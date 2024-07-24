@@ -19,6 +19,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
+use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
 class ImportPallet
@@ -27,24 +28,32 @@ class ImportPallet
 
     private string $origin = 'grp';
 
-    public function handle(PalletDelivery $palletDelivery, $file): Upload
+    public function handle(PalletDelivery $palletDelivery, $file, $includeStoredItem = false): Upload
     {
         $upload = StoreUploads::run($file, Pallet::class);
 
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
-                new PalletImport($palletDelivery, $upload)
+                new PalletImport($palletDelivery, $upload, $includeStoredItem)
             );
             $upload->refresh();
         } else {
             ImportUpload::dispatch(
                 $this->tmpPath.$upload->filename,
-                new PalletImport($palletDelivery, $upload)
+                new PalletImport($palletDelivery, $upload, $includeStoredItem)
             );
         }
 
         return $upload;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'file'        => ['required', 'file', 'mimes:xlsx,csv,xls'],
+            'stored_item' => ['required']
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
@@ -54,23 +63,31 @@ class ImportPallet
 
         }
 
-
         return true;
     }
 
     public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): Upload
     {
-        $this->origin = 'retina';
+        $request->validate();
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
 
-        return $this->asController($palletDelivery, $request);
+        return $this->handle($palletDelivery, $file, $request->only('stored_item'));
     }
-
 
     public function fromGrp(PalletDelivery $palletDelivery, ActionRequest $request): Upload
     {
-        return $this->asController($palletDelivery, $request);
+        $request->validate();
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
+
+        return $this->handle($palletDelivery, $file, $request->only('stored_item'));
     }
 
+    public function prepareForValidation(\Lorisleiva\Actions\ActionRequest $request): void
+    {
+        $this->set('stored_item', (bool) $request->only('stored_item'));
+    }
 
     public function jsonResponse(Upload $upload): array
     {

@@ -221,9 +221,9 @@ watch(() => props.modelValue, async (newVal) => {
                             <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin h-8' aria-hidden='true' />
                             <p class="text-gray-500">Uploading..</p>
                         </div> -->
-                
+
                     </div>
-                    
+
                 <div v-if="errorMessage" class="mt-1 text-red-500 text-xs italic">
                     *{{ errorMessage }}
                 </div>
@@ -260,7 +260,7 @@ watch(() => props.modelValue, async (newVal) => {
                             </div>
                         </div>
                     </Transition>
-                
+
                 </div>
             </div>
 
