@@ -28,6 +28,16 @@ class FulfilmentCustomerHydrateUniversalSearch
                 'fulfilment_slug'   => $fulfilmentCustomer->fulfilment->slug,
                 'sections'          => ['crm'],
                 'haystack_tier_1'   => trim($fulfilmentCustomer->customer->email.' '.$fulfilmentCustomer->customer->contact_name.' '.$fulfilmentCustomer->customer->company_name),
+                'result'            => [
+                    'title'         => $fulfilmentCustomer->customer->name,
+                    'afterTitle'    => [
+                        'label'     => '('.$fulfilmentCustomer->customer->reference.')',
+                    ],
+                    'icon'          => [
+                        'icon'  => 'fal fa-user',
+
+                    ],
+                ]
             ]
         );
     }

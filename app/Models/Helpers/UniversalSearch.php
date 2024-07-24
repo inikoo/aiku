@@ -78,11 +78,11 @@ class UniversalSearch extends Model
             'created_at',
             'result',
             'model_type',
-            'model_id'
+            'model_id',
         ]);
     }
 
-    public function model(): MorphTo
+    public function modexl(): MorphTo
     {
         return $this->morphTo();
     }
