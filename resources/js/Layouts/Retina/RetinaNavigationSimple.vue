@@ -10,6 +10,7 @@ import { isNavigationActive } from "@/Composables/useUrl";
 import { onMounted, ref, onUnmounted } from "vue";
 import RetinaTopBarSubsections from "@/Layouts/Retina/RetinaTopBarSubsections.vue";
 import { faTachometerAlt, faFileInvoiceDollar, faHandHoldingBox, faPallet } from "@fal";
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 
 library.add(faTachometerAlt, faFileInvoiceDollar, faRoute, faPallet, faHandHoldingBox);
 
@@ -19,8 +20,9 @@ const props = defineProps<{
 }>();
 
 
-const layout = useLayoutStore();
-const isTopMenuActive = ref(false);
+const layout = useLayoutStore()
+const isTopMenuActive = ref(false)
+const isLoading = ref(false)
 
 onMounted(() => {
     isTopMenuActive.value = true;
@@ -53,11 +55,13 @@ onUnmounted(() => {
             'background-color': layout.app?.theme[1],
             'color': layout.app?.theme[2]
         } : {} ]"
-
+        @start="() => isLoading = true"
+        @finish="() => isLoading = false"
         :aria-current="navKey === layout.currentModule ? 'page' : undefined"
         v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
     >
-        <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
+        <LoadingIcon v-if="isLoading" class="flex-shrink-0 h-4 w-4" />
+        <FontAwesomeIcon v-else-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
         <Transition name="slide-to-left">
             <span v-if="layout.leftSidebar.show" class="capitalize leading-none whitespace-nowrap block md:block"
                 :class="[layout.leftSidebar.show ? '' : 'block md:hidden']">
