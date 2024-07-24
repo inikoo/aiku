@@ -45,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_stored_items
  * @property string $type Pallet|StoredItem
  * @property PalletReturnStateEnum $state
+ * @property PalletReturnTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at

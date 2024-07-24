@@ -73,11 +73,8 @@ class ShowPalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-
         //todo this should be $palletReturn->type
         //$type='StoredItem';
-        $type='Pallet';
-
         $actions = [];
 
         if($this->canEdit) {

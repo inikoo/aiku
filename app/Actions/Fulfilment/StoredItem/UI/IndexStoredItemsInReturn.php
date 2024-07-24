@@ -20,6 +20,7 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\InertiaTable\InertiaTable;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -47,20 +48,23 @@ class IndexStoredItemsInReturn extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(StoredItem::class);
+        $query = QueryBuilder::for(PalletReturnItem::class);
 
 
-        $query->where('stored_item_returns.pallet_return_id', $palletReturn->id);
+        $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
+        $query->join('pallets', 'pallet_return_items.pallet_id', '=', 'pallets.id');
+        $query->join('stored_items', 'pallet_return_items.stored_item_id', '=', 'stored_items.id');
 
-
-        $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
-        $query->leftJoin('stored_item_returns', 'stored_item_returns.stored_item_id', 'stored_items.id');
+        
+        $query->join('locations', 'pallets.location_id', '=', 'locations.id');
 
 
         $query->defaultSort('stored_items.id')
             ->select(
-                'stored_item_returns.id',
+                'pallet_return_items.id',
                 'stored_items.id as stored_item_id',
+                'pallets.id as pallet_id',
+                'pallets.location_id',
                 'stored_items.slug',
                 'stored_items.reference',
                 'stored_items.notes',
@@ -70,11 +74,13 @@ class IndexStoredItemsInReturn extends OrgAction
                 'stored_items.received_at',
                 'stored_items.fulfilment_customer_id',
                 'stored_items.pallet_return_id',
+                'locations.slug as location_slug',
+                'locations.slug as location_code'
             );
 
 
         return $query->allowedSorts(['reference', 'id'])
-            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
+            ->allowedFilters([$globalSearch, 'id', 'reference'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
