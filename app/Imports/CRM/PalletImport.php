@@ -70,7 +70,8 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
         return [
             'customer_reference' => ['nullable', 'unique:pallets,customer_reference'],
             'notes'              => ['nullable'],
-            'type'               => ['nullable']
+            'type'               => ['nullable'],
+            'stored_item'        => ['nullable'],
         ];
     }
 }
