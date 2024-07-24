@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateUniversalSe
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -22,6 +23,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,9 +39,6 @@ class StorePalletReturn extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
-
-        //todo remove this
-        data_forget($modelData, 'type');
 
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
@@ -96,9 +95,9 @@ class StorePalletReturn extends OrgAction
         }
 
         if($this->withStoredItems) {
-            $this->set('type', 'StoredItem');
+            $this->set('type', PalletReturnTypeEnum::STORED_ITEM);
         } else {
-            $this->set('type', 'Pallet');
+            $this->set('type', PalletReturnTypeEnum::PALLET);
         }
 
     }
@@ -116,7 +115,7 @@ class StorePalletReturn extends OrgAction
         }
 
         return [
-            'type'          => ['sometimes','required','string','in:Pallet,StoredItem'],
+            'type'          => ['sometimes','required', Rule::enum(PalletReturnTypeEnum::class)],
             'warehouse_id'  => ['required','integer','exists:warehouses,id'],
             'customer_notes'=> ['sometimes','nullable','string'],
             ...$rules
@@ -126,7 +125,6 @@ class StorePalletReturn extends OrgAction
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
     {
-        array_merge($request->all(), ['type' => 'Pallet']);
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -184,6 +182,12 @@ class StorePalletReturn extends OrgAction
 
         return match ($routeName) {
             'grp.models.fulfilment-customer.pallet-return.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+                'organisation'           => $palletReturn->organisation->slug,
+                'fulfilment'             => $palletReturn->fulfilment->slug,
+                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+                'palletReturn'           => $palletReturn->slug
+            ])),
+            'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,

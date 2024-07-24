@@ -73,11 +73,8 @@ class ShowPalletReturn extends OrgAction
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-
         //todo this should be $palletReturn->type
         //$type='StoredItem';
-        $type='Pallet';
-
         $actions = [];
 
         if($this->canEdit) {
@@ -88,7 +85,7 @@ class ShowPalletReturn extends OrgAction
                     'button' => [
                         [
                             'type'  => 'button',
-                            'style' => 'tertiary',
+                            'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
                             'label' => __('add pallet'),
                             'route' => [

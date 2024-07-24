@@ -12,13 +12,14 @@ import { faLanguage } from '@fal'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faLanguage, faSpinnerThird)
-import { useLocaleStore } from "@/Stores/locale"
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { trans, loadLanguageAsync } from 'laravel-vue-i18n'
 import { useForm } from '@inertiajs/vue3'
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import type { Language } from '@/types/Locale'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
+import { inject } from 'vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 const form = useForm<{
     language_id: number | null
@@ -26,12 +27,15 @@ const form = useForm<{
     language_id: null,
 })
 
-const locale = useLocaleStore()
+const locale = inject('locale', {})
+const layout = inject('layout', layoutStructure)
 
 const onSelectLanguage = (language: Language) => {
+    const routeUpdate = layout.app.name === 'Aiku' ? 'grp.models.profile.update' : 'retina.models.profile.update'
+
     if(form.language_id != language.id) {
         form.language_id = language.id
-        form.patch(route('grp.models.profile.update'), {
+        form.patch(route(routeUpdate), {
             preserveScroll: true,
             onSuccess: () => (
                 locale.language = language,

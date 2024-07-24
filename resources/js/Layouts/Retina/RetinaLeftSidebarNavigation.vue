@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 
-import { onMounted } from "vue"
+import { inject, onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt } from "@fal"
 import { useLayoutStore } from "@/Stores/retinaLayout.js"
@@ -18,7 +18,7 @@ import { get } from "lodash"
 import RetinaNavigationGroup from "@/Layouts/Retina/RetinaNavigationGroup.vue"
 library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt)
 
-const layout = useLayoutStore()
+const layout = inject('layout', {})
 
 onMounted(() => {
     if (localStorage.getItem('leftSideBar')) {

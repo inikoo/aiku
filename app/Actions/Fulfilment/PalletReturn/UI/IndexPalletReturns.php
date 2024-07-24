@@ -178,6 +178,7 @@ class IndexPalletReturns extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
@@ -231,8 +232,8 @@ class IndexPalletReturns extends OrgAction
                                 $this->parent->number_pallets_status_storing ? [
                                     'type'    => 'button',
                                     'style'   => 'create',
-                                    'tooltip' => $this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
-                                    'label'   => $this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
+                                    'tooltip' => !$this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                                    'label'   => !$this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
                                     'route'   => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
@@ -244,7 +245,7 @@ class IndexPalletReturns extends OrgAction
                         },
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
-                            $this->parent->number_stored_items_status_storing ? [
+                            !$this->parent->number_stored_items_status_storing ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('Create new return (stored items)'),

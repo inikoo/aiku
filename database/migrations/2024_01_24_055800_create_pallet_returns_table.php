@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Stubs\Migrations\HasFulfilmentDelivery;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
@@ -26,7 +27,7 @@ return new class () extends Migration {
             Schema::create('pallet_returns', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->getPalletIOFields($table);
-                $table->string('type')->default('Pallet')->comment('Pallet|StoredItem')->index();
+                $table->string('type')->default(PalletTypeEnum::PALLET->value)->comment('Pallet|StoredItem')->index();
                 $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
 
                 foreach (PalletReturnStateEnum::cases() as $state) {

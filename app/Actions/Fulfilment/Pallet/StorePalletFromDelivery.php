@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
@@ -48,6 +49,13 @@ class StorePalletFromDelivery extends OrgAction
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
+        if(Arr::exists($modelData, 'stored_item') && Arr::get($modelData, 'with_stored_item')) {
+            $storedItem = StoreStoredItem::run($pallet->fulfilmentCustomer, [
+                'reference' => Arr::get($modelData, 'stored_item')
+            ]);
+
+            SyncPalletStoredItem::run($pallet, ['stored_item_id' => $storedItem->id]);
+        }
 
         AutoAssignServicesToPalletDelivery::run($palletDelivery, $pallet);
 

@@ -18,7 +18,7 @@ class HydrateQuantityPalletStoredItems extends HydrateModel
     public function handle(Pallet $pallet): void
     {
         $this->update($pallet, [
-            'items_quantity' => $pallet->storedItems()->sum('quantity')
+            'number_stored_items' => (int) $pallet->storedItems()->sum('quantity')
         ]);
     }
 }

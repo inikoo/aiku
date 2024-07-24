@@ -615,12 +615,17 @@ watch(() => props.data, (newValue) => {
         />
     </div>
 
-    <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
-        :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
-        upload: get(dataModal, 'uploadRoutes', {}),
-        download: props.uploadRoutes.download,
-        history: props.uploadRoutes.history
-    }" :dataModal="dataModal" />
+    <UploadExcel
+        information="The list of column file: customer_reference, notes, stored_items"
+        :propName="'pallet deliveries'" description="Adding Pallet Deliveries"
+        :routes="{
+            upload: get(dataModal, 'uploadRoutes', {}),
+            download: props.uploadRoutes.download,
+            history: props.uploadRoutes.history
+        }"
+        :dataModal="dataModal"
+        :required_fields="['customer_reference', 'notes', 'stored_items']"
+    />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>
     <pre>{{ $inertia.page.props.queryBuilderProps.services.columns }}</pre>-->

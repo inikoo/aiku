@@ -7,9 +7,9 @@
 
 namespace App\Services\ScoutElasticSearch;
 
+use App\Models\Helpers\UniversalSearch;
 use IteratorAggregate;
 use Laravel\Scout\Builder;
-use Laravel\Scout\Searchable;
 use Traversable;
 
 class EloquentHitsIteratorAggregate implements IteratorAggregate
@@ -39,7 +39,7 @@ class EloquentHitsIteratorAggregate implements IteratorAggregate
             $hits   = $this->results['hits']['hits'];
             $models = collect($hits)->groupBy('_source.__class_name')
                 ->map(function ($results, $class) {
-                    /** @var Searchable $model */
+                    /** @var UniversalSearch $model */
                     $model = new $class();
                     $model->setKeyType('string');
                     $builder = new Builder($model, '');
@@ -47,7 +47,7 @@ class EloquentHitsIteratorAggregate implements IteratorAggregate
                         $builder->query($this->callback);
                     }
 
-                    return $models = $model->getScoutModelsByIds(
+                    return $model->getScoutModelsByIds(
                         $builder,
                         $results->pluck('_id')->all()
                     );

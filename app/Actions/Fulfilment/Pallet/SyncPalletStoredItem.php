@@ -25,7 +25,7 @@ class SyncPalletStoredItem
     {
         $pallet->storedItems()->sync($modelData['stored_item_id']);
 
-        HydrateQuantityPalletStoredItems::dispatch($pallet);
+        HydrateQuantityPalletStoredItems::run($pallet);
 
         return $pallet;
     }

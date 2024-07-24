@@ -15,6 +15,7 @@ const props = defineProps<{
         download?: routeType
         history?: routeType
     }
+    required_fields?: string[]
     dataModal: {
         isModalOpen: boolean
     }
@@ -41,6 +42,7 @@ const echo = ref(cloneDeep(useEchoGrpPersonal()))
             :information="information"
             :propName="propName"
             :useEchoGrpPersonal="echo"
+            :required_fields
         />
     </KeepAlive>
 

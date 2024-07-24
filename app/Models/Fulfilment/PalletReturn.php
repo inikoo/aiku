@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
@@ -42,8 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets
  * @property int $number_pallet_stored_items
  * @property int $number_stored_items
- * @property string $type Pallet|StoredItem
  * @property PalletReturnStateEnum $state
+ * @property PalletReturnTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
@@ -110,6 +111,7 @@ class PalletReturn extends Model
     protected $guarded = [];
     protected $casts   = [
         'state'              => PalletReturnStateEnum::class,
+        'type'               => PalletReturnTypeEnum::class,
         'in_process_at'      => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',

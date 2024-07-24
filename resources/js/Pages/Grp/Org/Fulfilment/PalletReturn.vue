@@ -281,7 +281,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                         :icon="action.icon"
                         :key="`ActionButton${action.label}${action.style}`"
                         :tooltip="action.tooltip"
-                        class="rounded-l-none border-transparent "
                     />
                 </template>
 
@@ -349,7 +348,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
-                            class="rounded-l-none rounded-r border-transparent "
                         />
                     </template>
                     <template #content="{ close: closed }">
