@@ -19,9 +19,9 @@ import SelectQuery from "@/Components/SelectQuery.vue"
 import axios from 'axios'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
+import { faBox, faHandHoldingBox, faPallet, faPencil, faPlus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faBox, faHandHoldingBox, faPallet, faPencil)
+library.add(faBox, faHandHoldingBox, faPallet, faPencil, faPlus)
 
 const props = defineProps<{
     pallet: {}
@@ -185,11 +185,11 @@ onUnmounted(() => {
                     </div>
                 </template>
                 <div v-else class="italic text-gray-400">
-                    don't have Stored Items
+                    Nothing
                 </div>
 
                 <div class="flex items-center px-1" @click="() => createStoredItem = true">
-                    <FontAwesomeIcon :icon="faPencil" class='text-gray-400 text-lg cursor-pointer hover:text-gray-500'
+                    <FontAwesomeIcon :icon="faPlus" class='text-gray-400 text-lg cursor-pointer hover:text-gray-500'
                         fixed-width />
                 </div>
             </div>

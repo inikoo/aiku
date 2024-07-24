@@ -323,11 +323,12 @@ watch(() => props.data, (newValue) => {
 
                         <div class="flex justify-end mt-3">
                             <Button
-                                :style="'save'"
+                                :style="'create'"
                                 :loading="!!isLoadingButton"
                                 :disabled="formMultiplePallet.number_pallets < 1"
                                 :key="formMultiplePallet.number_pallets"
                                 full
+                                label='add'
                                 @click="() => handleFormSubmitAddMultiplePallet(action, closed)"
                             />
                         </div>
@@ -386,10 +387,10 @@ watch(() => props.data, (newValue) => {
                             </div>
                             <div class="flex justify-end mt-3">
                                 <Button
-                                    :style="'save'"
+                                    :style="'create'"
                                     :loading="isLoadingButton"
                                     full
-                                    :label="'save'"
+                                    :label="'add'"
                                     @click="() => handleFormSubmitAddPallet(action, closed)"
                                 />
                             </div>
