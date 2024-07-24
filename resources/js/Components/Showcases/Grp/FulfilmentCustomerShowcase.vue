@@ -16,14 +16,16 @@ import { routeType } from '@/types/route'
 import { PalletCustomer, PieCustomer,FulfilmentCustomerStats } from '@/types/Pallet'
 import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faLink, faLongArrowRight } from '@far'
-import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faLongArrowRight)
+
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faLink, faLongArrowRight } from '@far'
+import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
+library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
     data: {
@@ -132,18 +134,18 @@ const isLoading = ref<string | boolean>(false)
                                         </div>
                                     </div> -->
                                     <!-- Section: Field -->
-                                    <div class="flex flex-col gap-y-3 border-t border-gray-900/5 w-full py-6">
+                                    <div class="flex flex-col gap-y-2 w-full py-6">
 
                                         <!-- Field: Contact name -->
                                         <div v-if="data.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Contact name'" class="flex-none">
                                                 <span class="sr-only">Contact name</span>
-                                                <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon icon='fal fa-address-card' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">{{ data.customer.contact_name }}</dd>
                                         </div>
 
-                                        <!-- Field: Contact name -->
+                                        <!-- Field: Company name -->
                                         <div v-if="data.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Company name'" class="flex-none">
                                                 <span class="sr-only">Company name</span>
@@ -152,24 +154,13 @@ const isLoading = ref<string | boolean>(false)
                                             <dd class="text-gray-500">{{ data.customer.company_name }}</dd>
                                         </div>
 
-                                        <!-- Field: Created at -->
-                                        <div v-if="data.customer?.created_at" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Created at'" class="flex-none">
-                                                <span class="sr-only">Created at</span>
-                                                <FontAwesomeIcon icon='fal fa-calendar-alt' class='text-gray-400' fixed-width aria-hidden='true' />
-                                            </dt>
-                                            <dd class="text-gray-500">
-                                                <time datetime="2023-01-31">{{ useFormatTime(data.customer?.created_at) }}</time>
-                                            </dd>
-                                        </div>
-
                                         <!-- Field: Email -->
                                         <div v-if="data.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Email'" class="flex-none">
                                                 <span class="sr-only">Email</span>
                                                 <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="text-gray-500">{{ data.customer?.email }}</dd>
+                                            <a :href="`mailto:${data.customer?.email}`" v-tooltip="'Click to send email'" class="text-gray-500 hover:text-gray-700">{{ data.customer?.email }}</a>
                                         </div>
                                         
                                         <!-- Field: Phone -->
@@ -178,7 +169,7 @@ const isLoading = ref<string | boolean>(false)
                                                 <span class="sr-only">Phone</span>
                                                 <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
+                                            <a :href="`tel:${data.customer?.phone}`" v-tooltip="'Click to make a phone call'" class="text-gray-500 hover:text-gray-700">{{ data.customer?.phone }}</a>
                                         </div>
 
                                         <!-- Field: Location -->
@@ -263,25 +254,25 @@ const isLoading = ref<string | boolean>(false)
                 <!-- Section: Rental Agreement -->
                 <div class="rounded-lg ring-1 ring-gray-300">
                     <div class="border-b border-gray-300 py-2 px-2  pl-4 flex items-center justify-between">
-                        <div class="text-gray-400">{{ trans('Rental Agreement') }}</div>
+                        <div class="">{{ trans('Rental Agreement') }} <span class="text-gray-400 text-sm">#{{ data.rental_agreement.stats?.data.reference }}</span></div>
                         <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data.route.name, data.rental_agreement.stats?.data.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
                             <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>
                         </Link>
                     </div>
                     
                     <!-- Stats -->
-                    <div v-if="data.rental_agreement.stats" class="p-5 space-y-5">
-                        <div class="flex flex-col">
-                            <div class="text-sm text-gray-400">{{ trans('Reference') }}:</div>
-                            <div class="font-medium">#{{ data.rental_agreement.stats?.data.reference }}</div>
+                    <div v-if="data.rental_agreement.stats" class="p-5 space-y-2">
+                        <div class="flex gap-x-1 items-center text-sm">
+                            <div class="">{{ trans('Created at') }}:</div>
+                            <div class="text-gray-500">{{ useFormatTime(data.customer?.created_at) }}</div>
                         </div>
-                        <div class="flex flex-col">
-                            <div class="text-sm text-gray-400">{{ trans('Billing Cycle') }}:</div>
-                            <div class="font-medium capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}</div>
+                        <div class="flex gap-x-1 items-center text-sm">
+                            <div class="">{{ trans('Billing Cycle') }}:</div>
+                            <div class="text-gray-500 capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}</div>
                         </div>
-                        <div class="flex flex-col">
-                            <div class="text-sm text-gray-400">{{ trans('Pallet Limit') }}:</div>
-                            <div class="font-medium">{{ data.rental_agreement.stats?.data.pallets_limit || trans('No limit') }}</div>
+                        <div class="flex gap-x-1 items-center text-sm">
+                            <div class="">{{ trans('Pallet Limit') }}:</div>
+                            <div class="text-gray-500">{{ data.rental_agreement.stats?.data.pallets_limit || `(${trans('No limit')})` }}</div>
                         </div>
                     </div>
             
