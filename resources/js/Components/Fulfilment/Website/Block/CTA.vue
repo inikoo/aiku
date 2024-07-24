@@ -20,7 +20,8 @@ const props = defineProps<{
     webpageData: any
     web_block : Object
     id: Number,
-    type : String
+    type : String,
+    isEditable? : boolean
 }>()
 
 
@@ -54,16 +55,16 @@ const onUpload = (e) => {
 <template>
     <div class="w-full bg-gray-600 py-4 px-20">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="col-span-2 relative" @click="()=>openGallery = !openGallery">
+            <div class="col-span-2 relative" @click="()=>{if(isEditable)openGallery = !openGallery}">
                 <img v-if="!modelValue?.image" src="https://tailwindui.com/img/ecommerce-images/home-page-01-hero-full-width.jpg"
                     alt="Informative Image"  class="w-full h-full object-cover rounded-md">
                 <Image v-else :src="modelValue?.image?.source" class="w-full h-full object-cover rounded-md"  ></Image>
             </div>
 
             <div class="flex flex-col px-14 pt-14">
-                <Editor v-if="modelValue?.headline" v-model="modelValue.headline"  @update:modelValue="()=>emits('autoSave')"/>
-                <Editor v-if="modelValue?.description" v-model="modelValue.description"  @update:modelValue="()=>emits('autoSave')"/>
-                <button v-if="modelValue?.button" class="place-self-center bg-white text-gray-800 py-2 px-8 w-max"><Editor v-model="modelValue.button"  @update:modelValue="()=>emits('autoSave')" :toogle="[]"/></button>
+                <Editor v-if="modelValue?.headline" v-model="modelValue.headline" :editable="isEditable"  @update:modelValue="()=>emits('autoSave')"/>
+                <Editor v-if="modelValue?.description" v-model="modelValue.description" :editable="isEditable"  @update:modelValue="()=>emits('autoSave')"/>
+                <button v-if="modelValue?.button" class="place-self-center bg-white text-gray-800 py-2 px-8 w-max"><Editor :editable="isEditable" v-model="modelValue.button"  @update:modelValue="()=>emits('autoSave')" :toogle="[]"/></button>
             </div>
         </div>
     </div>

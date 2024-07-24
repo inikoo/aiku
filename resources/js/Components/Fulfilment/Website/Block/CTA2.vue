@@ -15,6 +15,11 @@ library.add(faCube, faLink)
 
 const props = defineProps<{
     modelValue: any
+    webpageData: any
+    web_block : Object
+    id: Number,
+    type : String,
+    isEditable? : boolean
 }>()
 
 
@@ -30,14 +35,14 @@ const emits = defineEmits<{
         <div class="mx-auto max-w-7xl py-2 sm:px-6 sm:py-2 lg:px-8">
             <div
                 class="relative isolate overflow-hidden bg-gray-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
-                <Editor v-model="modelValue.headline" @update:modelValue="() => emits('autoSave')" />
+                <Editor :editable="isEditable"  v-model="modelValue.headline" @update:modelValue="() => emits('autoSave')" />
                 <!--   <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">Boost your productivity today.</h2> -->
-                <Editor v-model="modelValue.description" @update:modelValue="() => emits('autoSave')" />
+                <Editor :editable="isEditable"  v-model="modelValue.description" @update:modelValue="() => emits('autoSave')" />
 
                 <div class="mt-10 flex items-center justify-center gap-x-6">
                     <div
                         style="display: inline-block; border-radius: 0.375rem; background-color: #ffffff; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 600; color: #1f2937; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); text-align: center; cursor: pointer;">
-                        <Editor v-model="modelValue.button" @update:modelValue="() => emits('autoSave')" />
+                        <Editor :editable="isEditable"  v-model="modelValue.button" @update:modelValue="() => emits('autoSave')" />
                     </div>
                 </div>
                 <svg viewBox="0 0 1024 1024"

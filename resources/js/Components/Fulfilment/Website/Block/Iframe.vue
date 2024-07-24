@@ -20,6 +20,7 @@
   const props = defineProps<{
       modelValue: any
       emptyState?: Boolean
+      isEditable? : boolean
   }>()
   
   const optionWidthHeight = [
@@ -42,7 +43,7 @@
   </script>
   
   <template>
-      <div type="button" v-if="modelValue.emptyState"
+      <div type="button" v-if="modelValue.emptyState &&  isEditable"
           class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
           <font-awesome-icon :icon="['fal', 'paperclip']" class="mx-auto h-12 w-12 text-gray-400" />
           <span class="mt-2 block text-sm font-semibold text-gray-900">I Frame</span>
@@ -64,7 +65,7 @@
               title="I farme Block">
           </iframe>
           <!-- Buttons -->
-          <div class="absolute top-2 right-2 flex space-x-2">
+          <div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">
               <Popover class="relative h-full">
                   <template #button>
                       <Button :icon="['far', 'fa-pencil']" size="xs"/>

@@ -21,18 +21,20 @@ library.add(faPlus)
 
 const props = defineProps<{
 	storedItemsRoute: {
-        store: routeType
-        index: routeType
-    }
+		store: routeType
+		index: routeType
+	}
 	form: {}
 	stored_items: {}[]
 }>()
+
+console.log(props)
 
 const _selectQuery = ref(null)
 const key = ref(uuidv4())
 
 const emits = defineEmits<{
-    (e: 'onSave', event: any): void
+	(e: 'onSave', event: any): void
 }>()
 
 const createPallet = async (option, select) => {
@@ -43,9 +45,10 @@ const createPallet = async (option, select) => {
 			{ headers: { "Content-Type": "multipart/form-data" } }
 		)
 		props.form.errors = {}
-		console.log(response)
-		_selectQuery.value.page = 1
-		return response.data
+		props.form.id = response.data.id 
+		
+		/* console.log(_selectQuery.value._multiselectRef.blur()) */
+		/* return response.data */
 	} catch (error: any) {
 		props.form.errors.id = error.response.data.message
 		notify({
@@ -78,30 +81,25 @@ const onSaved = async () => {
 
 	emits("onSave", finalData)
 }
+
 </script>
 
 <template>
 	<div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		<div class="mt-1">
-			<SelectQuery
-			    :key="key"
-				ref="_selectQuery"
-				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)"
-				:value="form"
-				:placeholder="'Select or add item'"
-				:required="true"
-				:trackBy="'reference'"
-				:label="'reference'"
-				:valueProp="'id'"
-				:closeOnSelect="true"
-				:clearOnSearch="false"
-				:fieldName="'id'"
-				:createOption="true"
-				:onCreate="createPallet"
-				@afterCreate="(value,option) => form['id'] = value"
-                @updateVModel="() => form.errors.id = ''"
-            />
+			<SelectQuery :key="key" ref="_selectQuery"
+				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="form"
+				:placeholder="'Select or add item'" :required="true" :trackBy="'reference'" :label="'reference'"
+				:valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'id'" :createOption="false"
+				:onCreate="createPallet" @afterCreate="(value, option) => form['id'] = value"
+				@updateVModel="() => form.errors.id = ''">
+				<template #noresults="{ search }: { search: string }">
+					<div class="px-2 py-[3px]" @click="() => createPallet({id: search,reference: search }, [])">
+						Add {{ search }}
+					</div>
+				</template>
+			</SelectQuery>
 		</div>
 		<p v-if="get(form, ['errors', 'id'])" class="mt-2 text-sm text-red-500">
 			{{ form.errors.id }}
@@ -111,16 +109,8 @@ const onSaved = async () => {
 	<div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Quantity") }}</label>
 		<div class="mt-1">
-			<input
-				v-model="form.quantity"
-				id="quantity"
-				name="quantity"
-				:autofocus="true"
-				type="number"
-				autocomplete="quantity"
-				:required="true"
-				:min="1"
-                @update:modelValue="form.errors.quantity = ''"
+			<input v-model="form.quantity" id="quantity" name="quantity" :autofocus="true" type="number"
+				autocomplete="quantity" :required="true" :min="1" @update:modelValue="form.errors.quantity = ''"
 				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
 		</div>
 		<p v-if="get(form, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">

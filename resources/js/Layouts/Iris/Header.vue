@@ -7,15 +7,20 @@ const props = defineProps<{
         key: string,
         data: object,
         bluprint: object
+        loginRoute?: routeType
     }
+  
     colorThemed: object
 }>()
+
+console.log('sssa',props)
+
 
 </script>
 
 <template>
     <div>
-        <component :is="getRenderComponent(data.key)" :loginMode="true"  :data="data.data" :colorThemed="colorThemed" />
+        <component :is="getRenderComponent(data.key)" :loginMode="false" :loginRoute="data.loginRoute" :data="data.data" :colorThemed="colorThemed" />
     </div>
 
 </template>

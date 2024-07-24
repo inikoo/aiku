@@ -23,6 +23,7 @@ const props = defineProps<{
     web_block?: Object
     id?: Number,
     type?: String
+    isEditable? : boolean
 }>()
 
 
@@ -55,13 +56,13 @@ const onUpload = (e) => {
 
 <template>
     <div v-if="modelValue?.value?.source" class="transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200">
-        <div class="absolute top-2 right-2 flex space-x-2">
+        <div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">
             <Button :icon="['far', 'fa-pencil']" size="xs" @click="()=>openGallery = !openGallery"/>
         </div>
         <Image :src="modelValue?.value?.source" class="w-full object-cover object-center group-hover:opacity-75"></Image>
     </div>
 
-    <div v-if="!modelValue?.value" class="p-5">
+    <div v-if="!modelValue?.value && isEditable" class="p-5">
         <div type="button" @click="()=>openGallery = !openGallery"
             class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             <font-awesome-icon :icon="['fas', 'image']" class="mx-auto h-12 w-12 text-gray-400" />

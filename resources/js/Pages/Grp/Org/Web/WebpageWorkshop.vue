@@ -206,7 +206,7 @@ const onPublish = async (action) => {
                             :key="activityItem.id" @click="() => selectedBlock = activityItem" class="w-full">
                             <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                 :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
-                                v-model="activityItem.web_block.layout.data.fieldValue"
+                                v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
                                 @autoSave="() => onUpdatedBlock(activityItem)"/>
                         </section>
                     </TransitionGroup>

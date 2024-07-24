@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { Link } from '@inertiajs/vue3'
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -16,6 +17,7 @@ const props = defineProps<{
         headerText: string
         chip_text: string
     }
+    loginRoute?: routeType
     loginMode: boolean
     colorThemed?: Object
 }>()
@@ -54,9 +56,11 @@ const selectedColor = props.colorThemed?.color
             <a href="#" class="flex items-center" v-if="loginMode">
                 <FontAwesomeIcon icon="fas fa-user-circle" class="mr-1"></FontAwesomeIcon> Hello Sandra
             </a>
-            <a href="#" class="flex items-center" v-if="!loginMode">
+        
+            <a :href="`${route(loginRoute.name, loginRoute?.parameters)}`" class="flex items-center" v-if="!loginMode">
                 <font-awesome-icon :icon="['fas', 'sign-in-alt']" class="mr-1" /> Login
             </a>
+      
             <a href="#" class="flex items-center" v-if="!loginMode">
                 <font-awesome-icon :icon="['fas', 'file-alt']" class="mr-1" /> Register
             </a>
@@ -75,13 +79,13 @@ const selectedColor = props.colorThemed?.color
 
                 <Image v-else :src="data?.logo?.source" class="h-24"></Image>
 
-                <div class="relative w-fit justify-self-center">
+              <!--   <div class="relative w-fit justify-self-center">
                     <input type="text" placeholder="Search Products"
                         class="border border-gray-400 py-1 px-4 text-sm w-80">
                     <FontAwesomeIcon icon="fas fa-search"
                         class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400" fixed-width
                         aria-hidden='true' />
-                </div>
+                </div> -->
                 <button
                     class="justify-self-end flex w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md"
                     v-if="loginMode" :style="{ backgroundColor: selectedColor[4] }">

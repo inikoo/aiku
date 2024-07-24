@@ -62,7 +62,7 @@ const optionData = ref([])
 const q = ref('')
 const page = ref(1)
 const loading = ref(false)
-const _multiselectRef = ref(null)
+const _multiselectRef = ref()
 const lastPage = ref(2)
 
 
@@ -169,31 +169,47 @@ defineExpose({
     _multiselectRef,
     optionData,
     q,
-    page
+    page,
 })
-
 
 </script>
 
 <template>
-     <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
+    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
         :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
         :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
-        :mode="props.mode" :appendNewOption="false"
-        :on-create="onCreate" :create-option="props.createOption"
-
+        :mode="props.mode" :appendNewOption="false" :on-create="onCreate" :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
-        >
+        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected" >
         <template #tag="{ option, handleTagRemove, disabled }">
-        <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
-            <div class="px-0.5 py-[3px]">
-                <Tag :theme="option[props.valueProp]" :label="option[props.label]" :closeButton="true" :stringToColor="true"
-                    size="sm" @onClose="(event) => handleTagRemove(option, event)" />
-            </div>
-        </slot>
-    </template>
+            <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
+                <div class="px-0.5 py-[3px]">
+                    <Tag :theme="option[props.valueProp]" :label="option[props.label]" :closeButton="true"
+                        :stringToColor="true" size="sm" @onClose="(event) => handleTagRemove(option, event)" />
+                </div>
+            </slot>
+        </template>
+
+        <template #noresults>
+            <slot name="noresults" :search="q" >
+                <div class="px-2 py-[3px]" >
+                    No Result
+                </div>
+            </slot>
+        </template>
+        <template #nooptions>
+            <slot name="nooptions" :search="q" >
+                <div class="px-2 py-[3px]" >
+                    No asdasd
+                </div>
+            </slot>
+        </template>
+        <template #afterlist>
+            <slot name="afterlist" :search="q" >
+               
+            </slot>
+        </template>
     </Multiselect>
 </template>
 
