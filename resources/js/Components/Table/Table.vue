@@ -16,7 +16,7 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { Link } from "@inertiajs/vue3"
 import { trans } from 'laravel-vue-i18n'
 
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive, inject } from 'vue'
 import qs from 'qs'
 import clone from 'lodash-es/clone'
 import filter from 'lodash-es/filter'
@@ -25,7 +25,6 @@ import forEach from 'lodash-es/forEach'
 import isEqual from 'lodash-es/isEqual'
 import map from 'lodash-es/map'
 import { kebabCase } from 'lodash'
-import { useLocaleStore } from '@/Stores/locale'
 import CountUp from 'vue-countup-v3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -33,7 +32,7 @@ import { faCheckSquare, faCheck } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCheckSquare, faCheck)
 
-const locale = useLocaleStore();
+const locale = inject('locale', {})
 
 const props = defineProps(
     {
@@ -863,7 +862,7 @@ watch(selectRow, () => {
                                                 <slot :name="`cell(${column.key})`"
                                                     :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false, editMode: false } }"
                                                     :tabName="name" class="">
-                                                    {{ item[column.key] }}
+                                                    {{ typeof item[column.key] == 'number' || column.type === 'number' ? locale.number(item[column.key]) : item[column.key] }}
                                                 </slot>
                                             </td>
                                         </tr>

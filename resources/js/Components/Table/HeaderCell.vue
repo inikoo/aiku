@@ -50,7 +50,10 @@ const isCellNumber = () => {
 <template>
     <!-- <pre>{{ cell.icon }}</pre> -->
     <th v-show="!cell.hidden" class="font-normal"
-        :class="[cell.type == 'avatar' || cell.type == 'icon' ? 'px-5 w-1' : 'px-6 w-auto text-left']"
+        :class="[
+            cell.type == 'avatar' || cell.type == 'icon' ? 'px-5 w-1' : 'px-6 w-auto',
+            isCellNumber() || cell.type == 'number' ? 'text-right' : 'text-left'
+        ]"
     >
         <component :is="cell.sortable ? 'button' : 'div'" class="py-1"
             :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
@@ -77,8 +80,10 @@ const isCellNumber = () => {
                         </div>
                     </div>
                     
-                    <!-- Simple label and icon -->
-                    <div v-else class="capitalize text-xs md:text-sm lg:text-base" v-tooltip="cell.tooltip">
+                    <!-- Label: simple and icon -->
+                    <div v-else class="capitalize text-xs md:text-sm lg:text-base" v-tooltip="cell.tooltip"
+                        :class="[cell.type == 'number' ? 'text-right' : '']"
+                    >
                         {{ cell.label || ''}}
                         <FontAwesomeIcon
                             v-if="cell.icon"
