@@ -15,6 +15,7 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
@@ -76,6 +77,16 @@ class ShowPalletReturn extends OrgAction
         //todo this should be $palletReturn->type
         //$type='StoredItem';
         $actions = [];
+
+
+        $navigation=PalletReturnTabsEnum::navigation($palletReturn);
+
+        if($palletReturn->type==PalletReturnTypeEnum::PALLET ){
+            unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
+        }else{
+            unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
+        }
+
 
         if($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
@@ -246,6 +257,16 @@ class ShowPalletReturn extends OrgAction
 
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
 
+        if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM){
+          $afterTitle=[
+              'label'=>'('.__('Stored items').')'
+              ];
+        }else{
+            $afterTitle=[
+                'label'=>'('.__('Whole pallets').')'
+            ];
+        }
+
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -262,6 +283,7 @@ class ShowPalletReturn extends OrgAction
                     // 'container' => $container,
                     'title'     => $palletReturn->reference,
                     'model'     => __('pallet return'),
+                    'afterTitle'=>$afterTitle,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference
@@ -357,7 +379,7 @@ class ShowPalletReturn extends OrgAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletReturnTabsEnum::navigation($palletReturn)
+                    'navigation' => $navigation
                 ],
                 'data'             => PalletReturnResource::make($palletReturn),
                 'box_stats'        => [

@@ -19,7 +19,9 @@ import SelectQuery from "@/Components/SelectQuery.vue"
 import axios from 'axios'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBox, faHandHoldingBox, faPallet, faPencil, faPlus } from '@fal'
+import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
+import { faPlus } from '@fas'
+
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faBox, faHandHoldingBox, faPallet, faPencil, faPlus)
 

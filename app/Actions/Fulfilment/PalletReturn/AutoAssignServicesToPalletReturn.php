@@ -13,13 +13,14 @@ use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Service;
 use App\Models\Fulfilment\FulfilmentTransaction;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 
 class AutoAssignServicesToPalletReturn extends OrgAction
 {
-    public function handle(PalletReturn  $palletReturn, $subject): PalletReturn
+    public function handle(PalletReturn  $palletReturn,  Pallet|StoredItem $subject): PalletReturn
     {
-        // dd($subject->type);
         /** @var Service $service */
         $service=$palletReturn->fulfilment->shop->services()->where([
             ['is_auto_assign', true],
@@ -33,7 +34,14 @@ class AutoAssignServicesToPalletReturn extends OrgAction
         }
 
         $asset    =$service->asset;
-        $quantity = $palletReturn->pallets()->where('type', $subject->type)->count();
+
+        if($subject instanceof Pallet){
+            $quantity = $palletReturn->pallets()->where('pallets.type', $subject->type)->count();
+        }else{
+            $quantity = $palletReturn->storedItems()->where('stored_items.type', $subject->type)->count();
+        }
+
+
         data_set($modelData, 'quantity', $quantity);
         data_set($modelData, 'is_auto_assign', true);
 
