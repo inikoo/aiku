@@ -22,3 +22,4 @@ ${PHP} artisan fetch:customers sk -S euf -d "${DB_SUFFIX}" -w web-users
 ${PHP} artisan fetch:invoices sk -S euf -d "${DB_SUFFIX}" -w transactions
 ${PHP} artisan fetch:pallets -d _base
 ${PHP} artisan fetch:fulfilment-customers -d _base
+${PHP} artisan hydrate:fulfilment-customers-status

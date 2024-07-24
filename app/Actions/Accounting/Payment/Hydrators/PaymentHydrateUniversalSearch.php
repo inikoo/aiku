@@ -37,8 +37,8 @@ class PaymentHydrateUniversalSearch
                 'shop_slug'         => $payment->shop->slug,
                 'customer_id'       => $customer_id,
                 'customer_slug'     => $customer_slug,
-                'section'           => 'accounting',
-                'title'             => $payment->reference,
+                'sections'          => ['accounting'],
+                'haystack_tier_1'   => $payment->reference,
             ]
         );
     }

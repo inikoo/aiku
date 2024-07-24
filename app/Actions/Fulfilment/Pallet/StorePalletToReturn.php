@@ -16,7 +16,6 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -34,9 +33,15 @@ class StorePalletToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $palletIds = Arr::get($modelData, 'pallets');
+        $palletIds  = Arr::get($modelData, 'pallets');
+        $palletsData= [];
+        foreach ($palletIds as $palletId) {
+            $palletsData[$palletId] = [
+                'quantity_ordered' => 1
+            ];
+        }
 
-        $palletReturn->pallets()->syncWithoutDetaching($palletIds);
+        $palletReturn->pallets()->syncWithoutDetaching($palletsData);
 
         $pallets = Pallet::findOrFail($palletIds);
 

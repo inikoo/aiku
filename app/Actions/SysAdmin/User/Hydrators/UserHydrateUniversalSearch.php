@@ -7,7 +7,6 @@
 
 namespace App\Actions\SysAdmin\User\Hydrators;
 
-use App\Actions\Traits\WithRoutes;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -15,17 +14,17 @@ class UserHydrateUniversalSearch
 {
     use AsAction;
 
-    use WithRoutes;
+    public string $jobQueue = 'universal-search';
 
     public function handle(User $user): void
     {
         $user->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'       => $user->group_id,
-                'section'        => 'sysadmin',
-                'title'          => $user->username,
-                'description'    => trim($user->email.' '.$user->contact_name)
+                'group_id'        => $user->group_id,
+                'sections'        => ['sysadmin'],
+                'haystack_tier_1' => $user->username,
+                'haystack_tier_2' => trim($user->email.' '.$user->contact_name)
             ]
         );
     }

@@ -55,6 +55,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
+use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\Timezone;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
@@ -808,5 +809,19 @@ trait WithAuroraParsers
         return strtr($string, $normalizeChars);
     }
 
+    public function parseTaxCategory($auroraTaxCategoryId): TaxCategory
+    {
+
+        $auroraTaxCategoryId=match ($auroraTaxCategoryId) {
+            25,30,38,39=>1,//Outside
+            27,28,29,42,43=>2,//EU_VTC
+            11,26,40,41=>3,//Exempt
+            default => $auroraTaxCategoryId
+        };
+
+        return TaxCategory::where('source_id', $auroraTaxCategoryId)
+            ->firstOrFail();
+
+    }
 
 }

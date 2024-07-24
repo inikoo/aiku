@@ -13,8 +13,6 @@ use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Rule;
@@ -99,7 +97,7 @@ class StoreFulfilmentCustomer extends OrgAction
         ]));
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
+    public function asController(Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 

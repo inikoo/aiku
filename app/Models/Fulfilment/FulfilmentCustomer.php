@@ -7,7 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property FulfilmentCustomerStatus $status
+ * @property FulfilmentCustomerStatusEnum $status
  * @property string $slug
  * @property int $customer_id
  * @property int $fulfilment_id
@@ -80,9 +80,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets_state_lost
  * @property int $number_pallets_with_cartons_state_lost
  * @property int $number_pallets_with_stored_items_state_lost
- * @property int $number_pallets_state_other
- * @property int $number_pallets_with_cartons_state_other
- * @property int $number_pallets_with_stored_items_state_other
+ * @property int $number_pallets_state_other_incident
+ * @property int $number_pallets_with_cartons_state_other_incident
+ * @property int $number_pallets_with_stored_items_state_other_incident
  * @property int $number_pallets_state_dispatched
  * @property int $number_pallets_with_cartons_state_dispatched
  * @property int $number_pallets_with_stored_items_state_dispatched
@@ -158,7 +158,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
@@ -179,7 +178,7 @@ class FulfilmentCustomer extends Model
     protected $guarded = [];
     protected $casts   = [
         'data'   => 'array',
-        'status' => FulfilmentCustomerStatus::class
+        'status' => FulfilmentCustomerStatusEnum::class
 
     ];
 
@@ -232,11 +231,6 @@ class FulfilmentCustomer extends Model
     public function recurringBills(): HasMany
     {
         return $this->hasMany(RecurringBill::class);
-    }
-
-    public function storedItemReturns(): HasMany
-    {
-        return $this->hasMany(StoredItemReturn::class);
     }
 
     public function serialReferences(): MorphMany

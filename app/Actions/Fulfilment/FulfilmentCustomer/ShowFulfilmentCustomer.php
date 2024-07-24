@@ -16,7 +16,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
-use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\RentalAgreementClausesResource;
@@ -64,12 +64,11 @@ class ShowFulfilmentCustomer extends OrgAction
 
         $navigation = FulfilmentCustomerTabsEnum::navigation();
 
-        if (!$fulfilmentCustomer->rentalAgreement) {
+        if (!$fulfilmentCustomer->rentalAgreement && $fulfilmentCustomer->rentalAgreement->clauses()->count() < 1) {
             unset($navigation[FulfilmentCustomerTabsEnum::AGREED_PRICES->value]);
         }
 
-
-        if ($fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT) {
+        if ($fulfilmentCustomer->status == FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT) {
             $additionalActions = [
                 [
                     'type'    => 'button',

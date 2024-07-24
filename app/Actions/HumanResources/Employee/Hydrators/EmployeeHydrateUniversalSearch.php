@@ -13,23 +13,24 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class EmployeeHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(Employee $employee): void
     {
-        if($employee->trashed()) {
+        if ($employee->trashed()) {
             return;
         }
 
         $employee->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'         => $employee->group_id,
-                'organisation_id'  => $employee->organisation_id,
-                'organisation_slug'=> $employee->organisation->slug,
-                'section'          => 'hr',
-                'title'            => trim($employee->slug . ' ' . $employee->worker_number . ' ' . $employee->contact_name),
-                'description'      => $employee->work_email . ' ' . $employee->job_title
+                'group_id'          => $employee->group_id,
+                'organisation_id'   => $employee->organisation_id,
+                'organisation_slug' => $employee->organisation->slug,
+                'sections'          => ['hr'],
+                'haystack_tier_1'   => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),
+                'haystack_tier_2'   => $employee->work_email.' '.$employee->job_title
             ]
         );
     }

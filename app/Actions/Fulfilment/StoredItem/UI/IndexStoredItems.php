@@ -14,7 +14,6 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
-use App\Models\Fulfilment\StoredItemReturn;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -30,7 +29,7 @@ class IndexStoredItems extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
 
-    public function handle(Organisation|FulfilmentCustomer|StoredItemReturn $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -42,7 +41,7 @@ class IndexStoredItems extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for($parent instanceof StoredItemReturn ? $parent->items() : StoredItem::class)
+        return QueryBuilder::for(StoredItem::class)
             ->defaultSort('slug')
             ->when($parent, function ($query) use ($parent) {
                 if($parent instanceof FulfilmentCustomer) {
@@ -70,11 +69,6 @@ class IndexStoredItems extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'StoredItemReturn' => [
-                            'title'         => __("No stored items found"),
-                            'count'         => $parent->count(),
-                            'description'   => __("No items stored in any pallets")
-                        ],
                         'FulfilmentCustomer' => [
                             'title'         => __("No stored items found"),
                             'count'         => $parent->count(),
@@ -138,10 +132,10 @@ class IndexStoredItems extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('stored items'),
                 'pageHead'    => [
-                    'title'        => $title,
-                    'afterTitle'   => $afterTitle,
-                    'iconRight'    => $iconRight,
-                    'icon'         => $icon,
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         'buttons' => [

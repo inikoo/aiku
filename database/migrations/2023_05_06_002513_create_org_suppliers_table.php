@@ -17,6 +17,7 @@ return new class () extends Migration {
         Schema::create('org_suppliers', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns')->comment('mirror of parent');
             $table->string('name')->index()->comment('mirror of parent');
             $table->unsignedSmallInteger('supplier_id');

@@ -95,10 +95,10 @@ class StorePalletReturn extends OrgAction
             $this->fill(['warehouse_id' =>$warehouse->id]);
         }
 
-        if($this->withStoredItems){
-            $this->set('type' ,'StoredItem');
-        }else{
-            $this->set('type' ,'Pallet');
+        if($this->withStoredItems) {
+            $this->set('type', 'StoredItem');
+        } else {
+            $this->set('type', 'Pallet');
         }
 
     }
@@ -116,7 +116,7 @@ class StorePalletReturn extends OrgAction
         }
 
         return [
-            'type'=>['sometimes','required','string','in:Pallet,StoredItem'],
+            'type'          => ['sometimes','required','string','in:Pallet,StoredItem'],
             'warehouse_id'  => ['required','integer','exists:warehouses,id'],
             'customer_notes'=> ['sometimes','nullable','string'],
             ...$rules

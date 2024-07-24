@@ -7,7 +7,6 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**

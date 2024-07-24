@@ -28,9 +28,8 @@ class PalletHydrateUniversalSearch
                 'fulfilment_slug'   => $pallet->fulfilment->slug,
                 'warehouse_id'      => $pallet->warehouse_id,
                 'warehouse_slug'    => $pallet->warehouse->slug,
-                'section'           => 'fulfilment',
-                'title'             => $pallet->reference??$pallet->id,
-                'slug'              => $pallet->slug,
+                'sections'          => ['fulfilment'],
+                'haystack_tier_1'   => $pallet->reference ?? $pallet->id,
             ]
         );
     }

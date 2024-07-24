@@ -20,12 +20,11 @@ class OrgStockHydrateUniversalSearch
         $orgStock->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $orgStock->group_id,
-                'organisation_id'   => $orgStock->organisation_id,
-                'organisation_slug' => $orgStock->organisation->slug,
-                'section'           => 'inventory',
-                'title'             => trim($orgStock->stock->code.' '.$orgStock->stock->name),
-                'description'       => ''
+                'group_id'                    => $orgStock->group_id,
+                'organisation_id'             => $orgStock->organisation_id,
+                'organisation_slug'           => $orgStock->organisation->slug,
+                'sections'                    => ['inventory'],
+                'haystack_tier_1'             => trim($orgStock->stock->code.' '.$orgStock->stock->name),
             ]
         );
     }

@@ -21,12 +21,11 @@ class ProductionHydrateUniversalSearch
         $production->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $production->group_id,
-                'organisation_id'   => $production->organisation_id,
-                'organisation_slug' => $production->organisation->slug,
-                'section'           => 'manufacture',
-                'title'             => trim($production->name.' '.$production->code),
-                'description'       => ''
+                'group_id'                    => $production->group_id,
+                'organisation_id'             => $production->organisation_id,
+                'organisation_slug'           => $production->organisation->slug,
+                'sections'                    => ['manufacture'],
+                'haystack_tier_1'             => trim($production->name.' '.$production->code),
             ]
         );
     }

@@ -18,18 +18,16 @@ class SupplierHydrateUniversalSearch
 
     public function handle(Supplier $supplier): void
     {
-
-        if($supplier->trashed()) {
+        if ($supplier->trashed()) {
             return;
         }
 
         $supplier->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'       => $supplier->group_id,
-                'section'        => 'supply-chain',
-                'title'          => trim($supplier->name.' '.$supplier->email.' '.$supplier->company_name.' '.$supplier->contact_name),
-                'description'    => ''
+                'group_id'        => $supplier->group_id,
+                'sections'        => ['supply-chain'],
+                'haystack_tier_1' => trim($supplier->name.' '.$supplier->email.' '.$supplier->company_name.' '.$supplier->contact_name),
             ]
         );
     }

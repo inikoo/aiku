@@ -13,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class PalletDeliveryHydrateUniversalSearch
 {
     use AsAction;
+
     public string $jobQueue = 'universal-search';
 
     public function handle(PalletDelivery $palletDelivery): void
@@ -27,9 +28,8 @@ class PalletDeliveryHydrateUniversalSearch
                 'warehouse_slug'    => $palletDelivery->warehouse->slug,
                 'fulfilment_id'     => $palletDelivery->fulfilment_id,
                 'fulfilment_slug'   => $palletDelivery->fulfilment->slug,
-                'section'           => 'fulfilment',
-                'title'             => $palletDelivery->reference,
-                'slug'              => 'pad-'.$palletDelivery->slug,
+                'sections'          => ['fulfilment'],
+                'haystack_tier_1'   => $palletDelivery->reference,
             ]
         );
     }

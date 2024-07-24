@@ -7,7 +7,6 @@
 
 namespace App\Events;
 
-use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Group;
@@ -25,9 +24,9 @@ class BroadcastFulfilmentCustomerNotification implements ShouldQueue
 
     public array $data;
     public Group $group;
-    public PalletDelivery|PalletReturn|StoreStoredItemReturn $parent;
+    public PalletDelivery|PalletReturn $parent;
 
-    public function __construct(Group $group, PalletDelivery|PalletReturn|StoreStoredItemReturn $parent)
+    public function __construct(Group $group, PalletDelivery|PalletReturn $parent)
     {
         $this->parent = $parent;
         $this->group  = $group;
@@ -45,12 +44,6 @@ class BroadcastFulfilmentCustomerNotification implements ShouldQueue
                     $parent->slug
                 ]),
                 'PalletReturn' => route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
-                    'organisation'       => $parent->organisation->slug,
-                    'fulfilment'         => $parent->fulfilment->slug,
-                    'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,
-                    $parent->slug
-                ]),
-                'StoreStoredItemReturn' => route('grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show', [
                     'organisation'       => $parent->organisation->slug,
                     'fulfilment'         => $parent->fulfilment->slug,
                     'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,

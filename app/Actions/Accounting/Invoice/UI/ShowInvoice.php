@@ -236,8 +236,8 @@ class ShowInvoice extends OrgAction
                 ],
 
                 InvoiceTabsEnum::SHOWCASE->value => $this->tab == InvoiceTabsEnum::SHOWCASE->value ?
-                    fn () => GetInvoiceShowcase::run($invoice)
-                    : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
+                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::SHOWCASE->value))
+                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::SHOWCASE->value))),
 
                 // InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
                 //     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))

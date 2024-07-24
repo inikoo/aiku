@@ -7,6 +7,8 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InOrganisation;
@@ -16,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Procurement\OrgSupplierProduct
@@ -26,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property int $supplier_product_id
  * @property int|null $org_agent_id
  * @property int|null $org_supplier_id
+ * @property string $slug
  * @property bool $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -34,6 +39,7 @@ use Illuminate\Support\Carbon;
  * @property-read \App\Models\Procurement\OrgSupplier|null $orgSupplier
  * @property-read Organisation $organisation
  * @property-read \App\Models\Procurement\OrgSupplierProductStats|null $stats
+ * @property-read SupplierProduct $supplierProduct
  * @method static Builder|OrgSupplierProduct newModelQuery()
  * @method static Builder|OrgSupplierProduct newQuery()
  * @method static Builder|OrgSupplierProduct query()
@@ -42,10 +48,22 @@ use Illuminate\Support\Carbon;
 class OrgSupplierProduct extends Model
 {
     use InOrganisation;
+    use HasSlug;
 
     protected $table = 'org_supplier_products';
 
     protected $guarded = [];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                return $this->supplierProduct->code.'-'.$this->organisation->code;
+            })
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(64);
+    }
 
     public function getRouteKeyName(): string
     {
@@ -60,6 +78,11 @@ class OrgSupplierProduct extends Model
     public function orgSupplier(): BelongsTo
     {
         return $this->belongsTo(OrgSupplier::class);
+    }
+
+    public function supplierProduct(): BelongsTo
+    {
+        return $this->belongsTo(SupplierProduct::class);
     }
 
 

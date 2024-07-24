@@ -21,9 +21,8 @@ class ShopHydrateUniversalSearch
         $shop->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'catalogue',
-                'title'       => trim($shop->code.' '.$shop->name),
-                'description' => ''
+                'sections'        => ['catalogue'],
+                'haystack_tier_1' => trim($shop->code.' '.$shop->name),
             ]
         );
     }

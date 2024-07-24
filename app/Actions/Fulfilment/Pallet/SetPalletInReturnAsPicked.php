@@ -32,7 +32,7 @@ class SetPalletInReturnAsPicked extends OrgAction
     {
 
         $modelData=[];
-        data_set($modelData, 'picked_from_location_id', $palletReturnItem->pallet->location_id);
+        data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
         data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
 
         $this->update($palletReturnItem, $modelData);

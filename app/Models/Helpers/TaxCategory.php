@@ -9,6 +9,8 @@ namespace App\Models\Helpers;
 
 use App\Enums\Helpers\TaxCategories\TaxCategoryTypeEnum;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  *
@@ -16,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property TaxCategoryTypeEnum $type
  * @property string $type_name
+ * @property string $slug
  * @property string $label
  * @property string $name
  * @property bool $status
@@ -32,6 +35,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class TaxCategory extends Model
 {
+    use HasSlug;
+
     protected $casts = [
         'data'   => 'array',
         'status' => 'boolean',
@@ -42,6 +47,16 @@ class TaxCategory extends Model
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                return str_replace('+', '-', $this->label);
+            })
+            ->doNotGenerateSlugsOnUpdate()
+            ->saveSlugsTo('slug');
+    }
 
 
 }

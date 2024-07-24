@@ -28,9 +28,9 @@ class DeliveryNoteHydrateUniversalSearch
                 'shop_slug'         => $deliveryNote->shop->slug,
                 'customer_id'       => $deliveryNote->customer_id,
                 'customer_slug'     => $deliveryNote->customer->slug,
-                'section'           => 'dispatch',
-                'title'             => $deliveryNote->number,
-                'description'       => $deliveryNote->email
+                'sections'          => ['dispatching'],
+                'haystack_tier_1'   => $deliveryNote->number,
+                'haystack_tier_2'   => $deliveryNote->email
             ]
         );
     }

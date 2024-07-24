@@ -23,7 +23,7 @@ class HandleIrisInertiaRequests extends Middleware
         $firstLoadOnlyProps['environment']   = app()->environment();
         $firstLoadOnlyProps['ziggy']         = function () use ($request) {
             return array_merge((new Ziggy())->toArray(), [
-                'location' => $request->url(),
+                'location' => $request->url()
             ]);
         };
 
@@ -31,11 +31,15 @@ class HandleIrisInertiaRequests extends Middleware
             $firstLoadOnlyProps,
             [
                 'iris' => [
-                    'header' => Arr::get($website->published_layout, 'header'),
-                    'footer' => Arr::get($website->published_layout, 'footer'),
-                    'menu'   => Arr::get($website->published_layout, 'menu'),
-                    'color'  => Arr::get($website->published_layout, 'color')
-                ]
+                    'header'     => Arr::get($website->published_layout, 'header'),
+                    'footer'     => Arr::get($website->published_layout, 'footer'),
+                    'menu'       => Arr::get($website->published_layout, 'menu'),
+                    'color'      => Arr::get($website->published_layout, 'color'),
+                    'loginRoute' => [
+                        'name' => 'retina.login.show'
+                    ]
+                ],
+                'user'     => $request->user()
             ],
             parent::share($request),
         );

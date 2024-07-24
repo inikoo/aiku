@@ -8,7 +8,6 @@
 namespace App\Transfers\Aurora;
 
 use App\Models\Accounting\Invoice;
-use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoiceTransaction extends FetchAurora
@@ -41,8 +40,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
             }
 
 
-            $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Order Transaction Tax Category Key'})
-                ->firstOrFail();
+            $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
             $this->parsedData['transaction'] = [
                 'order_id'        => $orderId,

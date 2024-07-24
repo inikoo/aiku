@@ -25,6 +25,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             array_merge(
                 $modelData,
                 [
+                    'created_at'      => $customer->created_at,
                     'fulfilment_id'   => $shop->fulfilment->id,
                     'group_id'        => $customer->group_id,
                     'organisation_id' => $customer->organisation_id,

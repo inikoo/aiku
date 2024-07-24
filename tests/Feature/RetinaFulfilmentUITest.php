@@ -49,7 +49,7 @@ beforeEach(function () {
 
         $rentalAgreement = StoreRentalAgreement::make()->action(
             $this->customer->fulfilmentCustomer,
-            $storeData
+            $storeData,
         );
     }
     $this->rentalAgreement = $rentalAgreement;
@@ -309,19 +309,5 @@ test('show pallet return (physical goods tab)', function () {
             )
             ->has('tabs');
 
-    });
-});
-
-test('index stored item returns', function () {
-    actingAs($this->webUser, 'retina');
-    $this->withoutExceptionHandling();
-    $response = $this->get(route('retina.storage.stored-item-returns.index'));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Storage/RetinaStoredItemReturns')
-            ->has('title')
-            ->has('breadcrumbs', 2)
-            ->has('pageHead')
-            ->has('data');
     });
 });

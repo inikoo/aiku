@@ -10,7 +10,6 @@ namespace App\Transfers\Aurora;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Helpers\Address;
-use App\Models\Helpers\TaxCategory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -59,7 +58,7 @@ class FetchAuroraInvoice extends FetchAurora
             $taxLiabilityAt = $this->auroraModelData->{'Invoice Date'};
         }
 
-        $taxCategory = TaxCategory::where('source_id', $this->auroraModelData->{'Invoice Tax Category Key'})->firstOrFail();
+        $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Invoice Tax Category Key'});
 
         $this->parsedData['invoice'] = [
             'number'           => $this->auroraModelData->{'Invoice Public ID'},

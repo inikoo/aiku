@@ -21,13 +21,13 @@ class InsuranceHydrateUniversalSearch
         $insurance->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $insurance->group_id,
-                'organisation_id'   => $insurance->organisation_id,
-                'organisation_slug' => $insurance->organisation->slug,
-                'shop_id'           => $insurance->shop_id,
-                'shop_slug'         => $insurance->shop->slug,
-                'section'           => 'shops',
-                'title'             => $insurance->name,
+                'group_id'                    => $insurance->group_id,
+                'organisation_id'             => $insurance->organisation_id,
+                'organisation_slug'           => $insurance->organisation->slug,
+                'shop_id'                     => $insurance->shop_id,
+                'shop_slug'                   => $insurance->shop->slug,
+                'sections'                    => ['catalogue'],
+                'haystack_tier_1'             => $insurance->name,
             ]
         );
     }

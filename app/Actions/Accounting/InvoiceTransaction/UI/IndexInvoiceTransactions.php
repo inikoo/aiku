@@ -46,15 +46,15 @@ class IndexInvoiceTransactions extends OrgAction
 
         $queryBuilder = QueryBuilder::for(InvoiceTransaction::class);
 
-        if ($parent instanceof Organisation) {
-            $queryBuilder->where('invoice_transactions.organisation_id', $parent->id);
-        } elseif ($parent instanceof Shop) {
-            $queryBuilder->where('invoice_transactions.shop_id', $parent->id);
-        } elseif ($parent instanceof Invoice) {
-            $queryBuilder->where('invoice_transactions.invoice_id', $parent->id);
-        } else {
-            abort(422);
-        }
+        //        if ($parent instanceof Organisation) {
+        //            $queryBuilder->where('invoice_transactions.organisation_id', $parent->id);
+        //        } elseif ($parent instanceof Shop) {
+        //            $queryBuilder->where('invoice_transactions.shop_id', $parent->id);
+        //        } elseif ($parent instanceof Invoice) {
+        //            $queryBuilder->where('invoice_transactions.invoice_id', $parent->id);
+        //        } else {
+        //            abort(422);
+        //        }
 
         $queryBuilder->defaultSort('-invoice_transactions.updated_at')
             ->leftJoin('assets', 'invoice_transactions.asset_id', 'assets.id');
