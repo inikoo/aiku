@@ -20,8 +20,12 @@ return new class () extends Migration {
             $table->foreign('pallet_return_id')->references('id')->on('pallet_returns');
             $table->unsignedInteger('pallet_id');
             $table->foreign('pallet_id')->references('id')->on('pallets');
+
             $table->unsignedInteger('stored_item_id')->nullable();
             $table->foreign('stored_item_id')->references('id')->on('stored_items');
+
+            $table->unsignedInteger('pallet_stored_item_id')->nullable();
+            $table->foreign('pallet_stored_item_id')->references('id')->on('pallet_stored_items');
 
             $table->decimal('quantity_ordered', 16, 3);
             $table->decimal('quantity_dispatched', 16, 3)->default(0);

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref } from "vue"
 import { useForm, router } from "@inertiajs/vue3"
@@ -10,7 +8,16 @@ import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
 import { get } from "lodash"
 import { trans } from "laravel-vue-i18n"
-library.add(faPlus)
+import SelectQuery from "@/Components/SelectQuery.vue"
+import axios from 'axios'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
+import { faPlus } from '@fas'
+
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faBox, faHandHoldingBox, faPallet, faPencil, faPlus)
+
 const props = defineProps<{
     pallet: {}
     storedItemsRoute: {}

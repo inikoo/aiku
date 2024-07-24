@@ -170,6 +170,11 @@ class PalletReturn extends Model
         return $this->belongsToMany(Pallet::class, 'pallet_return_items')->withPivot('state', 'id');
     }
 
+    public function storedItems(): BelongsToMany
+    {
+        return $this->belongsToMany(StoredItem::class, 'pallet_return_items')->withPivot('state', 'id');
+    }
+
     public function stats(): HasOne
     {
         return $this->hasOne(PalletReturnStats::class);

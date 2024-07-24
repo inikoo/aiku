@@ -14,8 +14,6 @@ return new class () extends Migration {
                 $table->foreign('pallet_id')->references('id')->on('pallets');
                 $table->unsignedBigInteger('stored_item_id');
                 $table->foreign('stored_item_id')->references('id')->on('stored_items');
-                $table->unsignedInteger('location_id')->index()->nullable();
-                $table->foreign('location_id')->references('id')->on('locations');
                 $table->decimal('quantity')->default(0);
                 $table->decimal('damaged_quantity')->default(0);
                 $table->timestampsTz();
