@@ -45,19 +45,6 @@ class UpdateAgent extends GrpAction
             GroupHydrateAgents::run($this->group);
         }
 
-        if ($agent->wasChanged(['name', 'code'])) {
-            foreach ($agent->orgAgents as $orgAgent) {
-
-                $orgAgent->update(
-                    [
-                        'code' => $agent->code,
-                        'name' => $agent->name
-                    ]
-                );
-
-            }
-        }
-
         AgentHydrateUniversalSearch::dispatch($agent);
 
 
@@ -76,7 +63,7 @@ class UpdateAgent extends GrpAction
     public function rules(): array
     {
         return [
-            'code'        => [
+            'code'         => [
                 'sometimes',
                 'required',
                 'max:12',
@@ -93,15 +80,16 @@ class UpdateAgent extends GrpAction
                     ]
                 ),
             ],
-            'name'        => ['sometimes', 'required', 'string', 'max:255'],
-            'email'       => ['nullable', 'email'],
-            'phone'       => ['nullable', new Phone()],
-            'address'     => ['sometimes', 'required', new ValidAddress()],
-            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
-            'country_id'  => ['sometimes', 'required', 'exists:countries,id'],
-            'timezone_id' => ['sometimes', 'required', 'exists:timezones,id'],
-            'language_id' => ['sometimes', 'required', 'exists:languages,id'],
-            'status'      => ['sometimes', 'required', 'boolean'],
+            'name'         => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', new Phone()],
+            'address'      => ['sometimes', 'required', new ValidAddress()],
+            'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'   => ['sometimes', 'required', 'exists:countries,id'],
+            'timezone_id'  => ['sometimes', 'required', 'exists:timezones,id'],
+            'language_id'  => ['sometimes', 'required', 'exists:languages,id'],
+            'status'       => ['sometimes', 'required', 'boolean'],
         ];
     }
 

@@ -41,7 +41,7 @@ class UpdateOrganisation
             /** @var UploadedFile $image */
             $image = Arr::get($modelData, 'logo');
             data_forget($modelData, 'logo');
-            $imageData = [
+            $imageData    = [
                 'path'         => $image->getPathName(),
                 'originalName' => $image->getClientOriginalName(),
                 'extension'    => $image->getClientOriginalExtension(),
@@ -75,7 +75,8 @@ class UpdateOrganisation
     public function rules(): array
     {
         return [
-            'name'                    => ['sometimes', 'required', 'max:24', 'string'],
+            'name'                    => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name'            => ['sometimes', 'string', 'max:255'],
             'google_client_id'        => ['sometimes', 'string'],
             'google_client_secret'    => ['sometimes', 'string'],
             'google_drive_folder_key' => ['sometimes', 'string'],

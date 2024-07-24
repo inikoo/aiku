@@ -55,7 +55,6 @@ class StoreOrganisation
         $organisation->refresh();
 
 
-
         SetOrganisationLogo::dispatch($organisation);
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
@@ -99,7 +98,6 @@ class StoreOrganisation
         $organisation->mailStats()->create();
 
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
-
             $organisation->crmStats()->create();
             $organisation->salesStats()->create();
             $organisation->salesIntervals()->create();
@@ -135,18 +133,19 @@ class StoreOrganisation
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:organisations', 'max:12', 'alpha'],
-            'name'        => ['required', 'max:255'],
-            'email'       => ['required', 'nullable', 'email', 'unique:organisations'],
-            'phone'       => ['sometimes', 'nullable', new Phone()],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'country_id'  => ['required', 'exists:countries,id'],
-            'language_id' => ['required', 'exists:languages,id'],
-            'timezone_id' => ['required', 'exists:timezones,id'],
-            'source'      => ['sometimes', 'array'],
-            'type'        => ['required', Rule::enum(OrganisationTypeEnum::class)],
-            'address'     => ['sometimes', 'required', new ValidAddress()],
-            'created_at'  => ['sometimes', 'date'],
+            'code'         => ['required', 'unique:organisations', 'max:12', 'alpha'],
+            'name'         => ['required', 'string', 'max:255'],
+            'contact_name' => ['sometimes', 'string', 'max:255'],
+            'email'        => ['required', 'nullable', 'email', 'unique:organisations'],
+            'phone'        => ['sometimes', 'nullable', new Phone()],
+            'currency_id'  => ['required', 'exists:currencies,id'],
+            'country_id'   => ['required', 'exists:countries,id'],
+            'language_id'  => ['required', 'exists:languages,id'],
+            'timezone_id'  => ['required', 'exists:timezones,id'],
+            'source'       => ['sometimes', 'array'],
+            'type'         => ['required', Rule::enum(OrganisationTypeEnum::class)],
+            'address'      => ['sometimes', 'required', new ValidAddress()],
+            'created_at'   => ['sometimes', 'date'],
         ];
     }
 
@@ -179,11 +178,11 @@ class StoreOrganisation
 
     public function asCommand(Command $command): int
     {
-
         try {
             $group = Group::where('slug', $command->argument('group'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

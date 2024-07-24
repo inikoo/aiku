@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
@@ -22,12 +22,13 @@ use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOrgAgent extends InertiaAction
+class ShowOrgAgent extends OrgAction
 {
     public function handle(OrgAgent $orgAgent): OrgAgent
     {
@@ -36,16 +37,16 @@ class ShowOrgAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('procurement.org_agents.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('procurement.org_agents.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
-    public function asController(OrgAgent $orgAgent, ActionRequest $request): RedirectResponse|OrgAgent
+    public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): RedirectResponse|OrgAgent
     {
 
-        $this->initialisation($request)->withTab(OrgAgentTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
 
         return $this->handle($orgAgent);
     }
@@ -130,8 +131,8 @@ class ShowOrgAgent extends InertiaAction
                 ],
 
                 OrgAgentTabsEnum::SHOWCASE->value => $this->tab == OrgAgentTabsEnum::SHOWCASE->value ?
-                    fn () => GetAgentShowcase::run($orgAgent)
-                    : Inertia::lazy(fn () => GetAgentShowcase::run($orgAgent)),
+                    fn () => GetOrgAgentShowcase::run($orgAgent)
+                    : Inertia::lazy(fn () => GetOrgAgentShowcase::run($orgAgent)),
 
 
                 OrgAgentTabsEnum::PURCHASE_ORDERS->value   => $this->tab == OrgAgentTabsEnum::PURCHASE_ORDERS->value
@@ -232,6 +233,9 @@ class ShowOrgAgent extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
+        $orgAgent=OrgAgent::where('slug', $routeParameters['orgAgent'])->first();
+
         return array_merge(
             (new ProcurementDashboard())->getBreadcrumbs($routeParameters),
             [
@@ -241,15 +245,20 @@ class ShowOrgAgent extends InertiaAction
                         'index' => [
                             'route' => [
                                 'name' => 'grp.org.procurement.org_agents.index',
+                                'parameters' => [
+                                    $routeParameters['organisation'],]
                             ],
-                            'label' => __('agent')
+                            'label' => __('Agents')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.org_agents.show',
-                                'parameters' => [$routeParameters['agent']->slug]
+                                'parameters' => [
+                                    $routeParameters['organisation'],
+                                    $orgAgent->slug
+                                ]
                             ],
-                            'label' => $routeParameters['agent']->code,
+                            'label' => $orgAgent->agent->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -261,19 +270,19 @@ class ShowOrgAgent extends InertiaAction
 
     public function getPrevious(OrgAgent $orgAgent, ActionRequest $request): ?array
     {
-        $previous = Agent::where('code', '<', $orgAgent->organisation->code)->orderBy('code', 'desc')->first();
+        $previous = OrgAgent::where('slug', '<', $orgAgent->slug)->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(OrgAgent $orgAgent, ActionRequest $request): ?array
     {
-        $next = Agent::where('code', '>', $orgAgent->organisation->code)->orderBy('code')->first();
+        $next = OrgAgent::where('slug', '>', $orgAgent->slug)->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Agent $orgAgent, string $routeName): ?array
+    private function getNavigation(?OrgAgent $orgAgent, string $routeName): ?array
     {
         if (!$orgAgent) {
             return null;
@@ -285,7 +294,8 @@ class ShowOrgAgent extends InertiaAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'agent' => $orgAgent->slug
+                        'organisation' => $orgAgent->organisation->slug,
+                        'orgAgent' => $orgAgent->slug
                     ]
 
                 ]

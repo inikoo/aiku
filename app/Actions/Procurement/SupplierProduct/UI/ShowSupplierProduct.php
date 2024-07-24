@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\OrgAgent\UI\GetAgentShowcase;
+use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
@@ -87,8 +87,8 @@ class ShowSupplierProduct extends InertiaAction
                     'navigation' => SupplierProductTabsEnum::navigation()
                 ],
                 SupplierProductTabsEnum::SHOWCASE->value => $this->tab == SupplierProductTabsEnum::SHOWCASE->value ?
-                    fn () => GetAgentShowcase::run($supplierProduct)
-                    : Inertia::lazy(fn () => GetAgentShowcase::run($supplierProduct)),
+                    fn () => GetOrgAgentShowcase::run($supplierProduct)
+                    : Inertia::lazy(fn () => GetOrgAgentShowcase::run($supplierProduct)),
                 SupplierProductTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierProductTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplierProduct))
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplierProduct))),

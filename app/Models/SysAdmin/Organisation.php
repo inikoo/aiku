@@ -90,7 +90,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property OrganisationTypeEnum $type
  * @property string $slug
  * @property string $code
- * @property string $name
+ * @property string $name company name
+ * @property string|null $contact_name
  * @property string|null $email
  * @property string|null $phone
  * @property bool $status

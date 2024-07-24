@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasAssets;
+
     public function up(): void
     {
         Schema::create('organisations', function (Blueprint $table) {
@@ -22,7 +23,8 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
-            $table->string('name');
+            $table->string('name')->comment('company name');
+            $table->string('contact_name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('status')->default(true);

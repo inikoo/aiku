@@ -38,17 +38,18 @@ class StoreAgent extends GrpAction
         data_set($modelData, 'group_id', $group->id);
 
         $organisationData = [
-            'type'        => OrganisationTypeEnum::AGENT,
-            'name'        => Arr::get($modelData, 'name'),
-            'code'        => Arr::get($modelData, 'code'),
-            'email'       => Arr::get($modelData, 'email'),
-            'phone'       => Arr::get($modelData, 'phone'),
-            'address'     => Arr::get($modelData, 'address'),
-            'currency_id' => Arr::get($modelData, 'currency_id'),
-            'group_id'    => Arr::get($modelData, 'group_id', $group->id),
-            'country_id'  => Arr::get($modelData, 'country_id', $group->country_id),
-            'timezone_id' => Arr::get($modelData, 'timezone_id', $group->timezone_id),
-            'language_id' => Arr::get($modelData, 'language_id', $group->language_id)
+            'type'         => OrganisationTypeEnum::AGENT,
+            'name'         => Arr::get($modelData, 'name'),
+            'contact_name' => Arr::get($modelData, 'contact_name', ''),
+            'code'         => Arr::get($modelData, 'code'),
+            'email'        => Arr::get($modelData, 'email'),
+            'phone'        => Arr::get($modelData, 'phone'),
+            'address'      => Arr::get($modelData, 'address'),
+            'currency_id'  => Arr::get($modelData, 'currency_id'),
+            'group_id'     => Arr::get($modelData, 'group_id', $group->id),
+            'country_id'   => Arr::get($modelData, 'country_id', $group->country_id),
+            'timezone_id'  => Arr::get($modelData, 'timezone_id', $group->timezone_id),
+            'language_id'  => Arr::get($modelData, 'language_id', $group->language_id)
         ];
 
         if (Arr::exists($modelData, 'created_at')) {
@@ -77,14 +78,9 @@ class StoreAgent extends GrpAction
 
     public function rules(): array
     {
-        // Get the group from the initialisation data
-        $group = $this->initialisationData['group'] ?? null;
-
-        // Check if the group is set and if it has an id
-        $groupId = $group && $group->id ? $group->id : null;
 
         return [
-            'code'        => [
+            'code'         => [
                 'required',
                 'max:12',
                 'alpha_dash',
@@ -95,17 +91,18 @@ class StoreAgent extends GrpAction
                     ]
                 ),
             ],
-            'name'        => ['nullable', 'string', 'max:255'],
-            'email'       => ['nullable', 'email'],
-            'phone'       => ['nullable', new Phone()],
-            'address'     => ['required', new ValidAddress()],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'source_slug' => ['sometimes', 'nullable', 'string'],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'country_id'  => ['required', 'exists:countries,id'],
-            'timezone_id' => ['required', 'exists:timezones,id'],
-            'language_id' => ['required', 'exists:languages,id'],
-            'deleted_at'  => ['sometimes', 'nullable', 'date'],
+            'name'         => ['nullable', 'string', 'max:255'],
+            'contact_name' => ['sometimes', 'string', 'max:255'],
+            'email'        => ['nullable', 'email'],
+            'phone'        => ['nullable', new Phone()],
+            'address'      => ['required', new ValidAddress()],
+            'source_id'    => ['sometimes', 'nullable', 'string'],
+            'source_slug'  => ['sometimes', 'nullable', 'string'],
+            'currency_id'  => ['required', 'exists:currencies,id'],
+            'country_id'   => ['required', 'exists:countries,id'],
+            'timezone_id'  => ['required', 'exists:timezones,id'],
+            'language_id'  => ['required', 'exists:languages,id'],
+            'deleted_at'   => ['sometimes', 'nullable', 'date'],
         ];
     }
 

@@ -48,18 +48,19 @@ class FetchAuroraAgent extends FetchAurora
 
         $this->parsedData['agent'] =
             [
-                'code'        => $code,
-                'name'        => $this->auroraModelData->{'Agent Name'},
-                'country_id'  => $country_id,
-                'timezone_id' => $timezone_id,
-                'language_id' => $language_id,
-                'currency_id' => $currency_id,
-                'email'       => $this->auroraModelData->{'Agent Main Plain Email'},
-                'phone'       => $phone,
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'},
-                'source_slug' => Str::kebab(strtolower($this->auroraModelData->{'Agent Code'})),
-                'created_at'  => $this->auroraModelData->{'Agent Valid From'},
-                'address'     => $this->parseAddress(prefix: 'Agent Contact', auAddressData: $this->auroraModelData)
+                'code'         => $code,
+                'name'         => $this->auroraModelData->{'Agent Name'},
+                'contact_name' => $this->auroraModelData->{'Agent Main Contact Name'},
+                'country_id'   => $country_id,
+                'timezone_id'  => $timezone_id,
+                'language_id'  => $language_id,
+                'currency_id'  => $currency_id,
+                'email'        => $this->auroraModelData->{'Agent Main Plain Email'},
+                'phone'        => $phone,
+                'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'},
+                'source_slug'  => Str::kebab(strtolower($this->auroraModelData->{'Agent Code'})),
+                'created_at'   => $this->auroraModelData->{'Agent Valid From'},
+                'address'      => $this->parseAddress(prefix: 'Agent Contact', auAddressData: $this->auroraModelData)
 
 
             ];

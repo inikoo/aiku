@@ -19,12 +19,12 @@ class GetAgentShowcase
     {
         return [
             'contactCard' => [
-                'company' => $agent->organisation->company_name,
+                'company' => $agent->organisation->name,
                 'contact' => $agent->organisation->contact_name,
                 'email'   => $agent->organisation->email,
                 'phone'   => $agent->organisation->phone,
                 'address' => AddressResource::make($agent->organisation->address),
-                'photo'   => $agent->organisation->getPhoto()
+                'photo'   => $agent->organisation->imageSources()
             ],
             'stats'       => [
                 [

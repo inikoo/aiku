@@ -36,15 +36,18 @@ class StorePurchaseOrder extends OrgAction
 
         if (class_basename($parent) == 'OrgSupplier') {
             data_set($modelData, 'supplier_id', $parent->supplier_id);
+            data_set($modelData, 'parent_code', $parent->supplier->code, false);
+            data_set($modelData, 'parent_name', $parent->supplier->name, false);
+
         } elseif (class_basename($parent) == 'OrgAgent') {
             data_set($modelData, 'agent_id', $parent->agent_id);
+            data_set($modelData, 'parent_code', $parent->agent->code, false);
+            data_set($modelData, 'parent_name', $parent->agent->name, false);
         } elseif (class_basename($parent) == 'OrgPartner') {
             data_set($modelData, 'partner_id', $parent->organisation_id);
+            data_set($modelData, 'parent_code', $parent->organisation->code, false);
+            data_set($modelData, 'parent_name', $parent->organisation->name, false);
         }
-
-
-        data_set($modelData, 'parent_code', $parent->code, false);
-        data_set($modelData, 'parent_name', $parent->name, false);
 
 
         /** @var PurchaseOrder $purchaseOrder */
