@@ -21,7 +21,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletReturnItem;
-use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
@@ -55,7 +54,7 @@ class IndexStoredItemsInReturn extends OrgAction
         $query->join('pallets', 'pallet_return_items.pallet_id', '=', 'pallets.id');
         $query->join('stored_items', 'pallet_return_items.stored_item_id', '=', 'stored_items.id');
 
-        
+
         $query->join('locations', 'pallets.location_id', '=', 'locations.id');
 
 

@@ -211,7 +211,7 @@ class IndexPalletReturns extends OrgAction
                 'label'     => __('returns')
             ];
         }
-        
+
         return Inertia::render(
             'Org/Fulfilment/PalletReturns',
             [

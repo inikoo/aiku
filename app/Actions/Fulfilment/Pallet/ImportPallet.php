@@ -51,8 +51,8 @@ class ImportPallet
     public function rules(): array
     {
         return [
-            'file'        => ['required', 'file', 'mimes:xlsx,csv,xls'],
-            'stored_item' => ['required']
+            'file'             => ['required', 'file', 'mimes:xlsx,csv,xls'],
+            'with_stored_item' => ['required', 'bool']
         ];
     }
 
@@ -72,7 +72,7 @@ class ImportPallet
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 
-        return $this->handle($palletDelivery, $file, $request->only('stored_item'));
+        return $this->handle($palletDelivery, $file, $request->input('with_stored_item'));
     }
 
     public function fromGrp(PalletDelivery $palletDelivery, ActionRequest $request): Upload
@@ -81,12 +81,14 @@ class ImportPallet
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 
-        return $this->handle($palletDelivery, $file, $request->only('stored_item'));
+        return $this->handle($palletDelivery, $file, $request->input('with_stored_item'));
     }
 
-    public function prepareForValidation(\Lorisleiva\Actions\ActionRequest $request): void
+    public function prepareForValidation(ActionRequest $request): void
     {
-        $this->set('stored_item', (bool) $request->only('stored_item'));
+        $request->merge([
+            'with_stored_item' => $request->input('stored_item') == "true"
+        ]);
     }
 
     public function jsonResponse(Upload $upload): array
