@@ -18,10 +18,7 @@ return new class extends Migration
 
             $table->unsignedSmallInteger('customer_id')->nullable()->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-
-            $table->unsignedInteger('web_user_id')->index();
-            $table->foreign('web_user_id')->references('id')->on('web_users');
-
+            $table->jsonb('web_users');
             $table->nullableMorphs('model');
 
             $table->longText('haystack_tier_1')->nullable();

@@ -64,6 +64,74 @@ return [
                         'type' => 'text',
                     ],
                 ],
+            ],
+            'retina_search' => [
+                'properties' => [
+                    'group_id'   => [
+                        'type' => 'keyword',
+                    ],
+                    'organisation_id'   => [
+                        'type' => 'keyword',
+                    ],
+                    'website_id'         => [
+                        'type' => 'keyword',
+                    ],
+                    'customer_id'     => [
+                        'type' => 'keyword',
+                    ],
+                    'web_users'     => [
+                        'type' => 'keyword',
+                    ],
+                    'sections'     => [
+                        'type' => 'keyword',
+                    ],
+                    'permissions'     => [
+                        'type' => 'keyword',
+                    ],
+                    'haystack_tier_1'       => [
+                        'type' => 'text',
+                    ],
+                    'haystack_tier_2' => [
+                        'type' => 'text',
+                    ],
+                    'haystack_tier_3' => [
+                        'type' => 'text',
+                    ],
+                ],
+            ],
+            'iris_search' => [
+                'properties' => [
+                    'group_id'   => [
+                        'type' => 'keyword',
+                    ],
+                    'organisation_id'   => [
+                        'type' => 'keyword',
+                    ],
+                    'website_id'         => [
+                        'type' => 'keyword',
+                    ],
+                    'customer_id'     => [
+                        'type' => 'keyword',
+                    ],
+                    'web_users'     => [
+                        'type' => 'keyword',
+                    ],
+                    'sections'     => [
+                        'type' => 'keyword',
+                    ],
+                    'permissions'     => [
+                        'type' => 'keyword',
+                    ],
+                    'haystack_tier_1'       => [
+                        'type' => 'text',
+                    ],
+                    'haystack_tier_2' => [
+                        'type' => 'text',
+                    ],
+                    'haystack_tier_3' => [
+                        'type' => 'text',
+                    ],
+                ],
             ]
         ]
     ]
