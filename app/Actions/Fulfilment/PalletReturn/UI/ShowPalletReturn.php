@@ -88,7 +88,7 @@ class ShowPalletReturn extends OrgAction
                     'button' => [
                         [
                             'type'  => 'button',
-                            'style' => 'tertiary',
+                            'style' => 'secondary',
                             'icon'  => 'fal fa-plus',
                             'label' => __('add pallet'),
                             'route' => [
