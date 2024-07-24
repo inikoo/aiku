@@ -47,7 +47,7 @@ const createPallet = async (option, select) => {
 		props.form.errors = {}
 		props.form.id = response.data.id 
 		
-		/* console.log(_selectQuery.value._multiselectRef.blur()) */
+		_selectQuery.value._multiselectRef.blur()
 		/* return response.data */
 	} catch (error: any) {
 		props.form.errors.id = error.response.data.message
@@ -94,6 +94,11 @@ const onSaved = async () => {
 				:valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'id'" :createOption="false"
 				:onCreate="createPallet" @afterCreate="(value, option) => form['id'] = value"
 				@updateVModel="() => form.errors.id = ''">
+				<template #nooptions="{ search }: { search: string }">
+					<div class="px-2 py-[3px]" @click="() => createPallet({id: search,reference: search }, [])">
+						Add {{ search }}
+					</div>
+				</template>
 				<template #noresults="{ search }: { search: string }">
 					<div class="px-2 py-[3px]" @click="() => createPallet({id: search,reference: search }, [])">
 						Add {{ search }}
