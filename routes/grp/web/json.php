@@ -17,4 +17,3 @@ Route::get('fulfilment/{fulfilment}/delivery/{scope}/physical-goods', [GetFulfil
 Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletReturn'])->name('fulfilment.return.physical-goods.index');
 
 Route::get('fulfilment/{fulfilmentCustomer}/return/stored-items', GetReturnStoredItems::class)->name('fulfilment.return.stored-items');
-
