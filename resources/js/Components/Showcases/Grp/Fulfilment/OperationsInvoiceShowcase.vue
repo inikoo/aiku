@@ -5,23 +5,7 @@ import Table from '@/Components/Table/Table.vue'
 import FulfilmentInvoiceCalculation from "@/Components/Fulfilment/FulfilmentInvoiceCalculation.vue"
 
 const props = defineProps<{
-    data: {
-        invoice_information: Calculation 
-        currency: string
-        customer: {
-            company_name: string
-            contact_name: string
-            location: string[]
-            phone: string
-            reference: string
-            slug: string
-        }
-        items: {
-            data: ProductTransaction[]
-        }
-        exportPdfRoute: routeType
-        // items: TableTS
-    }
+    data: object
     tab: string
 }>()
 
@@ -36,19 +20,17 @@ const props = defineProps<{
 
         <!-- Section Calculation -->
         <div class="rounded-md">
-            <Table :data="data.items" :name="tab">
+            <Table :data="data" :name="tab">
 
             </Table>
             <!-- For Retina (don't delete) -->
             <!-- <FulfilmentInvoiceCalculation :pdfRoute="data.exportPdfRoute" :dataCalculations="data.calculation" :dataTable="data.items.data" /> -->
         </div>
 
-    <pre>{{ data.items }}</pre>
-        
 
         <!-- TODO: Order link, Category, Date -->
         <!-- Box: Invoice Information -->
-        
+
 
         <!-- Box: Calculation -->
         <!-- <BoxStatPallet class="col-span-2 py-5 px-3">
@@ -94,7 +76,7 @@ const props = defineProps<{
                             <div class="text-gray-400">{{ locale.currencyFormat(data.currency, data.calculation.insurance || 0) }}</div>
                         </div>
                     </div>
-                    
+
                     <hr class="my-2.5 border-gray-300">
 
                     <div class="space-y-1">
