@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
@@ -110,6 +111,7 @@ class PalletReturn extends Model
     protected $guarded = [];
     protected $casts   = [
         'state'              => PalletReturnStateEnum::class,
+        'type'               => PalletReturnTypeEnum::class,
         'in_process_at'      => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
