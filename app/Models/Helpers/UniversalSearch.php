@@ -40,7 +40,7 @@ use Laravel\Scout\Searchable;
  * @property array $result
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Model|\Eloquent|null $model
+ * @property-read Model|\Eloquent $modexl
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()
  * @method static Builder|UniversalSearch query()

@@ -43,8 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets
  * @property int $number_pallet_stored_items
  * @property int $number_stored_items
+ * @property PalletReturnTypeEnum $type Pallet|StoredItem
  * @property PalletReturnStateEnum $state
- * @property PalletReturnTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
@@ -88,6 +88,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse

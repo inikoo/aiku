@@ -19,7 +19,7 @@ use App\Models\Fulfilment\StoredItem;
 
 class AutoAssignServicesToPalletReturn extends OrgAction
 {
-    public function handle(PalletReturn  $palletReturn,  Pallet|StoredItem $subject): PalletReturn
+    public function handle(PalletReturn  $palletReturn, Pallet|StoredItem $subject): PalletReturn
     {
         /** @var Service $service */
         $service=$palletReturn->fulfilment->shop->services()->where([
@@ -35,9 +35,9 @@ class AutoAssignServicesToPalletReturn extends OrgAction
 
         $asset    =$service->asset;
 
-        if($subject instanceof Pallet){
+        if($subject instanceof Pallet) {
             $quantity = $palletReturn->pallets()->where('pallets.type', $subject->type)->count();
-        }else{
+        } else {
             $quantity = $palletReturn->storedItems()->where('stored_items.type', $subject->type)->count();
         }
 

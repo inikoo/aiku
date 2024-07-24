@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $pallet_return_id
  * @property int $pallet_id
  * @property int|null $stored_item_id
+ * @property int|null $pallet_stored_item_id
  * @property string $quantity_ordered
  * @property string $quantity_dispatched
  * @property string $quantity_fail
