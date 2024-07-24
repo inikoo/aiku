@@ -13,6 +13,7 @@ use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
+use App\Actions\Helpers\ReindexSearch;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\StoreGroup;
@@ -495,7 +496,7 @@ test('get helpers select options data', function () {
 });
 
 test('update search', function () {
-    $this->artisan('search:update')->assertSuccessful();
+    $this->artisan('search:reindex')->assertSuccessful();
 });
 
 test('update web block types', function (Group $group) {
@@ -517,4 +518,8 @@ test('should not show without authentication', function () {
     $response= $this->get(route('grp.dashboard.show'));
     $response->assertStatus(302);
     $response->assertRedirect(route('grp.login.show'));
+});
+
+test('reindex search', function () {
+    ReindexSearch::run();
 });

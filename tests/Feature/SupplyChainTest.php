@@ -161,7 +161,3 @@ test('create org-supplier', function ($supplier) {
 
     return $supplier;
 })->depends('create independent supplier');
-
-test('update search', function () {
-    $this->artisan('search:update')->assertSuccessful();
-});

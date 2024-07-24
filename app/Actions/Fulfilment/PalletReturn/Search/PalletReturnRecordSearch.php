@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 10:02:57 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 25 Jul 2024 01:38:50 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn\Hydrators;
+namespace App\Actions\Fulfilment\PalletReturn\Search;
 
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PalletReturnHydrateUniversalSearch
+class PalletReturnRecordSearch
 {
     use AsAction;
 
@@ -30,6 +30,16 @@ class PalletReturnHydrateUniversalSearch
                 'fulfilment_slug'   => $palletReturn->fulfilment->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $palletReturn->reference,
+            ]
+        );
+
+        $palletReturn->universalSearch()->updateOrCreate(
+            [],
+            [
+                'group_id'        => $palletReturn->group_id,
+                'organisation_id' => $palletReturn->organisation_id,
+                'customer_id'     => $palletReturn->fulfilmentCustomer->customer_id,
+                'haystack_tier_1' => $palletReturn->reference,
             ]
         );
     }

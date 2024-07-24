@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 22 Jul 2024 20:52:30 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 25 Jul 2024 01:42:29 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\RecurringBill\Hydrators;
+namespace App\Actions\Fulfilment\RecurringBill\Search;
 
 use App\Models\Fulfilment\RecurringBill;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class RecurringBillHydrateUniversalSearch
+class RecurringBillRecordSearch
 {
     use AsAction;
 
@@ -28,6 +28,16 @@ class RecurringBillHydrateUniversalSearch
                 'fulfilment_slug'   => $recurringBill->fulfilment->slug,
                 'sections'          => ['fulfilment-operations'],
                 'haystack_tier_1'   => $recurringBill->reference
+            ]
+        );
+
+        $recurringBill->universalSearch()->updateOrCreate(
+            [],
+            [
+                'group_id'        => $recurringBill->group_id,
+                'organisation_id' => $recurringBill->organisation_id,
+                'customer_id'     => $recurringBill->fulfilmentCustomer->fulfilment_id,
+                'haystack_tier_1' => $recurringBill->reference
             ]
         );
     }

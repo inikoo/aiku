@@ -1,25 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 03 Apr 2024 14:34:58 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Thu, 25 Jul 2024 01:43:03 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\FulfilmentCustomer;
+namespace App\Actions\Fulfilment\FulfilmentCustomer\Search;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateUniversalSearch;
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Illuminate\Support\Collection;
 
-class UpdateFulfilmentCustomerUniversalSearch extends HydrateModel
+class ReindexFulfilmentCustomerSearch extends HydrateModel
 {
     public string $commandSignature = 'fulfilment-customer:search {organisations?*} {--s|slugs=}';
 
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
     {
-        FulfilmentCustomerHydrateUniversalSearch::run($fulfilmentCustomer);
+        FulfilmentCustomerRecordSearch::run($fulfilmentCustomer);
     }
 
 

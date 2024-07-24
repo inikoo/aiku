@@ -5,11 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasSearchFields;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasSearchFields;
     public function up(): void
     {
         Schema::create('universal_searches', function (Blueprint $table) {
@@ -34,17 +36,10 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->nullable()->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('customer_slug')->nullable();
-            $table->nullableMorphs('model');
 
-            $table->longText('haystack_tier_1')->nullable();
-            $table->longText('haystack_tier_2')->nullable();
-            $table->longText('haystack_tier_3')->nullable();
-            $table->jsonb('sections');
-            $table->jsonb('permissions');
+            return $this->searchFields($table);
 
-            $table->jsonb('result');
 
-            $table->timestampsTz();
         });
     }
 

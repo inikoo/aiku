@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\Invoice;
 
-use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
+use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
@@ -43,7 +43,7 @@ class UpdateInvoice extends OrgAction
             );
         }
 
-        InvoiceHydrateUniversalSearch::dispatch($invoice);
+        InvoiceRecordSearch::dispatch($invoice);
 
         return $invoice;
     }

@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 25 Jul 2024 01:46:27 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\Invoice\Hydrators;
+namespace App\Actions\Accounting\Invoice\Search;
 
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class InvoiceHydrateUniversalSearch
+class InvoiceRecordSearch
 {
     use AsAction;
 
@@ -25,7 +25,7 @@ class InvoiceHydrateUniversalSearch
 
         $shop = $invoice->shop;
 
-        $modelData = [
+        $universalSearchData = [
             'group_id'          => $invoice->group_id,
             'organisation_id'   => $invoice->organisation_id,
             'organisation_slug' => $invoice->organisation->slug,
@@ -38,15 +38,27 @@ class InvoiceHydrateUniversalSearch
         ];
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {
-            $modelData['fulfilment_id']   = $shop->fulfilment->id;
-            $modelData['fulfilment_slug'] = $shop->fulfilment->slug;
+            $universalSearchData['fulfilment_id']   = $shop->fulfilment->id;
+            $universalSearchData['fulfilment_slug'] = $shop->fulfilment->slug;
         }
 
 
         $invoice->universalSearch()->updateOrCreate(
             [],
-            $modelData
+            $universalSearchData
         );
+
+
+        $invoice->retinaSearch()->updateOrCreate(
+            [],
+            [
+                'group_id'          => $invoice->group_id,
+                'organisation_id'   => $invoice->organisation_id,
+                'customer_id'       => $invoice->customer_id,
+                'haystack_tier_1'   => $invoice->number,
+            ]
+        );
+
     }
 
 }

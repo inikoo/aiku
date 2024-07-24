@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 17 Jul 2023 14:54:11 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 24 Jul 2024 23:07:06 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Search\UI;
+namespace App\Actions\Helpers\UniversalSearch\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\UniversalSearch\UniversalSearchResource;
+use App\Http\Resources\Helpers\UniversalSearchResource;
 use App\Models\Helpers\UniversalSearch;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

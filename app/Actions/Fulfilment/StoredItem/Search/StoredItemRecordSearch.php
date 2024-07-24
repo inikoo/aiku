@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 12 Jul 2023 13:40:57 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 25 Jul 2024 01:55:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\StoredItem\Hydrators;
+namespace App\Actions\Fulfilment\StoredItem\Search;
 
 use App\Models\Fulfilment\StoredItem;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoredItemHydrateUniversalSearch
+class StoredItemRecordSearch
 {
     use AsAction;
 

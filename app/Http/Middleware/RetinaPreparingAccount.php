@@ -8,14 +8,6 @@ use Inertia\Inertia;
 
 class RetinaPreparingAccount
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     *
-     * @return \Inertia\Response
-     */
     public function handle(Request $request, Closure $next)
     {
         if($request->user() && is_null($request->user()?->customer?->fulfilmentCustomer?->rentalAgreement)) {

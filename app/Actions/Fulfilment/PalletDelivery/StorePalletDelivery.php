@@ -7,11 +7,11 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
+use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
-use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -61,7 +61,7 @@ class StorePalletDelivery extends OrgAction
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
         $palletDelivery->stats()->create();
         $palletDelivery->refresh();
-        PalletDeliveryHydrateUniversalSearch::dispatch($palletDelivery);
+        PalletDeliveryRecordSearch::dispatch($palletDelivery);
         FulfilmentCustomerHydratePalletDeliveries::dispatch($fulfilmentCustomer);
         FulfilmentHydratePalletDeliveries::dispatch($fulfilmentCustomer->fulfilment);
 

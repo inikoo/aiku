@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 03 Apr 2024 14:34:58 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Thu, 25 Jul 2024 01:43:09 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\FulfilmentCustomer\Hydrators;
+namespace App\Actions\Fulfilment\FulfilmentCustomer\Search;
 
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FulfilmentCustomerHydrateUniversalSearch
+class FulfilmentCustomerRecordSearch
 {
     use AsAction;
 

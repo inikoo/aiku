@@ -13,6 +13,7 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -76,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
  * @property-read \App\Models\Fulfilment\PalletReturn|null $palletReturn
  * @property-read \App\Models\Fulfilment\Rental|null $rental
+ * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
@@ -95,6 +97,7 @@ class Pallet extends Model
     use SoftDeletes;
     use HasFactory;
     use HasUniversalSearch;
+    use HasRetinaSearch;
 
     protected $guarded = [];
     protected $casts   = [

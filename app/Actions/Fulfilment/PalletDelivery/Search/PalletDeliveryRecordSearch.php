@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 10:02:57 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 25 Jul 2024 01:40:20 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDelivery\Hydrators;
+namespace App\Actions\Fulfilment\PalletDelivery\Search;
 
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PalletDeliveryHydrateUniversalSearch
+class PalletDeliveryRecordSearch
 {
     use AsAction;
 
@@ -29,6 +29,16 @@ class PalletDeliveryHydrateUniversalSearch
                 'fulfilment_id'     => $palletDelivery->fulfilment_id,
                 'fulfilment_slug'   => $palletDelivery->fulfilment->slug,
                 'sections'          => ['fulfilment'],
+                'haystack_tier_1'   => $palletDelivery->reference,
+            ]
+        );
+
+        $palletDelivery->retinaSearch()->updateOrCreate(
+            [],
+            [
+                'group_id'          => $palletDelivery->group_id,
+                'organisation_id'   => $palletDelivery->organisation_id,
+                'customer_id'       => $palletDelivery->fulfilmentCustomer->customer_id,
                 'haystack_tier_1'   => $palletDelivery->reference,
             ]
         );

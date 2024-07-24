@@ -18,6 +18,7 @@ use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -89,6 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
+ * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -106,6 +108,7 @@ class Invoice extends Model implements Auditable
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
+    use HasRetinaSearch;
     use HasFactory;
     use InCustomer;
     use HasHistory;

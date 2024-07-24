@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateUniversalSearch;
+use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
@@ -63,7 +63,7 @@ class StorePalletReturn extends OrgAction
         $palletReturn->stats()->create();
         $palletReturn->refresh();
         HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
-        PalletReturnHydrateUniversalSearch::dispatch($palletReturn);
+        PalletReturnRecordSearch::dispatch($palletReturn);
         FulfilmentCustomerHydratePalletReturns::dispatch($fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($fulfilmentCustomer->fulfilment);
 

@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-use App\Actions\Search\UI\IndexUniversalSearch;
+use App\Actions\Helpers\RetinaSearch\UI\IndexRetinalSearch;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', IndexUniversalSearch::class)->name('index');
+Route::get('/', IndexRetinalSearch::class)->name('index');

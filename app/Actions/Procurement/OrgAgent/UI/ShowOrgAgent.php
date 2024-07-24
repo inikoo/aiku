@@ -244,7 +244,7 @@ class ShowOrgAgent extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.org_agents.index',
+                                'name'       => 'grp.org.procurement.org_agents.index',
                                 'parameters' => [
                                     $routeParameters['organisation'],]
                             ],
@@ -295,7 +295,7 @@ class ShowOrgAgent extends OrgAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $orgAgent->organisation->slug,
-                        'orgAgent' => $orgAgent->slug
+                        'orgAgent'     => $orgAgent->slug
                     ]
 
                 ]

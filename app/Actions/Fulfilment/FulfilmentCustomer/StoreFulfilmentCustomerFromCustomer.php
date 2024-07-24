@@ -8,13 +8,13 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateUniversalSearch;
+use App\Actions\Fulfilment\FulfilmentCustomer\Search\FulfilmentCustomerRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Catalogue\Shop;
 
 class StoreFulfilmentCustomerFromCustomer extends OrgAction
 {
@@ -75,7 +75,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
         );
 
 
-        FulfilmentCustomerHydrateUniversalSearch::dispatch($fulfilmentCustomer);
+        FulfilmentCustomerRecordSearch::dispatch($fulfilmentCustomer);
         FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
 
 

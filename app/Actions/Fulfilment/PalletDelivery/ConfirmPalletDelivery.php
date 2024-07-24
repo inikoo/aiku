@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
@@ -44,7 +44,7 @@ class ConfirmPalletDelivery extends OrgAction
             ]);
             $pallet->generateSlug();
 
-            PalletHydrateUniversalSearch::run($pallet);
+            PalletRecordSearch::run($pallet);
         }
 
         $modelData['confirmed_at'] = now();

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
+use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
@@ -24,7 +24,7 @@ class UpdateStoredItem extends OrgAction
     {
         $storedItem =  $this->update($storedItem, $modelData, ['data']);
 
-        StoredItemHydrateUniversalSearch::dispatch($storedItem);
+        StoredItemRecordSearch::dispatch($storedItem);
         return $storedItem;
     }
 

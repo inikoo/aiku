@@ -16,6 +16,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -87,6 +88,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
+ * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
@@ -106,6 +108,7 @@ class PalletReturn extends Model
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
+    use HasRetinaSearch;
     use HasAddress;
     use HasAddresses;
 

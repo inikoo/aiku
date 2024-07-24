@@ -9,7 +9,6 @@ namespace App\Models\Helpers;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
 
@@ -35,12 +34,14 @@ use Laravel\Scout\Searchable;
  * @property string|null $haystack_tier_1
  * @property string|null $haystack_tier_2
  * @property string|null $haystack_tier_3
+ * @property string $status
+ * @property float $weight
+ * @property string|null $date
  * @property array $sections
  * @property array $permissions
  * @property array $result
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Model|\Eloquent $modexl
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()
  * @method static Builder|UniversalSearch query()
@@ -73,18 +74,32 @@ class UniversalSearch extends Model
 
     public function toSearchableArray(): array
     {
-        return Arr::except($this->toArray(), [
-            'updated_at',
-            'created_at',
-            'result',
+        return Arr::only($this->toArray(), [
+            'group_id',
+            'organisation_id',
+            'organisation_slug',
+            'shop_id',
+            'shop_slug',
+            'fulfilment_id',
+            'fulfilment_slug',
+            'warehouse_id',
+            'warehouse_slug',
+            'website_id',
+            'website_slug',
+            'customer_id',
+            'customer_slug',
+            'haystack_tier_1',
+            'haystack_tier_2',
+            'haystack_tier_3',
+            'status',
+            'weight',
+            'date',
+            'sections',
+            'permissions',
             'model_type',
-            'model_id',
         ]);
     }
 
-    public function modexl(): MorphTo
-    {
-        return $this->morphTo();
-    }
+
 
 }

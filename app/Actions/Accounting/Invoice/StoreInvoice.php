@@ -7,10 +7,10 @@
 
 namespace App\Actions\Accounting\Invoice;
 
-use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
@@ -114,7 +114,7 @@ class StoreInvoice extends OrgAction
         OrganisationHydrateSales::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
-        InvoiceHydrateUniversalSearch::dispatch($invoice);
+        InvoiceRecordSearch::dispatch($invoice);
 
 
         return $invoice;

@@ -13,6 +13,7 @@ use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -80,6 +81,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
+ * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletDeliveryStats|null $stats
  * @property-read TaxCategory $taxCategory
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
@@ -98,6 +100,7 @@ class PalletDelivery extends Model
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
+    use HasRetinaSearch;
 
     protected $guarded = [];
     protected $casts   = [

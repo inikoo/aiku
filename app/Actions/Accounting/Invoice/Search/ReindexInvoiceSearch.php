@@ -1,25 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 06 Apr 2024 17:53:45 Central Indonesia Time, Sanur , Indonesia
+ * Created: Thu, 25 Jul 2024 01:46:31 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\Invoice;
+namespace App\Actions\Accounting\Invoice\Search;
 
-use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\HydrateModel;
 use App\Models\Accounting\Invoice;
 use Illuminate\Support\Collection;
 
-class UpdateInvoiceUniversalSearch extends HydrateModel
+class ReindexInvoiceSearch extends HydrateModel
 {
     public string $commandSignature = 'invoice:search {organisations?*} {--s|slugs=}';
 
 
     public function handle(Invoice $invoice): void
     {
-        InvoiceHydrateUniversalSearch::run($invoice);
+        InvoiceRecordSearch::run($invoice);
     }
 
 

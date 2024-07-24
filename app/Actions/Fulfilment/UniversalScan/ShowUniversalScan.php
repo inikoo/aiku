@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\UniversalScan;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\UniversalSearch\UniversalSearchResource;
+use App\Http\Resources\Helpers\UniversalSearchResource;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;

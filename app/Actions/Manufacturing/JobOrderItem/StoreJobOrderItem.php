@@ -58,7 +58,7 @@ class StoreJobOrderItem extends OrgAction
         // if ($pallet->location && $pallet->location->warehouseArea) {
         //     WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea);
         // }
-        // PalletHydrateUniversalSearch::dispatch($pallet);
+        // PalletRecordSearch::dispatch($pallet);
 
         return $jobOrderItem;
     }
