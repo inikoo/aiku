@@ -78,6 +78,7 @@
         "lodash-es": "^4.17.21",
         "md5": "^2.3.0",
         "node-html-parser": "^6.1.13",
+        "papaparse": "^5.4.1",
         "pinia": "^2.0.20",
         "pusher-js": "^8.4.0-rc2",
         "qrcode.vue": "^3.4.1",
