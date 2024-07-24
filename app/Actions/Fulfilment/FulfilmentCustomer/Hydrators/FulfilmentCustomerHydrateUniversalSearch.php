@@ -35,7 +35,6 @@ class FulfilmentCustomerHydrateUniversalSearch
                     ],
                     'icon'          => [
                         'icon'  => 'fal fa-user',
-
                     ],
                 ]
             ]

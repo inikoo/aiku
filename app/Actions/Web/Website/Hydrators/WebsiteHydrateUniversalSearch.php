@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\Website\Hydrators;
 
+use App\Http\Resources\Web\WebsiteSearchResultResource;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -30,6 +31,13 @@ class WebsiteHydrateUniversalSearch
                 'website_slug'      => $website->slug,
                 'sections'          => ['web'],
                 'haystack_tier_1'   => trim($website->code.' '.$website->name.' '.$website->domain),
+                'result'            => [
+                    'title'      => $website->name,
+                    'icon'       => [
+                        'icon' => 'fal fa-globe'
+                    ],
+                    'meta'       => WebsiteSearchResultResource::make($website)
+                ]
             ]
         );
     }

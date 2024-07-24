@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee\Hydrators;
 
+use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -30,7 +31,18 @@ class EmployeeHydrateUniversalSearch
                 'organisation_slug' => $employee->organisation->slug,
                 'sections'          => ['hr'],
                 'haystack_tier_1'   => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),
-                'haystack_tier_2'   => $employee->work_email.' '.$employee->job_title
+                'haystack_tier_2'   => $employee->work_email.' '.$employee->job_title,
+                'result'            => [
+                    'title'      => $employee->contact_name,
+                    'afterTitle' => [
+                        'label' => '('.$employee->worker_number.')',
+                    ],
+                    'icon'       => [
+                        'icon' => 'fal fa-user-hard-hat'
+                    ],
+                    'meta'       => EmployeeSearchResultResource::make($employee)
+                ]
+
             ]
         );
     }
