@@ -184,9 +184,7 @@ onUnmounted(() => {
                         </Tag>
                     </div>
                 </template>
-                <div v-else class="italic text-gray-400">
-                    Nothing
-                </div>
+
 
                 <div class="flex items-center px-1" @click="() => createStoredItem = true">
                     <FontAwesomeIcon :icon="faPlus" class='text-gray-400 text-lg cursor-pointer hover:text-gray-500'
