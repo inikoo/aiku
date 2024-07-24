@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\User\Hydrators;
 
+use App\Http\Resources\SysAdmin\UserSearchResultResource;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,10 +22,17 @@ class UserHydrateUniversalSearch
         $user->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'        => $user->group_id,
-                'sections'        => ['sysadmin'],
-                'haystack_tier_1' => $user->username,
-                'haystack_tier_2' => trim($user->email.' '.$user->contact_name)
+                'group_id'          => $user->group_id,
+                'sections'          => ['sysadmin'],
+                'haystack_tier_1'   => $user->username,
+                'haystack_tier_2'   => trim($user->email.' '.$user->contact_name),
+                'result'            => [
+                    'title'      => $user->username,
+                    'icon'       => [
+                        'icon' => 'fal fa-terminal'
+                    ],
+                    'meta'       => UserSearchResultResource::make($user)
+                ]
             ]
         );
     }
