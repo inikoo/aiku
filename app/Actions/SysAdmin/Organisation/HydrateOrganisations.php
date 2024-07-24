@@ -14,6 +14,9 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgAgents;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSuppliers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRawMaterials;
@@ -85,6 +88,9 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateProducts::run($organisation);
             OrganisationHydrateRentals::run($organisation);
 
+            OrganisationHydrateOrgAgents::run($organisation);
+            OrganisationHydrateOrgSuppliers::run($organisation);
+            OrganisationHydrateOrgSupplierProducts::run($organisation);
 
         }
 

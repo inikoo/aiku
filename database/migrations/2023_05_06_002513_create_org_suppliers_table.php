@@ -18,8 +18,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->index()->collation('und_ns')->comment('mirror of parent');
-            $table->string('name')->index()->comment('mirror of parent');
+            // $table->string('code')->index()->collation('und_ns')->comment('mirror of parent');
+            // $table->string('name')->index()->comment('mirror of parent');
             $table->unsignedSmallInteger('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('agent_id')->nullable();

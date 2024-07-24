@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\OrgSupplierProducts;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSuppliers;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -41,7 +41,7 @@ class StoreOrgSupplierProduct extends OrgAction
         $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->create($modelData);
         $orgSupplierProduct->stats()->create();
 
-        OrganisationHydrateOrgSuppliers::dispatch($organisation);
+        OrganisationHydrateOrgSupplierProducts::dispatch($organisation);
 
 
         return $orgSupplierProduct;

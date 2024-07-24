@@ -59,6 +59,7 @@ use App\Models\Ordering\Order;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\Traits\HasAddress;
@@ -152,6 +153,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, OrgStockFamily> $orgStockFamilies
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
+ * @property-read LaravelCollection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -498,6 +500,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function orgSuppliers(): HasMany
     {
         return $this->hasMany(OrgSupplier::class);
+    }
+
+    public function orgSupplierProducts(): HasMany
+    {
+        return $this->hasMany(OrgSupplierProduct::class);
     }
 
     public function agent(): HasOne

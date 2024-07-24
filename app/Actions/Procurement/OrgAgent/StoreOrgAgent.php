@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\OrgAgent;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgAgents;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -23,13 +24,10 @@ class StoreOrgAgent extends OrgAction
         data_set($modelData, 'organisation_id', $organisation->id);
         data_set($modelData, 'status', $agent->status, false);
 
-        data_set($modelData, 'name', $agent->organisation->name);
-        data_set($modelData, 'code', $agent->organisation->code);
-
         /** @var OrgAgent $orgAgent */
         $orgAgent = $agent->orgAgents()->create($modelData);
         $orgAgent->stats()->create();
-
+        OrganisationHydrateOrgAgents::dispatch($orgAgent->organisation);
 
         return $orgAgent;
     }

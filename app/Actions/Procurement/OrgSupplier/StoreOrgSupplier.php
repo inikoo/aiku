@@ -21,9 +21,6 @@ class StoreOrgSupplier extends OrgAction
         data_set($modelData, 'group_id', $organisation->group_id);
         data_set($modelData, 'organisation_id', $organisation->id);
 
-        data_set($modelData, 'name', $supplier->name);
-        data_set($modelData, 'code', $supplier->code);
-
 
         /** @var OrgSupplier $orgSupplier */
         $orgSupplier = $supplier->orgSuppliers()->create($modelData);
