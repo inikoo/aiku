@@ -138,7 +138,6 @@ const originUrl = location.origin
                                             :as="button.target ? 'a' : 'div'"
                                             :target="button.target"
                                         >
-                                        {{ 'button-group-' + kebabCase(button.label) }}
                                             <Button
                                                 :style="button.style"
                                                 :label="button.label"
