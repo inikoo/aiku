@@ -1,17 +1,17 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 10 Mar 2023 11:05:41 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 25 Jul 2024 12:32:30 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee\Hydrators;
+namespace App\Actions\HumanResources\Employee\Search;
 
 use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class EmployeeHydrateUniversalSearch
+class EmployeeRecordSearch
 {
     use AsAction;
 
@@ -20,6 +20,10 @@ class EmployeeHydrateUniversalSearch
     public function handle(Employee $employee): void
     {
         if ($employee->trashed()) {
+
+            if($employee->universalSearch) {
+                $employee->universalSearch()->delete();
+            }
             return;
         }
 
