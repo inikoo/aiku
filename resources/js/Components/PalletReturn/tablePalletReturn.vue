@@ -22,7 +22,9 @@ const layout = inject('layout', {})
 const props = defineProps<{
 	dataRoute: routeType
 	saveRoute: routeType
-	descriptor: {}
+	descriptor: {
+        key?: string
+    }
 	beforeSubmit?: Function
 	onFilterDatalist?: Function
 }>()
@@ -44,7 +46,7 @@ const closeModal = () => {
 	emits('onClose')
 }
 
-// Method: Fetch data Pallet
+// Method: Fetch data table
 const getData = debounce(async () => {
 	loading.value = true
 	try {
@@ -84,26 +86,40 @@ const onSelectPallet = (value) => {
 	else checkedAll.value = false
 }
 
+
 // Method: Submit Add Pallet
 const isAddPalletLoading = ref(false)
 const onSubmitPallet = async () => {
 	let eventData = form[props.descriptor.key]
-    if(props.beforeSubmit) eventData = props.beforeSubmit(form[props.descriptor.key],dataList.value)
-	router.post(route(props.saveRoute.name, props.saveRoute.parameters), { [props.descriptor.key] : eventData }, {
-		preserveScroll: true,
-		onBefore: () => {
-			isAddPalletLoading.value = true
-		},
-		onFinish: () => {
-			isAddPalletLoading.value = false
-		},
-		onSuccess: () => {
-			form.reset(`${props.descriptor.key}`)
-			checkedAll.value = false
-			getData()
-			closeModal()
-		},
-	})
+
+    
+    if(props.beforeSubmit) {
+        eventData = props.beforeSubmit(form[props.descriptor?.key], dataList.value, eventData)
+    }
+
+    const dataToSend = props.descriptor.key ? { [props.descriptor.key] : eventData } : eventData
+    
+	router.post(
+        route(props.saveRoute.name, props.saveRoute.parameters),
+        {
+            ...dataToSend
+        },
+        {
+            preserveScroll: true,
+            onBefore: () => {
+                isAddPalletLoading.value = true
+            },
+            onFinish: () => {
+                isAddPalletLoading.value = false
+            },
+            onSuccess: () => {
+                form.reset(`${props.descriptor.key}`)
+                checkedAll.value = false
+                getData()
+                closeModal()
+            },
+        }
+    )
 }
 
 onMounted(getData)
@@ -145,6 +161,7 @@ defineExpose({
 		</div>
 	</div>
     
+    <!-- Section: Table -->
 	<div class="h-96 overflow-auto ring-1 ring-black/5 sm:rounded-lg align-middle shadow">
         <table class="min-w-full border-separate border-spacing-0">
             <thead class="sticky top-0 z-10 bg-gray-100">
