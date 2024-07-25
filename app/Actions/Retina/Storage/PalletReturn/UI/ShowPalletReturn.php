@@ -208,7 +208,7 @@ class ShowPalletReturn extends RetinaAction
 
                 'palletRoute' => [
                     'index' => [
-                        'name'       => 'retina.storage.stored-pallets.index',
+                        'name'       => 'retina.json.fulfilment.return.pallets',
                         'parameters' => []
                     ],
                     'store' => [

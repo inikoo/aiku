@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
-import { library } from "@fortawesome/fontawesome-svg-core"
+
 import { ref, onMounted, onUnmounted } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Tag from '@/Components/Tag.vue'
 
 
-library.add(faTimes)
+import { faChevronDown } from '@fas'
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faChevronDown)
 
 const props = withDefaults(defineProps<{
     fieldName?: string
-    // options?: string[] | object
     urlRoute: string
     placeholder?: string
     required?: boolean
@@ -34,6 +36,7 @@ const props = withDefaults(defineProps<{
     onCreate?: any
     isSelected?: Function
     loadingCaret?:boolean
+    disabled?: boolean
 }>(), {
     required: false,
     placeholder: 'select',
@@ -50,13 +53,15 @@ const props = withDefaults(defineProps<{
     createOption: false,
     onChange: () => null,
     canClear: false,
-    loadingCaret : false
+    loadingCaret : false,
+    disabled : false
 
 })
 
 const emits = defineEmits<{
     (e: 'updateVModel'): void
-    (e: 'afterCreate', value: object): void
+    (e: 'open', value : any): void
+    (e: 'filerOption', value : String): void
 }>()
 
 let timeoutId: any
@@ -130,7 +135,6 @@ const onCreate = (option, select) => {
     return props.onCreate(option, select).then(create => {
         props.value[props.fieldName] = create; // Assign the result to the specified field
         getOptions(); // Call getOptions after the value is set
-        emits('afterCreate', { value : create[props.fieldName] , option : optionData})
         return create // Return false as specified
     }).catch(error => {
         console.error('Error in onCreate:', error);
@@ -179,11 +183,12 @@ defineExpose({
 <template>
     <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
         :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
-        :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
+        :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect" :disabled="disabled"
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
         :mode="props.mode" :appendNewOption="false" :on-create="onCreate" :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
         @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"  :loading="loadingCaret">
+        
         <template #tag="{ option, handleTagRemove, disabled }">
             <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
                 <div class="px-0.5 py-[3px]">
@@ -195,25 +200,46 @@ defineExpose({
 
         <template #noresults>
             <slot name="noresults" :search="q" >
-                <div class="px-2 py-[3px]" >
+                <div class="px-2 py-2" >
                     No Result
                 </div>
             </slot>
         </template>
+        
         <template #nooptions>
             <slot name="nooptions" :search="q" >
-                <div class="px-2 py-[3px]" >
-                    No asdasd
+                <div class="px-2 py-2" >
+                    No Result
                 </div>
             </slot>
         </template>
+        
         <template #afterlist>
             <slot name="afterlist" :search="q" >
-               
             </slot>
         </template>
+
+        <template #caret="{handleCaretClick, isOpen}" >
+            <slot name="caret" :handleCaretClick="handleCaretClick" :isOpen="isOpen" >
+                <div class="px-2" >
+                    <font-awesome-icon :icon="['fas', 'chevron-down']" class="text-xs mr-2" />
+                </div>
+            </slot>
+        </template>
+
+        <template #singlelabel="{value}" >
+            <slot name="singlelabel" :value="value" >
+                <div class="flex justify-start w-full px-2">
+                    {{ value[props.label] }}
+                </div>
+            </slot>
+        </template>
+
     </Multiselect>
 </template>
+
+<style src="@vueform/multiselect/themes/default.css"></style>
+
 
 <style src="@vueform/multiselect/themes/default.css"></style>
 

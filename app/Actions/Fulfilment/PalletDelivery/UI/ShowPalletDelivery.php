@@ -437,6 +437,9 @@ class ShowPalletDelivery extends OrgAction
                         'parameters' => [
                             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id
                         ]
+                    ],
+                    'delete' => [
+                        'name' => 'grp.models.stored-items.delete'
                     ]
                 ],
 
