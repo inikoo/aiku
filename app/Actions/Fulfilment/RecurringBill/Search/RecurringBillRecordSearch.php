@@ -18,6 +18,14 @@ class RecurringBillRecordSearch
 
     public function handle(RecurringBill $recurringBill): void
     {
+        if ($recurringBill->trashed()) {
+
+            if($recurringBill->universalSearch) {
+                $recurringBill->universalSearch()->delete();
+            }
+            return;
+        }
+
         $recurringBill->universalSearch()->updateOrCreate(
             [],
             [

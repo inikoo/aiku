@@ -30,6 +30,37 @@ class PalletDeliveryRecordSearch
                 'fulfilment_slug'   => $palletDelivery->fulfilment->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $palletDelivery->reference,
+                'result'            => [
+                    'container'     => [
+                        'key'     => 'warehouse',
+                        'tooltip' => 'Warehouse',
+                        'label'   => $palletDelivery->warehouse->name
+                    ],
+                    'title'         => $palletDelivery->reference,
+                    // 'afterTitle'    => [
+                    //     'label'     => '('.$palletDelivery->customer->reference.')',
+                    // ],
+                    'icon'          => [
+                        'icon'  => 'fal fa-truck-couch',
+                    ],
+                    'meta'          => [
+                        [
+                            'key'   => 'label',
+                            'label' => $palletDelivery->state->labels()[$palletDelivery->state->value]
+                        ],
+                        [
+                            'key'       => 'pallets',
+                            'type'      => 'number',
+                            'label'     => 'Pallets: ',
+                            'number'    => $palletDelivery->number_pallets
+                        ],
+                        [
+                            'key'   => 'created_date',
+                            'type'  => 'date',
+                            'label' => $palletDelivery->created_at
+                        ],
+                    ],
+                ]
             ]
         );
 
@@ -38,8 +69,39 @@ class PalletDeliveryRecordSearch
             [
                 'group_id'          => $palletDelivery->group_id,
                 'organisation_id'   => $palletDelivery->organisation_id,
-                'customer_id'       => $palletDelivery->fulfilmentCustomer->customer_id,
+                // 'customer_id'       => $palletDelivery->palletDelivery->customer_id,
                 'haystack_tier_1'   => $palletDelivery->reference,
+                'result'            => [
+                    'container'     => [
+                        'key'     => 'warehouse',
+                        'tooltip' => 'Warehouse',
+                        'label'   => $palletDelivery->warehouse->name
+                    ],
+                    'title'         => $palletDelivery->reference,
+                    // 'afterTitle'    => [
+                    //     'label'     => '('.$palletDelivery->customer->reference.')',
+                    // ],
+                    'icon'          => [
+                        'icon'  => 'fal fa-truck-couch',
+                    ],
+                    'meta'          => [
+                        [
+                            'key'   => 'label',
+                            'label' => $palletDelivery->state->labels()[$palletDelivery->state->value]
+                        ],
+                        [
+                            'key'       => 'pallets',
+                            'type'      => 'number',
+                            'label'     => 'Pallets: ',
+                            'number'    => $palletDelivery->number_pallets
+                        ],
+                        [
+                            'key'   => 'created_date',
+                            'type'  => 'date',
+                            'label' => $palletDelivery->created_at
+                        ],
+                    ],
+                ]
             ]
         );
     }

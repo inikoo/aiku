@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
+use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
 use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
@@ -57,7 +57,7 @@ class UpdateEmployee extends OrgAction
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
         if (Arr::hasAny($employee->getChanges(), ['worker_number', 'worker_number', 'contact_name', 'work_email', 'job_title', 'email'])) {
-            EmployeeHydrateUniversalSearch::dispatch($employee);
+            EmployeeRecordSearch::dispatch($employee);
         }
 
         if (Arr::hasAny($employee->getChanges(), ['state'])) {

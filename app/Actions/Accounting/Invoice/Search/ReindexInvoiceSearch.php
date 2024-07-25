@@ -24,11 +24,11 @@ class ReindexInvoiceSearch extends HydrateModel
 
     protected function getModel(string $slug): Invoice
     {
-        return Invoice::where('slug', $slug)->first();
+        return Invoice::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
     {
-        return Invoice::get();
+        return Invoice::withTrashed()->get();
     }
 }

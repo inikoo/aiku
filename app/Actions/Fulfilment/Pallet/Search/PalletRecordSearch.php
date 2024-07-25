@@ -18,6 +18,14 @@ class PalletRecordSearch
 
     public function handle(Pallet $pallet): void
     {
+        if ($pallet->trashed()) {
+
+            if($pallet->universalSearch) {
+                $pallet->universalSearch()->delete();
+            }
+            return;
+        }
+
         $pallet->universalSearch()->updateOrCreate(
             [],
             [
