@@ -23,9 +23,11 @@ const props = defineProps<{
     storedItemsRoute: {}
     state?: string
 }>()
+
 const emits = defineEmits<{
     (e: 'renderTable'): void
 }>()
+
 const isModalOpen = ref(false)
 const form = useForm({ id: null, quantity: 1, oldData: null })
 const setFormOnEdit = (data) => {
@@ -71,6 +73,11 @@ const sendToServer = async (data) => {
         }
     })
 }
+
+const closeModal = () =>{
+    isModalOpen.value = false
+}
+
 </script>
 
 <template>
@@ -99,16 +106,14 @@ const sendToServer = async (data) => {
             <Button v-if="state == 'in-process'" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
         </div>
 
-        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[600px]">
-            <div class="text-center font-semibold text-2xl mb-4">
-                {{ trans('Add stored item') }}
-            </div>
+        <Modal :isOpen="isModalOpen" @onClose="isModalOpen = true" width="w-[600px]">
             <div class="space-y-4">
                 <CreateStoredItems
                     :storedItemsRoute="storedItemsRoute"
                     :form="form"
                     @onSave="sendToServer"
                     :stored_items="pallet.stored_items"
+                    @closeModal="closeModal"
                 />
             </div>
         </Modal>
