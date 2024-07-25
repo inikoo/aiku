@@ -9,16 +9,12 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletReturnItem;
 use Lorisleiva\Actions\ActionRequest;
@@ -84,7 +80,7 @@ class IndexStoredItemsInReturn extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(PalletReturn $palletReturn, $prefix = null, $request, $modelOperations = []): Closure
+    public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $request, $palletReturn) {
             if ($prefix) {
@@ -147,15 +143,4 @@ class IndexStoredItemsInReturn extends OrgAction
         );
     }
 
-    // public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
-    // {
-    //     return PalletsResource::collection($pallets);
-    // }
-
-    // public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
-    // {
-    //     $this->initialisationFromWarehouse($warehouse, $request);
-
-    //     return $this->handle($palletReturn);
-    // }
 }
