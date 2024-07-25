@@ -36,7 +36,9 @@ class WebsiteHydrateUniversalSearch
                     'icon'       => [
                         'icon' => 'fal fa-globe'
                     ],
-                    'meta'       => WebsiteSearchResultResource::make($website)
+                    'meta'       => [
+                        WebsiteSearchResultResource::make($website)
+                    ]
                 ]
             ]
         );
