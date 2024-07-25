@@ -24,11 +24,11 @@ class ReindexPalletReturnSearch extends HydrateModel
 
     protected function getModel(string $slug): Invoice
     {
-        return PalletReturn::where('slug', $slug)->first();
+        return PalletReturn::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
     {
-        return PalletReturn::get();
+        return PalletReturn::withTrashed()->get();
     }
 }

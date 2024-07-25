@@ -18,6 +18,15 @@ class PalletReturnRecordSearch
 
     public function handle(PalletReturn $palletReturn): void
     {
+
+        if ($palletReturn->trashed()) {
+
+            if($palletReturn->universalSearch) {
+                $palletReturn->universalSearch()->delete();
+            }
+            return;
+        }
+
         $palletReturn->universalSearch()->updateOrCreate(
             [],
             [

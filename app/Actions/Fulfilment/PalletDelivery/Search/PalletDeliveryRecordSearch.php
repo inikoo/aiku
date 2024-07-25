@@ -18,6 +18,48 @@ class PalletDeliveryRecordSearch
 
     public function handle(PalletDelivery $palletDelivery): void
     {
+
+        if ($palletDelivery->trashed()) {
+
+            if($palletDelivery->universalSearch) {
+                $palletDelivery->universalSearch()->delete();
+            }
+            return;
+        }
+
+        $result=  [
+            'container'     => [
+                'key'     => 'warehouse',
+                'tooltip' => 'Warehouse',
+                'label'   => $palletDelivery->warehouse->name
+            ],
+            'title'         => $palletDelivery->reference,
+            // 'afterTitle'    => [
+            //     'label'     => '('.$palletDelivery->customer->reference.')',
+            // ],
+            'icon'          => [
+                'icon'  => 'fal fa-truck-couch',
+            ],
+            'meta'          => [
+                [
+                    'key'   => 'label',
+                    'label' => $palletDelivery->state->labels()[$palletDelivery->state->value]
+                ],
+                [
+                    'key'       => 'pallets',
+                    'type'      => 'number',
+                    'label'     => 'Pallets: ',
+                    'number'    => $palletDelivery->number_pallets
+                ],
+                [
+                    'key'   => 'created_date',
+                    'type'  => 'date',
+                    'label' => $palletDelivery->created_at
+                ],
+            ],
+        ];
+
+
         $palletDelivery->universalSearch()->updateOrCreate(
             [],
             [
@@ -30,37 +72,7 @@ class PalletDeliveryRecordSearch
                 'fulfilment_slug'   => $palletDelivery->fulfilment->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $palletDelivery->reference,
-                'result'            => [
-                    'container'     => [
-                        'key'     => 'warehouse',
-                        'tooltip' => 'Warehouse',
-                        'label'   => $palletDelivery->warehouse->name
-                    ],
-                    'title'         => $palletDelivery->reference,
-                    // 'afterTitle'    => [
-                    //     'label'     => '('.$palletDelivery->customer->reference.')',
-                    // ],
-                    'icon'          => [
-                        'icon'  => 'fal fa-truck-couch',
-                    ],
-                    'meta'          => [
-                        [
-                            'key'   => 'label',
-                            'label' => $palletDelivery->state->labels()[$palletDelivery->state->value]
-                        ],
-                        [
-                            'key'       => 'pallets',
-                            'type'      => 'number',
-                            'label'     => 'Pallets: ',
-                            'number'    => $palletDelivery->number_pallets
-                        ],
-                        [
-                            'key'   => 'created_date',
-                            'type'  => 'date',
-                            'label' => $palletDelivery->created_at
-                        ],
-                    ],
-                ]
+                'result'            => $result
             ]
         );
 
@@ -69,39 +81,10 @@ class PalletDeliveryRecordSearch
             [
                 'group_id'          => $palletDelivery->group_id,
                 'organisation_id'   => $palletDelivery->organisation_id,
-                // 'customer_id'       => $palletDelivery->palletDelivery->customer_id,
+                'customer_id'       => $palletDelivery->fulfilmentCustomer->customer_id,
                 'haystack_tier_1'   => $palletDelivery->reference,
-                'result'            => [
-                    'container'     => [
-                        'key'     => 'warehouse',
-                        'tooltip' => 'Warehouse',
-                        'label'   => $palletDelivery->warehouse->name
-                    ],
-                    'title'         => $palletDelivery->reference,
-                    // 'afterTitle'    => [
-                    //     'label'     => '('.$palletDelivery->customer->reference.')',
-                    // ],
-                    'icon'          => [
-                        'icon'  => 'fal fa-truck-couch',
-                    ],
-                    'meta'          => [
-                        [
-                            'key'   => 'label',
-                            'label' => $palletDelivery->state->labels()[$palletDelivery->state->value]
-                        ],
-                        [
-                            'key'       => 'pallets',
-                            'type'      => 'number',
-                            'label'     => 'Pallets: ',
-                            'number'    => $palletDelivery->number_pallets
-                        ],
-                        [
-                            'key'   => 'created_date',
-                            'type'  => 'date',
-                            'label' => $palletDelivery->created_at
-                        ],
-                    ],
-                ]
+                'result'            => $result
+
             ]
         );
     }
