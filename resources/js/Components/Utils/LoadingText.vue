@@ -25,7 +25,7 @@ onUnmounted(() => {
 
 <template>
     <div class="relative w-fit">
-        <span>{{ trans('Loading') }}.</span>
+        <span>{{ trans('Loading') }}</span>
         <div class="absolute bottom-0 left-full">{{ loadingDot }}</div>
     </div>
 </template>

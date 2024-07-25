@@ -28,6 +28,15 @@ class PalletDeliveryRecordSearch
         }
 
         $result=  [
+            'route'     => [
+                'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                'parameters'    => [
+                    'organisation'           => $palletDelivery->organisation->slug,
+                    'fulfilment'             => $palletDelivery->fulfilment->slug,
+                    'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+                    'palletDelivery'         => $palletDelivery->slug
+                ]
+            ],
             'container'     => [
                 'key'     => 'warehouse',
                 'tooltip' => 'Warehouse',
@@ -42,19 +51,22 @@ class PalletDeliveryRecordSearch
             ],
             'meta'          => [
                 [
-                    'key'   => 'label',
-                    'label' => $palletDelivery->state->labels()[$palletDelivery->state->value]
+                    'key'       => 'created_date',
+                    'type'      => 'date',
+                    'label'     => $palletDelivery->created_at,
+                    'tooltip'   => "Delivery's created date"
+                ],
+                [
+                    'key'       => 'label',
+                    'label'     => $palletDelivery->state->labels()[$palletDelivery->state->value],
+                    'tooltip'   => "Pallet's state"
                 ],
                 [
                     'key'       => 'pallets',
                     'type'      => 'number',
                     'label'     => 'Pallets: ',
-                    'number'    => $palletDelivery->number_pallets
-                ],
-                [
-                    'key'   => 'created_date',
-                    'type'  => 'date',
-                    'label' => $palletDelivery->created_at
+                    'number'    => $palletDelivery->number_pallets,
+                    'tooltip'   => "Pallets's count"
                 ],
             ],
         ];

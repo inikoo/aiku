@@ -38,6 +38,14 @@ class FulfilmentCustomerRecordSearch
                 'sections'          => ['crm'],
                 'haystack_tier_1'   => trim($fulfilmentCustomer->customer->email.' '.$fulfilmentCustomer->customer->contact_name.' '.$fulfilmentCustomer->customer->company_name),
                 'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.fulfilments.show.crm.customers.show',
+                        'parameters'    => [
+                            'organisation'       => $fulfilmentCustomer->organisation->slug,
+                            'fulfilment'         => $fulfilmentCustomer->fulfilment->slug,
+                            'fulfilmentCustomer' => $fulfilmentCustomer->slug
+                        ]
+                    ],
                     'container'     => [
                         'key'     => 'address',
                         'label'   => $fulfilmentCustomer->customer->location
