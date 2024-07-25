@@ -44,6 +44,7 @@ const props = defineProps<{
             amount?: number  // 30.40, 85
             label?: string
             number?: number | string
+            icon?: Icon
             leftIcon?: Icon
             href?: routeType
         }[]
@@ -99,6 +100,7 @@ const locale = inject('locale', {})
                         <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' class='' fixed-width aria-hidden='true' />
                         <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
                         <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code, meta.amount) }}</template>
+                        <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
                         <template v-else>{{ meta.label }}</template>
                     </div>
                     <div class="last:hidden px-1">
