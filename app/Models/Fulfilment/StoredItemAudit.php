@@ -8,12 +8,13 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
+use App\Models\Inventory\Warehouse;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,7 +54,6 @@ use Spatie\Sluggable\SlugOptions;
 class StoredItemAudit extends Model
 {
     use HasSlug;
-    use SoftDeletes;
     use HasUniversalSearch;
     use HasRetinaSearch;
     use InFulfilmentCustomer;
@@ -77,6 +77,11 @@ class StoredItemAudit extends Model
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function deltas(): HasMany
