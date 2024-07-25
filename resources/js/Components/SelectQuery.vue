@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<{
     createOption?: boolean
     onCreate?: any
     isSelected?: Function
+    loadingCaret?:boolean
 }>(), {
     required: false,
     placeholder: 'select',
@@ -48,7 +49,8 @@ const props = withDefaults(defineProps<{
     fieldName: '',
     createOption: false,
     onChange: () => null,
-    canClear: false
+    canClear: false,
+    loadingCaret : false
 
 })
 
@@ -181,7 +183,7 @@ defineExpose({
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
         :mode="props.mode" :appendNewOption="false" :on-create="onCreate" :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected" >
+        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"  :loading="loadingCaret">
         <template #tag="{ option, handleTagRemove, disabled }">
             <slot name="tag" :option="option" :handleTagRemove="handleTagRemove" :disabled="disabled">
                 <div class="px-0.5 py-[3px]">

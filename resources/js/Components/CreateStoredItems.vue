@@ -5,8 +5,6 @@
   -->
 
 <script setup lang="ts">
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
 import SelectQuery from "@/Components/SelectQuery.vue"
@@ -15,7 +13,10 @@ import axios from "axios"
 import { get } from "lodash"
 import { routeType } from "@/types/route"
 import { ref } from 'vue'
-import { v4 as uuidv4 } from 'uuid';
+
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faPlus } from "@fas"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faPlus)
 
@@ -28,16 +29,15 @@ const props = defineProps<{
 	stored_items: {}[]
 }>()
 
-console.log(props)
-
+const loadingAddStotedItem = ref(false)
 const _selectQuery = ref(null)
-const key = ref(uuidv4())
 
 const emits = defineEmits<{
 	(e: 'onSave', event: any): void
 }>()
 
 const createPallet = async (option, select) => {
+	loadingAddStotedItem.value = true
 	try {
 		const response: any = await axios.post(
 			route(props.storedItemsRoute.store.name, props.storedItemsRoute.store.parameters),
@@ -45,12 +45,12 @@ const createPallet = async (option, select) => {
 			{ headers: { "Content-Type": "multipart/form-data" } }
 		)
 		props.form.errors = {}
-		props.form.id = response.data.id 
-		
-		_selectQuery.value._multiselectRef.blur()
-		/* return response.data */
+		props.form.id = response.data.id
+		_selectQuery.value._multiselectRef.close()
+		loadingAddStotedItem.value = false
 	} catch (error: any) {
 		props.form.errors.id = error.response.data.message
+		_selectQuery.value._multiselectRef.close()
 		notify({
 			title: "Failed to add new stored items",
 			text: error.data.message ? error.data.message : 'failed to create stored item',
@@ -88,20 +88,20 @@ const onSaved = async () => {
 	<div>
 		<label class="block text-sm font-medium text-gray-700">{{ trans("Reference") }}</label>
 		<div class="mt-1">
-			<SelectQuery :key="key" ref="_selectQuery"
+			<SelectQuery ref="_selectQuery"
 				:urlRoute="route(storedItemsRoute.index.name, storedItemsRoute.index.parameters)" :value="form"
 				:placeholder="'Select or add item'" :required="true" :trackBy="'reference'" :label="'reference'"
 				:valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'id'" :createOption="false"
 				:onCreate="createPallet" @afterCreate="(value, option) => form['id'] = value"
-				@updateVModel="() => form.errors.id = ''">
+				@updateVModel="() => form.errors.id = ''" :loadingCaret="loadingAddStotedItem">
 				<template #nooptions="{ search }: { search: string }">
-					<div class="px-2 py-[3px]" @click="() => createPallet({id: search,reference: search }, [])">
-						Add {{ search }}
+					<div class="px-2 py-3" @click="() => createPallet({ id: search, reference: search }, [])">
+						No Data
 					</div>
 				</template>
 				<template #noresults="{ search }: { search: string }">
-					<div class="px-2 py-[3px]" @click="() => createPallet({id: search,reference: search }, [])">
-						Add {{ search }}
+					<div class="px-2 py-3" @click="() => createPallet({ id: search, reference: search }, [])">
+						<font-awesome-icon :icon="['fas', 'plus']" class="mr-3" /> Add {{ search }}
 					</div>
 				</template>
 			</SelectQuery>
