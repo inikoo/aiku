@@ -15,6 +15,8 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InFulfilmentCustomer;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -79,12 +81,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
+ * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletDeliveryStats|null $stats
  * @property-read TaxCategory $taxCategory
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
+ * @property-read Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
@@ -101,6 +103,7 @@ class PalletDelivery extends Model
     use SoftDeletes;
     use HasUniversalSearch;
     use HasRetinaSearch;
+    use InFulfilmentCustomer;
 
     protected $guarded = [];
     protected $casts   = [
@@ -136,26 +139,6 @@ class PalletDelivery extends Model
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function fulfilment(): BelongsTo
-    {
-        return $this->belongsTo(Fulfilment::class);
-    }
-
-    public function fulfilmentCustomer(): BelongsTo
-    {
-        return $this->belongsTo(FulfilmentCustomer::class);
-    }
-
     public function pallets(): HasMany
     {
         return $this->hasMany(Pallet::class);
@@ -171,18 +154,14 @@ class PalletDelivery extends Model
         return $this->morphMany(FulfilmentTransaction::class, 'parent');
     }
 
-    public function services()
+    public function services(): Collection
     {
-        $transactions = $this->transactions()->where('type', 'service')->get();
-
-        return $transactions;
+        return $this->transactions()->where('type', 'service')->get();
     }
 
-    public function products()
+    public function products(): Collection
     {
-        $transactions = $this->transactions()->where('type', 'product')->get();
-
-        return $transactions;
+        return $this->transactions()->where('type', 'product')->get();
     }
 
     public function taxCategory(): BelongsTo

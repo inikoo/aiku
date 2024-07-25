@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $stored_item_id
  * @property string $quantity
  * @property string $damaged_quantity
+ * @property string $source
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\Pallet $pallet

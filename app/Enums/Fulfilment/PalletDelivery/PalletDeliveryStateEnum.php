@@ -44,7 +44,7 @@ enum PalletDeliveryStateEnum: string
     {
         // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
-            'in-process' => [
+            'in-process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -54,7 +54,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'submitted' => [
+            'submitted'    => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
@@ -64,7 +64,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'confirmed' => [
+            'confirmed'    => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
@@ -74,7 +74,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'received' => [
+            'received'     => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
@@ -94,7 +94,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booking-in' => [
+            'booking-in'   => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
@@ -104,7 +104,7 @@ enum PalletDeliveryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'booked-in' => [
+            'booked-in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
@@ -142,32 +142,32 @@ enum PalletDeliveryStateEnum: string
     {
         return [
             'in-process'   => [
-                'title'    => __("Pallet Delivery $reference Created"),
-                'subtitle' => __('Pallet Delivery has been created')
+                'title'    => __("Pallet delivery :reference created", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has been created')
             ],
             'submitted'    => [
-                'title'    => __("Pallet Delivery $reference Submitted"),
-                'subtitle' => __('Pallet Delivery has been submitted')
+                'title'    => __("Pallet delivery :reference submitted", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has been submitted')
             ],
             'confirmed'    => [
-                'title'    => __("Pallet Delivery $reference Confirmed"),
-                'subtitle' => __('Pallet Delivery has been confirmed')
+                'title'    => __("Pallet delivery :reference confirmed", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has been confirmed')
             ],
             'received'     => [
-                'title'    => __("Pallet Delivery $reference Received"),
-                'subtitle' => __('Pallet Delivery has been Received')
+                'title'    => __("Pallet delivery :reference received", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has been received')
             ],
             'not-received' => [
-                'title'    => __("Pallet Delivery $reference Not Received"),
-                'subtitle' => __('Pallet Delivery has not been received')
+                'title'    => __("Pallet delivery :reference not received", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has not been received')
             ],
             'booking-in'   => [
-                'title'    => __("Pallet Delivery $reference Booking In"),
-                'subtitle' => __('Pallet Delivery has been booking in')
+                'title'    => __("Pallet delivery :reference booking in", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has been booking in')
             ],
             'booked-in'    => [
-                'title'    => __("Pallet Delivery $reference Booked In"),
-                'subtitle' => __('Pallet Delivery has been booked in')
+                'title'    => __("Pallet delivery :reference booked in", ['reference' => $reference]),
+                'subtitle' => __('Pallet delivery has been booked in')
             ],
         ];
     }

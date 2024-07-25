@@ -50,13 +50,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             ]
         );
 
-        $fulfilmentCustomer->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::STORED_ITEM_RETURN,
-                'organisation_id' => $fulfilmentCustomer->organisation->id,
-                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-sir%03d'
-            ]
-        );
+
 
         $fulfilmentCustomer->serialReferences()->create(
             [
@@ -71,6 +65,14 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
                 'model'           => SerialReferenceModelEnum::RECURRING_BILL,
                 'organisation_id' => $fulfilmentCustomer->organisation->id,
                 'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-b%03d'
+            ]
+        );
+
+        $fulfilmentCustomer->serialReferences()->create(
+            [
+                'model'           => SerialReferenceModelEnum::STORED_ITEM_AUDIT,
+                'organisation_id' => $fulfilmentCustomer->organisation->id,
+                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-sia%03d'
             ]
         );
 
