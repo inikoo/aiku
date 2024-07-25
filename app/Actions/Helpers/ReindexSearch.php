@@ -48,7 +48,7 @@ class ReindexSearch extends HydrateModel
     public function reindexFulfilment(): void
     {
 
-        foreach (RecurringBill::get() as $model) {
+        foreach (RecurringBill::withTrashed()->get() as $model) {
             ReindexRecurringBillSearch::run($model);
         }
 
