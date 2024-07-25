@@ -46,11 +46,11 @@ const createPallet = async (option, select) => {
 		)
 		props.form.errors = {}
 		props.form.id = response.data.id
-		console.log(_selectQuery.value._multiselectRef)
 		_selectQuery.value._multiselectRef.close()
 		loadingAddStotedItem.value = false
 	} catch (error: any) {
 		props.form.errors.id = error.response.data.message
+		_selectQuery.value._multiselectRef.close()
 		notify({
 			title: "Failed to add new stored items",
 			text: error.data.message ? error.data.message : 'failed to create stored item',
