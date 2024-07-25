@@ -241,7 +241,8 @@ const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) =>
         return {
             pallet_stored_item: dataItem.id,
             pallet: dataItem.pallet_id,
-            stored_item: dataItem.stored_item_id
+            stored_item: dataItem.stored_item_id,
+            quantity: dataItem.quantity
         };
         } else {
         return null;

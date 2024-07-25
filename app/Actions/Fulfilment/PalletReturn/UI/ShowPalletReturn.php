@@ -533,7 +533,7 @@ class ShowPalletReturn extends OrgAction
                 request: $request
             )
         )->table( //todo stored items here
-            IndexPalletsInReturn::make()->tableStructure(
+            IndexStoredItemsInReturn::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::STORED_ITEMS->value,
                 request: $request

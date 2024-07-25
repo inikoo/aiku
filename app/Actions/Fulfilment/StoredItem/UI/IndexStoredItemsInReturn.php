@@ -71,8 +71,8 @@ class IndexStoredItemsInReturn extends OrgAction
                 'stored_items.status',
                 'stored_items.type',
                 'stored_items.received_at',
+                'pallet_return_items.quantity_ordered as quantity',
                 'stored_items.fulfilment_customer_id',
-                'stored_items.pallet_return_id',
                 'locations.slug as location_slug',
                 'locations.slug as location_code'
             );
@@ -125,6 +125,8 @@ class IndexStoredItemsInReturn extends OrgAction
 
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            
+            $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 

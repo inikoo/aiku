@@ -32,17 +32,25 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $storedItemIds = Arr::get($modelData, 'stored_items');
+        $storedItems = $modelData; 
 
-        $palletReturn->storedItems()->syncWithoutDetaching($storedItemIds); // No storedItems Function yet
+        foreach ($storedItems as $storedItem) {
+            $storedItemId = Arr::get($storedItem, 'stored_item');
+            $palletId = Arr::get($storedItem, 'pallet');
+            $palletStoreItemId = Arr::get($storedItem, 'pallet_stored_item');
+            $quantity = Arr::get($storedItem, 'quantity');
 
-        $storedItems = StoredItem::findOrFail($storedItemIds);
+            $palletReturn->storedItems()->attach($storedItemId, [
+                'pallet_id' => $palletId,
+                'pallet_stored_item_id' => $palletStoreItemId,
+                'quantity_ordered' => $quantity
+            ]);
 
-        StoredItem::whereIn('id', $storedItemIds)->update([
-                    'pallet_return_id' => $palletReturn->id,
-                    'status'           => StoredItemStatusEnum::STORING,
-                    'state'            => StoredItemStateEnum::IN_PROCESS
-                ]);
+            StoredItem::where('id', $storedItemId)->update([
+                'status' => StoredItemStatusEnum::STORING,
+                'state' => StoredItemStateEnum::IN_PROCESS
+            ]);
+        }
 
         $palletReturn->refresh();
 
@@ -68,12 +76,21 @@ class StoreStoredItemToReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'stored_items' => ['required', 'array']
+            '*.stored_item' => ['required', 'integer', 'exists:stored_items,id'],
+            '*.pallet' => ['required', 'integer', 'exists:pallets,id'], 
+            '*.pallet_stored_item' => ['required', 'integer', 'exists:pallet_stored_items,id'],
+            '*.quantity' => ['required', 'integer'],
         ];
     }
 
+    // public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
+
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
+        // dd($request->all());
         $this->parent = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 
