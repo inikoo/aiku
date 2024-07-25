@@ -80,6 +80,7 @@ use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
+use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
 use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
@@ -330,6 +331,7 @@ Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
+Route::delete('{storedItem:id}/stored-items', DeleteStoredItem::class)->name('stored-items.delete');
 Route::patch('{storedItem:id}/stored-items/damaged', SetDamagedStoredItem::class)->name('stored-items.damaged');
 Route::patch('{storedItem:id}/stored-items/return', SetReturnStoredItem::class)->name('stored-items.return');
 //Route::patch('{storedItem:id}/stored-items/lost', SetPalletAsLost::class)->name('stored-items.lost');
