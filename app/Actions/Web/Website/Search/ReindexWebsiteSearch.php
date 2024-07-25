@@ -23,7 +23,7 @@ class ReindexWebsiteSearch extends HydrateModel
 
     protected function getModel(string $slug): Website
     {
-        return Website::where('slug', $slug)->first();
+        return Website::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

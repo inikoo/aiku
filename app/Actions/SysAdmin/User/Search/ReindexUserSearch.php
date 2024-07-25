@@ -24,7 +24,7 @@ class ReindexUserSearch extends HydrateModel
 
     protected function getModel(string $slug): User
     {
-        return User::where('slug', $slug)->first();
+        return User::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

@@ -24,7 +24,7 @@ class ReindexEmployeeSearch extends HydrateModel
 
     protected function getModel(string $slug): Employee
     {
-        return Employee::where('slug', $slug)->first();
+        return Employee::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection

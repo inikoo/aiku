@@ -24,7 +24,7 @@ class ReindexFulfilmentCustomerSearch extends HydrateModel
 
     protected function getModel(string $slug): FulfilmentCustomer
     {
-        return FulfilmentCustomer::where('slug', $slug)->first();
+        return FulfilmentCustomer::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
