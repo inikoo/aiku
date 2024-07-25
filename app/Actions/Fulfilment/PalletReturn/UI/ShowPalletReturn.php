@@ -354,10 +354,8 @@ class ShowPalletReturn extends OrgAction
 
                 'palletRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-pallets.index',
+                        'name'       => 'grp.json.fulfilment.return.pallets',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
                         ]
                     ],
