@@ -7,11 +7,14 @@ import { routeType } from '@/types/route'
 import Container from '@/Components/Headings/Container.vue'
 import { Icon } from '@/types/Utils/Icon'
 import { useFormatTime } from '@/Composables/useFormatTime'
+import { inject } from 'vue'
+import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 library.add(faPallet)
 
 const props = defineProps<{
     data?: {
         container?: {
+            key?: string
             icon: string | string[]
             label: string
             href?: routeType
@@ -36,30 +39,42 @@ const props = defineProps<{
         }
         meta?: {
             key: string
+            type?: string // 'date', 'amount'
+            code?: string // 'GBP',
+            amount?: number  // 30.40, 85
             label?: string
             number?: number | string
+            icon?: Icon
             leftIcon?: Icon
             href?: routeType
         }[]
     }
 }>()
 
+const locale = inject('locale', {})
+
 </script>
 
 <template>
     <Link as="a" href="" class="relative flex gap-x-2 items-center ">
-    <div class="flex leading-none py-1 items-start gap-x-2 tracking-tight ">
-        <div v-if="data?.icon" class="border-[2px] border-gray-600 text-gray-600 rounded h-10 aspect-square flex items-center justify-center">
+    <div class="flex leading-none py-1 items-start gap-x-3 tracking-tight ">
+        <div v-if="data?.icon" class="border-[2px] border-gray-400 text-gray-500 rounded h-10 aspect-square flex items-center justify-center">
             <FontAwesomeIcon
                 v-tooltip="data?.icon.tooltip || ''"
                 aria-hidden="true"
                 :icon="data?.icon.icon || data?.icon"
-                size="sm" fixed-width />
+                fixed-width />
         </div>
 
         <div class="">
             <div v-if="data?.container" class="mb-1 text-xs text-gray-400 flex items-end leading-none">
-                <Container :data="data?.container" />
+                <template v-if="data?.container?.key === 'address'">
+                    <AddressLocation :data="data?.container?.label" />
+                </template>
+                
+                <template v-else>
+                    {{ data?.container?.label }}
+                </template>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 font-semibold">
@@ -82,7 +97,10 @@ const props = defineProps<{
             <div v-if="data?.meta?.length" class="flex sm:flex-wrap sm:gap-y-0.5 text-sm">
                 <template v-for="meta in data?.meta">
                     <div class="flex items-center text-gray-400">
-                        <template v-if="meta.key === 'created_date'">{{ useFormatTime(meta.label) }}</template>
+                        <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' class='' fixed-width aria-hidden='true' />
+                        <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
+                        <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code, meta.amount) }}</template>
+                        <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
                         <template v-else>{{ meta.label }}</template>
                     </div>
                     <div class="last:hidden px-1">

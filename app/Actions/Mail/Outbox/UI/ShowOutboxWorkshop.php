@@ -82,19 +82,19 @@ class ShowOutboxWorkshop extends OrgAction
                 'emailTemplate'    => EmailTemplateResource::make($emailTemplate)->getArray(),
 
                 'imagesUploadRoute'   => [
-                    'name'       => 'org.models.email-templates.images.store',
+                    'name'       => 'grp.models.email-templates.images.store',
                     'parameters' => $emailTemplate->id
                 ],
                 'updateRoute'         => [
-                    'name'       => 'org.models.email-templates.content.update',
+                    'name'       => 'grp.models.email-templates.content.update',
                     'parameters' => $emailTemplate->id
                 ],
                 'publishRoute'           => [
-                    'name'       => 'org.models.email-templates.content.publish',
+                    'name'       => 'grp.models.email-templates.content.publish',
                     'parameters' => $emailTemplate->id
                 ],
                 'loadRoute'           => [
-                    'name'       => 'org.models.email-templates.content.show',
+                    'name'       => 'grp.models.email-templates.content.show',
                     'parameters' => $emailTemplate->id
                 ]
             ]

@@ -13,16 +13,24 @@ use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
 use App\Actions\Fulfilment\PalletReturn\Search\ReindexPalletReturnSearch;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
+use App\Actions\Fulfilment\Rental\Search\ReindexRentalSearch;
 use App\Actions\Fulfilment\StoredItem\Search\ReindexStoredItem;
+use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
+use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
+use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\User;
+use App\Models\Web\Website;
 use Illuminate\Console\Command;
 
 class ReindexSearch extends HydrateModel
@@ -34,28 +42,30 @@ class ReindexSearch extends HydrateModel
     {
         $this->reindexFulfilment();
         $this->reindexAccounting();
+        $this->reindexHumanResources();
+        $this->reindexSysadmin();
+        $this->reindexWeb();
     }
 
     public function reindexFulfilment(): void
     {
-
-        foreach (RecurringBill::get() as $model) {
+        foreach (RecurringBill::withTrashed()->get() as $model) {
             ReindexRecurringBillSearch::run($model);
         }
 
-        foreach (FulfilmentCustomer::get() as $model) {
+        foreach (FulfilmentCustomer::withTrashed()->get() as $model) {
             ReindexFulfilmentCustomerSearch::run($model);
         }
 
-        foreach (PalletDelivery::get() as $model) {
+        foreach (PalletDelivery::withTrashed()->get() as $model) {
             ReindexPalletDeliverySearch::run($model);
         }
 
-        foreach (PalletReturn::get() as $model) {
+        foreach (PalletReturn::withTrashed()->get() as $model) {
             ReindexPalletReturnSearch::run($model);
         }
 
-        foreach (Pallet::get() as $model) {
+        foreach (Pallet::withTrashed()->get() as $model) {
             ReindexPalletSearch::run($model);
         }
 
@@ -63,12 +73,36 @@ class ReindexSearch extends HydrateModel
             ReindexStoredItem::run($model);
         }
 
+        foreach (Rental::withTrashed()->get() as $model) {
+            ReindexRentalSearch::run($model);
+        }
     }
 
     public function reindexAccounting(): void
     {
-        foreach (Invoice::get() as $model) {
+        foreach (Invoice::withTrashed()->get() as $model) {
             ReindexInvoiceSearch::run($model);
+        }
+    }
+
+    public function reindexHumanResources(): void
+    {
+        foreach (Employee::withTrashed()->get() as $model) {
+            ReindexEmployeeSearch::run($model);
+        }
+    }
+
+    public function reindexSysAdmin(): void
+    {
+        foreach (User::withTrashed()->get() as $model) {
+            ReindexUserSearch::run($model);
+        }
+    }
+
+    public function reindexWeb(): void
+    {
+        foreach (Website::withTrashed()->get() as $model) {
+            ReindexWebsiteSearch::run($model);
         }
     }
 
@@ -83,8 +117,7 @@ class ReindexSearch extends HydrateModel
 
         $command->line('Workplaces');
         $command->call('workplace:search');
-        $command->line('Employees');
-        $command->call('employee:search');
+
 
         $command->line('Products');
         $command->call('products:search');

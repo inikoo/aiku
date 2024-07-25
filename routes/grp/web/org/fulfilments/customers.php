@@ -24,7 +24,6 @@ use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
-use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
@@ -66,7 +65,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
 
 
-    Route::get('pallets/stored', [IndexStoredPallets::class, 'inFulfilmentCustomer'])->name('.stored-pallets.index');
     Route::get('stored-items', [IndexStoredItems::class, 'inFulfilmentCustomer'])->name('.stored-items.index');
     Route::get('stored-items/{storedItem}', [ShowStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.show');
     Route::get('stored-items/{storedItem}/edit', [EditStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.edit');

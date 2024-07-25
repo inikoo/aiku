@@ -17,29 +17,10 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\Mail\EmailTemplateCategory
  *
- * @property int $id
- * @property string $slug
- * @property string $name
- * @property string|null $icon
- * @property bool $is_seeded
- * @property int $number_of_seeded_templates
- * @property int $number_of_templates
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplate> $templates
- * @property-read int|null $templates_count
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereIcon($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereIsSeeded($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereNumberOfSeededTemplates($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereNumberOfTemplates($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class EmailTemplateCategory extends Model

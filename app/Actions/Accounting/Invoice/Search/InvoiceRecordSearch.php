@@ -20,6 +20,10 @@ class InvoiceRecordSearch
     public function handle(Invoice $invoice): void
     {
         if ($invoice->trashed()) {
+            if ($invoice->universalSearch) {
+                $invoice->universalSearch()->delete();
+            }
+
             return;
         }
 
@@ -32,9 +36,37 @@ class InvoiceRecordSearch
             'shop_id'           => $shop->id,
             'shop_slug'         => $shop->slug,
             'customer_id'       => $invoice->customer_id,
-            'customer_slug'     => $invoice->customer->slug,
+            'customer_slug'     => $invoice->slug,
             'sections'          => ['accounting'],
             'haystack_tier_1'   => $invoice->number,
+            'result'            => [
+                'container' => [
+                    'label' => $invoice->shop->name,
+                ],
+                'title'     => $invoice->number,
+                'icon'      => [
+                    'icon' => 'fal fa-file-invoice-dollar',
+                ],
+                'aaa'       => $invoice->currency,
+                'meta'      => [
+                    [
+                        'key'   => 'type',
+                        'label' => $invoice->type
+                    ],
+                    [
+                        'key'   => 'created_date',
+                        'type'  => 'date',
+                        'label' => $invoice->created_at
+                    ],
+                    [
+                        'key'    => 'total',
+                        'type'   => 'amount',
+                        'code'   => $invoice->currency->code,
+                        'label'  => 'Total: ',
+                        'amount' => $invoice->total_amount
+                    ],
+                ],
+            ]
         ];
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {
@@ -52,13 +84,12 @@ class InvoiceRecordSearch
         $invoice->retinaSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $invoice->group_id,
-                'organisation_id'   => $invoice->organisation_id,
-                'customer_id'       => $invoice->customer_id,
-                'haystack_tier_1'   => $invoice->number,
+                'group_id'        => $invoice->group_id,
+                'organisation_id' => $invoice->organisation_id,
+                'customer_id'     => $invoice->customer_id,
+                'haystack_tier_1' => $invoice->number,
             ]
         );
-
     }
 
 }

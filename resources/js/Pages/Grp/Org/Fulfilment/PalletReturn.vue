@@ -82,7 +82,6 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
 const isModalStoredItems = ref(false)
-const loading = ref(false)
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
 
@@ -112,7 +111,7 @@ watch(
 const storedItemDescriptor = {
     useSearch : true,
     title : 'Stored Item',
-    key : 'stored_item',
+    key : null,
     column : [
         // {
         //     label : "",
@@ -231,6 +230,24 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             }
         }
     )
+}
+
+
+// Method: change data before submit Stored Items
+const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) => {
+    return selectedStoredItem.map(id => {
+        const dataItem = dataList.find(item => item.id === id);
+        if (dataItem) {
+        return {
+            pallet_stored_item: dataItem.id,
+            pallet: dataItem.pallet_id,
+            stored_item: dataItem.stored_item_id,
+            quantity: dataItem.quantity
+        };
+        } else {
+        return null;
+        }
+    }).filter(item => item !== null); // Filter out any null values if aaa contains ids not present in bbb
 }
 
 </script>
@@ -468,6 +485,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                 :saveRoute="storedItemRoute.store"
 				@onClose="() => isModalStoredItems = false"
 				:descriptor="storedItemDescriptor"
+                :beforeSubmit="(descriptor?: string, dataList: {}[], storedItem: number[]) => beforeSubmitStoredItem(dataList, storedItem)"
 			>
             </TablePalletReturn>
         </div>

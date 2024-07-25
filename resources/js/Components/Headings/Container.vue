@@ -17,7 +17,7 @@ library.add(faLevelUp)
 
 const props = defineProps<{
     data?: {
-        key?: string
+        // key?: string
         icon?: string | string[]
         label?: string | string[]
         tooltip?: string
@@ -27,14 +27,14 @@ const props = defineProps<{
 </script>
 
 <template>
-    <template v-if="data?.key === 'address' && data?.label">
+    <!-- <template v-if="data?.key === 'address' && data?.label">
         <AddressLocation :data="data.label" />
-    </template>
+    </template> -->
     
-    <template v-else>
+    <!-- <template v-else> -->
         <FontAwesomeIcon v-if="data?.icon" :icon="data?.icon" v-tooltip="capitalize(data?.tooltip)" aria-hidden="true"
             size="xs" />
         <span class="leading-none mx-1">{{ data?.label }}</span>
         <FontAwesomeIcon flip="horizontal" :icon="'fal fa-level-up'" :class="'mr-2'" />
-    </template>
+    <!-- </template> -->
 </template>

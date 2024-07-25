@@ -230,6 +230,20 @@ class ShowPalletDelivery extends OrgAction
                             ]
                         ]
                     ],
+                    [
+                        'type'    => 'button',
+                        'style'   => 'cancel',
+                        'tooltip' => __('cancel'),
+                        'label'   => __('cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.cancel',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ]
+                    ]
                 ],
                 PalletDeliveryStateEnum::RECEIVED => [
                     [

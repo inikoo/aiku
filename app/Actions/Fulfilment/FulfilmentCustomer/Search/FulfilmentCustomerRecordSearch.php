@@ -18,6 +18,15 @@ class FulfilmentCustomerRecordSearch
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
     {
+
+        if ($fulfilmentCustomer->trashed()) {
+
+            if($fulfilmentCustomer->universalSearch) {
+                $fulfilmentCustomer->universalSearch()->delete();
+            }
+            return;
+        }
+
         $fulfilmentCustomer->universalSearch()->updateOrCreate(
             [],
             [
@@ -47,6 +56,7 @@ class FulfilmentCustomerRecordSearch
                         ],
                         [
                             'key'   => 'created_date',
+                            'type'  => 'date',
                             'label' => $fulfilmentCustomer->customer->created_at
                         ],
                         [

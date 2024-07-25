@@ -11,24 +11,24 @@ use App\Actions\Helpers\Snapshot\StoreWebsiteSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebsites;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
-use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
+use App\Actions\Web\Website\Search\WebsiteRecordSearch;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
 use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Illuminate\Console\Command;
 
 class StoreWebsite extends OrgAction
 {
@@ -91,7 +91,7 @@ class StoreWebsite extends OrgAction
 
         GroupHydrateWebsites::dispatch($shop->group);
         OrganisationHydrateWebsites::dispatch($shop->organisation);
-        WebsiteHydrateUniversalSearch::dispatch($website);
+        WebsiteRecordSearch::dispatch($website);
 
         if ($website->engine === WebsiteEngineEnum::AIKU) {
             $website = SeedWebsiteFixedWebpages::run($website);

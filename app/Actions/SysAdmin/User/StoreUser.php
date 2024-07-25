@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
-use App\Actions\SysAdmin\User\Hydrators\UserHydrateUniversalSearch;
+use App\Actions\SysAdmin\User\Search\UserRecordSearch;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\SupplyChain\Agent;
@@ -45,7 +45,7 @@ class StoreUser extends GrpAction
 
         SetIconAsUserImage::run($user);
 
-        UserHydrateUniversalSearch::dispatch($user);
+        UserRecordSearch::dispatch($user);
 
 
         GroupHydrateUsers::dispatch($user->group);

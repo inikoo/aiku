@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
+use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
@@ -87,7 +87,7 @@ class StoreEmployee extends OrgAction
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
         GroupHydrateEmployees::dispatch($employee->group);
         OrganisationHydrateEmployees::dispatch($organisation);
-        EmployeeHydrateUniversalSearch::dispatch($employee);
+        EmployeeRecordSearch::dispatch($employee);
 
         return $employee;
     }
