@@ -29,6 +29,6 @@ class ReindexInvoiceSearch extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Invoice::get();
+        return Invoice::withTrashed()->get();
     }
 }

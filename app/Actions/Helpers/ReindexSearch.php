@@ -73,7 +73,7 @@ class ReindexSearch extends HydrateModel
 
     public function reindexAccounting(): void
     {
-        foreach (Invoice::get() as $model) {
+        foreach (Invoice::withTrashed()->get() as $model) {
             ReindexInvoiceSearch::run($model);
         }
     }
