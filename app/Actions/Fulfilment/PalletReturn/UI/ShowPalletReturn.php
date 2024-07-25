@@ -87,6 +87,14 @@ class ShowPalletReturn extends OrgAction
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         }
 
+        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+           $this->tab = PalletReturnTabsEnum::PALLETS->value;
+        } else {
+            $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
+        }
+
+
+
 
         if($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
