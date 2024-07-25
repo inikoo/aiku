@@ -29,6 +29,6 @@ class ReindexFulfilmentCustomerSearch extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return FulfilmentCustomer::get();
+        return FulfilmentCustomer::withTrashed()->get();
     }
 }

@@ -49,7 +49,7 @@ class ReindexSearch extends HydrateModel
             ReindexRecurringBillSearch::run($model);
         }
 
-        foreach (FulfilmentCustomer::get() as $model) {
+        foreach (FulfilmentCustomer::withTrashed()->get() as $model) {
             ReindexFulfilmentCustomerSearch::run($model);
         }
 
