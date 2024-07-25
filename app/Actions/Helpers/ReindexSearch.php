@@ -60,7 +60,7 @@ class ReindexSearch extends HydrateModel
             ReindexPalletDeliverySearch::run($model);
         }
 
-        foreach (PalletReturn::get() as $model) {
+        foreach (PalletReturn::withTrashed()->get() as $model) {
             ReindexPalletReturnSearch::run($model);
         }
 
