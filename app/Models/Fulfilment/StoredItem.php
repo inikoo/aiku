@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -45,8 +44,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $settled_at
  * @property array $data
  * @property array $incident_report
- * @property Carbon|null $deleted_at
- * @property string|null $delete_comment
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $source_id
@@ -60,16 +57,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()
- * @method static Builder|StoredItem onlyTrashed()
  * @method static Builder|StoredItem query()
- * @method static Builder|StoredItem withTrashed()
- * @method static Builder|StoredItem withoutTrashed()
  * @mixin Eloquent
  */
 class StoredItem extends Model implements Auditable
 {
     use HasUniversalSearch;
-    use SoftDeletes;
     use HasSlug;
     use HasHistory;
     use InOrganisation;
