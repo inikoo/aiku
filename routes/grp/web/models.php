@@ -52,6 +52,8 @@ use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
+use App\Actions\Fulfilment\PalletDelivery\CancelConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\CancelPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
 
@@ -279,6 +281,7 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
     Route::patch('/', UpdatePalletDelivery::class)->name('update');
     Route::post('submit-and-confirm', SubmitAndConfirmPalletDelivery::class)->name('submit_and_confirm');
+    Route::post('cancel', CancelPalletDelivery::class)->name('cancel');
 
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
     Route::post('received', ReceivedPalletDelivery::class)->name('received');
