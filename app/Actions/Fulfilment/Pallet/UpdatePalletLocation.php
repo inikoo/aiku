@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Hydrators\HydrateMovementPallet;
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\Pallet;
@@ -36,6 +37,7 @@ class UpdatePalletLocation extends OrgAction
         ]);
 
         HydrateMovementPallet::dispatch($pallet, $lastLocationId);
+        PalletRecordSearch::dispatch($pallet);
 
         return $pallet;
     }

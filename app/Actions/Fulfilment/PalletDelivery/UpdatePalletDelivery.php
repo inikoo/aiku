@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
@@ -31,7 +32,9 @@ class UpdatePalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        return $this->update($palletDelivery, $modelData);
+        $palletDelivery =$this->update($palletDelivery, $modelData);
+        PalletDeliveryRecordSearch::dispatch($palletDelivery);
+        return $palletDelivery;
     }
 
     public function authorize(ActionRequest $request): bool

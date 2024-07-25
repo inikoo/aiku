@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\CRM\WebUser;
@@ -28,6 +29,9 @@ class MoveStoredItem extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function handle(StoredItem $storedItem, array $modelData): void
     {
         if (Arr::exists($modelData, 'pallet_id')) {
@@ -48,6 +52,7 @@ class MoveStoredItem extends OrgAction
                     'quantity' => $currentQuantity - $quantity
                 ]
             ]);
+            StoredItemRecordSearch::dispatch($storedItem);
         }
     }
 
@@ -71,6 +76,9 @@ class MoveStoredItem extends OrgAction
         ];
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asController(StoredItem $storedItem, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $storedItem->fulfilmentCustomer;

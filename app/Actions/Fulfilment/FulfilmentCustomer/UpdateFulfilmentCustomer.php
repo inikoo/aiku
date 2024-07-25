@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
+use App\Actions\Fulfilment\FulfilmentCustomer\Search\FulfilmentCustomerRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -75,7 +76,7 @@ class UpdateFulfilmentCustomer extends OrgAction
 
 
         FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
-
+        FulfilmentCustomerRecordSearch::dispatch($fulfilmentCustomer);
         return $fulfilmentCustomer;
     }
 

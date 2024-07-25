@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -27,11 +28,13 @@ class ReturnPalletToCustomer extends OrgAction
 
     public function handle(Pallet $pallet): Pallet
     {
-        return $this->update($pallet, [
+        $pallet= $this->update($pallet, [
             'location_id' => null,
             'state'       => PalletStateEnum::DISPATCHED,
             'status'      => PalletStatusEnum::RETURNED
         ]);
+        PalletRecordSearch::dispatch($pallet);
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool

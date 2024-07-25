@@ -16,6 +16,7 @@ return new class () extends Migration {
                 $table->foreign('stored_item_id')->references('id')->on('stored_items');
                 $table->decimal('quantity')->default(0);
                 $table->decimal('damaged_quantity')->default(0);
+                $table->string('source')->default(0);
                 $table->timestampsTz();
             });
         }

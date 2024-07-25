@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\OrgAction;
@@ -30,15 +31,13 @@ class BookInPallet extends OrgAction
         data_set($modelData, 'booked_in_at', now());
         data_set($modelData, 'set_as_not_received_at', null);
 
-        // if($pallet->storedItems()->count() > 0) {
-        //     $pallet->storedItems()->newPivotQuery()->update(['location_id' => $pallet->location_id]);
-        // }
+
 
         $pallet             = $this->update($pallet, $modelData, ['data']);
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
 
         LocationHydratePallets::dispatch($pallet->location);
-
+        PalletRecordSearch::dispatch($pallet);
         return $pallet;
     }
 

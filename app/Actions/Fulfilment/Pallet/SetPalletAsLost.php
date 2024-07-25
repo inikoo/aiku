@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -38,7 +39,9 @@ class SetPalletAsLost extends OrgAction
             ]
         ]);
 
-        return UpdatePallet::run($pallet, Arr::except($modelData, 'message'), ['data']);
+        $pallet= UpdatePallet::run($pallet, Arr::except($modelData, 'message'), ['data']);
+        PalletRecordSearch::dispatch($pallet);
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool

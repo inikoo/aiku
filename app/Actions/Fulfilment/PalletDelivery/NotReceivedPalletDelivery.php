@@ -8,6 +8,8 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
+use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -32,6 +34,7 @@ class NotReceivedPalletDelivery extends OrgAction
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         SendPalletDeliveryNotification::dispatch($palletDelivery);
+        PalletDeliveryRecordSearch::dispatch($palletDelivery);
 
         return $palletDelivery;
     }

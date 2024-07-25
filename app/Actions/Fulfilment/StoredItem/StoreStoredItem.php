@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
+use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\CRM\WebUser;
@@ -42,7 +43,7 @@ class StoreStoredItem extends OrgAction
         if($parent instanceof FulfilmentCustomer) {
             FulfilmentCustomerHydrateStoredItems::dispatch($parent);
         }
-
+        StoredItemRecordSearch::dispatch($storedItem);
         return $storedItem;
     }
 

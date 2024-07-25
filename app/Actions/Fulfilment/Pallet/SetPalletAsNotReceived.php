@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -32,7 +33,9 @@ class SetPalletAsNotReceived extends OrgAction
         data_set($modelData, 'set_as_not_received_at', now());
 
 
-        return UpdatePallet::run($pallet, $modelData, ['data']);
+        $pallet= UpdatePallet::run($pallet, $modelData, ['data']);
+        PalletRecordSearch::dispatch($pallet);
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool

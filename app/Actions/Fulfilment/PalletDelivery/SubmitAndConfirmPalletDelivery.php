@@ -20,17 +20,13 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
 
-    /**
-     * @var array|\ArrayAccess|mixed
-     */
+
     private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
 
-
         $palletDelivery=SubmitPalletDelivery::make()->action($palletDelivery);
-
         return ConfirmPalletDelivery::make()->action($palletDelivery);
     }
 

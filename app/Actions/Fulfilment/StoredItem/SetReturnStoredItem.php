@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
@@ -28,7 +29,7 @@ class SetReturnStoredItem extends OrgAction
         $this->update($storedItem, [
             'status' => StoredItemStatusEnum::RETURNED
         ]);
-
+        StoredItemRecordSearch::dispatch($storedItem);
         return $storedItem;
     }
 
