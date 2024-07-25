@@ -34,11 +34,12 @@ class ReturnStoredItemsResource extends JsonResource
             'pallet_slug'                   => $storedItem->pallet_slug,
             'pallet_reference'              => $storedItem->pallet_reference ?? '',
             'stored_item_id'                => $storedItem->stored_item_id,
-            'stored_item_reference'         => $storedItem->stored_item_reference,
+            'reference'                     => $storedItem->stored_item_reference,
             'stored_item_slug'              => $storedItem->stored_item_slug,
             'stored_item_type'              => $storedItem->stored_item_type,
             'quantity'                      => $storedItem->quantity,
             'damaged_quantity'              => $storedItem->damaged_quantity,
+            'location'                      => $storedItem->location_code,
         ];
     }
 }

@@ -149,7 +149,9 @@ class IndexPalletsInDelivery extends OrgAction
             }
 
 
-
+            if($palletDelivery->fulfilmentCustomer->items_storage) {
+                $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
+            }
 
 
             if (
@@ -158,9 +160,7 @@ class IndexPalletsInDelivery extends OrgAction
                     ($palletDelivery instanceof PalletReturn and ($palletDelivery->state == PalletReturnStateEnum::DISPATCHED or $palletDelivery->state == PalletReturnStateEnum::CANCEL))
                 )
             ) {
-                if($palletDelivery->fulfilmentCustomer->items_storage) {
-                    $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
-                }
+
                 $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
             }
 
