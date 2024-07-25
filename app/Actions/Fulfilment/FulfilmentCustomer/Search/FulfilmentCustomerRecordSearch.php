@@ -29,12 +29,34 @@ class FulfilmentCustomerRecordSearch
                 'sections'          => ['crm'],
                 'haystack_tier_1'   => trim($fulfilmentCustomer->customer->email.' '.$fulfilmentCustomer->customer->contact_name.' '.$fulfilmentCustomer->customer->company_name),
                 'result'            => [
+                    'container'     => [
+                        'key'     => 'address',
+                        'label'   => $fulfilmentCustomer->customer->location
+                    ],
                     'title'         => $fulfilmentCustomer->customer->name,
                     'afterTitle'    => [
                         'label'     => '('.$fulfilmentCustomer->customer->reference.')',
                     ],
                     'icon'          => [
                         'icon'  => 'fal fa-user',
+                    ],
+                    'meta'          => [
+                        [
+                            'key'   => 'status',
+                            'label' => $fulfilmentCustomer->status
+                        ],
+                        [
+                            'key'   => 'created_date',
+                            'label' => $fulfilmentCustomer->customer->created_at
+                        ],
+                        [
+                            'key'   => 'email',
+                            'label' => $fulfilmentCustomer->customer->email
+                        ],
+                        [
+                            'key'   => 'contact_name',
+                            'label' => $fulfilmentCustomer->customer->contact_name
+                        ],
                     ],
                 ]
             ]

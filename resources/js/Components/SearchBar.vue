@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from 'laravel-vue-i18n'
 import { debounce } from 'lodash'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import SearchResultDefault from '@/Components/Search/SearchResultDefault.vue'
 import SearchResultPallet from '@/Components/Search/SearchResultPallet.vue'
 import SearchResultCustomer from '@/Components/Search/SearchResultCustomer.vue'
 import SearchResultFulfilmentCustomer from '@/Components/Search/SearchResultFulfilmentCustomer.vue'
@@ -172,9 +173,9 @@ function countModelTypes(data) {
                                     class="bg-white hover:bg-slate-50 py-3 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
                                 >
                                     <SearchResultPallet v-if="result.model_type == 'Pallet'" :data="result.model" />
-                                    <SearchResultCustomer v-else-if="result.model_type == 'Customer'" :data="result.model" />
-                                    <SearchResultFulfilmentCustomer v-else-if="result.model_type == 'FulfilmentCustomer'" :data="result.model" />
-                                    <SearchResult v-else :data="result.model" @finishVisit="() => emits('close', false)" />
+                                    <!-- <SearchResultCustomer v-else-if="result.model_type == 'Customer'" :data="result.model" />
+                                    <SearchResultFulfilmentCustomer v-else-if="result.model_type == 'FulfilmentCustomer'" :data="result.model" /> -->
+                                    <SearchResultDefault v-else :data="result.result" @finishVisit="() => emits('close', false)" />
                                 </li>
                             </TransitionGroup >
                         </TabGroup>
