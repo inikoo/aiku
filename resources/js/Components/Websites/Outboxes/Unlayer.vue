@@ -67,14 +67,14 @@ const setToNewTemplate = (template) => {
     editor.loadDesign(template)
 }
 
-const getMergeTagData = () => {
+/* const getMergeTagData = () => {
     return axios.get(route('org.json.mailshot.merge-tags', { id: props.mailshot.id }))
         .then(response => response.data)
         .catch(error => {
             console.error(error);
             return [];
         });
-}
+} */
 
 
 
@@ -88,7 +88,7 @@ onMounted(async () => {
         features: {
             sendTestEmail: true
         },
-        mergeTags: await getMergeTagData(),
+        /* mergeTags: await getMergeTagData(), */
         tools: {
             form: {
                 enabled: false
@@ -143,8 +143,8 @@ onMounted(async () => {
     });
 
     //loadData
-    const load = await Load();
-    editor.loadDesign(load);
+    /* const load = await Load();
+    editor.loadDesign(load); */
 
     //uploadImage
     editor.registerCallback('image', async function (file, done) {
@@ -206,3 +206,4 @@ defineExpose({
     height: calc(100vh - 177px);
 }
 </style>
+      

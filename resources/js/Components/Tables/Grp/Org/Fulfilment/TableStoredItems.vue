@@ -21,8 +21,8 @@ function storedItemRoute(storedItem) {
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
         default:
             return route(
-                'grp.fulfilment.stored-items.show',
-                [storedItem.slug]);
+                'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
+                [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
     }
 }
 

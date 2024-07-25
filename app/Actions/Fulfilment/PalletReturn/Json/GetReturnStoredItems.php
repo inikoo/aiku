@@ -34,6 +34,7 @@ class GetReturnStoredItems extends OrgAction
         $queryBuilder = QueryBuilder::for(PalletStoredItem::class);
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
         $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
+        $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
         $queryBuilder->where('stored_items.fulfilment_customer_id', $fulfilmentCustomer->id);
 
         $queryBuilder
@@ -49,6 +50,7 @@ class GetReturnStoredItems extends OrgAction
                 'stored_items.type as stored_item_type',
                 'pallet_stored_items.quantity',
                 'pallet_stored_items.damaged_quantity',
+                'locations.code as location_code'
             ]);
 
 
