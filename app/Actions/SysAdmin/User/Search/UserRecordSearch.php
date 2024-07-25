@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 09 Dec 2023 02:13:11 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 25 Jul 2024 12:40:01 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\User\Hydrators;
+namespace App\Actions\SysAdmin\User\Search;
 
 use App\Http\Resources\SysAdmin\UserSearchResultResource;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UserHydrateUniversalSearch
+class UserRecordSearch
 {
     use AsAction;
 
@@ -19,6 +19,15 @@ class UserHydrateUniversalSearch
 
     public function handle(User $user): void
     {
+        if ($user->trashed()) {
+
+            if($user->universalSearch) {
+                $user->universalSearch()->delete();
+            }
+            return;
+        }
+
+
         $user->universalSearch()->updateOrCreate(
             [],
             [

@@ -29,6 +29,6 @@ class ReindexEmployeeSearch extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Employee::get();
+        return Employee::withTrashed()->get();
     }
 }

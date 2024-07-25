@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\StoredItem\Search\ReindexStoredItem;
 use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
+use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -25,6 +26,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
 
 class ReindexSearch extends HydrateModel
@@ -37,6 +39,7 @@ class ReindexSearch extends HydrateModel
         $this->reindexFulfilment();
         $this->reindexAccounting();
         $this->reindexHumanResources();
+        $this->reindexSysadmin();
     }
 
     public function reindexFulfilment(): void
@@ -82,6 +85,13 @@ class ReindexSearch extends HydrateModel
         }
     }
 
+    public function reindexSysAdmin(): void
+    {
+        foreach (User::withTrashed()->get() as $model) {
+            ReindexUserSearch::run($model);
+        }
+    }
+
     public string $commandSignature = 'search:reindex';
 
     public function asCommand(Command $command): int
@@ -93,8 +103,7 @@ class ReindexSearch extends HydrateModel
 
         $command->line('Workplaces');
         $command->call('workplace:search');
-        $command->line('Employees');
-        $command->call('employee:search');
+
 
         $command->line('Products');
         $command->call('products:search');
