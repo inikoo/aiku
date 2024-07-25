@@ -8,6 +8,11 @@
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnStoredItems;
+use App\Actions\Helpers\Tag\GetTagOptions;
+use App\Actions\Mail\EmailTemplate\GetEmailTemplateCompiledLayout;
+use App\Actions\Mail\EmailTemplate\GetOutboxEmailTemplates;
+use App\Actions\Mail\EmailTemplate\GetSeededEmailTemplates;
+use App\Actions\Mail\Mailshot\GetMailshotMergeTags;
 use Illuminate\Support\Facades\Route;
 
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');
@@ -17,3 +22,11 @@ Route::get('fulfilment/{fulfilment}/delivery/{scope}/physical-goods', [GetFulfil
 Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetFulfilmentPhysicalGoods::class, 'inPalletReturn'])->name('fulfilment.return.physical-goods.index');
 
 Route::get('fulfilment/{fulfilmentCustomer}/return/stored-items', GetReturnStoredItems::class)->name('fulfilment.return.stored-items');
+
+
+Route::get('tags', GetTagOptions::class)->name('tags');
+
+Route::get('email/templates/seeded', GetSeededEmailTemplates::class)->name('email_templates.seeded');
+Route::get('email/templates/outboxes/{outbox:id}', GetOutboxEmailTemplates::class)->name('email_templates.outbox');
+Route::get('email/templates/{emailTemplate:id}/compiled_layout', GetEmailTemplateCompiledLayout::class)->name('email_templates.show.compiled_layout');
+Route::get('/mailshot/{mailshot:id}/merge-tags', GetMailshotMergeTags::class)->name('mailshot.merge-tags');
