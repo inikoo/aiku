@@ -18,6 +18,7 @@ use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
+use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -27,6 +28,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
+use App\Models\Web\Website;
 use Illuminate\Console\Command;
 
 class ReindexSearch extends HydrateModel
@@ -40,6 +42,7 @@ class ReindexSearch extends HydrateModel
         $this->reindexAccounting();
         $this->reindexHumanResources();
         $this->reindexSysadmin();
+        $this->reindexWeb();
     }
 
     public function reindexFulfilment(): void
@@ -89,6 +92,13 @@ class ReindexSearch extends HydrateModel
     {
         foreach (User::withTrashed()->get() as $model) {
             ReindexUserSearch::run($model);
+        }
+    }
+
+    public function reindexWeb(): void
+    {
+        foreach (Website::withTrashed()->get() as $model) {
+            ReindexWebsiteSearch::run($model);
         }
     }
 

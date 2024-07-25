@@ -1,26 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 07 Jun 2023 01:01:48 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 25 Jul 2024 12:56:37 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Web\Website;
+namespace App\Actions\Web\Website\Search;
 
 use App\Actions\HydrateModel;
-
-use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Models\Web\Website;
 use Illuminate\Support\Collection;
 
-class UpdateWebsiteUniversalSearch extends HydrateModel
+class ReindexWebsiteSearch extends HydrateModel
 {
     public string $commandSignature = 'website:search {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Website $website): void
     {
-        WebsiteHydrateUniversalSearch::run($website);
+        WebsiteRecordSearch::run($website);
     }
 
     protected function getModel(string $slug): Website
