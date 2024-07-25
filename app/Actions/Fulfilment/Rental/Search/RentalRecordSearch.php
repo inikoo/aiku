@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Thu, 25 Jul 2024 14:03:33 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Rental\Hydrators;
+namespace App\Actions\Fulfilment\Rental\Search;
 
 use App\Models\Fulfilment\Rental;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class RentalHydrateUniversalSearch
+class RentalRecordSearch
 {
     use AsAction;
 
@@ -18,6 +18,15 @@ class RentalHydrateUniversalSearch
 
     public function handle(Rental $rental): void
     {
+
+        if ($rental->trashed()) {
+
+            if($rental->universalSearch) {
+                $rental->universalSearch()->delete();
+            }
+            return;
+        }
+
         $rental->universalSearch()->updateOrCreate(
             [],
             [
