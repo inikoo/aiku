@@ -27,6 +27,47 @@ class PalletReturnRecordSearch
             return;
         }
 
+        $result = [
+            'route'     => [
+                'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
+                'parameters'    => [
+                    'organisation'           => $palletReturn->organisation->slug,
+                    'fulfilment'             => $palletReturn->fulfilment->slug,
+                    'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+                    'palletReturn'           => $palletReturn->slug
+                ]
+            ],
+            'container'     => [
+                'key'     => 'warehouse',
+                'tooltip' => 'Warehouse',
+                'label'   => $palletReturn->warehouse->name
+            ],
+            'title'         => $palletReturn->reference,
+            'icon'          => [
+                'icon'  => 'fal fa-truck-couch',
+            ],
+            'meta'          => [
+                [
+                    'key'       => 'created_date',
+                    'type'      => 'date',
+                    'label'     => $palletReturn->created_at,
+                    'tooltip'   => "Delivery's created date"
+                ],
+                [
+                    'key'       => 'label',
+                    'label'     => $palletReturn->state->labels()[$palletReturn->state->value],
+                    'tooltip'   => "Pallet's state"
+                ],
+                [
+                    'key'       => 'pallets',
+                    'type'      => 'number',
+                    'label'     => 'Pallets: ',
+                    'number'    => $palletReturn->number_pallets,
+                    'tooltip'   => "Pallets's count"
+                ],
+            ],
+        ];
+
         $palletReturn->universalSearch()->updateOrCreate(
             [],
             [
@@ -39,6 +80,7 @@ class PalletReturnRecordSearch
                 'fulfilment_slug'   => $palletReturn->fulfilment->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $palletReturn->reference,
+                'result'            => $result
             ]
         );
 
@@ -49,6 +91,7 @@ class PalletReturnRecordSearch
                 'organisation_id' => $palletReturn->organisation_id,
                 'customer_id'     => $palletReturn->fulfilmentCustomer->customer_id,
                 'haystack_tier_1' => $palletReturn->reference,
+                'result'          => $result
             ]
         );
     }
