@@ -38,6 +38,7 @@ class PalletReturnStoredItemsResource extends JsonResource
             'id'                               => $this->id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
+            'quantity'                         => $this->quantity
         ];
     }
 }

@@ -243,7 +243,7 @@ class ShowPalletDelivery extends OrgAction
                                 'palletDelivery' => $palletDelivery->id
                             ]
                         ]
-                    ] 
+                    ]
                 ],
                 PalletDeliveryStateEnum::RECEIVED => [
                     [
@@ -437,6 +437,9 @@ class ShowPalletDelivery extends OrgAction
                         'parameters' => [
                             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id
                         ]
+                    ],
+                    'delete' => [
+                        'name' => 'grp.models.stored-items.delete'
                     ]
                 ],
 

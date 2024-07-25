@@ -18,6 +18,7 @@ class EmailTemplateResource extends JsonResource
 
     public function toArray($request): array
     {
+        /** @var \App\Models\Mail\EmailTemplate $emailTemplate */
         $emailTemplate = $this;
 
         $image          = null;

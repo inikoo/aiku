@@ -350,14 +350,19 @@ class ShowPalletReturn extends OrgAction
                             'palletReturn'       => $palletReturn->reference
                         ]
                     ],
+                    'templates' => [
+                        'label' => 'Download Pallets & Stored Items (.xlsx)',
+                        'route' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ]
                 ],
 
                 'palletRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-pallets.index',
+                        'name'       => 'grp.json.fulfilment.return.pallets',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
                         ]
                     ],
@@ -533,7 +538,7 @@ class ShowPalletReturn extends OrgAction
                 request: $request
             )
         )->table( //todo stored items here
-            IndexPalletsInReturn::make()->tableStructure(
+            IndexStoredItemsInReturn::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::STORED_ITEMS->value,
                 request: $request
