@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
 use App\Actions\Fulfilment\PalletReturn\Search\ReindexPalletReturnSearch;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
+use App\Actions\Fulfilment\Rental\Search\ReindexRentalSearch;
 use App\Actions\Fulfilment\StoredItem\Search\ReindexStoredItem;
 use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
@@ -25,6 +26,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
@@ -47,7 +49,6 @@ class ReindexSearch extends HydrateModel
 
     public function reindexFulfilment(): void
     {
-
         foreach (RecurringBill::withTrashed()->get() as $model) {
             ReindexRecurringBillSearch::run($model);
         }
@@ -72,6 +73,9 @@ class ReindexSearch extends HydrateModel
             ReindexStoredItem::run($model);
         }
 
+        foreach (Rental::withTrashed()->get() as $model) {
+            ReindexRentalSearch::run($model);
+        }
     }
 
     public function reindexAccounting(): void

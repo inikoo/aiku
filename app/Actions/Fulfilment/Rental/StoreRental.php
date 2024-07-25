@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Rental;
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
+use App\Actions\Fulfilment\Rental\Search\RentalRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRentals;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRentals;
@@ -84,6 +85,7 @@ class StoreRental extends OrgAction
         ShopHydrateRentals::dispatch($shop);
         OrganisationHydrateRentals::dispatch($shop->organisation);
         GroupHydrateRentals::dispatch($shop->group);
+        RentalRecordSearch::dispatch($rental);
 
         return $rental;
     }

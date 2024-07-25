@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Rental;
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
+use App\Actions\Fulfilment\Rental\Search\RentalRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
@@ -54,7 +55,7 @@ class UpdateRental extends OrgAction
         if (Arr::hasAny($rental->getChanges(), ['state'])) {
             ShopHydrateRentals::dispatch($rental->shop);
         }
-
+        RentalRecordSearch::dispatch($rental);
         return $rental;
     }
 
