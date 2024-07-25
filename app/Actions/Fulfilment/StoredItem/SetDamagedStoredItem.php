@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
@@ -28,7 +29,7 @@ class SetDamagedStoredItem extends OrgAction
         $this->update($storedItem, [
             'status' => StoredItemStatusEnum::DAMAGED
         ]);
-
+        StoredItemRecordSearch::dispatch($storedItem);
         return $storedItem;
     }
 

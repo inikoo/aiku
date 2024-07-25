@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
+use App\Actions\Fulfilment\RecurringBill\Search\RecurringBillRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\RecurringBill;
@@ -20,8 +21,9 @@ class UpdateRecurringBilling extends OrgAction
 
     public function handle(RecurringBill $recurringBill, array $modelData): RecurringBill
     {
-
-        return $this->update($recurringBill, $modelData, ['data']);
+        $recurringBill = $this->update($recurringBill, $modelData, ['data']);
+        RecurringBillRecordSearch::dispatch($recurringBill);
+        return $recurringBill;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -36,12 +38,12 @@ class UpdateRecurringBilling extends OrgAction
     public function rules(): array
     {
         return [
-            'end_date'         => ['sometimes', 'date', new EndDateValidation()],
-            'total'            => ['sometimes'],
-            'payment'          => ['sometimes'],
-            'net'              => ['sometimes'],
-            'grp_net_amount'   => ['sometimes'],
-            'org_net_amount'   => ['sometimes']
+            'end_date'       => ['sometimes', 'date', new EndDateValidation()],
+            'total'          => ['sometimes'],
+            'payment'        => ['sometimes'],
+            'net'            => ['sometimes'],
+            'grp_net_amount' => ['sometimes'],
+            'org_net_amount' => ['sometimes']
         ];
     }
 

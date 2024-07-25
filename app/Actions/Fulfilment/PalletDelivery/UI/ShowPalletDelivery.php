@@ -243,7 +243,7 @@ class ShowPalletDelivery extends OrgAction
                                 'palletDelivery' => $palletDelivery->id
                             ]
                         ]
-                    ] 
+                    ]
                 ],
                 PalletDeliveryStateEnum::RECEIVED => [
                     [

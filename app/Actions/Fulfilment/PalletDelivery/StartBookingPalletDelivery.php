@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -44,7 +45,7 @@ class StartBookingPalletDelivery extends OrgAction
 
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-
+        PalletDeliveryRecordSearch::dispatch($palletDelivery);
         return $palletDelivery;
     }
 

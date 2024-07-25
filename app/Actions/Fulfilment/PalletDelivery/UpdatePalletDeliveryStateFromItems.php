@@ -48,14 +48,6 @@ class UpdatePalletDeliveryStateFromItems
                 return $palletDelivery;
             }
 
-
-            /*return $this->update(
-                $palletDelivery,
-                [
-                    'state'            => PalletDeliveryStateEnum::BOOKING_IN,
-                    'booking_in_at'    => now()
-                ]
-            );*/
         }
 
 

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
+use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -22,11 +23,9 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdatePalletReturn extends OrgAction
 {
@@ -43,13 +42,13 @@ class UpdatePalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        if(Arr::exists($modelData, 'address')) {
+        if (Arr::exists($modelData, 'address')) {
             $addressData = Arr::get($modelData, 'address');
-            $groupId     =$palletReturn->group_id;
+            $groupId     = $palletReturn->group_id;
 
             data_set($addressData, 'group_id', $groupId);
 
-            if(Arr::exists($addressData, 'id')) {
+            if (Arr::exists($addressData, 'id')) {
                 $countryCode = Country::find(Arr::get($addressData, 'country_id'))->code;
                 data_set($addressData, 'country_code', $countryCode);
                 UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
@@ -66,12 +65,15 @@ class UpdatePalletReturn extends OrgAction
             Arr::forget($modelData, 'address');
         }
 
-        return $this->update($palletReturn, $modelData);
+        $palletReturn = $this->update($palletReturn, $modelData);
+        PalletReturnRecordSearch::dispatch($palletReturn);
+
+        return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action) {
+        if ($this->action) {
             return true;
         }
 
@@ -86,15 +88,15 @@ class UpdatePalletReturn extends OrgAction
     {
         $rules = [];
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $rules = [
-                'public_notes'   => ['sometimes','nullable','string','max:4000'],
-                'internal_notes' => ['sometimes','nullable','string','max:4000'],
+                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             ];
         }
 
         return [
-            'customer_notes'      => ['sometimes','nullable','string', 'max:5000'],
+            'customer_notes'      => ['sometimes', 'nullable', 'string', 'max:5000'],
             'address'             => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
             ...$rules
@@ -109,6 +111,7 @@ class UpdatePalletReturn extends OrgAction
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
+
         return $this->handle($palletReturn, $this->validatedData);
     }
 
@@ -116,6 +119,7 @@ class UpdatePalletReturn extends OrgAction
     public function asController(Organisation $organisation, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
+
         return $this->handle($palletReturn, $this->validatedData);
     }
 
@@ -153,9 +157,11 @@ class UpdatePalletReturn extends OrgAction
         $this->asAction = true;
 
         try {
+            /** @var PalletReturn $palletReturn */
             $palletReturn = PalletReturn::where('slug', $command->argument('pallet-return'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

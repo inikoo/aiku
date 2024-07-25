@@ -125,7 +125,7 @@ class IndexStoredItemsInReturn extends OrgAction
 
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            
+
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);

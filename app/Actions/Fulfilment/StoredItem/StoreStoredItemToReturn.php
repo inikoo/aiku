@@ -32,23 +32,23 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $storedItems = $modelData; 
+        $storedItems = $modelData;
 
         foreach ($storedItems as $storedItem) {
-            $storedItemId = Arr::get($storedItem, 'stored_item');
-            $palletId = Arr::get($storedItem, 'pallet');
+            $storedItemId      = Arr::get($storedItem, 'stored_item');
+            $palletId          = Arr::get($storedItem, 'pallet');
             $palletStoreItemId = Arr::get($storedItem, 'pallet_stored_item');
-            $quantity = Arr::get($storedItem, 'quantity');
+            $quantity          = Arr::get($storedItem, 'quantity');
 
             $palletReturn->storedItems()->attach($storedItemId, [
-                'pallet_id' => $palletId,
+                'pallet_id'             => $palletId,
                 'pallet_stored_item_id' => $palletStoreItemId,
-                'quantity_ordered' => $quantity
+                'quantity_ordered'      => $quantity
             ]);
 
             StoredItem::where('id', $storedItemId)->update([
                 'status' => StoredItemStatusEnum::STORING,
-                'state' => StoredItemStateEnum::IN_PROCESS
+                'state'  => StoredItemStateEnum::IN_PROCESS
             ]);
         }
 
@@ -76,10 +76,10 @@ class StoreStoredItemToReturn extends OrgAction
     public function rules(): array
     {
         return [
-            '*.stored_item' => ['required', 'integer', 'exists:stored_items,id'],
-            '*.pallet' => ['required', 'integer', 'exists:pallets,id'], 
+            '*.stored_item'        => ['required', 'integer', 'exists:stored_items,id'],
+            '*.pallet'             => ['required', 'integer', 'exists:pallets,id'],
             '*.pallet_stored_item' => ['required', 'integer', 'exists:pallet_stored_items,id'],
-            '*.quantity' => ['required', 'integer'],
+            '*.quantity'           => ['required', 'integer'],
         ];
     }
 

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -30,19 +31,19 @@ class SetPalletInReturnAsPicked extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem): PalletReturnItem
     {
-
-        $modelData=[];
+        $modelData = [];
         data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
         data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
 
         $this->update($palletReturnItem, $modelData);
 
-        $modelData=[];
+        $modelData = [];
         data_set($modelData, 'state', PalletStateEnum::PICKED);
         data_set($modelData, 'status', PalletStatusEnum::RETURNING);
 
-        UpdatePallet::run($palletReturnItem->pallet, $modelData);
+        $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
 
+        PalletRecordSearch::dispatch($pallet);
 
         return $palletReturnItem;
     }
