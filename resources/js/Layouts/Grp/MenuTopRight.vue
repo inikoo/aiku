@@ -62,7 +62,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                     <span v-else class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Ctrl</span>
                     <span class="ring-1 ring-gray-400 bg-gray-100 px-1.5 py-0.5 text-xs rounded">K</span>
                 </div>
-                <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
+                <SearchBar v-model="showSearchDialog" />
             </button>
 
             <div class="pl-2 sm:pl-4 flex items-center gap-x-2">

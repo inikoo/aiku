@@ -19,9 +19,7 @@ import SearchResultFulfilmentCustomer from '@/Components/Search/SearchResultFulf
 import SearchResult from '@/Components/Search/SearchResult.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
-const props = defineProps<{
-    isOpen: boolean
-}>()
+const isOpen = defineModel<boolean>()
 
 const emits = defineEmits<{
     (e: 'close', data: boolean): void
@@ -87,7 +85,7 @@ function countModelTypes(data) {
 
 <template>
     <TransitionRoot :show="isOpen" as="template" @after-leave="() => (searchValue = '', resultsSearch = [])" appear>
-        <Dialog as="div" class="relative z-[21]" @close="emits('close', false)">
+        <Dialog as="div" class="relative z-[21]" @close="() => isOpen = false">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                 leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
                 <div class="fixed inset-0 bg-slate-700/25" />
@@ -169,13 +167,12 @@ function countModelTypes(data) {
                             <TransitionGroup name="list" tag="ul" v-if="resultsSearch?.length" class="border-t-2 border-slate-300">
                                 <li v-for="(result, resultIdx) in (selectedTab ? resultsSearch.filter(resultSearch => resultSearch.model_type == selectedTab) : resultsSearch)"
                                     :key="result.model_type + resultIdx"
-                                    v-tooltip="result.model_type"
                                     class="bg-white hover:bg-slate-50 py-3 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
                                 >
-                                    <SearchResultPallet v-if="result.model_type == 'Pallet'" :data="result.model" />
+                                    <!-- <SearchResultPallet v-if="result.model_type == 'Pallet'" :data="result.model" /> -->
                                     <!-- <SearchResultCustomer v-else-if="result.model_type == 'Customer'" :data="result.model" />
                                     <SearchResultFulfilmentCustomer v-else-if="result.model_type == 'FulfilmentCustomer'" :data="result.model" /> -->
-                                    <SearchResultDefault v-else :data="result.result" @finishVisit="() => emits('close', false)" />
+                                    <SearchResultDefault :data="result.result" :modelType="result.model_type" @finishVisit="() => isOpen = false" />
                                 </li>
                             </TransitionGroup >
                         </TabGroup>
