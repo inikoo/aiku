@@ -56,7 +56,7 @@ class ReindexSearch extends HydrateModel
             ReindexFulfilmentCustomerSearch::run($model);
         }
 
-        foreach (PalletDelivery::get() as $model) {
+        foreach (PalletDelivery::withTrashed()->get() as $model) {
             ReindexPalletDeliverySearch::run($model);
         }
 
