@@ -199,7 +199,7 @@ defineExpose({
                                 <div v-if="get(pallet, [column.key], []).length">
                                     <Tag v-for="item in pallet[column.key]">
                                         <template #label>
-                                            {{ item.reference }} ({{ item.quantity }})
+                                            {{ item.stored_item_reference }} ({{ item.quantity }})
                                         </template>
                                     </Tag>
                                 </div>
