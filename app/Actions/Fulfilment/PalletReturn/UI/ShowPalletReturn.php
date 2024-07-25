@@ -88,7 +88,7 @@ class ShowPalletReturn extends OrgAction
         }
 
         if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
-           $this->tab = PalletReturnTabsEnum::PALLETS->value;
+            $this->tab = PalletReturnTabsEnum::PALLETS->value;
         } else {
             $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
         }
@@ -350,6 +350,13 @@ class ShowPalletReturn extends OrgAction
                             'palletReturn'       => $palletReturn->reference
                         ]
                     ],
+                    'templates' => [
+                        'label' => 'Download Pallets & Stored Items (.xlsx)',
+                        'route' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ]
                 ],
 
                 'palletRoute' => [
