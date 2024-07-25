@@ -14,7 +14,8 @@ library.add(faPallet)
 
 const props = defineProps<{
     data?: {
-        route: routeType
+        tooltip?: []
+        route?: routeType
         container?: {
             key?: string
             icon: string | string[]
@@ -29,7 +30,7 @@ const props = defineProps<{
             tooltip?: string
         }
         iconRight?: {
-            tooltip: string
+            tooltip?: string
             icon: string
             class: string
         }
@@ -49,6 +50,7 @@ const props = defineProps<{
             icon?: Icon
             leftIcon?: Icon
             href?: routeType
+            tooltip?: string
         }[]
     }
     modelType: string

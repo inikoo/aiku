@@ -38,6 +38,33 @@ class PalletRecordSearch
                 'warehouse_slug'    => $pallet->warehouse->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $pallet->reference ?? $pallet->id,
+                'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+                        'parameters'    => [
+                            'organisation'       => $pallet->organisation->slug,
+                            'fulfilment'         => $pallet->fulfilment->slug,
+                            'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+                            'pallet'             => $pallet->slug
+                        ]
+                    ],
+                    'container'     => [
+                        'label'   => $pallet->warehouse->name
+                    ],
+                    'title'         => $pallet->reference,
+                    'icon'          => $pallet->type->typeIcon()[$pallet->type->value],
+                    'meta'          => [
+                        [
+                            'key'   => 'status',
+                            'label' => $pallet->state->labels()[$pallet->state->value]
+                        ],
+                        [
+                            'key'   => 'created_date',
+                            'type'  => 'date',
+                            'label' => $pallet->created_at
+                        ],
+                    ],
+                ]
             ]
         );
 
