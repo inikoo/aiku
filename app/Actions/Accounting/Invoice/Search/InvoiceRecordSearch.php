@@ -20,6 +20,10 @@ class InvoiceRecordSearch
     public function handle(Invoice $invoice): void
     {
         if ($invoice->trashed()) {
+            if ($invoice->universalSearch) {
+                $invoice->universalSearch()->delete();
+            }
+
             return;
         }
 
@@ -36,15 +40,15 @@ class InvoiceRecordSearch
             'sections'          => ['accounting'],
             'haystack_tier_1'   => $invoice->number,
             'result'            => [
-                'container'     => [
-                    'label'     => $invoice->shop->name,
+                'container' => [
+                    'label' => $invoice->shop->name,
                 ],
-                'title'         => $invoice->number,
-                'icon'          => [
-                    'icon'  => 'fal fa-file-invoice-dollar',
+                'title'     => $invoice->number,
+                'icon'      => [
+                    'icon' => 'fal fa-file-invoice-dollar',
                 ],
-                'aaa'           => $invoice->currency,
-                'meta'          => [
+                'aaa'       => $invoice->currency,
+                'meta'      => [
                     [
                         'key'   => 'type',
                         'label' => $invoice->type
@@ -55,11 +59,11 @@ class InvoiceRecordSearch
                         'label' => $invoice->created_at
                     ],
                     [
-                        'key'   => 'total',
-                        'type'  => 'amount',
-                        'code'  => $invoice->currency->code,
-                        'label' => 'Total: ',
-                        'amount'=> $invoice->total_amount
+                        'key'    => 'total',
+                        'type'   => 'amount',
+                        'code'   => $invoice->currency->code,
+                        'label'  => 'Total: ',
+                        'amount' => $invoice->total_amount
                     ],
                 ],
             ]
@@ -80,13 +84,12 @@ class InvoiceRecordSearch
         $invoice->retinaSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $invoice->group_id,
-                'organisation_id'   => $invoice->organisation_id,
-                'customer_id'       => $invoice->customer_id,
-                'haystack_tier_1'   => $invoice->number,
+                'group_id'        => $invoice->group_id,
+                'organisation_id' => $invoice->organisation_id,
+                'customer_id'     => $invoice->customer_id,
+                'haystack_tier_1' => $invoice->number,
             ]
         );
-
     }
 
 }

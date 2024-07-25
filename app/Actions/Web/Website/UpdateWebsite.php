@@ -9,7 +9,7 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
+use App\Actions\Web\Website\Search\WebsiteRecordSearch;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Catalogue\Shop;
@@ -28,7 +28,7 @@ class UpdateWebsite extends OrgAction
     public function handle(Website $website, array $modelData): Website
     {
         $website = $this->update($website, $modelData, ['data', 'settings']);
-        WebsiteHydrateUniversalSearch::run($website);
+        WebsiteRecordSearch::run($website);
 
         return $website;
     }

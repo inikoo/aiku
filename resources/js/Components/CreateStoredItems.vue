@@ -96,7 +96,7 @@ const onSaved = async () => {
 				@updateVModel="() => form.errors.id = ''" :loadingCaret="loadingAddStotedItem">
 				<template #nooptions="{ search }: { search: string }">
 					<div class="px-2 py-3" @click="() => createPallet({ id: search, reference: search }, [])">
-						No Data
+						Add {{ search }}
 					</div>
 				</template>
 				<template #noresults="{ search }: { search: string }">

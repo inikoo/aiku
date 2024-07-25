@@ -88,7 +88,7 @@ class ShowPalletReturn extends OrgAction
         }
 
         if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
-           $this->tab = PalletReturnTabsEnum::PALLETS->value;
+            $this->tab = PalletReturnTabsEnum::PALLETS->value;
         } else {
             $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
         }
