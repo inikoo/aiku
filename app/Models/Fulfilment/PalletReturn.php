@@ -18,6 +18,7 @@ use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -41,9 +42,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $warehouse_id
  * @property string|null $customer_reference
  * @property string $reference
- * @property int $number_pallets
- * @property int $number_pallet_stored_items
- * @property int $number_stored_items
  * @property PalletReturnTypeEnum $type Pallet|StoredItem
  * @property PalletReturnStateEnum $state
  * @property \Illuminate\Support\Carbon|null $in_process_at
@@ -79,19 +77,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read Address|null $address
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Address> $addresses
+ * @property-read Collection<int, Address> $addresses
  * @property-read Customer|null $customer
  * @property-read Address|null $deliveryAddress
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
+ * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
+ * @property-read Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
+ * @property-read Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newModelQuery()
@@ -194,18 +192,14 @@ class PalletReturn extends Model
         return $this->morphMany(FulfilmentTransaction::class, 'parent');
     }
 
-    public function services()
+    public function services(): Collection
     {
-        $transactions = $this->transactions()->where('type', 'service')->get();
-
-        return $transactions;
+        return $this->transactions()->where('type', 'service')->get();
     }
 
-    public function products()
+    public function products(): Collection
     {
-        $transactions = $this->transactions()->where('type', 'product')->get();
-
-        return $transactions;
+        return $this->transactions()->where('type', 'product')->get();
     }
 
     public function deliveryAddress(): BelongsTo

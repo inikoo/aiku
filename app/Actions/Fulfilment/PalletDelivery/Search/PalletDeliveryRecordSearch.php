@@ -65,8 +65,8 @@ class PalletDeliveryRecordSearch
                     'key'       => 'pallets',
                     'type'      => 'number',
                     'label'     => 'Pallets: ',
-                    'number'    => $palletDelivery->number_pallets,
-                    'tooltip'   => "Pallets's count"
+                    'number'    => $palletDelivery->stats->number_pallets,
+                    'tooltip'   => "Pallet's count"
                 ],
             ],
         ];

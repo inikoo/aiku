@@ -6,7 +6,6 @@
  */
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
@@ -24,9 +23,7 @@ return new class () extends Migration {
                 $table = $this->groupOrgRelationship($table);
                 $table->string('slug')->unique()->collation('und_ns');
                 $table->string('reference')->index()->collation('und_ci');
-                $table->string('status')->default(StoredItemStatusEnum::IN_PROCESS->value);
                 $table->string('state')->index()->default(StoredItemStateEnum::IN_PROCESS->value);
-                $table->string('type')->index();
                 $table->unsignedInteger('fulfilment_id')->index();
                 $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
                 $table->unsignedInteger('fulfilment_customer_id')->index();

@@ -106,7 +106,7 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(PalletDelivery::class);
-
+        $queryBuilder->leftJoin('pallet_delivery_stats', 'pallet_deliveries.id', '=', 'pallet_delivery_stats.pallet_delivery_id');
         if ($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_deliveries.fulfilment_id', $parent->id);
         } elseif ($parent instanceof Warehouse) {
@@ -120,7 +120,7 @@ class IndexPalletDeliveries extends OrgAction
             'pallet_deliveries.id',
             'pallet_deliveries.reference',
             'pallet_deliveries.customer_reference',
-            'pallet_deliveries.number_pallets',
+            'pallet_delivery_stats.number_pallets',
             'pallet_deliveries.estimated_delivery_date',
             'pallet_deliveries.state',
             'pallet_deliveries.slug'

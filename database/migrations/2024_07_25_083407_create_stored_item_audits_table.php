@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('stored_item_audits', function (Blueprint $table) {
@@ -29,6 +30,8 @@ return new class () extends Migration {
             $table->string('reference')->unique()->index();
 
             $table->string('state')->default(StoredItemAuditStateEnum::IN_PROCESS->value);
+
+            $table->dateTimeTz('in_process_at')->nullable();
             $table->dateTimeTz('completed_at')->nullable();
             $table->text('public_notes')->nullable();
             $table->text('internal_notes')->nullable();

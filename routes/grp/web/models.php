@@ -40,6 +40,7 @@ use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
+use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
@@ -48,13 +49,12 @@ use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
-use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
+use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\CancelPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
@@ -64,7 +64,7 @@ use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
+use App\Actions\Fulfilment\PalletReturn\DetachPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\Pdf\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
@@ -82,8 +82,6 @@ use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
-use App\Actions\Fulfilment\StoredItem\SetDamagedStoredItem;
-use App\Actions\Fulfilment\StoredItem\SetReturnStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
@@ -300,7 +298,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
-    Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
+    Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
     Route::post('stored-item', StoreStoredItemToReturn::class)->name('stored_item.store');
 
@@ -333,9 +331,7 @@ Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 Route::delete('{storedItem:id}/stored-items', DeleteStoredItem::class)->name('stored-items.delete');
-Route::patch('{storedItem:id}/stored-items/damaged', SetDamagedStoredItem::class)->name('stored-items.damaged');
-Route::patch('{storedItem:id}/stored-items/return', SetReturnStoredItem::class)->name('stored-items.return');
-//Route::patch('{storedItem:id}/stored-items/lost', SetPalletAsLost::class)->name('stored-items.lost');
+
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
@@ -353,7 +349,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
         Route::prefix('pallet/{pallet:id}')->group(function () {
-            Route::delete('', DeletePalletFromReturn::class)->name('pallet.delete');
+            Route::delete('', DetachPalletFromReturn::class)->name('pallet.delete');
         });
 
 

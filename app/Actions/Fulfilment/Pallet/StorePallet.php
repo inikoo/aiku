@@ -126,9 +126,18 @@ class StorePallet extends OrgAction
             'created_at'         => ['sometimes', 'date'],
             'received_at'        => ['sometimes', 'nullable', 'date'],
             'source_id'          => ['sometimes', 'nullable', 'string'],
-            'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
-            'location_id'        => ['sometimes', 'nullable', 'integer', 'exists:locations,id'],
-            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer', 'exists:pallet_deliveries,id'],
+            'warehouse_id'       => ['required', 'integer',
+                                     Rule::exists('warehouses', 'id')
+                                         ->where('organisation_id', $this->organisation->id),
+                ],
+            'location_id'        => ['sometimes', 'nullable', 'integer',
+                                     Rule::exists('locations', 'id')
+                                         ->where('organisation_id', $this->organisation->id),
+                ],
+            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer',
+                                     Rule::exists('pallet_deliveries', 'id')
+                                         ->where('fulfilment_id', $this->fulfilment->id),
+                ],
             'rental_id'          => [
                 'sometimes',
                 'required',

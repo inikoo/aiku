@@ -31,7 +31,7 @@ return new class () extends Migration {
 
 
             $table->unsignedSmallInteger('number_fulfilments')->default(0);
-            $table = $this->containerFulfilmentStats($table);
+            $table = $this->fulfilmentCustomersStats($table);
             $table = $this->fulfilmentStats($table);
 
             $table->timestampsTz();

@@ -7,17 +7,22 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItems;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateWithStoredItems;
 use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
+use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -35,15 +40,23 @@ class StoreStoredItem extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'fulfilment_id', $parent->fulfilment_id);
 
-        $modelData['type'] = StoredItemTypeEnum::PALLET;
-
         /** @var StoredItem $storedItem */
         $storedItem = $parent->storedItems()->create($modelData);
 
-        if($parent instanceof FulfilmentCustomer) {
-            FulfilmentCustomerHydrateStoredItems::dispatch($parent);
+        if ($parent instanceof Pallet) {
+            PalletHydrateWithStoredItems::run($parent); // !important this must be ::run
+            PalletHydrateStoredItems::dispatch($parent);
         }
+
+        GroupHydrateStoredItems::dispatch($parent->group);
+        OrganisationHydrateStoredItems::dispatch($parent->organisation);
+        FulfilmentHydrateStoredItems::dispatch($parent->fulfilment);
+        FulfilmentCustomerHydrateStoredItems::dispatch($storedItem->fulfilmentCustomer);
+
+
+
         StoredItemRecordSearch::dispatch($storedItem);
+
         return $storedItem;
     }
 
@@ -64,9 +77,14 @@ class StoreStoredItem extends OrgAction
     public function rules(): array
     {
         return [
-            'reference'   => ['required', 'unique:stored_items', 'between:2,9', 'alpha'],
-            'type'        => ['sometimes', Rule::enum(StoredItemTypeEnum::class)],
-            'location_id' => ['sometimes', 'exists:locations,id']
+            'reference'    => ['required', 'max:128',  new AlphaDashDotSpaceSlashParenthesisPlus(),
+             new IUnique(
+                 table: 'stored_items',
+                 extraConditions: [
+                     ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
+                 ]
+             )
+            ]
         ];
     }
 

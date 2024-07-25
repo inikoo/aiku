@@ -30,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $warehouse_id
  * @property string $reference
  * @property StoredItemAuditStateEnum $state
+ * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $completed_at
  * @property string|null $public_notes
  * @property string|null $internal_notes
@@ -43,12 +44,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit query()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit withoutTrashed()
  * @mixin \Eloquent
  */
 class StoredItemAudit extends Model
@@ -66,9 +65,10 @@ class StoredItemAudit extends Model
     }
 
     protected $casts = [
-        'state'        => StoredItemAuditStateEnum::class,
-        'completed_at' => 'datetime',
-        'data'         => 'array'
+        'state'         => StoredItemAuditStateEnum::class,
+        'in_process_at' => 'datetime',
+        'completed_at'  => 'datetime',
+        'data'          => 'array'
     ];
 
     public function getSlugOptions(): SlugOptions

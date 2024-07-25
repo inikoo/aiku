@@ -7,8 +7,6 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
@@ -34,9 +32,6 @@ class StoreMultiplePalletsFromDelivery extends OrgAction
         for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
             StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets']));
         }
-
-        PalletDeliveryHydratePallets::dispatch($palletDelivery);
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -65,7 +60,12 @@ class StoreMultiplePalletsFromDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'warehouse_id'   => ['required', 'integer', 'exists:warehouses,id'],
+            'warehouse_id'   => [
+                'required',
+                'integer',
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
             'number_pallets' => ['required', 'integer', 'min:1', 'max:1000'],
             'type'           => ['required', Rule::enum(PalletTypeEnum::class)],
         ];

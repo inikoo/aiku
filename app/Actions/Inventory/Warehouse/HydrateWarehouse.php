@@ -10,8 +10,12 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\HydrateModel;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateFulfilments;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStocks;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItems;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Models\Inventory\Warehouse;
 use Illuminate\Support\Collection;
@@ -25,8 +29,16 @@ class HydrateWarehouse extends HydrateModel
         WarehouseHydrateLocations::run($warehouse);
         WarehouseHydrateStocks::run($warehouse);
         WarehouseHydrateWarehouseAreas::run($warehouse);
+
         WarehouseHydrateFulfilments::run($warehouse);
+
         WarehouseHydratePallets::run($warehouse);
+        WarehouseHydratePalletDeliveries::run($warehouse);
+        WarehouseHydratePalletReturns::run($warehouse);
+        WarehouseHydrateStoredItemAudits::run($warehouse);
+        WarehouseHydrateStoredItems::run($warehouse);
+
+
     }
 
     protected function getModel(string $slug): Warehouse

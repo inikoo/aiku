@@ -28,7 +28,6 @@ class StoreRecurringBill extends OrgAction
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
     {
 
-
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
                 $modelData,
@@ -81,13 +80,15 @@ class StoreRecurringBill extends OrgAction
         /** @var RecurringBill $recurringBill */
         $recurringBill = $rentalAgreement->recurringBills()->create($modelData);
         $recurringBill->stats()->create();
+        $recurringBill->refresh();
+
         StoreStrayRecurringBillTransactionables::run($recurringBill);
 
 
-        GroupHydrateRecurringBills::dispatch($rentalAgreement->group);
-        OrganisationHydrateRecurringBills::dispatch($rentalAgreement->organisation);
-        FulfilmentHydrateRecurringBills::dispatch($rentalAgreement->fulfilment);
-        FulfilmentCustomerHydrateRecurringBills::dispatch($rentalAgreement->fulfilmentCustomer);
+        GroupHydrateRecurringBills::dispatch($recurringBill->group);
+        OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation);
+        FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment);
+        FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer);
 
         RecurringBillRecordSearch::dispatch($recurringBill);
 
@@ -118,6 +119,7 @@ class StoreRecurringBill extends OrgAction
         $this->asAction = true;
 
         try {
+            /** @var RentalAgreement $rentalAgreement */
             $rentalAgreement = RentalAgreement::where('slug', $command->argument('rental-agreement'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());

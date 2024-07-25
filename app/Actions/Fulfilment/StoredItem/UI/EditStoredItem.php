@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -32,12 +31,8 @@ class EditStoredItem extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
     }
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
@@ -80,19 +75,6 @@ class EditStoredItem extends OrgAction
                                     'value'   => $storedItem->reference,
                                     'required'=> true
                                 ],
-                                'type' => [
-                                    'type'    => 'select',
-                                    'label'   => __('type'),
-                                    'value'   => $storedItem->type,
-                                    'required'=> true,
-                                    'options' => StoredItemTypeEnum::values()
-                                ],
-                                // 'location' => [
-                                //     'type'     => 'combobox',
-                                //     'label'    => __('location'),
-                                //     'value'    => '',
-                                //     'required' => true
-                                // ]
                             ]
                         ]
                     ],

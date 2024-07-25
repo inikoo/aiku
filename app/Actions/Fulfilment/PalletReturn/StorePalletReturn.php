@@ -8,13 +8,15 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
@@ -63,10 +65,14 @@ class StorePalletReturn extends OrgAction
         $palletReturn = $fulfilmentCustomer->palletReturns()->create($modelData);
         $palletReturn->stats()->create();
         $palletReturn->refresh();
-        HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
+
         PalletReturnRecordSearch::dispatch($palletReturn);
-        FulfilmentCustomerHydratePalletReturns::dispatch($fulfilmentCustomer);
-        FulfilmentHydratePalletReturns::dispatch($fulfilmentCustomer->fulfilment);
+
+        GroupHydratePalletReturns::dispatch($palletReturn->group);
+        OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
+        WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
+        FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
+        FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
         SendPalletReturnNotification::run($palletReturn);
 
@@ -117,7 +123,10 @@ class StorePalletReturn extends OrgAction
 
         return [
             'type'          => ['sometimes','required', Rule::enum(PalletReturnTypeEnum::class)],
-            'warehouse_id'  => ['required','integer','exists:warehouses,id'],
+            'warehouse_id'  => ['required','integer',
+                                Rule::exists('warehouses', 'id')
+                                    ->where('organisation_id', $this->organisation->id),
+                ],
             'customer_notes'=> ['sometimes','nullable','string'],
             ...$rules
         ];

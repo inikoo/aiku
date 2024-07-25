@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -76,31 +75,8 @@ class ShowStoredItem extends OrgAction
                     'model'  => 'stored item',
                     'title'  => $storedItem->slug,
                     'actions'=> [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'exit',
-                            'tooltip' => __('return to customer'),
-                            'label'   => $storedItem->status == StoredItemStatusEnum::RETURNED ? __('returned') : __('return to customer'),
-                            'route'   => [
-                                'method'     => 'patch',
-                                'name'       => 'grp.models.stored-items.return',
-                                'parameters' => $storedItem->id
-                            ],
-                            'disabled' => $storedItem->status == StoredItemStatusEnum::RETURNED
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'negative',
-                            'icon'    => 'fal fa-fragile',
-                            'tooltip' => __('Set as damaged'),
-                            'label'   => $storedItem->status == StoredItemStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
-                            'route'   => [
-                                'method'     => 'patch',
-                                'name'       => 'grp.models.stored-items.damaged',
-                                'parameters' => $storedItem->id
-                            ],
-                            'disabled' => $storedItem->status == StoredItemStatusEnum::DAMAGED
-                        ],
+
+
                         [
                             'type'    => 'button',
                             'style'   => 'secondary',

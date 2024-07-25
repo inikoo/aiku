@@ -7,10 +7,14 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletDeliveries;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -43,8 +47,12 @@ class StartBookingPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
+        GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
+        OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
+        WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
+        FulfilmentCustomerHydratePalletDeliveries::dispatch($palletDelivery->fulfilmentCustomer);
+        FulfilmentHydratePalletDeliveries::dispatch($palletDelivery->fulfilment);
 
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
         return $palletDelivery;
     }

@@ -139,20 +139,14 @@ class ShowInvoice extends OrgAction
                     [
                         [
                             'label'         => __('Services'),
-                            // 'quantity'      => $palletDelivery->number_pallets ?? 0,
-                            // 'price_base'    => __('Multiple'),
                             'price_total'   => $invoice->services_amount
                         ],
                         [
                             'label'         => __('Physical Goods'),
-                            // 'quantity'      => $palletDelivery->stats->number_services ?? 0,
-                            // 'price_base'    => __('Multiple'),
                             'price_total'   => $invoice->goods_amount
                         ],
                         [
                             'label'         => __('Rental'),
-                            // 'quantity'      => $palletDelivery->stats->number_services ?? 0,
-                            // 'price_base'    => __('Multiple'),
                             'price_total'   => $invoice->rental_amount
                         ],
                     ],

@@ -130,7 +130,7 @@ beforeEach(function () {
     if (!$service) {
         data_set($storeData, 'code', 'TEST1');
         data_set($storeData, 'state', ServiceStateEnum::ACTIVE);
-        data_set($storeData, 'name', 'testo1');
+        data_set($storeData, 'name', 'test1');
         data_set($storeData, 'price', 100);
         data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
 
@@ -145,7 +145,7 @@ beforeEach(function () {
     $physicalGoods = Product::first();
     if (!$physicalGoods) {
         data_set($storeData, 'code', 'TEST2');
-        data_set($storeData, 'name', 'testo2');
+        data_set($storeData, 'name', 'test2');
         data_set($storeData, 'state', ProductStateEnum::ACTIVE);
 
         data_set($storeData, 'price', 100);

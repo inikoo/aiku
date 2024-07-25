@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
@@ -16,6 +15,7 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -23,11 +23,8 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -54,10 +51,10 @@ class UpdatePallet extends OrgAction
                 UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
             }
 
-            HydrateFulfilmentCustomer::dispatch($pallet->fulfilmentCustomer);
+            GroupHydratePallets::dispatch($pallet->group);
+            OrganisationHydratePallets::dispatch($pallet->organisation);
             FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
             FulfilmentHydratePallets::dispatch($pallet->fulfilment);
-            OrganisationHydratePallets::dispatch($pallet->organisation);
             WarehouseHydratePallets::dispatch($pallet->warehouse);
         }
 
@@ -142,7 +139,7 @@ class UpdatePallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function fromApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
+    public function fromApi(Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($pallet->fulfilment, $request);

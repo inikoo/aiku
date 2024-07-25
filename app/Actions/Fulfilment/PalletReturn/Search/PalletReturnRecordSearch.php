@@ -62,8 +62,8 @@ class PalletReturnRecordSearch
                     'key'       => 'pallets',
                     'type'      => 'number',
                     'label'     => 'Pallets: ',
-                    'number'    => $palletReturn->number_pallets,
-                    'tooltip'   => "Pallets's count"
+                    'number'    => $palletReturn->stats->number_pallets,
+                    'tooltip'   => "Pallet's count"
                 ],
             ],
         ];

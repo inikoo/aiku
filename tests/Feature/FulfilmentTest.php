@@ -15,6 +15,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
+use App\Actions\Fulfilment\Pallet\DeletePalletInDelivery;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
@@ -23,12 +24,11 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
-use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
+use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
-use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
@@ -521,7 +521,7 @@ test('create second rental agreement', function (FulfilmentCustomer $fulfilmentC
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test-a',
-            'email'         => 'testo@testmail.com',
+            'email'         => 'test-bis@testmail.com',
             'clauses'       => [
                 'rentals' => [
                     [
@@ -610,7 +610,7 @@ test('create pallet delivery', function ($fulfilmentCustomer) {
     $fulfilmentCustomer->refresh();
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS)
-        ->and($palletDelivery->number_pallets)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(0)
         ->and($fulfilmentCustomer->number_pallet_deliveries)->toBe(1)
         ->and($fulfilmentCustomer->number_pallets)->toBe(0);
 
@@ -630,7 +630,7 @@ test('create second pallet delivery', function ($fulfilmentCustomer) {
     $fulfilmentCustomer->refresh();
     expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS)
-        ->and($palletDelivery->number_pallets)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(0)
         ->and($fulfilmentCustomer->number_pallet_deliveries)->toBe(1)
         ->and($fulfilmentCustomer->number_pallets)->toBe(0);
 
@@ -675,6 +675,7 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
     );
 
     $palletDelivery->refresh();
+
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($palletDelivery->stats->number_services)->toBe(1)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
@@ -687,8 +688,10 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
         ->and($pallet->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
         ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
         ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
-        ->and($palletDelivery->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
         ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1);
+
+
 
 
     return $pallet;
@@ -717,7 +720,7 @@ test('add pallet to second pallet delivery', function (PalletDelivery $palletDel
         ->and($pallet->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
         ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
         ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
-        ->and($palletDelivery->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
         ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1);
 
 
@@ -736,11 +739,11 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
 
     $palletDelivery->refresh();
 
-    expect($palletDelivery->number_pallets)->toBe(4)
+    expect($palletDelivery->stats->number_pallets)->toBe(4)
         ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(3)
         ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0);
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0);
 
     return $palletDelivery;
 })->depends('create pallet delivery');
@@ -752,12 +755,12 @@ test('remove a pallet from pallet delivery', function (PalletDelivery $palletDel
 
     $palletDelivery->refresh();
 
-    expect($palletDelivery->number_pallets)->toBe(3)
+    expect($palletDelivery->stats->number_pallets)->toBe(3)
         ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(2)
         ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
         ->and($palletDelivery->stats->number_services)->toBe(2)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0);
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0);
 
     return $palletDelivery;
 })->depends('add multiple pallets to pallet delivery');
@@ -773,12 +776,12 @@ test('remove a service from pallet delivery', function (PalletDelivery $palletDe
 
     $palletDelivery->refresh();
 
-    expect($palletDelivery->number_pallets)->toBe(3)
+    expect($palletDelivery->stats->number_pallets)->toBe(3)
         ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(2)
         ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1)
         ->and($palletDelivery->stats->number_services)->toBe(1)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0);
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0);
 
     return $palletDelivery;
 })->depends('remove a pallet from pallet delivery');
@@ -792,9 +795,9 @@ test('confirm pallet delivery', function (PalletDelivery $palletDelivery) {
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
         ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(3)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0)
         // ->and($pallet->reference)->toEndWith('-p0001')
         ->and($pallet->state)->toBe(PalletStateEnum::CONFIRMED)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
@@ -811,10 +814,9 @@ test('confirm second pallet delivery', function (PalletDelivery $palletDelivery)
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
         ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(1)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0)
-        // ->and($pallet->reference)->toEndWith('-p0001')
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0)
         ->and($pallet->state)->toBe(PalletStateEnum::CONFIRMED)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
 
@@ -833,7 +835,7 @@ test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
         ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
         ->and($palletNotInRentalCount)->toBe(1);
 
     return $palletDelivery;
@@ -851,7 +853,7 @@ test('receive second pallet delivery', function (PalletDelivery $palletDelivery)
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
         ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
         ->and($palletNotInRentalCount)->toBe(1);
 
     return $palletDelivery;
@@ -1063,9 +1065,9 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(3)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0)
         ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills)->toBe(1)
         ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills_status_former)->toBe(0)
         ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills_status_current)->toBe(1)
@@ -1111,9 +1113,9 @@ test('set second pallet delivery as booked in', function (PalletDelivery $pallet
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(1)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_stored_items)->toBe(0)
         ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills)->toBe(2)
         ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills_status_former)->toBe(0)
         ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills_status_current)->toBe(2)
@@ -1194,7 +1196,7 @@ test('create pallet return', function (PalletDelivery $palletDelivery) {
     $fulfilmentCustomer->refresh();
     expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
-        ->and($palletReturn->number_pallets)->toBe(0)
+        ->and($palletReturn->stats->number_pallets)->toBe(0)
         ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
@@ -1216,7 +1218,7 @@ test('update pallet return', function (PalletReturn $palletReturn) {
     expect($updatedPalletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
         ->and($palletReturn->customer_notes)->toBe('note')
-        ->and($palletReturn->number_pallets)->toBe(0)
+        ->and($palletReturn->stats->number_pallets)->toBe(0)
         ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
@@ -1235,7 +1237,7 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     );
 
 
-    $storedPallet = StorePalletToReturn::make()->action(
+    $palletReturn = AttachPalletsToReturn::make()->action(
         $palletReturn,
         [
             'pallets' => [
@@ -1243,17 +1245,17 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
             ],
         ]
     );
-    // dd($storedPallet);
+    $palletReturn->refresh();
     $fulfilmentCustomer->refresh();
-    $firstPallet = $storedPallet->pallets->first();
-    expect($storedPallet)->toBeInstanceOf(PalletReturn::class)
-        ->and($storedPallet->number_pallets)->toBe(1)
+    $firstPallet = $palletReturn->pallets->first();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->stats->number_pallets)->toBe(1)
         ->and($firstPallet)->toBeInstanceOf(Pallet::class)
         ->and($firstPallet->status)->toBe(PalletStatusEnum::STORING)
         ->and($firstPallet->state)->toBe(PalletStateEnum::IN_PROCESS)
         ->and($firstPallet->pallet_return_id)->toBe($palletReturn->id);
 
-    return $storedPallet;
+    return $palletReturn;
 })->depends('create pallet return');
 
 

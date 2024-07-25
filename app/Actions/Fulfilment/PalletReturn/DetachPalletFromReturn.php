@@ -1,13 +1,14 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 25 Jul 2024 23:14:05 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -21,7 +22,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class DeletePalletFromReturn extends OrgAction
+class DetachPalletFromReturn extends OrgAction
 {
     use WithActionUpdate;
 
@@ -37,8 +38,11 @@ class DeletePalletFromReturn extends OrgAction
 
         $palletReturn->pallets()->detach([$pallet->id]);
         AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
-        HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
+
         SendPalletReturnNotification::run($palletReturn);
+
+        PalletReturnHydratePallets::dispatch($palletReturn);
+        PalletReturnHydrateTransactions::dispatch($palletReturn);
 
         return true;
     }

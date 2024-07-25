@@ -7,14 +7,14 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletDeliveries;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
@@ -37,16 +37,20 @@ class CancelPalletDelivery extends OrgAction
         $modelData['submitted_at'] = null;
         $modelData['state']        = PalletDeliveryStateEnum::IN_PROCESS;
 
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
         SendPalletDeliveryNotification::dispatch($palletDelivery);
 
-        FulfilmentCustomerHydratePallets::dispatch($palletDelivery->fulfilmentCustomer);
-        FulfilmentHydratePallets::dispatch($palletDelivery->fulfilment);
-        OrganisationHydratePallets::dispatch($palletDelivery->organisation);
-        WarehouseHydratePallets::dispatch($palletDelivery->warehouse);
+
+        GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
+        OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
+        WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
+        FulfilmentCustomerHydratePalletDeliveries::dispatch($palletDelivery->fulfilmentCustomer);
+        FulfilmentHydratePalletDeliveries::dispatch($palletDelivery->fulfilment);
+
+
+
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
 
         return $palletDelivery;

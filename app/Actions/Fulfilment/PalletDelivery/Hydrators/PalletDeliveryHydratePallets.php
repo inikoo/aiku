@@ -15,7 +15,6 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class PalletDeliveryHydratePallets extends HydrateModel
@@ -37,7 +36,8 @@ class PalletDeliveryHydratePallets extends HydrateModel
     public function handle(PalletDelivery $palletDelivery): void
     {
         $stats = [
-            'number_pallets' => Pallet::where('pallet_delivery_id', $palletDelivery->id)->count()
+            'number_pallets'                   => Pallet::where('pallet_delivery_id', $palletDelivery->id)->count(),
+            'number_pallets_with_stored_items' => Pallet::where('pallet_delivery_id', $palletDelivery->id)->where('with_stored_items', '=', true)->count(),
         ];
 
         $stats=array_merge($stats, $this->getEnumStats(
@@ -70,7 +70,6 @@ class PalletDeliveryHydratePallets extends HydrateModel
             }
         ));
 
-        $palletDelivery->update(Arr::only($stats, ['number_pallets']));
         $palletDelivery->stats()->update($stats);
     }
 }

@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletReturn\AutoAssignServicesToPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -16,18 +16,16 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
-class StorePalletToReturn extends OrgAction
+class AttachPalletsToReturn extends OrgAction
 {
     use AsCommand;
 
-    public $commandSignature = 'pallet:store-to-return {palletReturn}';
 
     private PalletReturn $parent;
 
@@ -57,8 +55,7 @@ class StorePalletToReturn extends OrgAction
             AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
         }
 
-        HydratePalletReturns::run($palletReturn);
-
+        PalletReturnHydratePallets::run($palletReturn);
         return $palletReturn;
     }
 
@@ -113,23 +110,6 @@ class StorePalletToReturn extends OrgAction
     }
 
 
-    public function asCommand(Command $command): int
-    {
-        $palletReturn = PalletReturn::where('reference', $command->argument('palletDelivery'))->firstOrFail();
-
-        $this->handle($palletReturn, [
-            'group_id'               => $palletReturn->group_id,
-            'organisation_id'        => $palletReturn->organisation_id,
-            'fulfilment_id'          => $palletReturn->fulfilment_id,
-            'fulfilment_customer_id' => $palletReturn->fulfilment_customer_id,
-            'warehouse_id'           => $palletReturn->warehouse_id,
-            'slug'                   => now()->timestamp
-        ]);
-
-        echo "Pallet created from delivery: $palletReturn->reference\n";
-
-        return 0;
-    }
 
 
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse

@@ -8,6 +8,7 @@
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Stubs\Migrations\HasFulfilmentStats;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
+    use HasFulfilmentStats;
 
     public function up(): void
     {
@@ -46,11 +48,6 @@ return new class () extends Migration {
                 $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
                 $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
 
-                $table->boolean('with_cartons')->default(false);
-                $table->boolean('with_stored_items')->default(false);
-
-                $table->unsignedSmallInteger('number_cartons')->nullable();
-                $table->unsignedSmallInteger('number_stored_items')->nullable();
 
                 $table->unsignedSmallInteger('current_recurring_bill_id')->nullable()->index()->after('pallet_return_id');
                 $table->dateTimeTz('received_at')->nullable();
@@ -67,6 +64,12 @@ return new class () extends Migration {
 
                 $table->jsonb('data');
                 $table->jsonb('incident_report');
+
+
+                $table->boolean('with_stored_items')->default(false);
+
+                $table=$this->storedItemsAuditStats($table);
+
                 $table->timestampsTz();
                 $table = $this->softDeletes($table);
                 $table->string('source_id')->nullable()->unique();

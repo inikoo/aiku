@@ -8,9 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
-use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
@@ -32,9 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property string $slug
  * @property string $reference
- * @property StoredItemStatusEnum $status
  * @property StoredItemStateEnum $state
- * @property StoredItemTypeEnum $type
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
  * @property string $notes
@@ -51,10 +47,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Location|null $location
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read Warehouse|null $warehouse
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()
  * @method static Builder|StoredItem query()
@@ -71,8 +67,6 @@ class StoredItem extends Model implements Auditable
         'data'            => 'array',
         'incident_report' => 'array',
         'state'           => StoredItemStateEnum::class,
-        'status'          => StoredItemStatusEnum::class,
-        'type'            => StoredItemTypeEnum::class
     ];
 
     protected $attributes = [
@@ -106,9 +100,9 @@ class StoredItem extends Model implements Auditable
         return $this->belongsTo(FulfilmentCustomer::class);
     }
 
-    public function location(): BelongsTo
+    public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(Location::class);
+        return $this->belongsTo(Warehouse::class);
     }
 
     public function pallets(): BelongsToMany

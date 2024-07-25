@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('fulfilment_id');
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->containerFulfilmentStats($table);
+            $table = $this->fulfilmentCustomersStats($table);
             $table = $this->fulfilmentStats($table);
             $table->timestampsTz();
         });

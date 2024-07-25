@@ -9,7 +9,12 @@ namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateRecurringBills;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
+use App\Actions\Fulfilment\RecurringBill\Search\RecurringBillRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -60,6 +65,14 @@ class ConsolidateRecurringBill extends OrgAction
         } else {
             $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => null]);
         }
+
+        GroupHydrateRecurringBills::dispatch($recurringBill->group);
+        OrganisationHydrateRecurringBills::dispatch($recurringBill->organisation);
+        FulfilmentHydrateRecurringBills::dispatch($recurringBill->fulfilment);
+        FulfilmentCustomerHydrateRecurringBills::dispatch($recurringBill->fulfilmentCustomer);
+
+        RecurringBillRecordSearch::dispatch($recurringBill);
+
 
         return $recurringBill;
     }

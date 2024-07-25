@@ -18,6 +18,9 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgAgents;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSuppliers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletDeliveries;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRawMaterials;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentAccounts;
@@ -36,6 +39,8 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRentals;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateServices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubscription;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
@@ -79,7 +84,6 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateFamilies::run($organisation);
             OrganisationHydrateCollectionCategories::run($organisation);
             OrganisationHydrateCollections::run($organisation);
-            OrganisationHydrateRecurringBills::run($organisation);
             OrganisationHydrateProductions::run($organisation);
             OrganisationHydrateWarehouses::run($organisation);
             OrganisationHydrateWarehouseAreas::run($organisation);
@@ -91,6 +95,15 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateOrgAgents::run($organisation);
             OrganisationHydrateOrgSuppliers::run($organisation);
             OrganisationHydrateOrgSupplierProducts::run($organisation);
+
+            //fulfilment
+            OrganisationHydratePallets::run($organisation);
+            OrganisationHydratePalletDeliveries::run($organisation);
+            OrganisationHydratePalletReturns::run($organisation);
+            OrganisationHydrateStoredItemAudits::run($organisation);
+            OrganisationHydrateStoredItems::run($organisation);
+            OrganisationHydrateRecurringBills::run($organisation);
+
 
         }
 

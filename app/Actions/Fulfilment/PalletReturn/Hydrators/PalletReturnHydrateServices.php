@@ -32,7 +32,7 @@ class PalletReturnHydrateServices extends HydrateModel
     public function handle(PalletReturn $palletReturn): void
     {
         $totalPrice = 0;
-        $palletReturn->services->each(function ($service) use (&$totalPrice, &$totalQuantity) {
+        $palletReturn->services()->each(function ($service) use (&$totalPrice, &$totalQuantity) {
             $totalPrice += $service->price * $service->pivot->quantity;
         });
 

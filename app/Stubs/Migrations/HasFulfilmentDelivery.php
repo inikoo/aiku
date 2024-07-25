@@ -26,9 +26,6 @@ trait HasFulfilmentDelivery
         $table->foreign('warehouse_id')->references('id')->on('warehouses');
         $table->string('customer_reference')->nullable()->index();
         $table->string('reference')->unique()->index();
-        $table->unsignedSmallInteger('number_pallets')->default(0);
-        $table->unsignedSmallInteger('number_pallet_stored_items')->default(0);
-        $table->unsignedSmallInteger('number_stored_items')->default(0);
 
         return $table;
     }

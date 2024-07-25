@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 25 Jul 2024 22:20:34 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Enums\Manufacturing\JobOrder\JobOrderStateEnum;
 use App\Enums\Manufacturing\JobOrderItem\JobOrderItemStatusEnum;
@@ -12,7 +17,7 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('job_order_items', function (Blueprint $table) {
             $table->id();
@@ -27,24 +32,15 @@ return new class () extends Migration {
             $table->string('state')->index()->default(JobOrderStateEnum::IN_PROCESS->value);
             $table->text('notes')->nullable();
             $table->integer('quantity');
-            $table->dateTimeTz('received_at')->nullable();
-            $table->dateTimeTz('booking_in_at')->nullable();
-            $table->dateTimeTz('set_as_not_received_at')->nullable();
-            $table->dateTimeTz('booked_in_at')->nullable();
-            $table->dateTimeTz('storing_at')->nullable();
-            $table->dateTimeTz('requested_for_return_at')->nullable();
-            $table->dateTimeTz('picking_at')->nullable();
-            $table->dateTimeTz('picked_at')->nullable();
-            $table->dateTimeTz('set_as_incident_at')->nullable();
-            $table->dateTimeTz('dispatched_at')->nullable();
+
             $table->jsonb('data');
             $table->timestampsTz();
-            $table = $this->softDeletes($table);
+            $this->softDeletes($table);
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('job_order_items');
     }

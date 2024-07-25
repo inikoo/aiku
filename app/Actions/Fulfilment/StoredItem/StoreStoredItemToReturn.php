@@ -7,14 +7,11 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
-use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -46,15 +43,12 @@ class StoreStoredItemToReturn extends OrgAction
                 'quantity_ordered'      => $quantity
             ]);
 
-            StoredItem::where('id', $storedItemId)->update([
-                'status' => StoredItemStatusEnum::STORING,
-                'state'  => StoredItemStateEnum::IN_PROCESS
-            ]);
+
         }
 
         $palletReturn->refresh();
 
-        HydratePalletReturns::run($palletReturn);
+        PalletReturnHydratePallets::run($palletReturn);
 
         return $palletReturn;
     }

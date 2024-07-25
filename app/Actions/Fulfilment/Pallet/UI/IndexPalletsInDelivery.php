@@ -92,10 +92,7 @@ class IndexPalletsInDelivery extends OrgAction
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => __('No pallet in this delivery'),
-                'count' => match (class_basename($palletDelivery)) {
-                    'FulfilmentCustomer' => $palletDelivery->number_pallets,
-                    default              => $palletDelivery->stats->number_pallets
-                }
+                'count' => $palletDelivery->stats->number_pallets
             ];
 
 

@@ -27,16 +27,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property JobOrderItemStateEnum $state
  * @property string|null $notes
  * @property int $quantity
- * @property \Illuminate\Support\Carbon|null $received_at
- * @property \Illuminate\Support\Carbon|null $booking_in_at
- * @property \Illuminate\Support\Carbon|null $set_as_not_received_at
- * @property \Illuminate\Support\Carbon|null $booked_in_at
- * @property \Illuminate\Support\Carbon|null $storing_at
- * @property \Illuminate\Support\Carbon|null $requested_for_return_at
- * @property \Illuminate\Support\Carbon|null $picking_at
- * @property \Illuminate\Support\Carbon|null $picked_at
- * @property \Illuminate\Support\Carbon|null $set_as_incident_at
- * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

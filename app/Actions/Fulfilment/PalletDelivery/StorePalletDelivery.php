@@ -14,7 +14,10 @@ use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotifi
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletDeliveries;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -23,6 +26,7 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,7 +44,6 @@ class StorePalletDelivery extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
-
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
                 $modelData,
@@ -56,15 +59,20 @@ class StorePalletDelivery extends OrgAction
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
 
-        $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_DELIVERY);
+        $modelData = $this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_DELIVERY);
 
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
         $palletDelivery->stats()->create();
         $palletDelivery->refresh();
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
+
+        GroupHydratePalletDeliveries::dispatch($fulfilmentCustomer->group);
+        OrganisationHydratePalletDeliveries::dispatch($fulfilmentCustomer->organisation);
+        WarehouseHydratePalletDeliveries::dispatch($palletDelivery->warehouse);
         FulfilmentCustomerHydratePalletDeliveries::dispatch($fulfilmentCustomer);
         FulfilmentHydratePalletDeliveries::dispatch($fulfilmentCustomer->fulfilment);
+
 
         SendPalletDeliveryNotification::dispatch($palletDelivery);
 
@@ -73,7 +81,7 @@ class StorePalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action) {
+        if ($this->action) {
             return true;
         }
 
@@ -81,7 +89,7 @@ class StorePalletDelivery extends OrgAction
             return true;
         }
 
-        if($this->hasRentalAgreement($this->fulfilmentCustomer)) {
+        if ($this->hasRentalAgreement($this->fulfilmentCustomer)) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
@@ -90,10 +98,10 @@ class StorePalletDelivery extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if($this->fulfilment->warehouses()->count()==1) {
+        if ($this->fulfilment->warehouses()->count() == 1) {
             /** @var Warehouse $warehouse */
             $warehouse = $this->fulfilment->warehouses()->first();
-            $this->fill(['warehouse_id' =>$warehouse->id]);
+            $this->fill(['warehouse_id' => $warehouse->id]);
         }
     }
 
@@ -102,16 +110,21 @@ class StorePalletDelivery extends OrgAction
     {
         $rules = [];
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $rules = [
-                'public_notes'  => ['sometimes','nullable','string','max:4000'],
-                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             ];
         }
 
         return [
-            'warehouse_id'  => ['required','integer','exists:warehouses,id'],
-            'customer_notes'=> ['sometimes','nullable','string'],
+            'warehouse_id'   => [
+                'required',
+                'integer',
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
             ...$rules
         ];
     }
@@ -124,6 +137,7 @@ class StorePalletDelivery extends OrgAction
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
@@ -132,6 +146,7 @@ class StorePalletDelivery extends OrgAction
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
@@ -150,10 +165,10 @@ class StorePalletDelivery extends OrgAction
             'route' => [
                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
                 'parameters' => [
-                    'organisation'           => $palletDelivery->organisation->slug,
-                    'fulfilment'             => $palletDelivery->fulfilment->slug,
-                    'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                    'palletDelivery'         => $palletDelivery->reference
+                    'organisation'       => $palletDelivery->organisation->slug,
+                    'fulfilment'         => $palletDelivery->fulfilment->slug,
+                    'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                    'palletDelivery'     => $palletDelivery->reference
                 ]
             ]
         ];
@@ -165,18 +180,16 @@ class StorePalletDelivery extends OrgAction
 
         return match ($routeName) {
             'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
-                'organisation'           => $palletDelivery->organisation->slug,
-                'fulfilment'             => $palletDelivery->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletDelivery->slug
+                'organisation'       => $palletDelivery->organisation->slug,
+                'fulfilment'         => $palletDelivery->fulfilment->slug,
+                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                'palletDelivery'     => $palletDelivery->slug
             ])),
             default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
-                'palletDelivery'         => $palletDelivery->slug
+                'palletDelivery' => $palletDelivery->slug
             ]))
         };
     }
-
-
 
 
 }

@@ -44,10 +44,9 @@ class UpdatePalletDeliveryStateFromItems
                 return NotReceivedPalletDelivery::run($palletDelivery);
             }
 
-            if ($palletNotInRentalCount >0) {
+            if ($palletNotInRentalCount > 0) {
                 return $palletDelivery;
             }
-
         }
 
 
@@ -64,14 +63,15 @@ class UpdatePalletDeliveryStateFromItems
             $palletDelivery = PalletDelivery::where('slug', $command->argument('slug'))->firstOrFail();
         } catch (Exception) {
             $command->error('Pallet Delivery not found');
+
             return 1;
         }
 
 
-
-        $palletDelivery=$this->handle($palletDelivery);
+        $palletDelivery = $this->handle($palletDelivery);
 
         $command->info("Pallet Delivery $palletDelivery->reference has state ".$palletDelivery->state->value." 🎉");
+
         return $exitCode;
     }
 

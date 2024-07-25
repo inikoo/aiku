@@ -147,7 +147,7 @@ beforeEach(function () {
     if (!$rental) {
         data_set($storeData, 'code', 'TEST');
         data_set($storeData, 'state', RentalStateEnum::ACTIVE);
-        data_set($storeData, 'name', 'testo');
+        data_set($storeData, 'name', 'test');
         data_set($storeData, 'price', 100);
         data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
 
@@ -163,7 +163,7 @@ beforeEach(function () {
     if (!$service) {
         data_set($storeData, 'code', 'TEST');
         data_set($storeData, 'state', ServiceStateEnum::ACTIVE);
-        data_set($storeData, 'name', 'testo');
+        data_set($storeData, 'name', 'test');
         data_set($storeData, 'price', 100);
         data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
 
@@ -177,7 +177,7 @@ beforeEach(function () {
 
     $storedItem = StoredItem::first();
     if (!$storedItem) {
-        data_set($storeData, 'reference', 'reffxx');
+        data_set($storeData, 'reference', 'stored-item-ref');
 
         $storedItem = StoreStoredItem::make()->action(
             $this->customer->fulfilmentCustomer,
@@ -587,6 +587,7 @@ test('UI Index lost pallets in warehouse', function () {
 // Pallet Delivery
 
 test('UI Index pallet deliveries', function () {
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-deliveries.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -957,7 +958,7 @@ test('UI edit stored item', function () {
         $page
             ->component('EditModel')
             ->has('title')
-            ->has('formData.blueprint.0.fields', 2)
+            ->has('formData.blueprint.0.fields', 1)
             ->has('pageHead')
             ->has(
                 'formData.args.updateRoute',

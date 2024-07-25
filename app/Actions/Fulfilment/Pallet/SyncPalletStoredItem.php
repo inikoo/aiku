@@ -7,7 +7,8 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\Pallet\Hydrators\HydrateQuantityPalletStoredItems;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateWithStoredItems;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,8 +25,8 @@ class SyncPalletStoredItem
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
         $pallet->storedItems()->sync($modelData['stored_item_id']);
-
-        HydrateQuantityPalletStoredItems::run($pallet);
+        PalletHydrateWithStoredItems::run($pallet); // !important this must be ::run
+        PalletHydrateStoredItems::run($pallet);
 
         return $pallet;
     }

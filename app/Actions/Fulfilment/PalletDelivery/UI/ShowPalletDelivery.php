@@ -474,7 +474,7 @@ class ShowPalletDelivery extends OrgAction
                         [
                             [
                                 'label'         => __('Pallets'),
-                                'quantity'      => $palletDelivery->number_pallets ?? 0,
+                                'quantity'      => $palletDeliveryy->stats->number_pallets ?? 0,
                                 'price_base'    => __('Multiple'),
                                 'price_total'   => ceil($palletPriceTotal) ?? 0
                             ],
@@ -512,7 +512,7 @@ class ShowPalletDelivery extends OrgAction
                         ],
                         */
                         // 'currency_code'                => 'usd',  // TODO
-                        // // 'number_pallets'               => $palletDelivery->number_pallets,
+                        // // 'number_pallets'               => $palletDelivery->stats->number_pallets,
                         // // 'number_services'              => $palletDelivery->stats->number_services,
                         // // 'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
                         // 'pallets_price'                => 0,  // TODO

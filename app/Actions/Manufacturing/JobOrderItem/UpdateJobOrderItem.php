@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 25 Jul 2024 23:07:22 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\Manufacturing\JobOrderItem;
 
@@ -20,23 +25,6 @@ class UpdateJobOrderItem extends OrgAction
 
     public function handle(JobOrderItem $jobOrderItem, array $modelData): JobOrderItem
     {
-        $pallet = $this->update($jobOrderItem, $modelData);
-
-        // if($pallet->wasChanged('state')) {
-
-        //     if($pallet->pallet_delivery_id) {
-        //         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
-        //     }
-        //     if($pallet->pallet_return_id) {
-        //         UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
-        //     }
-
-        //     HydrateFulfilmentCustomer::dispatch($pallet->fulfilmentCustomer);
-        //     FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
-        //     FulfilmentHydratePallets::dispatch($pallet->fulfilment);
-        //     OrganisationHydratePallets::dispatch($pallet->organisation);
-        //     WarehouseHydratePallets::dispatch($pallet->warehouse);
-        // }
 
         return $jobOrderItem;
     }
@@ -71,16 +59,6 @@ class UpdateJobOrderItem extends OrgAction
         ];
     }
 
-    // public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet
-    // {
-    //     /** @var FulfilmentCustomer $fulfilmentCustomer */
-    //     $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-    //     $this->fulfilment   = $fulfilmentCustomer->fulfilment;
-    //     $this->pallet       = $pallet;
-
-    //     $this->initialisation($request->get('website')->organisation, $request);
-    //     return $this->handle($pallet, $this->validatedData);
-    // }
 
     public function asController(JobOrderItem $jobOrderItem, ActionRequest $request): JobOrderItem
     {
@@ -90,13 +68,6 @@ class UpdateJobOrderItem extends OrgAction
         return $this->handle($jobOrderItem, $this->validatedData);
     }
 
-    // public function fromApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
-    // {
-    //     $this->pallet = $pallet;
-    //     $this->initialisationFromFulfilment($pallet->fulfilment, $request);
-
-    //     return $this->handle($pallet, $this->validatedData);
-    // }
 
     public function action(JobOrderItem $jobOrderItem, array $modelData, int $hydratorsDelay = 0): JobOrderItem
     {
@@ -108,8 +79,5 @@ class UpdateJobOrderItem extends OrgAction
         return $this->handle($jobOrderItem, $this->validatedData);
     }
 
-    // public function jsonResponse(Pallet $pallet): PalletResource
-    // {
-    //     return new PalletResource($pallet);
-    // }
+
 }

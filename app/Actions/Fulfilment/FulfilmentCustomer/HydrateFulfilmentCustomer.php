@@ -13,8 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
-use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Illuminate\Support\Collection;
@@ -30,15 +29,7 @@ class HydrateFulfilmentCustomer extends HydrateModel
         FulfilmentCustomerHydratePalletDeliveries::run($fulfilmentCustomer);
         FulfilmentCustomerHydratePallets::run($fulfilmentCustomer);
         FulfilmentCustomerHydrateStoredItems::run($fulfilmentCustomer);
-
-        foreach ($fulfilmentCustomer->palletDeliveries as $palletDelivery) {
-            PalletDeliveryHydratePallets::run($palletDelivery);
-        }
-
-        foreach ($fulfilmentCustomer->palletReturns as $palletReturn) {
-            HydratePalletReturns::run($palletReturn);
-        }
-
+        FulfilmentCustomerHydrateStoredItemAudits::run($fulfilmentCustomer);
         FulfilmentCustomerHydrateRecurringBills::run($fulfilmentCustomer);
         FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
     }

@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\AutoAssignServicesToPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -58,9 +57,7 @@ class StorePalletFromDelivery extends OrgAction
         }
 
         AutoAssignServicesToPalletDelivery::run($palletDelivery, $pallet);
-
-        PalletDeliveryHydratePallets::run($palletDelivery);
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
+        PalletDeliveryHydratePallets::dispatch($palletDelivery);
 
         return $pallet;
     }

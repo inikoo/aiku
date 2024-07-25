@@ -22,8 +22,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('warehouse_area_id')->index();
             $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table = $this->locationsStats($table);
-            $table = $this->fulfilmentStats($table);
-            $table = $this->containerFulfilmentStats($table);
+            $table = $this->fulfilmentAssetsStats($table);
             $table->timestampsTz();
         });
     }

@@ -17,6 +17,8 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFamilies;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePostRooms;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
@@ -37,6 +39,8 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRentals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubDepartments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubscriptions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
@@ -77,7 +81,6 @@ class HydrateGroup extends HydrateModel
         GroupHydrateSales::run($group);
         GroupHydrateCollectionCategories::run($group);
         GroupHydrateCollections::run($group);
-        GroupHydrateRecurringBills::run($group);
         GroupHydrateWarehouses::run($group);
         GroupHydrateWarehouseAreas::run($group);
         GroupHydrateLocations::run($group);
@@ -95,9 +98,17 @@ class HydrateGroup extends HydrateModel
         GroupHydrateDepartments::run($group);
         GroupHydrateSubDepartments::run($group);
         GroupHydrateFamilies::run($group);
-        GroupHydratePallets::run($group);
         GroupHydratePostRooms::run($group);
         GroupHydrateOutboxes::run($group);
+
+        //fulfilment
+        GroupHydratePallets::run($group);
+        GroupHydratePalletDeliveries::run($group);
+        GroupHydratePalletReturns::run($group);
+        GroupHydrateStoredItemAudits::run($group);
+        GroupHydrateStoredItems::run($group);
+        GroupHydrateRecurringBills::run($group);
+
     }
 
 

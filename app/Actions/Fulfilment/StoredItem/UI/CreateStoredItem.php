@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -65,13 +64,6 @@ class CreateStoredItem extends OrgAction
                                     'label'   => __('reference'),
                                     'value'   => '',
                                     'required'=> true
-                                ],
-                                'type' => [
-                                    'type'    => 'select',
-                                    'label'   => __('type'),
-                                    'value'   => '',
-                                    'required'=> true,
-                                    'options' => StoredItemTypeEnum::values()
                                 ],
                                 'location' => [
                                     'type'     => 'combobox',

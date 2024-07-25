@@ -241,7 +241,7 @@ class ShowPalletReturn extends RetinaAction
                         [
                             [
                                 'label'         => __('Pallets'),
-                                'quantity'      => $palletReturn->number_pallets ?? 0,
+                                'quantity'      => $palletReturn->stats->number_pallets ?? 0,
                                 'price_base'    => 999,
                                 'price_total'   => 1111 ?? 0
                             ],
@@ -278,7 +278,7 @@ class ShowPalletReturn extends RetinaAction
                         ],
 
                         // 'currency_code'                => 'usd',  // TODO
-                        // 'number_pallets'               => $palletReturn->number_pallets,
+                        // 'number_pallets'               => $palletReturn->stats->number_pallets,
                         // 'number_services'              => $palletReturn->stats->number_services,
                         // 'number_physical_goods'        => $palletReturn->stats->number_physical_goods,
                         // 'pallets_price'                => 0,  // TODO
@@ -332,8 +332,8 @@ class ShowPalletReturn extends RetinaAction
         )->table(
             IndexPalletsInReturn::make()->tableStructure(
                 $palletReturn,
-                prefix: PalletReturnTabsEnum::PALLETS->value,
-                request: $request
+                request: $request,
+                prefix: PalletReturnTabsEnum::PALLETS->value
             )
         )->table(
             IndexServiceInPalletReturn::make()->tableStructure(

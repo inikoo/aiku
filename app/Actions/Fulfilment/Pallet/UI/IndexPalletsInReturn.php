@@ -10,10 +10,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -88,7 +85,7 @@ class IndexPalletsInReturn extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(PalletReturn $palletReturn, $prefix = null, $request, $modelOperations = []): Closure
+    public function tableStructure(PalletReturn $palletReturn, $request, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $request, $palletReturn) {
             if ($prefix) {
@@ -100,23 +97,12 @@ class IndexPalletsInReturn extends OrgAction
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => '',
-                'count' => match (class_basename($palletReturn)) {
-                    'FulfilmentCustomer' => $palletReturn->number_pallets,
-                    default              => $palletReturn->stats->number_pallets
-                }
+                'count' => $palletReturn->stats->number_pallets
             ];
 
 
-            if ($palletReturn instanceof Fulfilment) {
-                $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-            }
-            if ($palletReturn instanceof FulfilmentCustomer) {
-                $emptyStateData['description'] = __("This customer don't have any pallets");
-            }
+            $table->withGlobalSearch();
 
-            if (!$palletReturn instanceof PalletDelivery and !$palletReturn instanceof PalletReturn) {
-                $table->withGlobalSearch();
-            }
 
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
@@ -136,10 +122,9 @@ class IndexPalletsInReturn extends OrgAction
 
             $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
 
-            if(!$request->user() instanceof WebUser) {
+            if (!$request->user() instanceof WebUser) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
-
 
 
             $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
