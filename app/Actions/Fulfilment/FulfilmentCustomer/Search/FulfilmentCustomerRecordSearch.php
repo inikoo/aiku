@@ -47,6 +47,7 @@ class FulfilmentCustomerRecordSearch
                         ],
                         [
                             'key'   => 'created_date',
+                            'type'  => 'date',
                             'label' => $fulfilmentCustomer->customer->created_at
                         ],
                         [
