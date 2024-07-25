@@ -3,13 +3,8 @@ import { Head } from '@inertiajs/vue3'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow } from '@fal'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
-import { computed, ref } from "vue"
-import { useTabChange } from "@/Composables/tab-change"
-import Tabs from "@/Components/Navigation/Tabs.vue"
-import LayoutWorkshop from "@/Components/Websites/Layout/LayoutWorkshop.vue"
-import WorkshopProduct from "@/Components/Websites/Product/ProductWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
-import CategoryWorkshop from '@/Components/Websites/Category/CategoryWorkshop.vue'
+import Unlayer from "@/Components/Websites/Outboxes/Unlayer.vue"
 
 library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow)
 
@@ -24,11 +19,16 @@ const props = defineProps<{
 }>()
 
 
+const dummyRoute = {
+    name : '',
+    parameters : ""
+}
+
 </script>
 
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <div>sdfsdf</div>
+    <Unlayer :updateRoute="dummyRoute" :loadRoute="dummyRoute" :imagesUploadRoute="dummyRoute" :mailshot="{}"/>
 </template>
