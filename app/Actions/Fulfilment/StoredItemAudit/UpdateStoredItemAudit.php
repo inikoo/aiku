@@ -7,19 +7,12 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItems;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateWithStoredItems;
-use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
-use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
+use App\Http\Resources\Fulfilment\StoredItemAuditsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAudit;
 use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -30,29 +23,15 @@ class UpdateStoredItemAudit extends OrgAction
     use WithActionUpdate;
 
     private FulfilmentCustomer $fulfilmentCustomer;
+    private StoredItemAudit $storedItemAudit;
 
-    private StoredItem $storedItem;
-
-    public function handle(StoredItem $storedItem, array $modelData): StoredItem
+    public function handle(StoredItemAudit $storedItemAudit, array $modelData): StoredItemAudit
     {
-        $storedItem = $this->update($storedItem, $modelData, ['data']);
+        $storedItemAudit = $this->update($storedItemAudit, $modelData, ['data']);
 
-        if ($storedItem->wasChanged('state')) {
-            GroupHydrateStoredItems::dispatch($storedItem->group);
-            OrganisationHydrateStoredItems::dispatch($storedItem->organisation);
-            FulfilmentHydrateStoredItems::dispatch($storedItem->fulfilment);
-            FulfilmentCustomerHydrateStoredItems::dispatch($storedItem->fulfilmentCustomer);
+        // Hydrators
 
-            foreach ($storedItem->pallets as $pallet) {
-                PalletHydrateWithStoredItems::run($pallet); // !important this must be ::run
-                PalletHydrateStoredItems::dispatch($pallet);
-            }
-        }
-
-
-        StoredItemRecordSearch::dispatch($storedItem);
-
-        return $storedItem;
+        return $storedItemAudit;
     }
 
 
@@ -70,33 +49,33 @@ class UpdateStoredItemAudit extends OrgAction
                 'max:128',
                 new AlphaDashDotSpaceSlashParenthesisPlus(),
                 new IUnique(
-                    table: 'stored_items',
+                    table: 'stored_item_audits',
                     extraConditions: [
                         [
                             'column' => 'fulfilment_customer_id',
                             'value'  => $this->fulfilmentCustomer->id,
                         ],
-                        ['column' => 'id', 'value' => $this->storedItem->id, 'operator' => '!=']
+                        ['column' => 'id', 'value' => $this->storedItemAudit->id, 'operator' => '!=']
 
                     ]
                 )
 
             ],
-            'state'     => ['sometimes', 'required', Rule::enum(StoredItemStateEnum::class)],
+            'state'     => ['sometimes', 'required', Rule::enum(StoredItemAuditStateEnum::class)],
         ];
     }
 
-    public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem
+    public function asController(StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
-        $this->fulfilmentCustomer = $storedItem->fulfilmentCustomer;
-        $this->storedItem         = $storedItem;
-        $this->initialisationFromFulfilment($storedItem->fulfilment, $request);
+        $this->fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
+        $this->storedItemAudit    = $storedItemAudit;
+        $this->initialisationFromFulfilment($storedItemAudit->fulfilment, $request);
 
-        return $this->handle($storedItem, $this->validatedData);
+        return $this->handle($storedItemAudit, $this->validatedData);
     }
 
-    public function jsonResponse(StoredItem $storedItem): StoredItemResource
+    public function jsonResponse(StoredItemAudit $storedItem): StoredItemAuditsResource
     {
-        return new StoredItemResource($storedItem);
+        return new StoredItemAuditsResource($storedItem);
     }
 }

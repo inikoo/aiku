@@ -228,18 +228,6 @@ class IndexPallets extends OrgAction
                     'icon'       => $icon,
 
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'secondary',
-                            'tooltip' => __('Audits'),
-                            'label'   => __('Audits'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.stored-item-audits.index',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ],
-                    ],
 
                     'meta' => [
                         [

@@ -220,7 +220,18 @@ class IndexPalletsInCustomer extends OrgAction
 
                     'subNavigation' => $subNavigation,
 
-
+                    'actions'       => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'tooltip' => __('Audits'),
+                            'label'   => __('Audits'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ],
+                    ],
                 ],
 
                 'tabs' => [

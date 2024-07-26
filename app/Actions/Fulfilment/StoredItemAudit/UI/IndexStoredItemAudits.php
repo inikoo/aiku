@@ -141,19 +141,15 @@ class IndexStoredItemAudits extends OrgAction
                 );
             }
 
-
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => __('No stored item audits found'),
-                'count' => $parent->stats->number_pallets
+                'count' => 0
             ];
 
-
-            $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-
+            $emptyStateData['description'] = __("There is no stored item audits");
 
             $table->withGlobalSearch();
-
 
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
@@ -163,10 +159,8 @@ class IndexStoredItemAudits extends OrgAction
             if ($parent instanceof Organisation || $parent instanceof Fulfilment) {
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'stored_item', label: __('Contents'), canBeHidden: false, searchable: true);
 
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->defaultSort('reference');
         };
@@ -201,21 +195,17 @@ class IndexStoredItemAudits extends OrgAction
                     'icon'       => $icon,
 
                     'subNavigation' => $subNavigation,
-                    /*'actions'       => [
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('New Audit'),
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.create',
-                                'parameters' => [
-                                    'organisation' => $request->route('organisation'),
-                                    'warehouse'    => $request->route('warehouse'),
-                                    'fulfilment'   => $request->route('fulfilment')
-                                ]
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ],
-                    ],*/
+                    ],
                 ],
                 'data'        => StoredItemAuditsResource::collection($storedItemAudits),
             ]
@@ -223,6 +213,14 @@ class IndexStoredItemAudits extends OrgAction
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, 'stored_item_audits');
+    }
+
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
