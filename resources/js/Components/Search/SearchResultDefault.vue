@@ -116,16 +116,18 @@ const isLoading = ref(false)
                 <!-- Section: mini Tabs -->
                 <div v-if="data?.meta?.length" class="flex sm:flex-wrap sm:gap-y-0.5 text-sm">
                     <template v-for="meta in data?.meta">
-                        <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400">
-                            <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' class='' fixed-width aria-hidden='true' />
-                            <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
-                            <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code, meta.amount) }}</template>
-                            <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
-                            <template v-else>{{ meta.label }}</template>
-                        </div>
-                        <div class="last:hidden px-2">
-                            •
-                        </div>
+                        <template v-if="meta.label">
+                            <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400">
+                                <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' class='' fixed-width aria-hidden='true' />
+                                <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
+                                <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code, meta.amount) }}</template>
+                                <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
+                                <template v-else>{{ meta.label }}</template>
+                            </div>
+                            <div class="last:hidden px-2">
+                                •
+                            </div>
+                        </template>
                     </template>
                 </div>
             </div>
