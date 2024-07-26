@@ -48,5 +48,3 @@ return new class () extends Migration {
         Schema::dropIfExists('stored_item_audit_deltas');
     }
 };
-
-
