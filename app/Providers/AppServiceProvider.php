@@ -9,10 +9,7 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Facades\Actions;
 
 /**
@@ -36,16 +33,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Validator::extend('iunique', function ($attribute, $value, $parameters, $validator) {
-            if (isset($parameters[1])) {
-                [$connection]  = $validator->parseTable($parameters[0]);
-                $wrapped       = DB::connection($connection)->getQueryGrammar()->wrap($parameters[1]);
-                $parameters[1] = DB::raw("lower($wrapped)");
-            }
-
-            return $validator->validateUnique($attribute, Str::lower($value), $parameters);
-        }, trans('validation.iunique'));
-
 
         if ($this->app->runningInConsole()) {
             Actions::registerCommands();
