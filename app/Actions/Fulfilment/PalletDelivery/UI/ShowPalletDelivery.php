@@ -474,7 +474,7 @@ class ShowPalletDelivery extends OrgAction
                         [
                             [
                                 'label'         => __('Pallets'),
-                                'quantity'      => $palletDeliveryy->stats->number_pallets ?? 0,
+                                'quantity'      => $palletDelivery->stats->number_pallets ?? 0,
                                 'price_base'    => __('Multiple'),
                                 'price_total'   => ceil($palletPriceTotal) ?? 0
                             ],
