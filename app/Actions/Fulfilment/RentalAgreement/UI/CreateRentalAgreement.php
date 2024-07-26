@@ -71,7 +71,7 @@ class CreateRentalAgreement extends OrgAction
                     'blueprint'        =>
                         [
                             [
-                                'title'  => __(''),
+                                'title'  => '',
                                 'fields' => [
                                     'billing_cycle' => [
                                         'type'       => 'select',
@@ -89,7 +89,7 @@ class CreateRentalAgreement extends OrgAction
                                     ...$createWebUserFields,
                                     'clauses' => [
                                         'type'             => 'rental',
-                                        'label'            => __(''),
+                                        'label'            => '',
                                         'required'         => false,
                                         'full'             => true,
                                         'rentals'          => RentalsResource::collection($fulfilmentCustomer->fulfilment->rentals),

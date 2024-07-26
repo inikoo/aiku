@@ -58,7 +58,7 @@
           </div>
   
           <EmptyState v-else :data="{
-              title: trans('You don\'t have slides to show'),
+              title: trans('You do not have slides to show'),
               description: trans('Create new slides in the workshop to get started'),
             
           }" />

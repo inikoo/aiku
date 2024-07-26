@@ -67,7 +67,7 @@ const onUploadFile = async (fileUploaded: File) => {
             }
         })
     } else {
-        errorMessage.value = trans('File extention is not one of these: .csv, .xlsx, .xls')
+        errorMessage.value = trans('File extension is not one of these:')+' .csv, .xlsx, .xls'
     }
 
     // console.log('aa', fileUploaded)
@@ -204,9 +204,6 @@ watch(() => props.modelValue, async (newVal) => {
                                 <div class="flex w-fit mx-auto text-xs leading-6 ">
                                     <p class="">{{ trans("Drag and drop, or browse your files") }} (.csv, .xlx, .xlsx)</p>
                                 </div>
-                                <!-- <p class="text-xxs">
-                                    {{ trans(".csv, .xls, .xlsx") }}
-                                </p> -->
                             </div>
 
                             <div class="absolute bottom-2 right-2 text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">

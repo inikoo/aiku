@@ -292,22 +292,25 @@ class ShowPalletDelivery extends OrgAction
 
         $palletLimits    = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
         $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
-        $palletLimitData = $palletLimits == null ? null : ($palletLimitLeft < 0
-        ? [
-                'status'  => 'exceeded',
-                'message' => __("Pallet has reached over the limit: $palletLimitLeft.")
-            ]
-        : ($palletLimitLeft == 0
-            ? [
-                    'status'  => 'limit',
-                    'message' => __("Pallet has reached the limit, no space left.")
-                ]
-            : ($palletLimitLeft <= 5
+        $palletLimitData = $palletLimits == null
+            ? null
+            : ($palletLimitLeft < 0
                 ? [
-                        'status'  => 'almost',
-                        'message' => __("Pallet almost reached the limit: $palletLimitLeft left.")
+                    'status'  => 'exceeded',
+                    'message' => __("Pallet has reached over the limit: :palletLimitLeft", ['palletLimitLeft' => $palletLimitLeft])
+                ]
+                : ($palletLimitLeft == 0
+                    ? [
+                        'status'  => 'limit',
+                        'message' => __("Pallet has reached the limit, no space left.")
                     ]
-                : null)));
+                    : ($palletLimitLeft <= 5
+                        ? [
+                            'status'  => 'almost',
+                            'message' => __("Pallet almost reached the limit: :palletLimitLeft left", ['palletLimitLeft' => $palletLimitLeft])
+
+                        ]
+                        : null)));
 
         $rentalList = [];
 
@@ -321,7 +324,7 @@ class ShowPalletDelivery extends OrgAction
         $servicesNet      = $services->sum('net_amount');
         $palletPriceTotal = 0;
         foreach ($palletDelivery->pallets as $pallet) {
-            $rentalPrice = $pallet->rental->price ?? 0;
+            $rentalPrice      = $pallet->rental->price ?? 0;
             $palletPriceTotal += $rentalPrice;
         }
 
@@ -333,11 +336,11 @@ class ShowPalletDelivery extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($palletDelivery, $request),
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
-                'pageHead' => [
+                'pageHead'    => [
                     // 'container' => $container,
                     'title'     => $palletDelivery->reference,
                     'icon'      => [
@@ -362,7 +365,7 @@ class ShowPalletDelivery extends OrgAction
                 'updateRoute' => [
                     'name'       => 'grp.models.pallet-delivery.update',
                     'parameters' => [
-                        'palletDelivery'     => $palletDelivery->id
+                        'palletDelivery' => $palletDelivery->id
                     ]
                 ],
 
@@ -382,11 +385,11 @@ class ShowPalletDelivery extends OrgAction
 
                 'upload' => [
                     'event'   => 'action-progress',
-                    'channel' => 'grp.personal.' . $this->organisation->id
+                    'channel' => 'grp.personal.'.$this->organisation->id
                 ],
 
                 'uploadRoutes' => [
-                    'history' => [
+                    'history'  => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
@@ -417,13 +420,13 @@ class ShowPalletDelivery extends OrgAction
                 'rentalRoute' => [
                     'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                     'parameters' => [
-                        'organisation'  => $palletDelivery->organisation->slug,
-                        'fulfilment'    => $palletDelivery->fulfilment->slug
+                        'organisation' => $palletDelivery->organisation->slug,
+                        'fulfilment'   => $palletDelivery->fulfilment->slug
                     ]
                 ],
 
                 'storedItemsRoute' => [
-                    'index' => [
+                    'index'  => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
@@ -432,7 +435,7 @@ class ShowPalletDelivery extends OrgAction
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ],
-                    'store' => [
+                    'store'  => [
                         'name'       => 'grp.models.fulfilment-customer.stored-items.store',
                         'parameters' => [
                             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id
@@ -443,19 +446,19 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
-                'rental_lists'         => $rentalList,
-                'service_list_route'   => [
+                'rental_lists'             => $rentalList,
+                'service_list_route'       => [
                     'name'       => 'grp.json.fulfilment.delivery.services.index',
                     'parameters' => [
-                        'fulfilment'     => $palletDelivery->fulfilment->slug,
-                        'scope'          => $palletDelivery->slug
+                        'fulfilment' => $palletDelivery->fulfilment->slug,
+                        'scope'      => $palletDelivery->slug
                     ]
                 ],
-                'physical_good_list_route'   => [
+                'physical_good_list_route' => [
                     'name'       => 'grp.json.fulfilment.delivery.physical-goods.index',
                     'parameters' => [
-                        'fulfilment'     => $palletDelivery->fulfilment->slug,
-                        'scope'          => $palletDelivery->slug
+                        'fulfilment' => $palletDelivery->fulfilment->slug,
+                        'scope'      => $palletDelivery->slug
                     ]
                 ],
 
@@ -466,29 +469,29 @@ class ShowPalletDelivery extends OrgAction
 
                 'pallet_limits' => $palletLimitData,
 
-                'data'             => PalletDeliveryResource::make($palletDelivery),
-                'box_stats'        => [
-                    'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
-                    'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
-                    'order_summary'                => [
+                'data'       => PalletDeliveryResource::make($palletDelivery),
+                'box_stats'  => [
+                    'fulfilment_customer' => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
+                    'delivery_status'     => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'order_summary'       => [
                         [
                             [
-                                'label'         => __('Pallets'),
-                                'quantity'      => $palletDelivery->stats->number_pallets ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => ceil($palletPriceTotal) ?? 0
+                                'label'       => __('Pallets'),
+                                'quantity'    => $palletDelivery->stats->number_pallets ?? 0,
+                                'price_base'  => __('Multiple'),
+                                'price_total' => ceil($palletPriceTotal) ?? 0
                             ],
                             [
-                                'label'         => __('Services'),
-                                'quantity'      => $palletDelivery->stats->number_services ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $servicesNet
+                                'label'       => __('Services'),
+                                'quantity'    => $palletDelivery->stats->number_services ?? 0,
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $servicesNet
                             ],
                             [
-                                'label'         => __('Physical Goods'),
-                                'quantity'      => $palletDelivery->stats->number_physical_goods ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $physicalGoodsNet
+                                'label'       => __('Physical Goods'),
+                                'quantity'    => $palletDelivery->stats->number_physical_goods ?? 0,
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $physicalGoodsNet
                             ],
                         ],
                         /*
@@ -532,41 +535,41 @@ class ShowPalletDelivery extends OrgAction
                         // 'total_price'                  => $palletDelivery->stats->total_price
                     ]
                 ],
-                'notes_data'             => [
+                'notes_data' => [
                     [
-                        'label'           => __('Customer'),
-                        'note'            => $palletDelivery->customer_notes ?? '',
-                        'editable'        => false,
-                        'bgColor'         => 'blue',
-                        'field'           => 'customer_notes'
+                        'label'    => __('Customer'),
+                        'note'     => $palletDelivery->customer_notes ?? '',
+                        'editable' => false,
+                        'bgColor'  => 'blue',
+                        'field'    => 'customer_notes'
                     ],
                     [
-                        'label'           => __('Public'),
-                        'note'            => $palletDelivery->public_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'pink',
-                        'field'           => 'public_notes'
+                        'label'    => __('Public'),
+                        'note'     => $palletDelivery->public_notes ?? '',
+                        'editable' => true,
+                        'bgColor'  => 'pink',
+                        'field'    => 'public_notes'
                     ],
                     [
-                        'label'           => __('Private'),
-                        'note'            => $palletDelivery->internal_notes ?? '',
-                        'editable'        => true,
-                        'bgColor'         => 'purple',
-                        'field'           => 'internal_notes'
+                        'label'    => __('Private'),
+                        'note'     => $palletDelivery->internal_notes ?? '',
+                        'editable' => true,
+                        'bgColor'  => 'purple',
+                        'field'    => 'internal_notes'
                     ],
                 ],
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
+                    fn() => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn() => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
 
                 PalletDeliveryTabsEnum::SERVICES->value => $this->tab == PalletDeliveryTabsEnum::SERVICES->value ?
-                    fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))),
+                    fn() => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))
+                    : Inertia::lazy(fn() => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))),
 
                 PalletDeliveryTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletDeliveryTabsEnum::PHYSICAL_GOODS->value ?
-                    fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
+                    fn() => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
+                    : Inertia::lazy(fn() => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
@@ -608,7 +611,7 @@ class ShowPalletDelivery extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
                 ],
             ];
         };
