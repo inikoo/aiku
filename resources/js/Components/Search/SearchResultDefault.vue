@@ -1,7 +1,4 @@
 <script setup lang='ts'>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPallet } from '@fal'
-import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link } from '@inertiajs/vue3'
 import { routeType } from '@/types/route'
 import { Icon } from '@/types/Utils/Icon'
@@ -10,7 +7,8 @@ import { inject, ref } from 'vue'
 import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
-library.add(faPallet)
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const props = defineProps<{
     data?: {
@@ -75,7 +73,7 @@ const isLoading = ref(false)
         @start="() => isLoading = true"
         @finish="() => emits('finishVisit', false)"
     >
-        <div v-if="isLoading" class="absolute inset-0 bg-black/50 flex flex-col gap-y-4 justify-center items-center text-white cursor-default">
+        <div v-if="isLoading" class="fixed inset-0 bottom-0 bg-black/50 flex flex-col gap-y-4 justify-center items-center text-white cursor-default">
             <LoadingIcon class="text-6xl"/>
             <LoadingText />
         </div>
