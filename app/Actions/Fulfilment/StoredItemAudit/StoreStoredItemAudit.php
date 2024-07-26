@@ -1,95 +1,148 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 May 2023 21:14:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 25 Jul 2024 18:06:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
+use App\Actions\Catalogue\HasRentalAgreement;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItemAudits;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItemAudits;
+use App\Actions\Fulfilment\StoredItemAudit\Search\StoredItemAuditRecordSearch;
+use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
-use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
-use App\Rules\IUnique;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreStoredItemAudit extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    use HasRentalAgreement;
+    use WithDeliverableStoreProcessing;
 
-    public FulfilmentCustomer $fulfilmentCustomer;
 
-    public function handle(FulfilmentCustomer $parent, array $modelData): StoredItemAudit
+    public Customer $customer;
+
+    private bool $action = false;
+    private FulfilmentCustomer $fulfilmentCustomer;
+
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
     {
-        data_set($modelData, 'group_id', $parent->group_id);
-        data_set($modelData, 'organisation_id', $parent->organisation_id);
-        data_set($modelData, 'fulfilment_id', $parent->fulfilment_id);
+        $modelData = $this->processData(
+            $modelData,
+            $fulfilmentCustomer,
+            SerialReferenceModelEnum::STORED_ITEM_AUDIT
+        );
 
-        /** @var StoredItemAudit $storedItemAuditAudit */
-        $storedItemAuditAudit = $parent->storedItemAudits()->create($modelData);
+        /** @var StoredItemAudit $storedItemAudit */
+        $storedItemAudit = $fulfilmentCustomer->storedItemAudit()->create($modelData);
+        $storedItemAudit->refresh();
 
-        // Hydrators
+        GroupHydrateStoredItemAudits::dispatch($storedItemAudit->group);
+        OrganisationHydrateStoredItemAudits::dispatch($storedItemAudit->organisation);
+        WarehouseHydrateStoredItemAudits::dispatch($storedItemAudit->warehouse);
+        FulfilmentHydrateStoredItemAudits::dispatch($storedItemAudit->fulfilment);
+        FulfilmentCustomerHydrateStoredItemAudits::dispatch($storedItemAudit->fulfilmentCustomer);
 
-        return $storedItemAuditAudit;
+        StoredItemAuditRecordSearch::dispatch($storedItemAudit);
+
+
+        return $storedItemAudit;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof WebUser) {
+        if ($this->action) {
             return true;
         }
 
-        if ($this->asAction) {
-            return true;
+        if ($this->hasRentalAgreement($this->fulfilmentCustomer)) {
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return false;
+    }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+        if ($this->fulfilment->warehouses()->count() == 1) {
+            /** @var Warehouse $warehouse */
+            $warehouse = $this->fulfilment->warehouses()->first();
+            $this->fill(['warehouse_id' => $warehouse->id]);
+        }
     }
 
 
     public function rules(): array
     {
+        $rules = [];
+
+        if (!request()->user() instanceof WebUser) {
+            $rules = [
+                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
+            ];
+        }
+
         return [
-            'reference'    => ['required', 'max:128',  new AlphaDashDotSpaceSlashParenthesisPlus(),
-             new IUnique(
-                 table: 'stored_item_audits',
-                 extraConditions: [
-                     ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
-                 ]
-             )
-            ]
+            'warehouse_id'   => [
+                'required',
+                'integer',
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
+            ...$rules
         ];
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
+
+    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
-
-        $this->initialisation($fulfilmentCustomer->organisation, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
+    public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): StoredItemAudit
     {
-        $this->asAction           = true;
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
+        $this->action = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+        $this->setRawAttributes($modelData);
 
-        $this->initialisation($fulfilmentCustomer->organisation, $modelData);
-
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): RedirectResponse
+    public function jsonResponse(StoredItemAudit $storedItemAudit): array
+    {
+        return [
+            'route' => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
+                'parameters' => [
+                    'organisation'       => $storedItemAudit->organisation->slug,
+                    'fulfilment'         => $storedItemAudit->fulfilment->slug,
+                    'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                    'storedItemAudit'    => $storedItemAudit->reference
+                ]
+            ]
+        ];
+    }
+
+    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
     {
         return Redirect::route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show', [
             'organisation'       => $storedItemAudit->organisation->slug,
@@ -98,4 +151,6 @@ class StoreStoredItemAudit extends OrgAction
             'storedItemAudit'    => $storedItemAudit->slug
         ]);
     }
+
+
 }

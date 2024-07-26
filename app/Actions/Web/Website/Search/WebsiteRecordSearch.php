@@ -41,13 +41,58 @@ class WebsiteRecordSearch
                 'sections'          => ['web'],
                 'haystack_tier_1'   => trim($website->code.' '.$website->name.' '.$website->domain),
                 'result'            => [
-                    'title'      => $website->name,
-                    'icon'       => [
+                    // 'aaa'       => $website,
+                    'route'     => [
+                        'name'          => 'grp.org.fulfilments.show.web.websites.show',
+                        'parameters'    => [
+                            $website->organisation->slug,
+                            $website->shop->slug,
+                            $website->slug
+                        ]
+                    ],
+                    'container'     => [
+                        'key'     => 'type',
+                        'label'   => $website->type->labels()[$website->type->value]
+                    ],
+                    'title'         => $website->name,
+                    'afterTitle'    => [
+                        'label'     => '(' . $website->code . ')',
+                    ],
+                    'icon'          => [
                         'icon' => 'fal fa-globe'
                     ],
-                    'meta'       => [
-                        WebsiteSearchResultResource::make($website)
-                    ]
+                    'meta'          => [
+
+                        array_merge(
+                            $website->state->stateIcon()[$website->state->value],
+                            [
+                                'key'       => 'state',
+                                'label'     => $website->state->labels()[$website->state->value],
+                                'tooltip'   => 'State',
+                            ]
+                        ),
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $website->created_at,
+                            'tooltip'   => 'Created at'
+                        ],
+                        [
+                            'key'       => 'domain',
+                            'label'     => $website->domain,
+                            'tooltip'   => 'Domain'
+                        ],
+                        [
+                            'key'       => 'contact_name',
+                            'label'     => $website->contact_name,
+                            'tooltip'   => 'Contact name'
+                        ],
+                    ],
+
+
+                    // 'meta'       => [
+                    //     WebsiteSearchResultResource::make($website)
+                    // ]
                 ]
             ]
         );

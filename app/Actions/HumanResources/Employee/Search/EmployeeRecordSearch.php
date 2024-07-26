@@ -7,7 +7,6 @@
 
 namespace App\Actions\HumanResources\Employee\Search;
 
-use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Models\HumanResources\Employee;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,10 +19,10 @@ class EmployeeRecordSearch
     public function handle(Employee $employee): void
     {
         if ($employee->trashed()) {
-
-            if($employee->universalSearch) {
+            if ($employee->universalSearch) {
                 $employee->universalSearch()->delete();
             }
+
             return;
         }
 
@@ -37,9 +36,9 @@ class EmployeeRecordSearch
                 'haystack_tier_1'   => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),
                 'haystack_tier_2'   => $employee->work_email.' '.$employee->job_title,
                 'result'            => [
-                    'route'     => [
-                        'name'          => 'grp.org.hr.employees.show',
-                        'parameters'    => [
+                    'route'      => [
+                        'name'       => 'grp.org.hr.employees.show',
+                        'parameters' => [
                             'organisation' => $employee->organisation->slug,
                             'employee'     => $employee->slug,
                         ]
@@ -53,19 +52,20 @@ class EmployeeRecordSearch
                     ],
                     'meta'       => [
                         array_merge(
-                            ['label' => $employee->state->labels()[$employee->state->value]],
+                            [
+                                'label' => $employee->state->value
+                            ],
                             $employee->state->stateIcon()[$employee->state->value],
                             ['tooltip' => 'State']
                         ),
                         [
-                            'label'     => $employee->employment_start_at,
-                            'tooltip'   => 'Start date'
+                            'label'   => $employee->employment_start_at,
+                            'tooltip' => 'Start date'
                         ],
                         [
-                            'label'     => $employee->job_title,
-                            'tooltip'   => 'Job title'
+                            'label'   => $employee->job_title,
+                            'tooltip' => 'Job title'
                         ]
-                        // EmployeeSearchResultResource::make($employee)
                     ]
                 ]
             ]
