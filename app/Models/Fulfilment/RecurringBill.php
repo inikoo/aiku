@@ -11,6 +11,7 @@ use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Helpers\Currency;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
@@ -121,6 +122,11 @@ class RecurringBill extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
 
     public function rentalAgreement(): BelongsTo
     {
