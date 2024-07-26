@@ -87,7 +87,7 @@ const isLoading = ref(false)
             </div>
 
             <div class="">
-                <div v-if="data?.container" v-tooltip="data?.container?.tooltip" class="w-fit mb-1 text-xs text-gray-400 flex items-end leading-none">
+                <div v-if="data?.container" v-tooltip="data?.container?.tooltip" class="w-fit text-xs text-gray-400 flex items-end leading-none">
                     <template v-if="data?.container?.key === 'address'">
                         <AddressLocation :data="data?.container?.label" />
                     </template>
@@ -118,7 +118,7 @@ const isLoading = ref(false)
                     <template v-for="meta in data?.meta">
                         <template v-if="meta.label">
                             <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400">
-                                <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' class='' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' :class='meta.class' size="sm" fixed-width aria-hidden='true' />
                                 <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
                                 <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code, meta.amount) }}</template>
                                 <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
