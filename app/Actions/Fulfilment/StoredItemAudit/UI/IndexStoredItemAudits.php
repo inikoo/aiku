@@ -98,7 +98,7 @@ class IndexStoredItemAudits extends OrgAction
                     ],
                 ],
 
-                'showcase'            => StoredItemAuditResource::make($storedItemAudit),
+                'data'                => StoredItemAuditResource::make($storedItemAudit),
                 'pallets'             => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets),
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
