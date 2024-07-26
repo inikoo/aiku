@@ -27,10 +27,9 @@ class SetEmployeePin
     public function setPin($employee, $try = 1): bool
     {
         try {
-            $letters = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'X', 'Y', 'Z');
-            $emojis  = array('🌴', '😀', '👽', '🍄', '👻', '👍🏼', '🚀', '🦄', '🐋', '☘️');
-            $numbers = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
+
+            list($letters,$emojis,$numbers)=$this->pinCharacterSet();
 
             $pin = $employee->organisation_id.':'.
                 $letters[array_rand($letters)].$letters[array_rand($letters)].
@@ -54,6 +53,21 @@ class SetEmployeePin
         }
 
         return false;
+    }
+
+
+    public function pinCharacterSet(): array
+    {
+        $letters = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'X', 'Y', 'Z');
+        $emojis  = array('🌴', '😀', '👽', '🍄', '👻', '👍🏼', '🚀', '🦄', '🐋', '☘️');
+        $numbers = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+
+
+        return [
+            $letters,$emojis,$numbers
+        ];
+
+
     }
 
     public string $commandSignature = 'employee:set_pin {employee}';
