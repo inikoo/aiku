@@ -40,6 +40,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $warehouse_id
  * @property string|null $customer_reference
  * @property string $reference
+ * @property int $number_pallets
+ * @property int $number_pallet_stored_items
+ * @property int $number_stored_items
  * @property PalletDeliveryStateEnum $state
  * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at

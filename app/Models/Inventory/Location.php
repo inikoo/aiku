@@ -61,7 +61,6 @@ use Spatie\Tags\HasTags;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
- * @property-read \App\Models\Inventory\LocationOrgStock $pivot
  * @property-read Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read Collection<int, Pallet> $pallets

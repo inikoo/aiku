@@ -44,7 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset $historicAsset
- * @property-read Model|\Eloquent|null $item
+ * @property-read Model|\Eloquent $item
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Fulfilment\RecurringBill $recurringBill
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction newModelQuery()

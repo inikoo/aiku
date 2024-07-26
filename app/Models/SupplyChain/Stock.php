@@ -73,7 +73,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
- * @property-read LocationOrgStock $pivot
  * @property-read Collection<int, Location> $locations
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
