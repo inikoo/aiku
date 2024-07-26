@@ -9,7 +9,7 @@
   import PageHeading from '@/Components/Headings/PageHeading.vue'
   import { capitalize } from "@/Composables/capitalize"
   import BoxNote from "@/Components/Pallet/BoxNote.vue"
-  import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStatsPalletDelivery.vue'
+  import BoxAuditStoredItems from '@/Components/Box/BoxAuditStoredItems.vue'
 
 
   import { useForm } from '@inertiajs/vue3'
@@ -180,6 +180,6 @@ const box_stats = {
             :updateRoute="{ name: '', parameters: '' }" />
     </div>
 
-    <BoxStatsPalletDelivery :dataPalletDelivery="data" :boxStats="box_stats" :updateRoute="{ name: '', parameters: '' }" />
+    <BoxAuditStoredItems :dataPalletDelivery="data" :boxStats="box_stats" />
 
 </template>
