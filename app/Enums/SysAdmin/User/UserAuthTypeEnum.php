@@ -15,4 +15,13 @@ enum UserAuthTypeEnum: string
 
     case DEFAULT             = 'default';
     case AURORA              = 'aurora';
+
+    public static function labels(): array
+    {
+        return [
+            'default'      => __('Default'),
+            'aurora'       => __('Aurora'),
+
+        ];
+    }
 }

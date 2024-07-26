@@ -63,17 +63,20 @@ class FulfilmentCustomerRecordSearch
                             'label' => $fulfilmentCustomer->status
                         ],
                         [
-                            'key'   => 'created_date',
-                            'type'  => 'date',
-                            'label' => $fulfilmentCustomer->customer->created_at
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $fulfilmentCustomer->customer->created_at,
+                            'tooltip'   => 'Created at'
                         ],
                         [
-                            'key'   => 'email',
-                            'label' => $fulfilmentCustomer->customer->email
+                            'key'       => 'email',
+                            'label'     => $fulfilmentCustomer->customer->email,
+                            'tooltip'   => 'Email'
                         ],
                         [
-                            'key'   => 'contact_name',
-                            'label' => $fulfilmentCustomer->customer->contact_name
+                            'key'       => 'contact_name',
+                            'label'     => $fulfilmentCustomer->customer->contact_name,
+                            'tooltip'   => 'Contact name'
                         ],
                     ],
                 ]
