@@ -161,7 +161,6 @@ const queryBuilderProps = computed(() => {
 });
 
 
-
 const queryBuilderData = ref(queryBuilderProps.value);
 queryBuilderData.value.elementFilter = {
     // 'state': ['left'],
