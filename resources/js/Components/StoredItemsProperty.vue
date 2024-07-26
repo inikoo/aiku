@@ -7,16 +7,7 @@ import { notify } from "@kyvg/vue3-notification"
 import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
 import { get } from "lodash"
-import { trans } from "laravel-vue-i18n"
-import SelectQuery from "@/Components/SelectQuery.vue"
-import axios from 'axios'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
-import { faPlus } from '@fas'
-
-import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faBox, faHandHoldingBox, faPallet, faPencil, faPlus)
 
 const props = defineProps<{
     pallet: {}

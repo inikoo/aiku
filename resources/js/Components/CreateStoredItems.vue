@@ -13,14 +13,14 @@ import axios from "axios"
 import { get } from "lodash"
 import { routeType } from "@/types/route"
 import { ref } from 'vue'
-import Popover from '@/Components/Popover.vue'
+import Tag from '@/Components/Tag.vue'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus, faChevronDown, faTimes, faMinus, faSparkles } from "@fas"
-import { faTrashAlt } from "@far"
+import { faTrashAlt, faExclamationTriangle } from "@far"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles)
+library.add(faPlus, faChevronDown, faTimes, faMinus, faTrashAlt, faSparkles, faExclamationTriangle)
 
 const props = defineProps<{
 	storedItemsRoute: {
@@ -181,9 +181,14 @@ const onSaved = async () => {
 					</div>
 				</template>
 				<template #singlelabel="{ value }">
-					<div class="flex justify-start w-full px-2">
+					<div class="flex justify-start w-full px-2 gap-3">
 						{{ value["reference"] }}
-						<font-awesome-icon  :icon="faSparkles" v-tooltip="'New Stored Item'" class="text-xs p-2 text-yellow-500"/>
+						<Tag label="New" :theme="4" v-if="newStoredItem" >
+						<template #label>
+							<font-awesome-icon  :icon="faSparkles" v-tooltip="'New Stored Item'" class="text-xs  text-yellow-500"/>
+							New
+						</template>
+						</Tag>
 					</div>
 				</template>
 			</SelectQuery>
@@ -208,7 +213,9 @@ const onSaved = async () => {
 		</div>
 	</div>
 	<div v-else>
-		<div class="text-center font-semibold text-2xl mb-4">
+	<div class="flex justify-center mb-6"><font-awesome-icon :icon="['far', 'exclamation-triangle']" class="text-8xl text-yellow-500"/></div>
+		
+		<div class="text-center font-semibold text-2xl mb-6">
 			{{ trans('Do you want to delete') }} {{ newStoredItem?.reference }} ?
 		</div>
 	</div>
