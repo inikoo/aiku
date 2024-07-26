@@ -40,8 +40,7 @@ class SyncStoredItemToPallet extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
 
@@ -82,7 +81,7 @@ class SyncStoredItemToPallet extends OrgAction
 
     public function action(Pallet $pallet, $modelData): void
     {
-        $this->asAction = true;
+        $this->asAction           = true;
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
