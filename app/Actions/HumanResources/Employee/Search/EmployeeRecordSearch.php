@@ -37,6 +37,13 @@ class EmployeeRecordSearch
                 'haystack_tier_1'   => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),
                 'haystack_tier_2'   => $employee->work_email.' '.$employee->job_title,
                 'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.hr.employees.show',
+                        'parameters'    => [
+                            'organisation' => $employee->organisation->slug,
+                            'employee'     => $employee->slug,
+                        ]
+                    ],
                     'title'      => $employee->contact_name,
                     'afterTitle' => [
                         'label' => '('.$employee->worker_number.')',
@@ -44,9 +51,23 @@ class EmployeeRecordSearch
                     'icon'       => [
                         'icon' => 'fal fa-user-hard-hat'
                     ],
-                    'meta'       => EmployeeSearchResultResource::make($employee)
+                    'meta'       => [
+                        array_merge(
+                            ['label' => $employee->state->labels()[$employee->state->value]],
+                            $employee->state->stateIcon()[$employee->state->value],
+                            ['tooltip' => 'State']
+                        ),
+                        [
+                            'label'     => $employee->employment_start_at,
+                            'tooltip'   => 'Start date'
+                        ],
+                        [
+                            'label'     => $employee->job_title,
+                            'tooltip'   => 'Job title'
+                        ]
+                        // EmployeeSearchResultResource::make($employee)
+                    ]
                 ]
-
             ]
         );
     }
