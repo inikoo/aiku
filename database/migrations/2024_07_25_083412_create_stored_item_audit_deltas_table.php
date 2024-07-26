@@ -32,7 +32,9 @@ return new class () extends Migration {
             $table->decimal('original_quantity')->nullable();
             $table->decimal('audited_quantity');
 
-            $table->string('state')->nullable(); // todo make the enum
+            $table->string('state')->nullable(); // todo make the enum| In Process, Completed,
+            $table->string('audit_type')->nullable(); // todo make the enum| Created, Updated, Deleted, Nochamge
+
             $table->string('reason')->nullable();
             $table->jsonb('data');
 
@@ -46,3 +48,5 @@ return new class () extends Migration {
         Schema::dropIfExists('stored_item_audit_deltas');
     }
 };
+
+
