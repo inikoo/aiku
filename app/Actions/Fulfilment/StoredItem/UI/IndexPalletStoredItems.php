@@ -5,20 +5,22 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturn\Json;
+namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Services\QueryBuilder;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class GetReturnStoredItems extends OrgAction
+class IndexPalletStoredItems extends OrgAction
 {
     public function handle(FulfilmentCustomer $fulfilmentCustomer): LengthAwarePaginator
     {
@@ -58,6 +60,39 @@ class GetReturnStoredItems extends OrgAction
             ->allowedFilters([$globalSearch])
             ->withPaginator(null)
             ->withQueryString();
+    }
+
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            $table
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'FulfilmentCustomer' => [
+                            'title'         => __("No stored items found"),
+                            'count'         => $parent->count(),
+                            'description'   => __("No items stored in this customer")
+                        ],
+                        default => []
+                    }
+                )
+                ->column(key: 'stored_item_state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'pallet_reference', label: __('pallet'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('stored item'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: '', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
+                // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('slug');
+        };
     }
 
     //todo review this

@@ -35,6 +35,9 @@ return new class () extends Migration {
             $table->foreign('asset_id')->references('id')->on('assets')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('historic_asset_id');
             $table->foreign('historic_asset_id')->references('id')->on('historic_assets')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('rental_agreement_clause_id')->nullable()->index();
+
+
             $table->decimal('quantity', 10, 3, );
 
             $table= $this->orderMoneyFields($table);

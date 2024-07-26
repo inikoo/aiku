@@ -36,7 +36,7 @@ class ReturnStoredItemsResource extends JsonResource
             'stored_item_id'                => $storedItem->stored_item_id,
             'reference'                     => $storedItem->stored_item_reference,
             'stored_item_slug'              => $storedItem->stored_item_slug,
-            'stored_item_type'              => $storedItem->stored_item_type,
+            'stored_item_state'              => $storedItem->stored_item_state,
             'quantity'                      => intval($storedItem->quantity),
             'damaged_quantity'              => $storedItem->damaged_quantity,
             'location'                      => $storedItem->location_code,
