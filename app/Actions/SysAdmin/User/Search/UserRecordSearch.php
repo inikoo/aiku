@@ -36,11 +36,42 @@ class UserRecordSearch
                 'haystack_tier_1'   => $user->username,
                 'haystack_tier_2'   => trim($user->email.' '.$user->contact_name),
                 'result'            => [
-                    'title'      => $user->username,
-                    'icon'       => [
-                        'icon' => 'fal fa-terminal'
+                    // 'aaa'       => $user,
+                    'route'     => [
+                        'name'       => 'grp.sysadmin.users.show',
+                        'parameters' => $user->username
                     ],
-                    'meta'       => UserSearchResultResource::make($user)
+                    'container'     => [
+                        'key'       => 'auth_type',
+                        'label'     => $user->auth_type->labels()[$user->auth_type->value],
+                        'tooltip'   => 'Auth type'
+                    ],
+                    'title'         => $user->contact_name,
+                    'afterTitle'    => [
+                        'label'     => '('.$user->username.')',
+                    ],
+                    'icon'          => [
+                        'icon'  => 'fal fa-terminal',
+                    ],
+                    'meta'          => [
+                        [
+                            'key'   => 'type',
+                            'label' => $user->type
+                        ],
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $user->created_at,
+                            'tooltip'   => 'Created at'
+                        ],
+                        [
+                            'key'       => 'email',
+                            'label'     => $user->email,
+                            'tooltip'   => 'Email'
+                        ],
+                    ],
+
+                    // 'meta'       => UserSearchResultResource::make($user)
                 ]
             ]
         );
