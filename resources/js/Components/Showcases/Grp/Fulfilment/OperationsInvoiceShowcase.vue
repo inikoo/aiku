@@ -20,8 +20,12 @@ const props = defineProps<{
 
         <!-- Section Calculation -->
         <div class="rounded-md">
-            <Table :data="data" :name="tab">
-
+            <Table :resource="data" :name="tab">
+                <template #cell(price)="{ item }">
+                    <div :class="item.price < 0 ? 'text-red-500' : ''">
+                        {{ item.price }}
+                    </div>
+                </template>
             </Table>
             <!-- For Retina (don't delete) -->
             <!-- <FulfilmentInvoiceCalculation :pdfRoute="data.exportPdfRoute" :dataCalculations="data.calculation" :dataTable="data.items.data" /> -->

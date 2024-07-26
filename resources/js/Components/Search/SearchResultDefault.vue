@@ -81,7 +81,7 @@ const isLoading = ref(false)
         </div>
 
         <div class="flex leading-none py-1 items-start gap-x-3 tracking-tight ">
-            <div v-if="data?.icon" v-tooltip="modelType" class="border-[2px] border-gray-400 text-gray-500 rounded h-10 aspect-square flex items-center justify-center">
+            <div v-if="data?.icon" v-tooltip="modelType" class="border-[2px] border-gray-400 text-gray-500 rounded-md h-10 aspect-square flex items-center justify-center">
                 <FontAwesomeIcon
                     aria-hidden="true"
                     :icon="data?.icon?.icon || data?.icon"

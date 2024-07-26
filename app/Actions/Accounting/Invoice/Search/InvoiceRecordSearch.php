@@ -40,6 +40,17 @@ class InvoiceRecordSearch
             'sections'          => ['accounting'],
             'haystack_tier_1'   => $invoice->number,
             'result'            => [
+                'route'     => [
+                    'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
+                    'parameters'    => [
+                        $invoice->organisation->slug,
+                        $invoice->shop->slug,
+                        $invoice->slug
+                        // 'organisation'=> $invoice->organisation->slug,
+                        // 'fulfilment'  => $invoice->shop->fulfilment->slug,
+                        // 'invoice'     => $invoice->slug
+                    ]
+                ],
                 'container' => [
                     'label' => $invoice->shop->name,
                 ],
@@ -47,7 +58,7 @@ class InvoiceRecordSearch
                 'icon'      => [
                     'icon' => 'fal fa-file-invoice-dollar',
                 ],
-                'aaa'       => $invoice->currency,
+                // 'aaa'       => $invoice,
                 'meta'      => [
                     [
                         'key'   => 'type',

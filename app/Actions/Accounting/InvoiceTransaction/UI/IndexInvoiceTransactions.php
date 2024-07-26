@@ -79,9 +79,9 @@ class IndexInvoiceTransactions extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'description', label: __('description'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'price', label: __('price'), type: 'number', canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'quantity', label: __('quantity'), type: 'number', canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
