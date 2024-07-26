@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\RecurringBill\UI\EditRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
+use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 
 Route::get('', ShowFulfilment::class)->name('dashboard');
@@ -26,7 +27,9 @@ Route::get('', ShowFulfilment::class)->name('dashboard');
 
 Route::get('/pallets', IndexPallets::class)->name('pallets.index');
 Route::get('/returned-pallets', IndexPallets::class)->name('returned_pallets.index');
+
 Route::get('/stored-item-audits', IndexStoredItemAudits::class)->name('stored-item-audits.index');
+Route::get('/stored-item-audits/create', [CreateStoredItemAudit::class, 'inFulfilment'])->name('stored-item-audits.create');
 
 Route::get('/pallets/{pallet}', [ShowPallet::class, 'inFulfilment'])->name('pallets.show');
 //Route::get('/pallets/create', CreatePallet::class)->name('pallets.create');

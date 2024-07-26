@@ -7,18 +7,10 @@
 
 namespace App\Actions\Fulfilment\StoredItemAudit;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItems;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateStoredItems;
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateWithStoredItems;
-use App\Actions\Fulfilment\StoredItem\Search\StoredItemRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\StoredItem;
+use App\Models\Fulfilment\StoredItemAudit;
 use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
@@ -34,30 +26,18 @@ class StoreStoredItemAudit extends OrgAction
 
     public FulfilmentCustomer $fulfilmentCustomer;
 
-    public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
+    public function handle(FulfilmentCustomer $parent, array $modelData): StoredItemAudit
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'fulfilment_id', $parent->fulfilment_id);
 
-        /** @var StoredItem $storedItem */
-        $storedItem = $parent->storedItems()->create($modelData);
+        /** @var StoredItemAudit $storedItemAuditAudit */
+        $storedItemAuditAudit = $parent->storedItemAudits()->create($modelData);
 
-        if ($parent instanceof Pallet) {
-            PalletHydrateWithStoredItems::run($parent); // !important this must be ::run
-            PalletHydrateStoredItems::dispatch($parent);
-        }
+        // Hydrators
 
-        GroupHydrateStoredItems::dispatch($parent->group);
-        OrganisationHydrateStoredItems::dispatch($parent->organisation);
-        FulfilmentHydrateStoredItems::dispatch($parent->fulfilment);
-        FulfilmentCustomerHydrateStoredItems::dispatch($storedItem->fulfilmentCustomer);
-
-
-
-        StoredItemRecordSearch::dispatch($storedItem);
-
-        return $storedItem;
+        return $storedItemAuditAudit;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -79,7 +59,7 @@ class StoreStoredItemAudit extends OrgAction
         return [
             'reference'    => ['required', 'max:128',  new AlphaDashDotSpaceSlashParenthesisPlus(),
              new IUnique(
-                 table: 'stored_items',
+                 table: 'stored_item_audits',
                  extraConditions: [
                      ['column' => 'fulfilment_customer_id', 'value' => $this->fulfilmentCustomer->id],
                  ]
@@ -88,17 +68,17 @@ class StoreStoredItemAudit extends OrgAction
         ];
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItem
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($fulfilmentCustomer->organisation, $request);
 
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItem
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
     {
         $this->asAction           = true;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
@@ -109,31 +89,8 @@ class StoreStoredItemAudit extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
 
-    public function fromRetina(ActionRequest $request): StoredItem
+    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): RedirectResponse
     {
-        /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-
-        $this->initialisation($fulfilmentCustomer->organisation, $request);
-
-        $this->fulfilment         = $fulfilmentCustomer->fulfilment;
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
-    }
-
-    public function inPallet(Pallet $pallet, ActionRequest $request): StoredItem
-    {
-        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
-        $this->fulfilment         = $pallet->fulfilment;
-
-        $this->initialisation($pallet->organisation, $request);
-
-        return $this->handle($pallet, $this->validateAttributes());
-    }
-
-    public function htmlResponse(StoredItem $storedItem, ActionRequest $request): RedirectResponse
-    {
-        return Redirect::route('grp.fulfilment.stored-items.show', $storedItem->slug);
+        return Redirect::route('grp.fulfilment.stored-items.show', $storedItemAudit->slug);
     }
 }

@@ -14,23 +14,22 @@
   import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
   import { library } from "@fortawesome/fontawesome-svg-core"
   import Table from "@/Components/Table/Table.vue"
-  
+
   import { faStickyNote, } from '@fal'
   library.add( faStickyNote, )
-  
+
   const props = defineProps<{
       data: {}
       title: string
       pageHead: PageHeadingTypes
   }>()
-  
+
   const form = useForm({ pallet: [] })
-  
+
   </script>
-  
+
   <template>
       <Head :title="capitalize(title)" />
       <PageHeading :data="pageHead"/>
-      <Table :resource="data" :name="'stored_items_audits'" class="mt-5"/>
+      <Table :resource="data" :name="'stored_item_audits'" class="mt-5"/>
   </template>
-  
