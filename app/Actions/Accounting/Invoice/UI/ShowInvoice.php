@@ -215,7 +215,6 @@ class ShowInvoice extends OrgAction
                     'net_amount'                => $invoice->net_amount,
                     'tax_percentage'            => $invoice->tax_percentage,
                     'payment_amount'            => $invoice->payment_amount,
-                    'date'                      => $invoice->date,
                     'tax_liability_at'          => $invoice->tax_liability_at,
                     'paid_at'                   => $invoice->paid_at,
 

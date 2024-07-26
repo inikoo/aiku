@@ -5,26 +5,19 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\StoredItem\UI;
+namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateStoredItem extends OrgAction
+class CreateStoredItemAudit extends OrgAction
 {
-    public function handle($prefix=null): Response
-    {
-        return $this->htmlResponse();
-    }
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
@@ -36,27 +29,20 @@ class CreateStoredItem extends OrgAction
             );
     }
 
-
-    public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
-    {
-        return StoredItemResource::collection($storedItems);
-    }
-
-
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'       => __('stored item audit'),
                 'pageHead'    => [
-                    'title'  => __('stored items'),
+                    'title'  => __('stored item audit'),
                 ],
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('Item'),
+                            'title'  => __('Audit'),
                             'icon'   => ['fal', 'fa-narwhal'],
                             'fields' => [
                                 'reference' => [
@@ -65,56 +51,56 @@ class CreateStoredItem extends OrgAction
                                     'value'   => '',
                                     'required'=> true
                                 ],
-                                'location' => [
-                                    'type'     => 'combobox',
-                                    'label'    => __('location'),
-                                    'value'    => '',
-                                    'required' => true,
-                                    'apiUrl'   => route('grp.json.locations') . '?filter[slug]=',
-                                ],
                             ]
                         ]
                     ],
                     'route' => [
-                        'name'      => 'grp.models.stored-items.store',
-                        'arguments' => array_values(request()->route()->originalParameters())
+                        'name'       => 'grp.models.fulfilment-customer.stored_item_audits.store',
+                        'parameters' => [
+                            'fulfilmentCustomer' => request()->route('fulfilmentCustomer')
+                        ]
                     ]
                 ],
             ]
         );
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $request;
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Response
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): ActionRequest
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle();
+        return $request;
     }
 
-
-    public function getBreadcrumbs(): array
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): ActionRequest
     {
-        return [];
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $request;
+    }
+
+    public function getBreadcrumbs(array $routeParameters): array
+    {
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'grp.fulfilment.stored-items.index'
+                            'name'       => 'grp.org.fulfilments.show.operations.stored-item-audits.index',
+                            'parameters' => $routeParameters
                         ],
-                        'label' => __('stored items'),
+                        'label' => __('stored item audit'),
                         'icon'  => 'fal fa-bars',
                     ],
-
                 ]
             ]
         );

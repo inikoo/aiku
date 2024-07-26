@@ -86,6 +86,8 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
+use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Tag\StoreTag;
@@ -363,6 +365,11 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
         Route::post('/', StoreRentalAgreement::class)->name('store');
+    });
+
+    Route::prefix('stored-item-audits')->name('stored_item_audits.')->group(function () {
+        Route::post('/', StoreStoredItemAudit::class)->name('store');
+        Route::patch('/{storedItemAudit}', UpdateStoredItemAudit::class)->name('update');
     });
 });
 
