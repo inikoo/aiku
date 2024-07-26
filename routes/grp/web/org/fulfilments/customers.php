@@ -36,6 +36,7 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
+use App\Actions\Fulfilment\StoredItemAudit\UI\ShowStoredItemAudit;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
@@ -106,4 +107,5 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
     Route::get('/stored-item-audits', [IndexStoredItemAudits::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.index');
     Route::get('/stored-item-audits/create', [CreateStoredItemAudit::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.create');
+    Route::get('/stored-item-audits/{storedItemAudit}', [ShowStoredItemAudit::class, 'inFulfilmentCustomer'])->name('.stored-item-audits.show');
 });

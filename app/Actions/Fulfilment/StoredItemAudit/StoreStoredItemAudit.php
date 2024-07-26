@@ -91,6 +91,11 @@ class StoreStoredItemAudit extends OrgAction
 
     public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): RedirectResponse
     {
-        return Redirect::route('grp.fulfilment.stored-items.show', $storedItemAudit->slug);
+        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show', [
+            'organisation'       => $storedItemAudit->organisation->slug,
+            'fulfilment'         => $storedItemAudit->fulfilment->slug,
+            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+            'storedItemAudit'    => $storedItemAudit->slug
+        ]);
     }
 }
