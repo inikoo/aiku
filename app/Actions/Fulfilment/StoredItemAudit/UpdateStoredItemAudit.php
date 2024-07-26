@@ -65,7 +65,7 @@ class UpdateStoredItemAudit extends OrgAction
         ];
     }
 
-    public function asController(StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, StoredItemAudit $storedItemAudit, ActionRequest $request): StoredItemAudit
     {
         $this->fulfilmentCustomer = $storedItemAudit->fulfilmentCustomer;
         $this->storedItemAudit    = $storedItemAudit;
