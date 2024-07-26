@@ -8,9 +8,11 @@
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -78,9 +80,33 @@ class IndexStoredItemAudits extends OrgAction
                         ],
                     ],
                 ],
-                'showcase'        => StoredItemAuditResource::make($storedItemAudit),
-                'pallets'         => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets)
+
+                'notes_data'             => [
+                    [
+                        'label'           => __('Public'),
+                        'note'            => $storedItemAudit->public_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'pink',
+                        'field'           => 'public_notes'
+                    ],
+                    [
+                        'label'           => __('Private'),
+                        'note'            => $storedItemAudit->internal_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'purple',
+                        'field'           => 'internal_notes'
+                    ],
+                ],
+
+                'showcase'            => StoredItemAuditResource::make($storedItemAudit),
+                'pallets'             => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets),
+                'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
+        )->table(
+            IndexPalletsInCustomer::make()->tableStructure(
+                $storedItemAudit->fulfilmentCustomer,
+                prefix: 'pallets'
+            )
         );
     }
 
