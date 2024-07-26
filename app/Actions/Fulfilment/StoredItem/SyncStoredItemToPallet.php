@@ -40,6 +40,10 @@ class SyncStoredItemToPallet extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction)
+        {
+            return true;
+        }
 
         if ($request->user() instanceof WebUser) {
             // TODO: Raul please do the permission for the web user
@@ -72,6 +76,17 @@ class SyncStoredItemToPallet extends OrgAction
         $this->fulfilment         = $pallet->fulfilment;
 
         $this->initialisation($pallet->organisation, $request);
+
+        $this->handle($pallet, $this->validatedData);
+    }
+
+    public function action(Pallet $pallet, $modelData): void
+    {
+        $this->asAction = true;
+        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
+        $this->fulfilment         = $pallet->fulfilment;
+
+        $this->initialisation($pallet->organisation, $modelData);
 
         $this->handle($pallet, $this->validatedData);
     }

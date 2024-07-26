@@ -51,6 +51,9 @@ use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
+use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
+use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -65,6 +68,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
@@ -80,6 +84,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
+use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Permission;
@@ -1479,6 +1484,124 @@ test('Set pallet as lost', function (Pallet $pallet) {
 
     return $lostPallet;
 })->depends('create pallet no delivery')->skip('request()->user()->id didnt work with the acting as');
+
+test('create third pallet delivery (stored item test)', function ($fulfilmentCustomer) {
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS)
+        ->and($palletDelivery->stats->number_pallets)->toBe(0)
+        ->and($fulfilmentCustomer->number_pallet_deliveries)->toBe(2)
+        ->and($fulfilmentCustomer->number_pallets)->toBe(1);
+
+    return $palletDelivery;
+})->depends('create second fulfilment customer');
+
+test('add pallet to third pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = StorePalletFromDelivery::make()->action(
+        $palletDelivery,
+        [
+            'customer_reference' => 'AAAA',
+            'type'               => PalletTypeEnum::PALLET->value,
+        ]
+    );
+
+    $palletDelivery->refresh();
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($palletDelivery->stats->number_services)->toBe(1)
+        ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
+        ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
+        ->and($pallet->source_id)->toBeNull()
+        ->and($pallet->customer_reference)->toBeString()
+        ->and($pallet->received_at)->toBeNull()
+        ->and($pallet->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(2)
+        ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1);
+
+
+    return $pallet;
+})->depends('create third pallet delivery (stored item test)');
+
+test('create stored item', function ($fulfilmentCustomer) {
+    $storedItem = StoreStoredItem::make()->action(
+        $fulfilmentCustomer,
+        [
+            'reference' => 'Test',
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($storedItem)->toBeInstanceOf(StoredItem::class)
+        ->and($fulfilmentCustomer->number_stored_items)->toBe(1);
+
+    return $storedItem;
+})->depends('create second fulfilment customer');
+
+test('create stored item and attach to pallet', function (Pallet $pallet) {
+    $storedItem = StoreStoredItem::make()->action(
+        $pallet->fulfilmentCustomer,
+        [
+            'reference' => 'Blab',
+        ]
+    );
+
+    SyncStoredItemToPallet::make()->action(
+        $pallet,
+        [
+           'stored_item_ids' => [
+            $storedItem->id => [
+                'quantity' => 1
+            ]
+            ]
+        ]
+    );
+
+    $pallet->refresh();
+    expect($storedItem)->toBeInstanceOf(StoredItem::class)
+    ->and($pallet)->toBeInstanceOf(Pallet::class)
+    ->and($pallet->storedItems()->count())->toBe(1);
+
+    return $storedItem;
+})->depends('add pallet to third pallet delivery');
+
+test('create stored item, attach to pallet and delete', function (Pallet $pallet) {
+    $storedItem = StoreStoredItem::make()->action(
+        $pallet->fulfilmentCustomer,
+        [
+            'reference' => 'stor',
+        ]
+    );
+
+    SyncStoredItemToPallet::make()->action(
+        $pallet,
+        [
+           'stored_item_ids' => [
+            $storedItem->id => [
+                'quantity' => 1
+            ]
+            ]
+        ]
+    );
+
+    DeleteStoredItem::make()->action($storedItem,[]);
+
+    $pallet->refresh();
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+    ->and($pallet->storedItems()->count())->toBe(0)
+    ->and(StoredItem::find($storedItem->id))->toBeNull();
+
+    return $pallet;
+})->depends('add pallet to third pallet delivery');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
