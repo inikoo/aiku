@@ -25,9 +25,8 @@ class DeleteStoredItem extends OrgAction
 
     public function handle(StoredItem $storedItem, array $modelData): StoredItem
     {
+        $storedItem->pallets()->detach();
         foreach ($storedItem->pallets as $pallet) {
-            // todo , delete pallet_stored_items pivot table
-
             PalletHydrateWithStoredItems::run($pallet); // !important this must be ::run
             PalletHydrateStoredItems::run($pallet);
         }
@@ -52,12 +51,23 @@ class DeleteStoredItem extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction){
+            return true;
+        }
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem
     {
         $this->initialisationFromFulfilment($storedItem->fulfilment, $request);
+
+        return $this->handle($storedItem, $this->validatedData);
+    }
+
+    public function action(StoredItem $storedItem, $modelData): StoredItem
+    {
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($storedItem->fulfilment, $modelData);
 
         return $this->handle($storedItem, $this->validatedData);
     }
