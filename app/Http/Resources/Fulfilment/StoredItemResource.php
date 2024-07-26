@@ -50,10 +50,9 @@ class StoredItemResource extends JsonResource
                     ]
                 ],
                 default => [
-                    'name'       => 'grp.models.fulfilment-customer.stored-item-return.stored-item.delete',
+                    'name'       => 'grp.models.stored-items.delete',
                     'parameters' => [
-                        'fulfilmentCustomer' => $storedItem->fulfilmentCustomer->id,
-                        'storedItemReturn'   => $storedItem->id
+                       'storedItem' => $storedItem->id
                     ]
                 ]
             }

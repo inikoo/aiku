@@ -10,6 +10,8 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Enums\UI\Fulfilment\FulfilmentCustomerStoredItemsTabsEnum;
+use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -80,7 +82,7 @@ class IndexStoredItems extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'status', label: __('Item Status'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'actions', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
                 // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
@@ -147,9 +149,26 @@ class IndexStoredItems extends OrgAction
                         ]
                     ],
                 ],
-                'data' => StoredItemResource::collection($storedItems),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => FulfilmentCustomerStoredItemsTabsEnum::navigation(),
+                ],
+                FulfilmentCustomerStoredItemsTabsEnum::STORED_ITEMS->value => $this->tab == FulfilmentCustomerStoredItemsTabsEnum::STORED_ITEMS->value ?
+                fn () => StoredItemResource::collection($storedItems)
+                : Inertia::lazy(fn () => StoredItemResource::collection($storedItems)),
+
+                 FulfilmentCustomerStoredItemsTabsEnum::PALLET_STORED_ITEMS->value => $this->tab == FulfilmentCustomerStoredItemsTabsEnum::PALLET_STORED_ITEMS->value ?
+                    fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))
+                    : Inertia::lazy(fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))),
+
             ]
-        )->table($this->tableStructure($storedItems, prefix: 'stored_items'));
+        )->table($this->tableStructure($storedItems, prefix: FulfilmentCustomerStoredItemsTabsEnum::STORED_ITEMS->value))
+        ->table(
+            IndexPalletStoredItems::make()->tableStructure(
+                $this->parent,
+                prefix: FulfilmentCustomerStoredItemsTabsEnum::PALLET_STORED_ITEMS->value
+            )
+        );
     }
 
 
@@ -163,7 +182,7 @@ class IndexStoredItems extends OrgAction
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerStoredItemsTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer, 'stored_items');
     }
