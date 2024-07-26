@@ -22,4 +22,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StoredItemAuditDelta extends Model
 {
+    protected $guarded = [];
 }
