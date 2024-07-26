@@ -29,7 +29,7 @@ class SetEmployeePin
         try {
 
 
-            list($letters,$emojis,$numbers)=$this->pinCharacterSet();
+            list($letters, $emojis, $numbers)=$this->pinCharacterSet();
 
             $pin = $employee->organisation_id.':'.
                 $letters[array_rand($letters)].$letters[array_rand($letters)].

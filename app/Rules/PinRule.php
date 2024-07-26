@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class PinRule implements ValidationRule
 {
-
-
     protected int $organisationId;
 
     public function __construct($organisationId)
