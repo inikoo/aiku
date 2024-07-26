@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemAuditResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -78,6 +79,7 @@ class IndexStoredItemAudits extends OrgAction
                     ],
                 ],
                 'showcase'        => StoredItemAuditResource::make($storedItemAudit),
+                'pallets'         => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets)
             ]
         );
     }
