@@ -68,7 +68,6 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
-use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
@@ -1593,7 +1592,7 @@ test('create stored item, attach to pallet and delete', function (Pallet $pallet
         ]
     );
 
-    DeleteStoredItem::make()->action($storedItem,[]);
+    DeleteStoredItem::make()->action($storedItem, []);
 
     $pallet->refresh();
     expect($pallet)->toBeInstanceOf(Pallet::class)
