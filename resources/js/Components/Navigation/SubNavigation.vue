@@ -9,6 +9,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faNarwhal } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { useTruncate } from '@/Composables/useTruncate'
 library.add(faNarwhal)
 
 const layout = inject('layout', layoutStructure)
@@ -26,6 +27,7 @@ const props = defineProps<{
 }>()
 
 const isLoading = ref<string | boolean | number>(false)
+const locale = inject('locale', {})
 
 // const originUrl = location.origin
 </script>
@@ -57,7 +59,23 @@ const isLoading = ref<string | boolean | number>(false)
                     <FontAwesomeIcon v-else :icon="dataNavigation[0].leftIcon.icon" v-tooltip="capitalize(dataNavigation[0].leftIcon.tooltip)" fixed-width aria-hidden="true" class="" />
                 </div>
 
-                <MetaLabel :item="dataNavigation[0]" />
+                <div class="xl:whitespace-nowrap">
+                    <span class="leading-none">{{ useTruncate(dataNavigation[0].label, 16) }}</span>
+
+                    <span v-if="dataNavigation[0].number">
+                        <template v-if="typeof dataNavigation[0].number == 'number'">
+                            <template v-if="dataNavigation[0].number > 0">
+                                ({{ locale.number(dataNavigation[0].number) }})
+                            </template>
+                            <template v-else>
+                                <FontAwesomeIcon icon='fal fa-empty-set' class='' fixed-width aria-hidden='true' />
+                            </template>
+                        </template>
+                        <template v-else>
+                            ({{ dataNavigation[0].number }})
+                        </template>
+                    </span>
+                </div>
             </component>
         </div>
 

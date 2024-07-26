@@ -40,6 +40,5 @@ const locale = inject('locale', {})
                 ({{ item.number }})
             </template>
         </span>
-
     </div>
 </template>
