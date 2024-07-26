@@ -31,7 +31,7 @@ namespace App\Models\Helpers;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $auditable
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $user
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $user
  * @method static \Illuminate\Database\Eloquent\Builder|Audit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Audit newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Audit query()

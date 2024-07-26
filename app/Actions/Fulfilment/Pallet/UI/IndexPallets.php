@@ -220,7 +220,7 @@ class IndexPallets extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('Returned Pallets'),
+                'title'       => __('Pallets'),
                 'pageHead'    => [
                     'title'      => $title,
                     'afterTitle' => $afterTitle,
@@ -230,16 +230,13 @@ class IndexPallets extends OrgAction
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Delivery'),
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.create',
-                                'parameters' => [
-                                    'organisation' => $request->route('organisation'),
-                                    'warehouse'    => $request->route('warehouse'),
-                                    'fulfilment'   => $request->route('fulfilment')
-                                ]
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'tooltip' => __('Audits'),
+                            'label'   => __('Audits'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.stored-item-audits.index',
+                                'parameters' => $request->route()->originalParameters()
                             ]
                         ],
                     ],

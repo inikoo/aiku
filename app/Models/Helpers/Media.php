@@ -18,7 +18,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property int $id
  * @property int $group_id
  * @property string $slug
- * @property string $type
+ * @property-read string $type
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $uuid
@@ -43,7 +43,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read mixed $extension
  * @property-read mixed $human_readable_size
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $model
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
  * @property-read mixed $original_url
  * @property-read mixed $preview_url
  * @method static \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, static> all($columns = ['*'])

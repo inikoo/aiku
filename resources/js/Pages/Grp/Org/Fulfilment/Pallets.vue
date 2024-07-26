@@ -13,26 +13,26 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 import {useForm} from '@inertiajs/vue3';
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-defineProps<{
+const props = defineProps<{
     data: object
     title: string
     pageHead: PageHeadingTypes
 }>()
 
 const form = useForm({ pallet : []})
-
+console.log(props)
 </script>
 
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
-    <template #button-new-delivery="{ action }">
+<!--    <template #button-new-delivery="{ action }">
     <div v-if="form.pallet.length > 0">
       <Action v-if="action" :action="action"/>
     </div>
     <div v-else></div>
 
-    </template>
+    </template>-->
     </PageHeading>
     <TablePallets :data="data" :tab="'pallets'" :form="form" :dataToSubmit="form.data()" />
 </template>
