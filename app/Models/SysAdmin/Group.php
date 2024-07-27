@@ -89,6 +89,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $timezone_id
  * @property int $currency_id customer accounting currency
  * @property int|null $image_id
+ * @property array $limits
+ * @property array $data
+ * @property array $settings
  * @property int $number_organisations
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
@@ -189,6 +192,21 @@ class Group extends Authenticatable implements Auditable, HasMedia
 
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return [
+            'limits'   => 'array',
+            'data'     => 'array',
+            'settings' => 'array',
+        ];
+    }
+
+    protected $attributes = [
+        'limits'   => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -222,10 +240,12 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(TradeUnit::class);
     }
+
     public function stockFamilies(): HasMany
     {
         return $this->hasMany(StockFamily::class);
     }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class);

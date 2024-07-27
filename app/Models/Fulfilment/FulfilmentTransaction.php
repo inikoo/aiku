@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property FulfilmentTransactionTypeEnum $type
  * @property int $asset_id
  * @property int $historic_asset_id
+ * @property int|null $rental_agreement_clause_id
  * @property string $quantity
  * @property string $gross_amount net amount before discounts
  * @property string $net_amount

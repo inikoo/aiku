@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
+ * @property-read SupplierProductTradeUnit $pivot
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierProductFactory factory($count = null, $state = [])

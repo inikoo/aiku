@@ -43,7 +43,7 @@ use Illuminate\Support\Facades\Auth;
  * @property-read \App\Models\Mail\Email|null $email
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @property-read \App\Models\Mail\Outbox|null $outbox
- * @property-read Model|\Eloquent $recipient
+ * @property-read Model|\Eloquent|null $recipient
  * @method static \Illuminate\Database\Eloquent\Builder|DispatchedEmail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|DispatchedEmail newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|DispatchedEmail query()
