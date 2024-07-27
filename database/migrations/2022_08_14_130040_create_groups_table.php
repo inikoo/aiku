@@ -22,6 +22,9 @@ return new class () extends Migration {
             $table->string('code');
             $table->string('name');
             $table = $this->assets($table);
+            $table->jsonb('limits');
+            $table->jsonb('data');
+            $table->jsonb('settings');
             $table->smallInteger('number_organisations')->default(0);
             $table->softDeletesTz();
             $table->timestampsTz();
