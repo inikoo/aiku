@@ -27,7 +27,7 @@ task('deploy:set-release', function () {
 });
 
 set('shared_dirs', ['storage','private']);
-set('shared_files', ['.env','.env.testing','create_aurora_organisations.sh','create_wowsbar_organisations.sh','aurora_migration_base.sh','reset_db.sh','seed_currency_exchanges_staging.sh','database/seeders/datasets/currency-exchange/currency_exchanges.dump']);
+set('shared_files', ['.env','.env.testing','create_aurora_group.sh','create_aurora_organisations.sh','create_wowsbar_organisations.sh','aurora_start_migration.sh','reset_db.sh','seed_currency_exchanges_staging.sh','database/seeders/datasets/currency-exchange/currency_exchanges.dump']);
 desc('Deploys your project');
 task('deploy', [
     'deploy:prepare',
