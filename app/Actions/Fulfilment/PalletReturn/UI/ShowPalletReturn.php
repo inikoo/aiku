@@ -99,6 +99,13 @@ class ShowPalletReturn extends OrgAction
         if($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                 [
+                    'type'      => 'button',
+                    'style'     => 'tertiary',
+                    'icon'      => 'fal fa-upload',
+                    'label'     => __('upload'),
+                    'tooltip'   => __('Upload file')
+                ],
+                [
                     'type'   => 'buttonGroup',
                     'key'    => 'upload-add',
                     'button' => [
@@ -305,6 +312,12 @@ class ShowPalletReturn extends OrgAction
                     'actions' => $actions
                 ],
 
+                'interest'  => [
+                    'pallets_storage' => $palletReturn->fulfilmentCustomer->pallets_storage,
+                    'items_storage'   => $palletReturn->fulfilmentCustomer->items_storage,
+                    'dropshipping'    => $palletReturn->fulfilmentCustomer->dropshipping,
+                ],
+
                 'updateRoute' => [
                     'name'       => 'grp.models.pallet-return.update',
                     'parameters' => [
@@ -326,42 +339,39 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ],
 
-                // 'upload' => [
-                //     'event'   => 'action-progress',
-                //     'channel' => 'grp.personal.' . $this->organisation->id
-                // ],
-
                 'upload_spreadsheet' => [
-                    'event'   => 'action-progress',
-                    'channel' => 'grp.personal.' . $this->organisation->id,
+                    'event'             => 'action-progress',
+                    'channel'           => 'grp.personal.' . $this->organisation->id,
                     'required_fields'   => ['customer_reference', 'notes', 'stored_items', 'type'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
-                    'upload'  => [
-                        'name'       => 'grp.models.pallet-return.pallet.upload',
-                        'parameters' => [
-                            'palletReturn' => $palletReturn->id
-                        ]
-                    ],
-                    'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.history',
-                        'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
-                        ]
-                    ],
-                    'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.templates',
-                        'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn'       => $palletReturn->reference
-                        ]
-                    ],
+                    'route' => [
+                        'upload'  => [
+                            'name'       => 'grp.models.pallet-return.pallet.upload',
+                            'parameters' => [
+                                'palletReturn' => $palletReturn->id
+                            ]
+                        ],
+                        'history' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.history',
+                            'parameters' => [
+                                'organisation'       => $palletReturn->organisation->slug,
+                                'fulfilment'         => $palletReturn->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                'palletReturn'       => $palletReturn->reference
+                            ]
+                        ],
+                        'download' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.templates',
+                            'parameters' => [
+                                'organisation'       => $palletReturn->organisation->slug,
+                                'fulfilment'         => $palletReturn->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                                'palletReturn'       => $palletReturn->reference
+                            ]
+                        ],
+                    ]
                     // 'templates' => [
                     //     'label' => 'Download Pallets & Stored Items (.xlsx)',
                     //     'route' => [

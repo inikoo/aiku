@@ -178,7 +178,7 @@ class IndexPalletReturns extends OrgAction
                     }
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
-                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), type: 'icon', canBeHidden: false, sortable: false, searchable: false)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);

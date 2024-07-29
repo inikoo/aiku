@@ -91,4 +91,10 @@ const handleClick = (action: Action) => {
         />
     </template>
 
+    <Button v-else
+        v-bind="action"
+        :key="`ActionButton${action.label}${action.style}`"
+        :loading="isLoading"
+    />
+
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 
 import Modal from '@/Components/Utils/Modal.vue'
@@ -10,38 +10,22 @@ import { faInfoCircle } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
 import { useFormatTime } from '@/Composables/useFormatTime'
-import { routeType } from '@/types/route'
+import { UploadPallet } from '@/types/Pallet'
 import { Link, router } from "@inertiajs/vue3"
 import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
-import PureInput from '../Pure/PureInput.vue'
 import Papa from 'papaparse'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
-interface UploadSpreadsheet {
-    event: string
-    channel: string
-    required_fields: string[]
-    template: {
-        label: string
-    }
-    route: {
-        upload: routeType
-        history: routeType
-        download: routeType
-    }
-}
 
 const props = defineProps<{
-    // modelValue: boolean
     scope?: string
     title?: {
         label?: string
         information?: string
     }
     additionalDataToSend?: string[]
-    upload_spreadsheet: UploadSpreadsheet
-    // isUploaded: boolean
+    upload_spreadsheet: UploadPallet
 }>()
 
 const model = defineModel()
@@ -102,11 +86,10 @@ const submitUpload = async () => {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
-        // console.log('aaa', aaa)
         useEchoGrpPersonal().isShowProgress = true
 
     } catch (error: any) {
-        // console.log(error.response.data.message)
+        console.error(error)
         errorMessage.value = error?.response?.data?.message
     }
     isLoadingUpload.value = false
@@ -124,6 +107,10 @@ const closeModal = () =>{
     useEchoGrpPersonal().isShowProgress = false
     model.value = false
 }
+
+const compIndexStoredItemInPreview = computed(() => {
+    return csvData.value?.[0]?.indexOf("stored_items")
+})
 
 // Fetch data history when Modal is opened
 watch(model, async (newVal) => {
@@ -148,8 +135,8 @@ watch(model, async (newVal) => {
 </script>
 
 <template>
-    <Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true">
-        <div class="flex flex-col justify-between h-[500px] overflow-y-auto pb-4 px-1">
+    <Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true" width="w-[800px]">
+        <div class="flex flex-col justify-between h-[500px] overflow-y-auto pb-4 px-3">
             <div>
                 <!-- Title -->
                 <div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
@@ -219,12 +206,6 @@ watch(model, async (newVal) => {
                                     <p class="">{{ trans("Drag and drop, or browse your files") }} (.csv, .xlx, .xlsx)</p>
                                 </div>
                             </div>
-
-                            <div v-if="additionalDataToSend?.includes('stored_items')" class="absolute bottom-2 right-2 text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
-                                <label for="include_stored_items" class="select-none cursor-pointer">Include stored items</label>
-                                <input v-model="isIncludeStoreItems" id="include_stored_items" type="checkbox"
-                                    class="h-3.5 w-3.5 rounded-sm text-indigo-600 focus:ring-0 cursor-pointer" />
-                            </div>
                         </div>
 
                         <!-- Section: Loading state (if upload progress) -->
@@ -235,32 +216,48 @@ watch(model, async (newVal) => {
 
                     </div>
 
-                <div v-if="errorMessage" class="mt-1 text-red-500 text-xs italic">
-                    *{{ errorMessage }}
-                </div>
-
+                    <div v-if="errorMessage" class="mt-1 text-red-500 text-xs italic">
+                        *{{ errorMessage }}
+                    </div>
+                
                     <!-- Section: Excel preview -->
                     <Transition name="headlessui">
                         <div v-if="csvData?.length" class="text-xxs mt-3 max-w-3xl">
-                            <div class="text-sm py-1 pl-3">Preview your data</div>
+                            <div class="text-sm py-1 flex justify-between">
+                                <div>Preview your data</div>
+                                
+                                <div v-if="additionalDataToSend?.includes('stored_items')" class="text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
+                                    <label for="include_stored_items" class="select-none cursor-pointer">Include stored items</label>
+                                    <input v-model="isIncludeStoreItems" id="include_stored_items" type="checkbox"
+                                        class="h-3.5 w-3.5 rounded-sm text-indigo-600 focus:ring-0 cursor-pointer" />
+                                </div>
+                            </div>
                             <div class="max-w-full border border-gray-300 rounded-md overflow-hidden">
                                 <table class="w-full">
                                     <thead class="">
                                         <tr class="bg-green-400 rounded-t-xl border border-green-700">
-                                            <th v-for="(header, index) in csvData[0]" :key="index"
-                                                class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
-                                                :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
-                                                v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? undefined : 'This column is not match, will not be processed.'"
-                                            >
-                                                {{ header }}
-                                                <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header)" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
-                                                <FontAwesomeIcon v-else icon='fas fa-times-circle' class='text-red-500' fixed-width aria-hidden='true' />
-                                            </th>
+                                            <template v-for="(header, index) in csvData[0]">
+                                                <Transition name="slide-to-up">
+                                                    <th v-if="index != compIndexStoredItemInPreview || isIncludeStoreItems" :key="index"
+                                                        class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
+                                                        :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
+                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? 'Correct column.' : 'This column is not match, will not be processed.'"
+                                                    >
+                                                        {{ header }}
+                                                        <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header)" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
+                                                        <FontAwesomeIcon v-else icon='fas fa-times-circle' class='text-red-500' fixed-width aria-hidden='true' />
+                                                    </th>
+                                                </Transition>
+                                            </template>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(row, rowIndex) in csvData.slice(1, 6)" :key="rowIndex" class="border border-gray-300">
-                                            <td v-for="(cell, cellIndex) in row" :key="cellIndex" class="pl-3">{{ cell }}</td>
+                                        <tr v-for="(row, rowIndex) in csvData.slice(1, 6)" class="border border-gray-300">
+                                            <template v-for="(cell, cellIndex) in row">
+                                                <Transition name="slide-to-up">
+                                                    <td v-if="cellIndex != compIndexStoredItemInPreview || isIncludeStoreItems" :key="cellIndex" class="pl-3">{{ cell }}</td>
+                                                </Transition>
+                                            </template>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -282,37 +279,37 @@ watch(model, async (newVal) => {
                 <div class="text-sm text-gray-600"> {{ trans('History uploaded') }}:</div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
                     <template v-if="[...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded].length">
-                        <template v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
-                            :key="index">
-                           <!-- <Link
-                               :href="history?.view_route?.name
-                                   ? route(history.view_route.name, history.view_route.parameters)
-                                   : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"
-                           > -->
-                            <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start"
-                                :class="!history.id ? 'bg-lime-50  border-t-[3px] border-lime-400' : 'bg-white hover:bg-gray-100 border-t-[3px] border-gray-500 cursor-pointer'"
-                                v-tooltip="!history.id ? 'Recently uploaded' : ''"    
-                            >
-                                <p class="text-lg leading-none text-gray-700 font-semibold">
-                                    {{ history.number_rows ?? history.total }} <span
-                                        class="text-xs text-gray-500 font-normal">rows</span>
-                                </p>
-
-                                <div class="flex gap-x-2">
-                                    <span class="text-lime-600 text-xxs">
-                                        {{ history.number_success ?? history.data.number_success }} success,
-                                    </span>
-                                    <span class="text-red-500 text-xxs">
-                                        {{ history.number_fails ?? history.data.number_fails }} fails
+                        <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">
+                            <template v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
+                                :key="index">
+                               <!-- <Link
+                                   :href="history?.view_route?.name
+                                       ? route(history.view_route.name, history.view_route.parameters)
+                                       : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"
+                               > -->
+                                <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "
+                                    :class="!history.id ? 'bg-white' : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'"
+                                    v-tooltip="!history.id ? 'Recently uploaded' : ''"
+                                >
+                                    <p class="text-lg leading-none text-gray-700 font-semibold">
+                                        {{ history.number_rows ?? history.total }} <span
+                                            class="text-xs text-gray-500 font-normal">rows</span>
+                                    </p>
+                                    <div class="flex gap-x-2">
+                                        <span class="text-lime-600 text-xxs">
+                                            {{ history.number_success ?? history.data.number_success }} success,
+                                        </span>
+                                        <span class="text-red-500 text-xxs">
+                                            {{ history.number_fails ?? history.data.number_fails }} fails
+                                        </span>
+                                    </div>
+                                    <span class="text-gray-400 text-xxs mt-2">
+                                        {{ useFormatTime(history.uploaded_at || history.start_at, { formatTime: 'hm'}) }}
                                     </span>
                                 </div>
-
-                                <span class="text-gray-400 text-xxs mt-2">
-                                    {{ useFormatTime(history.uploaded_at || history.start_at, { formatTime: 'hm'}) }}
-                                </span>
-                            </div>
-                            <!-- </Link> -->
-                        </template>
+                                <!-- </Link> -->
+                            </template>
+                        </TransitionGroup>
                     </template>
                     <div v-else class="text-gray-500 text-xs">
                         {{ trans("No previous uploads") }}

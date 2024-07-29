@@ -24,12 +24,13 @@ import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import Tag from "@/Components/Tag.vue"
-import { BoxStats, PDRNotes, PalletReturn } from '@/types/Pallet'
+import { BoxStats, PDRNotes, PalletReturn, UploadPallet } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
+import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 
 import { trans } from "laravel-vue-i18n"
-import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
-import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
+// import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
+// import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import { get } from "lodash"
 import PureInput from "@/Components/Pure/PureInput.vue"
@@ -62,7 +63,29 @@ const props = defineProps<{
     history?: {}
     pageHead: PageHeadingTypes
     updateRoute: routeType
-    uploadRoutes: routeType
+
+    interest: {
+        pallets_storage: boolean
+        items_storage: boolean
+        dropshipping: boolean
+    }
+    
+    upload_spreadsheet: UploadPallet
+
+    // upload: {
+    //     event  : string
+    //     channel: string
+    //     templates: {
+    //         label: string
+    //         route: routeType
+    //     }
+    // }
+    // uploadRoutes: {
+    //     upload: routeType
+    //     download: routeType
+    //     history: routeType
+    // }
+
     palletRoute: {
         index: routeType
         store: routeType
@@ -250,12 +273,22 @@ const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) =>
     }).filter(item => item !== null); // Filter out any null values if aaa contains ids not present in bbb
 }
 
+
+
+// Method: open modal Upload
+const isModalUploadOpen = ref(false)
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <!-- Button: Upload -->
+        <template #button-upload="{ action }">
+            <Button v-if="currentTab === 'pallets' || currentTab === 'stored_items'" @click="() => isModalUploadOpen = true"
+                :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
+            />
+            <div v-else></div>
+        </template>
 
         <!-- Button: Add Pallet -->
         <template #button-group-add-pallet="{ action }">
@@ -490,4 +523,30 @@ const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) =>
             </TablePalletReturn>
         </div>
     </Modal>
+
+    <!-- Modal: Upload via spreadsheet -->
+    <!-- <UploadExcel
+        v-model="isModalUploadOpen"
+        information="The list of column file: customer_reference, notes, stored_items"
+        propName="pallet returns" description="Adding Pallet Returns"
+        :routes="{
+            upload: uploadRoutes.upload,
+            download: uploadRoutes.download,
+            history: uploadRoutes.history
+        }"
+        :upload
+        :required_fields="['customer_reference', 'notes', 'stored_items']"
+    /> -->
+
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"        
+        :upload_spreadsheet
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
 </template>

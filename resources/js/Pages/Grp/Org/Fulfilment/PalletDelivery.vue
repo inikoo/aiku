@@ -25,7 +25,7 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
+import { PalletDelivery, BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet'
 import { Table as TableTS } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -45,19 +45,7 @@ import { notify } from '@kyvg/vue3-notification'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
 
-interface UploadSpreadsheet {
-    event: string
-    channel: string
-    required_fields: string[]
-    template: {
-        label: string
-    }
-    route: {
-        upload: routeType
-        history: routeType
-        download: routeType
-    }
-}
+
 
 const props = defineProps<{
     title: string
@@ -83,7 +71,7 @@ const props = defineProps<{
     //     history: routeType
     // }
 
-    upload_spreadsheet: UploadSpreadsheet
+    upload_spreadsheet: UploadPallet
 
     locationRoute: routeType
     rentalRoute: routeType
