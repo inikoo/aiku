@@ -130,7 +130,7 @@ const layout = inject('layout', layoutStructure)
                         </slot>
                         
                         <!-- ButtonGroup -->
-                        <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="action">
+                        <slot v-if="action.type == 'buttonGroup' && action.button?.length" :name="`button-group-${action.key}`" :action="action">
                             <div class="rounded-md flex" :class="[
                                 (action.button?.length || 0) > 1 ? 'shadow' : '',
                                 ]"
@@ -138,31 +138,29 @@ const layout = inject('layout', layoutStructure)
                                     border: `1px solid ${layout?.app?.theme[4] + '88'}`
                                 }"
                             >
-                                <template v-if="action.button?.length">
-                                    <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="button">
-                                        <component :is="button.route?.name ? Link : 'div'"
-                                            :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
-                                            :method="button.route?.method || 'get'"
-                                            @start="() => isButtonLoading = 'buttonGroup' + index"
-                                            @error="() => isButtonLoading = false"
-                                            :as="button.target ? 'a' : 'div'"
-                                            :target="button.target"
+                                <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="button">
+                                    <component :is="button.route?.name ? Link : 'div'"
+                                        :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
+                                        :method="button.route?.method || 'get'"
+                                        @start="() => isButtonLoading = 'buttonGroup' + index"
+                                        @error="() => isButtonLoading = false"
+                                        :as="button.target ? 'a' : 'div'"
+                                        :target="button.target"
+                                    >
+                                        <Button
+                                            :style="button.style"
+                                            :label="button.label"
+                                            :icon="button.icon"
+                                            :loading="isButtonLoading === 'buttonGroup' + index"
+                                            :iconRight="button.iconRight"
+                                            :disabled="button.disabled"
+                                            :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
+                                            class="inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                            :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
                                         >
-                                            <Button
-                                                :style="button.style"
-                                                :label="button.label"
-                                                :icon="button.icon"
-                                                :loading="isButtonLoading === 'buttonGroup' + index"
-                                                :iconRight="button.iconRight"
-                                                :disabled="button.disabled"
-                                                :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
-                                                class="inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-                                                :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
-                                            >
-                                            </Button>
-                                        </component>
-                                    </slot>
-                                </template>
+                                        </Button>
+                                    </component>
+                                </slot>
                             </div>
                         </slot>
                     </template>

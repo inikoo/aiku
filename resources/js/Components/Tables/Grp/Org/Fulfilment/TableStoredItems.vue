@@ -11,7 +11,7 @@ import { ref } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 
 const props = defineProps<{
-    data: object,
+    data?: {}
     tab?: string
 }>()
 const isLoading = ref<string | boolean>(false)

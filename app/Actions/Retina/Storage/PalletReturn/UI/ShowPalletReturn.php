@@ -72,6 +72,13 @@ class ShowPalletReturn extends RetinaAction
                     'model'     => __('pallet return'),
                     'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                         [
+                            'type'      => 'button',
+                            'style'     => 'tertiary',
+                            'icon'      => 'fal fa-upload',
+                            'label'     => __('upload'),
+                            'tooltip'   => __('Upload file')
+                        ],
+                        [
                             'type'   => 'buttonGroup',
                             'key'    => 'upload-add',
                             'button' => [
@@ -86,6 +93,12 @@ class ShowPalletReturn extends RetinaAction
                                             'palletReturn'       => $palletReturn->id
                                         ]
                                     ]
+                                ],
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'secondary',
+                                    'icon'    => 'fal fa-plus',
+                                    'label'   => __('add Stored Item'),
                                 ],
                                 [
                                     'type'  => 'button',
@@ -185,24 +198,37 @@ class ShowPalletReturn extends RetinaAction
                     ]
                 ],
 
-                'uploadRoutes' => [
-                    'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.history',
-                        'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->slug
-                        ]
+                'interest'  => [
+                    'pallets_storage' => $palletReturn->fulfilmentCustomer->pallets_storage,
+                    'items_storage'   => $palletReturn->fulfilmentCustomer->items_storage,
+                    'dropshipping'    => $palletReturn->fulfilmentCustomer->dropshipping,
+                ],
+                'upload_spreadsheet' => [
+                    'event'             => 'action-progress',
+                    'channel'           => 'retina.personal.' . $palletReturn->organisation_id,
+                    'required_fields'   => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    'template'          => [
+                        'label' => 'Download template (.xlsx)',
                     ],
-                    'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.templates',
-                        'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn'       => $palletReturn->slug
-                        ]
+                    'route' => [
+                        'upload'  => [
+                            'name'       => 'retina.models.pallet-return.pallet.upload',
+                            'parameters' => [
+                                'palletReturn' => $palletReturn->id
+                            ]
+                        ],
+                        'history' => [
+                            'name'       => 'retina.storage.pallet-returns.pallets.uploads.history',
+                            'parameters' => [
+                                'palletReturn'     => $palletReturn->slug
+                            ]
+                        ],
+                        'download' => [
+                            'name'       => 'retina.storage.pallet-returns.pallets.uploads.templates',
+                            'parameters' => [
+                                'palletReturn'     => $palletReturn->slug
+                            ]
+                        ],
                     ],
                 ],
 
