@@ -7,12 +7,20 @@ import { notify } from "@kyvg/vue3-notification"
 import CreateStoredItems from "./CreateStoredItems.vue"
 import Tag from '@/Components/Tag.vue'
 import { get } from "lodash"
+import { routeType } from "@/types/route"
 
 
 const props = defineProps<{
-    pallet: {}
-    storedItemsRoute: {}
-    state?: string
+    pallet: {
+        storeStoredItemRoute : routeType,
+        stored_items :  Array<any>;
+    }
+    storedItemsRoute: {
+		store: routeType
+		index: routeType
+		delete: routeType
+	}
+    editable?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -21,25 +29,27 @@ const emits = defineEmits<{
 
 const isModalOpen = ref(false)
 const form = useForm({ id: null, quantity: 1, oldData: null })
+
 const setFormOnEdit = (data) => {
     form.id = data.id
     form.quantity = data.quantity
     form.oldData = data
     isModalOpen.value = true
 }
-const setFormOnCreate = (data) => {
+
+const setFormOnCreate = () => {
     form.reset()
     isModalOpen.value = true
 }
 
-const onDelete = (data) => {
+const onDelete = (data : { id : ''}) => {
     const stored_items = [...props.pallet.stored_items].filter((item) => item.id != data.id)
-    const finalData = {} // Change to object
+    const finalData = {}
     for (const d of stored_items) finalData[d.id] = { quantity: d.quantity }
     sendToServer(finalData)
 }
 
-const sendToServer = async (data) => {
+const sendToServer = async (data : {}) => {
     router.post(route(props.pallet.storeStoredItemRoute.name, props.pallet.storeStoredItemRoute.parameters), { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
@@ -65,9 +75,6 @@ const sendToServer = async (data) => {
     })
 }
 
-const closeModal = () =>{
-    isModalOpen.value = false
-}
 
 </script>
 
@@ -78,8 +85,8 @@ const closeModal = () =>{
                 <div v-for="item of pallet.stored_items" class="cursor-pointer">
                     <Tag @onClose="(event) => { event.stopPropagation(), onDelete(item) }" :theme="item.id"
                         :label="`${item.reference}`"
-                        :closeButton="state == 'in-process' ? true : false" :stringToColor="true"
-                        @click="() => state == 'in-process' ? setFormOnEdit(item) : null"
+                        :closeButton="editable ? true : false" :stringToColor="true"
+                        @click="() => editable ? setFormOnEdit(item) : null"
                     >
                         <template #label>
                             <div class="whitespace-nowrap text-xs">
@@ -90,11 +97,11 @@ const closeModal = () =>{
                 </div>
             </template>
             
-			<div v-else-if="state !== 'in-process'" class="pl-2.5 text-gray-400">
-                -
+			<div v-else-if="!editable" class="pl-2.5 text-gray-400">
+                -  
             </div>
 
-            <Button v-if="state == 'in-process'" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
+            <Button v-if="editable" icon="fal fa-plus" @click="setFormOnCreate" :type="'dashed'" :size="'xs'"/>
         </div>
 
         <Modal :isOpen="isModalOpen" @onClose="isModalOpen = true" width="w-[600px]">
@@ -104,7 +111,7 @@ const closeModal = () =>{
                     :form="form"
                     @onSave="sendToServer"
                     :stored_items="pallet.stored_items"
-                    @closeModal="closeModal"
+                    @closeModal="isModalOpen = false"
                 />
             </div>
         </Modal>

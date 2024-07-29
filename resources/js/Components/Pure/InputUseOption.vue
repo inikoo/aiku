@@ -98,16 +98,16 @@ defineExpose({
                 :max="maxValue" 
                 :required="required"
                 :step="step"
-                class="remove-arrows-input bg-transparent block w-full text-gray-600 sm:text-sm placeholder:text-gray-400 border-transparent focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500" 
+                class="remove-arrows-input bg-transparent block  text-gray-600 sm:text-sm placeholder:text-gray-400 border-transparent focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500" 
                 :class="['[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none']" />
 
             <slot name="suffix">
-                <div class="flex justify-center items-center absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100 z-50">
+                <div class="flex justify-center items-center absolute inset-y-0 right-0 gap-x-1 cursor-pointer w-1/4 opacity-20 hover:opacity-75 active:opacity-100 z-50">
                     <PureMultiSelect 
                         v-model="value.unit"
                         :placeholder="MultiSelectProps.placeholder"
                         :classes="{
-                            container : 'border-l-2 border-gray-500 focus-within:border-gray-500 w-12',
+                            container : 'border-l-2 border-gray-500 focus-within:border-gray-500 w-full',
                             clearIcon : 'hidden',
                             ...MultiSelectProps.classes
                         }"
