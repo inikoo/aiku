@@ -71,6 +71,12 @@ const props = defineProps<{
     pageHead: PageHeadingTypes
     updateRoute: routeType
 
+    interest: {
+        pallets_storage: boolean
+        items_storage: boolean
+        dropshipping: boolean
+    }
+
     // uploadRoutes: {
     //     upload: routeType
     //     download: routeType
@@ -640,6 +646,7 @@ watch(() => props.data, (newValue) => {
         }"
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>

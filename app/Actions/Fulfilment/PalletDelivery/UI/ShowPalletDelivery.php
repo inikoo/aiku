@@ -349,11 +349,13 @@ class ShowPalletDelivery extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-
-
                     'actions' => $actions,
+                ],
 
-
+                'interest'  => [
+                    'pallets_storage' => $palletDelivery->fulfilmentCustomer->pallets_storage,
+                    'items_storage'   => $palletDelivery->fulfilmentCustomer->items_storage,
+                    'dropshipping'    => $palletDelivery->fulfilmentCustomer->dropshipping,
                 ],
 
                 'updateRoute' => [

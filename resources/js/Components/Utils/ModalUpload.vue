@@ -5,7 +5,7 @@ import { trans } from 'laravel-vue-i18n'
 import Modal from '@/Components/Utils/Modal.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faFile as falFile, faTimes } from '@fal'
-import { faFileDownload, faDownload } from '@fas'
+import { faFileDownload, faDownload, faTimesCircle, faCheckCircle } from '@fas'
 import { faInfoCircle } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
@@ -16,7 +16,7 @@ import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
 import PureInput from '../Pure/PureInput.vue'
 import Papa from 'papaparse'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-library.add(falFile, faTimes, faFileDownload, faDownload, faInfoCircle)
+library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 interface UploadSpreadsheet {
     event: string
@@ -39,7 +39,7 @@ const props = defineProps<{
         label?: string
         information?: string
     }
-
+    additionalDataToSend?: string[]
     upload_spreadsheet: UploadSpreadsheet
     // isUploaded: boolean
 }>()
@@ -130,7 +130,7 @@ watch(model, async (newVal) => {
     if (props.upload_spreadsheet?.route?.history?.name) {
         isLoadingHistory.value = true
         if(newVal && !dataHistoryFileUpload.value.length) {  // to prevent fetch every modal appear
-                console.log(props.upload_spreadsheet?.route)
+            console.log(props.upload_spreadsheet?.route)
             try {
                 const data = await axios.get(route(props.upload_spreadsheet?.route?.history?.name, props.upload_spreadsheet?.route?.history?.parameters))
                 dataHistoryFileUpload.value = data.data.data
@@ -198,6 +198,7 @@ watch(model, async (newVal) => {
                             <Button @click="() => clearAll()" label="Remove file" type="negative" size="s" />
                         </div>
 
+                        <!-- Section: Upload (empty state) -->
                         <div v-else-if="!isLoadingUpload" class="">
                             <label for="fileInput"
                                 class="absolute cursor-pointer rounded-md inset-0 focus-within:outline-none focus-within:ring-0 focus-within:ring-gray-400 focus-within:ring-offset-0">
@@ -219,9 +220,9 @@ watch(model, async (newVal) => {
                                 </div>
                             </div>
 
-                            <div class="absolute bottom-2 right-2 text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
-                                <label for="include_stored_item" class="select-none cursor-pointer">Include stored items</label>
-                                <input v-model="isIncludeStoreItems" id="include_stored_item" type="checkbox"
+                            <div v-if="additionalDataToSend?.includes('stored_items')" class="absolute bottom-2 right-2 text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
+                                <label for="include_stored_items" class="select-none cursor-pointer">Include stored items</label>
+                                <input v-model="isIncludeStoreItems" id="include_stored_items" type="checkbox"
                                     class="h-3.5 w-3.5 rounded-sm text-indigo-600 focus:ring-0 cursor-pointer" />
                             </div>
                         </div>
@@ -247,11 +248,13 @@ watch(model, async (newVal) => {
                                     <thead class="">
                                         <tr class="bg-green-400 rounded-t-xl border border-green-700">
                                             <th v-for="(header, index) in csvData[0]" :key="index"
-                                                class="whitespace-nowrap overflow-ellipsis pl-3"
-                                                :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header) ? 'bg-green-400' : 'bg-red-300 hover:bg-red-400' : 'bg-gray-100'"
-                                                v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? undefined : 'This column will not processed'"
+                                                class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
+                                                :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
+                                                v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? undefined : 'This column is not match, will not be processed.'"
                                             >
                                                 {{ header }}
+                                                <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header)" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-else icon='fas fa-times-circle' class='text-red-500' fixed-width aria-hidden='true' />
                                             </th>
                                         </tr>
                                     </thead>
@@ -276,32 +279,39 @@ watch(model, async (newVal) => {
 
             <!-- Section: table history -->
             <div class="flex items-start gap-x-2 gap-y-2 flex-col mt-4">
-                <div class="text-sm text-gray-600"> {{ trans('Recent uploaded') + ` ${scope}:` }} </div>
+                <div class="text-sm text-gray-600"> {{ trans('History uploaded') }}:</div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
                     <template v-if="[...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded].length">
                         <template v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
                             :key="index">
-                            <!--                            <Link-->
-                            <!--                                :href="history?.view_route?.name-->
-                            <!--                                    ? route(history.view_route.name, history.view_route.parameters)-->
-                            <!--                                    : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"-->
-                            <!--                            >-->
+                           <!-- <Link
+                               :href="history?.view_route?.name
+                                   ? route(history.view_route.name, history.view_route.parameters)
+                                   : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"
+                           > -->
                             <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start"
-                                :class="history?.view_route?.name ? 'bg-white hover:bg-gray-100 border-t-[3px] border-gray-500 cursor-pointer' : ' bg-lime-50/50 hover:bg-lime-100/70 border-t-[3px] border-lime-400'">
+                                :class="!history.id ? 'bg-lime-50  border-t-[3px] border-lime-400' : 'bg-white hover:bg-gray-100 border-t-[3px] border-gray-500 cursor-pointer'"
+                                v-tooltip="!history.id ? 'Recently uploaded' : ''"    
+                            >
                                 <p class="text-lg leading-none text-gray-700 font-semibold">
                                     {{ history.number_rows ?? history.total }} <span
                                         class="text-xs text-gray-500 font-normal">rows</span>
                                 </p>
+
                                 <div class="flex gap-x-2">
-                                    <span class="text-lime-600 text-xxs">{{ history.number_success ??
-                                        history.data.number_success }} success,</span>
-                                    <span class="text-red-500 text-xxs">{{ history.number_fails ??
-                                        history.data.number_fails }} fails</span>
+                                    <span class="text-lime-600 text-xxs">
+                                        {{ history.number_success ?? history.data.number_success }} success,
+                                    </span>
+                                    <span class="text-red-500 text-xxs">
+                                        {{ history.number_fails ?? history.data.number_fails }} fails
+                                    </span>
                                 </div>
-                                <span class="text-gray-400 text-xxs mt-2">{{ useFormatTime(history.uploaded_at ??
-                                    history.start_at, { formatTime: 'hms'}) }}</span>
+
+                                <span class="text-gray-400 text-xxs mt-2">
+                                    {{ useFormatTime(history.uploaded_at || history.start_at, { formatTime: 'hm'}) }}
+                                </span>
                             </div>
-                            <!--                            </Link>-->
+                            <!-- </Link> -->
                         </template>
                     </template>
                     <div v-else class="text-gray-500 text-xs">

@@ -30,6 +30,7 @@ const props = defineProps<{
     progressDescription: string
     upload_spreadsheet: UploadSpreadsheet
     scope?: string
+    additionalDataToSend?: string[]
     
 }>()
 
@@ -54,12 +55,12 @@ const echo = ref(cloneDeep(useEchoGrpPersonal()))
             :scope
             :title        
             :upload_spreadsheet
+            :additionalDataToSend
         />
     </KeepAlive>
 
     <ProgressBar
         :description="progressDescription"
-        :echo="echo"
     />
 
 </template>
