@@ -25,6 +25,7 @@ use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
+use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
@@ -89,7 +90,10 @@ use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -1601,6 +1605,46 @@ test('create stored item, attach to pallet and delete', function (Pallet $pallet
 
     return $pallet;
 })->depends('add pallet to third pallet delivery');
+
+test('create fourth pallet delivery (pallet import test)', function ($fulfilmentCustomer) {
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS)
+        ->and($palletDelivery->stats->number_pallets)->toBe(0)
+        ->and($fulfilmentCustomer->number_pallet_deliveries)->toBe(3)
+        ->and($fulfilmentCustomer->number_pallets)->toBe(2);
+
+    return $palletDelivery;
+})->depends('create second fulfilment customer');
+
+test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
+
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/pallet.xlsx');
+    $file = new UploadedFile($filePath, 'pallet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    ImportPallet::run($palletDelivery, $file);
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->stats->number_pallets)->toBe(1);
+
+    return $palletDelivery;
+})->depends('create fourth pallet delivery (pallet import test)');
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
