@@ -9,39 +9,29 @@ namespace App\Actions\Procurement\OrgSupplierProducts;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
-use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
-use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgSupplierProduct extends OrgAction
 {
-    public function handle(Organisation $organisation, SupplierProduct $supplierProduct, $modelData = []): OrgSupplierProduct
+    public function handle(OrgSupplier $orgSupplier, SupplierProduct $supplierProduct, $modelData = []): OrgSupplierProduct
     {
-        data_set($modelData, 'group_id', $organisation->group_id);
-        data_set($modelData, 'organisation_id', $organisation->id);
+        data_set($modelData, 'group_id', $orgSupplier->group_id);
+        data_set($modelData, 'organisation_id', $orgSupplier->organisation_id);
 
 
-        if($supplierProduct->agent_id) {
-            /** @var OrgAgent $orgAgent */
-            $orgAgent=$organisation->orgAgents()->where('agent_id', $supplierProduct->agent_id)->first();
-            data_set($modelData, 'org_agent_id', $orgAgent->id);
-        }
+        data_set($modelData, 'org_agent_id', $orgSupplier->org_agent_id);
+        data_set($modelData, 'org_supplier_id', $orgSupplier->id);
 
-        if($supplierProduct->supplier_id) {
-            /** @var OrgSupplier $orgSupplier */
-            $orgSupplier=$organisation->orgSuppliers()->where('supplier_id', $supplierProduct->supplier_id)->first();
-            data_set($modelData, 'org_supplier_id', $orgSupplier->id);
-        }
-
+        //
 
         /** @var OrgSupplierProduct $orgSupplierProduct */
         $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->create($modelData);
         $orgSupplierProduct->stats()->create();
 
-        OrganisationHydrateOrgSupplierProducts::dispatch($organisation);
+        OrganisationHydrateOrgSupplierProducts::dispatch($orgSupplier->organisation);
 
 
         return $orgSupplierProduct;
@@ -55,13 +45,13 @@ class StoreOrgSupplierProduct extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, SupplierProduct $supplierProduct, $modelData = [], $hydratorDelay = 0): OrgSupplierProduct
+    public function action(OrgSupplier $orgSupplier, SupplierProduct $supplierProduct, $modelData = [], $hydratorDelay = 0): OrgSupplierProduct
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorDelay;
-        $this->initialisation($organisation, $modelData);
+        $this->initialisation($orgSupplier->organisation, $modelData);
 
-        return $this->handle($organisation, $supplierProduct, $this->validatedData);
+        return $this->handle($orgSupplier, $supplierProduct, $this->validatedData);
     }
 
 
