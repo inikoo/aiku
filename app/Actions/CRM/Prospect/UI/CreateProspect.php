@@ -7,13 +7,15 @@
 
 namespace App\Actions\CRM\Prospect\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateProspect extends InertiaAction
+class CreateProspect extends OrgAction
 {
     public function handle(Shop $parent, ActionRequest $request): Response
     {
@@ -49,23 +51,23 @@ class CreateProspect extends InertiaAction
                             [
                                 'title'  => __('contact'),
                                 'fields' => [
-                                    'company_name' => [
+                                    'company_name'    => [
                                         'type'  => 'input',
                                         'label' => __('company')
                                     ],
-                                    'contact_name' => [
+                                    'contact_name'    => [
                                         'type'  => 'input',
                                         'label' => __('contact name')
                                     ],
-                                    'email'        => [
+                                    'email'           => [
                                         'type'  => 'input',
                                         'label' => __('email')
                                     ],
-                                    'phone'        => [
+                                    'phone'           => [
                                         'type'  => 'phone',
                                         'label' => __('phone')
                                     ],
-                                    'contact_website'  => [
+                                    'contact_website' => [
                                         'type'      => 'inputWithAddOn',
                                         'label'     => __('website'),
                                         'leftAddOn' => [
@@ -100,11 +102,19 @@ class CreateProspect extends InertiaAction
     }
 
 
-    public function inShop(Shop $shop, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $request);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Response
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment->shop, $request);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

@@ -10,4 +10,4 @@ use App\Actions\CRM\Prospect\UI\CreateProspect;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 
 Route::get('/', [IndexProspects::class, 'inShop'])->name('index');
-Route::get('/create', [CreateProspect::class, 'inShop'])->name('create');
+Route::get('/create', CreateProspect::class)->name('create');
