@@ -36,7 +36,7 @@ class EditRecurringBill extends OrgAction
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __(''),
+                                'title'  => '',
                                 'fields' => [
                                     'end_date' => [
                                         'type'        => 'date',

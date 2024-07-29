@@ -96,7 +96,7 @@ class CustomerImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
             'contact_name'   => ['nullable', 'string', 'max:255'],
             'contact_address'=> ['nullable', new ValidAddress()],
             'company'        => ['nullable', 'string', 'max:255'],
-            'email'          => ['nullable', 'email', 'iunique:customers', 'iunique:users'],
+            'email'          => ['nullable', 'email'],
             'phone'          => ['nullable', new Phone()],
             'website'        => ['nullable'],
             'password'       => ['sometimes', 'string', 'min:8', 'max:64'],

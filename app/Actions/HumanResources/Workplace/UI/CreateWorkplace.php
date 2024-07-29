@@ -53,7 +53,7 @@ class CreateWorkplace extends OrgAction
                                 'name' => [
                                     'type'        => 'input',
                                     'label'       => __('name'),
-                                    'placeholder' => __(''),
+                                    'placeholder' => '',
                                     'required'    => true
                                 ],
                                 'type' => [

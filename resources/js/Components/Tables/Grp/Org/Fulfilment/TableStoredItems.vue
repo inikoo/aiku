@@ -7,12 +7,14 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
+import { ref } from 'vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
-
+const isLoading = ref<string | boolean>(false)
 function storedItemRoute(storedItem) {
     switch (route().current()) {
         case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
@@ -35,5 +37,21 @@ function storedItemRoute(storedItem) {
                 {{ value.reference }}
             </Link>
         </template>
+        <template #cell(actions)="{ item: value }">
+            <div v-if="value.state == 'in-process'">
+                <Link
+                    :href="route(value.deleteRoute.name, value.deleteRoute.parameters)"
+                    method="delete"
+                    preserve-scroll
+                    as="div"
+                    @start="() => isLoading = 'delete' + value.id"
+                    v-tooltip="'Delete Stored Item'"
+                >
+                    <Button icon="far fa-trash-alt" :loading="isLoading === 'delete' + value.id" type="negative" />
+                </Link>
+            </div>
+        </template>
     </Table>
 </template>
+
+

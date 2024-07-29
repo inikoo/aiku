@@ -111,7 +111,7 @@ class EditUser extends InertiaAction
                             "username" => [
                                 "type"        => "input",
                                 "label"       => __("username"),
-                                "placeholder" => __("johndoe"),
+                                "placeholder" => "johndoe",
                                 "value"       => $user->username ?? '',
                             ],
                             "email" => [
@@ -123,7 +123,7 @@ class EditUser extends InertiaAction
                             "password" => [
                                 "type"        => "password",
                                 "label"       => __("password"),
-                                "placeholder" => __("********"),
+                                "placeholder" => "********",
                                 "value"       => '',
                             ],
                         ],

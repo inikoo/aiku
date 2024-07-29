@@ -136,6 +136,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read ShopOrdersIntervals|null $orderIntervals
  * @property-read LaravelCollection<int, Order> $orders
+ * @property-read PaymentAccountShop $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
  * @property-read LaravelCollection<int, Outbox> $outboxes

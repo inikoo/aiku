@@ -29,17 +29,17 @@ class ReturnStoredItemsResource extends JsonResource
         $storedItem = $this;
 
         return [
-            'id'                            => $storedItem->id,
-            'pallet_id'                     => $storedItem->pallet_id,
-            'pallet_slug'                   => $storedItem->pallet_slug,
-            'pallet_reference'              => $storedItem->pallet_reference ?? '',
-            'stored_item_id'                => $storedItem->stored_item_id,
-            'reference'                     => $storedItem->stored_item_reference,
-            'stored_item_slug'              => $storedItem->stored_item_slug,
-            'stored_item_type'              => $storedItem->stored_item_type,
-            'quantity'                      => intval($storedItem->quantity),
-            'damaged_quantity'              => $storedItem->damaged_quantity,
-            'location'                      => $storedItem->location_code,
+            'id'                             => $storedItem->id,
+            'pallet_id'                      => $storedItem->pallet_id,
+            'pallet_slug'                    => $storedItem->pallet_slug,
+            'pallet_reference'               => $storedItem->pallet_reference ?? '',
+            'stored_item_id'                 => $storedItem->stored_item_id,
+            'reference'                      => $storedItem->stored_item_reference,
+            'stored_item_slug'               => $storedItem->stored_item_slug,
+            'stored_item_state'              => $storedItem->stored_item_state,
+            'quantity'                       => intval($storedItem->quantity),
+            'damaged_quantity'               => $storedItem->damaged_quantity,
+            'location'                       => $storedItem->location_code,
         ];
     }
 }

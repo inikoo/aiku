@@ -1,20 +1,20 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 26 Jul 2024 23:10:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Rules;
 
+use App\Actions\HumanResources\Employee\SetEmployeePin;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\DB;
 
 class PinRule implements ValidationRule
 {
-    /**
-     * Run the validation rule.
-     *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
-     */
-
-    protected $organisationId;
+    protected int $organisationId;
 
     public function __construct($organisationId)
     {
@@ -23,9 +23,7 @@ class PinRule implements ValidationRule
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $letters = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'X', 'Y', 'Z');
-        $emojis  = array('🌴', '😀', '👽', '🍄', '👻', '👍🏼', '🚀', '🦄', '🐋', '☘️');
-        $numbers = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+        list($letters, $emojis, $numbers) = SetEmployeePin::make()->pinCharacterSet();
 
         $letterCount = 0;
         $emojiCount  = 0;
@@ -46,16 +44,16 @@ class PinRule implements ValidationRule
         }
 
         if ($letterCount < 2 || $emojiCount < 2 || $numberCount < 2) {
-            $fail(__('validation.pin', ['attribute' => $attribute]));
+            $fail(__('The pin must contain 2 letters, 2 numbers, and 2 emojis from the set.'));
         }
 
         $exists = DB::table('employees')
-        ->where('organisation_id', $this->organisationId)
-        ->where('pin', $value)
-        ->exists();
+            ->where('organisation_id', $this->organisationId)
+            ->where('pin', $value)
+            ->exists();
 
         if ($exists) {
-            $fail(__('validation.unique_pin', ['attribute' => $attribute]));
+            $fail(__('The pin :attribute is invalid, try again', ['attribute' => $attribute]));
         }
     }
 }

@@ -18,7 +18,9 @@ class ValidAddress implements ValidationRule
     {
         $query = DB::table('countries');
         if ($query->where("id", Arr::get($value, 'country_id'))->count() <= 0) {
-            $fail('The '.$attribute.' not a valid Address.');
+            $fail(__('Invalid address'));
+
+
         }
     }
 }

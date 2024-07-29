@@ -31,12 +31,19 @@ class HistoryUploads
     public function handle(string $class, $argument): array|Collection
     {
         $upload = Upload::whereType($class);
-
         if(!blank($argument)) {
             $upload->where(Arr::get($argument, 'key'), Arr::get($argument, 'value'));
         }
 
-        return $upload->orderBy('id', 'DESC')->limit(4)->get()->reverse();
+        $uploads = $upload->orderBy('id', 'DESC')->limit(4)->get()->reverse();
+
+        if ($uploads->isEmpty()) {
+            return [
+                'message' => 'No uploads found.'
+            ];
+        }
+
+        return $uploads;
     }
 
     public function jsonResponse(Collection $collection): JsonResource

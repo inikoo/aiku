@@ -113,7 +113,7 @@
           </div>
           <div v-else class="p-4">
               <EmptyState :data="{
-                  title: trans('You haven\'t uploaded any templates.'),
+                  title: trans('You have not uploaded any templates'),
                   description: trans(''),
               }" />
           </div>

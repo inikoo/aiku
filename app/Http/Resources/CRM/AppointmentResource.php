@@ -28,7 +28,7 @@ class AppointmentResource extends JsonResource
             'event'            => $appointment->event,
             'event_address'    => match($appointment->event) {
                 AppointmentEventEnum::CALLBACK => [
-                    'label'   => __('Zoom'),
+                    'label'   => 'Zoom',
                     'address' => $appointment->event_address,
                 ],
                 AppointmentEventEnum::IN_PERSON => [

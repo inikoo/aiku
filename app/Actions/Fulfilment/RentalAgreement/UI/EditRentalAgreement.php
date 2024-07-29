@@ -87,7 +87,7 @@ class EditRentalAgreement extends OrgAction
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __(''),
+                                'title'  => '',
                                 'fields' => [
                                     'billing_cycle' => [
                                         'type'     => 'select',

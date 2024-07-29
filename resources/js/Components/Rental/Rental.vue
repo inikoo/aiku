@@ -293,9 +293,7 @@ onMounted(() => {
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold whitespace-nowrap min-w-40 max-w-64">
                                 {{ trans('Discount (%)') }}
                             </th>
-                            
-                            <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
-                                {{ trans('Agreed Price ($)') }}</th> -->
+
                             <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold min-w-16">
                                 <FontAwesomeIcon icon="fas fa-edit" />
                             </th>

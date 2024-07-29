@@ -47,7 +47,7 @@ class GetReturnStoredItems extends OrgAction
                 'stored_items.id as stored_item_id',
                 'stored_items.reference as stored_item_reference',
                 'stored_items.slug as stored_item_slug',
-                'stored_items.type as stored_item_type',
+                'stored_items.state as stored_item_state',
                 'pallet_stored_items.quantity',
                 'pallet_stored_items.damaged_quantity',
                 'locations.code as location_code'

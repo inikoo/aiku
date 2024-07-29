@@ -40,16 +40,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
  * @property int|null $rental_id
+ * @property int|null $rental_agreement_clause_id
  * @property int|null $location_id
  * @property int|null $pallet_delivery_id
  * @property int|null $pallet_return_id
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
  * @property PalletTypeEnum $type
- * @property bool $with_cartons
- * @property bool $with_stored_items
- * @property int|null $number_cartons
- * @property int|null $number_stored_items
  * @property int|null $current_recurring_bill_id
  * @property \Illuminate\Support\Carbon|null $received_at
  * @property \Illuminate\Support\Carbon|null $booking_in_at
@@ -64,6 +61,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $notes
  * @property array $data
  * @property array $incident_report
+ * @property bool $with_stored_items
+ * @property int $number_stored_item_audits
+ * @property int $number_stored_item_audits_state_in_process
+ * @property int $number_stored_item_audits_state_completed
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
