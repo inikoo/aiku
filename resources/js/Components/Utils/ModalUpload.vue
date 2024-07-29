@@ -12,30 +12,42 @@ import axios from 'axios'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { routeType } from '@/types/route'
 import { Link, router } from "@inertiajs/vue3"
-import { useEchoGrpPersonal as echo } from '@/Stores/echo-grp-personal'
+import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
 import PureInput from '../Pure/PureInput.vue'
 import Papa from 'papaparse'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 library.add(falFile, faTimes, faFileDownload, faDownload, faInfoCircle)
 
-const props = defineProps<{
-    modelValue: boolean
-    routes: {
+interface UploadSpreadsheet {
+    event: string
+    channel: string
+    required_fields: string[]
+    template: {
+        label: string
+    }
+    route: {
         upload: routeType
-        download?: routeType
-        history?: routeType
+        history: routeType
+        download: routeType
     }
-    information?: string
-    propName?: string
-    useEchoGrpPersonal: {
-        isShowProgress: boolean
+}
+
+const props = defineProps<{
+    // modelValue: boolean
+    scope?: string
+    title?: {
+        label?: string
+        information?: string
     }
-    required_fields?: string[]
+
+    upload_spreadsheet: UploadSpreadsheet
     // isUploaded: boolean
 }>()
 
+const model = defineModel()
 
-const emits = defineEmits();
+
+// const emits = defineEmits();
 
 // const { isUploaded } = toRefs(props)
 
@@ -47,7 +59,7 @@ const errorMessage = ref<string | null>(null)
 const isIncludeStoreItems = ref(false)
 
 const selectedFile = ref<File | null>(null)
-const csvData = ref([])
+const csvData = ref<string[]>([])
 
 // Running when file is uploaded or dropped
 const onUploadFile = async (fileUploaded: File) => {
@@ -80,8 +92,8 @@ const submitUpload = async () => {
     errorMessage.value = null
     isLoadingUpload.value = true
     try {
-        await axios.post(
-            route(props.routes.upload.name, props.routes.upload.parameters),
+        const aaa = await axios.post(
+            route(props.upload_spreadsheet?.route?.upload?.name, props.upload_spreadsheet?.route?.upload?.parameters),
             {
                 file: selectedFile.value,
                 stored_item: isIncludeStoreItems.value
@@ -90,7 +102,8 @@ const submitUpload = async () => {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
-        props.useEchoGrpPersonal.isShowProgress = true
+        // console.log('aaa', aaa)
+        useEchoGrpPersonal().isShowProgress = true
 
     } catch (error: any) {
         // console.log(error.response.data.message)
@@ -108,18 +121,18 @@ const clearAll = () => {
 
 const closeModal = () =>{
  /*    useEchoGrpPersonal().isShowProgress = false */
-    props.useEchoGrpPersonal.isShowProgress = false
-    emits('update:modelValue', false)
+    useEchoGrpPersonal().isShowProgress = false
+    model.value = false
 }
 
 // Fetch data history when Modal is opened
-watch(() => props.modelValue, async (newVal) => {
-    if (props.routes.history?.name) {
+watch(model, async (newVal) => {
+    if (props.upload_spreadsheet?.route?.history?.name) {
         isLoadingHistory.value = true
         if(newVal && !dataHistoryFileUpload.value.length) {  // to prevent fetch every modal appear
-                console.log(props.routes)
+                console.log(props.upload_spreadsheet?.route)
             try {
-                const data = await axios.get(route(props.routes.history.name, props.routes.history.parameters))
+                const data = await axios.get(route(props.upload_spreadsheet?.route?.history?.name, props.upload_spreadsheet?.route?.history?.parameters))
                 dataHistoryFileUpload.value = data.data.data
             } catch (error: any) {
                 dataHistoryFileUpload.value = []
@@ -135,31 +148,31 @@ watch(() => props.modelValue, async (newVal) => {
 </script>
 
 <template>
-    <Modal :isOpen="modelValue" @onClose="() => closeModal()" :closeButton="true">
+    <Modal :isOpen="model" @onClose="() => closeModal()" :closeButton="true">
         <div class="flex flex-col justify-between h-[500px] overflow-y-auto pb-4 px-1">
             <div>
                 <!-- Title -->
                 <div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
                     <div>
                         <div class="flex gap-x-0.5">
-                            {{ trans(`Upload your new ${propName}`) }}
-                            <VTooltip v-if="information" class="w-fit">
+                            {{ title?.label }}
+                            <VTooltip v-if="title?.information" class="w-fit">
                                 <FontAwesomeIcon icon='fad fa-info-circle' size="xs" class='text-gray-500' fixed-width
                                     aria-hidden='true' />
                                 <template #popper>
                                     <div class="min-w-20 w-fit max-w-52 text-xs">
-                                        {{ information }}
+                                        {{ title?.information }}
                                     </div>
                                 </template>
                             </VTooltip>
                         </div>
                         <div class="flex justify-center">
-                            <a v-if="routes?.download?.name" :href="route(routes?.download?.name, routes?.download?.parameters)"
+                            <a v-if="upload_spreadsheet?.route?.download?.name" :href="route(upload_spreadsheet?.route?.download?.name, upload_spreadsheet?.route?.download?.parameters)"
                                 class="group text-xs text-gray-600 cursor-pointer px-2 w-fit" download>
                                 <span class="text-xs text-gray-400 group-hover:text-gray-600">
                                     <FontAwesomeIcon icon='fas fa-file-download' class='text-gray-400 group-hover:text-gray-600'
                                         aria-hidden='true' />
-                                    {{ trans(`Download template .xlsx`) }}
+                                    {{ upload_spreadsheet?.template?.label || trans(`Download template .xlsx`) }}
                                 </span>
                             </a>
                         </div>
@@ -170,7 +183,7 @@ watch(() => props.modelValue, async (newVal) => {
                 <div class="grid gap-x-3 px-1">
                     <div @drop="(e: any) => (e.preventDefault(), onUploadFile(e.dataTransfer.files[0]))" @dragover.prevent
                         @dragenter.prevent @dragleave.prevent
-                        class="relative flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
+                        class="relative max-w-full flex items-center justify-center rounded-lg border border-dashed border-gray-700/25 px-6 py-3 bg-gray-400/10"
                         :class="[
                             {'hover:bg-gray-400/20': !isLoadingUpload},
                             errorMessage ? 'errorShake' : ''
@@ -185,7 +198,7 @@ watch(() => props.modelValue, async (newVal) => {
                             <Button @click="() => clearAll()" label="Remove file" type="negative" size="s" />
                         </div>
 
-                        <div v-else-if="!isLoadingUpload">
+                        <div v-else-if="!isLoadingUpload" class="">
                             <label for="fileInput"
                                 class="absolute cursor-pointer rounded-md inset-0 focus-within:outline-none focus-within:ring-0 focus-within:ring-gray-400 focus-within:ring-offset-0">
                                 <input type="file" name="file" id="fileInput" class="sr-only"
@@ -230,16 +243,16 @@ watch(() => props.modelValue, async (newVal) => {
 
                     <!-- Section: Excel preview -->
                     <Transition name="headlessui">
-                        <div v-if="csvData?.length" class="text-xxs mt-3">
+                        <div v-if="csvData?.length" class="text-xxs mt-3 max-w-3xl">
                             <div class="text-sm py-1 pl-3">Preview your data</div>
-                            <div class="border border-gray-300 rounded-md overflow-hidden">
+                            <div class="max-w-full border border-gray-300 rounded-md overflow-hidden">
                                 <table class="w-full">
                                     <thead class="">
                                         <tr class="bg-green-400 rounded-t-xl border border-green-700">
                                             <th v-for="(header, index) in csvData[0]" :key="index"
                                                 class="whitespace-nowrap overflow-ellipsis pl-3"
-                                                :class="required_fields?.length ? required_fields.includes(header) ? 'bg-green-400' : 'bg-red-300' : 'bg-gray-100'"
-                                                v-tooltip="required_fields?.includes(header) ? undefined : 'This column will not processed'"
+                                                :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header) ? 'bg-green-400' : 'bg-red-300 hover:bg-red-400' : 'bg-gray-100'"
+                                                v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? undefined : 'This column will not processed'"
                                             >
                                                 {{ header }}
                                             </th>
@@ -266,10 +279,10 @@ watch(() => props.modelValue, async (newVal) => {
 
             <!-- Section: table history -->
             <div class="flex items-start gap-x-2 gap-y-2 flex-col mt-4">
-                <div class="text-sm text-gray-600"> {{ trans('Recent uploaded') + ` ${propName}:` }} </div>
+                <div class="text-sm text-gray-600"> {{ trans('Recent uploaded') + ` ${scope}:` }} </div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
-                    <template v-if="[...dataHistoryFileUpload, ...echo().recentlyUploaded].length">
-                        <template v-for="(history, index) in [...dataHistoryFileUpload, ...echo().recentlyUploaded]"
+                    <template v-if="[...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded].length">
+                        <template v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
                             :key="index">
                             <!--                            <Link-->
                             <!--                                :href="history?.view_route?.name-->

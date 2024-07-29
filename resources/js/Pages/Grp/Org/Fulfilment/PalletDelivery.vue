@@ -45,6 +45,20 @@ import { notify } from '@kyvg/vue3-notification'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
 
+interface UploadSpreadsheet {
+    event: string
+    channel: string
+    required_fields: string[]
+    template: {
+        label: string
+    }
+    route: {
+        upload: routeType
+        history: routeType
+        download: routeType
+    }
+}
+
 const props = defineProps<{
     title: string
     tabs: TSTabs
@@ -54,13 +68,17 @@ const props = defineProps<{
     data?: {
         data: PalletDelivery
     }
-    history?: {}
     pageHead: PageHeadingTypes
     updateRoute: routeType
-    uploadRoutes: {
-        download: routeType
-        history: routeType
-    }
+
+    // uploadRoutes: {
+    //     upload: routeType
+    //     download: routeType
+    //     history: routeType
+    // }
+
+    upload_spreadsheet: UploadSpreadsheet
+
     locationRoute: routeType
     rentalRoute: routeType
     storedItemsRoute: {
@@ -88,7 +106,6 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
 const timeline = ref({ ...props.data?.data })
-const dataModal = ref({ isModalOpen: false })
 
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
@@ -252,11 +269,8 @@ const changeTableKey = () => {
     tableKey.value = tableKey.value + 1
 }
 
-// Method: open modal Upload
-const onUploadOpen = (action) => {
-    dataModal.value.isModalOpen = true
-    dataModal.value.uploadRoutes = action.route
-}
+// Section: Upload spreadsheet
+const isModalUploadOpen = ref(false)
 
 const changePalletType=(form,fieldName,value)=>{
     form[fieldName] = value
@@ -278,7 +292,7 @@ watch(() => props.data, (newValue) => {
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action)"
+            <Button v-if="currentTab === 'pallets'" @click="() => isModalUploadOpen = true"
                 :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
                 class="rounded-l-md rounded-r-none border-none" />
             <div v-else></div>
@@ -616,15 +630,14 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <UploadExcel
-        information="The list of column file: customer_reference, notes, stored_items"
-        :propName="'pallet deliveries'" description="Adding Pallet Deliveries"
-        :routes="{
-            upload: get(dataModal, 'uploadRoutes', {}),
-            download: props.uploadRoutes.download,
-            history: props.uploadRoutes.history
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
         }"
-        :dataModal="dataModal"
-        :required_fields="['customer_reference', 'notes', 'stored_items']"
+        progressDescription="Adding Pallet Deliveries"        
+        :upload_spreadsheet
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>

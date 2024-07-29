@@ -11,38 +11,38 @@ library.add(faTimes, faFrown, faMeh, faSpinnerThird)
 
 const props = defineProps<{
     description?: string
-    echo: Object
+    // echo: Object
 }>()
-const emits = defineEmits();
-const piniaData  = useEchoGrpPersonal()
+// const emits = defineEmits();
+// const piniaData  = useEchoGrpPersonal()
 
 const closeModal = ()=>{
-    props.echo.isShowProgress = false
+    useEchoGrpPersonal().isShowProgress = false
 }
 
 const throttledValue = throttle((newValue) => {
     return newValue
 }, 800)
 
-watch(
-  () => piniaData,
-  (newVal) => {
-    if (!newVal.isShowProgress) {
-      props.echo.isShowProgress = false; // Not recommended if 'props' is read-only
-      // Instead, consider using a reactive or ref object in the local state
-      // For example:
-      // localState.isShowProgress = false;
-    }
-  },
-  { deep: true }
-);
+// watch(
+//   () => piniaData,
+//   (newVal) => {
+//     if (!newVal.isShowProgress) {
+//       props.echo.isShowProgress = false; // Not recommended if 'props' is read-only
+//       // Instead, consider using a reactive or ref object in the local state
+//       // For example:
+//       // localState.isShowProgress = false;
+//     }
+//   },
+//   { deep: true }
+// );
 
 // console.log(useEchoGrpPersonal().progressBars)
 
 </script>
 
 <template>
-    <div :class="echo.isShowProgress ? 'bottom-16':'-bottom-24' "
+    <div :class="useEchoGrpPersonal().isShowProgress ? 'bottom-16':'-bottom-24' "
         class="backdrop-blur-sm bg-white/60 ring-1 ring-gray-300 rounded-md px-4 py-2 z-50 fixed right-1/2 translate-x-1/2 transition-all duration-200 ease-in-out flex gap-x-6 tabular-nums">
         <template v-if="Object.keys(useEchoGrpPersonal().progressBars?.Upload ?? {}).length > 0">
             <TransitionGroup name="progressbar">

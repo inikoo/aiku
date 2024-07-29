@@ -122,12 +122,6 @@ class ShowPalletDelivery extends OrgAction
                                 'icon'    => ['fal', 'fa-upload'],
                                 'label'   => 'upload',
                                 'tooltip' => __('Upload pallets via spreadsheet'),
-                                'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.upload',
-                                    'parameters' => [
-                                        'palletDelivery' => $palletDelivery->id
-                                    ]
-                                ]
                             ],
                             [
                                 'type'  => 'button',
@@ -380,31 +374,62 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
-                'upload' => [
-                    'event'   => 'action-progress',
-                    'channel' => 'grp.personal.' . $this->organisation->id
+                'upload_spreadsheet' => [
+                    'event'             => 'action-progress',
+                    'channel'           => 'grp.personal.' . $this->organisation->id,
+                    'required_fields'   => ['customer_reference', 'notes', 'stored_items'],
+                    'template'          => [
+                        'label' => 'Download template (.xlsx)',
+                    ],
+                    'route' => [
+                        'upload'  => [
+                            'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ],
+                        'history' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
+                            'parameters' => [
+                                'organisation'       => $palletDelivery->organisation->slug,
+                                'fulfilment'         => $palletDelivery->fulfilment->slug,
+                                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                                'palletDelivery'     => $palletDelivery->reference
+                            ]
+                        ],
+                        'download' => [
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
+                    ],
                 ],
 
-                'uploadRoutes' => [
-                    'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
-                        'parameters' => [
-                            'organisation'       => $palletDelivery->organisation->slug,
-                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletDelivery->reference
-                        ]
-                    ],
-                    'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
-                        'parameters' => [
-                            'organisation'       => $palletDelivery->organisation->slug,
-                            'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                            'palletDelivery'     => $palletDelivery->reference
-                        ]
-                    ],
-                ],
+                // 'uploadRoutes' => [
+                //     'upload'  => [
+                //         'name'       => 'grp.models.pallet-delivery.pallet.upload',
+                //         'parameters' => [
+                //             'palletDelivery' => $palletDelivery->id
+                //         ]
+                //     ],
+                //     'history' => [
+                //         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
+                //         'parameters' => [
+                //             'organisation'       => $palletDelivery->organisation->slug,
+                //             'fulfilment'         => $palletDelivery->fulfilment->slug,
+                //             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                //             'palletDelivery'     => $palletDelivery->reference
+                //         ]
+                //     ],
+                //     'download' => [
+                //         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                //         'parameters' => [
+                //             'organisation'       => $palletDelivery->organisation->slug,
+                //             'fulfilment'         => $palletDelivery->fulfilment->slug,
+                //             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
+                //             'palletDelivery'     => $palletDelivery->reference
+                //         ]
+                //     ],
+                // ],
 
                 'locationRoute' => [
                     'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',

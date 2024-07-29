@@ -51,7 +51,7 @@ class ImportPallet
     public function rules(): array
     {
         return [
-            'file'             => ['required', 'file', 'mimes:xlsx,csv,xls'],
+            'file'             => ['required', 'file', 'mimes:xlsx,csv,xls,txt'],
             'with_stored_item' => ['required', 'bool']
         ];
     }

@@ -8,20 +8,33 @@ import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
 import { cloneDeep } from 'lodash';
 import { routeType } from '@/types/route'
 
-const props = defineProps<{
-    information?: string
-    routes: {
+interface UploadSpreadsheet {
+    event: string
+    channel: string
+    required_fields: string[]
+    template: {
+        label: string
+    }
+    route: {
         upload: routeType
-        download?: routeType
-        history?: routeType
+        history: routeType
+        download: routeType
     }
-    required_fields?: string[]
-    dataModal: {
-        isModalOpen: boolean
+}
+
+const props = defineProps<{
+    title: {
+        label: string
+        information: string
     }
-    description?: string
-    propName?: string
+    progressDescription: string
+    upload_spreadsheet: UploadSpreadsheet
+    scope?: string
+    
 }>()
+
+
+const model = defineModel()
 
 const emits = defineEmits<{
     (e: 'onCloseModal', value: boolean): void
@@ -37,17 +50,15 @@ const echo = ref(cloneDeep(useEchoGrpPersonal()))
     <!-- Modal: Upload -->
     <KeepAlive>
         <ModalUpload
-            v-model="dataModal.isModalOpen"
-            :routes="routes"
-            :information="information"
-            :propName="propName"
-            :useEchoGrpPersonal="echo"
-            :required_fields
+            v-model="model"
+            :scope
+            :title        
+            :upload_spreadsheet
         />
     </KeepAlive>
 
     <ProgressBar
-        :description="description"
+        :description="progressDescription"
         :echo="echo"
     />
 
