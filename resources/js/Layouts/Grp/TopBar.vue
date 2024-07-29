@@ -122,7 +122,7 @@ console.log('environment:', usePage().props.environment)
                     </button>
 
                     <!-- App Title: Image and Title -->
-                    <div class="flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
+                    <div class="overflow-hidden relative flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                         :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
                         :style="{
                             'background-color': layoutStore.app.theme[0],
@@ -130,21 +130,24 @@ console.log('environment:', usePage().props.environment)
                             'border-bottom': `1px solid ${layoutStore.app.theme[2]}3F`
                         }"
                     >
-                        <Link :href="layoutStore.currentParams?.organisation ? route('grp.org.dashboard.show', layoutStore.currentParams?.organisation) : route('grp.dashboard.show')"
-                            class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
-                            :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
-                        >
-                            <Image :src="layoutStore.organisations.data?.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
-                            <Transition name="slide-to-left">
-                                <p v-if="layoutStore.leftSidebar.show" class="text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
-                                    {{ layoutStore.currentParams?.organisation
-                                        ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
-                                            ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
-                                            ?? layoutStore.group?.label
-                                        : layoutStore.group?.label }}
-                                </p>
-                            </Transition>
-                        </Link>
+                        <Transition name="spin-to-down">
+                            <Link :href="layoutStore.currentParams?.organisation ? route('grp.org.dashboard.show', layoutStore.currentParams?.organisation) : route('grp.dashboard.show')"
+                                :key="layoutStore.currentParams?.organisation"
+                                class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
+                                :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
+                            >
+                                <Image :src="layoutStore.organisations.data?.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
+                                <Transition name="slide-to-left">
+                                    <p v-if="layoutStore.leftSidebar.show" class="text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
+                                        {{ layoutStore.currentParams?.organisation
+                                            ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ?? layoutStore.group?.label
+                                            : layoutStore.group?.label }}
+                                    </p>
+                                </Transition>
+                            </Link>
+                        </Transition>
                     </div>
                 </div>
 
