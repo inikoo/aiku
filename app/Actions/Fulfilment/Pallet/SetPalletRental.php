@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\Rental;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -23,6 +24,14 @@ class SetPalletRental extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
+        $rental = Rental::find($modelData['rental_id']);
+        $rentalAgreementClauses = $pallet->fulfilmentCustomer->rentalAgreementClauses;
+        foreach ($rentalAgreementClauses as $clause) {
+            if ($clause->asset_id === $rental->asset_id) {
+                data_set($modelData, 'rental_agreement_clause_id', $clause->id);
+                break;
+            }
+        }
         $pallet             = $this->update($pallet, $modelData);
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
         return $pallet;
