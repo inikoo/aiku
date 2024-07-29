@@ -35,9 +35,10 @@ class EditRentalAgreement extends OrgAction
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
             $price                                  = $clause->asset->price;
             $percentageOff                          = $clause->percentage_off;
+            $discount                               = $percentageOff / 100;
             $clauses[$clause->asset->type->value][] = [
                 'asset_id'       => $clause->asset_id,
-                'agreed_price'   => $price * $percentageOff / 100,
+                'agreed_price'   => $price - $price * $discount,
                 'price'          => $price,
                 'percentage_off' => $percentageOff
             ];

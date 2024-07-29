@@ -36,13 +36,24 @@ class StoreFulfilmentTransaction extends OrgAction
         data_set($modelData, 'fulfilment_customer_id', $parent->fulfilment_customer_id);
         data_set($modelData, 'historic_asset_id', $historicAsset->id);
         data_set($modelData, 'asset_id', $historicAsset->asset_id);
-        data_set($modelData, 'net_amount', $net);
 
         if ($historicAsset->model_type === 'Product') {
             data_set($modelData, 'type', FulfilmentTransactionTypeEnum::PRODUCT);
         } else {
             data_set($modelData, 'type', FulfilmentTransactionTypeEnum::SERVICE);
         }
+
+        $rentalAgreementClauses = $parent->fulfilmentCustomer->rentalAgreementClauses;
+        $percentageOff = 0;
+        foreach ($rentalAgreementClauses as $clause) {
+            if ($clause->asset_id === $historicAsset->asset_id) {
+                data_set($modelData, 'rental_agreement_clause_id', $clause->id);
+                $percentageOff = $clause->percentage_off / 100;
+                break;
+            }
+        }
+        $net -= $net * $percentageOff;
+        data_set($modelData, 'net_amount', $net);
 
         /** @var FulfilmentTransaction $fulfilmentTransaction */
         $fulfilmentTransaction = $parent->transactions()->create($modelData);
@@ -58,8 +69,8 @@ class StoreFulfilmentTransaction extends OrgAction
         $this->update(
             $fulfilmentTransaction,
             [
-            'grp_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->grp_exchange,
-            'org_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->org_exchange
+            'grp_net_amount'   => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->grp_exchange,
+            'org_net_amount'   => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->org_exchange
         ]
         );
 

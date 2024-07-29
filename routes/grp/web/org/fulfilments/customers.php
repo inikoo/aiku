@@ -92,6 +92,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
         Route::get('pallets-stored-items/export', ExportPalletReturnStoredItem::class)->name('pallets.stored-items.export');
+        Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
     });
 
     Route::prefix('recurring-bills')->as('.recurring_bills.')->group(function () {
