@@ -102,8 +102,8 @@ test('create supplier product', function ($supplier) {
     return $supplierProduct;
 })->depends('create independent supplier');
 
-test('attach supplier product to organisation', function (SupplierProduct $supplierProduct) {
-    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($this->organisation, $supplierProduct);
+test('attach supplier product to organisation', function (SupplierProduct $supplierProduct, OrgSupplier $orgSupplier) {
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
     $orgSupplierProduct->refresh();
     expect($orgSupplierProduct)->toBeInstanceOf(OrgSupplierProduct::class)
@@ -111,7 +111,7 @@ test('attach supplier product to organisation', function (SupplierProduct $suppl
         ->and($orgSupplierProduct->organisation_id)->toBe($this->organisation->id);
 
     return $orgSupplierProduct;
-})->depends('create supplier product');
+})->depends('create supplier product', 'attach supplier to organisation');
 
 
 test('create purchase order independent supplier', function (OrgSupplierProduct $orgSupplierProduct) {
@@ -152,7 +152,7 @@ test('delete purchase order', function () {
     );
     $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
-    StoreOrgSupplierProduct::make()->action($this->organisation, $supplierProduct);
+    StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
     $purchaseOrder->refresh();
@@ -322,6 +322,7 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
         ->and($stockDelivery->parent_type)->toBe('OrgSupplier')
         ->and($stockDelivery->parent_id)->toBe($orgSupplier->id)
         ->and($stockDelivery->number)->toBeNumeric($arrayData['number']);
+
     return $stockDelivery;
 })->depends('attach supplier to organisation');
 
@@ -342,7 +343,6 @@ test('create supplier delivery items by selected purchase order', function (Stoc
 })->depends('create supplier delivery', 'add items to purchase order')->todo();
 
 test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
-
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
         ->and($stockDelivery->state)->toBe(StockDeliveryStateEnum::CREATING);
     $stockDelivery = UpdateStateToDispatchStockDelivery::make()->action($stockDelivery);
