@@ -26,8 +26,30 @@ task('deploy:set-release', function () {
     run("cd {{release_path}} && sed -i~ '/^RELEASE=/s/=.*/=\"{{release_semver}}\"/' .env   ");
 });
 
-set('shared_dirs', ['storage','private']);
-set('shared_files', ['.env','.env.testing','aurora_create_group.sh','aurora_create_organisations.sh','wowsbar_create_organisations.sh','aurora_start_migration.sh','reset_db.sh','seed_currency_exchanges_staging.sh','database/seeders/datasets/currency-exchange/currency_exchanges.dump']);
+set('shared_dirs', ['storage', 'private']);
+set('shared_files', [
+    '.env',
+    '.env.testing',
+    'aurora_catalogue_migration.sh',
+    'aurora_accounting_migration.sh',
+    'aurora_crm_migration.sh',
+    'aurora_ds_migration.sh',
+    'aurora_fulfilment_migration.sh',
+    'aurora_helpers_migration.sh',
+    'aurora_hr_migration.sh',
+    'aurora_inventory_migration.sh',
+    'aurora_orders_migration.sh',
+    'aurora_procurement_migration.sh',
+    'aurora_sales_migration.sh',
+    'aurora_warehouse_migration.sh',
+    'aurora_create_group.sh',
+    'aurora_create_organisations.sh',
+    'wowsbar_create_organisations.sh',
+    'aurora_start_migration.sh',
+    'reset_db.sh',
+    'seed_currency_exchanges_staging.sh',
+    'database/seeders/datasets/currency-exchange/currency_exchanges.dump'
+]);
 desc('Deploys your project');
 task('deploy', [
     'deploy:prepare',
