@@ -59,7 +59,7 @@ class StoreGroup
         $group->dropshippingStats()->create();
         $group->mailStats()->create();
 
-        SetGroupLogo::dispatch($group);
+        SetGroupLogo::run($group);
 
         foreach (PostRoomCodeEnum::cases() as $case) {
             StorePostRoom::run(
