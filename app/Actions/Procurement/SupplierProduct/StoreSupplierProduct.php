@@ -73,8 +73,8 @@ class StoreSupplierProduct extends GrpAction
         return [
             'code'                   => [
                 'required',
-                'max:64',
-                new AlphaDashDotSpaceSlashParenthesisPlus(),
+                $this->strict ? 'max:64' : 'max:255',
+                $this->strict ? new AlphaDashDotSpaceSlashParenthesisPlus() : 'string',
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'supplier_products',
@@ -93,12 +93,13 @@ class StoreSupplierProduct extends GrpAction
         ];
     }
 
-    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0): SupplierProduct
+    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict=true): SupplierProduct
     {
         $this->supplier_id    = $supplier->id;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->skipHistoric   = $skipHistoric;
+        $this->strict         = $strict;
 
         $this->initialisation($supplier->group, $modelData);
 

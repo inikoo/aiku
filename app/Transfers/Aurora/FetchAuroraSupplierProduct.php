@@ -17,14 +17,12 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
     protected function parseModel(): void
     {
-
-
         if ($this->auroraModelData->aiku_ignore == 'Yes') {
             return;
         }
 
 
-        $auroraSupplierData= DB::connection('aurora')
+        $auroraSupplierData = DB::connection('aurora')
             ->table('Supplier Dimension')
             ->where('Supplier Key', $this->auroraModelData->{'Supplier Part Supplier Key'})
             ->first();
@@ -48,8 +46,15 @@ class FetchAuroraSupplierProduct extends FetchAurora
             return;
         }
 
+        //print_r($this->auroraModelData);
+        //print_r($supplier);
 
-        $auroraPartData= DB::connection('aurora')
+        $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->firstOrFail();
+
+        $this->parsedData['orgSupplier'] = $orgSupplier;
+
+
+        $auroraPartData = DB::connection('aurora')
             ->table('Part Dimension')
             ->where('Part SKU', $this->auroraModelData->{'Supplier Part Part SKU'})
             ->first();
@@ -110,8 +115,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
 
         $code = $this->auroraModelData->{'Supplier Part Reference'};
-        $code = str_replace('&', 'and', $code);
-        $code =$this->cleanTradeUnitReference($code);
+        // $code = str_replace('&', 'and', $code);
+        // $code =$this->cleanTradeUnitReference($code);
 
         $this->parsedData['supplierProduct'] =
             [
@@ -141,8 +146,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
     {
         return DB::connection('aurora')
             ->table('Supplier Part Dimension as ssp')
-        //    ->leftjoin('Supplier Dimension', 'Supplier Part Supplier Key', 'Supplier Key')
-        //    ->leftjoin('Part Dimension', 'Supplier Part Part SKU', 'Part SKU')
             ->where('ssp.aiku_ignore', 'No')
             ->where('Supplier Part Key', $id)->first();
     }

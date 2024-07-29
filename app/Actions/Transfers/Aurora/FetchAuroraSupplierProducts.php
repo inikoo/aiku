@@ -25,47 +25,40 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
-
         $supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId);
 
 
-        $supplierProduct= $this->fetchSupplierProduct($supplierProductData, $organisationSource);
+        $supplierProduct = $this->fetchSupplierProduct($supplierProductData, $organisationSource);
 
 
-        if($supplierProduct) {
+        if ($supplierProduct) {
             $supplierProduct->refresh();
             $organisation = $organisationSource->getOrganisation();
 
             $orgSupplierProduct = OrgSupplierProduct::where('organisation_id', $organisation->id)->where('supplier_product_id', $supplierProduct->id)->first();
-            if(!$orgSupplierProduct) {
+            if (!$orgSupplierProduct) {
                 StoreOrgSupplierProduct::make()->action(
-                    organisation: $organisation,
+                    orgSupplier: $supplierProductData['orgSupplier'],
                     supplierProduct: $supplierProduct,
                     modelData: [
                         'source_id' => $supplierProductData['supplierProduct']['source_id']
                     ]
                 );
             }
-
-
         }
 
 
         return $supplierProduct;
-
     }
 
 
     public function fetchSupplierProduct($supplierProductData, $organisationSource)
     {
-
-
-
-
         if ($supplierProductData) {
+            // print_r($supplierProductData);
 
 
-            $found           = false;
+            $found = false;
             $supplierProduct = null;
             if ($baseSupplierProduct = SupplierProduct::withTrashed()
                 ->where(
@@ -74,7 +67,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 )
                 ->first()) {
                 $found = true;
-
 
 
                 if ($supplierProduct = SupplierProduct::withTrashed()
@@ -87,14 +79,16 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay
                     );
                     $this->recordChange($organisationSource, $supplierProduct->wasChanged());
-
                 }
 
 
                 if (!$supplierProduct) {
                     $sourceData = explode(':', $baseSupplierProduct->source_id);
                     if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
-                        dd("Error supplier product has same code in same org");
+
+
+                        $this->recordFetchError($organisationSource, $supplierProductData, 'SupplierProduct', 'fetching',['msg'=>"Error supplier product has same code in same org"]);
+                        return null;
                     }
                 }
             }
@@ -112,22 +106,20 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             }
 
 
-
             if (!$found) {
                 $supplierProductData['supplierProduct']['source_organisation_id'] = $organisationSource->getOrganisation()->id;
                 try {
-
                     $supplierProduct = StoreSupplierProduct::make()->action(
                         supplier: $supplierProductData['supplier'],
                         modelData: $supplierProductData['supplierProduct'],
                         skipHistoric: true,
-                        hydratorsDelay: $this->hydrateDelay
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict: false
                     );
                     $this->recordNew($organisationSource);
-
-
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
+
                     return null;
                 }
             }
@@ -160,7 +152,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
         }
 
         return null;
-
     }
 
     public function getModelsQuery(): Builder

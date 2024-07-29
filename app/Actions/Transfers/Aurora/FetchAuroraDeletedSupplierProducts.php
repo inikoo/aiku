@@ -32,11 +32,12 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                         skipHistoric:    true
                     );
                 } else {
-                    $supplierProduct = StoreSupplierProduct::make()->asFetch(
-                        supplier:     $supplierDeletedProductData['supplier'],
-                        modelData:    $supplierDeletedProductData['supplierProduct'],
+                    $supplierProduct = StoreSupplierProduct::make()->action(
+                        supplier: $supplierDeletedProductData['supplier'],
+                        modelData: $supplierDeletedProductData['supplierProduct'],
+                        skipHistoric: true,
                         hydratorsDelay: $this->hydrateDelay,
-                        skipHistoric: true
+                        strict: false
                     );
                 }
 
