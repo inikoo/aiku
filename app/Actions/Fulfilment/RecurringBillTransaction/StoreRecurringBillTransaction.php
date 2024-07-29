@@ -27,15 +27,27 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'item_type', class_basename($item));
 
         data_set($modelData, 'asset_id', $item->rental->asset_id);
+        data_set($modelData, 'net_amount', $item->rental->price);
         data_set($modelData, 'historic_asset_id', $item->rental->asset->current_historic_asset_id);
 
-        //todo add rental_agreement_clause_id
+        if ($item instanceof StoredItem) {
+            $pallets = $item->pallets;
+            $totalQuantity = 0;
+            
+            foreach ($pallets as $pallet) {
+                $totalQuantity += $pallet->pivot->quantity;
+            }
+            
+            data_set($modelData, 'quantity', $totalQuantity);
+        } 
 
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
+        $recurringBillTransaction->refresh();
 
         $item->update(['current_recurring_bill_id' => $recurringBill->id]);
 
+        SetClausesInRecurringBillTransaction::run($recurringBillTransaction);
         RecurringBillHydrateTransactions::dispatch($recurringBill)->delay(now()->addSeconds(2));
 
 

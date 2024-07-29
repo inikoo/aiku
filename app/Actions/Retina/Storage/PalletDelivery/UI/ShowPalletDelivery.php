@@ -239,20 +239,14 @@ class ShowPalletDelivery extends RetinaAction
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
+                            'name'       => 'retina.storage.pallet-deliveries.pallets.uploads.history',
                             'parameters' => [
-                                'organisation'       => $palletDelivery->organisation->slug,
-                                'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
                                 'palletDelivery'     => $palletDelivery->slug
                             ]
                         ],
                         'download' => [
-                            'name'       => 'retina.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
+                            'name'       => 'retina.storage.pallet-deliveries.pallets.uploads.templates',
                             'parameters' => [
-                                'organisation'       => $palletDelivery->organisation->slug,
-                                'fulfilment'         => $palletDelivery->fulfilment->slug,
-                                'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                                 'palletDelivery'     => $palletDelivery->slug
                             ]
                         ],

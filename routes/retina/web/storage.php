@@ -5,8 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\Retina\Storage\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Retina\Storage\PalletDelivery\UI\ShowPalletDelivery;
@@ -21,6 +22,8 @@ Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () 
     Route::get('', IndexPalletDeliveries::class)->name('index');
     Route::get('{palletDelivery}', ShowPalletDelivery::class)->name('show');
     Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
+    Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
+    Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletRetina'])->name('pallets.uploads.history');
 });
 
 Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
