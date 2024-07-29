@@ -19,7 +19,8 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { faNarwhal } from "@fas"
 import { faLayerPlus } from "@far"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
-import { ref } from "vue"
+import { inject, ref } from "vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
 
@@ -36,6 +37,9 @@ if (props.dataToSubmit && props.data.actionActualMethod) {
 }
 
 const originUrl = location.origin
+const layout = inject('layout', layoutStructure)
+
+
 </script>
 
 
@@ -127,7 +131,13 @@ const originUrl = location.origin
                         
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="action">
-                            <div class="rounded-md flex" :class="[(action.button?.length || 0) > 1 ? 'shadow' : '']">
+                            <div class="rounded-md flex" :class="[
+                                (action.button?.length || 0) > 1 ? 'shadow' : '',
+                                ]"
+                                :style="{
+                                    border: `1px solid ${layout?.app?.theme[4] + '88'}`
+                                }"
+                            >
                                 <template v-if="action.button?.length">
                                     <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="button">
                                         <component :is="button.route?.name ? Link : 'div'"

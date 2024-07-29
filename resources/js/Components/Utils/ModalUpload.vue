@@ -269,6 +269,7 @@ watch(model, async (newVal) => {
                                 <Button @click="() => submitUpload()" label="Submit" size="s" :loading="isLoadingUpload" />
                             </div>
                         </div>
+                        <div v-else />
                     </Transition>
 
                 </div>
@@ -280,13 +281,23 @@ watch(model, async (newVal) => {
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
                     <template v-if="[...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded].length">
                         <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">
-                            <template v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
-                                :key="index">
-                               <!-- <Link
-                                   :href="history?.view_route?.name
-                                       ? route(history.view_route.name, history.view_route.parameters)
-                                       : route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})"
-                               > -->
+                            <component
+                                :is="
+                                    history?.view_route?.name
+                                        ? Link
+                                        : dataHistoryFileUpload[0].view_route.name
+                                            ? Link
+                                            : 'div'
+                                "
+                                v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
+                                :key="'list' + index"
+                                :href="history?.view_route?.name
+                                    ? route(history.view_route.name, history.view_route.parameters)
+                                    : dataHistoryFileUpload[0].view_route.name
+                                        ? route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})
+                                        : '#'
+                                "
+                            >
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "
                                     :class="!history.id ? 'bg-white' : 'bg-gray-100 hover:bg-gray-200 cursor-pointer'"
                                     v-tooltip="!history.id ? 'Recently uploaded' : ''"
@@ -307,8 +318,7 @@ watch(model, async (newVal) => {
                                         {{ useFormatTime(history.uploaded_at || history.start_at, { formatTime: 'hm'}) }}
                                     </span>
                                 </div>
-                                <!-- </Link> -->
-                            </template>
+                            </component>
                         </TransitionGroup>
                     </template>
                     <div v-else class="text-gray-500 text-xs">
