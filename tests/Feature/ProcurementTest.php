@@ -30,6 +30,7 @@ use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItem;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderItem;
 use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
@@ -39,6 +40,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\StockDelivery;
 use App\Models\Procurement\StockDeliveryItem;
+use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Validation\ValidationException;
@@ -51,6 +53,18 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = group();
+
+
+    $agent = Agent::first();
+    if(!$agent) {
+        $modelData = Agent::factory()->definition();
+        $agent     = StoreAgent::make()->action(
+            group: $this->group,
+            modelData: $modelData
+        );
+    }
+    $this->agent=$agent;
+
 });
 
 
@@ -199,7 +213,7 @@ test('update purchase order', function ($purchaseOrder) {
 })->depends('create purchase order independent supplier');
 
 test('create purchase order by agent', function () {
-    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $agent, PurchaseOrder::factory()->definition());
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $this->agent, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
 })->todo();
 
