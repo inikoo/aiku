@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "production" ]
 
-concurrency: production_deployments
+concurrency: production_deployment
 
 permissions:
   contents: write
