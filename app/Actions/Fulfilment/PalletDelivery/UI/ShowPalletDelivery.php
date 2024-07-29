@@ -382,7 +382,7 @@ class ShowPalletDelivery extends OrgAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'grp.personal.' . $this->organisation->id,
-                    'required_fields'   => ['customer_reference', 'notes', 'stored_items'],
+                    'required_fields'   => ['customer_reference', 'notes', 'stored_items', 'type'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
