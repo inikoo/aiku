@@ -155,7 +155,7 @@ class FetchAction
 
     }
 
-    public function recordFetchError($organisationSource, $modelData, $modelType = null, $errorOn = null,$data=[]): void
+    public function recordFetchError($organisationSource, $modelData, $modelType = null, $errorOn = null, $data=[]): void
     {
 
         $this->number_errors++;

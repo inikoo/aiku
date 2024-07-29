@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\Rental;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -24,7 +23,7 @@ class SetPalletRental extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
-      
+
         $pallet             = $this->update($pallet, $modelData);
         $pallet->refresh();
         SetClausesInPallet::run($pallet, $modelData);

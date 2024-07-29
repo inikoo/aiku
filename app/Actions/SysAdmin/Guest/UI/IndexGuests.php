@@ -7,7 +7,8 @@
 
 namespace App\Actions\SysAdmin\Guest\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\GrpAction;
+use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\InertiaTable\InertiaTable;
@@ -22,26 +23,23 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexGuest extends InertiaAction
+class IndexGuests extends GrpAction
 {
-    /**
-     * @var \App\Models\SysAdmin\Group
-     */
-    private Group $group;
+    use WithSysAdminAuthorization;
 
-    protected function getElementGroups(): void
+
+    protected function getElementGroups(): array
     {
-        $this->elementGroups =
-            [
-                'status' => [
-                    'label'    => __('Status'),
-                    'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
-                    'engine'   => function ($query, $elements) {
-                        $query->where('users.status', array_pop($elements) === 'active');
-                    }
+        return   [
+            'status' => [
+                'label'    => __('Status'),
+                'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
+                'engine'   => function ($query, $elements) {
+                    $query->where('users.status', array_pop($elements) === 'active');
+                }
 
-                ]
-            ];
+            ]
+        ];
     }
 
 
@@ -68,7 +66,7 @@ class IndexGuest extends InertiaAction
                         ->where('users.parent_type', '=', 'Guest');
                 }
             )->leftJoin('user_stats', 'user_stats.user_id', 'users.id');
-        foreach ($this->elementGroups as $key => $elementGroup) {
+        foreach ($this->getElementGroups() as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -108,7 +106,7 @@ class IndexGuest extends InertiaAction
                             'label'   => __('guest'),
                             'route'   => [
                                 'name'       => 'grp.sysadmin.guests.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => []
                             ]
                         ] : null
                     ]
@@ -120,16 +118,6 @@ class IndexGuest extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.guests.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('sysadmin.view')
-            );
-    }
 
 
     public function jsonResponse(LengthAwarePaginator $guests): AnonymousResourceCollection
@@ -138,7 +126,7 @@ class IndexGuest extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $guests): Response
+    public function htmlResponse(LengthAwarePaginator $guests, ActionRequest $request): Response
     {
         return Inertia::render(
             'SysAdmin/Guests',
@@ -169,15 +157,15 @@ class IndexGuest extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation(app('group'), $request);
 
-        return $this->handle(app('group'));
+        return $this->handle($this->group);
     }
 
     public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
-            (new ShowSysAdminDashboard())->getBreadcrumbs(),
+            ShowSysAdminDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

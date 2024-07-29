@@ -5,21 +5,19 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Fulfilment\Pallet;
+namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\OrgAction;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
-use Illuminate\Validation\Rule;
 
- class SetClausesInPallet extends OrgAction
- {
+class SetClausesInPallet extends OrgAction
+{
     public function handle(Pallet $pallet, array $modelData)
     {
-        $rental = Rental::find($modelData['rental_id']);
+        $rental                 = Rental::find($modelData['rental_id']);
         $rentalAgreementClauses = $pallet->fulfilmentCustomer->rentalAgreementClauses;
-        $found = false;
+        $found                  = false;
 
         foreach ($rentalAgreementClauses as $clause) {
             if ($clause->asset_id === $rental->asset_id) {
@@ -35,4 +33,4 @@ use Illuminate\Validation\Rule;
 
         $pallet->update($modelData);
     }
- }
+}

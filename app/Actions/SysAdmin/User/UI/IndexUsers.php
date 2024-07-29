@@ -7,9 +7,10 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
+use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\SysAdmin\User\UserTypeEnum;
 use App\Enums\UI\SysAdmin\UsersTabsEnum;
@@ -28,12 +29,10 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexUsers extends InertiaAction
+class IndexUsers extends GrpAction
 {
-    /**
-     * @var \App\Models\SysAdmin\Group
-     */
-    private Group $group;
+    use WithSysAdminAuthorization;
+
 
     protected function getElementGroups(Group $group): array
     {
@@ -146,19 +145,10 @@ class IndexUsers extends InertiaAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
-
-        return $request->user()->hasPermissionTo('sysadmin.view');
-    }
-
-
     public function jsonResponse(LengthAwarePaginator $users): AnonymousResourceCollection
     {
         return UsersResource::collection($users);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $users, ActionRequest $request): Response
     {
@@ -207,7 +197,6 @@ class IndexUsers extends InertiaAction
         )->table(
             $this->tableStructure(
                 group: $this->group,
-                scope: 'active',
                 prefix: UsersTabsEnum::ACTIVE_USERS->value
             )
         )->table(
@@ -227,9 +216,9 @@ class IndexUsers extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(UsersTabsEnum::values());
+        $this->initialisation(app('group'), $request)->withTab(UsersTabsEnum::values());
 
-        return $this->handle(group: app('group'), prefix: 'users');
+        return $this->handle(group: $this->group, prefix: 'users');
     }
 
     public function getBreadcrumbs(string $routeName): array
