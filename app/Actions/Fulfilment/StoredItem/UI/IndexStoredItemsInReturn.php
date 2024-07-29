@@ -64,8 +64,6 @@ class IndexStoredItemsInReturn extends OrgAction
                 'stored_items.reference',
                 'stored_items.notes',
                 'stored_items.state',
-                'stored_items.status',
-                'stored_items.type',
                 'stored_items.received_at',
                 'pallet_return_items.quantity_ordered as quantity',
                 'stored_items.fulfilment_customer_id',

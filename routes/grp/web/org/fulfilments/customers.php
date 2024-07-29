@@ -82,7 +82,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
-        Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPallet'])->name('pallets.uploads.history');
+        Route::get('{palletDelivery}/pallets-histories', [HistoryUploads::class, 'inPalletDelivery'])->name('pallets.uploads.history');
         Route::get('{palletDelivery}/pallets-templates', DownloadPalletsTemplate::class)->name('pallets.uploads.templates');
     });
 
@@ -92,6 +92,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 
         Route::get('pallets-stored-items/export', ExportPalletReturnStoredItem::class)->name('pallets.stored-items.export');
+        Route::get('{palletReturn}/pallets-histories', [HistoryUploads::class, 'inPalletReturn'])->name('pallets.uploads.history');
+        Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
     });
 
     Route::prefix('recurring-bills')->as('.recurring_bills.')->group(function () {

@@ -96,7 +96,8 @@ class PostmenCallShipperApi
 
             $result['tracking_number'] = $tracking_number;
             $result['shipment_id']     = $shipment->id;
-            $result['label_link']      = env('APP_URL').'/labels/'.$pdfChecksum;
+            // todo: create a public url for this
+            $result['label_link']      = config('app.domain').'/labels/'.$pdfChecksum;
 
             $error_shipments = json_decode($request->get('error_shipments', '[]'));
             if (is_array($error_shipments) and count($error_shipments) > 0) {

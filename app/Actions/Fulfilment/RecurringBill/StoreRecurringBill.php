@@ -82,7 +82,7 @@ class StoreRecurringBill extends OrgAction
         $recurringBill->stats()->create();
         $recurringBill->refresh();
 
-        StoreStrayRecurringBillTransactionables::run($recurringBill);
+        FindStoredPalletsAndAttachThemToNewRecurringBill::run($recurringBill);
 
 
         GroupHydrateRecurringBills::dispatch($recurringBill->group);

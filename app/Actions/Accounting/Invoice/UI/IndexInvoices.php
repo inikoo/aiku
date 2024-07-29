@@ -109,7 +109,7 @@ class IndexInvoices extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            $table->column(key: 'type', label: __(''), type: 'icon', canBeHidden: false, sortable: false, searchable: true)
+            $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false, sortable: false, searchable: true)
                 ->defaultSort('number');
             $table
                 ->withGlobalSearch()

@@ -56,9 +56,8 @@ _ide_helper.php
 /.npmrc
 /storage/app/media
 /storage/media-library/*
-aurora_migration_base.sh
-aurora_migration_base_tmp.sh
-aurora_migration_crm.sh
+
+
 /backup_load.sh
 push.sh
 /devops/paso_au/
@@ -66,10 +65,16 @@ push.sh
 /config/ignition.php
 /database/seeders/datasets/currency-exchange/currency_exchanges.dump
 /restart_elasticsearch.sh
-/create_wowsbar_organisations.sh
+
 /public/aiku-public/*
 /storage/app/var/*
 
 reset_db.sh
 /tests/datasets/db_dumps/aiku/*
 /push_currency_exchange_db_to_production.sh
+
+
+aurora_*
+wowsbar_*
+create_aurora_*
+create_wowsbar_*

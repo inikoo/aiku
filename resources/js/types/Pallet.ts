@@ -175,3 +175,18 @@ export interface PDRNotes {
     lockMessage?: string
     field: string  // customer_notes, public_notes, internal_notes
 }
+
+
+export interface UploadPallet {
+    event: string
+    channel: string
+    required_fields: string[]
+    template: {
+        label: string
+    }
+    route: {
+        upload: routeType
+        history: routeType
+        download: routeType
+    }
+}

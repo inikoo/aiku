@@ -28,7 +28,7 @@ enum PaymentServiceProviderTypeEnum: string
             'cash'                          => __('Cash'),
             'bank'                          => __('Bank'),
             'electronic_payment_service'    => __('Electronic Payment Service'),
-            'cash_on_delivery'              => __('Cash On Delivery'),
+            'cash_on_delivery'              => __('Cash on Delivery'),
             'buy_now_pay_later'             => __('Buy Now Pay Later'),
         ];
     }

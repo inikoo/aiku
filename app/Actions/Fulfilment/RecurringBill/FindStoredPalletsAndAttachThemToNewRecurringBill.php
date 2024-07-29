@@ -12,7 +12,7 @@ use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Models\Fulfilment\RecurringBill;
 
-class StoreStrayRecurringBillTransactionables extends OrgAction
+class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
 {
     public function handle(RecurringBill $recurringBill): RecurringBill
     {

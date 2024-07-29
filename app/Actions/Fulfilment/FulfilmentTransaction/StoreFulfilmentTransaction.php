@@ -54,14 +54,15 @@ class StoreFulfilmentTransaction extends OrgAction
         }
 
         $fulfilmentTransaction->refresh();
-
         $this->update(
             $fulfilmentTransaction,
             [
-            'grp_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->grp_exchange,
-            'org_net_amount'   => $fulfilmentTransaction->net * $fulfilmentTransaction->org_exchange
+            'grp_net_amount'   => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->grp_exchange,
+            'org_net_amount'   => $fulfilmentTransaction->net_amount * $fulfilmentTransaction->org_exchange
         ]
         );
+        $fulfilmentTransaction->refresh();
+        SetClausesInFulfilmentTransaction::run($fulfilmentTransaction);
 
         return $fulfilmentTransaction;
     }

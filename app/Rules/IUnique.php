@@ -73,7 +73,7 @@ class IUnique implements ValidationRule
         }
 
         if ($count->count() != 0) {
-            $fail('validation.iunique')->translate();
+            $fail('The :attribute has already been taken.');
         }
     }
 }

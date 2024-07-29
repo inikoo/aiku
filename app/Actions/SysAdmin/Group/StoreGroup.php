@@ -86,6 +86,7 @@ class StoreGroup
             'language_id' => ['required', 'exists:languages,id'],
             'timezone_id' => ['required', 'exists:timezones,id'],
             'subdomain'   => ['sometimes', 'nullable', 'unique:groups', 'between:2,64'],
+            'limits'      => ['sometimes', 'array'],
         ];
     }
 
@@ -98,7 +99,7 @@ class StoreGroup
         return $this->handle($validatedData);
     }
 
-    public string $commandSignature = 'group:create {code} {name} {country_code} {currency_code} {--s|subdomain=} {--l|language_code=} {--tz|timezone= : Timezone}';
+    public string $commandSignature = 'group:create {code} {name} {country_code} {currency_code} {--s|subdomain=} {--l|language_code=} {--tz|timezone= : Timezone} {--O|organisations=2} {--S|shops=4} {--W|warehouses=2} {--M|manufactures=1} {--A|agents=3}';
 
     public function asCommand(Command $command): int
     {
@@ -150,6 +151,13 @@ class StoreGroup
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,
             'subdomain'   => $command->option('subdomain') ?? null,
+            'limits'      => [
+                'organisations'=> $command->option('organisations'),
+                'shops'        => $command->option('shops'),
+                'warehouses'   => $command->option('warehouses'),
+                'manufactures' => $command->option('manufactures'),
+                'agents'       => $command->option('agents')
+            ]
         ]);
 
         try {

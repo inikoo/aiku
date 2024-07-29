@@ -25,6 +25,12 @@ dropdb -p "${DB_PORT}" --force --if-exists ${DB}
 createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
 dropdb -p "${DB_PORT}" --force --if-exists ${BACKUP_DB}
 createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
+
+
+#todo: https://github.com/inikoo/aiku/issues/710
+# create action to create group / admin user , then continue the installation on the web app
+#call this artisan comments inside such action
+
 echo -e "✨ Resetting elasticsearch"
 ${PHP} artisan es:refresh
 ./restart_elasticsearch.sh
@@ -43,40 +49,5 @@ ${PHP} artisan db:seed
 ./seed_currency_exchanges.sh
 ${PHP} artisan telescope:clear
 pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
-echo "🏢 create group"
-./create_aurora_organisations.sh
-./create_wowsbar_organisations.sh
-${PHP} artisan fetch:aurora-organisations -d "${DB_SUFFIX}"
-${PHP} artisan guest:create awg 'Mr Aiku' aiku -e aiku@inikoo.com --roles=super-admin
-${PHP} artisan production:create aroma AWA 'Aromatics' --state open --source_id '4:1' --created_at '2020-08-25 05:45:47'
-${PHP} artisan production:create es AWapro 'AWA Production' --state open --source_id '3:213' --created_at '2021-06-01 07:52:01'
-${PHP} artisan production:create aw AR 'Affinity Repacking' --state open --source_id '1:6755' --created_at '2021-06-10 14:43:45'
-${PHP} artisan production:create sk AWGp 'AW Gifts production' --state open --source_id '2:364' --created_at '2021-08-06 09:26:15'
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/productions.dump" ${DB}
 
-${PHP} artisan fetch:warehouses -d "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
 
-${PHP} artisan fetch:shops -d "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/shops.dump" ${DB}
-${PHP} artisan fetch:websites -d "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/websites.dump" ${DB}
-
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/with_user.dump" ${DB}
-
-${PHP} artisan fetch:agents -d "${DB_SUFFIX}"
-${PHP} artisan org:attach-agent aroma indo
-
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/installed.dump" ${DB}
-
-./aurora_procurement_migration.sh "${PHP}" "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/procurement.dump" ${DB}
-
-./aurora_warehouse_migration.sh "${PHP}" "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/warehouses.dump" ${DB}
-
-./aurora_inventory_migration.sh "${PHP}" "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/inventory.dump" ${DB}
-
-./aurora_catalogue_migration.sh "${PHP}" "${DB_SUFFIX}"
-pg_dump -p "${DB_PORT}" -Fc -f "devops/devel/snapshots/catalogue.dump" ${DB}

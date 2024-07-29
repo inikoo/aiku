@@ -153,35 +153,35 @@ enum PalletReturnStateEnum: string
     {
         return [
             'in-process' => [
-                'title'    => __("Pallet Return $reference Created"),
+                'title'    => __("Pallet return :reference created", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been created')
             ],
             'submitted'  => [
-                'title'    => __("Pallet Return $reference Submitted"),
+                'title'    => __("Pallet return :reference submitted", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been submitted')
             ],
             'confirmed'  => [
-                'title'    => __("Pallet Return $reference Confirmed"),
+                'title'    => __("Pallet return :reference confirmed", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been confirmed')
             ],
             'picking'    => [
-                'title'    => __("Pallet Return $reference Picking"),
+                'title'    => __("Pallet return :reference picking", ['reference' => $reference]),
                 'subtitle' => __('Pallet return is picking')
             ],
             'picked'     => [
-                'title'    => __("Pallet Return $reference Picked"),
+                'title'    => __("Pallet return :reference picked", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been picked')
             ],
             'dispatched' => [
-                'title'    => __("Pallet Return $reference Dispatched"),
+                'title'    => __("Pallet return :reference dispatched", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been dispatched')
             ],
             'cancel'     => [
-                'title'    => __("Pallet Return $reference Cancelled"),
+                'title'    => __("Pallet return :reference cancelled", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been cancelled')
             ],
             'consolidated'     => [
-                'title'    => __("Pallet Return $reference Consolidated"),
+                'title'    => __("Pallet return :reference consolidated", ['reference' => $reference]),
                 'subtitle' => __('Pallet return has been consolidated')
             ],
         ];

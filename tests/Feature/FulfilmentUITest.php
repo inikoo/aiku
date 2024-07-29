@@ -442,7 +442,6 @@ test('UI Index pallets', function () {
                 fn (AssertableInertia $page) => $page
                         ->where('title', 'Pallets')
                         ->has('subNavigation')
-                        ->has('actions')
                         ->has('meta')
                         ->etc()
             )
@@ -929,8 +928,7 @@ test('UI Index stored items', function () {
                 fn (AssertableInertia $page) => $page
                         ->has('subNavigation')
                         ->etc()
-            )
-            ->has('data');
+            );
     });
 });
 

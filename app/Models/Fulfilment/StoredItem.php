@@ -30,9 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property string $slug
  * @property string $reference
- * @property string $status
  * @property StoredItemStateEnum $state
- * @property string $type
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
  * @property string $notes
@@ -42,8 +40,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $settled_at
  * @property array $data
  * @property array $incident_report
- * @property string|null $deleted_at
- * @property string|null $delete_comment
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $source_id

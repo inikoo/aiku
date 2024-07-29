@@ -15,7 +15,7 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { Table } from '@/types/Table'
-import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
+import { PalletDelivery, BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import type { Component } from 'vue'
@@ -49,10 +49,14 @@ const props = defineProps<{
     updateRoute: {
         route: routeType
     }
-    uploadRoutes: {
-        download: routeType
-        history: routeType
+    
+    interest: {
+        pallets_storage: boolean
+        items_storage: boolean
+        dropshipping: boolean
     }
+    upload_spreadsheet: UploadPallet
+
     storedItemsRoute: {
         index: routeType
         store: routeType
@@ -80,7 +84,6 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const isLoading = ref<string | boolean>(false)
 const timeline = ref({ ...props.data.data })
-const dataModal = ref({ isModalOpen: false })
 
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
@@ -138,10 +141,7 @@ const changePalletType=(form,fieldName,value)=>{
 
 
 // Tabs: Pallet
-const onUploadOpen = (action) => {
-    dataModal.value.isModalOpen = true
-    dataModal.value.uploadRoutes = action.route
-}
+const isModalUploadOpen = ref(false)
 const onAddPallet = (data: {route: routeType}, closedPopover: Function) => {
     isLoading.value = 'addSinglePallet'
     formAddPallet.post(route(
@@ -295,12 +295,14 @@ const typePallet = [
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
             <Button
-                @click="() => onUploadOpen(action)"
+                v-if="currentTab === 'pallets'"
+                @click="() => isModalUploadOpen = true"
                 :style="action.style"
                 :icon="action.icon"
                 v-tooltip="action.tooltip"
-                class="rounded-l rounded-r-none border-none"
+                class="rounded-l-md rounded-r-none border-none"
             />
+            <div v-else />
         </template>
 
         <!-- Button: Add multiple pallets -->
@@ -313,7 +315,7 @@ const typePallet = [
                         :iconRight="action.iconRight"
                         :key="`ActionButton${action.label}${action.style}`"
                         :tooltip="trans('Add multiple pallets')"
-                        class="rounded-r-none border-none"
+                        class="rounded-none border-none"
                     />
                 </template>
 
@@ -373,7 +375,8 @@ const typePallet = [
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
-                            :tooltip="action.tooltip" class="rounded-l-none rounded-r border-none " />
+                            :tooltip="action.tooltip"
+                            class="rounded-l-none rounded-r-md border-none " />
                     </template>
 
                     <template #content="{ close: closed }">
@@ -443,6 +446,7 @@ const typePallet = [
                             :icon="action.icon"
                             :tooltip="action.tooltip"
                             :key="`ActionButton${action.label}${action.style}`"
+                            class="border-none rounded-sm"
                         />
                     </template>
 
@@ -516,6 +520,7 @@ const typePallet = [
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
+                            class="border-none rounded-sm"
                         />
                     </template>
                     
@@ -648,11 +653,23 @@ const typePallet = [
         @renderTableKey="() => (console.log('emit render', changeTableKey()))"
     />
 
-    <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
+    <!-- <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
         download: props.uploadRoutes.download,
         history: props.uploadRoutes.history
-    }" :dataModal="dataModal" />
+    }" :dataModal="dataModal" /> -->
+
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"        
+        :upload_spreadsheet
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
 
     <!-- <pre>{{ props.pallets }}</pre> -->
     <!-- <pre>{{ $inertia.page.props.queryBuilderProps.pallets.columns }}</pre> -->

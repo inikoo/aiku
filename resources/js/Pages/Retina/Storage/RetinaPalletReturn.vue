@@ -22,6 +22,7 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { Action } from '@/types/Action'
+import { BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet'
 
 import '@/Composables/Icon/PalletReturnStateEnum'
 import '@/Composables/Icon/Pallet/PalletType'
@@ -40,9 +41,9 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
-import { faCube, faConciergeBell } from '@fal'
+import { faCube, faConciergeBell, faNarwhal } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCube, faConciergeBell, faSpinnerThird)
+library.add(faCube, faConciergeBell, faNarwhal, faSpinnerThird)
 
 // import '@/Composables/Icon/PalletStateEnum.ts'
 // import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
@@ -51,6 +52,8 @@ import { trans } from 'laravel-vue-i18n'
 import { get } from 'lodash'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
+import Tag from "@/Components/Tag.vue"
+import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 
 const props = defineProps<{
 	title: string
@@ -58,19 +61,26 @@ const props = defineProps<{
 	data?: {}
 	history?: {}
 	pageHead: PageHeadingTypes
+    
+    interest: {
+        pallets_storage: boolean
+        items_storage: boolean
+        dropshipping: boolean
+    }
+    
+    upload_spreadsheet: UploadPallet
 
 	updateRoute: {
         route: routeType
     }
-	uploadRoutes: routeType
 
     palletRoute : {
 		index : routeType,
 		store : routeType
 	}
 
-    box_stats: {}
-    notes_data: {}
+    box_stats: BoxStats
+    notes_data: PDRNotes[]
 
 	pallets?: {}
     stored_items?: {}
@@ -81,8 +91,8 @@ const props = defineProps<{
     physical_good_list_route: routeType
 }>()
 
-console.log('box stats', props.box_stats)
-console.log('notes data', props.notes_data)
+// console.log('box stats', props.box_stats)
+// console.log('notes data', props.notes_data)
 
 
 const currentTab = ref(props.tabs.current)
@@ -202,12 +212,24 @@ watch(
 	{ deep: true }
 )
 
+
+// Method: open modal Upload
+const isModalUploadOpen = ref(false)
 </script>
 
 <template>
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <!-- Button: Upload -->
+        <template #button-upload="{ action }">
+            <Button v-if="currentTab === 'pallets' || currentTab === 'stored_items'" @click="() => isModalUploadOpen = true"
+                :style="action.style" :icon="action.icon" v-tooltip="action.tooltip"
+            />
+            <div v-else></div>
+        </template>
+
+        <!-- Button: Add pallet -->
         <template #button-group-add-pallet="{ action }">
             <Button
                 v-if="currentTab == 'pallets'"
@@ -218,8 +240,24 @@ watch(
                 :key="`ActionButton${action.label}${action.style}`"
                 :tooltip="action.tooltip"
                 @click="() => openModal = true"
+                class="border-none rounded-[4px]"
             />
             <div v-else></div>
+        </template>
+
+        <!-- Button: Add Stored Items -->
+        <template #button-group-add-stored-item="{ action }">
+            <Button
+                v-if="currentTab === 'stored_items'"
+                :style="action.style"
+                :label="action.label"
+                :icon="action.icon"
+                :iconRight="action.iconRight"
+                :key="`ActionButton${action.label}${action.style}`"
+                :tooltip="action.tooltip"
+                class="border-none rounded-[4px]"
+            />
+            <div v-else />
         </template>
 
         <!-- Button: Add services -->
@@ -234,6 +272,7 @@ watch(
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
+                            class="border-none rounded-[4px]"
                         />
                     </template>
 
@@ -310,6 +349,7 @@ watch(
                             :icon="action.icon"
                             :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip"
+                            class="border-none rounded-[4px]"
                         />
                     </template>
                     
@@ -395,8 +435,13 @@ watch(
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
-    <component :is="component" :data="props[currentTab]" :key="timeline.state" :state="timeline.state" :tab="currentTab"
-        app="retina" />
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :key="timeline.state"
+        :state="timeline.state"
+        :tab="currentTab"
+    />
 
     <Modal :isOpen="openModal" @onClose="openModal = false">
         <div class="">
@@ -428,4 +473,16 @@ watch(
             </TablePalletReturn>
         </div>
     </Modal>
+
+    <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
+        }"
+        progressDescription="Adding Pallet Deliveries"        
+        :upload_spreadsheet
+        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+    />
 </template>

@@ -14,7 +14,6 @@ import { trans } from 'laravel-vue-i18n'
 import { get } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { useGetCurrencySymbol } from '@/Composables/useCurrency'
-import Button from '@/Components/Elements/Buttons/Button.vue'
 import Tag from '@/Components/Tag.vue'
 
 library.add(faTriangle, faChevronDown)
@@ -60,12 +59,12 @@ const dateOptions = [
     },
     {
         label: trans('Month to date'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('Mtd'),
         value: 'mtd'
     },
     {
         label: trans('Week to date'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('Wtd'),
         value: 'wtd'
     },
     {
@@ -105,18 +104,15 @@ const dateOptions = [
     },
     {
         label: trans('1 Week'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('1w'),
         value: '1w'
     },
     {
         label: trans('All'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('All'),
         value: 'all'
     },
-    // {
-    //     label: 'xxxxxxxxxxx',
-    //     value: 'xxxxxxxxxxx'
-    // },
+
 ]
 
 const currencyValue = ref('group')

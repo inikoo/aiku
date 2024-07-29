@@ -21,6 +21,7 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
 use App\Rules\Phone;
 use Exception;
 use Illuminate\Console\Command;
@@ -50,7 +51,6 @@ class StoreGuest
     {
         $rolesNames = Arr::get($modelData, 'roles', []);
         Arr::forget($modelData, 'roles');
-
 
 
         /** @var Guest $guest */
@@ -112,8 +112,6 @@ class StoreGuest
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
                     ]);
                 }
-
-
             }
         }
         UserAddRoles::run($user, $roles);
@@ -160,8 +158,21 @@ class StoreGuest
 
 
         return [
-            'alias'          => ['required', 'iunique:guests', 'string', 'max:12', Rule::notIn(['export', 'create'])],
-            'username'       => ['required', 'required', new AlphaDashDot(), 'iunique:users', Rule::notIn(['export', 'create'])],
+            'alias'          => [
+                'required',
+                'string',
+                'max:12',
+                Rule::notIn(['export', 'create']),
+                new IUnique(table: 'guests'),
+
+            ],
+            'username'       => [
+                'required',
+                'string',
+                new AlphaDashDot(),
+                Rule::notIn(['export', 'create']),
+                new IUnique(table: 'users'),
+            ],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'contact_name'   => ['required', 'string', 'max:255'],
             'phone'          => $phoneValidation,
