@@ -33,7 +33,7 @@ enum PalletDeliveryTabsEnum: string
                 'align' => 'right',
             ],
             PalletDeliveryTabsEnum::PALLETS => [
-                'title'     => __("pallets")." ($parent->number_pallets)",
+                'title'     => __("pallets")." ({$parent->stats->number_pallets})",
                 'icon'      => 'fal fa-pallet',
                 'indicator' => $parent->pallets()->whereNotNull('location_id')->count() < $parent->pallets()->count()
             ],
