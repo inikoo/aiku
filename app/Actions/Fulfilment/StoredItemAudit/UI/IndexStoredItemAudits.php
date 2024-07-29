@@ -97,6 +97,26 @@ class IndexStoredItemAudits extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+                'storedItemsRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'parameters' => [
+                            'organisation'       => $storedItemAudit->organisation->slug,
+                            'fulfilment'         => $storedItemAudit->fulfilment->slug,
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                            'palletDelivery'     => $storedItemAudit->reference
+                        ]
+                    ],
+                    'store' => [
+                        'name'       => 'grp.models.fulfilment-customer.stored-items.store',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->id
+                        ]
+                    ],
+                    'delete' => [
+                        'name' => 'grp.models.stored-items.delete'
+                    ]
+                ],
 
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
                 'pallets'             => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets),
