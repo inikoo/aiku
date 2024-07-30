@@ -69,7 +69,7 @@ class UpdateStoredItemAuditDelta extends OrgAction
     {
         $this->fulfilmentCustomer      = $storedItemAuditDelta->storedItem->fulfilmentCustomer;
         $this->storedItemAuditDelta    = $storedItemAuditDelta;
-        $this->initialisationFromFulfilment($storedItemAuditDelta->fulfilment, $request);
+        $this->initialisationFromFulfilment($storedItemAuditDelta->storedItem->fulfilment, $request);
 
         return $this->handle($storedItemAuditDelta, $this->validatedData);
     }
