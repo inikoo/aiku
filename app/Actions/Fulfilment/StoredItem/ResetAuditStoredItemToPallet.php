@@ -30,6 +30,7 @@ class ResetAuditStoredItemToPallet extends OrgAction
         $storedItemDeltaIds = $pallet->storedItemAuditDeltas->pluck('stored_item_id');
 
         $pallet->storedItems()->detach($storedItemDeltaIds);
+        $pallet->storedItemAuditDeltas()->delete();
     }
 
     public function authorize(ActionRequest $request): bool
