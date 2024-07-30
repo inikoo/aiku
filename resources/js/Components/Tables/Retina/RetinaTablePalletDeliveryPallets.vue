@@ -36,6 +36,7 @@ const props = defineProps<{
     storedItemsRoute: {
 		index : routeType
 		store : routeType
+		delete : routeType
 	}
 }>()
 
@@ -142,6 +143,7 @@ const typePallet = [
 		<template #cell(stored_items)="{ item }">
             <StoredItemsProperty
                 :pallet="item"
+				:saveRoute="item.auditRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :state="props.state"
                 @renderTable="() => emits('renderTableKey')"

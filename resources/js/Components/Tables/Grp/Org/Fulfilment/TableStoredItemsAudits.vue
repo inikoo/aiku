@@ -149,10 +149,12 @@
   
           <!-- Column: Stored Items -->
           <template #cell(stored_items)="{ item: pallet }">
+         <!--  <pre>{{pallet   }}</pre> -->
             <StoredItemProperty
                 :pallet="pallet"
 				:storedItemsRoute="storedItemsRoute"
                 :editable="true"
+                :saveRoute="pallet.auditRoute"
             />
           </template>
   

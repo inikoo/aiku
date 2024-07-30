@@ -33,7 +33,11 @@ const onSubmitNote = async () => {
     try {
         const response = await axios.patch(route(props.updateRoute.name, props.updateRoute.parameters), {
             [props.noteData.field]: noteModalValue.value
-        })
+        },
+        {
+                headers: { "Content-Type": 'application/json' },
+        }
+        )
         props.noteData.note = noteModalValue.value
     } catch (error) {
         notify({

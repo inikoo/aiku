@@ -209,6 +209,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<template #cell(stored_items)="{ item }">
 			<StoredItemProperty
                 :pallet="item"
+				:saveRoute="item.storeStoredItemRoute"
 				:storedItemsRoute="storedItemsRoute"
                 :editable="props.state == 'in-process'"
                 @renderTable="() => emits('renderTableKey')"

@@ -15,6 +15,7 @@ const props = defineProps<{
         storeStoredItemRoute : routeType,
         stored_items :  Array<any>;
     }
+    saveRoute : routeType
     storedItemsRoute: {
 		store: routeType
 		index: routeType
@@ -50,7 +51,7 @@ const onDelete = (data : { id : ''}) => {
 }
 
 const sendToServer = async (data : {}) => {
-    router.post(route(props.pallet.storeStoredItemRoute.name, props.pallet.storeStoredItemRoute.parameters), { stored_item_ids: data }, {
+    router.post(route(props.saveRoute.name, props.saveRoute.parameters), { stored_item_ids: data }, {
         onError: (e) => {
             form.errors = {
                 id: get(e, [`stored_item_ids`])
