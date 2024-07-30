@@ -58,6 +58,7 @@ class PalletsResource extends JsonResource
             'location_slug'                    => $this->location_slug,
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
+            'audited_at'                       => $this->audited_at,
             'stored_items'                     => $this->storedItems->map(fn ($storedItem) => [
                 'id'        => $storedItem->id,
                 'reference' => $storedItem->reference,
@@ -135,6 +136,10 @@ class PalletsResource extends JsonResource
             ],
             'setAsDamaged' => [
                 'name'       => 'grp.models.pallet.damaged',
+                'parameters' => [$this->id]
+            ],
+            'auditRoute' => [
+                'name'       => 'grp.models.pallet.stored-items.audit',
                 'parameters' => [$this->id]
             ],
             'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {

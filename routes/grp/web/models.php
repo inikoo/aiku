@@ -85,6 +85,7 @@ use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
@@ -316,6 +317,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('pallet-return-item', SyncPalletReturnItem::class)->name('pallet-return-item.sync');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
+    Route::post('stored-items/audit', SyncStoredItemToPalletAudit::class)->name('stored-items.audit');
     Route::patch('booked-in', BookInPallet::class)->name('booked-in');
     Route::patch('not-received', SetPalletAsNotReceived::class)->name('not-received');
     Route::patch('undo-not-received', UndoPalletStateToReceived::class)->name('undo-not-received');

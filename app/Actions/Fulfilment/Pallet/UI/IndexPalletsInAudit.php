@@ -85,6 +85,7 @@ class IndexPalletsInAudit extends OrgAction
         $query->where('pallets.status', PalletStatusEnum::STORING);
         $query->where('pallets.state', PalletStateEnum::STORING);
 
+        $query->leftJoin('stored_item_audit_deltas', 'pallets.id', '=', 'stored_item_audit_deltas.pallet_id');
 
         foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
             $query->whereElementGroup(
@@ -115,7 +116,8 @@ class IndexPalletsInAudit extends OrgAction
                 'pallets.fulfilment_customer_id',
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
-                'pallets.pallet_return_id'
+                'pallets.pallet_return_id',
+                'stored_item_audit_deltas.audited_at'
             );
 
 
@@ -167,7 +169,7 @@ class IndexPalletsInAudit extends OrgAction
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false);
-            $table->column(key: 'edited', label: __('edited'), canBeHidden: false);
+            $table->column(key: 'audited_at', label: __('edited'), canBeHidden: false);
 
 
             $table->defaultSort('reference');
