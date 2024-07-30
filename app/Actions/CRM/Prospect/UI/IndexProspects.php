@@ -50,7 +50,7 @@ class IndexProspects extends OrgAction
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilment(Organisation $organisation,Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProspectsTabsEnum::values());
         $this->parent = $fulfilment;

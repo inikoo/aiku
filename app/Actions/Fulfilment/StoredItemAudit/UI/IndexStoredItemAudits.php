@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -36,6 +37,12 @@ class IndexStoredItemAudits extends OrgAction
 
     public function handle(Fulfilment|FulfilmentCustomer|Warehouse $parent, $prefix = null): StoredItemAudit
     {
+        if(! $parent->storedItemAudit) {
+            StoreStoredItemAudit::make()->action($parent, []);
+        }
+
+        $parent->refresh();
+
         return $parent->storedItemAudit;
     }
 
