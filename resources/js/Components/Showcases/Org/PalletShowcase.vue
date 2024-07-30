@@ -17,6 +17,8 @@ const props = defineProps<{
                 name: string
                 route: routeType
             }
+            pallet_delivery_id: {}
+            pallet_return_id: {}
             location: {
                 id: number
                 slug: string
@@ -45,22 +47,22 @@ const blueprint = {
         label: 'Customer',
         value: props.data.data.customer || '-'
     },
-    customer_reference: {
-        label: "Customer's pallet",
-        value: props.data.data.customer_reference || '-'
-    },
+    // customer_reference: {
+    //     label: "Customer's pallet",
+    //     value: props.data.data.customer_reference || '-'
+    // },
     location: {
         label: 'Location',
         value: props.data.data.location || '-'
     },
-    state: {
-        label: 'State',
-        value: props.data.data.state || '-'
-    },
-    status: {
-        label: 'Status',
-        value: props.data.data.status || '-'
-    },
+    // state: {
+    //     label: 'State',
+    //     value: props.data.data.state || '-'
+    // },
+    // status: {
+    //     label: 'Status',
+    //     value: props.data.data.status || '-'
+    // },
     items: {
         label: 'Items',
         value: props.data.data.items || '-'
@@ -109,10 +111,18 @@ onMounted(() => {
                 </dd>
             </div>
 
+            <!-- Field: Items -->
             <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.items.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <span v-if="blueprint.items.value.length">{{ blueprint.items.value }}</span>
+                    <span v-else class="text-gray-400 italic">No items in this pallet.</span>
+                </dd>
+            </div>
+            <!-- <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.customer_reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.customer_reference.value }}</dd>
-            </div>
+            </div> -->
 
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.location.label }}</dt>
@@ -125,22 +135,16 @@ onMounted(() => {
             </div>
 
             <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.state.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.state.value }}</dd>
+                <dt class="font-medium">Info</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">State: {{ data.data.state }}</dd>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">Status: {{ data.data.status }}</dd>
             </div>
 
-            <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.status.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.status.value }}</dd>
-            </div>
 
-            <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.items.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <span v-if="blueprint.items.value.length">{{ blueprint.items.value }}</span>
-                    <span v-else class="text-gray-400 italic">No items in this pallet.</span>
-                </dd>
-            </div>
+            <!-- <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">Delivery</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ props.data.data.pallet_delivery_id }}</dd>
+            </div> -->
         </dl>
 
         <!-- Section: Barcode -->
