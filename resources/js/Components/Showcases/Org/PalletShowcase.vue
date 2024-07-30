@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/vue3'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from '@/types/route'
+import PureTimeline from '@/Components/Pure/PureTimeline.vue'
 
 const props = defineProps<{
     data: {
@@ -17,6 +18,8 @@ const props = defineProps<{
                 name: string
                 route: routeType
             }
+            pallet_delivery_id: {}
+            pallet_return_id: {}
             location: {
                 id: number
                 slug: string
@@ -45,22 +48,22 @@ const blueprint = {
         label: 'Customer',
         value: props.data.data.customer || '-'
     },
-    customer_reference: {
-        label: "Customer's pallet",
-        value: props.data.data.customer_reference || '-'
-    },
+    // customer_reference: {
+    //     label: "Customer's pallet",
+    //     value: props.data.data.customer_reference || '-'
+    // },
     location: {
         label: 'Location',
         value: props.data.data.location || '-'
     },
-    state: {
-        label: 'State',
-        value: props.data.data.state || '-'
-    },
-    status: {
-        label: 'Status',
-        value: props.data.data.status || '-'
-    },
+    // state: {
+    //     label: 'State',
+    //     value: props.data.data.state || '-'
+    // },
+    // status: {
+    //     label: 'Status',
+    //     value: props.data.data.status || '-'
+    // },
     items: {
         label: 'Items',
         value: props.data.data.items || '-'
@@ -79,12 +82,37 @@ onMounted(() => {
     }
 })
 
+const xxxtimeline = [
+    {
+        label: 'Delivery',
+        icon: 'fal fa-truck-couch',
+        tooltip: 'Arrived at warehouse',
+        timestamp: new Date(),
+    },
+    {
+        label: 'Moved',
+        icon: 'fal fa-receipt',
+        tooltip: 'Move to location 1A4K',
+        timestamp: new Date(),
+        current: true
+    },
+    {
+        label: 'Returned',
+        icon: 'fal fa-sign-out-alt',
+        tooltip: 'On send to customer',
+        timestamp: new Date(),
+    },
+]
 </script>
 
 
 <template>
     <!-- <pre>{{ data }}</pre> -->
     <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
+        <div class="col-span-2 w-full pb-4 border-b border-gray-300">
+            <PureTimeline :options="xxxtimeline" :slidesPerView="xxxtimeline.length" color="#6366f1" />
+        </div>
+
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
             <div class="col-span-2 ">
@@ -109,10 +137,18 @@ onMounted(() => {
                 </dd>
             </div>
 
+            <!-- Field: Items -->
             <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.items.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <span v-if="blueprint.items.value.length">{{ blueprint.items.value }}</span>
+                    <span v-else class="text-gray-400 italic">No items in this pallet.</span>
+                </dd>
+            </div>
+            <!-- <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.customer_reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.customer_reference.value }}</dd>
-            </div>
+            </div> -->
 
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.location.label }}</dt>
@@ -125,22 +161,16 @@ onMounted(() => {
             </div>
 
             <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.state.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.state.value }}</dd>
+                <dt class="font-medium">Info</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">State: {{ data.data.state }}</dd>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">Status: {{ data.data.status }}</dd>
             </div>
 
-            <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.status.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.status.value }}</dd>
-            </div>
 
-            <div class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ blueprint.items.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <span v-if="blueprint.items.value.length">{{ blueprint.items.value }}</span>
-                    <span v-else class="text-gray-400 italic">No items in this pallet.</span>
-                </dd>
-            </div>
+            <!-- <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">Delivery</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ props.data.data.pallet_delivery_id }}</dd>
+            </div> -->
         </dl>
 
         <!-- Section: Barcode -->

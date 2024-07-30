@@ -34,8 +34,8 @@ defineProps<{
 
 <template>
     <div class="grid grid-cols-2 gap-y-2.5 gap-x-3 text-gray-600">
-        <div
-            class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums col-span-2">
+        <!-- Box: Pallets -->
+        <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums col-span-2">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallets.label }}</dt>
                 <dd class="mt-2 flex justify-between gap-x-2">
@@ -82,6 +82,7 @@ defineProps<{
             </div>
         </div>
 
+        <!-- Box: Pallet Deliveries -->
         <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_deliveries.label }}
@@ -95,7 +96,7 @@ defineProps<{
                                 :options="{
                                     formattingFn: (value: number) => locale.number(value)
                                 }" />
-                            <span class="text-sm font-medium leading-4 text-gray-500 ">
+                            <span class="text-sm font-medium leading-4 text-gray-400">
                                 {{ stats.pallet_deliveries.description }}
                             </span>
                         </div>
@@ -105,6 +106,7 @@ defineProps<{
         </div>
 
 
+        <!-- Box: Pallet Returns -->
         <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
             <div class="">
                 <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_returns.label }}</dt>
@@ -117,8 +119,31 @@ defineProps<{
                                 :options="{
                                     formattingFn: (value: number) => locale.number(value)
                                 }" />
-                            <span class="text-sm font-medium leading-4 text-gray-500 ">{{
+                            <span class="text-sm font-medium leading-4 text-gray-400">{{
                                 stats.pallet_returns.description }}</span>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+        </div>
+
+
+        <!-- Box: Invoice -->
+        <div class="col-span-2 flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
+            <div class="">
+                <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.invoice.label }}</dt>
+                <dd class="mt-2 flex justify-between gap-x-2">
+                    <div
+                        class="flex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
+                        <!-- In Total -->
+                        <div class="flex gap-x-2 items-end">
+                            <CountUp :endVal="stats.invoice.count" :duration="1.5" :scrollSpyOnce="true"
+                                :options="{
+                                    formattingFn: (value: number) => locale.number(value)
+                                }" />
+                            <span class="text-sm font-medium leading-4 text-gray-400">
+                                {{ stats.invoice.description }}
+                            </span>
                         </div>
                     </div>
                 </dd>
