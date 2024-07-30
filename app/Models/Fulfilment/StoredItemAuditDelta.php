@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  *
@@ -35,4 +36,9 @@ use Illuminate\Database\Eloquent\Model;
 class StoredItemAuditDelta extends Model
 {
     protected $guarded = [];
+
+    public function storedItem(): BelongsTo
+    {
+        return $this->belongsTo(StoredItemAudit::class);
+    }
 }
