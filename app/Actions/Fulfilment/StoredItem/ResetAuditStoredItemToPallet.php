@@ -13,12 +13,11 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class SyncStoredItemToPalletAudit extends OrgAction
+class ResetAuditStoredItemToPallet extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -26,21 +25,11 @@ class SyncStoredItemToPalletAudit extends OrgAction
     protected FulfilmentCustomer $fulfilmentCustomer;
     protected Fulfilment $fulfilment;
 
-    public function handle(Pallet $pallet, array $modelData): void
+    public function handle(Pallet $pallet): void
     {
-        SyncStoredItemToPallet::run($pallet, $modelData);
-        $originalQty = $pallet->storedItems()->count();
+        $storedItemDeltaIds = $pallet->storedItemAuditDeltas->pluck('stored_item_id');
 
-        foreach (Arr::get($modelData, 'stored_item_ids', []) as $key => $storedItem) {
-            $pallet->storedItemAuditDeltas()->create([
-                'group_id'          => $pallet->group_id,
-                'organisation_id'   => $pallet->organisation_id,
-                'stored_item_id'    => $key,
-                'original_quantity' => $originalQty,
-                'audited_quantity'  => $storedItem['quantity'] + $originalQty,
-                'audited_at'        => now()
-            ]);
-        }
+        $pallet->storedItems()->detach($storedItemDeltaIds);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -57,23 +46,6 @@ class SyncStoredItemToPalletAudit extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
-    public function rules(): array
-    {
-        return [
-            'stored_item_ids'            => ['sometimes', 'array'],
-            'stored_item_ids.*.quantity' => ['required', 'integer', 'min:1'],
-        ];
-    }
-
-    public function getValidationMessages(): array
-    {
-        return [
-            'stored_item_ids.*.quantity.required' => __('The quantity is required'),
-            'stored_item_ids.*.quantity.integer'  => __('The quantity must be an integer'),
-            'stored_item_ids.*.quantity.min'      => __('The quantity must be at least 1'),
-        ];
-    }
-
     public function asController(Pallet $pallet, ActionRequest $request): void
     {
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
@@ -81,7 +53,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
         $this->initialisation($pallet->organisation, $request);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet);
     }
 
     public function action(Pallet $pallet, $modelData): void
@@ -92,7 +64,7 @@ class SyncStoredItemToPalletAudit extends OrgAction
 
         $this->initialisation($pallet->organisation, $modelData);
 
-        $this->handle($pallet, $this->validatedData);
+        $this->handle($pallet);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource

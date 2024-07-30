@@ -37,6 +37,15 @@ class StoredItemAuditDelta extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'audited_at' => 'datetime',
+        'data'       => 'array'
+    ];
+
+    protected $attributes = [
+        'data' => '{}'
+    ];
+
     public function storedItemAudit(): BelongsTo
     {
         return $this->belongsTo(StoredItemAudit::class);
