@@ -312,14 +312,18 @@ class ShowPallet extends OrgAction
 
     public function getPrevious(Pallet $pallet, ActionRequest $request): ?array
     {
-        $previous = Pallet::where('id', '<', $pallet->id)->orderBy('id', 'desc')->first();
+        $previous = Pallet::where('id', '<', $pallet->id)
+            ->where('fulfilment_customer_id', $this->parent->id)
+            ->whereNotNull('slug')->orderBy('id', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
     public function getNext(Pallet $pallet, ActionRequest $request): ?array
     {
-        $next = Pallet::where('id', '>', $pallet->id)->orderBy('id')->first();
+        $next = Pallet::where('id', '>', $pallet->id)
+            ->where('fulfilment_customer_id', $this->parent->id)
+            ->whereNotNull('slug')->orderBy('id')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -328,6 +332,7 @@ class ShowPallet extends OrgAction
         if(!$pallet) {
             return null;
         }
+
         return match ($routeName) {
             'grp.org.fulfilments.show.crm.customers.show.pallets.show'=> [
                 'label'=> $pallet->slug,
