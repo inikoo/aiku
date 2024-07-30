@@ -117,7 +117,7 @@ class EditOrganisationSettings extends OrgAction
                     ],
                     "args"      => [
                         "updateRoute" => [
-                            "name"       => "grp.models.org.update",
+                            "name"       => "grp.models.org.settings.update",
                             "parameters" => [$organisation->id],
                         ],
                     ],

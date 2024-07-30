@@ -22,8 +22,8 @@ class GetLayout
             return [];
         }
 
-        return [
 
+        return [
             'group'          => GroupResource::make(app('group'))->getArray(),
             'organisations'  => UserOrganisationResource::collectionForUser($user->authorisedShopOrganisations, $user),
             'agents'         => UserOrganisationResource::collectionForUser($user->authorisedAgentsOrganisations, $user),

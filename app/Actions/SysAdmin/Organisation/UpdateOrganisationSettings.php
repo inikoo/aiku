@@ -1,0 +1,132 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 30 Jul 2024 19:02:43 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\SysAdmin\Organisation;
+
+use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
+use App\Actions\Helpers\Media\SaveModelImage;
+use App\Actions\Traits\WithActionUpdate;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\ValidAddress;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rules\File;
+use Lorisleiva\Actions\ActionRequest;
+
+class UpdateOrganisationSettings
+{
+    use WithActionUpdate;
+
+    private bool $asAction = false;
+
+    public function handle(Organisation $organisation, array $modelData): Organisation
+    {
+        if (Arr::has($modelData, 'address')) {
+            $addressData = Arr::get($modelData, 'address');
+            Arr::forget($modelData, 'address');
+            UpdateAddress::run($organisation->address, $addressData);
+            $organisation->updateQuietly(
+                [
+                    'location' => $organisation->address->getLocation()
+                ]
+            );
+        }
+
+        if (Arr::has($modelData, 'logo')) {
+            /** @var UploadedFile $image */
+            $image = Arr::get($modelData, 'logo');
+            data_forget($modelData, 'logo');
+            $imageData    = [
+                'path'         => $image->getPathName(),
+                'originalName' => $image->getClientOriginalName(),
+                'extension'    => $image->getClientOriginalExtension(),
+            ];
+            $organisation = SaveModelImage::run(
+                model: $organisation,
+                imageData: $imageData,
+                scope: 'logo'
+            );
+        }
+
+        $organisation = $this->update($organisation, $modelData, ['data', 'settings']);
+
+        if ($organisation->wasChanged('created_at')) {
+            SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
+        }
+
+        return $organisation;
+    }
+
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("sysadmin.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'name'                    => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name'            => ['sometimes', 'string', 'max:255'],
+            'google_client_id'        => ['sometimes', 'string'],
+            'google_client_secret'    => ['sometimes', 'string'],
+            'google_drive_folder_key' => ['sometimes', 'string'],
+            'address'                 => ['sometimes', 'required', new ValidAddress()],
+            'created_at'              => ['sometimes', 'date'],
+            'language_id'             => ['sometimes', 'exists:languages,id'],
+            'timezone_id'             => ['sometimes', 'exists:timezones,id'],
+            'currency_id'             => ['sometimes', 'exists:currencies,id'],
+            'source'                  => ['sometimes', 'array'],
+            'logo'                    => [
+                'sometimes',
+                'nullable',
+                File::image()
+                    ->max(12 * 1024)
+            ]
+        ];
+    }
+
+
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
+    {
+        $this->fillFromRequest($request);
+
+        $modelData = [];
+        foreach ($this->validateAttributes() as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'name'                    => 'settings.ui.name',
+                    'google_client_id'        => 'settings.google.id',
+                    'google_client_secret'    => 'settings.google.secret',
+                    'google_drive_folder_key' => 'settings.google.drive.folder',
+                    default                   => $key
+                },
+                $value
+            );
+        }
+
+        return $this->handle(
+            organisation: $organisation,
+            modelData: $modelData
+        );
+    }
+
+    public function action(Organisation $organisation, $modelData): Organisation
+    {
+        $this->asAction = true;
+        $this->setRawAttributes($modelData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($organisation, $validatedData);
+    }
+}

@@ -123,8 +123,9 @@ use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
-use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
+use App\Actions\SysAdmin\Organisation\UpdateOrganisationSettings;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
@@ -205,7 +206,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::get("google-drive.authorize", AuthorizeClientGoogleDrive::class)->name('google_drive.authorize');
     Route::get("google-drive.callback", CallbackClientGoogleDrive::class)->name('google_drive.callback');
-    Route::patch("", UpdateOrganisation::class)->name('update');
+    Route::patch("settings", UpdateOrganisationSettings::class)->name('settings.update');
 
 
     Route::post('employee', StoreEmployee::class)->name('employee.store');
@@ -491,6 +492,7 @@ Route::patch('/job-order/{jobOrder:id}', UpdateJobOrder::class)->name('job-order
 
 Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
 
+Route::patch('/group-settings', UpdateGroupSettings::class)->name('group-settings.update');
 
 
 /*
@@ -600,5 +602,4 @@ Route::delete('/marketplace-agent/{marketplaceAgent:id}', DeleteMarketplaceAgent
 
 Route::patch('/marketplace-supplier/{marketplaceSupplier:id}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
 
-Route::patch('/system-settings', UpdateOrganisation::class)->name('system-settings.update');
 */

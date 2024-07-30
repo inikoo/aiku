@@ -70,12 +70,7 @@ class EditGroupSettings extends GrpAction
                                 "label"       => __("name"),
                                 "value"       => $group->name ?? '',
                             ],
-                            "email" => [
-                                "type"        => "input",
-                                "label"       => __("email"),
-                                "value"       => $group->email ?? '',
-                            ],
-                            "image" => [
+                            "logo" => [
                                 "type"  => "avatar",
                                 "label" => __("logo"),
                                 "value" => $group->imageSources(320, 320)
@@ -85,8 +80,7 @@ class EditGroupSettings extends GrpAction
                 ],
                 "args" => [
                     "updateRoute" => [
-                        "name"       => "grp.models.user.update",
-                        "parameters" => [$group->id],
+                        "name"       => "grp.models.group-settings.update",
                     ],
                 ],
             ],
