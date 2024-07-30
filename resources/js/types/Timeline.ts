@@ -4,5 +4,6 @@ export interface Timeline {
     label: string
     icon?: string | string[]
     tooltip?: string
-    timestamp: string | null
+    timestamp?: string | Date
+    current?: boolean
 }
