@@ -369,7 +369,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('stored-item-audits')->name('stored_item_audits.')->group(function () {
         Route::post('/', StoreStoredItemAudit::class)->name('store');
-        Route::patch('/{storedItemAudit}', UpdateStoredItemAudit::class)->name('update');
+        Route::patch('/{storedItemAudit:id}', UpdateStoredItemAudit::class)->name('update')->withoutScopedBindings();
     });
 });
 
