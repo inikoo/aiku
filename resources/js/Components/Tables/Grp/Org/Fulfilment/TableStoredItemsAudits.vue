@@ -14,12 +14,13 @@
 
   import { library } from "@fortawesome/fontawesome-svg-core"
   import { faTrashAlt } from "@far"
-  import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote } from "@fal"
+  import { faCheckCircle } from "@fas"
+  import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote,  } from "@fal"
   import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
   
   import { routeType } from "@/types/route"
 
-  library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote)
+  library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
   
   
   const props = defineProps<{
@@ -153,24 +154,13 @@
 				:storedItemsRoute="storedItemsRoute"
                 :editable="true"
             />
-              <!-- <div v-if="pallet.stored_items.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
-                  <Tag v-for="item of pallet.stored_items" :theme="item.id"
-                      :label="`${item.reference} (${item.quantity})`" :closeButton="false" :stringToColor="true">
-                      <template #label>
-                          <div class="whitespace-nowrap text-xs">
-                              {{ item["reference"] }} (<span class="font-light">{{ item["quantity"] }}</span>)
-                          </div>
-                      </template>
-                  </Tag>
-              </div>
-              <div v-else class="text-gray-400 text-xs italic">
-                  No items in this pallet
-              </div> -->
           </template>
   
-          <!-- Column: contents (move pallet) -->
-          <template #cell(contents)="{ item }">
-          <!--   <pre>{{ item }}</pre> -->
+          <!-- Column: edited -->
+          <template #cell(edited)="{ item }">
+                <div class="flex justify-center">
+                    <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500"/>
+                </div>
           </template>
   
           <!-- Column: Icon (type) -->

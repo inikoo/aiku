@@ -26,27 +26,30 @@
         data : PalletDelivery
       }
       storedItemsRoute: {
-		store: routeType
-		index: routeType
-		delete: routeType
-	}
+        store: routeType
+        index: routeType
+        delete: routeType
+      }
       title: string
       pageHead: PageHeadingTypes
       notes_data : any
       pallets : any
       fulfilment_customer : any
+      route : {
+        update : routeType
+      }
   }>()
+  console.log(props)
   </script>
 
   <template>
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-
     <div class="grid grid-cols-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notes_data" :key="index + note.label" :noteData="note" :updateRoute="{ name: '', parameters: '' }" />
+        <BoxNote v-for="(note, index) in notes_data" :key="index + note.label" :noteData="note" :updateRoute="route.update" />
     </div>
     <BoxAuditStoredItems :auditData="data.data" :boxStats="fulfilment_customer" />
-    <TableStoredItemsAudits :data="pallets" tab="pallets" :storedItemsRoute="storedItemsRoute"></TableStoredItemsAudits>
+    <TableStoredItemsAudits :data="pallets" tab="pallets" :storedItemsRoute="storedItemsRoute" />
 
 </template>
