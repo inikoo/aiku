@@ -14,6 +14,7 @@ use App\Enums\Web\Banner\BannerTabsEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
@@ -51,6 +52,14 @@ class ShowBanner extends OrgAction
     {
         $this->parent = $website;
         $this->initialisationFromShop($shop, $request)->withTab(BannerTabsEnum::values());
+
+        return $this->handle($banner);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Banner $banner, ActionRequest $request): Banner
+    {
+        $this->parent = $website;
+        $this->initialisationFromShop($fulfilment->shop, $request)->withTab(BannerTabsEnum::values());
 
         return $this->handle($banner);
     }

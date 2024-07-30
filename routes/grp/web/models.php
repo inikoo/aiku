@@ -218,11 +218,11 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
 
 
-
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');
         Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
     });
+
     Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
         Route::post('/', [StoreService::class, 'inFulfilment'])->name('store');
         Route::patch('{service:id}', UpdateService::class)->name('update')->withoutScopedBindings();

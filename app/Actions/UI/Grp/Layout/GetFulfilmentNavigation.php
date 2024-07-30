@@ -237,7 +237,18 @@ class GetFulfilmentNavigation
                                         ]
 
                                     ]
-                                ]
+                                ],
+
+                                [
+                                    "label"   => __("banners"),
+                                    "tooltip" => __("banners"),
+                                    "icon"    => ["fal", "fa-sign"],
+                                    'root'    => 'grp.org.fulfilments.show.web.banners.index',
+                                    "route"   => [
+                                        "name"       => "grp.org.fulfilments.show.web.banners.index",
+                                        "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug, $fulfilment->shop->website->slug],
+                                    ],
+                                ],
                             ]
                     ],
 

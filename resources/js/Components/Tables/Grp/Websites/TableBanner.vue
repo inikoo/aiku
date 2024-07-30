@@ -27,9 +27,13 @@
 
 
   function bannerRoute(banner: Banner) {
-      return route(
-          'grp.org.shops.show.web.banners.show',
-          [route().params['organisation'], route().params['shop'], route().params['website'], banner.slug]);
+      console.log(route().current())
+      // switch (route().current()) {
+      //
+      // }
+      // return route(
+      //     'grp.org.shops.show.web.banners.show',
+      //     [route().params['organisation'], route().params['shop'], route().params['website'], banner.slug]);
   }
 
   </script>

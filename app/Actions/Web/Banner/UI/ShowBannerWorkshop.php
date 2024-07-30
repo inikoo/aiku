@@ -10,6 +10,7 @@ namespace App\Actions\Web\Banner\UI;
 use App\Actions\OrgAction;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
@@ -42,6 +43,14 @@ class ShowBannerWorkshop extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, Website $website, Banner $banner, ActionRequest $request): Banner
     {
         $this->initialisationFromShop($shop, $request);
+
+        return $this->handler($website, $banner);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Banner $banner, ActionRequest $request): Banner
+    {
+        $this->initialisationFromShop($fulfilment->shop, $request);
+
         return $this->handler($website, $banner);
     }
 

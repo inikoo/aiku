@@ -13,6 +13,7 @@ use App\Enums\Web\Banner\BannerStateEnum;
 use App\Http\Resources\Web\BannersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
@@ -28,6 +29,7 @@ use App\Services\QueryBuilder;
 class IndexBanners extends OrgAction
 {
     protected array $elementGroups = [];
+    private Fulfilment|Shop $parent;
 
     protected function getElementGroups(): array
     {
@@ -140,7 +142,16 @@ class IndexBanners extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
+
+        return $this->handle();
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromShop($fulfilment->shop, $request);
 
         return $this->handle();
     }
@@ -170,15 +181,26 @@ class IndexBanners extends OrgAction
                     ],
                     'actions'   =>
                         [
-                            [
-                                'type'  => 'button',
-                                'style' => 'create',
-                                'label' => __('Create Banner'),
-                                'route' => [
-                                    'name'       => 'grp.org.shops.show.web.banners.create',
-                                    'parameters' => $request->route()->originalParameters()
-                                ]
-                            ]
+                            match ($this->parent::class) {
+                                Shop::class => [
+                                    'type'  => 'button',
+                                    'style' => 'create',
+                                    'label' => __('Create Banner'),
+                                    'route' => [
+                                        'name'       => 'grp.org.shops.show.web.banners.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+                                ],
+                                Fulfilment::class => [
+                                    'type'  => 'button',
+                                    'style' => 'create',
+                                    'label' => __('Create Banner'),
+                                    'route' => [
+                                        'name'       => 'grp.org.fulfilments.show.web.banners.create',
+                                        'parameters' => $request->route()->originalParameters()
+                                    ]
+                                ],
+                            }
                         ]
 
                 ],
@@ -214,6 +236,16 @@ class IndexBanners extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.web.banners.index',
+                        'parameters' => $routeParameters
+                    ]
+                ),
+            ),
+            'grp.org.fulfilments.show.web.banners.index' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs('Fulfilment', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.fulfilments.show.web.banners.index',
                         'parameters' => $routeParameters
                     ]
                 ),

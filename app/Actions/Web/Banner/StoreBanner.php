@@ -14,6 +14,7 @@ use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Banner;
 use App\Models\Web\Website;
 use Exception;
@@ -31,12 +32,12 @@ class StoreBanner extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    private Shop $parent;
+    private Shop|Fulfilment $parent;
     private Website $website;
     private string $scope;
 
 
-    public function handle(Shop $parent, array $modelData): Banner
+    public function handle(Shop|Fulfilment $parent, array $modelData): Banner
     {
         $this->parent = $parent;
 
@@ -146,6 +147,15 @@ class StoreBanner extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function inFulfilment(Fulfilment $fulfilment, Website $website, ActionRequest $request): Banner
+    {
+        $this->parent  = $fulfilment;
+        $this->website = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $this->validatedData);
     }
 
     public function action(Website $website, array $objectData): Banner

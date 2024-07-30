@@ -18,9 +18,8 @@ class BannerHydrateUniversalSearch
     {
         $banner->universalSearch()->create(
             [
-                'section'         => 'portfolio',
-                'title'           => trim($banner->slug.' '.$banner->name),
-                'description'     => ''
+                'sections'                  => 'portfolio',
+                'haystack_tier_1'           => trim($banner->slug.' '.$banner->name)
             ]
         );
     }
