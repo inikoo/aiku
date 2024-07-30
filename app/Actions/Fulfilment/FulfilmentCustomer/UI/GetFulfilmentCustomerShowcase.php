@@ -124,6 +124,13 @@ class GetFulfilmentCustomerShowcase
             ];
         }
 
+        $stats['invoice'] = [
+            'label'       => __('Invoice'),
+            'count'       => $fulfillmentCustomer->customer->stats->number_invoices,
+            // 'tooltip'     => __('Pallets in warehouse'),
+            // 'description' => __('in warehouse'),
+        ];
+
         return $stats;
     }
 }

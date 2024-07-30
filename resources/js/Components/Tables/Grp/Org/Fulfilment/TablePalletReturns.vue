@@ -14,14 +14,17 @@ import TagPallet from '@/Components/TagPallet.vue'
 
 import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
+import { inject } from "vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 library.add(faPlus)
 
 const props = defineProps<{
     data: {}
     tab?: string
-    app?: string  // 'retina'
 }>()
+
+const layout = inject('layout', layoutStructure)
 
 function palletReturnRoute(palletReturn: PalletDelivery) {
     switch (route().current()) {
@@ -72,7 +75,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
 
         <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
-            <TagPallet v-if="app == 'retina'" :stateIcon="palletReturn.state_icon" />
+            <TagPallet v-if="layout.app.name == 'retina'" :stateIcon="palletReturn.state_icon" />
             <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
         </template>
 

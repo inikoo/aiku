@@ -24,10 +24,10 @@ library.add(faSeedling, faShare, faSpellCheck, faTruck, faCheck, faCheckDouble, 
 const props = defineProps<{
     title: string,
     pageHead: {},
-    tabs: {
-        current: string
-        navigation: {}
-    }
+    // tabs: {
+    //     current: string
+    //     navigation: {}
+    // }
     data: {}
 }>()
 
@@ -39,7 +39,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue"
-import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue";
+import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
 
 
 const isOpen = ref(false)
@@ -76,35 +76,6 @@ const warehouseChange = (value) => {
     warehouseValue.value = value
 }
 
-// function palletReturnRoute(palletReturn: PalletDelivery) {
-//     switch (route().current()) {
-//         case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
-//             return route(
-//                 'grp.org.warehouses.show.fulfilment.pallet-returns.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['warehouse'],
-//                     palletReturn.slug
-//                 ]);
-//         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
-//             return route(
-//                 'grp.org.fulfilments.show.operations.pallet-returns.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['fulfilment'],
-//                     palletReturn.slug
-//                 ]);
-//         default:
-//             return route(
-//                 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
-//                 [
-//                     route().params['organisation'],
-//                     route().params['fulfilment'],
-//                     route().params['fulfilmentCustomer'],
-//                     palletReturn.slug
-//                 ]);
-//     }
-// }
 
 </script>
 
@@ -117,8 +88,7 @@ const warehouseChange = (value) => {
                 <Popover :width="'w-full'" ref="_popover">
                     <template #button>
                         <Button :style="action.style" :label="action.label" :icon="action.icon"
-                            :iconRight="action.iconRight"
-                            :key="`ActionButton${action.label}${action.style}`"
+                            :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
                             :tooltip="action.tooltip" />
                     </template>
                     <template #content="{ close: closed }">
@@ -139,11 +109,9 @@ const warehouseChange = (value) => {
                 </Popover>
             </div>
             <div v-else>
-                <Link :href="route(action.route?.name, action.route?.parameters)" :method="'post'"
-                    :as="'button'">
-                <Button :style="action.style" :label="action.label" :icon="action.icon"
-                    :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
-                    :tooltip="action.tooltip" />
+                <Link :href="route(action.route?.name, action.route?.parameters)" :method="'post'" :as="'button'">
+                    <Button :style="action.style" :label="action.label" :icon="action.icon" :iconRight="action.iconRight"
+                        :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
                 </Link>
             </div>
 
@@ -189,7 +157,7 @@ const warehouseChange = (value) => {
         </Dialog>
     </TransitionRoot>
 
-    <TablePalletReturns :data="data" tab="pallet_returns" app="retina" />
+    <TablePalletReturns :data="data" tab="pallet_returns" />
 </template>
 
 
