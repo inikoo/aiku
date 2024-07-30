@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -81,17 +82,8 @@ class IndexPalletsInAudit extends OrgAction
 
 
         $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
-
-
-        if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::STORING, PalletStatusEnum::RETURNING]);
-        } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCOMING->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::IN_PROCESS]);
-        } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCIDENT->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::INCIDENT]);
-        } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::RETURNED->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::RETURNED]);
-        }
+        $query->where('pallets.status', PalletStatusEnum::STORING);
+        $query->where('pallets.state', PalletStateEnum::STORING);
 
 
         foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
