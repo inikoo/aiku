@@ -75,17 +75,6 @@ class IndexStoredItemAudits extends OrgAction
                     'icon'       => $icon,
 
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Audit'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ],
-                    ],
                 ],
 
                 'notes_data'             => [
@@ -104,6 +93,17 @@ class IndexStoredItemAudits extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+
+                'route' => [
+                    'update' => [
+                        'name'       => 'grp.models.fulfilment-customer.stored_item_audits.update',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilment_customer_id,
+                            'storedItemAudit'    => $storedItemAudit->id
+                        ]
+                    ]
+                ],
+
                 'storedItemsRoute' => [
                     'index' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
