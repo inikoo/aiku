@@ -34,6 +34,34 @@
     opacity: 0;
 }
 
+/* Transition name="headlessui" */
+.spin-to-right-enter-from,
+.spin-to-right-leave-to {
+    position: absolute;
+}
+.spin-to-right-enter-active {
+    transition: all 0.2s ease-out;
+}
+.spin-to-right-enter-from {
+    transform: rotate(-270deg);
+    opacity: 0;
+}
+.spin-to-right-enter-to {
+    transform: rotate(0deg);
+    opacity: 100;
+}
+.spin-to-right-leave-active {
+    transition: all 0.15s ease-in;
+}
+.spin-to-right-leave-from {
+    transform: rotate(0deg);
+    opacity: 100;
+}
+.spin-to-right-leave-to {
+    transform: rotate(270deg);
+    opacity: 0;
+}
+
 /* Transition name="slide-to-right" */
 .slide-to-right-enter-active {
     transition: all 0.1s ease-out;
