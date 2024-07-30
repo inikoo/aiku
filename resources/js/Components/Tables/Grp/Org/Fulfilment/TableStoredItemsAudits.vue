@@ -170,7 +170,6 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
                     </template>
 
                     <template #content="{ open, close }">
-
                         <div class="font-bold text-xs mb-3">are you sure to undo the Audit ?</div>
                         <div class="flex justify-end gap-1">
                             <Button label="No" type="tertiary" size="xs" @click="close()" />
@@ -178,7 +177,6 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
                                     <Button label="Yes" size="xs"/>
                             </Link>
                         </div>
-       
                     </template>
                 </Popover>
 

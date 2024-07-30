@@ -6,6 +6,7 @@ import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from '@/types/route'
 import PureTimeline from '@/Components/Pure/PureTimeline.vue'
+import Tag from '@/Components/Tag.vue'
 
 const props = defineProps<{
     data: {
@@ -142,7 +143,9 @@ const fakeTimeline = [
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.items.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
-                    <span v-if="blueprint.items.value.length">{{ blueprint.items.value }}</span>
+                    <span v-if="blueprint.items.value.length" class="flex gap-1">
+                        <Tag v-for="item of blueprint.items.value" :key="item.id" :label="item.reference" :theme="item.id" />
+                    </span>
                     <span v-else class="text-gray-400 italic">No items in this pallet.</span>
                 </dd>
             </div>
