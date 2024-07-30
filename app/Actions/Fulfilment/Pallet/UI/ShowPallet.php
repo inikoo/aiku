@@ -121,8 +121,9 @@ class ShowPallet extends OrgAction
             $routeName = 'grp.org.warehouses.show.fulfilment.pallets.edit';
         } elseif ($this->parent instanceof Fulfilment) {
             $routeName = 'grp.org.fulfilments.show.operations.pallets.edit';
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
+            $routeName = 'grp.org.fulfilments.show.crm.customers.show.pallets.edit';
         }
-
 
         return Inertia::render(
             'Org/Fulfilment/Pallet',
