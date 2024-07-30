@@ -25,7 +25,7 @@ const compRandomKey = computed(() => {
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: any): void
-    (e: 'onPublish'): void
+    (e: 'onPublish', value : any): void
 }>()
 
 
@@ -51,7 +51,7 @@ const emits = defineEmits<{
             </template>
 
             <!-- Section: Popover -->
-            <template #content>
+            <template #content="{ open, close }">
                 <div>
                     <div class="inline-flex items-start leading-none">
                         <FontAwesomeIcon :icon="'fas fa-asterisk'" class="font-light text-[12px] text-red-400 mr-1" />
@@ -63,7 +63,7 @@ const emits = defineEmits<{
                             class="block w-64 lg:w-96 rounded-md shadow-sm border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
                     </div>
                     <div class="flex justify-end">
-                        <Button size="xs"  icon="far fa-rocket-launch" label="Publish" @click=" ()=>emits('onPublish')"
+                        <Button size="xs"  icon="far fa-rocket-launch" label="Publish" @click=" ()=>emits('onPublish', {open, close})"
                             :key="modelValue.length" :style="modelValue.length ? 'primary' : 'disabled'">
                             <template #icon>
                                 <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin'

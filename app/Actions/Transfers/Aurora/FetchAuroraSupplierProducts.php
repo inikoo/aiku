@@ -58,7 +58,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             // print_r($supplierProductData);
 
 
-            $found = false;
+            $found           = false;
             $supplierProduct = null;
             if ($baseSupplierProduct = SupplierProduct::withTrashed()
                 ->where(
@@ -87,7 +87,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                     if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
 
 
-                        $this->recordFetchError($organisationSource, $supplierProductData, 'SupplierProduct', 'fetching',['msg'=>"Error supplier product has same code in same org"]);
+                        $this->recordFetchError($organisationSource, $supplierProductData, 'SupplierProduct', 'fetching', ['msg'=>"Error supplier product has same code in same org"]);
                         return null;
                     }
                 }

@@ -39,10 +39,11 @@ const props = defineProps<{
     locationRoute: routeType
     rentalRoute: routeType
     rentalList?: []
-    storedItemsRoute: {
-        index: routeType
-        store: routeType
-    }
+	storedItemsRoute: {
+		store: routeType
+		index: routeType
+		delete: routeType
+	}
 }>()
 
 const isLoading = ref<string | boolean>(false)
@@ -209,7 +210,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			<StoredItemProperty
                 :pallet="item"
 				:storedItemsRoute="storedItemsRoute"
-                :state="props.state"
+                :editable="props.state == 'in-process'"
                 @renderTable="() => emits('renderTableKey')"
             />
 		</template>

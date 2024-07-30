@@ -8,26 +8,32 @@
   import { Link } from "@inertiajs/vue3"
   import Table from "@/Components/Table/Table.vue"
   import Icon from "@/Components/Icon.vue"
-  import { library } from "@fortawesome/fontawesome-svg-core"
-  import { faTrashAlt } from "@far"
-  import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote } from "@fal"
-  import Tag from "@/Components/Tag.vue"
-  import { ref } from "vue"
+  import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
   import type { Meta, Links } from "@/types/Table"
   import { Pallet } from "@/types/Pallet"
+
+  import { library } from "@fortawesome/fontawesome-svg-core"
+  import { faTrashAlt } from "@far"
+  import { faCheckCircle } from "@fas"
+  import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote,  } from "@fal"
   import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
   
-  library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp,
-      faStickyNote
-  )
+  import { routeType } from "@/types/route"
+
+  library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faCheckCircle)
   
   
-  defineProps<{
+  const props = defineProps<{
       data: {
           data: {}[]
           links: Links
           meta: Meta
       },
+      storedItemsRoute: {
+		store: routeType
+		index: routeType
+		delete: routeType
+	},
       tab?: string
   }>()
   
@@ -93,14 +99,7 @@
               return []
       }
   }
-  
-  // const palletSelected = ref<{ [key: string]: number } | null>({
-  //     abc: 1
-  // })  // Helper on which pallet selected to move
-  // const isLoading = ref(false)
-  
-  // const showCheckboxes = false
-  
+
   </script>
   
   <template>
@@ -150,24 +149,18 @@
   
           <!-- Column: Stored Items -->
           <template #cell(stored_items)="{ item: pallet }">
-              <div v-if="pallet.stored_items.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
-                  <Tag v-for="item of pallet.stored_items" :theme="item.id"
-                      :label="`${item.reference} (${item.quantity})`" :closeButton="false" :stringToColor="true">
-                      <template #label>
-                          <div class="whitespace-nowrap text-xs">
-                              {{ item["reference"] }} (<span class="font-light">{{ item["quantity"] }}</span>)
-                          </div>
-                      </template>
-                  </Tag>
-              </div>
-              <div v-else class="text-gray-400 text-xs italic">
-                  No items in this pallet
-              </div>
+            <StoredItemProperty
+                :pallet="pallet"
+				:storedItemsRoute="storedItemsRoute"
+                :editable="true"
+            />
           </template>
   
-          <!-- Column: Action (move pallet) -->
-          <template #cell(actions)="{ item }">
-  
+          <!-- Column: edited -->
+          <template #cell(edited)="{ item }">
+                <div class="flex justify-center">
+                    <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500"/>
+                </div>
           </template>
   
           <!-- Column: Icon (type) -->
@@ -179,6 +172,5 @@
       </Table>
   </template>
   
-  <style src="../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
   
   

@@ -8,7 +8,8 @@
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
+use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -36,6 +37,12 @@ class IndexStoredItemAudits extends OrgAction
 
     public function handle(Fulfilment|FulfilmentCustomer|Warehouse $parent, $prefix = null): StoredItemAudit
     {
+        if(! $parent->storedItemAudit) {
+            StoreStoredItemAudit::make()->action($parent, []);
+        }
+
+        $parent->refresh();
+
         return $parent->storedItemAudit;
     }
 
@@ -68,17 +75,6 @@ class IndexStoredItemAudits extends OrgAction
                     'icon'       => $icon,
 
                     'subNavigation' => $subNavigation,
-                    'actions'       => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Audit'),
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ],
-                    ],
                 ],
 
                 'notes_data'             => [
@@ -98,12 +94,43 @@ class IndexStoredItemAudits extends OrgAction
                     ],
                 ],
 
+                'route' => [
+                    'update' => [
+                        'name'       => 'grp.models.fulfilment-customer.stored_item_audits.update',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilment_customer_id,
+                            'storedItemAudit'    => $storedItemAudit->id
+                        ]
+                    ]
+                ],
+
+                'storedItemsRoute' => [
+                    'index' => [
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
+                        'parameters' => [
+                            'organisation'       => $storedItemAudit->organisation->slug,
+                            'fulfilment'         => $storedItemAudit->fulfilment->slug,
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
+                            'palletDelivery'     => $storedItemAudit->reference
+                        ]
+                    ],
+                    'store' => [
+                        'name'       => 'grp.models.fulfilment-customer.stored-items.store',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->id
+                        ]
+                    ],
+                    'delete' => [
+                        'name' => 'grp.models.stored-items.delete'
+                    ]
+                ],
+
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
-                'pallets'             => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets),
+                'pallets'             => PalletsResource::collection(IndexPalletsInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         )->table(
-            IndexPalletsInCustomer::make()->tableStructure(
+            IndexPalletsInAudit::make()->tableStructure(
                 $storedItemAudit->fulfilmentCustomer,
                 prefix: 'pallets'
             )

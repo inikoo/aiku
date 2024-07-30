@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerPalletsTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -28,7 +29,7 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexPalletsInCustomer extends OrgAction
+class IndexPalletsInAudit extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
@@ -81,18 +82,10 @@ class IndexPalletsInCustomer extends OrgAction
 
 
         $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
+        $query->where('pallets.status', PalletStatusEnum::STORING);
+        $query->where('pallets.state', PalletStateEnum::STORING);
 
-
-        if ($prefix == FulfilmentCustomerPalletsTabsEnum::STORING->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::STORING, PalletStatusEnum::RETURNING]);
-        } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCOMING->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::IN_PROCESS]);
-        } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::INCIDENT->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::INCIDENT]);
-        } elseif ($prefix == FulfilmentCustomerPalletsTabsEnum::RETURNED->value) {
-            $query->whereIn('pallets.status', [PalletStatusEnum::RETURNED]);
-        }
-
+        $query->leftJoin('stored_item_audit_deltas', 'pallets.id', '=', 'stored_item_audit_deltas.pallet_id');
 
         foreach ($this->getElementGroups($fulfilmentCustomer, $prefix) as $key => $elementGroup) {
             $query->whereElementGroup(
@@ -123,7 +116,8 @@ class IndexPalletsInCustomer extends OrgAction
                 'pallets.fulfilment_customer_id',
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
-                'pallets.pallet_return_id'
+                'pallets.pallet_return_id',
+                'stored_item_audit_deltas.audited_at'
             );
 
 
@@ -174,8 +168,8 @@ class IndexPalletsInCustomer extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false, searchable: false);
-            $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
+            $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false);
+            $table->column(key: 'audited_at', label: __('edited'), canBeHidden: false);
 
 
             $table->defaultSort('reference');

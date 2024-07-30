@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare } from "@fortawesome/free-solid-svg-icons"
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+
 import InlineInput from '@/Components/Websites/Fields/InlineInput.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import { ref } from "vue"
 
-import DataSet from '@/Components/Websites/Product/DataSet/Product.js'
+import { faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare } from "@fortawesome/free-solid-svg-icons"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
 
@@ -18,11 +18,8 @@ const props = defineProps<{
     colorThemed?: Object
 }>()
 
-console.log(props)
-
 const selectedProduct = ref(0)
 const emits = defineEmits(['update:modelValue', 'autoSave'])
-console.log(props)
 
 const dataProduct = ref({
     images: [
@@ -42,7 +39,7 @@ const dataProduct = ref({
                 <div class="grid grid-cols-5 gap-x-10 mb-12">
                     <div class="col-span-3">
                         <div class="font-bold text-lg">
-                            <InlineInput v-model="modelValue.data.name"></InlineInput>
+                            <InlineInput  v-model="modelValue.data.name"></InlineInput>
                         </div>
 
 
@@ -104,7 +101,7 @@ const dataProduct = ref({
                         <!-- Section: Description -->
                         <div class="space-y-4 mb-6">
                             <div class="text-xs text-gray-500">
-                                <Editor  v-model="modelValue.data.description" placeholder="write something ...." />
+                                <Editor  :editable="!previewMode" v-model="modelValue.data.description" placeholder="write something ...." />
                             </div>
                             <div class="font-bold text-xs underline">Read More</div>
                         </div>

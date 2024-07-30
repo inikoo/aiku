@@ -21,9 +21,9 @@ class GetGroupNavigation
         $groupNavigation['group'] = [
             'label'   => __('Group'),
             'icon'    => ['fal', 'fa-city'],
-            'root'    => 'grp.show',
+            'root'    => 'grp.dashboard.show',
             'route'   => [
-                'name' => 'grp.show'
+                'name' => 'grp.dashboard.show'
             ],
             'topMenu' => [
             ]

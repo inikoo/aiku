@@ -194,4 +194,8 @@ class Pallet extends Model
         return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
 
+    public function storedItemAuditDeltas(): HasMany
+    {
+        return $this->hasMany(StoredItemAuditDelta::class);
+    }
 }

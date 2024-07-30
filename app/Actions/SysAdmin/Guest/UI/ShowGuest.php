@@ -7,8 +7,8 @@
 
 namespace App\Actions\SysAdmin\Guest\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\GuestTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -18,11 +18,11 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowGuest extends InertiaAction
+class ShowGuest extends GrpAction
 {
     public function asController(Guest $guest, ActionRequest $request): Guest
     {
-        $this->initialisation($request)->withTab(GuestTabsEnum::values());
+        $this->initialisation(app('group'), $request)->withTab(GuestTabsEnum::values());
 
         return $guest;
     }
@@ -90,6 +90,9 @@ class ShowGuest extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
+
+        $guest=Guest::where('slug', $routeParameters['guest'])->firstOrFail();
+
         $headCrumb = function (Guest $guest, array $routeParameters, string $suffix) {
             return [
                 [
@@ -98,7 +101,7 @@ class ShowGuest extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('guests')
+                            'label' => __('Guests')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -119,7 +122,7 @@ class ShowGuest extends InertiaAction
             array_merge(
                 ShowSysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
-                    $routeParameters['guest'],
+                    $guest,
                     [
                         'index' => [
                             'name'       => 'grp.sysadmin.guests.index',
@@ -127,7 +130,7 @@ class ShowGuest extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'grp.sysadmin.guests.show',
-                            'parameters' => [$routeParameters['guest']->slug]
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix

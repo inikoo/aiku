@@ -58,7 +58,7 @@ const deleteNavigation = (index) => {
 }
 
 
-const onPublish = async (action) => {
+const onPublish = async (action,popover) => {
   try {
     // Ensure action is defined and has necessary properties
     if (!action || !action.method || !action.name || !action.parameters) {
@@ -72,11 +72,11 @@ const onPublish = async (action) => {
       comment: comment.value,
       layout: { data : Navigation.value, key : usedTemplates.value }
     })
-
+    popover.close()
     console.log(response)
   } catch (error) {
     // Ensure the error is logged properly
-    console.error('Error:', error)
+    console.error('Error:', error)         
 
     // Ensure the error notification is user-friendly
     const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
@@ -104,7 +104,7 @@ const onPickTemplate = (menu) => {
   <PageHeading :data="pageHead">
     <template #button-publish="{ action }">
       <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
-      <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment" @onPublish="onPublish(action.route)" />
+      <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment" @onPublish="(popover)=>onPublish(action.route,popover)" />
     </template>
   </PageHeading>
   <div class="h-screen grid grid-flow-row-dense grid-cols-4">

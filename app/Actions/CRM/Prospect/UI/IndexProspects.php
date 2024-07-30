@@ -22,6 +22,7 @@ use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Prospect;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -37,7 +38,7 @@ class IndexProspects extends OrgAction
 {
     use WithProspectsSubNavigation;
 
-    private Shop|Organisation $parent;
+    private Shop|Organisation|Fulfilment $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -48,16 +49,17 @@ class IndexProspects extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request)->withTab(ProspectsTabsEnum::values());
-        $this->parent = $organisation;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProspectsTabsEnum::values());
+        $this->parent = $fulfilment;
 
         return $this->handle($this->parent, 'prospects');
     }
 
 
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($shop, $request)->withTab(ProspectsTabsEnum::values());
         $this->parent = $shop;

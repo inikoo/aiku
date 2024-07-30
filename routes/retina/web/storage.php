@@ -30,6 +30,8 @@ Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
     Route::get('', IndexPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowPalletReturn::class)->name('show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
+    Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
+    Route::get('{palletReturn}/pallets-histories', [HistoryUploads::class, 'inPalletReturnRetina'])->name('pallets.uploads.history');
 });
 
 Route::get('pallets', IndexPallets::class)->name('pallets.index');

@@ -25,15 +25,15 @@ class CreateGuest extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('new guest'),
                 'pageHead'    => [
-                    'title'        => __('new guest'),
-                    'actions'      => [
+                    'title'   => __('new guest'),
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.sysadmin.guests.index',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => []
                             ],
                         ]
                     ]
@@ -44,12 +44,12 @@ class CreateGuest extends InertiaAction
                             'title' => __('Credentials'),
 
                             'fields' => [
-                                'username'             => [
+                                'username' => [
                                     'type'     => 'input',
                                     'label'    => __('username'),
                                     'required' => true
                                 ],
-                                'password'             => [
+                                'password' => [
                                     'type'     => 'password',
                                     'label'    => __('password'),
                                     'required' => true
@@ -117,7 +117,7 @@ class CreateGuest extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexGuest::make()->getBreadcrumbs(),
+            IndexGuests::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',

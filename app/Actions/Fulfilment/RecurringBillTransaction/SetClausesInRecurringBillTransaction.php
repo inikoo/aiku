@@ -15,13 +15,13 @@ class SetClausesInRecurringBillTransaction extends OrgAction
     public function handle(RecurringBillTransaction $recurringBillTransaction)
     {
         $rentalAgreementClauses = $recurringBillTransaction->fulfilmentCustomer->rentalAgreementClauses;
-        $percentageOff = 0;
-        $found = false;
+        $percentageOff          = 0;
+        $found                  = false;
         foreach ($rentalAgreementClauses as $clause) {
             if ($clause->asset_id === $recurringBillTransaction->asset_id) {
                 data_set($modelData, 'rental_agreement_clause_id', $clause->id);
                 $percentageOff = $clause->percentage_off / 100;
-                $found = true;
+                $found         = true;
                 break;
             }
         }
@@ -34,7 +34,7 @@ class SetClausesInRecurringBillTransaction extends OrgAction
         $net -= $net * $percentageOff;
 
         data_set($modelData, 'net_amount', $net);
-        
+
         $recurringBillTransaction->update($modelData);
     }
 }

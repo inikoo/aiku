@@ -93,7 +93,6 @@ use App\Models\Web\Website;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 
@@ -1633,7 +1632,7 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
     $tmpPath = 'tmp/uploads/';
 
     $filePath = base_path('tests/fixtures/pallet.xlsx');
-    $file = new UploadedFile($filePath, 'pallet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $file     = new UploadedFile($filePath, 'pallet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 

@@ -17,6 +17,9 @@ trait HasSearchFields
     {
         $table->nullableMorphs('model');
 
+        $table->longText('keyword')->nullable();
+        $table->longText('keyword_2')->nullable();
+
         $table->longText('haystack_tier_1')->nullable();
         $table->longText('haystack_tier_2')->nullable();
         $table->longText('haystack_tier_3')->nullable();

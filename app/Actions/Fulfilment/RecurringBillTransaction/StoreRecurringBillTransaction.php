@@ -31,15 +31,15 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'historic_asset_id', $item->rental->asset->current_historic_asset_id);
 
         if ($item instanceof StoredItem) {
-            $pallets = $item->pallets;
+            $pallets       = $item->pallets;
             $totalQuantity = 0;
-            
+
             foreach ($pallets as $pallet) {
                 $totalQuantity += $pallet->pivot->quantity;
             }
-            
+
             data_set($modelData, 'quantity', $totalQuantity);
-        } 
+        }
 
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);

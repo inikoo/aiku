@@ -74,4 +74,13 @@ class HistoryUploads
             'value' => $request->user()->id
         ]);
     }
+    public function inPalletReturnRetina(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): array|Collection
+    {
+        return $this->handle(class_basename(Pallet::class), [
+            'key'   => 'user_id',
+            'value' => $request->user()->id
+        ]);
+    }
+
+
 }

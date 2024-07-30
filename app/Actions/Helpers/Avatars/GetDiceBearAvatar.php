@@ -21,13 +21,13 @@ class GetDiceBearAvatar
 
 
         if(config('app.use_dice_bear_api') === false) {
-            return Storage::disk('art')->get('icons/'.$style->value.'.svg');
+            return Storage::disk('art')->get('icons/'.$style->value.'-local.svg');
         }
 
         try {
             $svg = file_get_contents("https://api.dicebear.com/8.x/".$style->value."/svg?seed=$seed");
         } catch (Exception) {
-            return Storage::disk('art')->get('icons/'.$style->value.'.svg');
+            return Storage::disk('art')->get('icons/'.$style->value.'-fallback.svg');
         }
         return $svg;
 

@@ -1,36 +1,35 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:24:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 29 Jul 2024 19:36:30 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Grp;
+namespace App\Actions\SysAdmin\Group\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\WithSysAdminAuthorization;
+use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditGroup extends GrpAction
+class EditGroupSettings extends GrpAction
 {
-    public function handle(): Group
+    use WithSysAdminAuthorization;
+
+    public function handle(Group $group): Group
     {
-        $group = group();
 
         return $group;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("sysadmin.view");
-    }
 
     public function asController(ActionRequest $request): Group
     {
         $this->initialisation(group(), $request);
-        return $this->handle(group());
+        return $this->handle($this->group);
     }
 
 
@@ -41,7 +40,6 @@ class EditGroup extends GrpAction
         return Inertia::render("EditModel", [
             "title"       => __("group"),
             "breadcrumbs" => $this->getBreadcrumbs(
-                $request->route()->getName(),
                 $request->route()->originalParameters()
             ),
             "pageHead" => [
@@ -95,11 +93,24 @@ class EditGroup extends GrpAction
         ]);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs($suffix = null): array
     {
-        return ShowGroup::make()->getBreadcrumbs(
-            routeParameters: $routeParameters,
-            suffix: "(" . __("editing") . ")"
+        return array_merge(
+            ShowSysAdminDashboard::make()->getBreadcrumbs(),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name' => 'grp.sysadmin.settings.edit',
+                        ],
+                        'label' => __('settings'),
+                        'icon'  => 'fal fa-slide-h',
+                    ],
+                    'suffix' => $suffix
+
+                ]
+            ]
         );
     }
 }

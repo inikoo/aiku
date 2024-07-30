@@ -54,7 +54,7 @@ const onPickTemplate = (header) => {
     usedTemplates.value = { key: header.key, ...data }
 }
 
-const onPublish = async (action) => {
+const onPublish = async (action,popover) => {
     try {
         // Ensure action is defined and has necessary properties
         if (!action || !action.method || !action.name || !action.parameters) {
@@ -68,7 +68,7 @@ const onPublish = async (action) => {
             comment: comment.value,
             layout : usedTemplates.value
         })
-
+        popover.close()
         console.log(response)
     } catch (error) {
         // Ensure the error is logged properly
@@ -120,7 +120,7 @@ watch(usedTemplates, (newVal) => {
         <template #button-publish="{ action }">
             <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
             <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
-                @onPublish="onPublish(action.route)" />
+                @onPublish="(popover)=>onPublish(action.route,popover)" />
         </template>
     </PageHeading>
 

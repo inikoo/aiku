@@ -55,7 +55,7 @@ class StoreOrganisation
         $organisation->refresh();
 
 
-        SetOrganisationLogo::dispatch($organisation);
+        SetOrganisationLogo::run($organisation);
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
 

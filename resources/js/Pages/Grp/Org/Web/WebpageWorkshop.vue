@@ -65,7 +65,6 @@ const sendNewBlock = async (block) => {
 
 const sendBlockUpdate = async (block) => {
     try {
-        console.log(block)
         const response = await axios.patch(
             route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
             { layout: block.web_block.layout }
@@ -139,7 +138,7 @@ const setData = () => {
 }
 
 
-const onPublish = async (action) => {
+const onPublish = async (action : {},popover : {}) => {
     try {
         // Ensure action is defined and has necessary properties
         if (!action || !action.method || !action.name || !action.parameters) {
@@ -154,6 +153,7 @@ const onPublish = async (action) => {
             publishLayout: { blocks: data.value.layout }
         })
 
+        popover.close()
 
     } catch (error) {
         // Ensure the error is logged properly
@@ -183,7 +183,7 @@ const onPublish = async (action) => {
         <template #button-publish="{ action }">
             <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
             <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
-                @onPublish="onPublish(action.route)" />
+                @onPublish="(popover)=>onPublish(action.route,popover)" />
         </template>
     </PageHeading>
 

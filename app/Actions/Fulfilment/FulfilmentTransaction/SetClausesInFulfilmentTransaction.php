@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\FulfilmentTransaction;
 
 class SetClausesInFulfilmentTransaction extends OrgAction
@@ -16,13 +15,13 @@ class SetClausesInFulfilmentTransaction extends OrgAction
     public function handle(FulfilmentTransaction $fulfilmentTransaction)
     {
         $rentalAgreementClauses = $fulfilmentTransaction->parent->fulfilmentCustomer->rentalAgreementClauses;
-        $percentageOff = 0;
-        $found = false;
+        $percentageOff          = 0;
+        $found                  = false;
         foreach ($rentalAgreementClauses as $clause) {
             if ($clause->asset_id === $fulfilmentTransaction->asset_id) {
                 data_set($modelData, 'rental_agreement_clause_id', $clause->id);
                 $percentageOff = $clause->percentage_off / 100;
-                $found = true;
+                $found         = true;
                 break;
             }
         }
@@ -37,7 +36,7 @@ class SetClausesInFulfilmentTransaction extends OrgAction
         data_set($modelData, 'net_amount', $net);
         data_set($modelData, 'grp_net_amount', $net * $fulfilmentTransaction->grp_exchange);
         data_set($modelData, 'org_net_amount', $net * $fulfilmentTransaction->org_exchange);
-        
+
         $fulfilmentTransaction->update($modelData);
     }
 }
