@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/vue3'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from '@/types/route'
+import PureTimeline from '@/Components/Pure/PureTimeline.vue'
 
 const props = defineProps<{
     data: {
@@ -81,12 +82,37 @@ onMounted(() => {
     }
 })
 
+const xxxtimeline = [
+    {
+        label: 'Delivery',
+        icon: 'fal fa-truck-couch',
+        tooltip: 'Arrived at warehouse',
+        timestamp: new Date(),
+    },
+    {
+        label: 'Moved',
+        icon: 'fal fa-receipt',
+        tooltip: 'Move to location 1A4K',
+        timestamp: new Date(),
+        current: true
+    },
+    {
+        label: 'Returned',
+        icon: 'fal fa-sign-out-alt',
+        tooltip: 'On send to customer',
+        timestamp: new Date(),
+    },
+]
 </script>
 
 
 <template>
     <!-- <pre>{{ data }}</pre> -->
     <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
+        <div class="col-span-2 w-full pb-4 border-b border-gray-300">
+            <PureTimeline :options="xxxtimeline" :slidesPerView="xxxtimeline.length" color="#6366f1" />
+        </div>
+
         <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
             <div class="col-span-2 ">
