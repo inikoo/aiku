@@ -159,6 +159,7 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
 
         <!-- Column: edited -->
         <template #cell(audited_at)="{ item }">
+     
             <div v-if="item.audited_at" class="flex items-center justify-center">
                 <font-awesome-icon :icon="['fas', 'check-circle']" class="text-lg text-green-500 mr-2"
                     v-tooltip="`Audited at: ${useFormatTime(item.audited_at)}`" />
@@ -173,9 +174,9 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
                         <div class="font-bold text-xs mb-3">are you sure to undo the Audit ?</div>
                         <div class="flex justify-end gap-1">
                             <Button label="No" type="tertiary" size="xs" @click="close()" />
-                         <!--    <Link :href="route(blueprint.customer.value.route.name, blueprint.customer.value.route.parameters)"> -->
-                                    <Button label="Yes" size="xs" />
-                           <!--  </Link> -->
+                            <Link :href="route(item.resetAuditRoute.name, item.resetAuditRoute.parameters)" method="delete" type="button" preserve-scroll>
+                                    <Button label="Yes" size="xs"/>
+                            </Link>
                         </div>
        
                     </template>
