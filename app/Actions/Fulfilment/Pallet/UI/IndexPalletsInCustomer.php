@@ -174,7 +174,11 @@ class IndexPalletsInCustomer extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false, searchable: false);
+
+            if($this->parent->items_storage) {
+                $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false, searchable: false);
+            }
+
             $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
 
 
@@ -222,7 +226,7 @@ class IndexPalletsInCustomer extends OrgAction
                     'subNavigation' => $subNavigation,
 
                     'actions'       => [
-                        [
+                        $this->parent->items_storage ? [
                             'type'    => 'button',
                             'style'   => 'secondary',
                             'tooltip' => __('Audits'),
@@ -231,7 +235,7 @@ class IndexPalletsInCustomer extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index',
                                 'parameters' => $request->route()->originalParameters()
                             ]
-                        ],
+                        ] : false,
                     ],
                 ],
 
