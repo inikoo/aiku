@@ -33,10 +33,12 @@ class PalletResource extends JsonResource
 
         $timeline = [];
         foreach (PalletStateEnum::cases() as $state) {
-            $timeline[$state->value] = [
+            $timeline[] = [
                 'label'     => $state->labels()[$state->value],
                 'tooltip'   => $state->labels()[$state->value],
                 'key'       => $state->value,
+                'icon'      => $state->stateIcon()[$state->value]['icon'],
+                'current'   => $state == $this->state,
                 'timestamp' => $this->{$state->snake() . '_at'} ? $this->{$state->snake() . '_at'}->toISOString() : null
             ];
         }

@@ -30,6 +30,7 @@ const props = defineProps<{
             status: string
             notes: string
             items: []
+            timeline: []
         }
     }
 }>()
@@ -107,10 +108,10 @@ const xxxtimeline = [
 
 
 <template>
-    <!-- <pre>{{ data }}</pre> -->
+<!--     <pre>{{ data.data }}</pre>-->
     <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
         <div class="col-span-2 w-full pb-4 border-b border-gray-300">
-            <PureTimeline :options="xxxtimeline" :slidesPerView="xxxtimeline.length" color="#6366f1" />
+            <PureTimeline :options="data.data.timeline" :slidesPerView="data.data.timeline.length" color="#6366f1" />
         </div>
 
         <!-- Section: field data -->
@@ -121,7 +122,7 @@ const xxxtimeline = [
                     <PureTextarea :modelValue="blueprint.note.value" :rows="5" :placeholder="trans('No note from customer.')" disabled />
                 </dd>
             </div>
-            
+
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.reference.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.reference.value }}</dd>
