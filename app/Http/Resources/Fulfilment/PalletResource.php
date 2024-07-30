@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Fulfilment\Pallet;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,7 +30,17 @@ class PalletResource extends JsonResource
     {
         /** @var Pallet $pallet */
         $pallet=$this;
-        // dd($pallet);
+
+        $timeline = [];
+        foreach (PalletStateEnum::cases() as $state) {
+            $timeline[$state->value] = [
+                'label'     => $state->labels()[$state->value],
+                'tooltip'   => $state->labels()[$state->value],
+                'key'       => $state->value,
+                'timestamp' => $this->{$state->snake() . '_at'} ? $this->{$state->snake() . '_at'}->toISOString() : null
+            ];
+        }
+
         return [
             'id'                    => $this->id,
             'reference'             => $pallet->reference,
@@ -57,7 +68,8 @@ class PalletResource extends JsonResource
             'rental_id'             => $this->rental_id,
             'status_label'          => $pallet->status->labels()[$pallet->status->value],
             'status_icon'           => $pallet->status->statusIcon()[$pallet->status->value],
-            'items'                 => StoredItemResource::collection($this->storedItems ?? [])
+            'items'                 => StoredItemResource::collection($this->storedItems ?? []),
+            'timeline'              => $timeline
         ];
     }
 }
