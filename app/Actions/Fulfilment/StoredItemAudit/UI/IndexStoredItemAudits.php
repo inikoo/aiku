@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItemAudit\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInCustomer;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInAudit;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
@@ -126,11 +126,11 @@ class IndexStoredItemAudits extends OrgAction
                 ],
 
                 'data'                => StoredItemAuditResource::make($storedItemAudit),
-                'pallets'             => PalletsResource::collection($storedItemAudit->fulfilmentCustomer->pallets),
+                'pallets'             => PalletsResource::collection(IndexPalletsInAudit::run($storedItemAudit->fulfilmentCustomer, 'pallets')),
                 'fulfilment_customer' => FulfilmentCustomerResource::make($storedItemAudit->fulfilmentCustomer)->getArray()
             ]
         )->table(
-            IndexPalletsInCustomer::make()->tableStructure(
+            IndexPalletsInAudit::make()->tableStructure(
                 $storedItemAudit->fulfilmentCustomer,
                 prefix: 'pallets'
             )
