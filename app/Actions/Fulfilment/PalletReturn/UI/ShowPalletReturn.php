@@ -359,16 +359,16 @@ class ShowPalletReturn extends OrgAction
                                 'organisation'       => $palletReturn->organisation->slug,
                                 'fulfilment'         => $palletReturn->fulfilment->slug,
                                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                'palletReturn'       => $palletReturn->reference
+                                'palletReturn'       => $palletReturn->slug
                             ]
                         ],
                         'download' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.templates',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
                             'parameters' => [
                                 'organisation'       => $palletReturn->organisation->slug,
                                 'fulfilment'         => $palletReturn->fulfilment->slug,
                                 'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                                'palletReturn'       => $palletReturn->reference
+                                'type'               => 'xlsx'
                             ]
                         ],
                     ]

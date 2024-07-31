@@ -7,6 +7,7 @@
 
 namespace App\Exports\StoredItem;
 
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletStoredItem;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -18,9 +19,18 @@ class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, Sho
 {
     use Exportable;
 
+    protected $fulfilmentCustomer;
+
+    public function __construct(FulfilmentCustomer $fulfilmentCustomer)
+    {
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
+    }
     public function query()
     {
-        return PalletStoredItem::query();
+        return PalletStoredItem::query()
+        ->whereHas('pallet', function ($query) {
+            $query->where('fulfilment_customer_id', $this->fulfilmentCustomer->id);
+        });
     }
 
     public function map($row): array

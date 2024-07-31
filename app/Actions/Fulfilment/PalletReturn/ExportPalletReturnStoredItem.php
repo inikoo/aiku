@@ -10,6 +10,8 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithExportData;
 use App\Exports\StoredItem\PalletReturnPalletStoredItemExport;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -21,21 +23,21 @@ class ExportPalletReturnStoredItem extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(array $modelData): BinaryFileResponse
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): BinaryFileResponse
     {
         $type = $modelData['type'];
 
-        return $this->export(new PalletReturnPalletStoredItemExport(), 'pallet-return-stored-items', $type);
+        return $this->export(new PalletReturnPalletStoredItemExport($fulfilmentCustomer), 'pallet-return-stored-items', $type);
     }
 
     /**
      * @throws \Throwable
      */
-    public function asController(Organisation $organisation, ActionRequest $request): BinaryFileResponse
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): BinaryFileResponse
     {
         $this->setRawAttributes($request->all());
         $this->validateAttributes();
 
-        return $this->handle($request->all());
+        return $this->handle($fulfilmentCustomer, $request->all());
     }
 }
