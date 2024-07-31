@@ -1,6 +1,6 @@
 <x-mail::layout>
 {{-- Header --}}
-<x-slot:header>
+<x-slot:header :url="$url">
 <x-mail::header>
 {{ $shop }}
 </x-mail::header>

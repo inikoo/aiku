@@ -1,4 +1,4 @@
-<x-mail::message :shop="$shop" :shop_url="$shop_url">
+<x-mail::message :shop="$shop" :url="$shop_url">
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}
