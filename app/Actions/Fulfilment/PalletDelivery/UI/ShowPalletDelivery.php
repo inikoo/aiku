@@ -311,11 +311,7 @@ class ShowPalletDelivery extends OrgAction
         if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
-
-        $physicalGoods    = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::PRODUCT)->get();
-        $physicalGoodsNet = $physicalGoods->sum('net_amount');
-        $services         = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
-        $servicesNet      = $services->sum('net_amount');
+        
         $palletPriceTotal = 0;
         foreach ($palletDelivery->pallets as $pallet) {
             $rentalPrice      = $pallet->rental->price ?? 0;
@@ -517,13 +513,13 @@ class ShowPalletDelivery extends OrgAction
                                 'label'       => __('Services'),
                                 'quantity'    => $palletDelivery->stats->number_services ?? 0,
                                 'price_base'  => __('Multiple'),
-                                'price_total' => $servicesNet
+                                'price_total' => $palletDelivery->services_amount
                             ],
                             [
                                 'label'       => __('Physical Goods'),
                                 'quantity'    => $palletDelivery->stats->number_physical_goods ?? 0,
                                 'price_base'  => __('Multiple'),
-                                'price_total' => $physicalGoodsNet
+                                'price_total' => $palletDelivery->goods_amount
                             ],
                         ],
                         /*

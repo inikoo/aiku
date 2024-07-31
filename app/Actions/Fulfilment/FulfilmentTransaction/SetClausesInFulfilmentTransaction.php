@@ -7,8 +7,10 @@
 
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
+use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\FulfilmentTransaction;
+use App\Models\Fulfilment\PalletDelivery;
 
 class SetClausesInFulfilmentTransaction extends OrgAction
 {
@@ -38,5 +40,10 @@ class SetClausesInFulfilmentTransaction extends OrgAction
         data_set($modelData, 'org_net_amount', $net * $fulfilmentTransaction->org_exchange);
 
         $fulfilmentTransaction->update($modelData);
+
+        if($fulfilmentTransaction->parent instanceof PalletDelivery) {
+            CalculatePalletDeliveryNet::run($fulfilmentTransaction->parent);
+        }
+
     }
 }
