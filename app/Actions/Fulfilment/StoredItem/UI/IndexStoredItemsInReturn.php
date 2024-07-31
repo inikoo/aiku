@@ -58,6 +58,7 @@ class IndexStoredItemsInReturn extends OrgAction
         $query->defaultSort('stored_items.id')
             ->select(
                 'pallet_return_items.id',
+                'pallet_return_items.pallet_return_id',
                 'stored_items.id as stored_item_id',
                 'pallets.id as pallet_id',
                 'pallets.location_id',
