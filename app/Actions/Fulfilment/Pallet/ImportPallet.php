@@ -60,7 +60,7 @@ class ImportPallet
     {
         $userable=$request->user();
         if($userable instanceof WebUser) {
-
+            return true;
         }
 
         return true;
