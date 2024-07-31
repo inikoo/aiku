@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
+use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\OrgAction;
@@ -28,6 +29,7 @@ class DeleteFulfilmentTransaction extends OrgAction
 
         if ($palletDeliveryTransaction->parent_type == 'PalletDelivery') {
             PalletDeliveryHydrateTransactions::run($palletDeliveryTransaction->parent);
+            CalculatePalletDeliveryNet::run($palletDeliveryTransaction->parent);
         } else {
             PalletReturnHydrateTransactions::run($palletDeliveryTransaction->parent);
         }

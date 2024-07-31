@@ -38,7 +38,17 @@ class PalletReturnStoredItemsResource extends JsonResource
             'id'                               => $this->id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
-            'quantity'                         => $this->quantity
+            'quantity'                         => $this->quantity,
+            'deleteRoute'                      => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet-return.stored-item.delete',
+                    'parameters' => [$this->pallet_return_id, $this->pallet_id]
+                ],
+                default => [
+                    'name'       => 'grp.models.fulfilment-customer.pallet-return.stored-item.delete',
+                    'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->id]
+                ]
+            },
         ];
     }
 }

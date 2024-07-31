@@ -7,6 +7,7 @@
 
 namespace App\Actions\Helpers\Uploads;
 
+use App\Models\CRM\WebUser;
 use App\Models\Helpers\Upload;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Storage;
@@ -25,6 +26,11 @@ class StoreUploads
     {
         /** @var User $user */
         $user     = request()->user();
+
+        if($user instanceof WebUser) {
+            $user = null;
+        }
+
         $filename = $file->hashName();
         $type     = class_basename($class);
         $path     = 'excel-uploads/org/' . Str::lower($type);
