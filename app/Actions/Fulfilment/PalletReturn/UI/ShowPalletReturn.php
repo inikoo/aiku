@@ -399,7 +399,8 @@ class ShowPalletReturn extends OrgAction
                     'index' => [
                         'name'       => 'grp.json.fulfilment.return.stored-items',
                         'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                            'palletReturn'       => $palletReturn->slug
                         ]
                     ],
                     'store' => [

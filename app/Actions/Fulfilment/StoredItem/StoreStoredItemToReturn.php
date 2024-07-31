@@ -24,7 +24,6 @@ class StoreStoredItemToReturn extends OrgAction
     use AsCommand;
 
     public $commandSignature = 'stored-item:store-to-return {palletReturn}';
-
     private PalletReturn $parent;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
@@ -40,7 +39,8 @@ class StoreStoredItemToReturn extends OrgAction
             $palletReturn->storedItems()->attach($storedItemId, [
                 'pallet_id'             => $palletId,
                 'pallet_stored_item_id' => $palletStoreItemId,
-                'quantity_ordered'      => $quantity
+                'quantity_ordered'      => $quantity,
+                'type'                  => 'StoredItem'
             ]);
 
 

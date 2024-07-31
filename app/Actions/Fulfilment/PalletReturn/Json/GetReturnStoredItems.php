@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletStoredItem;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -20,16 +21,18 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetReturnStoredItems extends OrgAction
 {
-    public function handle(FulfilmentCustomer $fulfilmentCustomer): LengthAwarePaginator
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $scope): LengthAwarePaginator
     {
-
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('stored_items.reference', $value);
             });
         });
 
-
+        $storedItems = $scope->storedItems()->get();
+        $exceptional = $storedItems->map(function ($item) {
+            return $item->pivot->pallet_stored_item_id;
+        })->toArray();
 
         $queryBuilder = QueryBuilder::for(PalletStoredItem::class);
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
@@ -37,6 +40,7 @@ class GetReturnStoredItems extends OrgAction
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
         $queryBuilder->where('stored_items.fulfilment_customer_id', $fulfilmentCustomer->id);
 
+        $queryBuilder->whereNotIn('pallet_stored_items.id', $exceptional);
         $queryBuilder
             ->defaultSort('pallet_stored_items.id')
             ->select([
@@ -73,11 +77,11 @@ class GetReturnStoredItems extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, $palletReturn);
     }
 
 

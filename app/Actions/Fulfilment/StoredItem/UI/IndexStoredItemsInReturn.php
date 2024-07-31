@@ -47,6 +47,7 @@ class IndexStoredItemsInReturn extends OrgAction
 
 
         $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
+        $query->where('pallet_return_items.type', 'StoredItem');
         $query->join('pallets', 'pallet_return_items.pallet_id', '=', 'pallets.id');
         $query->join('stored_items', 'pallet_return_items.stored_item_id', '=', 'stored_items.id');
 
