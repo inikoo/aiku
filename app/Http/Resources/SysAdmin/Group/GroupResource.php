@@ -26,7 +26,7 @@ class GroupResource extends JsonResource
             'id'       => $group->id,
             'slug'     => $group->slug,
             'label'    => $group->name,
-            'logo'     => $group->imageSources(48, 48),
+            'logo'     => $request instanceof Website ? $this->group->imageSources(48, 48) : $this->imageSources(48, 48),
             'currency' => CurrencyResource::make($request instanceof Website ? $group->organisation->currency : $group->currency)->getArray()
         ];
     }
