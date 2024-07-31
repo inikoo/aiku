@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
@@ -32,5 +33,7 @@ class SetClausesInPallet extends OrgAction
         }
 
         $pallet->update($modelData);
+
+        CalculatePalletDeliveryNet::run($pallet->palletDelivery);
     }
 }
