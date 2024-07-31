@@ -54,15 +54,47 @@ const onPickBanner = (banner) => {
     isModalOpen.value = false
 }
 
-const getBannersList = async (): Promise<void> => {
-    try {
-        isLoadingFetching.value = true
-        const url = route('grp.org.shops.show.web.banners.index', {
+
+const getRouteIndex = () => {
+    const currentRoute = route().current()
+    if (currentRoute.includes('fulfilments')) {
+        return route('grp.org.fulfilments.show.web.banners.index', {
+            organisation: layout.currentParams.organisation,
+            fulfilment: layout.currentParams.fulfilment,
+            website: layout.currentParams.website
+        });
+    } else {
+        return route('grp.org.shops.show.web.banners.index', {
             organisation: layout.currentParams.organisation,
             shop: layout.currentParams.shop,
             website: layout.currentParams.website
         });
+    }
+}
 
+const getRouteShow = () => {
+    const currentRoute = route().current()
+    if (currentRoute.includes('fulfilments')) {
+        return route('grp.org.fulfilments.show.web.banners.show', {
+            organisation: layout.currentParams.organisation,
+            fulfilment: layout.currentParams.fulfilment,
+            website: layout.currentParams.website,
+            banner: props.modelValue.banner_slug
+        });
+    } else {
+        return route('grp.org.shops.show.web.banners.show', {
+            organisation: layout.currentParams.organisation,
+            shop: layout.currentParams.shop,
+            website: layout.currentParams.website,
+            banner: props.modelValue.banner_slug
+        });
+    }
+}
+
+const getBannersList = async (): Promise<void> => {
+    try {
+        isLoadingFetching.value = true
+        const url = getRouteIndex()
         const response = await axios.get(url, {
             params: {
                 'filter[state]': 'live'
@@ -85,12 +117,7 @@ const getDataBanner = async (): Promise<void> => {
     if (props.modelValue.banner_slug) {
         try {
             isLoading.value = true
-            const url = route('grp.org.shops.show.web.banners.show', {
-                organisation: layout.currentParams.organisation,
-                shop: layout.currentParams.shop,
-                website: layout.currentParams.website,
-                banner: props.modelValue.banner_slug
-            });
+            const url = getRouteShow()
 
             const response = await axios.get(url);
             data.value = response.data
@@ -127,28 +154,6 @@ onMounted(() => {
         <LoadingIcon class="text-4xl"/>
     </div>
     <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug">
-
-        <!-- <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-5">
-            <li v-for="banner in bannersList.slice(0, 6)" :key="banner.slug"
-                class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
-                <div class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-h-1 h-28 aspect-w-1 w-full bg-gray-200"
-                    @click="() => onPickBanner(banner)">
-                    <img v-if="banner['image_thumbnail']" :src="banner['image_thumbnail']"
-                        class="w-full object-cover object-center group-hover:opacity-75" />
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                        <defs>
-                            <pattern id="pattern_mQij" patternUnits="userSpaceOnUse" width="13" height="13"
-                                patternTransform="rotate(45)">
-                                <line x1="0" y="0" x2="0" y2="13" stroke="#CCCCCC" stroke-width="12" />
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#pattern_mQij)" opacity="0.4" />
-                    </svg>
-                </div>
-                <span class="font-bold text-xs">{{ banner.name }}</span>
-            </li>
-        </ul> -->
-
         <div class="flex justify-center border border-dashed border-gray-300 rounded-md py-8">
             <Button label="Select banner" type="tertiary" @click="isModalOpen = true"></Button>
         </div>
@@ -164,49 +169,6 @@ onMounted(() => {
         <!-- Icon: Edit -->
         <div class="absolute top-2 right-2 flex space-x-2 z-10">
             <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs" @click="() => { isModalOpen = true, getBannersList() }" />
-            <!-- <Popover class="relative h-full">
-        <template #button>
-            <Button :icon="['far', 'fa-pencil']" size="xs" />
-        </template>
-<template #content="{ close: closed }">
-                    <div class="w-[350px]">
-                    <div class="mx-auto grid grid-cols-2 gap-4">
-                        <div class="mb-1 ">
-                            <span class="text-xs text-gray-500 pb-3">Height</span>
-                            <InputUseOption
-                                 v-model="modelValue.height" 
-                                 :option="optionWidthHeight"
-                                 @update:model-value="onEnter('b')"
-                                 :MultiSelectProps="{
-                                    label : 'label',
-                                    valueProp : 'value', 
-                                    placeholder : ''   
-                                 }"
-                                 />
-                       </div>
-                       <div class="mb-1">
-                            <span class="text-xs text-gray-500 pb-3">Width</span>
-                            <InputUseOption
-                                 v-model="modelValue.width" 
-                                 :option="optionWidthHeight"
-                                 @update:model-value="onEnter('c')"
-                                 :MultiSelectProps="{
-                                    label : 'label',
-                                    valueProp : 'value', 
-                                    placeholder : ''   
-                                 }"
-                                 />
-                       </div>
-                    </div>
-                    
-                       <div class="mb-1">
-                            <span class="text-xs text-gray-500 pb-3">Link</span>
-                            <PureInput v-model="modelValue.link"></PureInput>
-                       </div>
-                       
-                    </div>
-                </template>
-</Popover> -->
         </div>
     </div>
 

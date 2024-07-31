@@ -63,6 +63,7 @@ const dataCompany = [
         value: props.data.customer?.location
     },
 ]
+console.log(props)
 </script>
 
 

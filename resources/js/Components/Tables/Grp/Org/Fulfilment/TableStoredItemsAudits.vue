@@ -40,37 +40,9 @@ const props = defineProps<{
     tab?: string
 }>()
 
-
 function palletRoute(pallet: Pallet) {
     switch (route().current()) {
-        case "grp.org.fulfilments.show.operations.pallets.index":
-            return route(
-                "grp.org.fulfilments.show.operations.pallets.show",
-                [
-                    route().params["organisation"],
-                    route().params["fulfilment"],
-                    pallet.slug
-                ])
-
-        case "grp.org.fulfilments.show.operations.returned_pallets.index":
-            return route(
-                "grp.org.fulfilments.show.operations.returned_pallets.index",
-                [
-                    route().params["organisation"],
-                    route().params["fulfilment"],
-                    pallet.slug
-                ])
-
-        case "grp.org.fulfilments.show.crm.customers.show":
-            return route(
-                "grp.org.fulfilments.show.crm.customers.show.pallets.show",
-                [
-                    route().params["organisation"],
-                    route().params["fulfilment"],
-                    route().params["fulfilmentCustomer"],
-                    pallet.slug
-                ])
-        case "grp.org.fulfilments.show.crm.customers.show.pallets.index":
+        case "grp.org.fulfilments.show.crm.customers.show.stored-item-audits.index":
             return route(
                 "grp.org.fulfilments.show.crm.customers.show.pallets.show",
                 [
@@ -85,23 +57,6 @@ function palletRoute(pallet: Pallet) {
     }
 }
 
-function fulfilmentCustomerRoute(pallet: Pallet) {
-    switch (route().current()) {
-
-        case "grp.org.fulfilments.show.operations.pallets.index":
-        case "grp.org.fulfilments.show.operations.returned_pallets.index":
-            return route(
-                "grp.org.fulfilments.show.crm.customers.show",
-                [
-                    route().params["organisation"],
-                    route().params["fulfilment"],
-                    pallet.fulfilment_customer_slug
-                ])
-
-        default:
-            return []
-    }
-}
 
 </script>
 
@@ -116,13 +71,6 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
             </component>
         </template>
 
-
-        <!-- Column: Customer -->
-        <template #cell(fulfilment_customer_name)="{ item: pallet }">
-            <Link :href="fulfilmentCustomerRoute(pallet)" class="secondaryLink">
-            {{ pallet["fulfilment_customer_name"] }}
-            </Link>
-        </template>
 
 
         <!-- Column: Customer Reference -->

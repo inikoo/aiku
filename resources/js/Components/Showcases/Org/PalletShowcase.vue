@@ -36,6 +36,8 @@ const props = defineProps<{
     }
 }>()
 
+console.log(props)
+
 // Blueprint: data
 const blueprint = {
     note: {
