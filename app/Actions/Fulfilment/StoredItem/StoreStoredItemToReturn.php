@@ -29,7 +29,6 @@ class StoreStoredItemToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $storedItems = $modelData;
-
         foreach ($storedItems as $storedItem) {
             $storedItemId      = Arr::get($storedItem, 'stored_item');
             $palletId          = Arr::get($storedItem, 'pallet');

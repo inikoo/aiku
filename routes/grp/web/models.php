@@ -50,6 +50,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
+use App\Actions\Fulfilment\Pallet\ImportStoredItem;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
@@ -307,6 +308,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
     Route::post('stored-item', StoreStoredItemToReturn::class)->name('stored_item.store');
+    Route::post('stored-item-upload', [ImportStoredItem::class, 'fromGrp'])->name('stored-item.upload');
     Route::post('pallet-upload', [ImportPallet::class, 'fromGrp'])->name('pallet.upload');
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');

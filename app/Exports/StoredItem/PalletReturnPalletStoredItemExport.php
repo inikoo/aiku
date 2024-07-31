@@ -40,7 +40,9 @@ class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, Sho
         return [
             $palletStoredItem->id,
             $palletStoredItem->pallet->reference,
+            $palletStoredItem->pallet->id,
             $palletStoredItem->storedItem->reference,
+            $palletStoredItem->storedItem->id,
             $palletStoredItem->quantity
         ];
     }
@@ -48,11 +50,13 @@ class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, Sho
     public function headings(): array
     {
         return [
-            'Id',
+            'Pallet Stored Item',
+            'Pallet Ref',
             'Pallet',
+            'Stored Item Ref',
             'Stored Item',
             'Stored Item Quantity',
-            'Pick Stored Item',
+            'Quantity',
         ];
     }
 }
