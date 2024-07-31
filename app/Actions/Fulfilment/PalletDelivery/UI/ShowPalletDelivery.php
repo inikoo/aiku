@@ -14,7 +14,6 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
@@ -311,7 +310,7 @@ class ShowPalletDelivery extends OrgAction
         if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
-        
+
         $palletPriceTotal = 0;
         foreach ($palletDelivery->pallets as $pallet) {
             $rentalPrice      = $pallet->rental->price ?? 0;

@@ -23,15 +23,15 @@ class CalculatePalletDeliveryNet extends OrgAction
         foreach ($palletDelivery->pallets as $pallet) {
             $rentalPrice      = $pallet->rental->price ?? 0;
             $palletPriceTotal += $rentalPrice;
-        } 
+        }
         $tax = $palletDelivery->taxCategory->rate;
 
-        $net = $physicalGoodsNet + $servicesNet + $palletPriceTotal;
-        $taxAmount = $net * $tax;
+        $net         = $physicalGoodsNet + $servicesNet + $palletPriceTotal;
+        $taxAmount   = $net * $tax;
         $totalAmount = $net + $taxAmount;
-        $grpNet = $net * $palletDelivery->grp_exchange;
-        $orgNet = $net * $palletDelivery->org_exchange;
-        
+        $grpNet      = $net * $palletDelivery->grp_exchange;
+        $orgNet      = $net * $palletDelivery->org_exchange;
+
         data_set($modelData, 'net_amount', $net);
         data_set($modelData, 'total_amount', $totalAmount);
         data_set($modelData, 'tax_amount', $taxAmount);

@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -44,6 +45,15 @@ class StorePalletFromDelivery extends OrgAction
 
         if(Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', Arr::get($modelData, 'type'));
+        }
+
+        $totalPallets        = $palletDelivery->fulfilmentCustomer->pallets()->count();
+        $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
+        $palletLimits        = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
+        $palletLimitLeft     = ($palletLimits - ($totalPallets + $numberStoredPallets));
+
+        if($palletLimits > 0 && $palletLimitLeft <= 0) {
+            abort(403, __("Pallet has reached over the limit: :palletLimitLeft", ['palletLimitLeft' => $palletLimitLeft]));
         }
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
