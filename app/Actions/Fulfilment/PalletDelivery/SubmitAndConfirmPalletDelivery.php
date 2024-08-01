@@ -36,6 +36,10 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
             return false;
         }
 
+        if($this->asAction){
+            return true;
+        }
+
         if ($request->user() instanceof WebUser) {
             return true;
         }
@@ -46,6 +50,14 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
     {
         return new PalletDeliveryResource($palletDelivery);
+    }
+
+    public function action (PalletDelivery $palletDelivery): PalletDelivery
+    {
+        $this->asAction = true;
+        $this->palletDelivery = $palletDelivery;
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment,[]);
+        return $this->handle($palletDelivery);
     }
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
