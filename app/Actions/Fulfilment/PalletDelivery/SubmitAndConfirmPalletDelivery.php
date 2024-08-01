@@ -36,7 +36,7 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
             return false;
         }
 
-        if($this->asAction){
+        if($this->asAction) {
             return true;
         }
 
@@ -52,11 +52,11 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
         return new PalletDeliveryResource($palletDelivery);
     }
 
-    public function action (PalletDelivery $palletDelivery): PalletDelivery
+    public function action(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->palletDelivery = $palletDelivery;
-        $this->initialisationFromFulfilment($palletDelivery->fulfilment,[]);
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
         return $this->handle($palletDelivery);
     }
 

@@ -65,8 +65,7 @@ class SubmitPalletDelivery extends OrgAction
             return false;
         }
 
-        if($this->asAction)
-        {
+        if($this->asAction) {
             return true;
         }
 
@@ -91,7 +90,7 @@ class SubmitPalletDelivery extends OrgAction
 
     public function action(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
         return $this->handle($palletDelivery);

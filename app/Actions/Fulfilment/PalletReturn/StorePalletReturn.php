@@ -185,7 +185,7 @@ class StorePalletReturn extends OrgAction
 
     public function actionWithStoredItems(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
     {
-        $this->action = true;
+        $this->action         = true;
         $this->withStoredItems=true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);

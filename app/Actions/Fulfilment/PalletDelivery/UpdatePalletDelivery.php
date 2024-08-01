@@ -32,8 +32,17 @@ class UpdatePalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
+        /** @var PalletDelivery $palletDelivery */
         $palletDelivery =$this->update($palletDelivery, $modelData);
+
+        if($palletDelivery->wasCHanged('state')) {
+            UpdatePalletDeliveryTimeline::run($palletDelivery, [
+                'state' => $palletDelivery->state
+            ]);
+        }
+
         PalletDeliveryRecordSearch::dispatch($palletDelivery);
+
         return $palletDelivery;
     }
 
