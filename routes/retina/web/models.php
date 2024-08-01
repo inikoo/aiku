@@ -40,6 +40,7 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 });
 
 Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
+Route::post('pallet-return/stored-items', [StorePalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('stored-item-upload', [ImportStoredItem::class, 'fromRetina'])->name('stored-item.upload');
     Route::post('pallet', [AttachPalletsToReturn::class, 'fromRetina'])->name('pallet.store');
