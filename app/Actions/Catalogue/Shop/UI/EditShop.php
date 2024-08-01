@@ -164,11 +164,11 @@ class EditShop extends OrgAction
                             'title'  => __('shopify'),
                             'icon'   => 'fa-light fa-shopping-bag',
                             'fields' => [
-                                'shopify_shop_url'  => [
+                                'shopify_shop_name'  => [
                                     'type'          => 'input',
-                                    'label'         => __('shop url'),
-                                    'placeholder'   => __('Input your shop url'),
-                                    'value'         => Arr::get($shopify, 'shop_url')
+                                    'label'         => __('shop name'),
+                                    'placeholder'   => __('Input your shop name'),
+                                    'value'         => Arr::get($shopify, 'shop_name')
                                 ],
                                 'shopify_api_key' => [
                                     'type'          => 'password',
@@ -189,6 +189,15 @@ class EditShop extends OrgAction
                                     'value'         => Arr::get($shopify, 'access_token')
                                 ]
                             ],
+                            'button' => [
+                                'title' => 'Connect to Shopify',
+                                'route' => [
+                                    'name'       => 'grp.models.shopify.connect',
+                                    'parameters' => [
+                                        'shop' => $shop->slug
+                                    ]
+                                ]
+                            ]
                         ],
                     ],
                     'args'      => [

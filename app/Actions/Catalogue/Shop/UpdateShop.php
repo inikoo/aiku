@@ -42,11 +42,11 @@ class UpdateShop extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'shopify_shop_url'        => 'settings.shopify.shop_url',
-                    'shopify_api_key'         => 'settings.shopify.api_key',
-                    'shopify_api_secret'      => 'settings.shopify.api_secret',
-                    'shopify_access_token'    => 'settings.shopify.access_token',
-                    default                   => $key
+                    'shopify_shop_name'        => 'settings.shopify.shop_name',
+                    'shopify_api_key'          => 'settings.shopify.api_key',
+                    'shopify_api_secret'       => 'settings.shopify.api_secret',
+                    'shopify_access_token'     => 'settings.shopify.access_token',
+                    default                    => $key
                 },
                 $value
             );
@@ -115,23 +115,23 @@ class UpdateShop extends OrgAction
                 ),
 
             ],
-            'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
-            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'                    => ['sometimes', 'nullable', 'email'],
-            'phone'                    => ['sometimes', 'nullable'],
-            'identity_document_number' => ['sometimes', 'nullable', 'string'],
-            'identity_document_type'   => ['sometimes', 'nullable', 'string'],
-            'type'                     => ['sometimes', 'required', Rule::enum(ShopTypeEnum::class)],
-            'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
-            'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
-            'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
-            'address'                  => ['sometimes', 'required', new ValidAddress()],
-            'collection_address'       => ['sometimes', 'required', new ValidAddress()],
-            'state'                    => ['sometimes', Rule::enum(ShopStateEnum::class)],
-            'shopify_shop_url'         => ['sometimes', 'string'],
-            'shopify_api_key'          => ['sometimes', 'string'],
-            'shopify_api_secret'       => ['sometimes', 'string'],
-            'shopify_access_token'     => ['sometimes', 'string']
+            'contact_name'              => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'              => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'                     => ['sometimes', 'nullable', 'email'],
+            'phone'                     => ['sometimes', 'nullable'],
+            'identity_document_number'  => ['sometimes', 'nullable', 'string'],
+            'identity_document_type'    => ['sometimes', 'nullable', 'string'],
+            'type'                      => ['sometimes', 'required', Rule::enum(ShopTypeEnum::class)],
+            'currency_id'               => ['sometimes', 'required', 'exists:currencies,id'],
+            'language_id'               => ['sometimes', 'required', 'exists:languages,id'],
+            'timezone_id'               => ['sometimes', 'required', 'exists:timezones,id'],
+            'address'                   => ['sometimes', 'required', new ValidAddress()],
+            'collection_address'        => ['sometimes', 'required', new ValidAddress()],
+            'state'                     => ['sometimes', Rule::enum(ShopStateEnum::class)],
+            'shopify_shop_name'         => ['sometimes', 'string'],
+            'shopify_api_key'           => ['sometimes', 'string'],
+            'shopify_api_secret'        => ['sometimes', 'string'],
+            'shopify_access_token'      => ['sometimes', 'string']
         ];
     }
 

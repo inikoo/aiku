@@ -23,7 +23,6 @@ use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -53,7 +52,7 @@ class ShowPalletReturn extends RetinaAction
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
-        
+
         $navigation=PalletReturnTabsEnum::navigation($palletReturn);
 
         if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
@@ -378,7 +377,7 @@ class ShowPalletReturn extends RetinaAction
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
                     fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))), 
+                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))),
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))

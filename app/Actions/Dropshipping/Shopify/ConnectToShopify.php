@@ -8,8 +8,9 @@
 namespace App\Actions\Dropshipping\Shopify;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\Catalogue\Shop;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -32,13 +33,13 @@ class ConnectToShopify
      *
      * @throws MissingArgumentException
      */
-    public function init(): void
+    public function init(Shop $shop, $shopify): void
     {
         Context::initialize(
-            apiKey: config('shopify.api_key'),
-            apiSecretKey: config('shopify.api_secret'),
+            apiKey: Arr::get($shopify, 'api_key'),
+            apiSecretKey: Arr::get($shopify, 'api_secret'),
             scopes: ['read_products', 'write_products'],
-            hostName: 'app.aiku.test',
+            hostName: $shop->website->domain,
             sessionStorage: new FileSessionStorage()
         );
     }
@@ -52,12 +53,13 @@ class ConnectToShopify
      * @throws \Shopify\Exception\MissingArgumentException
      * @throws \Shopify\Exception\SessionStorageException
      */
-    public function handle()
+    public function handle(Shop $shop): string
     {
-        $this->init();
+        $shopify = Arr::get($shop->settings, 'shopify');
+        $this->init($shop, $shopify);
 
         $url = OAuth::begin(
-            shop: 'aikuu',
+            shop: Arr::get($shopify, 'shop_name'),
             redirectPath: 'shopify/callback',
             isOnline: true,
             setCookieFunction: function (OAuthCookie $cookie) {
@@ -75,7 +77,7 @@ class ConnectToShopify
             }
         );
 
-        return Redirect::to($url);
+        return $url;
     }
 
     /**
@@ -98,15 +100,13 @@ class ConnectToShopify
         $cookies = $request->cookies->all();
 
         $session = OAuth::callback(cookies: $cookies, query: $request->all());
-
-        // dd($session);
     }
 
     /**
      * Handle the command to start the Shopify OAuth process.
      */
-    public function asCommand()
+    public function asController(Shop $shop, ActionRequest $request): string
     {
-        $this->handle();
+        return $this->handle($shop);
     }
 }

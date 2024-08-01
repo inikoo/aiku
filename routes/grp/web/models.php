@@ -32,6 +32,7 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
+use App\Actions\Dropshipping\Shopify\ConnectToShopify;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
@@ -164,6 +165,7 @@ Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notificat
 
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
+Route::post('shop/{shop}/platform/shopify/connect', ConnectToShopify::class)->name('shopify.connect');
 
 Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::patch('', UpdateEmployee::class)->name('update');

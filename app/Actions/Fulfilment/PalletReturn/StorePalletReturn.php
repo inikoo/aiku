@@ -166,8 +166,8 @@ class StorePalletReturn extends OrgAction
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $this->withStoredItems=true;
-        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+        $fulfilmentCustomer   = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment     = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
 

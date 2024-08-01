@@ -22,6 +22,7 @@ import { faUserLock, faShoppingBag, faBell, faCopyright, faUserCircle, faMobileA
 import { faBrowser } from '@fal'
 import { faBan } from '@far'
 import { Head, usePage } from '@inertiajs/vue3'
+import axios from "axios";
 
 library.add(faBan, faShoppingBag, faBrowser, faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
 
@@ -132,6 +133,13 @@ onBeforeUnmount(() => {
 // const statusError = splitError?.[1]
 // const messageError = splitError?.[2]
 
+function connectToPlatform(routeName, parameters) {
+    axios.post(route(routeName, parameters))
+        .then((response) => {
+            window.location.href = response.data;
+        })
+}
+
 </script>
 
 
@@ -215,12 +223,12 @@ onBeforeUnmount(() => {
                     </template>
                 </template>
 
-                <!-- For button Authorize Google -->
+                <!-- For button Authorize -->
                 <div class="py-2 px-3 flex justify-end max-w-2xl" v-if="formData.blueprint?.[currentTab]?.button" :id="formData.title">
-                    <component :is="formData.blueprint[currentTab].button.disable ? 'div' : 'a'"
-                        :href="formData.blueprint[currentTab].button.route" target="_blank" rel="noopener noreferrer"
+                    <component :is="'button'"
+                         @click="connectToPlatform(formData.blueprint[currentTab].button.route.name, formData.blueprint[currentTab].button.route.parameters)"
                         class="px-3 py-1.5 rounded"
-                        :class="[formData.blueprint[currentTab].button.disable ? 'bg-orange-200 cursor-default text-white' : 'text-gray-100 bg-orange-500 hover:bg-orange-600']"
+                        :class="[formData.blueprint[currentTab].button.disable ? 'bg-orange-200 cursor-default text-white' : 'text-gray-100 bg-green-500 hover:bg-green-600']"
                     >
                         {{ formData.blueprint[currentTab].button.title }}
                     </component>
