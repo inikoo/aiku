@@ -132,6 +132,10 @@ watch(model, async (newVal) => {
     isLoadingHistory.value = false
 })
 
+
+const compHistoryList = computed(() => {
+    return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
+})
 </script>
 
 <template>
@@ -279,23 +283,19 @@ watch(model, async (newVal) => {
             <div class="flex items-start gap-x-2 gap-y-2 flex-col mt-4">
                 <div class="text-sm text-gray-600"> {{ trans('History uploaded') }}:</div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
-                    <template v-if="[...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded].length">
+                    <template v-if="compHistoryList.length">
                         <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">
                             <component
                                 :is="
                                     history?.view_route?.name
                                         ? Link
-                                        : dataHistoryFileUpload[0].view_route.name
-                                            ? Link
-                                            : 'div'
+                                        : 'div'
                                 "
-                                v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
+                                v-for="(history, index) in compHistoryList"
                                 :key="'list' + index"
                                 :href="history?.view_route?.name
                                     ? route(history.view_route.name, history.view_route.parameters)
-                                    : dataHistoryFileUpload[0].view_route.name
-                                        ? route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})
-                                        : '#'
+                                    : '#'
                                 "
                             >
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "
