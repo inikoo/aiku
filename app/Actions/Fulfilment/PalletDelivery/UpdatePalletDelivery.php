@@ -35,7 +35,7 @@ class UpdatePalletDelivery extends OrgAction
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery =$this->update($palletDelivery, $modelData);
 
-        if($palletDelivery->wasCHanged('state')) {
+        if($palletDelivery->wasChanged('state')) {
             UpdatePalletDeliveryTimeline::run($palletDelivery, [
                 'state' => $palletDelivery->state
             ]);
