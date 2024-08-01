@@ -18,12 +18,12 @@ import { routeType } from '@/types/route'
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { inject } from 'vue'
 
-import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH, faCog } from '@fal'
+import { faUserLock, faShoppingBag, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH, faCog } from '@fal'
 import { faBrowser } from '@fal'
 import { faBan } from '@far'
 import { Head, usePage } from '@inertiajs/vue3'
 
-library.add(faBan, faBrowser, faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
+library.add(faBan, faShoppingBag, faBrowser, faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
 
 
 const props = defineProps<{
@@ -200,7 +200,7 @@ onBeforeUnmount(() => {
                                     {{ sectionData.subtitle }}
                                 </p>
                             </div>
-                            
+
                             <!-- Looping Field -->
                             <div class="my-2 pt-4 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
                                 <template v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index">

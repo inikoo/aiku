@@ -15,6 +15,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -43,6 +44,8 @@ class EditShop extends OrgAction
      */
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
+        $shopify = Arr::get($shop->settings, 'shopify');
+
         return Inertia::render(
             'EditModel',
             [
@@ -130,6 +133,7 @@ class EditShop extends OrgAction
                         ],
                         [
                             'title'  => __('contact/details'),
+                            'icon'   => 'fa-light fa-user',
                             'fields' => [
                                 'contact_name' => [
                                     'type'  => 'input',
@@ -156,12 +160,44 @@ class EditShop extends OrgAction
                                 ],
                             ]
                         ],
+                        [
+                            'title'  => __('shopify'),
+                            'icon'   => 'fa-light fa-shopping-bag',
+                            'fields' => [
+                                'shopify_shop_url'  => [
+                                    'type'          => 'input',
+                                    'label'         => __('shop url'),
+                                    'placeholder'   => __('Input your shop url'),
+                                    'value'         => Arr::get($shopify, 'shop_url')
+                                ],
+                                'shopify_api_key' => [
+                                    'type'          => 'password',
+                                    'label'         => __('api key'),
+                                    'placeholder'   => __('Input your api key'),
+                                    'value'         => Arr::get($shopify, 'api_key')
+                                ],
+                                'shopify_api_secret' => [
+                                    'type'          => 'password',
+                                    'label'         => __('api secret'),
+                                    'placeholder'   => __('Input your api secret'),
+                                    'value'         => Arr::get($shopify, 'api_secret')
+                                ],
+                                'shopify_access_token' => [
+                                    'type'          => 'password',
+                                    'label'         => __('access token'),
+                                    'placeholder'   => __('Input your access token'),
+                                    'value'         => Arr::get($shopify, 'access_token')
+                                ]
+                            ],
+                        ],
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.shop.update',
-                            'parameters' => $shop->id
-
+                            'name'       => 'grp.models.org.shop.update',
+                            'parameters' => [
+                                'organisation' => $shop->organisation_id,
+                                'shop'         => $shop->id
+                            ]
                         ],
                     ]
                 ],

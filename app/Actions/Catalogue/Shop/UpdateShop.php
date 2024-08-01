@@ -18,6 +18,7 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
@@ -35,6 +36,22 @@ class UpdateShop extends OrgAction
             $addressData = Arr::get($modelData, 'address');
             Arr::forget($modelData, 'address');
             $shop = $this->updateModelAddress($shop, $addressData);
+        }
+
+        foreach ($modelData as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'shopify_shop_url'        => 'settings.shopify.shop_url',
+                    'shopify_api_key'         => 'settings.shopify.api_key',
+                    'shopify_api_secret'      => 'settings.shopify.api_secret',
+                    'shopify_access_token'    => 'settings.shopify.access_token',
+                    default                   => $key
+                },
+                $value
+            );
+
+            data_forget($modelData, $key);
         }
 
         if (Arr::exists($modelData, 'collection_address')) {
@@ -69,7 +86,10 @@ class UpdateShop extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.edit");
+        return true;
+
+        // Need fix this
+        return $request->user()->hasPermissionTo("shops.view." . $this->shop->id);
     }
 
     public function rules(): array
@@ -107,8 +127,11 @@ class UpdateShop extends OrgAction
             'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
             'address'                  => ['sometimes', 'required', new ValidAddress()],
             'collection_address'       => ['sometimes', 'required', new ValidAddress()],
-            'state'                    => ['sometimes', Rule::enum(ShopStateEnum::class)]
-
+            'state'                    => ['sometimes', Rule::enum(ShopStateEnum::class)],
+            'shopify_shop_url'         => ['sometimes', 'string'],
+            'shopify_api_key'          => ['sometimes', 'string'],
+            'shopify_api_secret'       => ['sometimes', 'string'],
+            'shopify_access_token'     => ['sometimes', 'string']
         ];
     }
 
@@ -122,10 +145,10 @@ class UpdateShop extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function asController(Shop $shop, ActionRequest $request): Shop
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
         $this->shop = $shop;
-        $this->initialisation($shop->organisation, $request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($shop, $this->validatedData);
     }

@@ -23,6 +23,7 @@ use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
+use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\DeletePortfolio;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
@@ -218,6 +219,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
 
     Route::post('shop', StoreShop::class)->name('shop.store');
+    Route::patch('shop/{shop:id}', UpdateShop::class)->name('shop.update')->withoutScopedBindings();
     Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
 
 

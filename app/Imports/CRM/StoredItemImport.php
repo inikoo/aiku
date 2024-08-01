@@ -8,12 +8,10 @@
 namespace App\Imports\CRM;
 
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
-use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Imports\WithImport;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Upload;
 use Exception;
@@ -56,13 +54,13 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
             'type' => 'Upload',
         ]);
 
-        if ($this->scope->type == PalletReturnTypeEnum::PALLET){
+        if ($this->scope->type == PalletReturnTypeEnum::PALLET) {
             try {
                 AttachPalletsToReturn::run(
                     $this->scope,
                     $modelData
                 );
-    
+
                 $this->setRecordAsCompleted($uploadRecord);
             } catch (Exception $e) {
                 $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
@@ -76,7 +74,7 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
                     $this->scope,
                     $modelData
                 );
-    
+
                 $this->setRecordAsCompleted($uploadRecord);
             } catch (Exception $e) {
                 $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
@@ -90,8 +88,8 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
     public function rules(): array
     {
         return [
-            'pallet'          => ['required'],
-            'stored_item'     => ['required'],
+            'pallet'             => ['required'],
+            'stored_item'        => ['required'],
             'pallet_stored_item' => ['required'],
             'quantity'           => ['required']
         ];
