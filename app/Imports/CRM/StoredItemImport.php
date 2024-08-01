@@ -71,7 +71,6 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
             }
         } else {
             try {
-                dd($modelData);
                 StoreStoredItemToReturn::run(
                     $this->scope,
                     $modelData

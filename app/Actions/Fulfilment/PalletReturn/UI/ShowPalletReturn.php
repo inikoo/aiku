@@ -342,7 +342,7 @@ class ShowPalletReturn extends OrgAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'grp.personal.' . $this->organisation->id,
-                    'required_fields'   => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    'required_fields'   => ['pallet_stored_item', 'pallet', 'stored_item', 'quantity'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
@@ -358,7 +358,7 @@ class ShowPalletReturn extends OrgAction
                             'parameters' => [
                                 'organisation'       => $palletReturn->organisation->slug,
                                 'fulfilment'         => $palletReturn->fulfilment->slug,
-                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
                                 'palletReturn'       => $palletReturn->slug
                             ]
                         ],
