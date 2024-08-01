@@ -65,6 +65,11 @@ class SubmitPalletDelivery extends OrgAction
             return false;
         }
 
+        if($this->asAction)
+        {
+            return true;
+        }
+
         if ($request->user() instanceof WebUser) {
             return true;
         }
@@ -86,6 +91,7 @@ class SubmitPalletDelivery extends OrgAction
 
     public function action(PalletDelivery $palletDelivery): PalletDelivery
     {
+        $this->asAction = true;
         $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
         return $this->handle($palletDelivery);

@@ -40,7 +40,7 @@ enum PalletReturnTabsEnum: string
                 'indicator' => $parent->pallets()->whereNotNull('location_id')->count() < $parent->pallets()->count() // todo review this
             ],
             PalletReturnTabsEnum::STORED_ITEMS => [
-                'title'     => __("stored items")." ($parent->number_stored_items)",
+               'title' => __("Stored Items") . " (" . $parent->storedItems()->count() . ")",
                 'icon'      => 'fal fa-narwhal',
                 'indicator' => false// todo review this
             ],

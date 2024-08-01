@@ -26,6 +26,7 @@ use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
+use App\Actions\Fulfilment\Pallet\ImportStoredItem;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
@@ -36,6 +37,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SubmitAndConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\CancelPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -44,6 +46,7 @@ use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotificati
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\PalletReturn\SubmitAndConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
@@ -66,6 +69,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
@@ -80,6 +84,7 @@ use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletStoredItem;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
@@ -1644,6 +1649,299 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
 
     return $palletDelivery;
 })->depends('create fourth pallet delivery (pallet import test)');
+
+test('create third fulfilment customer', function (Fulfilment $fulfilment) {
+    $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
+        $fulfilment,
+        [
+            'state'           => CustomerStateEnum::ACTIVE,
+            'status'          => CustomerStatusEnum::APPROVED,
+            'contact_name'    => 'storo',
+            'company_name'    => 'storo.o',
+            'interest'        => ['pallets_storage', 'items_storage', 'dropshipping'],
+            'contact_address' => Address::factory()->definition(),
+
+        ]
+    );
+
+    UpdateFulfilmentCustomer::make()->action(
+        $fulfilmentCustomer,
+        [
+            'pallets_storage' => true,
+            'items_storage'   => true,
+        ]
+    );
+
+    $fulfilment->refresh();
+
+    expect($fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($fulfilmentCustomer->customer)->toBeInstanceOf(Customer::class)
+        ->and($fulfilmentCustomer->customer->status)->toBe(CustomerStatusEnum::APPROVED)
+        ->and($fulfilmentCustomer->customer->state)->toBe(CustomerStateEnum::ACTIVE)
+        ->and($fulfilmentCustomer->customer->is_fulfilment)->toBeTrue()
+        ->and($fulfilmentCustomer->pallets_storage)->toBeTrue()
+        ->and($fulfilmentCustomer->items_storage)->toBeTrue()
+        ->and($fulfilmentCustomer->dropshipping)->toBeTrue();
+    return $fulfilmentCustomer;
+})->depends('create fulfilment shop');
+
+test('create third rental agreement', function (FulfilmentCustomer $fulfilmentCustomer) {
+    $rentalAgreement = StoreRentalAgreement::make()->action(
+        $fulfilmentCustomer,
+        [
+            'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
+            'pallets_limit' => null,
+            'username'      => 'test-b',
+            'email'         => 'test-bus@testmail.com',
+            'clauses'       => [
+                'rentals' => [
+                    [
+                        'asset_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
+                        'percentage_off' => 10,
+                    ],
+                    [
+                        'asset_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->asset_id,
+                        'percentage_off' => 20,
+                    ],
+                ]
+            ]
+        ]
+    );
+    $rentalAgreement->refresh();
+    expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
+        ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->stats)->toBeInstanceOf(RentalAgreementStats::class)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
+        ->and($rentalAgreement->clauses->first()->asset)->toBeInstanceOf(Asset::class)
+        ->and($rentalAgreement->clauses->last()->asset)->toBeInstanceOf(Asset::class)
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(1);
+
+    return $rentalAgreement;
+})->depends('create third fulfilment customer');
+
+test('create fifth pallet delivery (stored item import test)', function ($fulfilmentCustomer) {
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS);
+
+    return $palletDelivery;
+})->depends('create third fulfilment customer');
+
+test('add pallet to fifth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = StorePalletFromDelivery::make()->action(
+        $palletDelivery,
+        [
+            'customer_reference' => 'AAAA',
+            'type'               => PalletTypeEnum::PALLET->value,
+        ]
+    );
+
+    $palletDelivery->refresh();
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($palletDelivery->stats->number_services)->toBe(1)
+        ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
+        ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
+        ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1);
+
+
+    return $pallet;
+})->depends('create fifth pallet delivery (stored item import test)');
+
+test('create 2 stored item and attach to pallet (5th delivery)', function (Pallet $pallet) {
+    $storedItem = StoreStoredItem::make()->action(
+        $pallet->fulfilmentCustomer,
+        [
+            'reference' => 'Blab',
+        ]
+    );
+    $secondStoredItem = StoreStoredItem::make()->action(
+        $pallet->fulfilmentCustomer,
+        [
+            'reference' => 'Blob',
+        ]
+    );
+
+    SyncStoredItemToPallet::make()->action(
+        $pallet,
+        [
+           'stored_item_ids' => [
+                $storedItem->id => [
+                    'quantity' => 8
+                ],
+                $secondStoredItem->id => [
+                    'quantity' => 10
+                ]
+            ]
+        ]
+    );
+
+    $pallet->refresh();
+
+    expect($storedItem)->toBeInstanceOf(StoredItem::class)
+    ->and($pallet)->toBeInstanceOf(Pallet::class)
+    ->and($pallet->storedItems()->count())->toBe(2);
+
+    return $pallet;
+})->depends('add pallet to fifth pallet delivery');
+
+test('submit and confirm fifth pallet delivery', function (Pallet $pallet) {
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($pallet->palletDelivery);
+
+    $pallet = $palletDelivery->pallets->first();
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
+        ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($pallet->storedItems()->count())->toBe(2)
+        ->and($pallet->state)->toBe(PalletStateEnum::CONFIRMED)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $palletDelivery;
+})->depends('create 2 stored item and attach to pallet (5th delivery)');
+
+test('receive fifth pallet delivery', function (PalletDelivery $palletDelivery) {
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
+        ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class);
+
+    return $palletDelivery;
+})->depends('submit and confirm fifth pallet delivery');
+
+test('start booking-in fifth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $palletDelivery = StartBookingPalletDelivery::make()->action($palletDelivery);
+
+    $palletDelivery->refresh();
+
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN)
+        ->and($palletDelivery->booking_in_at)->toBeInstanceOf(Carbon::class);
+
+    return $palletDelivery;
+})->depends('receive fifth pallet delivery');
+
+test('set location of only pallet in the fifth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    /** @var Location $location */
+    $location = $this->warehouse->locations()->first();
+
+    BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id)
+        ->and($pallet->received_at)->toBeInstanceOf(Carbon::class)
+        ->and($pallet->booked_in_at)->toBeInstanceOf(Carbon::class)
+        ->and($pallet->set_as_not_received_at)->toBeNull()
+        ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $palletDelivery;
+})->depends('start booking-in fifth pallet delivery');
+
+test('set rental to only pallet in the fifth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    $rental = $palletDelivery->fulfilment->rentals->last();
+    expect($rental)->toBeInstanceOf(Rental::class);
+
+    SetPalletRental::make()->action($pallet, ['rental_id' => $rental->id]);
+    $pallet->refresh();
+    $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
+
+    expect($pallet->rental)->toBeInstanceOf(Rental::class)
+        ->and($palletNotInRentalCount)->toBe(0);
+
+
+    return $palletDelivery;
+})->depends('set location of only pallet in the fifth pallet delivery');
+
+test('set fifth pallet delivery as booked in', function (PalletDelivery $palletDelivery) {
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+    expect($fulfilmentCustomer->currentRecurringBill)->toBeNull()
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
+
+    $palletDelivery = SetPalletDeliveryAsBookedIn::make()->action($palletDelivery);
+    $palletDelivery->refresh();
+    $fulfilmentCustomer->refresh();
+
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
+        ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class);
+
+    $firstPallet = $palletDelivery->pallets->first();
+
+    expect($firstPallet->state)->toBe(PalletStateEnum::STORING);
+
+    return $palletDelivery;
+})->depends('set rental to only pallet in the fifth pallet delivery');
+
+test('create second pallet return', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->actionWithStoredItems(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
+        ->and($palletReturn->stats->number_pallets)->toBe(0)
+        ->and($palletReturn->type)->toBe(PalletReturnTypeEnum::STORED_ITEM)
+        ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(2)
+        ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
+        ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
+
+    return $palletReturn;
+})->depends('set fifth pallet delivery as booked in');
+
+test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
+
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/storeditemtest.xlsx');
+    $file     = new UploadedFile($filePath, 'storeditemtest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    ImportStoredItem::run($palletReturn, $file);
+
+    $palletReturn->refresh();
+
+    expect($palletReturn->storedItems()->count())->toBe(2);
+
+    return $palletReturn;
+})->depends('create second pallet return');
+
 
 test('hydrate fulfilment command', function () {
     $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
