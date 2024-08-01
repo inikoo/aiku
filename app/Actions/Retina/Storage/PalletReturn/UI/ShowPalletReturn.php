@@ -10,16 +10,19 @@ namespace App\Actions\Retina\Storage\PalletReturn\UI;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPhysicalGoodInPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexServiceInPalletReturn;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
+use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -50,7 +53,31 @@ class ShowPalletReturn extends RetinaAction
     public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): Response
     {
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
-        // dd(PalletsResource::collection(IndexPalletsInReturn::run($palletReturn)));
+        
+        $navigation=PalletReturnTabsEnum::navigation($palletReturn);
+
+        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+            unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
+        } else {
+            unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
+        }
+
+        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+            $this->tab = PalletReturnTabsEnum::PALLETS->value;
+        } else {
+            $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
+        }
+
+        if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
+            $afterTitle=[
+                'label'=> '('.__('Stored items').')'
+                ];
+        } else {
+            $afterTitle=[
+                'label'=> '('.__('Whole pallets').')'
+            ];
+        }
+
         return Inertia::render(
             'Storage/RetinaPalletReturn',
             [
@@ -69,6 +96,7 @@ class ShowPalletReturn extends RetinaAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference
                     ],
+                    'afterTitle'=> $afterTitle,
                     'model'     => __('pallet return'),
                     'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                         [
@@ -206,27 +234,28 @@ class ShowPalletReturn extends RetinaAction
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
                     'channel'           => 'retina.personal.' . $palletReturn->organisation_id,
-                    'required_fields'   => ['customer_reference', 'notes', 'stored_items', 'type'],
+                    'required_fields'   => ['pallet_stored_item', 'pallet', 'stored_item', 'quantity'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',
                     ],
                     'route' => [
                         'upload'  => [
-                            'name'       => 'retina.models.pallet-return.pallet.upload',
+                            'name'       => 'retina.models.pallet-return.stored-item.upload',
                             'parameters' => [
                                 'palletReturn' => $palletReturn->id
                             ]
                         ],
                         'history' => [
-                            'name'       => 'retina.storage.pallet-returns.pallets.uploads.history',
+                            'name'       => 'retina.storage.pallet-returns.uploads.history',
                             'parameters' => [
                                 'palletReturn'     => $palletReturn->slug
                             ]
                         ],
                         'download' => [
-                            'name'       => 'retina.storage.pallet-returns.pallets.uploads.templates',
+                            'name'       => 'retina.storage.pallet-returns.stored-items.uploads.templates',
                             'parameters' => [
-                                'palletReturn'     => $palletReturn->slug
+                                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+                                'type'                   => 'xlsx'
                             ]
                         ],
                     ],
@@ -247,7 +276,7 @@ class ShowPalletReturn extends RetinaAction
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PalletReturnTabsEnum::navigation($palletReturn)
+                    'navigation' => $navigation
                 ],
                 'box_stats'        => [
                     'fulfilment_customer'          => array_merge(
@@ -347,6 +376,10 @@ class ShowPalletReturn extends RetinaAction
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),
 
+                PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
+                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))), 
+
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))
                     : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
@@ -360,6 +393,12 @@ class ShowPalletReturn extends RetinaAction
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::PALLETS->value
+            )
+        )->table(
+            IndexStoredItemsInReturn::make()->tableStructure(
+                $palletReturn,
+                request: $request,
+                prefix: PalletReturnTabsEnum::STORED_ITEMS->value
             )
         )->table(
             IndexServiceInPalletReturn::make()->tableStructure(

@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
+use App\Actions\Fulfilment\Pallet\ImportStoredItem;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
@@ -40,6 +41,7 @@ Route::name('fulfilment-transaction.')->prefix('fulfilment_transaction/{fulfilme
 
 Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pallet-return.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+    Route::post('stored-item-upload', [ImportStoredItem::class, 'fromRetina'])->name('stored-item.upload');
     Route::post('pallet', [AttachPalletsToReturn::class, 'fromRetina'])->name('pallet.store');
     Route::patch('update', [UpdatePalletReturn::class, 'fromRetina'])->name('update');
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');

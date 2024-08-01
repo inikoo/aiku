@@ -97,6 +97,7 @@ class IndexPalletReturns extends RetinaAction
                     ] : null
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
+                ->column(key: 'type', label: __('type'), type: 'icon', canBeHidden: false, sortable: false, searchable: false)
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('return name'), canBeHidden: false, sortable: false, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
