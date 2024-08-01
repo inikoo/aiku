@@ -7,6 +7,7 @@
 
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\Retina\Storage\PalletDelivery\UI\IndexPalletDeliveries;
@@ -30,8 +31,8 @@ Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
     Route::get('', IndexPalletReturns::class)->name('index');
     Route::get('{palletReturn}', ShowPalletReturn::class)->name('show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
-    Route::get('{palletReturn}/pallets-templates', [DownloadPalletsTemplate::class, 'inReturn'])->name('pallets.uploads.templates');
-    Route::get('{palletReturn}/pallets-histories', [HistoryUploads::class, 'inPalletReturnRetina'])->name('pallets.uploads.history');
+    Route::get('{fulfilmentCustomer}/stored-items-templates', [ExportPalletReturnStoredItem::class, 'fromRetina'])->name('stored-items.uploads.templates');
+    Route::get('{palletReturn}/upload-histories', [HistoryUploads::class, 'inPalletReturnRetina'])->name('uploads.history');
 });
 
 Route::get('pallets', IndexPallets::class)->name('pallets.index');

@@ -132,6 +132,10 @@ watch(model, async (newVal) => {
     isLoadingHistory.value = false
 })
 
+
+const compHistoryList = computed(() => {
+    return [...dataHistoryFileUpload.value, ...useEchoGrpPersonal().recentlyUploaded]
+})
 </script>
 
 <template>
@@ -240,11 +244,11 @@ watch(model, async (newVal) => {
                                                 <Transition name="slide-to-up">
                                                     <th v-if="index != compIndexStoredItemInPreview || isIncludeStoreItems" :key="index"
                                                         class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
-                                                        :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
+                                                        :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
                                                         v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? 'Correct column.' : 'This column is not match, will not be processed.'"
                                                     >
-                                                        {{ header }}
-                                                        <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header)" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
+                                                        {{ header }} 
+                                                        <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase())" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
                                                         <FontAwesomeIcon v-else icon='fas fa-times-circle' class='text-red-500' fixed-width aria-hidden='true' />
                                                     </th>
                                                 </Transition>
@@ -279,23 +283,19 @@ watch(model, async (newVal) => {
             <div class="flex items-start gap-x-2 gap-y-2 flex-col mt-4">
                 <div class="text-sm text-gray-600"> {{ trans('History uploaded') }}:</div>
                 <div v-if="!isLoadingHistory" class="flex flex-wrap gap-x-2 gap-y-2">
-                    <template v-if="[...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded].length">
+                    <template v-if="compHistoryList.length">
                         <TransitionGroup name="list" tag="div" class="flex flex-wrap gap-x-2 gap-y-2">
                             <component
                                 :is="
                                     history?.view_route?.name
                                         ? Link
-                                        : dataHistoryFileUpload[0].view_route.name
-                                            ? Link
-                                            : 'div'
+                                        : 'div'
                                 "
-                                v-for="(history, index) in [...dataHistoryFileUpload, ...useEchoGrpPersonal().recentlyUploaded]"
+                                v-for="(history, index) in compHistoryList"
                                 :key="'list' + index"
                                 :href="history?.view_route?.name
                                     ? route(history.view_route.name, history.view_route.parameters)
-                                    : dataHistoryFileUpload[0].view_route.name
-                                        ? route(dataHistoryFileUpload[0].view_route.name, {...dataHistoryFileUpload[0].view_route.parameters, upload: history.action_id})
-                                        : '#'
+                                    : '#'
                                 "
                             >
                                 <div class="relative w-36 ring-1 ring-gray-300 rounded px-2 pt-2.5 pb-1 flex flex-col justify-start border-t-[3px] border-gray-500 "

@@ -97,6 +97,7 @@ class IndexPalletReturns extends RetinaAction
                     ] : null
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
+                ->column(key: 'type', label: __('type'), type: 'icon', canBeHidden: false, sortable: false, searchable: false)
                 ->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('return name'), canBeHidden: false, sortable: false, searchable: true)
                 ->column(key: 'pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
@@ -131,17 +132,39 @@ class IndexPalletReturns extends RetinaAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('return')
                     ],
-                    'actions' => [
-                        $this->customer->fulfilmentCustomer->number_pallets_status_storing ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'label'   => __('New Return'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'retina.models.pallet-return.store',
-                                'parameters' => []
-                            ]
-                        ] : false
+                    'actions'       => [
+                        match (class_basename($this->parent)) {
+                            'FulfilmentCustomer' =>
+                                $this->customer->fulfilmentCustomer->number_pallets_status_storing ? [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => !$this->parent->number_stored_items_status_storing ? __('Create new return (whole pallet)') : __('Create new return'),
+                                    'label'   => !$this->parent->number_stored_items_status_storing ? __('Return (whole pallet)') : __('Return'),
+                                    'route'   => [
+                                        'method'     => 'post',
+                                        'name'       => 'retina.models.pallet-return.store',
+                                        'parameters' => []
+                                    ]
+                                ] : false,
+
+                            default => null
+                        },
+                        match (class_basename($this->parent)) {
+                            'FulfilmentCustomer' =>
+                            !$this->parent->number_stored_items_status_storing ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new return (stored items)'),
+                                'label'   => __('Return (Stored items)'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'retina.models.pallet-return-stored-items.store',
+                                    'parameters' => []
+                                ]
+                            ] : false,
+
+                            default => null
+                        }
                     ]
                 ],
                 'data' => PalletReturnsResource::collection($customers),

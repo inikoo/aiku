@@ -162,6 +162,18 @@ class StorePalletReturn extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    public function fromRetinaWithStoredItems(ActionRequest $request): PalletReturn
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $this->withStoredItems=true;
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
     public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
     {
         $this->action = true;

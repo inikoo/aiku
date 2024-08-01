@@ -543,7 +543,7 @@ const isModalUploadOpen = ref(false)
         scope="Pallet delivery"
         :title="{
             label: 'Upload your new pallet deliveries',
-            information: 'The list of column file: customer_reference, notes, stored_items'
+            information: `The list of column file: ${upload_spreadsheet.required_fields.join(', ')}`
         }"
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet

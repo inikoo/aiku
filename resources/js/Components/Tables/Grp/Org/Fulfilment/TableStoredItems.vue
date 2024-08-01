@@ -21,10 +21,12 @@ function storedItemRoute(storedItem) {
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
-        default:
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show':
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
+        default:
+           null
     }
 }
 
@@ -33,7 +35,7 @@ function storedItemRoute(storedItem) {
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5">
         <template #cell(reference)="{ item: value }">
-            <Link v-if="route().current() != 'grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show'" :href="storedItemRoute(value)" class="primaryLink">
+            <Link v-if="route().current() != 'retina.storage.pallet-returns.show'" :href="storedItemRoute(value)" class="primaryLink">
                 {{ value.reference }}
             </Link>
         </template>

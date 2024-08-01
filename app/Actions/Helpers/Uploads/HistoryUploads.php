@@ -13,6 +13,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Helpers\Upload;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Collection;
@@ -62,7 +63,7 @@ class HistoryUploads
 
     public function inPalletReturn(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): array|Collection
     {
-        return $this->handle(class_basename(Pallet::class), [
+        return $this->handle(class_basename(PalletReturnItem::class), [
             'key'   => 'user_id',
             'value' => $request->user()->id
         ]);
@@ -76,7 +77,7 @@ class HistoryUploads
     }
     public function inPalletReturnRetina(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): array|Collection
     {
-        return $this->handle(class_basename(Pallet::class), [
+        return $this->handle(class_basename(PalletReturnItem::class), [
             'key'   => 'user_id',
             'value' => $request->user()->id
         ]);
