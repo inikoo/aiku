@@ -17,6 +17,7 @@ use App\Actions\Fulfilment\RentalAgreementSnapshot\StoreRentalAgreementSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -93,7 +94,7 @@ class UpdateRentalAgreement extends OrgAction
                         $clausesUpdated++;
                     } else {
                         $data['state'] = match ($rentalAgreement->state) {
-                            RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
+                            RentalAgreementStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
                             default                               => RentalAgreementCauseStateEnum::DRAFT
                         };
                         StoreRentalAgreementClause::run($rentalAgreement, $data);

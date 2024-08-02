@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
 use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletDelivery;
 
@@ -16,7 +17,9 @@ class SetClausesInFulfilmentTransaction extends OrgAction
 {
     public function handle(FulfilmentTransaction $fulfilmentTransaction)
     {
-        $rentalAgreementClauses = $fulfilmentTransaction->parent->fulfilmentCustomer->rentalAgreementClauses;
+        $rentalAgreementClauses = $fulfilmentTransaction->parent->fulfilmentCustomer->rentalAgreementClauses()
+                                    ->where('state', RentalAgreementCauseStateEnum::ACTIVE)
+                                    ->get();
         $percentageOff          = 0;
         $found                  = false;
         foreach ($rentalAgreementClauses as $clause) {
