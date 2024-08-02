@@ -443,13 +443,13 @@ class ShowPalletReturn extends OrgAction
                                 'label'         => __('Services'),
                                 'quantity'      => $palletReturn->stats->number_services ?? 0,
                                 'price_base'    => '',
-                                'price_total'   => ''
+                                'price_total'   => $palletReturn->services_amount
                             ],
                             [
                                 'label'         => __('Physical Goods'),
                                 'quantity'      => $palletReturn->stats->number_physical_goods ?? 0,
                                 'price_base'    => '',
-                                'price_total'   => ''
+                                'price_total'   => $palletReturn->goods_amount
                             ],
 
                         ],

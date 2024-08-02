@@ -21,8 +21,9 @@ class CalculatePalletDeliveryNet extends OrgAction
         $servicesNet      = $services->sum('net_amount');
         $palletPriceTotal = 0;
         foreach ($palletDelivery->pallets as $pallet) {
+            $discount = $pallet->rentalAgreementClause ? $pallet->rentalAgreementClause->percentage_off / 100 : null;
             $rentalPrice      = $pallet->rental->price ?? 0;
-            $palletPriceTotal += $rentalPrice;
+            $palletPriceTotal += $rentalPrice - $rentalPrice * $discount;
         }
         $tax = $palletDelivery->taxCategory->rate;
 

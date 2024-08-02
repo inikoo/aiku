@@ -33,6 +33,10 @@ class UpdateFulfilmentTransaction extends OrgAction
         ]
         );
 
+        $palletDeliveryTransaction->refresh();
+
+        SetClausesInFulfilmentTransaction::run($palletDeliveryTransaction);
+
         return $palletDeliveryTransaction;
     }
 

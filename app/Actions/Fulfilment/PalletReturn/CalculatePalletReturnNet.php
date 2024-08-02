@@ -21,7 +21,7 @@ class CalculatePalletReturnNet extends OrgAction
         $services         = $palletReturn->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
         $servicesNet      = $services->sum('net_amount');
 
-        $tax = $palletReturn->tax_category->rate;
+        $tax = $palletReturn->taxCategory->rate;
 
         $net         = $physicalGoodsNet + $servicesNet;
         $taxAmount   = $net * $tax;

@@ -24,6 +24,7 @@ use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -313,8 +314,9 @@ class ShowPalletDelivery extends OrgAction
 
         $palletPriceTotal = 0;
         foreach ($palletDelivery->pallets as $pallet) {
+            $discount = $pallet->rentalAgreementClause ? $pallet->rentalAgreementClause->percentage_off / 100 : null;
             $rentalPrice      = $pallet->rental->price ?? 0;
-            $palletPriceTotal += $rentalPrice;
+            $palletPriceTotal += $rentalPrice - $rentalPrice * $discount;
         }
 
         return Inertia::render(
@@ -506,7 +508,7 @@ class ShowPalletDelivery extends OrgAction
                                 'label'       => __('Pallets'),
                                 'quantity'    => $palletDelivery->stats->number_pallets ?? 0,
                                 'price_base'  => __('Multiple'),
-                                'price_total' => ceil($palletPriceTotal) ?? 0
+                                'price_total' => $palletPriceTotal ?? 0
                             ],
                             [
                                 'label'       => __('Services'),

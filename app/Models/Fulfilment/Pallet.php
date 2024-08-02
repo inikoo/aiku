@@ -198,4 +198,9 @@ class Pallet extends Model
     {
         return $this->hasMany(StoredItemAuditDelta::class);
     }
+
+    public function rentalAgreementClause(): BelongsTo
+    {
+        return $this->belongsTo(RentalAgreementClause::class);
+    }
 }

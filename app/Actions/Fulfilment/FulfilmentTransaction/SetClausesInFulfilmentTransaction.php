@@ -36,7 +36,7 @@ class SetClausesInFulfilmentTransaction extends OrgAction
             data_set($modelData, 'rental_agreement_clause_id', null);
         }
 
-        $net = $fulfilmentTransaction->net_amount;
+        $net = $fulfilmentTransaction->asset->price * $fulfilmentTransaction->quantity;
         $net -= $net * $percentageOff;
 
         data_set($modelData, 'net_amount', $net);

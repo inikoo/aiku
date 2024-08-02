@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentTransaction\SetClausesInFulfilmentTransaction;
+use App\Actions\Fulfilment\Pallet\SetClausesInPallet;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\PalletDelivery;
 
@@ -15,6 +16,11 @@ class UpdatePalletDeliveryFulfilmentTransactionClause extends OrgAction
 {
     public function handle(PalletDelivery $palletDelivery)
     {
+        foreach ($palletDelivery->pallets as $pallet){
+            SetClausesInPallet::run($pallet, [
+                'rental_id' => $pallet->rental->id
+            ]);
+        }
         foreach ($palletDelivery->transactions as $transaction)
         {
             SetClausesInFulfilmentTransaction::run($transaction);
