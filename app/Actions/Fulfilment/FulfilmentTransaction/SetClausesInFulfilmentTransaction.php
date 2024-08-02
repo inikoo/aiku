@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
 use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
+use App\Actions\Fulfilment\PalletReturn\CalculatePalletReturnNet;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -46,6 +47,8 @@ class SetClausesInFulfilmentTransaction extends OrgAction
 
         if($fulfilmentTransaction->parent instanceof PalletDelivery) {
             CalculatePalletDeliveryNet::run($fulfilmentTransaction->parent);
+        } else {
+            CalculatePalletReturnNet::run($fulfilmentTransaction->parent);
         }
 
     }
