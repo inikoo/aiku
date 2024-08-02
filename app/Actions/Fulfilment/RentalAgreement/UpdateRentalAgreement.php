@@ -134,6 +134,8 @@ class UpdateRentalAgreement extends OrgAction
         UpdateWebUser::make()->action($this->webUser, Arr::only($modelData, ['username', 'email']));
         FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
 
+        $rentalAgreement->refresh();
+        
         if (Arr::get($modelData, 'update_all', false)) {
             foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDelivery as $delivery)
             {
