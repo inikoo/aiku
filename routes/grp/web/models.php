@@ -209,7 +209,7 @@ Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:i
 
 Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
-    Route::get("google-drive.authorize", AuthorizeClientGoogleDrive::class)->name('google_drive.authorize');
+    Route::post("google-drive.authorize", [AuthorizeClientGoogleDrive::class, 'authorize'])->name('google_drive.authorize');
     Route::get("google-drive.callback", CallbackClientGoogleDrive::class)->name('google_drive.callback');
     Route::patch("settings", UpdateOrganisationSettings::class)->name('settings.update');
 
