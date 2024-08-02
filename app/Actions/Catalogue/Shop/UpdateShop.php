@@ -51,8 +51,9 @@ class UpdateShop extends OrgAction
                 $value
             );
 
-            data_forget($modelData, $key);
         }
+
+        data_forget($modelData, ['shopify_shop_name', 'shopify_api_key', 'shopify_api_secret', 'shopify_access_token']);
 
         if (Arr::exists($modelData, 'collection_address')) {
             $collectionAddressData = Arr::get($modelData, 'collection_address');

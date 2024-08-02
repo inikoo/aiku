@@ -21,18 +21,18 @@ trait WithGoogleDrive
     /**
      * @throws \Exception
      */
-    public function authorize(Organisation $organisation): RedirectResponse
+    public function authorize(Organisation $organisation): string
     {
-        $client       = new Google_Client();
+        $client = new Google_Client();
+        $google = Arr::get($organisation->settings, 'google');
 
         $tokenPath = $this->getTokenPath();
-
-        $authCode = request()->query('code');
+        $authCode  = request()->query('code');
         $client->setRedirectUri('http://localhost:5173');
         $client->setApplicationName('Aiku google drive manager');
         $client->setAuthConfig([
-            'client_id'     => Arr::get($organisation->settings, 'google.id'),
-            'client_secret' => Arr::get($organisation->settings, 'google.secret')
+            'client_id'     => Arr::get($google, 'id'),
+            'client_secret' => Arr::get($google, 'secret')
         ]);
 
         $client->setAccessType('offline');
@@ -52,9 +52,7 @@ trait WithGoogleDrive
                     $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
                 } else {
                     // Request authorization from the user.
-                    $authUrl = $client->createAuthUrl();
-
-                    return redirect()->away($authUrl);
+                    return $client->createAuthUrl();
                 }
             }
         }
@@ -74,7 +72,7 @@ trait WithGoogleDrive
         }
         file_put_contents($tokenPath, json_encode($client->getAccessToken()));
 
-        return redirect()->route('grp.sysadmin.settings.edit');
+        return route('grp.sysadmin.settings.edit');
     }
 
     /**
