@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
 
@@ -17,7 +18,9 @@ class SetClausesInPallet extends OrgAction
     public function handle(Pallet $pallet, array $modelData)
     {
         $rental                 = Rental::find($modelData['rental_id']);
-        $rentalAgreementClauses = $pallet->fulfilmentCustomer->rentalAgreementClauses;
+        $rentalAgreementClauses = $pallet->fulfilmentCustomer->rentalAgreementClauses()
+                                    ->where('state', RentalAgreementCauseStateEnum::ACTIVE)
+                                    ->get();
         $found                  = false;
 
         foreach ($rentalAgreementClauses as $clause) {

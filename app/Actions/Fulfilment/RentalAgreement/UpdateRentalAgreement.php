@@ -9,6 +9,8 @@ namespace App\Actions\Fulfilment\RentalAgreement;
 
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
+use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryFulfilmentTransactionClause;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnFulfilmentTransactionClause;
 use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\Fulfilment\RentalAgreementClause\RemoveRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
@@ -17,6 +19,7 @@ use App\Actions\Fulfilment\RentalAgreementSnapshot\StoreRentalAgreementSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -93,7 +96,7 @@ class UpdateRentalAgreement extends OrgAction
                         $clausesUpdated++;
                     } else {
                         $data['state'] = match ($rentalAgreement->state) {
-                            RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
+                            RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
                             default                               => RentalAgreementCauseStateEnum::DRAFT
                         };
                         StoreRentalAgreementClause::run($rentalAgreement, $data);
@@ -130,6 +133,17 @@ class UpdateRentalAgreement extends OrgAction
 
         UpdateWebUser::make()->action($this->webUser, Arr::only($modelData, ['username', 'email']));
         FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
+
+        if (Arr::get($modelData, 'update_all', false)) {
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDelivery as $delivery)
+            {
+                UpdatePalletDeliveryFulfilmentTransactionClause::run($delivery);
+            }
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletReturn as $return)
+            {
+                UpdatePalletReturnFulfilmentTransactionClause::run($return);
+            }           
+        }
 
         return $rentalAgreement;
     }

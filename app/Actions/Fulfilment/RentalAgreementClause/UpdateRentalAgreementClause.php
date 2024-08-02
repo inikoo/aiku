@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\RentalAgreementClause;
 
@@ -33,7 +34,7 @@ class UpdateRentalAgreementClause extends OrgAction
             'asset_id'       => $rentalAgreementClause->asset_id,
             'percentage_off' => $modelData['percentage_off'],
             'state'          => match ($rentalAgreementClause->rentalAgreement->state) {
-                RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
+                RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
                 default                               => RentalAgreementCauseStateEnum::DRAFT
             }
         ]

@@ -8,13 +8,16 @@
 namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\RecurringBillTransaction;
 
 class SetClausesInRecurringBillTransaction extends OrgAction
 {
     public function handle(RecurringBillTransaction $recurringBillTransaction)
     {
-        $rentalAgreementClauses = $recurringBillTransaction->fulfilmentCustomer->rentalAgreementClauses;
+        $rentalAgreementClauses = $recurringBillTransaction->fulfilmentCustomer->rentalAgreementClauses()
+                                    ->where('state', RentalAgreementCauseStateEnum::ACTIVE)
+                                    ->get();
         $percentageOff          = 0;
         $found                  = false;
         foreach ($rentalAgreementClauses as $clause) {

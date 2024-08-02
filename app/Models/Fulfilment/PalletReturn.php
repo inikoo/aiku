@@ -11,6 +11,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -206,4 +207,10 @@ class PalletReturn extends Model
     {
         return $this->belongsTo(Address::class, 'delivery_address_id');
     }
+
+    public function taxCategory(): BelongsTo
+    {
+        return $this->belongsTo(TaxCategory::class);
+    }
+
 }
