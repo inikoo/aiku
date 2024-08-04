@@ -26,14 +26,13 @@ class StoreStock extends GrpAction
 {
     public function handle(Group|StockFamily $parent, $modelData): Stock
     {
-
         data_set($modelData, 'group_id', $this->group->id);
 
         /** @var Stock $stock */
         $stock = $parent->stocks()->create($modelData);
         $stock->stats()->create();
         GroupHydrateStocks::dispatch($this->group)->delay($this->hydratorsDelay);
-        if($parent instanceof StockFamily) {
+        if ($parent instanceof StockFamily) {
             StockFamilyHydrateStocks::dispatch($parent)->delay($this->hydratorsDelay);
         }
 
@@ -45,11 +44,11 @@ class StoreStock extends GrpAction
     public function rules(): array
     {
         return [
-            'code'            => [
+            'code'        => [
                 'required',
                 'max:64',
                 new AlphaDashDot(),
-                Rule::notIn(['export', 'create', 'upload']),
+                Rule::notIn(['export', 'create', 'upload', 'in-process', 'active', 'discontinuing', 'discontinued']),
                 new IUnique(
                     table: 'stocks',
                     extraConditions: [
@@ -57,17 +56,16 @@ class StoreStock extends GrpAction
                     ]
                 ),
             ],
-            'name'            => ['required', 'string', 'max:255'],
-            'source_id'       => ['sometimes', 'nullable', 'string'],
-            'source_slug'     => ['sometimes', 'nullable', 'string'],
-            'state'           => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
+            'name'        => ['required', 'string', 'max:255'],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'source_slug' => ['sometimes', 'nullable', 'string'],
+            'state'       => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
         ];
     }
 
     public function action(Group|StockFamily $parent, array $modelData, int $hydratorDelay = 0): Stock
     {
-
-        if($parent instanceof Group) {
+        if ($parent instanceof Group) {
             $group = $parent;
         } else {
             $group = $parent->group;
@@ -82,8 +80,8 @@ class StoreStock extends GrpAction
 
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
     {
-
         $this->initialisation(group(), $request);
+
         return $this->handle($stockFamily, $this->validatedData);
     }
 

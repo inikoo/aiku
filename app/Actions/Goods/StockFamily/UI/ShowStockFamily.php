@@ -105,25 +105,32 @@ class ShowStockFamily extends GrpAction
                 StockFamilyTabsEnum::SHOWCASE->value => $this->tab == StockFamilyTabsEnum::SHOWCASE->value ?
                     fn () => GetStockFamilyShowcase::run($stockFamily)
                     : Inertia::lazy(fn () => GetStockFamilyShowcase::run($stockFamily)),
-                StockFamilyTabsEnum::STOCK->value    => $this->tab == StockFamilyTabsEnum::STOCK->value
+                StockFamilyTabsEnum::STOCKS->value    => $this->tab == StockFamilyTabsEnum::STOCKS->value
                     ?
                     fn () => StocksResource::collection(
                         IndexStocks::run(
                             parent: $stockFamily,
-                            prefix: StockFamilyTabsEnum::STOCK->value
+                            prefix: StockFamilyTabsEnum::STOCKS->value,
+                            bucket: 'all'
                         )
                     )
                     : Inertia::lazy(fn () => StocksResource::collection(
                         IndexStocks::run(
                             parent: $stockFamily,
-                            prefix: StockFamilyTabsEnum::STOCK->value
+                            prefix: StockFamilyTabsEnum::STOCKS->value,
+                            bucket: 'all'
                         )
                     )),
                 StockFamilyTabsEnum::HISTORY->value  => $this->tab == StockFamilyTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($stockFamily))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($stockFamily)))
             ]
-        )->table();
+        ) ->table(
+            IndexStocks::make()->tableStructure(
+                parent: $stockFamily,
+                prefix: StockFamilyTabsEnum::STOCKS->value,
+            )
+        );
     }
 
 

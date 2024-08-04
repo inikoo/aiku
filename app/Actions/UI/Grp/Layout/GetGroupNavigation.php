@@ -55,7 +55,7 @@ class GetGroupNavigation
                             'icon'  => ['fal', 'fa-box'],
                             'root'  => 'grp.goods.stocks.',
                             'route' => [
-                                'name'       => 'grp.goods.stocks.index',
+                                'name'       => 'grp.goods.stocks.active_stocks.index',
                                 'parameters' => []
 
                             ]

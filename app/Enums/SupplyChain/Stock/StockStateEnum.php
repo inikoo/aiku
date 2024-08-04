@@ -15,11 +15,11 @@ enum StockStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS        = 'in-process';
-    case ACTIVE            = 'active';
-    case DISCONTINUING     = 'discontinuing';
-    case DISCONTINUED      = 'discontinued';
-    case SUSPENDED         = 'suspended';
+    case IN_PROCESS    = 'in-process';
+    case ACTIVE        = 'active';
+    case DISCONTINUING = 'discontinuing';
+    case DISCONTINUED  = 'discontinued';
+    case SUSPENDED     = 'suspended';
 
     public static function labels(): array
     {
@@ -35,12 +35,12 @@ enum StockStateEnum: string
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in-process'    => [
                 'tooltip' => __('in process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-indigo-500'
             ],
-            'active'    => [
+            'active'        => [
                 'tooltip' => __('contacted'),
                 'icon'    => 'fal fa-chair',
                 'class'   => 'text-green-500'
@@ -50,12 +50,12 @@ enum StockStateEnum: string
                 'icon'    => 'fal fa-exclamation-triangle',
                 'class'   => 'text-orange-500'
             ],
-            'discontinued'      => [
+            'discontinued'  => [
                 'tooltip' => __('discontinued'),
                 'icon'    => 'fal fa-laugh',
                 'class'   => 'text-red-500'
             ],
-            'suspended'      => [
+            'suspended'     => [
                 'tooltip' => __('suspended'),
                 'icon'    => 'fas fa-pause-circle',
                 'class'   => 'text-slate-300'
@@ -65,14 +65,18 @@ enum StockStateEnum: string
 
     public static function count(Group|StockFamily $parent): array
     {
-        $stats = $parent->inventoryStats;
+        if ($parent instanceof Group) {
+            $stats = $parent->inventoryStats;
+        } else {
+            $stats = $parent->stats;
+        }
 
         return [
-            'in-process'        => $stats->number_stocks_state_in_process,
-            'active'            => $stats->number_stocks_state_active,
-            'discontinuing'     => $stats->number_stocks_state_discontinuing,
-            'discontinued'      => $stats->number_stocks_state_discontinued,
-            'suspended'         => $stats->number_stocks_state_suspended
+            'in-process'    => $stats->number_stocks_state_in_process,
+            'active'        => $stats->number_stocks_state_active,
+            'discontinuing' => $stats->number_stocks_state_discontinuing,
+            'discontinued'  => $stats->number_stocks_state_discontinued,
+            'suspended'     => $stats->number_stocks_state_suspended
         ];
     }
 

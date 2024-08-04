@@ -24,13 +24,11 @@ import {
 } from '@fal';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue";
-import TableFamilies from "@/Components/Tables/Grp/Org/Catalogue/TableFamilies.vue";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { capitalize } from "@/Composables/capitalize"
+import TableStocks from "@/Components/Tables/Grp/Goods/TableStocks.vue";
 
 library.add(
     faInventory,
@@ -54,9 +52,8 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    products: object
-    locations: object
-    families: object
+    stocks: object
+
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -65,9 +62,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        families: TableFamilies,
-        products: TableProducts,
-        locations: TableLocations,
+        stocks: TableStocks,
         details: ModelDetails,
         history: ModelChangelog,
     };

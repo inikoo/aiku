@@ -104,8 +104,8 @@ class UpdateStock extends GrpAction
                 'sometimes',
                 'required',
                 new AlphaDashDot(),
-                'max:32',
-                Rule::notIn(['export', 'create', 'upload']),
+                'max:64',
+                Rule::notIn(['export', 'create', 'upload', 'in-process', 'active', 'discontinuing', 'discontinued']),
                 new IUnique(
                     table: 'stocks',
                     extraConditions: [

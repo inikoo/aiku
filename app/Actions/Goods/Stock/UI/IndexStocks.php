@@ -7,6 +7,7 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
+use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\GrpAction;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
@@ -27,15 +28,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStocks extends GrpAction
 {
+    use HasGoodsAuthorisation;
+
     private StockFamily|Group $parent;
     private string $bucket;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
-
-        return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
-    }
 
 
     public function asController(ActionRequest $request): LengthAwarePaginator
@@ -85,6 +82,7 @@ class IndexStocks extends GrpAction
 
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->initialisation(group(), $request);
         $this->parent = $stockFamily;
 
@@ -110,8 +108,12 @@ class IndexStocks extends GrpAction
     }
 
 
-    public function handle(StockFamily|Group $parent, $prefix = null): LengthAwarePaginator
+    public function handle(StockFamily|Group $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
+        if ($bucket) {
+            $this->bucket = $bucket;
+        }
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('stocks.code', $value)
@@ -153,48 +155,51 @@ class IndexStocks extends GrpAction
         }
 
 
-        return $queryBuilder
+        $queryBuilder
             ->defaultSort('stocks.code')
             ->select([
-                'stock_families.slug as family_slug',
-                'stock_families.code as family_code',
                 'stocks.code',
                 'stocks.slug',
                 'stocks.name',
                 'stocks.unit_value',
             ])
-            ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
-            ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'StockFamily') {
-                    $query->where('stocks.stock_family_id', $parent->id);
-                }
-            })
-            ->allowedSorts(['code', 'family_code', 'name'])
+            ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id');
+
+        if ($parent instanceof Group) {
+            $queryBuilder->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id');
+            $queryBuilder->addSelect([
+                'stock_families.slug as family_slug',
+                'stock_families.code as family_code',
+            ]);
+        }
+
+
+        return $queryBuilder->allowedSorts(['code', 'family_code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Group|StockFamily $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|StockFamily $parent, ?array $modelOperations = null, $prefix = null, $bucket='all'): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if($bucket=='all') {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
-
             $table
-                ->defaultSort('slug')
+                ->defaultSort('code')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
@@ -254,28 +259,28 @@ class IndexStocks extends GrpAction
             [
                 'label' => __('Active'),
                 'href'  => [
-                    'name'       => 'grp.goods.active_stocks.index',
+                    'name'       => 'grp.goods.stocks.active_stocks.index',
                     'parameters' => []
                 ]
             ],
             [
                 'label' => __('In process'),
                 'href'  => [
-                    'name'       => 'grp.goods.in_process_stocks.index',
+                    'name'       => 'grp.goods.stocks.in_process_stocks.index',
                     'parameters' => []
                 ]
             ],
             [
                 'label' => __('Discounting'),
                 'href'  => [
-                    'name'       => 'grp.goods.discontinuing_stocks.index',
+                    'name'       => 'grp.goods.stocks.discontinuing_stocks.index',
                     'parameters' => []
                 ]
             ],
             [
                 'label' => __('Discontinued'),
                 'href'  => [
-                    'name'       => 'grp.goods.discontinued_stocks.index',
+                    'name'       => 'grp.goods.stocks.discontinued_stocks.index',
                     'parameters' => []
                 ]
             ],
@@ -341,7 +346,7 @@ class IndexStocks extends GrpAction
                 'data'        => StocksResource::collection($stocks),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent:$this->parent, bucket:$this->bucket));
     }
 
 
@@ -362,7 +367,12 @@ class IndexStocks extends GrpAction
         };
 
         return match ($routeName) {
-            'grp.goods.stocks.index' =>
+            'grp.goods.stocks.index',
+            'grp.goods.stocks.active_stocks.index',
+            'grp.goods.stocks.in_process_stocks.index',
+            'grp.goods.stocks.discontinuing_stocks.index',
+            'grp.goods.stocks.discontinued_stocks.index'
+            =>
             array_merge(
                 ShowGoodsDashboard::make()->getBreadcrumbs(),
                 $headCrumb(

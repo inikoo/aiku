@@ -18,15 +18,13 @@ enum StockFamilyTabsEnum: string
 
     case SHOWCASE           = 'showcase';
 
-    case STOCK              = 'stocks';
+    case STOCKS              = 'stocks';
     //    case SALES              = 'sales';
     //    case ISSUES             = 'issues';
     //
     //
     //
-    //    case PARTS              = 'parts';
-    //    case DISCONTINUED_PARTS = 'discontinued_parts';
-    //    case LOCATIONS          = 'locations';
+
     //    case PRODUCT_FAMILIES   = 'product_families';
     //    case PRODUCTS           = 'products';
 
@@ -50,7 +48,7 @@ enum StockFamilyTabsEnum: string
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            StockFamilyTabsEnum::STOCK => [
+            StockFamilyTabsEnum::STOCKS => [
                 'title' => __('stocks'),
                 'icon'  => 'fal fa-box',
             ],
@@ -62,15 +60,8 @@ enum StockFamilyTabsEnum: string
             //                'title' => __('issues'),
             //                'icon'  => 'fal fa-poop',
             //            ],
-            //            StockFamilyTabsEnum::PARTS => [
-            //                'title' => __('parts'),
-            //                'icon'  => 'fal fa-box',
-            //            ],StockFamilyTabsEnum::DISCONTINUED_PARTS => [
-            //                'title' => __('discontinued parts'),
-            //                'icon'  => 'fa-thing fa-x ',
-            //            ],StockFamilyTabsEnum::LOCATIONS => [
-            //                'title' => __('locations'),
-            //                'icon'  => 'fal fa-inventory'
+
+
             //            ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
             //                'title' => __('product families'),
             //                'icon'  => 'fal fa-cubes',
