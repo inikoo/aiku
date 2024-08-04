@@ -16,13 +16,12 @@ class UpdatePalletDeliveryFulfilmentTransactionClause extends OrgAction
 {
     public function handle(PalletDelivery $palletDelivery)
     {
-        foreach ($palletDelivery->pallets as $pallet){
+        foreach ($palletDelivery->pallets as $pallet) {
             SetClausesInPallet::run($pallet, [
                 'rental_id' => $pallet->rental->id
             ]);
         }
-        foreach ($palletDelivery->transactions as $transaction)
-        {
+        foreach ($palletDelivery->transactions as $transaction) {
             SetClausesInFulfilmentTransaction::run($transaction);
         }
         $palletDelivery->refresh();

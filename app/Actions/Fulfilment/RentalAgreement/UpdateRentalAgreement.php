@@ -135,16 +135,14 @@ class UpdateRentalAgreement extends OrgAction
         FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
 
         $rentalAgreement->refresh();
-        
+
         if (Arr::get($modelData, 'update_all', false)) {
-            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDelivery as $delivery)
-            {
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDelivery as $delivery) {
                 UpdatePalletDeliveryFulfilmentTransactionClause::run($delivery);
             }
-            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletReturn as $return)
-            {
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletReturn as $return) {
                 UpdatePalletReturnFulfilmentTransactionClause::run($return);
-            }           
+            }
         }
 
         return $rentalAgreement;

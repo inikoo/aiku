@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 
 class CalculatePalletReturnNet extends OrgAction

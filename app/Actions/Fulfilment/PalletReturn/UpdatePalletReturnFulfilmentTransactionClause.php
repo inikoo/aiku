@@ -15,8 +15,7 @@ class UpdatePalletReturnFulfilmentTransactionClause extends OrgAction
 {
     public function handle(PalletReturn $palletReturn)
     {
-        foreach ($palletReturn->transactions as $transaction)
-        {
+        foreach ($palletReturn->transactions as $transaction) {
             SetClausesInFulfilmentTransaction::run($transaction);
         }
         $palletReturn->refresh();
