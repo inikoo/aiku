@@ -10,10 +10,9 @@
 import { inject, ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
-import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 
 import { routeType } from '@/types/route'
-import { PalletCustomer, PieCustomer,FulfilmentCustomerStats } from '@/types/Pallet'
+import { FulfilmentCustomerStats } from '@/types/Pallet'
 import { trans } from 'laravel-vue-i18n'
 import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -173,14 +172,14 @@ const isLoading = ref<string | boolean>(false)
                                             <a :href="`tel:${data.fulfilment_customer.customer?.phone}`" v-tooltip="'Click to make a phone call'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.phone }}</a>
                                         </div>
 
-                                        <!-- Field: Location -->
-                                        <div v-if="data.fulfilment_customer.customer?.location" class="flex items-center w-full flex-none gap-x-4 px-6">
-                                            <dt v-tooltip="'Phone'" class="flex-none">
-                                                <span class="sr-only">Location</span>
+                                        <!-- Field: Address -->
+                                        <div v-if="data.fulfilment_customer.customer?.address" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                            <dt v-tooltip="'Address'" class="flex-none">
+                                                <span class="sr-only">Address</span>
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">
-                                                <AddressLocation :data="data.fulfilment_customer.customer?.location" />
+                                              {{data.fulfilment_customer.customer.address.formatted_address}}
                                             </dd>
                                         </div>
                                     </div>
