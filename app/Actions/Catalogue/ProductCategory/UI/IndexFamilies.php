@@ -84,19 +84,6 @@ class IndexFamilies extends OrgAction
         }
 
 
-
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
-        */
-
-
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
@@ -108,18 +95,12 @@ class IndexFamilies extends OrgAction
                 'shops.name as shop_name',
             );
         } elseif (class_basename($parent) == 'ProductCategory') {
-
-
-
-            if($parent->type==ProductCategoryTypeEnum::DEPARTMENT) {
-
+            if ($parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $queryBuilder->where('product_categories.department_id', $parent->id);
-
             } else {
                 // todo
                 abort(419);
             }
-
         }
 
         return $queryBuilder
@@ -135,6 +116,7 @@ class IndexFamilies extends OrgAction
                 'departments.slug as department_slug',
                 'departments.code as department_code',
                 'departments.name as department_name',
+                'product_category_stats.number_current_products'
 
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
@@ -187,7 +169,7 @@ class IndexFamilies extends OrgAction
                                 ] : null
 
                         ],
-                        'Shop' => [
+                        'Shop', 'ProductCategory' => [
                             'title' => __("No families found"),
                             'count' => $parent->stats->number_families,
                         ],
@@ -202,14 +184,12 @@ class IndexFamilies extends OrgAction
             if ($parent instanceof Organisation) {
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
                 $table->column(key: 'department_code', label: __('department'), canBeHidden: false, sortable: true, searchable: true);
-
             }
-
 
 
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -228,6 +208,34 @@ class IndexFamilies extends OrgAction
         }
 
 
+        $title = __('families');
+        $model = __('family');
+        $icon  = [
+            'icon'  => ['fal', 'fa-folder'],
+            'title' => __('family')
+        ];
+        $afterTitle=null;
+        $iconRight =null;
+
+        if ($this->parent instanceof ProductCategory) {
+            if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
+                $title = $this->parent->name;
+                $model = __('department');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-folder-tree'],
+                    'title' => __('department')
+                ];
+                $iconRight    =[
+                    'icon' => 'fal fa-folder',
+                ];
+                $afterTitle= [
+
+                    'label'     => __('Families')
+                ];
+            }
+        }
+
+
         return Inertia::render(
             'Org/Catalogue/Families',
             [
@@ -237,23 +245,23 @@ class IndexFamilies extends OrgAction
                 ),
                 'title'       => __('families'),
                 'pageHead'    => [
-                    'title'         => __('families'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-folder'],
-                        'title' => __('family')
-                    ],
-                    'actions' => [
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'actions'       => [
                         $this->canEdit ? (
                             class_basename($this->parent) == 'ProductCategory' ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new family'),
-                                'label'   => __('family'),
-                                'route'   => [
-                                    'name'       => 'grp.org.shops.show.catalogue.departments.show.families.create',
-                                    'parameters' => $request->route()->originalParameters()
-                                ]
-                            ] : false
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new family'),
+                            'label'   => __('family'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.catalogue.departments.show.families.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false
                         ) : false,
                     ],
                     'subNavigation' => $subNavigation,

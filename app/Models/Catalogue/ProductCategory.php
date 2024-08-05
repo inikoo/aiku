@@ -155,10 +155,6 @@ class ProductCategory extends Model implements Auditable, HasMedia
 
     public function subDepartments(): HasMany
     {
-        if($this->type==ProductCategoryTypeEnum::DEPARTMENT) {
-            return $this->hasMany(ProductCategory::class, 'department_id');
-        }
-
         return $this->hasMany(ProductCategory::class, 'sub_department_id');
     }
 

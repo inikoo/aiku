@@ -133,19 +133,14 @@ class IndexProducts extends OrgAction
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
 
 
-
         return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(
-        Shop|ProductCategory|Organisation $parent,
-        ?array $modelOperations = null,
-        $prefix = null,
-        $canEdit = false
-    ): Closure {
+    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
@@ -238,6 +233,32 @@ class IndexProducts extends OrgAction
             }
         }
 
+        $title      = __('products');
+        $icon       = [
+            'icon'  => ['fal', 'fa-cube'],
+            'title' => __('product')
+        ];
+        $afterTitle = null;
+        $iconRight  = null;
+        $model      = null;
+
+        if ($this->parent instanceof ProductCategory) {
+            if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
+                $title = $this->parent->name;
+                $model = __('department');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-folder-tree'],
+                    'title' => __('Department')
+                ];
+                $iconRight    =[
+                    'icon' => 'fal fa-cube',
+                ];
+                $afterTitle= [
+                    'label'     => __('Products')
+                ];
+            }
+        }
+
         return Inertia::render(
             'Org/Catalogue/Products',
             [
@@ -247,11 +268,11 @@ class IndexProducts extends OrgAction
                 ),
                 'title'       => __('Products'),
                 'pageHead'    => [
-                    'title'         => __('products'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-cube'],
-                        'title' => __('product')
-                    ],
+                    'title'         => $title,
+                    'model'         => $model,
+                    'icon'          => $icon,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'actions'       => [
                         $this->canEdit
                         && class_basename(
@@ -291,6 +312,7 @@ class IndexProducts extends OrgAction
     {
         $this->parent = $family;
         $this->initialisationFromShop($shop, $request);
+
         return $this->handle(parent: $family);
     }
 
@@ -299,6 +321,7 @@ class IndexProducts extends OrgAction
     {
         $this->parent = $family;
         $this->initialisationFromShop($shop, $request);
+
         return $this->handle(parent: $family);
     }
 
@@ -334,7 +357,6 @@ class IndexProducts extends OrgAction
                 ]
             ];
         };
-
 
 
         return match ($routeName) {

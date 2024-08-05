@@ -57,8 +57,8 @@ trait WithDepartmentSubNavigation
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder'],
-                    'tooltip' => __('products')
+                    'icon'    => ['fal', 'fa-folders'],
+                    'tooltip' => __('sub-departments')
                 ]
             ],
         ];
