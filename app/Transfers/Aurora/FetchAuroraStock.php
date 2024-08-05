@@ -10,6 +10,7 @@ namespace App\Transfers\Aurora;
 use App\Actions\Transfers\Aurora\FetchAuroraStockFamilies;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Models\SupplyChain\StockFamily;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -44,9 +45,10 @@ class FetchAuroraStock extends FetchAurora
         }
 
 
+        $this->parsedData['stock_family'] =$this->parseStockFamily($this->auroraModelData->{'Part SKU'});
+
         $this->parsedData['stock'] = [
             'name'            => $name,
-            'stock_family_id' => $this->getStockFamilyId($this->auroraModelData->{'Part SKU'}),
             'code'            => $code,
             'created_at'      => $this->parseDate($this->auroraModelData->{'Part Valid From'}),
             'activated_at'    => $this->parseDate($this->auroraModelData->{'Part Active From'}),
@@ -103,9 +105,9 @@ class FetchAuroraStock extends FetchAurora
         return $images->toArray();
     }
 
-    private function getStockFamilyId($sourceID)
+    private function parseStockFamily($sourceID): StockFamily|null
     {
-        $stockFamilyId = null;
+        $stockFamily = null;
 
         if ($row = DB::connection('aurora')
             ->table('Category Bridge as B')
@@ -115,10 +117,9 @@ class FetchAuroraStock extends FetchAurora
             ->where('Subject Key', $sourceID)
             ->where('Subject', 'Part')->first()) {
             $stockFamily   = FetchAuroraStockFamilies::run($this->organisationSource, $row->{'Category Key'});
-            $stockFamilyId = $stockFamily->id;
         }
 
-        return $stockFamilyId;
+        return $stockFamily;
     }
 
     protected function fetchData($id): object|null

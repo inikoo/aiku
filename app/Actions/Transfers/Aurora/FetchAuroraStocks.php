@@ -30,13 +30,10 @@ class FetchAuroraStocks extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
-
-        $stock   =null;
-        $orgStock=null;
+        $stock    = null;
+        $orgStock = null;
 
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
-
-
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
                 if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
                     $stock = UpdateStock::make()->action(
@@ -45,9 +42,14 @@ class FetchAuroraStocks extends FetchAuroraAction
                     );
                 }
             } else {
+                if ($stockData['stock_family']) {
+                    $parent = $stockData['stock_family'];
+                } else {
+                    $parent = $organisationSource->getOrganisation()->group;
+                }
 
                 $stock = StoreStock::make()->action(
-                    parent: $organisationSource->getOrganisation()->group,
+                    parent: $parent,
                     modelData: $stockData['stock'],
                     hydratorDelay: 30
                 );
@@ -74,8 +76,7 @@ class FetchAuroraStocks extends FetchAuroraAction
 
             $organisation = $organisationSource->getOrganisation();
 
-            if($effectiveStock and $effectiveStock->state!=StockStateEnum::IN_PROCESS) {
-
+            if ($effectiveStock and $effectiveStock->state != StockStateEnum::IN_PROCESS) {
                 /** @var OrgStock $orgStock */
                 if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
                     $orgStock = UpdateOrgStock::make()->action(
@@ -84,9 +85,18 @@ class FetchAuroraStocks extends FetchAuroraAction
                         hydratorDelay: 30
                     );
                 } else {
+                    $orgParent = null;
+
+                    if ($effectiveStock->stockFamily) {
+                        $orgParent = $effectiveStock->stockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first();
+                    }
+
+                    if (!$orgParent) {
+                        $orgParent = $organisationSource->getOrganisation();
+                    }
 
                     $orgStock = StoreOrgStock::make()->action(
-                        organisation: $organisationSource->getOrganisation(),
+                        parent: $orgParent,
                         stock: $effectiveStock,
                         modelData: $stockData['org_stock'],
                         hydratorDelay: 30
@@ -97,16 +107,13 @@ class FetchAuroraStocks extends FetchAuroraAction
                 $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
 
 
-
                 SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
             }
-
         }
 
         if (in_array('attachments', $this->with)) {
-            $sourceData= explode(':', $stock->source_id);
+            $sourceData = explode(':', $stock->source_id);
             foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-
                 SaveModelAttachment::run(
                     $stock,
                     $attachmentData['fileData'],
@@ -125,10 +132,13 @@ class FetchAuroraStocks extends FetchAuroraAction
 
     private function parseAttachments($staffKey): array
     {
-        $attachments            = $this->getModelAttachmentsCollection(
+        $attachments = $this->getModelAttachmentsCollection(
             'Part',
             $staffKey
-        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        )->map(function ($auroraAttachment) {
+            return $this->fetchAttachment($auroraAttachment);
+        });
+
         return $attachments->toArray();
     }
 

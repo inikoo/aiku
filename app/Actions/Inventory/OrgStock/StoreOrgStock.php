@@ -8,13 +8,13 @@
 namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
-use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
@@ -26,8 +26,17 @@ class StoreOrgStock extends OrgAction
 {
     private Stock $stock;
 
-    public function handle(Organisation $organisation, Stock $stock, $modelData): OrgStock
+    public function handle(Organisation|OrgStockFamily $parent, Stock $stock, $modelData): OrgStock
     {
+
+        if($parent instanceof Organisation) {
+            $organisation = $parent;
+        } else {
+            $organisation = $parent->organisation;
+            data_set($modelData, 'org_stock_family_id', $parent->id);
+        }
+
+
         data_set($modelData, 'group_id', $organisation->group_id);
         data_set($modelData, 'organisation_id', $organisation->id);
 
@@ -46,13 +55,12 @@ class StoreOrgStock extends OrgAction
             ]
         );
 
-        if ($stockFamily = $stock->stockFamily) {
-            if (!$orgStockFamily = $stockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
-                $orgStockFamily = StoreOrgStockFamily::run($organisation, $stockFamily, []);
-            }
-            $orgStock->orgStockFamily()->associate($orgStockFamily);
+
+        if($parent instanceof OrgStockFamily) {
+            $orgStock->orgStockFamily()->associate($parent);
             $orgStock->save();
         }
+
 
         OrgStockHydrateUniversalSearch::dispatch($orgStock);
         OrganisationHydrateOrgStocks::dispatch($organisation);
@@ -87,14 +95,21 @@ class StoreOrgStock extends OrgAction
         $this->set('state', $state);
     }
 
-    public function action(Organisation $organisation, Stock $stock, $modelData=[], $hydratorDelay = 0): OrgStock
+    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData=[], $hydratorDelay = 0): OrgStock
     {
+
+        if($parent instanceof Organisation) {
+            $organisation = $parent;
+        } else {
+            $organisation = $parent->organisation;
+        }
+
         $this->asAction       = true;
         $this->stock          = $stock;
         $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($organisation, $modelData);
 
-        return $this->handle($organisation, $stock, $this->validatedData);
+        return $this->handle($parent, $stock, $this->validatedData);
     }
 
 

@@ -9,6 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\StockFamily\UpdateStockFamily;
+use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Models\SupplyChain\StockFamily;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -21,7 +22,6 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockFamily
     {
         if ($stockFamilyData = $organisationSource->fetchStockFamily($organisationSourceId)) {
-
             if ($baseStockFamily = StockFamily::withTrashed()->where('source_slug', $stockFamilyData['stock_family']['source_slug'])->first()) {
                 if ($stockFamily = StockFamily::where('source_id', $stockFamilyData['stock_family']['source_id'])
                     ->first()) {
@@ -37,13 +37,22 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
                 );
             }
 
+            $organisation = $organisationSource->getOrganisation();
 
-            return $stockFamily ?? $baseStockFamily;
+            $effectiveStockFamily=    $stockFamily ?? $baseStockFamily;
+
+            if (!$effectiveStockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
+                StoreOrgStockFamily::run($organisation, $effectiveStockFamily, [
+                    'source_id' => $stockFamilyData['stock_family']['source_id'],
+                ]);
+            }
+
+            return $effectiveStockFamily;
         }
-
 
         return null;
     }
+
 
     public function getModelsQuery(): Builder
     {
