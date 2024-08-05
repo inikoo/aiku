@@ -8,10 +8,12 @@
 import Multiselect from '@vueform/multiselect'
 import { AddressValue, AddressOptions } from "@/types/PureComponent/Address"
 import { trans } from 'laravel-vue-i18n'
+import PureInput from '@/Components/Pure/PureInput.vue'
 
 const props = defineProps<{
     modelValue: AddressValue
     options: AddressOptions
+    fieldLabel?: boolean
 }>()
 
 const countries = {}
@@ -35,7 +37,15 @@ const addressFields = (countryID: number) => {
 
 <template>
     <div class="grid grid-cols-2 gap-3">
-
+        
+        <!-- Country Options -->
+        <div v-if="fieldLabel" class="col-span-2">
+            <label for="selectCountry" class="mb-1 capitalize block text-xs font-medium">
+                {{ trans('Label') }}
+            </label>
+            <PureInput v-model="modelValue.label" placeholder="Enter address name" />
+        </div>
+        
         <!-- Country Options -->
         <div class="col-span-2">
             <label for="selectCountry" class="mb-1 capitalize block text-xs font-medium">
