@@ -272,8 +272,8 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
-        $defaultAddress   = AddressResource::make($palletReturn->fulfilmentCustomer->customer->address);
-        $addressHistories = AddressResource::collection($palletReturn->fulfilmentCustomer->customer->addresses);
+        $defaultAddress   = AddressResource::make($palletReturn->fulfilmentCustomer->customer->deliveryAddress);
+        $allAddresses = AddressResource::collection($palletReturn->fulfilmentCustomer->customer->addresses);
         // dd($addressHistories);
         // dd($palletReturn->fulfilmentCustomer->customer->addresses[0]->pivot->scope);
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
@@ -432,8 +432,9 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ],
                             'addresses_list'   => [
-                                'default' => $defaultAddress,
-                                'other'   => $addressHistories
+                                'all_addresses'   => $allAddresses,
+                                'pinned_address_id' => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
+                                'current_selected_address_id' => $palletReturn->delivery_address_id
                             ],
                         ]
                     ),

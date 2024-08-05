@@ -327,7 +327,7 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function deliveryAddress(): BelongsTo
     {
-        return $this->belongsTo(Address::class);
+        return $this->belongsTo(Address::class, 'delivery_address_id');
     }
 
     public function portfolios(): HasMany
