@@ -54,7 +54,7 @@ class EditOutbox extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $outbox),
                 'pageHead'    => [
                     'title'    => $outbox->name,
-                    'actions' => [
+                    'actions'  => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',

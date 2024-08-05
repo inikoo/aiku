@@ -56,7 +56,7 @@ class EditFulfilmentCustomer extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'    => $fulfilmentCustomer->customer->name,
-                    'actions' => [
+                    'actions'  => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',

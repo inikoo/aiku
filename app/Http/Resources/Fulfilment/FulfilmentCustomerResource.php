@@ -20,7 +20,7 @@ class FulfilmentCustomerResource extends JsonResource
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $this;
-        
+
         return [
             'radioTabs' => [
                 'pallets_storage' => $fulfilmentCustomer->pallets_storage,
