@@ -9,6 +9,7 @@ namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\CRM\Customer;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Inventory\Warehouse;
@@ -183,5 +184,10 @@ class PalletDelivery extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'delivery_address_id');
     }
 }
