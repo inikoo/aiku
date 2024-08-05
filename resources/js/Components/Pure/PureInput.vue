@@ -37,9 +37,10 @@ const props = withDefaults(defineProps<{
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
-    (e: 'blur', value: string): void
     (e: 'onEnter', value: string): void
     (e: 'input', value: string): void
+    (e: 'focus', value: Event): void
+    (e: 'blur', value: string): void
 }>()
 
 const showPassword = ref(props.type)  // default is type = "text"
@@ -99,10 +100,11 @@ const checkNumber = (event: KeyboardEvent) => {
             <input
                 ref="_inputRef"
                 :value="modelValue"
-                @blur ="(event: any) => emits('blur', event.target.value)"
                 @input="onChange"
                 @keydown="type === 'number' ? checkNumber : false"
                 @keyup.enter="(event: any) => emits('onEnter', event.target.value)"
+                @focus="(event: any) => emits('focus', event)"
+                @blur ="(event: Event) => emits('blur', event.target?.value)"
                 :id="inputName"
                 :name="inputName"
                 :readonly="isLoading || readonly"

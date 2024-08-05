@@ -106,8 +106,9 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <template #cell(quantity)="{ item }">
             <PureInput
                 v-if="state === 'in-process'"
-                v-model="item.quantity"
-                @blur="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
+                :modelValue="item.quantity"
+                @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
+                @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
                 :isLoading="isLoading === 'quantity' + item.id"
                 type="number"
                 :readonly="item.is_auto_assign"
