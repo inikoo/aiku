@@ -54,7 +54,7 @@ class UpdatePalletReturn extends OrgAction
                 UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
             } else {
                 $this->addAddressToModel(
-                    $palletReturn,
+                    $palletReturn->fulfilmentCustomer->customer,
                     $addressData,
                     'delivery',
                     false,

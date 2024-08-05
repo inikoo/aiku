@@ -199,7 +199,7 @@ const showAll = () => {
                                 <div v-else-if="column.type == 'name'">
                                     <div>
                                         <div>{{ itemData["code"] }}</div>
-                                        <div class="text-[10px]">{{ itemData["name"] }}</div>
+                                        <div class="text-xxs text-gray-400">{{ itemData["name"] }}</div>
                                     </div>
                                 </div>
 
