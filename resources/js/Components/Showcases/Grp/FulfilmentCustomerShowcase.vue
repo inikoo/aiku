@@ -29,7 +29,7 @@ library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, 
 
 const props = defineProps<{
     data: {
-        customer: PalletCustomer
+        // customer: PalletCustomer
         fulfilment_customer: {
             radioTabs: {
                 [key: string]: boolean
@@ -39,6 +39,7 @@ const props = defineProps<{
             number_stored_items?: number
             number_pallets_deliveries?: number
             number_pallets_returns?: number
+            customer: {}
         }
         updateRoute: routeType
         stats: {
@@ -137,49 +138,49 @@ const isLoading = ref<string | boolean>(false)
                                     <div class="flex flex-col gap-y-2 w-full py-6">
 
                                         <!-- Field: Contact name -->
-                                        <div v-if="data.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <div v-if="data.fulfilment_customer.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Contact name'" class="flex-none">
                                                 <span class="sr-only">Contact name</span>
                                                 <FontAwesomeIcon icon='fal fa-address-card' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="text-gray-500">{{ data.customer.contact_name }}</dd>
+                                            <dd class="text-gray-500">{{ data.fulfilment_customer.customer.contact_name }}</dd>
                                         </div>
 
                                         <!-- Field: Company name -->
-                                        <div v-if="data.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <div v-if="data.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Company name'" class="flex-none">
                                                 <span class="sr-only">Company name</span>
                                                 <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="text-gray-500">{{ data.customer.company_name }}</dd>
+                                            <dd class="text-gray-500">{{ data.fulfilment_customer.customer.company_name }}</dd>
                                         </div>
 
                                         <!-- Field: Email -->
-                                        <div v-if="data.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <div v-if="data.fulfilment_customer.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Email'" class="flex-none">
                                                 <span class="sr-only">Email</span>
                                                 <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <a :href="`mailto:${data.customer?.email}`" v-tooltip="'Click to send email'" class="text-gray-500 hover:text-gray-700">{{ data.customer?.email }}</a>
+                                            <a :href="`mailto:${data.fulfilment_customer.customer?.email}`" v-tooltip="'Click to send email'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.email }}</a>
                                         </div>
                                         
                                         <!-- Field: Phone -->
-                                        <div v-if="data.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <div v-if="data.fulfilment_customer.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Phone'" class="flex-none">
                                                 <span class="sr-only">Phone</span>
                                                 <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <a :href="`tel:${data.customer?.phone}`" v-tooltip="'Click to make a phone call'" class="text-gray-500 hover:text-gray-700">{{ data.customer?.phone }}</a>
+                                            <a :href="`tel:${data.fulfilment_customer.customer?.phone}`" v-tooltip="'Click to make a phone call'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.phone }}</a>
                                         </div>
 
                                         <!-- Field: Location -->
-                                        <div v-if="data.customer?.location" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <div v-if="data.fulfilment_customer.customer?.location" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Phone'" class="flex-none">
                                                 <span class="sr-only">Location</span>
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">
-                                                <AddressLocation :data="data.customer?.location" />
+                                                <AddressLocation :data="data.fulfilment_customer.customer?.location" />
                                             </dd>
                                         </div>
                                     </div>
