@@ -23,7 +23,8 @@ class ShowUniversalScan extends OrgAction
 
         return match ($prefix) {
             'pal'    => $warehouse->pallets()->where('slug', $value)->first(),
-            'item'   => StoredItem::where('slug', $value)->first(),
+            'item'   => StoredItem::where('reference', $value)->first(),
+            'loc'    => $warehouse->locations()->where('slug', $value)->first(),
             default  => throw ValidationException::withMessages(['status' => 'No prefix founded.'])
         };
     }
