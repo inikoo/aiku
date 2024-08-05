@@ -109,7 +109,7 @@ const showAll = () => {
                     class="text-base leading-none font-medium cursor-pointer select-none"
                     :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-gray-400' : 'text-indigo-500'"
                 >
-                    Show Edited
+                    Modified
                 </div>
                 <Switch
                     @click="() => props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? showEdited() : showAll()"

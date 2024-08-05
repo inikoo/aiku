@@ -56,10 +56,14 @@ class EditFulfilmentCustomer extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'    => $fulfilmentCustomer->customer->name,
-                    'exitEdit' => [
-                        'route' => [
-                            'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                            'parameters' => array_values($request->route()->originalParameters()),
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show',
+                                'parameters' => array_values($request->route()->originalParameters()),
+                            ]
                         ]
                     ],
                 ],
