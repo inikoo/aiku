@@ -35,7 +35,7 @@ const locale = inject('locale', {})
                     </dt>
                     <dd class="justify-self-end text-sm">{{ typeof fieldSummary.quantity === 'number' ? locale.number(fieldSummary.quantity) : null}}</dd>
                     <!-- <dd class="col-span-2 place-self-end text-sm">{{ fieldSummary.price_base }}</dd> -->
-                    <dd class="col-span-4 place-self-end text-sm font-medium" :class="fieldSummary.price_total === 'free' ? 'text-green-600 animate-pulse' : ''">{{ locale.currencyFormat(order_summary.currency.data.code || 'usd', fieldSummary.price_total || 0) }}</dd>
+                    <dd class="col-span-4 place-self-end text-sm font-medium" :class="fieldSummary.price_total === 'free' ? 'text-green-600 animate-pulse' : ''">{{ locale.currencyFormat(order_summary?.currency?.data?.code || 'usd', fieldSummary.price_total || 0) }}</dd>
                 </div>
             </div>
         </template>
