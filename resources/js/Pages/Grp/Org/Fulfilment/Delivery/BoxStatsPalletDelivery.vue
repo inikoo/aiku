@@ -79,7 +79,7 @@ onMounted(() => {
                 <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                     aria-hidden='true' />
             </dt>
-            <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer.customer.reference }}</dd>
+            <dd class=" text-gray-500">{{ boxStats.fulfilment_customer.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -90,7 +90,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer.customer.contact_name }}</dd>
+                <dd class=" text-gray-500">{{ boxStats.fulfilment_customer.customer.contact_name }}</dd>
             </div>
 
 
@@ -102,7 +102,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer.customer.company_name }}</dd>
+                <dd class=" text-gray-500">{{ boxStats.fulfilment_customer.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -112,7 +112,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500 white w-full truncate">{{ boxStats.fulfilment_customer?.customer.email }}</dd>
+                <dd class=" text-gray-500 white w-full truncate">{{ boxStats.fulfilment_customer?.customer.email }}</dd>
             </div>
 
             <!-- Field: Phone -->
@@ -122,7 +122,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</dd>
+                <dd class=" text-gray-500">{{ boxStats.fulfilment_customer?.customer.phone }}</dd>
             </div>
         </BoxStatPallet>
 
@@ -143,7 +143,7 @@ onMounted(() => {
                     <FontAwesomeIcon :icon='boxStats.delivery_status.icon' :class='boxStats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500" :class='boxStats.delivery_status.class'>{{
+                <dd class=" text-gray-500" :class='boxStats.delivery_status.class'>{{
                     boxStats.delivery_status.tooltip }}</dd>
             </div>
 
@@ -156,7 +156,7 @@ onMounted(() => {
                 </dt>
 
                 <div v-if="dataPalletDelivery.state !== 'in-process'">
-                    <dd class="text-xs text-gray-500">
+                    <dd class=" text-gray-500">
                         {{
                             dataPalletDelivery.estimated_delivery_date
                             ? useFormatTime(dataPalletDelivery?.estimated_delivery_date)
@@ -169,7 +169,7 @@ onMounted(() => {
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
-                            class="group text-xs text-gray-500"
+                            class="group  text-gray-500"
                             :class="[dataPalletDelivery.state === 'in-process' ? 'underline' : '']"    
                         >
                             {{ useFormatTime(dataPalletDelivery?.estimated_delivery_date) }}
@@ -177,7 +177,7 @@ onMounted(() => {
                                 class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
                         </div>
 
-                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
+                        <div v-else class=" text-gray-500 hover:text-gray-600 underline">
                             {{ trans('Set estimated date') }}
                         </div>
                     </template>
@@ -198,7 +198,7 @@ onMounted(() => {
             </div>
 
             <!-- Stats: count Pallets, Services, Physical Goods -->
-            <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
+            <div class="hidden border-t border-gray-300 mt-2 pt-2 space-y-0.5">
                 <div v-tooltip="trans('Count of pallets')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
