@@ -102,14 +102,7 @@ class StoreCustomer extends OrgAction
         );
         $customer->refresh();
 
-        if (Arr::get($shop->settings, 'delivery_address_link')) {
-            $customer = $this->addLinkedAddress(
-                model:$customer,
-                scope: 'delivery',
-                updateLocation: false,
-                updateAddressField: 'delivery_address_id'
-            );
-        } elseif($deliveryAddressData) {
+        if($deliveryAddressData) {
             $customer = $this->addAddressToModel(
                 model: $customer,
                 addressData: $deliveryAddressData,
@@ -117,6 +110,9 @@ class StoreCustomer extends OrgAction
                 updateLocation: false,
                 updateAddressField: 'delivery_address_id'
             );
+        } else {
+            $customer->updateQuietly(['delivery_address_id' => $customer->address_id]);
+
         }
 
 
