@@ -32,11 +32,13 @@ class SetClausesInRecurringBillTransaction extends OrgAction
         if (!$found) {
             data_set($modelData, 'rental_agreement_clause_id', null);
         }
+        $gross = $recurringBillTransaction->asset->price;
 
         $net = $recurringBillTransaction->net_amount;
         $net -= $net * $percentageOff;
 
         data_set($modelData, 'net_amount', $net);
+        data_set($modelData, 'gross_amount', $gross);
 
         $recurringBillTransaction->update($modelData);
     }

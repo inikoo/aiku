@@ -19,31 +19,31 @@ class CalculatePalletDeliveryNet extends OrgAction
         $physicalGoodsNet = $physicalGoods->sum('net_amount');
         $services         = $palletDelivery->transactions()->where('type', FulfilmentTransactionTypeEnum::SERVICE)->get();
         $servicesNet      = $services->sum('net_amount');
-        $palletPriceTotal = 0;
-        foreach ($palletDelivery->pallets as $pallet) {
-            $discount         = $pallet->rentalAgreementClause ? $pallet->rentalAgreementClause->percentage_off / 100 : null;
-            $rentalPrice      = $pallet->rental->price ?? 0;
-            $palletPriceTotal += $rentalPrice - $rentalPrice * $discount;
-        }
+        // $palletPriceTotal = 0;
+        // foreach ($palletDelivery->pallets as $pallet) {
+        //     $discount         = $pallet->rentalAgreementClause ? $pallet->rentalAgreementClause->percentage_off / 100 : null;
+        //     $rentalPrice      = $pallet->rental->price ?? 0;
+        //     $palletPriceTotal += $rentalPrice - $rentalPrice * $discount;
+        // }
         $tax = $palletDelivery->taxCategory->rate;
 
         // Gross
 
-        $palletPriceGross = 0;
-        foreach ($palletDelivery->pallets as $pallet) {
-            $rentalPrice      = $pallet->rental->price ?? 0;
-            $palletPriceGross += $rentalPrice;
-        }
+        // $palletPriceGross = 0;
+        // foreach ($palletDelivery->pallets as $pallet) {
+        //     $rentalPrice      = $pallet->rental->price ?? 0;
+        //     $palletPriceGross += $rentalPrice;
+        // }
         $physicalGoodsGrossAmount = $physicalGoods->sum('gross_amount');
         $servicesGrossAmount      = $services->sum('gross_amount');
 
 
-        $net         = $physicalGoodsNet + $servicesNet + $palletPriceTotal;
+        $net         = $physicalGoodsNet + $servicesNet;
         $taxAmount   = $net * $tax;
         $totalAmount = $net + $taxAmount;
         $grpNet      = $net * $palletDelivery->grp_exchange;
         $orgNet      = $net * $palletDelivery->org_exchange;
-        $grossAmount = $palletPriceGross + $physicalGoodsGrossAmount + $servicesGrossAmount;
+        $grossAmount = $physicalGoodsGrossAmount + $servicesGrossAmount;
 
         data_set($modelData, 'net_amount', $net);
         data_set($modelData, 'total_amount', $totalAmount);

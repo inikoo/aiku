@@ -27,17 +27,17 @@ const locale = inject('locale', {})
     <div class="xl:whitespace-nowrap">
         <span class="leading-none">{{ item.label }}</span>
 
-        <span v-if="item.number">
+        <span>
             <template v-if="typeof item.number == 'number'">
                 <template v-if="item.number > 0">
                     ({{ locale.number(item.number) }})
                 </template>
-                <template v-else>
-                    <FontAwesomeIcon icon='fal fa-empty-set' class='' fixed-width aria-hidden='true' />
+                <template v-else>a
+                    (<FontAwesomeIcon icon='fal fa-empty-set' class='' fixed-width aria-hidden='true' />)
                 </template>
             </template>
             <template v-else>
-                ({{ item.number }})
+                ({{ item.number }})d
             </template>
         </span>
     </div>

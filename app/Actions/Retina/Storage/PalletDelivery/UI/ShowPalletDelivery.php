@@ -23,6 +23,7 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -87,6 +88,8 @@ class ShowPalletDelivery extends RetinaAction
             $rentalPrice = $pallet->rental->price ?? 0;
             $palletPriceTotal += $rentalPrice;
         }
+
+        $showGrossAndDiscount = $palletDelivery->gross_amount !== $palletDelivery->net_amount;
 
         return Inertia::render(
             'Storage/RetinaPalletDelivery',
@@ -301,12 +304,12 @@ class ShowPalletDelivery extends RetinaAction
                     'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'order_summary'                => [
                         [
-                            [
-                                'label'         => __('Pallets'),
-                                'quantity'      => $palletDelivery->stats->number_pallets ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => ceil($palletPriceTotal) ?? 0
-                            ],
+                            // [
+                            //     'label'         => __('Pallets'),
+                            //     'quantity'      => $palletDelivery->stats->number_pallets ?? 0,
+                            //     'price_base'    => __('Multiple'),
+                            //     'price_total'   => ceil($palletPriceTotal) ?? 0
+                            // ],
                             [
                                 'label'         => __('Services'),
                                 'quantity'      => $palletDelivery->stats->number_services ?? 0,
@@ -320,25 +323,49 @@ class ShowPalletDelivery extends RetinaAction
                                 'price_total'   => $physicalGoodsNet
                             ],
                         ],
-                        [
+                         $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Shipping'),
-                                'information'   => __('Shipping fee to your address using DHL service.'),
-                                'price_total'   => 1111
+                                'label'         => __('Gross'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->gross_amount
                             ],
                             [
-                                'label'         => __('Tax'),
-                                'information'   => __('Tax is based on 10% of total order.'),
-                                'price_total'   => $palletDelivery->taxCategory->rate
+                                'label'         => __('Discounts'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->discount_amount
+                            ],
+                        ] : [],
+                        $showGrossAndDiscount ? [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->tax_amount
+                            ],
+                        ] : [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->tax_amount
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
+                                'price_total'   => $palletDelivery->total_amount
                             ],
                         ],
-                        // 'currency_code'                => 'usd',  // TODO
+
+                        'currency'                => CurrencyResource::make($palletDelivery->currency),
                         // // 'number_pallets'               => $palletDelivery->stats->number_pallets,
                         // // 'number_services'              => $palletDelivery->stats->number_services,
                         // // 'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,
