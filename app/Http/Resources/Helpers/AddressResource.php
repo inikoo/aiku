@@ -23,10 +23,13 @@ class AddressResource extends JsonResource
 
     public function toArray($request): array
     {
-
+        
         /** @var Address $address */
         $address = $this;
 
+        // dd($address->whenPivotLoadedAs('pivot', 'model_has_addresses', function () {
+        //     return $this->pivot->scope;
+        // }));
         $addressFormatRepository = new AddressFormatRepository();
         $countryRepository       = new CountryRepository();
         $subdivisionRepository   = new SubdivisionRepository();
@@ -63,7 +66,9 @@ class AddressResource extends JsonResource
                 CountryResource::make($address->country)
             ),
             'formatted_address'   => $adr->getCountryCode() ? $formatter->format($adr) : null,
-
+            'label'               =>$address->whenPivotLoadedAs('pivot', 'model_has_addresses', function () {
+                return $this->pivot->label;
+            })
 
         ];
     }

@@ -273,8 +273,9 @@ class ShowPalletReturn extends OrgAction
         }
 
         $defaultAddress   = AddressResource::make($palletReturn->fulfilmentCustomer->customer->address);
-        $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
-
+        $addressHistories = AddressResource::collection($palletReturn->fulfilmentCustomer->customer->addresses);
+        // dd($addressHistories);
+        // dd($palletReturn->fulfilmentCustomer->customer->addresses[0]->pivot->scope);
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'

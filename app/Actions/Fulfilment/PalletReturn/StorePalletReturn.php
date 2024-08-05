@@ -57,7 +57,7 @@ class StorePalletReturn extends OrgAction
         }
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
-        data_set($modelData, 'delivery_address_id', $fulfilmentCustomer->customer->address_id);
+        data_set($modelData, 'delivery_address_id', $fulfilmentCustomer->customer->delivery_address_id);
 
         $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_RETURN);
 

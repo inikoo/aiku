@@ -272,7 +272,7 @@ const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) =>
         }
     }).filter(item => item !== null); // Filter out any null values if aaa contains ids not present in bbb
 }
-
+console.log(props.box_stats.fulfilment_customer.addresses_list.other)
 
 
 // Method: open modal Upload
