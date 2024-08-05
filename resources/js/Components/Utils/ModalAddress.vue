@@ -10,6 +10,7 @@ import { trans } from 'laravel-vue-i18n'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faThumbtack, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 library.add(faThumbtack, faPencil)
 
 interface Address {
@@ -54,10 +55,12 @@ const props = defineProps<{
         }
     }
     addressList: {
-        default: {}
-        other: {
+        current_selected_address_id: number
+        pinned_address_id: number
+        all_addresses: {
             data: Address[]
         }
+        pinned_route: routeType
     }
 }>()
 
@@ -154,12 +157,34 @@ const onSelectAddress = (selectedAddress: Address) => {
     // props.address.value = selectedAddress
 }
 
+const isLoading = ref<string | boolean>(false)
+const onPinnedAddress = (addressID: number) => {
+    router[props.addressList.pinned_route.method](
+        route(props.addressList.pinned_route.name, props.addressList.pinned_route.parameters),
+        {
+            delivery_address_id: addressID
+        },
+        {
+            preserveScroll: true,
+            onStart: () => isLoading.value = 'onPinned' + addressID,
+            onFinish: () => {
+                isLoading.value = false
+            },
+            onError: () => notify({
+                title: "Failed",
+                text: "Failed to pinned the address, try again.",
+                type: "error",
+            })
+        }
+    )
+}
+
 
 </script>
 
 <template>
     <div class="h-[600px] px-2 py-1 overflow-auto">
-    <!-- <pre>{{ isCreateNewAddress }}</pre> -->
+    <!-- <pre>{{ addressList.current_selected_address_id }}</pre> -->
         <div class="flex justify-between border-b border-gray-300">
             <div class="text-2xl font-bold text-center mb-2">
                 {{ trans('Address management') }}
@@ -209,13 +234,18 @@ const onSelectAddress = (selectedAddress: Address) => {
                             selectedAddress?.id == selectedAddress?.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
                         ]">
                         <div class="flex justify-between border-b border-gray-300 px-3 py-2"
-                            :class="addressCustomer.value?.id == selectedAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
+                            :class="addressList.current_selected_address_id == selectedAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
                         >
                             <div class="flex gap-x-1 items-center relative">
-                                <div class="font-semibold text-sm whitespace-nowrap">-</div>
+                                <div v-if="selectedAddress?.label" class="font-semibold text-sm whitespace-nowrap">
+                                    {{ selectedAddress?.label }}
+                                </div>
+                                <div v-else class="text-xs italic whitespace-nowrap text-gray-400">
+                                    (No name)
+                                </div>
                                 <div class="relative">
                                     <Transition name="slide-to-left">
-                                        <FontAwesomeIcon v-if="addressCustomer.value?.id == selectedAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-if="addressList.current_selected_address_id == selectedAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                         <Button v-else @click="() => onSelectAddress(selectedAddress)"
                                             :label="isSelectAddressLoading == selectedAddress?.id ? '' : 'Select'" size="xxs"
                                             type="tertiary" :loading="isSelectAddressLoading == selectedAddress?.id" />
@@ -247,11 +277,11 @@ const onSelectAddress = (selectedAddress: Address) => {
                 
                 <!-- Section: Address list -->
                 <div v-else class="col-span-2 relative py-4 h-fit">
-                    <template v-if="addressList.other.data?.length">
+                    <template v-if="addressList.all_addresses.data?.length">
                         <!-- Section: Address list -->
                         <div class="grid gap-x-3 gap-y-4 h-fit transition-all"
                             :class="[isEditAddress ? '' : 'col-span-2 grid-cols-4']">
-                            <div v-for="(address, idxAddress) in addressList.other.data"
+                            <div v-for="(address, idxAddress) in addressList.all_addresses.data"
                                 :key="idxAddress + address.id"
                                 class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-full transition-all"
                                 :class="[
@@ -259,7 +289,7 @@ const onSelectAddress = (selectedAddress: Address) => {
                                 ]"
                             >
                                 <div class="flex justify-between border-b border-gray-300 px-3 py-2"
-                                    :class="addressCustomer.value?.id == address.id ? 'bg-green-50' : 'bg-gray-100'"
+                                    :class="addressList.current_selected_address_id == address.id ? 'bg-green-50' : 'bg-gray-100'"
                                 >
                                     <div class="flex gap-x-1 items-center relative">
                                         <div v-if="address.label" class="font-semibold text-sm whitespace-nowrap">
@@ -271,11 +301,11 @@ const onSelectAddress = (selectedAddress: Address) => {
 
                                         <div class="relative">
                                             <Transition name="slide-to-left">
-                                                <FontAwesomeIcon v-if="addressCustomer.value?.id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-if="addressList.current_selected_address_id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                 <Button
                                                     v-else
                                                     @click="() => onSelectAddress(address)"
-                                                    :label="isSelectAddressLoading == address.id ? '' : 'Apply'"
+                                                    :label="isSelectAddressLoading == address.id ? '' : 'Use this'"
                                                     size="xxs"
                                                     type="tertiary"
                                                     :loading="isSelectAddressLoading == address.id"
@@ -286,9 +316,12 @@ const onSelectAddress = (selectedAddress: Address) => {
                                     </div>
 
                                     <div class="flex items-center">
-                                        <FontAwesomeIcon @click="() => onEditAddress(address)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon icon='fal fa-thumbtack' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon icon='fal fa-trash-alt' class='px-0.5 py-1 text-gray-400 hover:text-red-500 cursor-pointer' fixed-width aria-hidden='true' />
+                                        <LoadingIcon v-if="isLoading == 'onPinned' + address.id"/>
+                                        <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(address.id)" icon='fal fa-thumbtack' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Pin this addres for all scope')" />
+                                        <FontAwesomeIcon @click="() => onEditAddress(address)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
+                                        <!-- <template>
+                                        </template> -->
+                                        <FontAwesomeIcon icon='fal fa-trash-alt' class='px-0.5 py-1 text-gray-400 hover:text-red-500 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Delete this address')" />
                                     </div>
                                 </div>
 
@@ -298,7 +331,7 @@ const onSelectAddress = (selectedAddress: Address) => {
                     </template>
 
                     <div v-else class="text-sm flex items-center justify-center h-3/4 font-medium text-center text-gray-400">
-                        No address history found
+                        {{ trans('No address history found') }}
                     </div>
                 </div>
             </Transition>
