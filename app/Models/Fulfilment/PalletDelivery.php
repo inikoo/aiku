@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * App\Models\Fulfilment\PalletDelivery
@@ -132,6 +133,12 @@ class PalletDelivery extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
+    public function discountAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->gross_amount - $this->net_amount
+        );
+    }
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

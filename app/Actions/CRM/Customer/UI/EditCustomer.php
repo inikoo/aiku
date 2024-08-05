@@ -56,7 +56,7 @@ class EditCustomer extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'    => $customer->name,
-                    'actions' => [
+                    'actions'  => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',

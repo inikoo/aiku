@@ -92,17 +92,17 @@ class EditOrganisationSettings extends OrgAction
 
                             "fields" => [
                                 "google_client_id" => [
-                                    "type"  => "input",
+                                    "type"  => "password",
                                     "label" => __("client ID"),
                                     "value" => Arr::get($organisation->settings, 'google.id')
                                 ],
                                 "google_client_secret" => [
-                                    "type"  => "input",
+                                    "type"  => "password",
                                     "label" => __("client secret"),
                                     "value" => Arr::get($organisation->settings, 'google.secret')
                                 ],
                                 "google_drive_folder_key" => [
-                                    "type"  => "input",
+                                    "type"  => "password",
                                     "label" => __("google drive folder key"),
                                     "value" => Arr::get($organisation->settings, 'google.drive.folder')
                                 ],

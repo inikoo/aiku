@@ -60,7 +60,7 @@ class EditPaymentAccount extends OrgAction
                 ),
                 'pageHead'    => [
                     'title'     => $paymentAccount->code,
-                    'actions'  => [
+                    'actions'   => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',

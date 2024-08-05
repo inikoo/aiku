@@ -321,6 +321,8 @@ class ShowPalletDelivery extends OrgAction
             $palletPriceTotal += $rentalPrice - $rentalPrice * $discount;
         }
 
+        $showGrossAndDiscount = $palletDelivery->gross_amount !== $palletDelivery->net_amount;
+
 
 
         return Inertia::render(
@@ -528,14 +530,35 @@ class ShowPalletDelivery extends OrgAction
                             ],
                         ],
 
-                        [
-
+                        $showGrossAndDiscount ? [
+                            [
+                                'label'         => __('Gross'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->gross_amount
+                            ],
+                            [
+                                'label'         => __('Discounts'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->discount_amount
+                            ],
+                        ] : [],
+                        $showGrossAndDiscount ? [
                             [
                                 'label'         => __('Net'),
                                 'information'   => '',
                                 'price_total'   => $palletDelivery->net_amount
                             ],
-
+                            [
+                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->tax_amount
+                            ],
+                        ] : [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->net_amount
+                            ],
                             [
                                 'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
                                 'information'   => '',

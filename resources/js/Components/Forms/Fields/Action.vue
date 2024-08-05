@@ -60,7 +60,9 @@ const handleClick = (action: Action) => {
                     :style="button.style"
                     :label="button.label"
                     :size="button.size"
-                    :icon="button.icon" :iconRight="button.iconRight"
+                    :icon="button.icon"
+                    :disabled="button.disabled"
+                    :iconRight="button.iconRight"
                     :key="`ActionButton${button.label}${button.style}`"
                     :tooltip="button.tooltip"
                     class="rounded-none text-sm border-none focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
@@ -84,6 +86,7 @@ const handleClick = (action: Action) => {
             :label="action.label"
             :icon="action.icon"
             :size="action.size"
+            :disabled="action.disabled"
             :iconRight="action.iconRight"
             :key="`ActionButton${action.label}${action.style}`"
             :tooltip="action.tooltip"
@@ -96,5 +99,6 @@ const handleClick = (action: Action) => {
         :key="`ActionButton${action.label}${action.style}`"
         :loading="isLoading"
     />
+
 
 </template>

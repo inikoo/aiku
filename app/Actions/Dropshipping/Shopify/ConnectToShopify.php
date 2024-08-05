@@ -39,7 +39,7 @@ class ConnectToShopify
             apiKey: Arr::get($shopify, 'api_key'),
             apiSecretKey: Arr::get($shopify, 'api_secret'),
             scopes: ['read_products', 'write_products'],
-            hostName: $shop->website->domain,
+            hostName: 'app.aiku.test',
             sessionStorage: new FileSessionStorage()
         );
     }

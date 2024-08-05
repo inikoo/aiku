@@ -30,6 +30,7 @@ const props = withDefaults(defineProps<{
     suffix?: boolean
     step?: number
     isLoading?: boolean
+    align?: string  // 'right' 
 }>(), {
     caret: true,
     type: 'text'
@@ -127,11 +128,14 @@ const checkNumber = (event: KeyboardEvent) => {
                 "
                 :class="[
                     caret ? '' : '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-                    clear && modelValue.length ? 'pl-3 pr-7' : 'px-3'
+                    clear && modelValue.length ? 'pl-3 pr-7' : 'px-3',
+                    align == 'right' ? 'text-right' : ''
                 ]"
             />
             <slot v-if="copyButton" name="copyButton">
-                <div class="group flex justify-center items-center absolute inset-y-0 right-0 gap-x-1">
+                <div class="group flex justify-center items-center absolute inset-y-0 gap-x-1"
+                    :class="align === 'right' ? 'left-0' : 'right-0'"
+                >
                     <Transition name="spin-to-down">
                         <FontAwesomeIcon v-if="isRecentlyCopied" icon='fal fa-check' class='text-green-500 px-3 h-full text-xxs leading-none ' fixed-width aria-hidden='true' />
                         <FontAwesomeIcon v-else @click="() => onClickCopyButton(modelValue)" icon="fal fa-copy" class="px-3 h-full text-xxs leading-none opacity-20 group-hover:opacity-75 group-active:opacity-100 cursor-pointer" fixed-width aria-hidden="true" />
@@ -160,7 +164,9 @@ const checkNumber = (event: KeyboardEvent) => {
         </div>
 
         <!-- Slot: for icon error/success/loading in field edit -->
-        <div class="absolute right-0 inset-y-0 align-middle flex items-center">
+        <div class="absolute inset-y-0 align-middle flex items-center"
+            :class="align === 'right' ? 'left-0' : 'right-0'"
+        >
             <Transition name="spin-to-down">
                 <div v-if="isLoading" class="px-1">
                     <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-xl' fixed-width aria-hidden='true' />
@@ -191,5 +197,6 @@ input::-webkit-inner-spin-button {
 
 input[type=number] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 </style>

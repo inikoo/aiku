@@ -28,6 +28,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -175,7 +176,8 @@ class ShowPalletReturn extends OrgAction
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                             'palletReturn'       => $palletReturn->id
                         ]
-                    ]
+                        ],
+                    'disabled' => $palletReturn->delivery_address_id === null && $palletReturn->collection_address_id === null
                 ] : [],
             ] : [
                 $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
@@ -270,6 +272,7 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
+        $defaultAddress   = AddressResource::make($palletReturn->fulfilmentCustomer->customer->address);
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
 
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
@@ -426,7 +429,10 @@ class ShowPalletReturn extends OrgAction
                                     'countriesAddressData' => GetAddressData::run()
                                 ]
                             ],
-                            'addresses_list'   => $addressHistories,
+                            'addresses_list'   => [
+                                'default' => $defaultAddress,
+                                'other'   => $addressHistories
+                            ],
                         ]
                     ),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
@@ -477,7 +483,7 @@ class ShowPalletReturn extends OrgAction
                             ],
                             */
                         ],
-
+                        'currency'                => CurrencyResource::make($palletReturn->currency),
                         // 'currency_code'                => 'usd',  // TODO
                         // 'number_pallets'               => $palletReturn->stats->number_pallets,
                         // 'number_services'              => $palletReturn->stats->number_services,

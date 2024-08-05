@@ -25,7 +25,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStockFamilies extends GrpAction
 {
-
     use HasGoodsAuthorisation;
 
     public function asController(ActionRequest $request): LengthAwarePaginator
