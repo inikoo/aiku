@@ -27,11 +27,23 @@ class CalculatePalletDeliveryNet extends OrgAction
         }
         $tax = $palletDelivery->taxCategory->rate;
 
+// Gross
+
+        $palletPriceGross = 0;
+        foreach ($palletDelivery->pallets as $pallet) {
+            $rentalPrice      = $pallet->rental->price ?? 0;
+            $palletPriceGross += $rentalPrice;
+        }
+        $physicalGoodsGrossAmount = $physicalGoods->sum('gross_amount');
+        $servicesGrossAmount      = $services->sum('gross_amount');
+
+
         $net         = $physicalGoodsNet + $servicesNet + $palletPriceTotal;
         $taxAmount   = $net * $tax;
         $totalAmount = $net + $taxAmount;
         $grpNet      = $net * $palletDelivery->grp_exchange;
         $orgNet      = $net * $palletDelivery->org_exchange;
+        $grossAmount = $palletPriceGross + $physicalGoodsGrossAmount + $servicesGrossAmount;
 
         data_set($modelData, 'net_amount', $net);
         data_set($modelData, 'total_amount', $totalAmount);
@@ -40,6 +52,7 @@ class CalculatePalletDeliveryNet extends OrgAction
         data_set($modelData, 'goods_amount', $physicalGoodsNet);
         data_set($modelData, 'grp_net_amount', $grpNet);
         data_set($modelData, 'org_net_amount', $orgNet);
+        data_set($modelData, 'gross_amount', $grossAmount);
 
         $palletDelivery->update($modelData);
     }
