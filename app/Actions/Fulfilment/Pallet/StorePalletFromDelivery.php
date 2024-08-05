@@ -67,7 +67,7 @@ class StorePalletFromDelivery extends OrgAction
         }
 
         AutoAssignServicesToPalletDelivery::run($palletDelivery, $pallet);
-        PalletDeliveryHydratePallets::dispatch($palletDelivery);
+        PalletDeliveryHydratePallets::run($palletDelivery);
 
         return $pallet;
     }

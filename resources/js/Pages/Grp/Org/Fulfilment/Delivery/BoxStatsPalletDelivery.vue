@@ -15,11 +15,11 @@ import { routeType } from '@/types/route'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faQuestionCircle } from '@fal'
+import { faQuestionCircle, faExpandArrows } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
-library.add(faQuestionCircle)
+library.add(faQuestionCircle, faExpandArrows)
 
 const locale = inject('locale', {})
 const props = defineProps<{
@@ -198,24 +198,24 @@ onMounted(() => {
             </div>
 
             <!-- Stats: count Pallets, Services, Physical Goods -->
-            <div class="hidden border-t border-gray-300 mt-2 pt-2 space-y-0.5">
+            <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
                 <div v-tooltip="trans('Count of pallets')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>
                     <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_pallets }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_pallets > 1 ? trans('Pallets') : trans('Pallet') }}</span></dd>
                 </div>
-                <div v-tooltip="trans('Count of services')" class="w-fit flex items-center gap-x-3">
+                <div  v-if="dataPalletDelivery.number_boxes != 0" v-tooltip="trans('Count of boxes')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
-                        <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon icon='fal fa-box' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>
-                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_services }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_pallets > 1 ? trans('Services') : trans('Service') }}</span></dd>
+                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_boxes }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_boxes > 1 ? trans('Boxes') : trans('Box') }}</span></dd>
                 </div>
-                <div v-tooltip="trans('Count of physical goods')" class="w-fit flex items-center gap-x-3">
+                <div  v-if="dataPalletDelivery.number_oversizes != 0" v-tooltip="trans('Count of oversizes')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
-                        <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon icon='fal fa-expand-arrows' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>
-                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_physical_goods }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_pallets > 1 ? trans('Physical goods') : trans('Physical good') }}</span></dd>
+                    <dd class="text-gray-500 text-base font-medium tabular-nums">{{ dataPalletDelivery.number_oversizes }} <span class="text-gray-400 font-normal">{{ dataPalletDelivery.number_oversizes > 1 ? trans('Oversizes') : trans('Oversize') }}</span></dd>
                 </div>
             </div>
         </BoxStatPallet>

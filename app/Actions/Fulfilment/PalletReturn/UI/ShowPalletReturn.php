@@ -285,6 +285,7 @@ class ShowPalletReturn extends OrgAction
             ];
         }
 
+        $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -439,12 +440,12 @@ class ShowPalletReturn extends OrgAction
                     'order_summary'                => [
                         [
 
-                            [
-                                'label'         => __('Pallets'),
-                                'quantity'      => $palletReturn->stats->number_pallets ?? 0,
-                                'price_base'    => '',
-                                'price_total'   => ''
-                            ],
+                            // [
+                            //     'label'         => __('Pallets'),
+                            //     'quantity'      => $palletReturn->stats->number_pallets ?? 0,
+                            //     'price_base'    => '',
+                            //     'price_total'   => ''
+                            // ],
                             [
                                 'label'         => __('Services'),
                                 'quantity'      => $palletReturn->stats->number_services ?? 0,
@@ -459,29 +460,46 @@ class ShowPalletReturn extends OrgAction
                             ],
 
                         ],
-                        [
-                            /*
+                        $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Shipping'),
-                                'information'   => __('Shipping fee to your address using DHL service.'),
-                                'price_total'   => 1111
+                                'label'         => __('Gross'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->gross_amount
                             ],
                             [
-                                'label'         => __('Tax'),
-                                'information'   => __('Tax is based on 10% of total order.'),
-                                'price_total'   => 1111
+                                'label'         => __('Discounts'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->discount_amount
                             ],
-                            */
+                        ] : [],
+                        $showGrossAndDiscount ? [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$palletReturn->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletReturn->tax_amount
+                            ],
+                        ] : [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$palletReturn->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletReturn->tax_amount
+                            ],
                         ],
                         [
-                            /*
-
-                             *
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => $palletReturn->stats->total_price
+                                'price_total'   => $palletReturn->total_amount
                             ],
-                            */
                         ],
                         'currency'                => CurrencyResource::make($palletReturn->currency),
                         // 'currency_code'                => 'usd',  // TODO
@@ -566,7 +584,7 @@ class ShowPalletReturn extends OrgAction
                 request: $request,
                 prefix: PalletReturnTabsEnum::PALLETS->value
             )
-        )->table( //todo stored items here
+        )->table(
             IndexStoredItemsInReturn::make()->tableStructure(
                 $palletReturn,
                 request: $request,

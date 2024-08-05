@@ -154,7 +154,6 @@ const disableBeforeToday = (date: Date) => {
         <!-- Box: Order summary -->
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
             <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
-                <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2>
 
                 <OrderSummary :order_summary="box_stats.order_summary" />
 
