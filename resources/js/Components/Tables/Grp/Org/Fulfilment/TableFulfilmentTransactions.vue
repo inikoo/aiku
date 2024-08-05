@@ -112,6 +112,7 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
                     @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
                     :isLoading="isLoading === 'quantity' + item.id"
                     type="number"
+                    align="right"
                     :readonly="item.is_auto_assign"
                     v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
                 />
