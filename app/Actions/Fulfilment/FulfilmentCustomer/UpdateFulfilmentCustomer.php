@@ -92,10 +92,10 @@ class UpdateFulfilmentCustomer extends OrgAction
     public function rules(): array
     {
         return [
-            'contact_name'    => ['sometimes', 'string'],
-            'company_name'    => ['sometimes', 'string'],
-            'email'           => ['sometimes', 'string'],
-            'phone'           => ['sometimes', 'string'],
+            'contact_name'    => ['sometimes', 'nullable','string'],
+            'company_name'    => ['sometimes', 'nullable','string'],
+            'email'           => ['sometimes', 'nullable','string'],
+            'phone'           => ['sometimes', 'nullable','string'],
             'pallets_storage' => ['sometimes', 'boolean'],
             'items_storage'   => ['sometimes', 'boolean'],
             'dropshipping'    => ['sometimes', 'boolean'],
@@ -111,18 +111,18 @@ class UpdateFulfilmentCustomer extends OrgAction
         FulfilmentCustomer $fulfilmentCustomer,
         ActionRequest $request
     ): FulfilmentCustomer {
+
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function action(
-        FulfilmentCustomer $fulfilmentCustomer,
-        array $modelData
-    ): FulfilmentCustomer {
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer {
+
+
+
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
-
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
