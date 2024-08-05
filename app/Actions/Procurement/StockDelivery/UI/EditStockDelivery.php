@@ -45,7 +45,7 @@ class EditStockDelivery extends InertiaAction
                 ],
                 'pageHead'    => [
                     'title'     => $stockDelivery->number,
-                    'actions'  => [
+                    'actions'   => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',

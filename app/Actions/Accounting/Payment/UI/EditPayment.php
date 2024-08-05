@@ -63,7 +63,7 @@ class EditPayment extends InertiaAction
                 'breadcrumbs' => ShowPayment::make()->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'pageHead'    => [
                     'title'     => $payment->reference,
-                    'actions'  => [
+                    'actions'   => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
