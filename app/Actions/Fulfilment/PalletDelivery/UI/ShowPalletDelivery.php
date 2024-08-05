@@ -531,6 +531,12 @@ class ShowPalletDelivery extends OrgAction
                         [
 
                             [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletDelivery->net_amount
+                            ],
+
+                            [
                                 'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
                                 'information'   => '',
                                 'price_total'   => $palletDelivery->tax_amount
