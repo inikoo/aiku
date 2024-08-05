@@ -6,12 +6,14 @@
  */
 
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasOrderFields;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+    use HasOrderFields;
 
     public function up(): void
     {
@@ -34,10 +36,9 @@ return new class () extends Migration {
             $table->unsignedInteger('rental_agreement_clause_id')->nullable()->index();
             $table->foreign('rental_agreement_clause_id')->references('id')->on('rental_agreement_clauses');
             $table->decimal('quantity', 16, 3)->default(0);
-            $table->decimal('gross_amount', 16)->default(0)->comment('Gross amount before discounts');
-            $table->decimal('net_amount', 16)->default(0);
-            $table->decimal('grp_net_amount', 16)->default(0);
-            $table->decimal('org_net_amount', 16)->default(0);
+            $table = $this->orderMoneyFields($table);
+
+
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
