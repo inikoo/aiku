@@ -81,6 +81,7 @@ class ShowPalletDelivery extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
+
         return $this->handle($palletDelivery);
     }
 
@@ -319,6 +320,8 @@ class ShowPalletDelivery extends OrgAction
             $palletPriceTotal += $rentalPrice - $rentalPrice * $discount;
         }
 
+
+
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -523,26 +526,22 @@ class ShowPalletDelivery extends OrgAction
                                 'price_total' => $palletDelivery->goods_amount
                             ],
                         ],
-                        /*
+
                         [
+
                             [
-                                'label'         => __('Shipping'),
-                                'information'   => __('Shipping fee to your address using DHL service.'),
-                                'price_total'   => 1111
-                            ],
-                            [
-                                'label'         => __('Tax'),
-                                'information'   => __('Tax is based on 10% of total order.'),
+                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate,
+                                'information'   => '',
                                 'price_total'   => $palletDelivery->taxCategory->rate
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
+                             //   'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
                             ],
                         ],
-                        */
+
                         // 'currency_code'                => 'usd',  // TODO
                         // // 'number_pallets'               => $palletDelivery->stats->number_pallets,
                         // // 'number_services'              => $palletDelivery->stats->number_services,
