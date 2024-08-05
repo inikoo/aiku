@@ -1,0 +1,198 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 05 Aug 2024 14:56:11 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Inventory\OrgStockFamily\UI;
+
+use App\Actions\Inventory\HasInventoryAuthorisation;
+use App\Actions\Inventory\UI\ShowInventoryDashboard;
+use App\Actions\OrgAction;
+use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
+use App\Http\Resources\Inventory\OrgStockFamiliesResource;
+use App\InertiaTable\InertiaTable;
+use App\Models\Inventory\OrgStockFamily;
+use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
+use Closure;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Inertia\Inertia;
+use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
+use Spatie\QueryBuilder\AllowedFilter;
+
+class IndexOrgStockFamilies extends OrgAction
+{
+    use HasInventoryAuthorisation;
+
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation);
+    }
+
+
+    protected function getElementGroups(Organisation $organisation): array
+    {
+        return
+            [
+                'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        OrgStockFamilyStateEnum::labels(),
+                        OrgStockFamilyStateEnum::count($organisation)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('org_stock_families.state', $elements);
+                    }
+                ]
+            ];
+    }
+
+    public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
+    {
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query->whereStartWith('org_stock_families.code', $value)
+                    ->orWhereAnyWordStartWith('org_stock_families.name', $value);
+            });
+        });
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        $queryBuilder = QueryBuilder::for(OrgStockFamily::class);
+        $queryBuilder->where('org_stock_families.organisation_id', $organisation->id);
+        foreach ($this->getElementGroups($organisation) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+
+
+        return $queryBuilder
+           ->defaultSort('code')
+           ->select([
+               'slug',
+               'code',
+               'org_stock_families.id as id',
+               'name',
+               'number_stocks'
+           ])
+           ->leftJoin('org_stock_family_stats', 'org_stock_family_stats.org_stock_family_id', 'org_stock_families.id')
+           ->allowedSorts(['code', 'name', 'number_org_stocks'])
+           ->allowedFilters([$globalSearch])
+           ->withPaginator($prefix)
+           ->withQueryString();
+    }
+
+    public function tableStructure(Organisation $organisation, $prefix = null): Closure
+    {
+        return function (InertiaTable $table) use ($organisation, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            foreach ($this->getElementGroups($organisation) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
+            $table
+                ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title'       => __('no stock families'),
+                        'description' => $this->canEdit ? __('Get started by creating a new stock family.') : null,
+                        'count'       => $organisation->inventoryStats->number_org_stocks,
+                        'action'      => $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new stock family'),
+                            'label'   => __('stock family'),
+                            'route'   => [
+                                'name'       => 'grp.org.inventory.org-stock-families.create',
+                                'parameters' => [$organisation->slug]
+                            ]
+                        ] : null
+                    ]
+                )
+                ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_org_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
+                ->defaultSort('code');
+        };
+    }
+
+    public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
+    {
+        return OrgStockFamiliesResource::collection($stocks);
+    }
+
+    public function htmlResponse(LengthAwarePaginator $stockFamily, ActionRequest $request): Response
+    {
+        $organisation = $this->organisation;
+
+        return Inertia::render(
+            'Org/Inventory/OrgStockFamilies',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'       => __("SKUs families"),
+                'pageHead'    => [
+                    'title'   => __("SKUs families"),
+                    'icon'    => [
+                        'title' => __("SKUs families"),
+                        'icon'  => 'fal fa-boxes-alt'
+                    ],
+                    'actions' => [
+                        $this->canEdit && $request->route()->getName() == 'grp.goods.stock-families.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new SKU family'),
+                            'label'   => __('SKU family'),
+                            'route'   => [
+                                'name'       => 'grp.org.inventory.stock-families.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                    ]
+                ],
+                'data'        => OrgStockFamiliesResource::collection($stockFamily),
+            ]
+        )->table($this->tableStructure($organisation));
+    }
+
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    {
+        return array_merge(
+            ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => 'grp.org.inventory.org-stock-families.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'label' => __("SKUs families"),
+                        'icon'  => 'fal fa-bars',
+                    ],
+                    'suffix' => $suffix
+
+                ]
+            ]
+        );
+    }
+}

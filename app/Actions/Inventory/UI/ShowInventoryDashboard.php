@@ -7,25 +7,20 @@
 
 namespace App\Actions\Inventory\UI;
 
+use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SysAdmin\Organisation;
+use App\Stubs\Migrations\HasInventoryStats;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowInventoryDashboard extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
-    }
+    use HasInventoryStats;
+    use HasInventoryAuthorisation;
 
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
@@ -34,7 +29,6 @@ class ShowInventoryDashboard extends OrgAction
 
         return $request;
     }
-
 
     public function htmlResponse(ActionRequest $request): Response
     {
