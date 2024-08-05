@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Http\Resources\HasSelfCall;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,7 @@ class FulfilmentCustomerResource extends JsonResource
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $this;
-
+        
         return [
             'radioTabs' => [
                 'pallets_storage' => $fulfilmentCustomer->pallets_storage,
@@ -43,6 +44,7 @@ class FulfilmentCustomerResource extends JsonResource
                 'contact_name' => $fulfilmentCustomer->customer->contact_name,
                 'company_name' => $fulfilmentCustomer->customer->company_name,
                 'location'     => $fulfilmentCustomer->customer->location,
+                'address'      => AddressResource::make($fulfilmentCustomer->customer->address),
                 'email'        => $fulfilmentCustomer->customer->email,
                 'phone'        => $fulfilmentCustomer->customer->phone,
                 'created_at'   => $fulfilmentCustomer->customer->created_at,
