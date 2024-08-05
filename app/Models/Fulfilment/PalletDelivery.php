@@ -137,7 +137,6 @@ class PalletDelivery extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => $this->gross_amount - $this->net_amount
-        
         );
     }
     public function warehouse(): BelongsTo

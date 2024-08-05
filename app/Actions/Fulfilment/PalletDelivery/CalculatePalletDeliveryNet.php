@@ -27,7 +27,7 @@ class CalculatePalletDeliveryNet extends OrgAction
         }
         $tax = $palletDelivery->taxCategory->rate;
 
-// Gross
+        // Gross
 
         $palletPriceGross = 0;
         foreach ($palletDelivery->pallets as $pallet) {
