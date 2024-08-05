@@ -47,7 +47,6 @@ class GetFulfilmentCustomerShowcase
         }
 
         return [
-            // 'customer'                     => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'rental_agreement'             => [
                 'stats'                         => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,

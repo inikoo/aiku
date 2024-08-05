@@ -22,6 +22,7 @@ use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\RentalsResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -530,19 +531,19 @@ class ShowPalletDelivery extends OrgAction
                         [
 
                             [
-                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate,
+                                'label'         => __('Tax').' '.$palletDelivery->taxCategory->rate * 100 . '%',
                                 'information'   => '',
-                                'price_total'   => $palletDelivery->taxCategory->rate
+                                'price_total'   => $palletDelivery->tax_amount
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                             //   'price_total'   => ceil($servicesNet + $physicalGoodsNet + $palletPriceTotal + $palletDelivery->taxCategory->rate)
+                                'price_total'   => $palletDelivery->total_amount
                             ],
                         ],
 
-                        // 'currency_code'                => 'usd',  // TODO
+                        'currency'                => CurrencyResource::make($palletDelivery->currency),
                         // // 'number_pallets'               => $palletDelivery->stats->number_pallets,
                         // // 'number_services'              => $palletDelivery->stats->number_services,
                         // // 'number_physical_goods'        => $palletDelivery->stats->number_physical_goods,

@@ -30,7 +30,7 @@ const props = defineProps<{
 <template>
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
-
+        {{data}}
      
         
         <!-- Section: Profile box -->

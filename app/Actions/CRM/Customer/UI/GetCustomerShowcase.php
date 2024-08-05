@@ -20,7 +20,7 @@ class GetCustomerShowcase
         // dd(CustomersResource::make($customer)->getArray());
         return [
 
-               'data'=> CustomersResource::make($customer)->getArray()
+            'customer'=> CustomersResource::make($customer)->getArray()
 
 
         ];
