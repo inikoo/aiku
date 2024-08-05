@@ -7,9 +7,10 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
+use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\Inventory\OrgStock\UI\GetStockShowcase;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Enums\UI\SupplyChain\StockTabsEnum;
@@ -17,36 +18,36 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
+use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowStock extends InertiaAction
+class ShowStock extends GrpAction
 {
+    use HasGoodsAuthorisation;
+
+
+    private Group|StockFamily $parent;
+
     public function handle(Stock $stock): Stock
     {
         return $stock;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit   = $request->user()->hasPermissionTo('inventory.stocks.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('inventory.stocks.edit');
-
-        return $request->user()->hasPermissionTo("inventory.stocks.view");
-    }
 
     public function asController(Stock $stock, ActionRequest $request): Stock
     {
-        $this->initialisation($request)->withTab(StockTabsEnum::values());
+        $this->parent=group();
+        $this->initialisation($this->parent, $request)->withTab(StockTabsEnum::values());
 
         return $this->handle($stock);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
     {
-        $this->initialisation($request);
+        $this->parent=$stockFamily;
+        $this->initialisation(group(), $request);
 
         return $this->handle($stock);
     }
@@ -137,8 +138,10 @@ class ShowStock extends InertiaAction
                 ],
             ];
         };
+
+
         return match ($routeName) {
-            'grp.org.inventory.org-stocks.show' =>
+            'grp.goods.stocks.show' =>
             array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs(),
                 $headCrumb(

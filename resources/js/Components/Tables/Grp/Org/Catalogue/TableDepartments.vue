@@ -74,14 +74,14 @@ function productRoute(department: Department) {
                 {{ department['code'] }}
             </Link>
         </template>
-        <template #cell(current_families)="{ item: department }">
-            <Link :href="familyRoute(department)" class="primaryLink">
-                {{ department['current_families'] }}
+        <template #cell(number_current_families)="{ item: department }">
+            <Link :href="familyRoute(department)" class="secondaryLink">
+                {{ department['number_current_families'] }}
             </Link>
         </template>
-        <template #cell(current_products)="{ item: department }">
-            <Link :href="productRoute(department)" class="primaryLink">
-                {{ department['current_products'] }}
+        <template #cell(number_current_products)="{ item: department }">
+            <Link :href="productRoute(department)" class="secondaryLink">
+                {{ department['number_current_products'] }}
             </Link>
         </template>
         <template #cell(shop_code)="{ item: department }">
