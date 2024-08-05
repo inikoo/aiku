@@ -510,12 +510,12 @@ class ShowPalletDelivery extends OrgAction
                     'delivery_status'     => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'order_summary'       => [
                         [
-                            [
-                                'label'       => __('Pallets'),
-                                'quantity'    => $palletDelivery->stats->number_pallets ?? 0,
-                                'price_base'  => __('Multiple'),
-                                'price_total' => $palletPriceTotal ?? 0
-                            ],
+                            // [
+                            //     'label'       => __('Pallets'),
+                            //     'quantity'    => $palletDelivery->stats->number_pallets ?? 0,
+                            //     'price_base'  => __('Multiple'),
+                            //     'price_total' => $palletPriceTotal ?? 0
+                            // ],
                             [
                                 'label'       => __('Services'),
                                 'quantity'    => $palletDelivery->stats->number_services ?? 0,
