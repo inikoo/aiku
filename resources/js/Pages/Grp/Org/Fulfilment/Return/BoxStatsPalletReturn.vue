@@ -8,19 +8,17 @@
 import JsBarcode from 'jsbarcode'
 import { onMounted, ref } from 'vue'
 import { capitalize } from '@/Composables/capitalize'
-import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
+import ModalAddress from '@/Components/Utils/ModalAddress.vue'
+
 
 
 import { PalletReturn, BoxStats } from '@/types/Pallet'
 import { Link, router } from '@inertiajs/vue3'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
-import PureAddress from '@/Components/Pure/PureAddress.vue'
 import { trans } from 'laravel-vue-i18n'
 
 import Modal from '@/Components/Utils/Modal.vue'
 import { routeType } from '@/types/route'
-import { notify } from '@kyvg/vue3-notification'
-import Button from '@/Components/Elements/Buttons/Button.vue'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -46,89 +44,6 @@ onMounted(() => {
 
 // Method: Create new address
 const isModalAddress = ref(false)
-const isSubmitAddressLoading = ref(false)
-const onSubmitNewAddress = async () => {
-    // console.log(props.boxStats.fulfilment_customer.address.value)
-    const filterDataAdddress = {...props.boxStats.fulfilment_customer.address.value}
-    delete filterDataAdddress.formatted_address
-    delete filterDataAdddress.country
-    delete filterDataAdddress.id  // Remove id cuz create new one
-
-    router.patch(
-        route(props.updateRoute.name, props.updateRoute.parameters),
-        {
-            address: filterDataAdddress
-        },
-        {
-            preserveScroll: true,
-            onStart: () => isSubmitAddressLoading.value = true,
-            onFinish: () => {
-                isSubmitAddressLoading.value = false,
-                isModalAddress.value = false
-            },
-            onError: () => notify({
-                title: "Failed",
-                text: "Failed to update the address, try again.",
-                type: "error",
-            })
-        }
-    )
-
-}
-
-// Method: Edit address history
-const isEditAddress = ref(false)
-const selectedEditableAddress = ref(null)
-const onEditAddress = (address: {}) => {
-    isEditAddress.value = true
-    selectedEditableAddress.value = {...address}
-}
-const onSubmitEditAddress = () => {
-    // console.log(props.boxStats.fulfilment_customer.address.value)
-    const filterDataAdddress = {...selectedEditableAddress.value}
-    delete filterDataAdddress.formatted_address
-    delete filterDataAdddress.country
-    delete filterDataAdddress.country_code
-
-    router.patch(
-        route(props.updateRoute.name, props.updateRoute.parameters),
-        {
-            address: filterDataAdddress
-        },
-        {
-            preserveScroll: true,
-            onStart: () => isSubmitAddressLoading.value = true,
-            onFinish: () => {
-                isSubmitAddressLoading.value = false
-                // isModalAddress.value = false
-            },
-            onError: () => notify({
-                title: "Failed",
-                text: "Failed to update the address, try again.",
-                type: "error",
-            })
-        }
-    )
-}
-
-// Method: Select address history
-const selectedOptions = [{label: 'Create new', value: 'createNew'}, {label: 'Select from saved', value: 'selectSaved'}]
-const selectedCreateOrSelect = ref('selectSaved')
-const isSelectAddressLoading = ref<number | boolean>(false)
-const onSelectAddress = (selectedAddress) => {
-
-    router.patch(
-        route(props.updateRoute.name, props.updateRoute.parameters),
-        {
-            delivery_address_id: selectedAddress.id
-        },
-        {
-            onStart: () => isSelectAddressLoading.value = selectedAddress.id,
-            onFinish: () => isSelectAddressLoading.value = false
-        }
-    )
-    // props.boxStats.fulfilment_customer.address.value = selectedAddress
-}
 </script>
 
 <template>
@@ -236,7 +151,7 @@ const onSelectAddress = (selectedAddress) => {
             </div>
 
             <!-- Section: Pallets, Services, Physical Goods -->
-            <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
+            <!-- <div class="border-t border-gray-300 mt-2 pt-2 space-y-0.5">
                 <div v-tooltip="trans('Count of pallets')" class="w-fit flex items-center gap-x-3">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
@@ -261,7 +176,7 @@ const onSelectAddress = (selectedAddress) => {
                     </dt>
                     <dd class="text-gray-500 text-sm font-medium tabular-nums">{{ dataPalletReturn.number_physical_goods }} <span class="text-gray-400 font-normal">{{ dataPalletReturn.number_pallets > 1 ? trans('Physical goods') : trans('Physical good') }}</span></dd>
                 </div>
-            </div>
+            </div> -->
         </BoxStatPallet>
 
 
@@ -275,134 +190,11 @@ const onSelectAddress = (selectedAddress) => {
     </div>
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
-		<div class="h-[500px] px-2 overflow-auto">
-            <div class="text-2xl font-bold text-center mb-8">
-                Edit customer's address
-            </div>
-
-            <div class="grid grid-cols-2 gap-x-8 ">
-                <div class="col-span-2 flex items-center justify-center mb-4 gap-x-2 text-sm">
-                    <!-- <div @click="selectedCreateOrSelect = 'createNew'"
-                        class="px-1 select-none cursor-pointer whitespace-nowrap"
-                        :class="selectedCreateOrSelect === 'createNew' ? 'text-indigo-600' : 'text-gray-400'">
-                        xxx
-                    </div> -->
-                    <div class="border border-indigo-300 w-fit rounded-full overflow-hidden">
-                        <RadioGroup v-model="selectedCreateOrSelect" class="grid grid-cols-2">
-                            <RadioGroupOption v-for="curr in selectedOptions" as="template" :key="curr.value" :value="curr.value" v-slot="{ active, checked }">
-                                <div class="select-none cursor-pointer focus:outline-none flex items-center justify-center py-2 px-3 text-xs font-semibold uppercase sm:flex-1"
-                                    :class="[checked ? 'bg-indigo-200 hover:bg-indigo-300' : 'bg-white hover:bg-indigo-50']">
-                                    {{ curr.label }}
-                                </div>
-                            </RadioGroupOption>
-                        </RadioGroup>
-                    </div>
-                    <!-- <div @click="selectedCreateOrSelect = 'selectSaved'"
-                        class="select-none cursor-pointer whitespace-nowrap"
-                        :class="selectedCreateOrSelect === 'selectSaved' ? 'text-indigo-600' : 'text-gray-400'">
-                        xx
-                    </div> -->
-                </div>
-
-                <div v-if="selectedCreateOrSelect === 'createNew'" class="relative p-3">
-                    <PureAddress v-model="boxStats.fulfilment_customer.address.value"
-                        :options="boxStats.fulfilment_customer.address.options"
-                        @update:modelValue="() => boxStats.fulfilment_customer.address.value.id = null"
-                    />
-                    <div class="mt-6 flex justify-center">
-                        <Button @click="() => onSubmitNewAddress()" label="Create new and select" :loading="isSubmitAddressLoading" full />
-                    </div>
-
-                    <!-- <Transition>
-                        <div class="absolute inset-0 bg-black/30 text-white text-lg rounded-md grid place-content-center">
-                            Not editable
-                        </div>
-                    </Transition> -->
-                </div>
-
-                <div v-if="selectedCreateOrSelect === 'selectSaved'" class="col-span-2 relative p-4 h-fit">
-                    <div class="font-medium mb-4">
-                        Saved address:
-                    </div>
-
-                    <!-- Saved Address: list -->
-                    <template v-if="boxStats.fulfilment_customer.addresses_list.data?.length">
-                        <div class="grid grid-cols-2 gap-x-4">
-                            <div class="grid gap-x-2 gap-y-4 h-fit transition-all" :class="[ isEditAddress ? '' : 'col-span-2 grid-cols-2' ]">
-                                <div
-                                    v-for="(address, idxAddress) in boxStats.fulfilment_customer.addresses_list.data"
-                                    :key="idxAddress + address.id"
-                                    class="relative text-xs ring-1 ring-gray-300 rounded-lg px-5 py-3 h-fit transition-all"
-                                    :class="[
-                                        boxStats.fulfilment_customer.address.value.id == address.id ? 'bg-indigo-50' : '',
-                                        selectedEditableAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
-                                    ]"
-                                >
-                                    <div v-html="address.formatted_address"></div>
-                                    <div class="flex items-center gap-x-1 absolute top-2 right-2">
-                                        <!-- <Button
-                                            size="xxs"
-                                            label="Edit"
-                                            :key="address.id + '-' + selectedEditableAddress?.id"
-                                            :type="selectedEditableAddress?.id == address.id ? 'primary' : 'tertiary'"
-
-                                        /> -->
-                                        <div @click="() => onEditAddress(address)" class="inline cursor-pointer" :class="[selectedEditableAddress?.id == address.id ? 'underline' : 'hover:underline']">
-                                            Edit
-                                        </div>
-
-                                        <Transition>
-                                            <div v-if="boxStats.fulfilment_customer.address.value.id == address.id"
-                                                v-tooltip="'Selected as pallet return address'"
-                                                class="bg-indigo-500/80 text-white cursor-default rounded px-1.5 py-1 leading-none text-xxs"
-                                            >
-                                                Selected
-                                            </div>
-                                            <Button
-                                                v-else
-                                                @click="() => onSelectAddress(address)"
-                                                :label="isSelectAddressLoading == address.id ? '' : 'Select'"
-                                                size="xxs"
-                                                type="tertiary"
-                                                :loading="isSelectAddressLoading == address.id"/>
-                                            <!-- <span>Select</span> -->
-                                        </Transition>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div v-if="isEditAddress" class="relative bg-gray-100 p-4 rounded-md">
-                                <div @click="() => (isEditAddress = false, selectedEditableAddress = null)" class="absolute top-2 right-2 cursor-pointer">
-                                    <FontAwesomeIcon icon='fal fa-times' class='text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
-                                </div>
-
-                                <PureAddress v-model="selectedEditableAddress"
-                                    :options="boxStats.fulfilment_customer.address.options"
-                                    @update:modelValue="() => boxStats.fulfilment_customer.address.value.id = null"
-                                />
-
-                                <div class="mt-6 flex justify-center">
-                                    <Button @click="() => onSubmitEditAddress()" label="Edit address" :loading="isSubmitAddressLoading" full />
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-
-                    <div v-else class="text-sm flex items-center justify-center h-3/4 font-medium text-center text-gray-400">
-                        No address history found
-                    </div>
-
-                    <!-- <Transition>
-                        <div class="absolute top-0 inset-0 bg-black/30 text-white text-lg rounded-md grid place-content-center">
-                            Not editable
-                        </div>
-                    </Transition> -->
-                </div>
-            </div>
-
-
-            <!-- {{ boxStats.fulfilment_customer.address.value }} -->
-		</div>
+		<ModalAddress
+            :addressCustomer="boxStats.fulfilment_customer.address"
+            :addressList="boxStats.fulfilment_customer.addresses_list"
+            :updateRoute    
+        />
 	</Modal>
 </template>
 
