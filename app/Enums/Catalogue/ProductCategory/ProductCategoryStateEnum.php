@@ -76,7 +76,7 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countDepartment(Shop|Organisation $parent): array
+    public static function countDepartments(Shop|Organisation $parent): array
     {
         if($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;

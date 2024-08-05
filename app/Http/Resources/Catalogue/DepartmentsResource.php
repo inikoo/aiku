@@ -21,6 +21,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $updated_at
  * @property mixed $shop_code
  * @property mixed $shop_name
+ * @property int $number_current_families
+ * @property int $number_current_products
  */
 class DepartmentsResource extends JsonResource
 {
@@ -34,15 +36,15 @@ class DepartmentsResource extends JsonResource
             'code'               => $this->code,
             'name'               => $this->name,
             'state'              => [
-                'label' => $this->state->labels()[$this->state->value],
-                'icon'  => $this->state->stateIcon()[$this->state->value]['icon'],
-                'class' => $this->state->stateIcon()[$this->state->value]['class']
+                'icon'    => $this->state->stateIcon()[$this->state->value]['icon'],
+                'class'   => $this->state->stateIcon()[$this->state->value]['class'],
+                'tooltip' => $this->state->labels()[$this->state->value],
             ],
-            'description'       => $this->description,
-            'created_at'        => $this->created_at,
-            'updated_at'        => $this->updated_at,
-            'current_families'  => $this->stats->number_families ?? 0,
-            'current_products'  => $this->stats->number_products ?? 0
+            'description'              => $this->description,
+            'created_at'               => $this->created_at,
+            'updated_at'               => $this->updated_at,
+            'number_current_families'  => $this->number_current_families,
+            'number_current_products'  => $this->number_current_products
         ];
     }
 }

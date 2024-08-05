@@ -11,7 +11,6 @@ use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\Inventory\OrgStock\UI\GetStockShowcase;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Enums\UI\SupplyChain\StockTabsEnum;
@@ -26,7 +25,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowStock extends GrpAction
 {
-
     use HasGoodsAuthorisation;
 
 
@@ -41,7 +39,7 @@ class ShowStock extends GrpAction
     public function asController(Stock $stock, ActionRequest $request): Stock
     {
         $this->parent=group();
-        $this->initialisation( $this->parent,$request)->withTab(StockTabsEnum::values());
+        $this->initialisation($this->parent, $request)->withTab(StockTabsEnum::values());
 
         return $this->handle($stock);
     }
@@ -49,7 +47,7 @@ class ShowStock extends GrpAction
     public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
     {
         $this->parent=$stockFamily;
-        $this->initialisation(group(),$request);
+        $this->initialisation(group(), $request);
 
         return $this->handle($stock);
     }

@@ -8,7 +8,10 @@
 namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDepartments;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDepartments;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -34,6 +37,12 @@ class UpdateProductCategory extends OrgAction
         $productCategory = $this->update($productCategory, $modelData, ['data']);
 
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
+
+        if($productCategory->wasChanged('state')) {
+            GroupHydrateDepartments::dispatch($productCategory->group);
+            OrganisationHydrateDepartments::dispatch($productCategory->organisation);
+            ShopHydrateDepartments::dispatch($productCategory->shop);
+        }
 
         return $productCategory;
     }
