@@ -104,16 +104,19 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
 
         <!-- Column: Quantity -->
         <template #cell(quantity)="{ item }">
-            <PureInput
-                v-if="state === 'in-process'"
-                :modelValue="item.quantity"
-                @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
-                @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
-                :isLoading="isLoading === 'quantity' + item.id"
-                type="number"
-                :readonly="item.is_auto_assign"
-                v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
-            />
+            <div
+            v-if="state === 'in-process'" class="w-32">
+                <PureInput
+                    :modelValue="item.quantity"
+                    @onEnter="(e: number) => item.is_auto_assign ? false : onUpdateQuantity(item.id, e)"
+                    @blur="(e: string) => item.is_auto_assign ? false : e == item.quantity ? false : onUpdateQuantity(item.id, e)"
+                    :isLoading="isLoading === 'quantity' + item.id"
+                    type="number"
+                    align="right"
+                    :readonly="item.is_auto_assign"
+                    v-tooltip="item.is_auto_assign ? `Auto assign, can't change quantity.` : undefined"
+                />
+            </div>
 
             <div v-else>{{ item.quantity }}</div>
         </template>

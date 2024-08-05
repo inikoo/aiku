@@ -178,8 +178,7 @@ const isLoading = ref<string | boolean>(false)
                                                 <span class="sr-only">Address</span>
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="text-gray-500">
-                                              {{data.fulfilment_customer.customer.address.formatted_address}}
+                                            <dd class="text-gray-500" v-html="data.fulfilment_customer.customer.address.formatted_address">
                                             </dd>
                                         </div>
                                     </div>
