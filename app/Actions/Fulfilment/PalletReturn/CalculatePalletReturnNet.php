@@ -22,11 +22,17 @@ class CalculatePalletReturnNet extends OrgAction
 
         $tax = $palletReturn->taxCategory->rate;
 
+        // Gross
+
+        $physicalGoodsGrossAmount = $physicalGoods->sum('gross_amount');
+        $servicesGrossAmount      = $services->sum('gross_amount');
+
         $net         = $physicalGoodsNet + $servicesNet;
         $taxAmount   = $net * $tax;
         $totalAmount = $net + $taxAmount;
         $grpNet      = $net * $palletReturn->grp_exchange;
         $orgNet      = $net * $palletReturn->org_exchange;
+        $grossAmount = $physicalGoodsGrossAmount + $servicesGrossAmount;
 
         data_set($modelData, 'net_amount', $net);
         data_set($modelData, 'total_amount', $totalAmount);
@@ -35,6 +41,7 @@ class CalculatePalletReturnNet extends OrgAction
         data_set($modelData, 'goods_amount', $physicalGoodsNet);
         data_set($modelData, 'grp_net_amount', $grpNet);
         data_set($modelData, 'org_net_amount', $orgNet);
+        data_set($modelData, 'gross_amount', $grossAmount);
 
         $palletReturn->update($modelData);
     }
