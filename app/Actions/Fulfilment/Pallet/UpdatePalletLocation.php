@@ -49,9 +49,9 @@ class UpdatePalletLocation extends OrgAction
         }
 
         if ($this->scope instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+            $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->scope->id}.edit");
 
-            return  $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+            return  $request->user()->hasPermissionTo("locations.{$this->scope->id}.edit");
         }
 
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
@@ -62,7 +62,7 @@ class UpdatePalletLocation extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
-        $this->scope  = $warehouse;
+        $this->scope  = $pallet->fulfilment;
         $this->initialisationFromFulfilment($pallet->fulfilment, $request);
 
         return $this->handle($location, $pallet);
