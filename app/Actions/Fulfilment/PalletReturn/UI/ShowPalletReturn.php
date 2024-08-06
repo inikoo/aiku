@@ -442,6 +442,13 @@ class ShowPalletReturn extends OrgAction
                                     'parameters' => [
                                         'customer' => $palletReturn->fulfilmentCustomer->customer_id
                                     ]
+                                ],
+                                'delete_route'  => [
+                                    'method'     => 'delete',
+                                    'name'       => 'grp.models.customer.delivery-address.delete',
+                                    'parameters' => [
+                                        'fulfilmentCustomer' => $palletReturn->fulfilment_customer_id
+                                    ]
                                 ]
                             ],
                         ]
