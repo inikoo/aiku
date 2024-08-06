@@ -22,6 +22,8 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'group_id', $recurringBill->group_id);
         data_set($modelData, 'fulfilment_id', $recurringBill->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $recurringBill->fulfilment_customer_id);
+        data_set($modelData, 'tax_category_id', $recurringBill->tax_category_id);
+
 
         data_set($modelData, 'item_id', $item->id);
         data_set($modelData, 'item_type', class_basename($item));
