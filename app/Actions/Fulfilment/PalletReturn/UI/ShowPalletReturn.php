@@ -29,6 +29,7 @@ use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -280,7 +281,7 @@ class ShowPalletReturn extends OrgAction
         $processedAddresses = $addresses->map(function ($address) use (&$canDelete) {
             if (PalletReturn::where('delivery_address_id', $address->id)
                 ->where('state', PalletReturnStateEnum::IN_PROCESS)
-                ->exists()) {
+                ->exists() || Customer::where('delivery_address_id', $address->id)->exists()) {
                 $canDelete = true;
                 return $address->setAttribute('can_delete', false)
                                 ->setAttribute('can_edit', true);
@@ -297,7 +298,7 @@ class ShowPalletReturn extends OrgAction
         }
 
         $addressCollection = AddressResource::collection($processedAddresses);
-
+        // dd($addressCollection);
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
