@@ -32,7 +32,7 @@ trait HasInventoryStats
     }
 
 
-    public function stocksStats(Blueprint $table): Blueprint
+    public function inventoryStatsFields(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_stock_families')->default(0);
         $table->unsignedInteger('number_current_stock_families')->default(0)->comment('active + discontinuing');
@@ -40,6 +40,12 @@ trait HasInventoryStats
         foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
             $table->unsignedInteger('number_stock_families_state_'.$stockFamilyState->snake())->default(0);
         }
+
+        return $this->stockStatsFields($table);
+    }
+
+    public function stockStatsFields(Blueprint $table): Blueprint
+    {
 
         $table->unsignedInteger('number_stocks')->default(0);
         $table->unsignedInteger('number_current_stocks')->default(0)->comment('active + discontinuing');
@@ -51,7 +57,7 @@ trait HasInventoryStats
         return $table;
     }
 
-    public function orgStocksStats(Blueprint $table): Blueprint
+    public function orgInventoryStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_org_stock_families')->default(0);
         $table->unsignedInteger('number_current_org_stock_families')->default(0)->comment('active + discontinuing');
@@ -59,6 +65,12 @@ trait HasInventoryStats
         foreach (OrgStockFamilyStateEnum::cases() as $stockFamilyState) {
             $table->unsignedInteger('number_org_stock_families_state_'.$stockFamilyState->snake())->default(0);
         }
+
+        return $this->orgStockStats($table);
+    }
+
+    public function orgStockStats(Blueprint $table): Blueprint
+    {
 
         $table->unsignedInteger('number_org_stocks')->default(0);
         $table->unsignedInteger('number_current_org_stocks')->default(0)->comment('active + discontinuing');
@@ -70,8 +82,10 @@ trait HasInventoryStats
             $table->unsignedInteger('number_org_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
         }
 
+
         return $table;
     }
+
 
     public function deliveryNoteStats(Blueprint $table): Blueprint
     {

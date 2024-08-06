@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $organisation_id
  * @property int $org_stock_family_id
  * @property int $number_org_stocks
+ * @property int $number_current_org_stocks active + discontinuing
  * @property int $number_org_stocks_state_active
  * @property int $number_org_stocks_state_discontinuing
  * @property int $number_org_stocks_state_discontinued

@@ -19,15 +19,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $stored_item_audit_id
  * @property int $pallet_id
  * @property int $stored_item_id
- * @property string|null $audited_at
+ * @property \Illuminate\Support\Carbon|null $audited_at
  * @property string|null $original_quantity
  * @property string $audited_quantity
  * @property string|null $state
  * @property string|null $audit_type
  * @property string|null $reason
- * @property string $data
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Fulfilment\Pallet $pallet
+ * @property-read \App\Models\Fulfilment\StoredItem $storedItem
+ * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAuditDelta newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAuditDelta newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAuditDelta query()

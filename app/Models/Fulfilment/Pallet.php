@@ -80,7 +80,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
  * @property-read \App\Models\Fulfilment\PalletReturn|null $palletReturn
  * @property-read \App\Models\Fulfilment\Rental|null $rental
+ * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $rentalAgreementClause
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $storedItemAuditDeltas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse

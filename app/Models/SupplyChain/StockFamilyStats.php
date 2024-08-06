@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $stock_family_id
  * @property int $number_stocks
+ * @property int $number_current_stocks active + discontinuing
  * @property int $number_stocks_state_in_process
  * @property int $number_stocks_state_active
  * @property int $number_stocks_state_discontinuing

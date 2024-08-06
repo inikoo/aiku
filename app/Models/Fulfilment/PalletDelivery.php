@@ -77,6 +77,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property-read Currency $currency
+ * @property-read Address|null $deliveryAddress
+ * @property-read mixed $discount_amount
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
