@@ -50,7 +50,7 @@ class DeleteCustomerDeliveryAddress extends OrgAction
     public function fromRetina(Customer $customer, Address $address, ActionRequest $request): Customer
     {
         $this->address = $address;
-        $customer = $request->user()->customer;
+        $customer      = $request->user()->customer;
 
         $this->initialisation($request->get('website')->organisation, $request);
 

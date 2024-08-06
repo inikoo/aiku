@@ -8,36 +8,28 @@
 namespace App\Actions\Fulfilment\UniversalScan;
 
 use App\Actions\OrgAction;
-use App\Models\Fulfilment\StoredItem;
+use App\Http\Resources\Helpers\UniversalScanResource;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowUniversalScan extends OrgAction
 {
-    public function handle(Warehouse $warehouse, string $ulid)
+    public function handle(string $ulid): UniversalSearch
     {
-        $prefix = explode('~', $ulid)[0];
-        $value  = explode('~', $ulid)[1];
-
-        return match ($prefix) {
-            'pal'    => $warehouse->pallets()->where('slug', $value)->first(),
-            'item'   => StoredItem::where('reference', $value)->first(),
-            'loc'    => $warehouse->locations()->where('slug', $value)->first(),
-            default  => throw ValidationException::withMessages(['status' => 'No prefix founded.'])
-        };
+        return UniversalSearch::where('keyword', $ulid)->firstOrFail();
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, string $ulid, ActionRequest $request)
+    public function asController(Organisation $organisation, Warehouse $warehouse, string $ulid, ActionRequest $request): UniversalSearch
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($warehouse, $ulid);
+        return $this->handle($ulid);
     }
 
-    public function jsonResponse($results)
+    public function jsonResponse(UniversalSearch $universalSearch): UniversalScanResource
     {
-        return $results;
+        return new UniversalScanResource($universalSearch);
     }
 }

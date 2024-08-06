@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\UniversalScan\IndexUniversalScan;
 use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
@@ -27,6 +28,7 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
     ->group(function () {
         Route::get('/', ShowWarehouse::class)->name('show')->withoutScopedBindings();
         Route::get('scanners/{ulid}', ShowUniversalScan::class)->name('universal.scan.show');
+        Route::get('scanners', IndexUniversalScan::class)->name('universal.scan.index');
 
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
         Route::get('areas/{warehouseArea:id}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('areas.locations.index')->withoutScopedBindings();
