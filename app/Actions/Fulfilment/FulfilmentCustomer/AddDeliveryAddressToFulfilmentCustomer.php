@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,6 +42,11 @@ class AddDeliveryAddressToFulfilmentCustomer extends OrgAction
             return true;
         }
 
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
@@ -66,6 +72,15 @@ class AddDeliveryAddressToFulfilmentCustomer extends OrgAction
         $this->strict         = $strict;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
+
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function fromRetina(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
+    {
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+
+        $this->initialisation($request->get('website')->organisation, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

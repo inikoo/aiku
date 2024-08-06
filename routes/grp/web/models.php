@@ -120,6 +120,7 @@ use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Mail\Mailshot\StoreMailshot;
+use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Manufacturing\Artefact\ImportArtefact;
 use App\Actions\Manufacturing\Artefact\StoreArtefact;
 use App\Actions\Manufacturing\Artefact\UpdateArtefact;
@@ -517,6 +518,7 @@ Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('sto
 
 Route::patch('/group-settings', UpdateGroupSettings::class)->name('group-settings.update');
 
+Route::patch('/{mailshot:id}/mailshot', UpdateMailshot::class)->name('shop.mailshot.update');
 Route::post('/shop/{shop:id}/mailshot', StoreMailshot::class)->name('shop.mailshot.store');
 /*
 
