@@ -70,7 +70,7 @@ class StorePalletReturn extends OrgAction
 
         $palletReturn = $this->addAddressToModel(
             model: $palletReturn,
-            addressData: $fulfilmentCustomer->customer->deliveryAddress,
+            addressData: $fulfilmentCustomer->customer->deliveryAddress->getFields(),
             scope: 'delivery',
             updateLocation: false,
             updateAddressField: 'delivery_address_id'
