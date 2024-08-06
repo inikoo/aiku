@@ -30,6 +30,7 @@ const props = defineProps<{
         }
         pinned_route: routeType
         delete_route: routeType
+        store_route: routeType
     }
 }>()
 
@@ -49,8 +50,8 @@ const onSubmitNewAddress = async (address: Address) => {
     delete filterDataAdddress.country
     delete filterDataAdddress.id  // Remove id cuz create new one
 
-    router.patch(
-        route(props.updateRoute.name, props.updateRoute.parameters),
+    router[props.addressList.store_route.method || 'post'](
+        route(props.addressList.store_route.name, props.addressList.store_route.parameters),
         {
             address: filterDataAdddress
         },
@@ -65,7 +66,7 @@ const onSubmitNewAddress = async (address: Address) => {
             },
             onError: () => notify({
                 title: "Failed",
-                text: "Failed to update the address, try again.",
+                text: trans("Failed to submit the address, try again"),
                 type: "error",
             })
         }
@@ -176,7 +177,9 @@ const onDeleteAddress = (addressID: number) => {
 
 <template>
     <div class="h-[600px] px-2 py-1 overflow-auto">
-    <!-- <pre>{{ addressList.all_addresses.data }}</pre> -->
+    <pre>current selected {{ addressList.current_selected_address_id }}</pre>
+    <pre>pinned address {{ addressList.pinned_address_id }}</pre>
+    <pre>home {{ addressList.home_address_id }}</pre>
         <div class="flex justify-between border-b border-gray-300">
             <div class="text-2xl font-bold text-center mb-2">
                 {{ trans('Address management') }}
@@ -274,6 +277,7 @@ const onDeleteAddress = (addressID: number) => {
                                 :loading="isSubmitAddressLoading"
                                 full
                             />
+                            {{ props.updateRoute.name }}
                         </div>
                     </div>
                 </div>
@@ -290,6 +294,7 @@ const onDeleteAddress = (addressID: number) => {
                                 <div class="flex justify-between border-b border-gray-300 px-3 py-2"
                                     :class="addressList.current_selected_address_id == homeAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
                                 >
+                                {{ homeAddress.id }}
                                     <div class="flex gap-x-1 items-center relative">
                                         <div class="font-semibold text-sm whitespace-nowrap">
                                             <FontAwesomeIcon icon='fal fa-house' class='' fixed-width aria-hidden='true' />
@@ -323,7 +328,7 @@ const onDeleteAddress = (addressID: number) => {
                             </div>
 
                             <!-- Section: Address looping -->
-                        <TransitionGroup>
+                            <TransitionGroup>
                                 <div v-for="(address, idxAddress) in addressList.all_addresses.data.filter(xxx => xxx.id != addressList.home_address_id)"
                                     :key="idxAddress + address.id"
                                     class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-full transition-all"
@@ -331,6 +336,7 @@ const onDeleteAddress = (addressID: number) => {
                                         selectedAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
                                     ]"
                                 >
+                                {{ address.id }}
                                     <div class="flex justify-between border-b border-gray-300 px-3 py-2"
                                         :class="addressList.current_selected_address_id == address.id ? 'bg-green-50' : 'bg-gray-100'"
                                     >

@@ -20,6 +20,7 @@ const props = defineProps<{
             icon: string | string[]
             tooltip: string
         }
+        root?: string
         href: routeType
         label: string
         number: string
@@ -33,9 +34,9 @@ const locale = inject('locale', {})
 </script>
 
 <template>
-    <div class="relative select-none w-full flex flex-wrap px-4 sm:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
+    <div class="relative select-none w-full flex flex-wrap px-4 sm:mt-1 lg:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 gap-x-4 items-end text-gray-400 text-xs">
         <!-- Tab: Home/dashboard -->
-        <div v-if="dataNavigation.length"
+        <!-- <div v-if="dataNavigation.length && false"
             class="py-1 flex items-center transition-all"
             :class="[
                 layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-2 bg-white rounded-t-md rounded-tl-none sm:border sm:border-transparent sm:border-r-gray-300' : 'tabSubNav -ml-2 md:ml-0'
@@ -77,33 +78,34 @@ const locale = inject('locale', {})
                     </span>
                 </div>
             </component>
-        </div>
+        </div> -->
 
         <!-- Tabs -->
         <TransitionGroup>
             <component
-                v-for="subNav, itemIdx in [...dataNavigation].slice(1)"
+                v-for="subNav, itemIdx in dataNavigation"
                 :key="'subNav' + itemIdx"
                 :is="subNav.href?.name ? Link : 'div'"
                 :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
                 @start="() => isLoading = itemIdx"
                 @finish="() => isLoading = false"
-                class="py-1.5 flex items-center transition-all"
-                :class="[
-                    layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
-                ]"
+                class="py-1.5 px-3 flex items-center gap-x-2 transition-all"
+                :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'tabSubNavActive' : 'tabSubNav'"
             >
-                <div class="px-1.5 flex items-center transition-all"
-                    :class="[
-                        layout.currentRoute.includes(subNav.href?.name) ? `translate-y-1 pb-1` : `py-1`
-                    ]"
-                >
-                    <div v-if="subNav.leftIcon" class="pr-1">
-                        <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="animate-spin" />
-                        <FontAwesomeIcon v-else :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="" />
+                <div v-if="subNav.leftIcon" class="">
+                    <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="text-sm animate-spin" />
+                    <FontAwesomeIcon v-else :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" class="text-sm opacity-50" fixed-width aria-hidden="true" />
+                </div>
+            
+                <div class="xl:whitespace-nowrap flex items-center gap-x-1.5">
+                    <span class="leading-none font-medium text-base">{{ subNav.label }}</span>
+
+                    <div v-if="typeof subNav.number == 'number'"
+                        class="inline-flex items-center w-fit rounded-full px-2 py-0.5 text-xs font-medium"
+                        :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'bg-indigo-100 ' : 'bg-gray-200 '"    
+                    >
+                        {{ locale.number(subNav.number || 0) }}
                     </div>
-                
-                    <MetaLabel :item="subNav" />
                 </div>
             </component>
         </TransitionGroup>
@@ -114,19 +116,37 @@ const locale = inject('locale', {})
 </template>
 
 <style lang="scss" scoped>
-.tabSubNavActive {
-    @apply px-2 bg-white border sm:border-b-transparent rounded-md sm:rounded-b-none sm:rounded-t-md border-gray-300;
+// .tabSubNavActive {
+//     @apply px-2 bg-white border sm:border-b-transparent rounded-md sm:rounded-b-none sm:rounded-t-md border-gray-300;
 
-    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 40%, black)`') !important;
+//     color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 40%, black)`') !important;
+// }
+
+// .tabSubNav {
+//     @apply px-2 sm:border border-transparent border-b-gray-300;
+
+//     color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
+
+//     &:hover {
+//         color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 60%, black)`') !important;
+//     }
+// }
+
+.tabSubNavActive {
+    @apply border-b-2 border-indigo-600;
+
+    color: v-bind('`${layout?.app?.theme[0]}`') !important;
 }
 
 .tabSubNav {
-    @apply px-2 sm:border border-transparent border-b-gray-300;
+    @apply border-b-2 border-gray-300;
 
-    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
+    color: #9ca3af !important;
 
     &:hover {
-        color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 60%, black)`') !important;
+        color: #4b5563 !important;
     }
 }
+
+
 </style>

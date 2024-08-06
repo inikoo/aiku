@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('number_trade_units')->default(0);
             $table = $this->warehousesStats($table);
-            $table = $this->stocksStats($table);
+            $table = $this->inventoryStatsFields($table);
             $table = $this->deliveryNoteStats($table);
             $table->timestampsTz();
         });

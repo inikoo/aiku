@@ -32,12 +32,12 @@ const locale = inject('locale', {})
                 <template v-if="item.number > 0">
                     ({{ locale.number(item.number) }})
                 </template>
-                <template v-else>a
+                <template v-else>
                     (<FontAwesomeIcon icon='fal fa-empty-set' class='' fixed-width aria-hidden='true' />)
                 </template>
             </template>
             <template v-else>
-                ({{ item.number }})d
+                ({{ item.number }})
             </template>
         </span>
     </div>

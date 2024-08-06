@@ -60,7 +60,7 @@ class ShowInventoryDashboard extends OrgAction
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
-                                'number' => $this->organisation->inventoryStats->number_current_stock_families
+                                'number' => $this->organisation->inventoryStats->number_current_org_stock_families
                             ]
 
                         ],
@@ -72,7 +72,7 @@ class ShowInventoryDashboard extends OrgAction
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
-                                'number' => $this->organisation->inventoryStats->number_current_stocks
+                                'number' => $this->organisation->inventoryStats->number_current_org_stocks
                             ]
 
                         ]
@@ -90,14 +90,22 @@ class ShowInventoryDashboard extends OrgAction
 
         $stats['stock'] = [
             'label' => __('Stocks'),
-            'count' => $this->organisation->inventoryStats->number_stocks
+            'count' => $this->organisation->inventoryStats->number_current_org_stocks
         ];
 
         foreach (OrgStockStateEnum::cases() as $case) {
+
+            $count=OrgStockStateEnum::count($this->organisation)[$case->value];
+
+            if($case==OrgStockStateEnum::SUSPENDED and $count==0) {
+                continue;
+            }
+
+
             $stats['stock']['cases'][$case->value] = [
                 'value' => $case->value,
                 'icon'  => OrgStockStateEnum::stateIcon()[$case->value],
-                'count' => OrgStockStateEnum::count($this->organisation)[$case->value],
+                'count' => $count,
                 'label' => OrgStockStateEnum::labels()[$case->value]
             ];
         }

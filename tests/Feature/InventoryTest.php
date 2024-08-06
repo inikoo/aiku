@@ -22,6 +22,7 @@ use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
 use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
+use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
@@ -345,13 +346,29 @@ test('create org stock', function (Stock $stock) {
     return $orgStock;
 })->depends('update stock state');
 
+test('create org stock family', function (Stock $stock) {
+    /** @var StockFamily $stockFamily */
+    $stockFamily=$stock->stockFamily;
+    expect($stockFamily)->toBeInstanceOf(StockFamily::class);
+    $orgStockFamily=StoreOrgStockFamily::make()->action($this->organisation, $stockFamily, []);
+    expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class)
+       ->and($orgStockFamily->state)->toBe(OrgStockFamilyStateEnum::ACTIVE)
+       ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
+       ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
+       ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
+})->depends('update 2nd stock state');
 
 test('create org stock from 2nd stock (within stock family)', function (Stock $stock) {
-    expect($stock->stockFamily)->toBeInstanceOf(StockFamily::class)
-        ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(0);
 
+    /** @var StockFamily $stockFamily */
+    $stockFamily=$stock->stockFamily;
+    expect($stockFamily)->toBeInstanceOf(StockFamily::class);
+
+
+    $orgStockFamily=$stockFamily->orgStockFamilies()->where('organisation_id', $this->organisation->id)->first();
+    expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class);
     $orgStock = StoreOrgStock::make()->action(
-        $this->organisation,
+        $orgStockFamily,
         $stock
     );
     $this->organisation->refresh();

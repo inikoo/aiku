@@ -32,15 +32,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $historic_asset_id
  * @property int|null $rental_agreement_clause_id
  * @property string $quantity
- * @property string $gross_amount Gross amount before discounts
+ * @property string $gross_amount net amount before discounts
  * @property string $net_amount
  * @property string $grp_net_amount
  * @property string $org_net_amount
+ * @property int $tax_category_id
+ * @property string $grp_exchange
+ * @property string $org_exchange
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Asset $asset
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group

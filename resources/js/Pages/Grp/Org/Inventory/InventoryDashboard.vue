@@ -85,7 +85,7 @@ const options = {
           <!-- In Total -->
           <div class="flex gap-x-2 items-end">
             {{ locale.number(stats.count) }}
-            <span class="text-sm font-medium leading-4 text-gray-500 ">{{ trans("in total") }}</span>
+            <span class="text-sm font-medium leading-4 text-gray-500 ">{{ trans("current") }}</span>
           </div>
 
           <!-- Statistic -->

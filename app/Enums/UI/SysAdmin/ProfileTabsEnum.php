@@ -16,9 +16,10 @@ enum ProfileTabsEnum: string
     use HasTabs;
 
 
-    case TODO          = 'todo';
-    case NOTIFICATIONS = 'notifications';
-    case KPI           = 'kpi';
+    case DASHBOARD          = 'dashboard';
+    case TODO               = 'todo';
+    case NOTIFICATIONS      = 'notifications';
+    case KPI                = 'kpi';
 
     case HISTORY    = 'history';
     case VISIT_LOGS = 'visit_logs';
@@ -31,6 +32,10 @@ enum ProfileTabsEnum: string
     {
         return match ($this) {
 
+            ProfileTabsEnum::DASHBOARD => [
+                'title' => __('Dashboard'),
+                'icon'  => 'fal fa-clipboard-list-check',
+            ],
             ProfileTabsEnum::TODO => [
                 'title' => __('to do'),
                 'icon'  => 'fal fa-clipboard-list-check',

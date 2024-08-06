@@ -24,6 +24,7 @@ use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -483,6 +484,7 @@ Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.upd
 
 Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('', [StoreWebUser::class, 'inCustomer'])->name('web-user.store');
+    Route::post('address', AddDeliveryAddressToCustomer::class)->name('address.store');
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

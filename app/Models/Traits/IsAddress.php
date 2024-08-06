@@ -22,6 +22,7 @@ trait IsAddress
     private function getAdr(): ImmutableAddressInterface|Adr
     {
         $address = new Adr();
+
         return $address
             ->withCountryCode($this->country_code)
             ->withAdministrativeArea($this->administrative_area)
@@ -39,6 +40,7 @@ trait IsAddress
         $countryRepository       = new CountryRepository();
         $subdivisionRepository   = new SubdivisionRepository();
         $formatter               = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository, ['html' => false]);
+
         return $formatter->format($this->getAdr());
     }
 
@@ -48,13 +50,13 @@ trait IsAddress
         $countryRepository       = new CountryRepository();
         $subdivisionRepository   = new SubdivisionRepository();
         $formatter               = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository);
+
         return $formatter->format($this->getAdr());
     }
 
     public function getChecksum(): string
     {
-
-        $json= json_encode(
+        $json = json_encode(
             array_filter(
                 array_map(
                     'strtolower',
@@ -76,23 +78,25 @@ trait IsAddress
                 )
             )
         );
+
         return md5($json);
     }
 
     public function getCountryName(): string
     {
         if ($country = (new Country())->firstWhere('id', $this->country_id)) {
-            return  $country->name;
+            return $country->name;
         }
+
         return '';
     }
 
     public function getLocation(): array
     {
-        return[
+        return [
             $this->country_code,
             $this->getCountryName(),
-            $this->locality??$this->administrative_area??$this->postal_code
+            $this->locality ?? $this->administrative_area ?? $this->postal_code
         ];
     }
 
@@ -105,4 +109,20 @@ trait IsAddress
     {
         return $this->belongsTo(Country::class);
     }
+
+    public function getFields(): array
+    {
+        return [
+            'address_line_1'      => $this->address_line_1,
+            'address_line_2'      => $this->address_line_2,
+            'sorting_code'        => $this->sorting_code,
+            'postal_code'         => $this->postal_code,
+            'dependant_locality'  => $this->dependant_locality,
+            'locality'            => $this->locality,
+            'administrative_area' => $this->administrative_area,
+            'country_code'        => $this->country_code,
+            'country_id'          => $this->country_id,
+        ];
+    }
+
 }

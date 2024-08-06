@@ -5,15 +5,15 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
-use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasInventoryStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+    use HasInventoryStats;
 
     public function up(): void
     {
@@ -22,13 +22,9 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('org_stock_family_id')->index();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
-            $table->unsignedInteger('number_org_stocks')->default(0);
-            foreach (OrgStockStateEnum::cases() as $stockState) {
-                $table->unsignedInteger('number_org_stocks_state_'.$stockState->snake())->default(0);
-            }
-            foreach (OrgStockQuantityStatusEnum::cases() as $quantityStatus) {
-                $table->unsignedInteger('number_org_stocks_quantity_status_'.$quantityStatus->snake())->default(0);
-            }
+
+            $table=$this->orgStockStats($table);
+
             $table->softDeletesTz();
             $table->timestampsTz();
         });
