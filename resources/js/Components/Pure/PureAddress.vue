@@ -6,12 +6,12 @@
 
 <script setup lang="ts">
 import Multiselect from '@vueform/multiselect'
-import { AddressValue, AddressOptions } from "@/types/PureComponent/Address"
+import { Address, AddressOptions } from "@/types/PureComponent/Address"
 import { trans } from 'laravel-vue-i18n'
 import PureInput from '@/Components/Pure/PureInput.vue'
 
 const props = defineProps<{
-    modelValue: AddressValue
+    modelValue: Address
     options: AddressOptions
     fieldLabel?: boolean
 }>()
