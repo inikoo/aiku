@@ -8,7 +8,7 @@ export interface Address {
     dependant_locality?: string
     administrative_area?: string
     country_code?: string
-    country_id: number
+    country_id: number | null
     label: string | null
     checksum: string
     created_at: string | null
@@ -19,6 +19,8 @@ export interface Address {
         name: string
     }
     formatted_address?: string
+    can_edit: boolean | null
+    can_delete: boolean | null
 }
 
 export interface AddressOptions {
