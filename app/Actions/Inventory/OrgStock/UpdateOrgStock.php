@@ -8,9 +8,12 @@
 namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStocks;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\OrgStock;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrgStock extends OrgAction
@@ -24,6 +27,16 @@ class UpdateOrgStock extends OrgAction
     {
         $orgStock = $this->update($orgStock, $modelData, ['data', 'settings']);
         OrgStockHydrateUniversalSearch::dispatch($orgStock);
+        $changes = $orgStock->getChanges();
+
+        if (Arr::has($changes, 'state')) {
+            OrganisationHydrateOrgStocks::dispatch($orgStock->organisation);
+
+
+            if ($orgStock->orgStockFamily) {
+                OrgStockFamilyHydrateOrgStocks::dispatch($orgStock->orgStockFamily);
+            }
+        }
 
         return $orgStock;
     }

@@ -84,10 +84,10 @@ class IndexOrgStockFamilies extends OrgAction
                'code',
                'org_stock_families.id as id',
                'name',
-               'number_org_stocks'
+               'number_current_org_stocks'
            ])
            ->leftJoin('org_stock_family_stats', 'org_stock_family_stats.org_stock_family_id', 'org_stock_families.id')
-           ->allowedSorts(['code', 'name', 'number_org_stocks'])
+           ->allowedSorts(['code', 'name', 'number_current_org_stocks'])
            ->allowedFilters([$globalSearch])
            ->withPaginator($prefix)
            ->withQueryString();
@@ -116,7 +116,7 @@ class IndexOrgStockFamilies extends OrgAction
                     [
                         'title'       => __('no stock families'),
                         'description' => $this->canEdit ? __('Get started by creating a new stock family.') : null,
-                        'count'       => $organisation->inventoryStats->number_org_stocks,
+                        'count'       => $organisation->inventoryStats->number_current_org_stocks,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -131,7 +131,7 @@ class IndexOrgStockFamilies extends OrgAction
                 )
                 ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_org_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
+                ->column(key: 'number_current_org_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
     }
