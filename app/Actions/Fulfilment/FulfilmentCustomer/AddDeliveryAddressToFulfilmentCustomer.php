@@ -8,24 +8,13 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
-use App\Actions\Helpers\Address\UpdateAddress;
-use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
-use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
-use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
+use App\Actions\Fulfilment\FulfilmentCustomer\Search\FulfilmentCustomerRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
-use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Models\CRM\Customer;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\SysAdmin\Organisation;
-use App\Rules\IUnique;
-use App\Rules\Phone;
 use App\Rules\ValidAddress;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class AddDeliveryAddressToFulfilmentCustomer extends OrgAction
@@ -36,16 +25,14 @@ class AddDeliveryAddressToFulfilmentCustomer extends OrgAction
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
 
+        AddDeliveryAddressToCustomer::make()->action($fulfilmentCustomer->customer, $modelData);
+        $fulfilmentCustomer->refresh();
+
+        FulfilmentCustomerRecordSearch::dispatch($fulfilmentCustomer);
 
 
-        $customer=AddDeliveryAddressToCustomer::make()->action($fulfilmentCustomer->customer,$modelData);
 
-
-
-
-        FulfilmentCustomerHydrateUniversalSearch::dispatch($customer)->delay($this->hydratorsDelay);
-
-        return $customer;
+        return $fulfilmentCustomer;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -59,22 +46,20 @@ class AddDeliveryAddressToFulfilmentCustomer extends OrgAction
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'delivery_address'         => ['required', new ValidAddress()],
         ];
-
-        return $rules;
     }
 
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Customer
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Customer
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): FulfilmentCustomer
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
