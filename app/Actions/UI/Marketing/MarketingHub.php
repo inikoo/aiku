@@ -167,7 +167,7 @@ class MarketingHub extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.marketing.hub'
+                                'name' => 'grp.org.shops.show.marketing.dashboard'
                             ],
                             'label' => __('marketing').' ('.__('all shops').')',
                             'icon'  => 'fal fa-bullhorn'
@@ -175,7 +175,7 @@ class MarketingHub extends InertiaAction
                     ],
                 ]
             ),
-            'grp.marketing.shops.show.hub' =>
+            'grp.marketing.shops.show.hub', 'grp.org.shops.show.marketing.mailshots.index' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 [
@@ -183,10 +183,10 @@ class MarketingHub extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.marketing.hub',
-                                'parameters' => $routeParameters['shop']->slug
+                                'name'       => 'grp.org.shops.show.marketing.dashboard',
+                                'parameters' => $routeParameters
                             ],
-                            'label' => __('marketing').' ('.$routeParameters['shop']->code.')',
+                            'label' => __('marketing').' ('.$routeParameters['shop'].')',
                             'icon'  => 'fal fa-bullhorn'
                         ],
                     ],
