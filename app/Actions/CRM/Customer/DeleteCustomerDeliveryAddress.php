@@ -9,20 +9,15 @@ namespace App\Actions\CRM\Customer;
 
 use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteCustomerDeliveryAddress extends OrgAction
 {
-
     protected Address $address;
     public function handle(Customer $customer, Address $address)
     {
@@ -31,7 +26,7 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         $customer->save();
 
         $address->delete();
-        
+
         AddressHydrateUsage::dispatch($address);
         return $customer;
     }
@@ -39,7 +34,7 @@ class DeleteCustomerDeliveryAddress extends OrgAction
     public function afterValidator(Validator $validator): void
     {
 
-        if(DB::table('model_has_addresses')->where('address_id', $this->address->id)->exists()){
+        if(DB::table('model_has_addresses')->where('address_id', $this->address->id)->exists()) {
             abort(419);
         }
 

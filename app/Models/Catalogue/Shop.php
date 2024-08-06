@@ -35,6 +35,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\Timezone;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Order;
@@ -489,6 +490,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function adjustments(): HasMany
     {
         return $this->hasMany(Adjustment::class);
+    }
+
+    public function mailshots(): HasMany
+    {
+        return $this->hasMany(Mailshot::class);
     }
 
 }

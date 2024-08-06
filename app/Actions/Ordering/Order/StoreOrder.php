@@ -39,7 +39,8 @@ class StoreOrder extends OrgAction
 
     public int $hydratorsDelay = 0;
 
-    public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order {
+    public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
+    {
 
 
         $billingAddress = $modelData['billing_address'];

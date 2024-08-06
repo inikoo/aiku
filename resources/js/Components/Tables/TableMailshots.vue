@@ -17,10 +17,10 @@ const props = defineProps<{
 
 function mailshotRoute(mailshot: Mailshot) {
     switch (route().current()) {
-        case 'mail.mailshots.index':
+        case 'grp.org.shops.show.marketing.mailshots.index':
             return route(
-                'mail.mailshots.show',
-                [mailshot.data, mailshot.state]);
+                'grp.org.shops.show.marketing.mailshots.show',
+                [route().params.organisation, route().params.shop, mailshot.id]);
         default:
             return route(
                 'mailshots.show',
@@ -35,9 +35,9 @@ function mailshotRoute(mailshot: Mailshot) {
 <template>
 
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(name)="{ item: mailshot }">
-            <Link :href="route(mailshotRoute(mailshot))">
-                {{ mailshot["name"] }}
+        <template #cell(id)="{ item: mailshot }">
+            <Link :href="mailshotRoute(mailshot)">
+                {{ mailshot["id"] }}
             </Link>
         </template>
     </Table>

@@ -7,34 +7,51 @@
 
 namespace App\Actions\Mail\Mailshot;
 
+use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Models\Catalogue\Shop;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\SysAdmin\Organisation;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreMailshot
+class StoreMailshot extends OrgAction
 {
     use AsAction;
     use WithAttributes;
-    private bool $asAction=false;
+    use HasUIMailshots;
+    use HaCatalogueAuthorisation;
 
-    public function handle(Outbox $outbox, array $modelData): Mailshot
+    public function handle(Outbox|Shop $parent, array $modelData): Mailshot
     {
-        $modelData['shop_id']=$outbox->shop_id;
+        if($parent instanceof Outbox) {
+            $modelData['shop_id']=$parent->shop_id;
+        }
+
         /** @var Mailshot $mailshot */
-        $mailshot = $outbox->mailshots()->create($modelData);
+        $mailshot = $parent->mailshots()->create($modelData);
         $mailshot->stats()->create();
 
         return $mailshot;
     }
 
-    public function authorize(ActionRequest $request): bool
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Mailshot
     {
-        if($this->asAction) {
-            return true;
-        }
-        return $request->user()->hasPermissionTo("mail.edit");
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function htmlResponse(Mailshot $mailshot): \Symfony\Component\HttpFoundation\Response
+    {
+        return Inertia::location(route('grp.org.shops.show.marketing.mailshots.index', [
+            'organisation' => $mailshot->shop->organisation->slug,
+            'shop'         => $mailshot->shop->slug
+        ]));
     }
 
     /*

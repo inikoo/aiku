@@ -43,7 +43,7 @@ const sidebarOpen = ref(false)
 </script>
 
 <template>
-    <div class="relative min-h-full transition-all duration-200 ease-in-out"
+    <div class="relative min-h-screen transition-all duration-200 ease-in-out"
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">
 
         <TopBar @sidebarOpen="(value: boolean) => sidebarOpen = value" :sidebarOpen="sidebarOpen"
@@ -70,7 +70,7 @@ const sidebarOpen = ref(false)
 
         <!-- Main Content -->
         <main
-            class="h-full relative flex flex-col pt-20 md:pt-16 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
+            class="h-full relative flex flex-col pt-20 md:pt-[70px] lg:pt-16 pb-6 text-gray-700 transition-all duration-200 ease-in-out"
             :class="[
                 layout.leftSidebar.show ? 'ml-0 md:ml-48' : 'ml-0 md:ml-12',
                 layout.app.environment === 'staging' ? 'mt-6' : ''

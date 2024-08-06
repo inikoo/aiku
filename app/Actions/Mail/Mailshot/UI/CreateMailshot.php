@@ -41,19 +41,12 @@ class CreateMailshot extends OrgAction
                         [
                             [
                                 'title'  => __('name'),
-                                'fields' => [
-                                    'email_template_id' => [
-                                        'type'       => 'input',
-                                        'label'      => __('price'),
-                                        'required'   => true
-                                    ],
-                                ]
+                                'fields' => []
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.org.fulfilment.rentals.store',
+                        'name'       => 'grp.models.shop.mailshot.store',
                         'parameters' => [
-                            'organisation' => $parent->organisation_id,
                             'shop'         => $parent->id,
                         ]
                     ]
