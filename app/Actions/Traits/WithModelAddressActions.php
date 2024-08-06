@@ -172,4 +172,46 @@ trait WithModelAddressActions
     }
 
 
+    protected function attachAddressToModel($model,Address $address, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip=null)
+    {
+
+
+        $groupId=$model->group_id;
+        if($model instanceof Group) {
+            $groupId=$model->id;
+        }
+
+        $pivotData = [
+            'scope'    => $scope,
+            'group_id' => $groupId
+        ];
+
+        if($canShip===null and $scope=='delivery') {
+            $canShip=true;
+        }
+
+        if($canShip!==null) {
+            $pivotData['can_ship']=$canShip;
+        }
+
+
+
+        $model->addresses()->attach(
+            $address->id,
+            $pivotData
+        );
+
+        AddressHydrateUsage::dispatch($address);
+
+        if ($updateLocation) {
+            $this->updateLocation($model, $address);
+        }
+        if ($updateAddressField) {
+            $this->updateAddressField($model, $address, $updateAddressField);
+        }
+
+        return $model;
+    }
+
+
 }

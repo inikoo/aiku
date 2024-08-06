@@ -41,11 +41,10 @@ class StorePalletReturn extends OrgAction
 
     private bool $action = false;
 
-    private bool $withStoredItems=false;
+    private bool $withStoredItems = false;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletReturn
     {
-
         if (!Arr::exists($modelData, 'tax_category_id')) {
             data_set(
                 $modelData,
@@ -61,16 +60,16 @@ class StorePalletReturn extends OrgAction
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
 
-        $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_RETURN);
+        $modelData = $this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_RETURN);
 
         /** @var PalletReturn $palletReturn */
         $palletReturn = $fulfilmentCustomer->palletReturns()->create($modelData);
         $palletReturn->stats()->create();
 
 
-        $palletReturn = $this->addAddressToModel(
+        $palletReturn = $this->attachAddressToModel(
             model: $palletReturn,
-            addressData: $fulfilmentCustomer->customer->deliveryAddress->getFields(),
+            address: $fulfilmentCustomer->customer->deliveryAddress,
             scope: 'delivery',
             updateLocation: false,
             updateAddressField: 'delivery_address_id'
@@ -94,7 +93,7 @@ class StorePalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action) {
+        if ($this->action) {
             return true;
         }
 
@@ -108,18 +107,17 @@ class StorePalletReturn extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if($this->fulfilment->warehouses()->count()==1) {
+        if ($this->fulfilment->warehouses()->count() == 1) {
             /** @var Warehouse $warehouse */
             $warehouse = $this->fulfilment->warehouses()->first();
-            $this->fill(['warehouse_id' =>$warehouse->id]);
+            $this->fill(['warehouse_id' => $warehouse->id]);
         }
 
-        if($this->withStoredItems) {
+        if ($this->withStoredItems) {
             $this->set('type', PalletReturnTypeEnum::STORED_ITEM);
         } else {
             $this->set('type', PalletReturnTypeEnum::PALLET);
         }
-
     }
 
 
@@ -127,20 +125,22 @@ class StorePalletReturn extends OrgAction
     {
         $rules = [];
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $rules = [
-                'public_notes'  => ['sometimes','nullable','string','max:4000'],
-                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             ];
         }
 
         return [
-            'type'          => ['sometimes','required', Rule::enum(PalletReturnTypeEnum::class)],
-            'warehouse_id'  => ['required','integer',
-                                Rule::exists('warehouses', 'id')
-                                    ->where('organisation_id', $this->organisation->id),
-                ],
-            'customer_notes'=> ['sometimes','nullable','string'],
+            'type'           => ['sometimes', 'required', Rule::enum(PalletReturnTypeEnum::class)],
+            'warehouse_id'   => [
+                'required',
+                'integer',
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
+            'customer_notes' => ['sometimes', 'nullable', 'string'],
             ...$rules
         ];
     }
@@ -157,7 +157,7 @@ class StorePalletReturn extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function withStoredItems(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletReturn
     {
-        $this->withStoredItems=true;
+        $this->withStoredItems = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -178,9 +178,9 @@ class StorePalletReturn extends OrgAction
     public function fromRetinaWithStoredItems(ActionRequest $request): PalletReturn
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
-        $this->withStoredItems=true;
-        $fulfilmentCustomer   = $request->user()->customer->fulfilmentCustomer;
-        $this->fulfilment     = $fulfilmentCustomer->fulfilment;
+        $this->withStoredItems = true;
+        $fulfilmentCustomer    = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment      = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
 
@@ -198,8 +198,8 @@ class StorePalletReturn extends OrgAction
 
     public function actionWithStoredItems(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletReturn
     {
-        $this->action         = true;
-        $this->withStoredItems=true;
+        $this->action          = true;
+        $this->withStoredItems = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
@@ -212,10 +212,10 @@ class StorePalletReturn extends OrgAction
             'route' => [
                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                 'parameters' => [
-                    'organisation'           => $palletReturn->organisation->slug,
-                    'fulfilment'             => $palletReturn->fulfilment->slug,
-                    'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                    'palletReturn'           => $palletReturn->slug
+                    'organisation'       => $palletReturn->organisation->slug,
+                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                    'palletReturn'       => $palletReturn->slug
                 ]
             ]
         ];
@@ -227,13 +227,13 @@ class StorePalletReturn extends OrgAction
 
         return match ($routeName) {
             'grp.models.fulfilment-customer.pallet-return.store', 'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
-                'organisation'           => $palletReturn->organisation->slug,
-                'fulfilment'             => $palletReturn->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->slug
+                'organisation'       => $palletReturn->organisation->slug,
+                'fulfilment'         => $palletReturn->fulfilment->slug,
+                'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
+                'palletReturn'       => $palletReturn->slug
             ])),
             default => Inertia::location(route('retina.storage.pallet-returns.show', [
-                'palletReturn'         => $palletReturn->slug
+                'palletReturn' => $palletReturn->slug
             ]))
         };
     }
