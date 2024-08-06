@@ -106,22 +106,23 @@ class IndexMailshots extends OrgAction
                 ),
                 'title'       => __('mailshots '),
                 'pageHead'    => [
-                    'title'   => __('mailshots'),
-                    'create'  => $this->canEdit && $request->route()->getName()=='mail.mailshots.index' ? [
-                        'route' => [
-                            'name'       => 'mail.mailshots.create',
-                            'parameters' => array_values($request->route()->originalParameters())
-                        ],
-                        'label'=> __('mailshot')
-                    ] : false,
+                    'title'    => __('mailshots'),
+                    'actions'  => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => __('mailshot'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.marketing.mailshots.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ],
                 ],
                 'payments' => MailshotResource::collection($mailshots),
-
-
             ]
         )->table($this->tableStructure($this->parent));
     }
-
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
