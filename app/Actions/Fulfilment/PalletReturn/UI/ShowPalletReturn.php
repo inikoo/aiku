@@ -306,6 +306,8 @@ class ShowPalletReturn extends OrgAction
         }
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
+
+        // dd($palletReturn->deliveryAddress);
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -467,6 +469,13 @@ class ShowPalletReturn extends OrgAction
                                     'name'       => 'grp.models.customer.delivery-address.delete',
                                     'parameters' => [
                                         'fulfilmentCustomer' => $palletReturn->fulfilment_customer_id
+                                    ]
+                                ],
+                                'store_route' => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.customer.address.store',
+                                    'parameter'  => [
+                                        'customer' => $palletReturn->fulfilmentCustomer->customer
                                     ]
                                 ]
                             ],
