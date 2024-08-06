@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\Location;
 
+use App\Actions\Inventory\Location\Search\LocationRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
 use App\Actions\Traits\WithActionUpdate;
@@ -31,7 +31,7 @@ class UpdateLocation extends OrgAction
             OrganisationHydrateLocations::dispatch($location->organisation);
         }
 
-        LocationHydrateUniversalSearch::dispatch($location);
+        LocationRecordSearch::dispatch($location);
         HydrateLocation::run($location);
 
         return $location;

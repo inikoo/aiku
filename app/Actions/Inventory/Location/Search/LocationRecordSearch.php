@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 10:02:57 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 06 Aug 2024 16:04:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\Location\Hydrators;
+namespace App\Actions\Inventory\Location\Search;
 
 use App\Models\Inventory\Location;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class LocationHydrateUniversalSearch
+class LocationRecordSearch
 {
     use AsAction;
 
@@ -32,6 +32,7 @@ class LocationHydrateUniversalSearch
                 'warehouse_slug'    => $location->warehouse->slug,
                 'sections'          => ['inventory'],
                 'haystack_tier_1'   => $location->code,
+                'keyword'           => $location->code,
             ]
         );
     }

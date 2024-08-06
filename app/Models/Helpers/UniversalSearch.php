@@ -9,6 +9,7 @@ namespace App\Models\Helpers;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
 
@@ -102,6 +103,10 @@ class UniversalSearch extends Model
         ]);
     }
 
+    public function model(): MorphTo
+    {
+        return $this->morphTo();
+    }
 
 
 }

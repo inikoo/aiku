@@ -5,7 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
+use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\UpdateCustomerSettings;
+use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
@@ -73,3 +76,12 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::post('stored-items', [StoreStoredItem::class, 'fromRetina'])->name('stored-items.store');
+
+Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
+    Route::patch('delivery-address/update', [UpdateCustomerDeliveryAddress::class, 'fromRetina'])->name('delivery-address.update');
+    Route::delete('delivery-address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'fromRetina'])->name('delivery-address.delete');
+});
+
+Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
+    Route::post('delivery-address/store', [AddDeliveryAddressToFulfilmentCustomer::class, 'fromRetina'])->name('delivery-address.store');
+});

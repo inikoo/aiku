@@ -7,10 +7,10 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\OrgAction;
-use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
+use App\Actions\Inventory\Location\Search\LocationRecordSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
 use App\Models\Inventory\Location;
@@ -48,7 +48,7 @@ class StoreLocation extends OrgAction
         }
 
         WarehouseHydrateLocations::dispatch($location->warehouse);
-        LocationHydrateUniversalSearch::dispatch($location);
+        LocationRecordSearch::dispatch($location);
 
         return $location;
     }
