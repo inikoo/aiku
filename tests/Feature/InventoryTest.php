@@ -350,22 +350,22 @@ test('create org stock family', function (Stock $stock) {
     /** @var StockFamily $stockFamily */
     $stockFamily=$stock->stockFamily;
     expect($stockFamily)->toBeInstanceOf(StockFamily::class);
-    $orgStockFamily=StoreOrgStockFamily::make()->action($this->organisation, $stockFamily,[]);
-     expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class)
-        ->and($orgStockFamily->state)->toBe(OrgStockFamilyStateEnum::ACTIVE)
-        ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
+    $orgStockFamily=StoreOrgStockFamily::make()->action($this->organisation, $stockFamily, []);
+    expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class)
+       ->and($orgStockFamily->state)->toBe(OrgStockFamilyStateEnum::ACTIVE)
+       ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
+       ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
+       ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
 })->depends('update 2nd stock state');
 
 test('create org stock from 2nd stock (within stock family)', function (Stock $stock) {
 
     /** @var StockFamily $stockFamily */
-   $stockFamily=$stock->stockFamily;
+    $stockFamily=$stock->stockFamily;
     expect($stockFamily)->toBeInstanceOf(StockFamily::class);
 
 
-    $orgStockFamily=$stockFamily->orgStockFamilies()->where('organisation_id',$this->organisation->id)->first();
+    $orgStockFamily=$stockFamily->orgStockFamilies()->where('organisation_id', $this->organisation->id)->first();
     expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class);
     $orgStock = StoreOrgStock::make()->action(
         $orgStockFamily,

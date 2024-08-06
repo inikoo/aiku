@@ -105,7 +105,7 @@ class IndexMailshots extends OrgAction
                     $request->route()->originalParameters(),
                     $this->parent
                 ),
-                'title'       => __('mailshots '),
+                'title'       => __('mailshots'),
                 'pageHead'    => [
                     'title'    => __('mailshots'),
                     'actions'  => [

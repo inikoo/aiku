@@ -69,7 +69,7 @@ class AddressResource extends JsonResource
             'label'               => $address->whenPivotLoadedAs('pivot', 'model_has_addresses', function () {
                 return $this->pivot->label;
             }),
-            'can_edit' => $address->can_edit ?? null,
+            'can_edit'   => $address->can_edit   ?? null,
             'can_delete' => $address->can_delete ?? null,
         ];
     }

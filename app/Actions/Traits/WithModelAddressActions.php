@@ -172,7 +172,7 @@ trait WithModelAddressActions
     }
 
 
-    protected function attachAddressToModel($model,Address $address, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip=null)
+    protected function attachAddressToModel($model, Address $address, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip=null)
     {
 
 
