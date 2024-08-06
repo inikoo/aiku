@@ -33,7 +33,6 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -274,9 +273,9 @@ class ShowPalletReturn extends OrgAction
         }
 
         $canDelete = false;
-    
+
         $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
-    
+
         $processedAddresses = $addresses->map(function ($address) use (&$canDelete) {
             if (PalletReturn::where('delivery_address_id', $address->id)
                 ->where('state', PalletReturnStateEnum::IN_PROCESS)
@@ -285,7 +284,7 @@ class ShowPalletReturn extends OrgAction
                 return $address->setAttribute('can_delete', false)
                                 ->setAttribute('can_edit', true);
             }
-    
+
             return $address->setAttribute('can_delete', true)
                             ->setAttribute('can_edit', true);
         });

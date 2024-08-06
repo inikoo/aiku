@@ -14,14 +14,11 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteCustomerDeliveryAddress extends OrgAction
 {
-
     protected Address $address;
     public function handle(Customer $customer, Address $address)
     {
@@ -30,15 +27,14 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         $customer->save();
 
         $address->delete();
-        
+
         AddressHydrateUsage::dispatch($address);
         return $customer;
     }
 
     public function afterValidator(Validator $validator)
     {
-        if(PalletReturn::where('delivery_address_id', $this->address->id)->where('state', PalletReturnStateEnum::IN_PROCESS)->exists())
-        {
+        if(PalletReturn::where('delivery_address_id', $this->address->id)->where('state', PalletReturnStateEnum::IN_PROCESS)->exists()) {
             abort(419);
             // dd('hello');
         };
