@@ -85,15 +85,6 @@ console.log('fff', props.box_stats)
         <!-- Box: Detail -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2 ">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' size="xs" :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
-            </div>
-            
 
             <!-- Field: Reference -->
             <div as="a" v-if="box_stats.fulfilment_customer.customer.reference"
@@ -130,7 +121,7 @@ console.log('fff', props.box_stats)
             </div>
             
             <!-- Field: Delivery Address -->
-            <!-- <div class="flex items-start w-full flex-none gap-x-2">
+            <div class="flex items-start w-full flex-none gap-x-2">
                 <dt v-tooltip="`Pallet Return's address`" class="flex-none">
                     <span class="sr-only">Delivery address</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
@@ -150,29 +141,34 @@ console.log('fff', props.box_stats)
                 <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                     <span>Setup delivery address</span>
                 </div>
-            </div> -->
+            </div>
         </BoxStatPallet>
 
 
         <!-- Box: Notes -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
             :tooltip="trans('Notes')" :percentage="0">
-            <div class="grid gap-y-3">
+            <div class="grid gap-y-3 mb-3">
                 <RetinaBoxNote
                     :noteData="notes_data.return"
                     :updateRoute="updateRoute.route"
                 />
 
             </div>
-            <!-- <pre>{{ notes_data }}</pre> -->
-            <!-- <div class="flex items-end gap-x-3">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data_pallet.number_pallets }}</dd>
-            </div> -->
+            
+            <div class="border-t border-gray-300 pt-1">
+                <div class="flex items-center w-full flex-none gap-x-2" 
+                    :class='box_stats.delivery_status.class'>
+                    <dt class="flex-none">
+                        <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                        <FontAwesomeIcon
+                            :icon='box_stats.delivery_status.icon'
+                            size="xs"
+                            fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs">{{ box_stats.delivery_status.tooltip }}</dd>
+                </div>
+            </div>
         </BoxStatPallet>
 
 

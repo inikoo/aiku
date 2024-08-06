@@ -41,8 +41,8 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
-import { faStickyNote } from '@fal'
-import { faCube, faConciergeBell, faNarwhal } from '@fas'
+import { faStickyNote, faConciergeBell, faCube } from '@fal'
+import { faNarwhal } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCube, faConciergeBell, faNarwhal, faSpinnerThird, faStickyNote)
 
@@ -55,7 +55,6 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import Tag from "@/Components/Tag.vue"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
-import { useTruncate } from '@/Composables/useTruncate'
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 const props = defineProps<{

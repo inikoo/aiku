@@ -84,12 +84,11 @@ const onSubmitNote = async () => {
         <!-- Section: Note -->
         <p @dblclick="noteData.editable ? isModalOpen = true : false"
             v-tooltip="noteData.editable ? trans('Double click to edit') : false"
-            class="text-justify mx-auto items-center px-3 rounded py-2 ring-1 ring-gray-300 text-xxs break-words"
+            class="h-36 text-justify mx-auto items-center px-3 rounded-md py-2 ring-1 ring-gray-300 text-xs break-words"
             :class="noteData.editable ? 'cursor-pointer hover:bg-gray-50' : 'bg-gray-50 text-gray-500'"
         >
             <template v-if="noteData.note">{{ useTruncate(noteData.note, 200) }}</template>
-            <span v-else class="italic select-none text-gray-400"
-            >
+            <span v-else class="italic select-none text-gray-400">
                 {{ trans('No note added') }}
             </span>
         </p>
