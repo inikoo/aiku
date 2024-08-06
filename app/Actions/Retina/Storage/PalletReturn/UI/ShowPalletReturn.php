@@ -427,14 +427,14 @@ class ShowPalletReturn extends RetinaAction
                     ]
                 ],
                 'notes_data'             => [
-                    [
+                    'return'        => [
                         'label'           => __("Return's note"),
                         'note'            => $palletReturn->customer_notes ?? '',
                         'editable'        => true,
                         // 'bgColor'         => 'blue',
                         'field'           => 'customer_notes'
                     ],
-                    [
+                    'warehouse'     => [
                         'label'           => __('Note from warehouse'),
                         'note'            => $palletReturn->public_notes ?? '',
                         'editable'        => false,

@@ -47,11 +47,16 @@ const layout = inject('layout', layoutStructure)
     <!-- Sub Navigation -->
     <SubNavigation v-if="data.subNavigation?.length" :dataNavigation="data.subNavigation" />
     
-    <div class="mx-4 pt-2 pb-4 sm:py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
+
+    <slot name="afterSubNav">
+        
+    </slot>
+
+    <div class="relative px-4 pt-2 pb-4 sm:py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
         <div class="">
 
             <!-- Section: Main Title -->
-            <div class="flex leading-none py-1 items-center gap-x-2 font-bold text-gray-700 text-2xl tracking-tight ">
+            <div class="flex leading-none py-1.5 items-center gap-x-2 font-bold text-gray-700 text-2xl tracking-tight ">
                 <div v-if="data.container" class="text-slate-500 text-lg">
                     <Link v-if="data.container.href"
                         :href="route(data.container.href['name'], data.container.href['parameters'])"

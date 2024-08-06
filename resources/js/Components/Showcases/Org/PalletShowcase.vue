@@ -77,7 +77,7 @@ const blueprint = {
 
 onMounted(() => {
     if(props.data.data.slug){
-        JsBarcode('#palletBarcode', `pal-${props.data.data.slug}`, {
+        JsBarcode('#palletBarcode', props.data.data.slug, {
             lineColor: "rgb(41 37 36)",
             width: 2,
             height: 70,
