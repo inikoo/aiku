@@ -147,7 +147,7 @@ class ShowOrgStock extends GrpAction
                     $routeParameters['stock'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.inventory.org_stocks.index',
+                            'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
                             'parameters' => []
                         ],
                         'model' => [

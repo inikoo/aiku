@@ -144,7 +144,7 @@ class GetOrganisationNavigation
                             "label" => __("SKUs"),
                             "icon"  => ["fal", "fa-box"],
                             "route" => [
-                                "name"       => "grp.org.inventory.org_stocks.index",
+                                "name"       => "grp.org.inventory.org_stocks.current_org_stocks.index",
                                 "parameters" => [$organisation->slug],
                             ],
                         ],
