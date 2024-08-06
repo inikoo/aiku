@@ -33,7 +33,7 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -57,6 +57,7 @@ class ShowPalletReturn extends OrgAction
         return $this->handle($palletReturn);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->parent = $warehouse;
@@ -273,31 +274,27 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
-        $canDelete = false;
+
     
         $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
     
-        $processedAddresses = $addresses->map(function ($address) use (&$canDelete) {
-            if (PalletReturn::where('delivery_address_id', $address->id)
-                ->where('state', PalletReturnStateEnum::IN_PROCESS)
-                ->exists()) {
-                $canDelete = true;
+        $processedAddresses = $addresses->map(function ($address) {
+
+
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->exists()){
+
                 return $address->setAttribute('can_delete', false)
-                                ->setAttribute('can_edit', true);
+                    ->setAttribute('can_edit', true);
             }
+
     
             return $address->setAttribute('can_delete', true)
                             ->setAttribute('can_edit', true);
         });
 
-        if ($processedAddresses->isNotEmpty()) {
-            $firstAddress = $processedAddresses->first();
-            $firstAddress->setAttribute('can_delete', false)
-                            ->setAttribute('can_edit', true);
-        }
+
 
         $addressCollection = AddressResource::collection($processedAddresses);
-
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
@@ -309,6 +306,8 @@ class ShowPalletReturn extends OrgAction
         }
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
+
+        // dd($palletReturn->deliveryAddress);
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -470,6 +469,13 @@ class ShowPalletReturn extends OrgAction
                                     'name'       => 'grp.models.customer.delivery-address.delete',
                                     'parameters' => [
                                         'fulfilmentCustomer' => $palletReturn->fulfilment_customer_id
+                                    ]
+                                ],
+                                'store_route' => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.customer.address.store',
+                                    'parameter'  => [
+                                        'customer' => $palletReturn->fulfilmentCustomer->customer
                                     ]
                                 ]
                             ],

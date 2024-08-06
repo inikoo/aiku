@@ -36,7 +36,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
                     {{ trans('Made with') }}
                     <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true' />
                     {{ trans('and') }}
-                    <FontAwesomeIcon icon='fas fa-computer-classic' class="mx-1" aria-hidden='true' /> {{ 'in Bali' }}
+                    <FontAwesomeIcon icon='fas fa-computer-classic' class="mx-1" aria-hidden='true' /> {{ 'in KL|Bali' }}
                 </span>
             </div>
 

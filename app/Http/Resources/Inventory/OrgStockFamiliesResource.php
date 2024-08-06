@@ -15,7 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property number $state
  * @property string $name
  * @property string $description
- * @property string $number_org_stocks
+ * @property string $number_current_org_stocks
  * @property mixed $created_at
  * @property mixed $updated_at
  *
@@ -25,13 +25,13 @@ class OrgStockFamiliesResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'              => $this->slug,
-            'code'              => $this->code,
-            'state'             => $this->state,
-            'name'              => $this->name,
-            'number_org_stocks' => $this->number_org_stocks,
-            'created_at'        => $this->created_at,
-            'updated_at'        => $this->updated_at,
+            'slug'                      => $this->slug,
+            'code'                      => $this->code,
+            'state'                     => $this->state,
+            'name'                      => $this->name,
+            'number_current_org_stocks' => $this->number_current_org_stocks,
+            'created_at'                => $this->created_at,
+            'updated_at'                => $this->updated_at,
         ];
     }
 }

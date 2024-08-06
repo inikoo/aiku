@@ -15,6 +15,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -35,13 +36,13 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         return $customer;
     }
 
-    public function afterValidator(Validator $validator)
+    public function afterValidator(Validator $validator): void
     {
-        if(PalletReturn::where('delivery_address_id', $this->address->id)->where('state', PalletReturnStateEnum::IN_PROCESS)->exists())
-        {
+
+        if(DB::table('model_has_addresses')->where('address_id', $this->address->id)->exists()){
             abort(419);
-            // dd('hello');
-        };
+        }
+
     }
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, Address $address, ActionRequest $request): void

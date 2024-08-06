@@ -31,6 +31,8 @@ use Laravel\Scout\Searchable;
  * @property string|null $customer_slug
  * @property string|null $model_type
  * @property int|null $model_id
+ * @property string|null $keyword
+ * @property string|null $keyword_2
  * @property string|null $haystack_tier_1
  * @property string|null $haystack_tier_2
  * @property string|null $haystack_tier_3

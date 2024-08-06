@@ -39,14 +39,7 @@ class StoreOrder extends OrgAction
 
     public int $hydratorsDelay = 0;
 
-    public function handle(
-        Shop|Customer|CustomerClient $parent,
-        array $modelData,
-    ): Order {
-
-
-
-
+    public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order {
 
 
         $billingAddress = $modelData['billing_address'];
@@ -54,10 +47,6 @@ class StoreOrder extends OrgAction
         /** @var Address $deliveryAddress */
         $deliveryAddress = Arr::get($modelData, 'delivery_address');
         data_forget($modelData, 'delivery_address');
-
-
-
-
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;

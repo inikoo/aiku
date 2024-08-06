@@ -81,8 +81,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read Currency $currency
  * @property-read Customer|null $customer
  * @property-read Address|null $deliveryAddress
+ * @property-read mixed $discount_amount
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
@@ -92,6 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
  * @property-read Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
+ * @property-read TaxCategory $taxCategory
  * @property-read Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse

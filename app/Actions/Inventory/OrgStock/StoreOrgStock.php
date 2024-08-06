@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStocks;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
@@ -64,6 +65,9 @@ class StoreOrgStock extends OrgAction
 
         OrgStockHydrateUniversalSearch::dispatch($orgStock);
         OrganisationHydrateOrgStocks::dispatch($organisation);
+        if($orgStock->orgStockFamily) {
+            OrgStockFamilyHydrateOrgStocks::dispatch($orgStock->orgStockFamily);
+        }
 
         $orgStock->refresh();
 

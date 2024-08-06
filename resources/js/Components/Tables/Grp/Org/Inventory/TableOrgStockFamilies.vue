@@ -50,9 +50,9 @@ function orgStockFamilyOrgStocksRoute(stockFamily: StockFamily) {
         <template #cell(name)="{ item: stockFamily }">
                 {{ stockFamily['name'] }}
         </template>
-        <template #cell(number_org_stocks)="{ item: stockFamily }">
+        <template #cell(number_current_org_stocks)="{ item: stockFamily }">
           <Link :href="orgStockFamilyOrgStocksRoute(stockFamily)" class="secondaryLink">
-                {{ stockFamily['number_org_stocks'] }}
+                {{ stockFamily['number_current_org_stocks'] }}
             </Link>
         </template>
     </Table>
