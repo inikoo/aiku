@@ -24,8 +24,8 @@ const locale = inject('locale', {})
 </script>
 
 <template>
-    <div class="xl:whitespace-nowrap">
-        <span class="leading-none">{{ item.label }}</span>
+    <div class="xl:whitespace-nowrap border-b-2 border-indigo-600">
+        <span class="leading-none font-medium text-base">{{ item.label }}</span>
 
         <span>
             <template v-if="typeof item.number == 'number'">
@@ -37,7 +37,8 @@ const locale = inject('locale', {})
                 </template>
             </template>
             <template v-else>
-                ({{ item.number }})d
+                <!-- ({{ item.number || 0 }}) -->
+                <span :class="[true ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-900', 'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block']">{{ item.number || 0 }}</span>
             </template>
         </span>
     </div>
