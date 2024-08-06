@@ -8,8 +8,10 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
@@ -26,7 +28,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexMailshots extends OrgAction
 {
     use HasUIMailshots;
+    use HaCatalogueAuthorisation;
 
+    public Outbox|PostRoom|Organisation $parent;
 
     public function handle(Outbox|PostRoom|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
@@ -42,14 +46,6 @@ class IndexMailshots extends OrgAction
         }
 
         $queryBuilder=QueryBuilder::for(Mailshot::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
 
         return $queryBuilder
             ->defaultSort('mailshots.state')
@@ -91,17 +87,6 @@ class IndexMailshots extends OrgAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('mail.view')
-            );
-    }
-
-
     public function jsonResponse(LengthAwarePaginator $mailshots): AnonymousResourceCollection
     {
         return MailshotResource::collection($mailshots);
@@ -116,38 +101,42 @@ class IndexMailshots extends OrgAction
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()
+                    $request->route()->originalParameters(),
+                    $this->parent
                 ),
                 'title'       => __('mailshots '),
                 'pageHead'    => [
-                    'title'   => __('mailshots'),
-                    'create'  => $this->canEdit && $request->route()->getName()=='mail.mailshots.index' ? [
-                        'route' => [
-                            'name'       => 'mail.mailshots.create',
-                            'parameters' => array_values($request->route()->originalParameters())
-                        ],
-                        'label'=> __('mailshot')
-                    ] : false,
+                    'title'    => __('mailshots'),
+                    'actions'  => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => __('mailshot'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.marketing.mailshots.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ],
                 ],
                 'payments' => MailshotResource::collection($mailshots),
-
-
             ]
         )->table($this->tableStructure($this->parent));
     }
 
-
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
 
-    public function inShop(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        return $this->handle($postRoom);
+        $this->parent = $organisation;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($organisation);
     }
 
     /** @noinspection PhpUnused */

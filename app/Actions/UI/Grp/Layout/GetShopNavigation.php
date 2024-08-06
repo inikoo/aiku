@@ -248,6 +248,7 @@ class GetShopNavigation
                             "label"   => __("mailshots"),
                             "tooltip" => __("marketing mailshots"),
                             "icon"    => ["fal", "fa-mail-bulk"],
+                            'root'    => 'grp.org.shops.show.marketing.mailshots.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.marketing.mailshots.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
