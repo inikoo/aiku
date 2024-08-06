@@ -24,9 +24,11 @@ use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -76,6 +78,28 @@ class ShowPalletReturn extends RetinaAction
                 'label'=> '('.__('Whole pallets').')'
             ];
         }
+
+        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+
+        $processedAddresses = $addresses->map(function ($address) {
+
+
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->exists()) {
+
+                return $address->setAttribute('can_delete', false)
+                    ->setAttribute('can_edit', true);
+            }
+
+
+            return $address->setAttribute('can_delete', true)
+                            ->setAttribute('can_edit', true);
+        });
+
+
+
+        $addressCollection = AddressResource::collection($processedAddresses);
+
+        $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
         return Inertia::render(
             'Storage/RetinaPalletReturn',
@@ -287,49 +311,99 @@ class ShowPalletReturn extends RetinaAction
                                     'countriesAddressData' => GetAddressData::run()
                                 ]
                             ],
-                            'addresses_list'   => $addressHistories,
+                            'addresses_list'   => [
+                                'all_addresses'               => $addressCollection,
+                                'pinned_address_id'           => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
+                                'home_address_id'             => $palletReturn->fulfilmentCustomer->customer->address_id,
+                                'current_selected_address_id' => $palletReturn->delivery_address_id,
+                                'pinned_route'                => [
+                                    'method'     => 'patch',
+                                    'name'       => 'retina.models.customer.delivery-address.update',
+                                    'parameters' => [
+                                        'customer' => $palletReturn->fulfilmentCustomer->customer_id
+                                    ]
+                                ],
+                                'delete_route'  => [
+                                    'method'     => 'delete',
+                                    'name'       => 'retina.models.customer.delivery-address.delete',
+                                    'parameters' => [
+                                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->customer_id
+                                    ]
+                                ],
+                                'store_route' => [
+                                    'method'      => 'post',
+                                    'name'        => 'retina.models.fulfilment-customer.delivery-address.store',
+                                    'parameters'  => [
+                                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer
+                                    ]
+                                ]
+                            ],
                         ]
                     ),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
                     'order_summary'                => [
                         [
-                            [
-                                'label'         => __('Pallets'),
-                                'quantity'      => $palletReturn->stats->number_pallets ?? 0,
-                                'price_base'    => 999,
-                                'price_total'   => 1111 ?? 0
-                            ],
+                            // [
+                            //     'label'         => __('Pallets'),
+                            //     'quantity'      => $palletReturn->stats->number_pallets ?? 0,
+                            //     'price_base'    => 999,
+                            //     'price_total'   => 1111 ?? 0
+                            // ],
                             [
                                 'label'         => __('Services'),
                                 'quantity'      => $palletReturn->stats->number_services ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $palletReturn->stats->total_services_price ?? 0
+                                'price_base'    => '',
+                                'price_total'   => $palletReturn->services_amount
                             ],
                             [
                                 'label'         => __('Physical Goods'),
                                 'quantity'      => $palletReturn->stats->number_physical_goods ?? 0,
-                                'price_base'    => __('Multiple'),
-                                'price_total'   => $palletReturn->stats->total_physical_goods_price ?? 0
+                                'price_base'    => '',
+                                'price_total'   => $palletReturn->goods_amount
                             ],
                         ],
-                        [
+                        $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Shipping'),
-                                'information'   => __('Shipping fee to your address using DHL service.'),
-                                'price_total'   => 1111
+                                'label'         => __('Gross'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->gross_amount
                             ],
                             [
-                                'label'         => __('Tax'),
-                                'information'   => __('Tax is based on 10% of total order.'),
-                                'price_total'   => 1111
+                                'label'         => __('Discounts'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->discount_amount
+                            ],
+                        ] : [],
+                        $showGrossAndDiscount ? [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$palletReturn->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletReturn->tax_amount
+                            ],
+                        ] : [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $palletReturn->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$palletReturn->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $palletReturn->tax_amount
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => $palletReturn->stats->total_price
+                                'price_total'   => $palletReturn->total_amount
                             ],
                         ],
+                        'currency'                => CurrencyResource::make($palletReturn->currency),
 
                         // 'currency_code'                => 'usd',  // TODO
                         // 'number_pallets'               => $palletReturn->stats->number_pallets,

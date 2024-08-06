@@ -42,4 +42,13 @@ class UpdateCustomerDeliveryAddress extends OrgAction
 
         return $this->handle($customer, $this->validatedData);
     }
+
+    public function fromRetina(Customer $customer, ActionRequest $request): Customer
+    {
+        $customer = $request->user()->customer;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+
+        return $this->handle($customer, $this->validatedData);
+    }
 }
