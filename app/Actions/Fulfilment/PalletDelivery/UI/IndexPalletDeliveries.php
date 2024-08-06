@@ -142,8 +142,8 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         return $queryBuilder
-            ->defaultSort('pallet_deliveries.reference')
-            ->allowedSorts(['pallet_deliveries.reference'])
+            ->defaultSort('reference')
+            ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

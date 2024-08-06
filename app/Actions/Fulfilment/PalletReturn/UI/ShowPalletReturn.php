@@ -432,9 +432,9 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ],
                             'addresses_list'   => [
-                                'all_addresses'   => $allAddresses,
-                                'pinned_address_id' => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
-                                'home_address_id' => $palletReturn->fulfilmentCustomer->customer->address_id,
+                                'all_addresses'               => $allAddresses,
+                                'pinned_address_id'           => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
+                                'home_address_id'             => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id' => $palletReturn->delivery_address_id,
                                 'pinned_route'                => [
                                     'method'     => 'patch',
