@@ -31,6 +31,7 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
         Route::get('areas/{warehouseArea:id}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('areas.locations.index')->withoutScopedBindings();
         Route::get('locations/{location:id}', [ShowLocation::class, 'inWarehouse'])->name('locations.show')->withoutScopedBindings();
+        Route::get('locations/{location:code}/code', [ShowLocation::class, 'inWarehouse'])->name('locations.code.show')->withoutScopedBindings();
 
         Route::prefix("fulfilments/{fulfilment:id}")->name("fulfilments.")->group(function () {
             Route::get('locations/{location:id}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index')->withoutScopedBindings();

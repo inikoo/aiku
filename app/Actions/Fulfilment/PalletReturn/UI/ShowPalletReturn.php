@@ -273,7 +273,7 @@ class ShowPalletReturn extends OrgAction
         }
 
         $defaultAddress   = AddressResource::make($palletReturn->fulfilmentCustomer->customer->deliveryAddress);
-        $allAddresses = AddressResource::collection($palletReturn->fulfilmentCustomer->customer->addresses);
+        $allAddresses     = AddressResource::collection($palletReturn->fulfilmentCustomer->customer->addresses);
         // dd($addressHistories);
         // dd($palletReturn->fulfilmentCustomer->customer->addresses[0]->pivot->scope);
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
@@ -436,9 +436,9 @@ class ShowPalletReturn extends OrgAction
                                 'pinned_address_id' => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id' => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id' => $palletReturn->delivery_address_id,
-                                'pinned_route' => [
-                                    'method' => 'patch',
-                                    'name' => 'grp.models.customer.delivery-address.update',
+                                'pinned_route'                => [
+                                    'method'     => 'patch',
+                                    'name'       => 'grp.models.customer.delivery-address.update',
                                     'parameters' => [
                                         'customer' => $palletReturn->fulfilmentCustomer->customer_id
                                     ]
