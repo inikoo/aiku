@@ -135,7 +135,7 @@ class IndexLocations extends OrgAction
                 }
             })
             ->allowedSorts(['code'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch, $search])
             ->withPaginator($prefix)
             ->withQueryString();
     }

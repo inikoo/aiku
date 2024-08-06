@@ -11,7 +11,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
-use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateCustomerDeliveryAddress extends OrgAction
@@ -44,4 +43,3 @@ class UpdateCustomerDeliveryAddress extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 }
-
