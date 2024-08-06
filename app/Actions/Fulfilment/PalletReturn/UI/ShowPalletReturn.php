@@ -29,12 +29,11 @@ use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
-use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -58,6 +57,7 @@ class ShowPalletReturn extends OrgAction
         return $this->handle($palletReturn);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
         $this->parent = $warehouse;
@@ -274,31 +274,27 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
-        $canDelete = false;
+
     
         $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
     
-        $processedAddresses = $addresses->map(function ($address) use (&$canDelete) {
-            if (PalletReturn::where('delivery_address_id', $address->id)
-                ->where('state', PalletReturnStateEnum::IN_PROCESS)
-                ->exists() || Customer::where('delivery_address_id', $address->id)->exists()) {
-                $canDelete = true;
+        $processedAddresses = $addresses->map(function ($address) {
+
+
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->exists()){
+
                 return $address->setAttribute('can_delete', false)
-                                ->setAttribute('can_edit', true);
+                    ->setAttribute('can_edit', true);
             }
+
     
             return $address->setAttribute('can_delete', true)
                             ->setAttribute('can_edit', true);
         });
 
-        if ($processedAddresses->isNotEmpty()) {
-            $firstAddress = $processedAddresses->first();
-            $firstAddress->setAttribute('can_delete', false)
-                            ->setAttribute('can_edit', true);
-        }
+
 
         $addressCollection = AddressResource::collection($processedAddresses);
-        // dd($addressCollection);
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
