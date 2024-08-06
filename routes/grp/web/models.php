@@ -196,7 +196,7 @@ Route::prefix('clocking-machine/{clockingMachine:id}')->name('clocking_machine..
 Route::patch('fulfilment/{fulfilment:id}', UpdateFulfilment::class)->name('fulfilment.update');
 Route::patch('customer/{customer:id}', UpdateCustomer::class)->name('customer.update')->withoutScopedBindings();
 Route::patch('customer/delivery-address/{customer:id}', UpdateCustomerDeliveryAddress::class)->name('customer.delivery-address.update')->withoutScopedBindings();
-Route::delete('customer/{fulfilmentCustomer:id}/address/delete', DeleteCustomerDeliveryAddress::class)->name('customer.delivery-address.delete')->withoutScopedBindings();
+Route::delete('customer/{fulfilmentCustomer:id}/address/{address:id}/delete', DeleteCustomerDeliveryAddress::class)->name('customer.delivery-address.delete')->withoutScopedBindings();
 
 
 /*

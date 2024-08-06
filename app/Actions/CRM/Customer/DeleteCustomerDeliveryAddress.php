@@ -18,9 +18,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DeleteCustomerDeliveryAddress extends OrgAction
 {
-    public function handle(Customer $customer, array $modelData)
+    public function handle(Customer $customer, Address $address)
     {
-        $address = Address::find(Arr::get($modelData, 'address_id'));
         $customer->addresses()->detach($address->id);
 
         $address->delete();
@@ -29,17 +28,11 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         return $customer;
     }
 
-    public function rules(): array
-    {
-        return [
-            'address_id' => ['required', Rule::exists('addresses', 'id')],
-        ];
-    }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $actionRequest): void
+    public function asController(FulfilmentCustomer $fulfilmentCustomer, Address $address, ActionRequest $actionRequest): void
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $actionRequest);
 
-        $this->handle($fulfilmentCustomer->customer, $this->validatedData);
+        $this->handle($fulfilmentCustomer->customer, $address);
     }
 }
