@@ -53,7 +53,7 @@ const onSubmitNewAddress = async (address: Address) => {
     router[props.addressList.store_route.method || 'post'](
         route(props.addressList.store_route.name, props.addressList.store_route.parameters),
         {
-            address: filterDataAdddress
+            delivery_address: filterDataAdddress
         },
         {
             preserveScroll: true,

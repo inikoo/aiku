@@ -9,7 +9,7 @@ import { Head, useForm } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch } from "vue"
+import { computed, inject, ref, watch } from "vue"
 import type { Component } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -41,9 +41,10 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinnerThird } from '@fad'
-import { faCube, faConciergeBell, faNarwhal } from '@fal'
+import { faStickyNote } from '@fal'
+import { faCube, faConciergeBell, faNarwhal } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCube, faConciergeBell, faNarwhal, faSpinnerThird)
+library.add(faCube, faConciergeBell, faNarwhal, faSpinnerThird, faStickyNote)
 
 // import '@/Composables/Icon/PalletStateEnum.ts'
 // import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
@@ -54,6 +55,8 @@ import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import Tag from "@/Components/Tag.vue"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
+import { useTruncate } from '@/Composables/useTruncate'
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 const props = defineProps<{
 	title: string
@@ -80,7 +83,9 @@ const props = defineProps<{
 	}
 
     box_stats: BoxStats
-    notes_data: PDRNotes[]
+    notes_data: {
+        [key: string]: PDRNotes
+    }
 
 	pallets?: {}
     stored_items?: {}
@@ -94,6 +99,8 @@ const props = defineProps<{
 // console.log('box stats', props.box_stats)
 // console.log('notes data', props.notes_data)
 
+
+const layout = inject('layout', layoutStructure)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -221,6 +228,25 @@ const isModalUploadOpen = ref(false)
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+        <template v-if="notes_data?.warehouse?.note" #afterSubNav>
+            <div class="px-4">
+                <div class="mt-3 py-1 rounded mx-auto px-3 flex gap-x-2 text-sm"
+                    :style="{
+                        backgroundColor: layout.app.theme[0],
+                        color: layout.app.theme[1],
+                    }"
+                >
+                    <div class="flex items-center">
+                        <FontAwesomeIcon icon='fal fa-sticky-note' class='text-xl' fixed-width aria-hidden='true' />
+                    </div>
+                    <div class="font-semibold line-clamp-2" v-tooltip="notes_data.warehouse.note">
+                        {{ notes_data.warehouse.label }}:
+                        <span class="text-gray-200 font-normal">{{ notes_data.warehouse.note }}</span>
+                    </div>
+                </div>
+            </div>
+        </template>
+
         <!-- Button: Upload -->
         <template #button-upload="{ action }">
             <Button v-if="currentTab === 'pallets' || currentTab === 'stored_items'" @click="() => isModalUploadOpen = true"
