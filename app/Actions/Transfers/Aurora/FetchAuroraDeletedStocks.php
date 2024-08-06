@@ -74,10 +74,18 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
                     );
                 } else {
 
+                    $orgParent = null;
 
+                    if ($effectiveStock->stockFamily) {
+                        $orgParent = $effectiveStock->stockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first();
+                    }
+
+                    if (!$orgParent) {
+                        $orgParent = $organisationSource->getOrganisation();
+                    }
 
                     $orgStock = StoreOrgStock::make()->action(
-                        organisation: $organisationSource->getOrganisation(),
+                        parent: $orgParent,
                         stock: $effectiveStock,
                         modelData: $stockData['org_stock'],
                         hydratorDelay: 30

@@ -84,7 +84,8 @@ class PalletDeliveryRecordSearch
                 'fulfilment_slug'   => $palletDelivery->fulfilment->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $palletDelivery->reference,
-                'result'            => $result
+                'result'            => $result,
+                'keyword'           => $palletDelivery->slug
             ]
         );
 
@@ -95,8 +96,8 @@ class PalletDeliveryRecordSearch
                 'organisation_id'   => $palletDelivery->organisation_id,
                 'customer_id'       => $palletDelivery->fulfilmentCustomer->customer_id,
                 'haystack_tier_1'   => $palletDelivery->reference,
-                'result'            => $result
-
+                'result'            => $result,
+                'keyword'           => $palletDelivery->slug
             ]
         );
     }

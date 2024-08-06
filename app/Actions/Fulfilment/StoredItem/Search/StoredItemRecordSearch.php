@@ -26,6 +26,7 @@ class StoredItemRecordSearch
                 'sections'        => ['fulfilment'],
                 'haystack_tier_1' => $storedItem->reference,
                 'haystack_tier_2' => $storedItem->notes,
+                'keyword'         => $storedItem->slug,
             ]
         );
     }

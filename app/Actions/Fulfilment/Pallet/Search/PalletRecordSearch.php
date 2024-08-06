@@ -38,6 +38,7 @@ class PalletRecordSearch
                 'warehouse_slug'    => $pallet->warehouse->slug,
                 'sections'          => ['fulfilment'],
                 'haystack_tier_1'   => $pallet->reference ?? $pallet->id,
+                'keyword'           => $pallet->slug,
                 'result'            => [
                     'route'     => [
                         'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
