@@ -33,6 +33,7 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -272,10 +273,31 @@ class ShowPalletReturn extends OrgAction
             }
         }
 
-        $defaultAddress   = AddressResource::make($palletReturn->fulfilmentCustomer->customer->deliveryAddress);
-        $allAddresses     = AddressResource::collection($palletReturn->fulfilmentCustomer->customer->addresses);
-        // dd($addressHistories);
-        // dd($palletReturn->fulfilmentCustomer->customer->addresses[0]->pivot->scope);
+        $canDelete = false;
+    
+        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+    
+        $processedAddresses = $addresses->map(function ($address) use (&$canDelete) {
+            if (PalletReturn::where('delivery_address_id', $address->id)
+                ->where('state', PalletReturnStateEnum::IN_PROCESS)
+                ->exists()) {
+                $canDelete = true;
+                return $address->setAttribute('can_delete', false)
+                                ->setAttribute('can_edit', true);
+            }
+    
+            return $address->setAttribute('can_delete', true)
+                            ->setAttribute('can_edit', true);
+        });
+
+        if ($processedAddresses->isNotEmpty()) {
+            $firstAddress = $processedAddresses->first();
+            $firstAddress->setAttribute('can_delete', false)
+                            ->setAttribute('can_edit', true);
+        }
+
+        $addressCollection = AddressResource::collection($processedAddresses);
+
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
@@ -432,7 +454,7 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ],
                             'addresses_list'   => [
-                                'all_addresses'               => $allAddresses,
+                                'all_addresses'               => $addressCollection,
                                 'pinned_address_id'           => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id'             => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id' => $palletReturn->delivery_address_id,
