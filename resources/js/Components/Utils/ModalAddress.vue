@@ -9,11 +9,11 @@ import { trans } from 'laravel-vue-i18n'
 import { Address, AddressOptions } from "@/types/PureComponent/Address"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faThumbtack, faPencil, faHouse } from '@fal'
+import { faThumbtack, faPencil, faHouse, faTrashAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useTruncate } from '../../Composables/useTruncate'
-library.add(faThumbtack, faPencil, faHouse)
+library.add(faThumbtack, faPencil, faHouse, faTrashAlt)
 
 const props = defineProps<{
     updateRoute: routeType

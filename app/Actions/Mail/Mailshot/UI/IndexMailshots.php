@@ -82,6 +82,7 @@ class IndexMailshots extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->column(key: 'id', label: __('id'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'data', label: __('data'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -119,7 +120,7 @@ class IndexMailshots extends OrgAction
                         ]
                     ],
                 ],
-                'payments' => MailshotResource::collection($mailshots),
+                'data' => MailshotResource::collection($mailshots),
             ]
         )->table($this->tableStructure($this->parent));
     }

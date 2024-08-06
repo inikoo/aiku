@@ -26,6 +26,8 @@ class DeleteCustomerDeliveryAddress extends OrgAction
     public function handle(Customer $customer, Address $address)
     {
         $customer->addresses()->detach($address->id);
+        $customer->delivery_address_id = $customer->address_id;
+        $customer->save();
 
         $address->delete();
         

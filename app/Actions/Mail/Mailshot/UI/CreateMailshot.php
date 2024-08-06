@@ -7,7 +7,6 @@
 
 namespace App\Actions\Mail\Mailshot\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
 use App\Models\Mail\Outbox;
@@ -28,6 +27,8 @@ class CreateMailshot extends OrgAction
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $parent->organisation,
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'    => __('new mailshot'),
@@ -41,7 +42,7 @@ class CreateMailshot extends OrgAction
                             [
                                 'title'  => __('name'),
                                 'fields' => [
-                                    'price' => [
+                                    'email_template_id' => [
                                         'type'       => 'input',
                                         'label'      => __('price'),
                                         'required'   => true
@@ -64,7 +65,7 @@ class CreateMailshot extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
     /**
@@ -77,17 +78,19 @@ class CreateMailshot extends OrgAction
         return $this->handle($shop, $request);
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(Organisation $parent, string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexFulfilmentRentals::make()->getBreadcrumbs(
+            IndexMailshots::make()->getBreadcrumbs(
+                routeName: $routeName,
                 routeParameters: $routeParameters,
+                parent: $parent
             ),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('Creating rental'),
+                        'label' => __('Creating mailshot'),
                     ]
                 ]
             ]
