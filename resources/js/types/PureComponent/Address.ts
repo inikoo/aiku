@@ -1,4 +1,4 @@
-export interface AddressValue {
+export interface Address {
     id?: number | null
     address_line_1?: string
     address_line_2?: string
@@ -9,6 +9,16 @@ export interface AddressValue {
     administrative_area?: string
     country_code?: string
     country_id: number
+    label: string | null
+    checksum: string
+    created_at: string | null
+    updated_at:string
+    country?: {
+        code: string
+        iso3: string
+        name: string
+    }
+    formatted_address?: string
 }
 
 export interface AddressOptions {
@@ -38,7 +48,7 @@ export interface AddressOptions {
     }
 }
 
-export interface Address {
-    value: AddressValue
+export interface Addresses {
+    value: Address
     options: AddressOptions
 }

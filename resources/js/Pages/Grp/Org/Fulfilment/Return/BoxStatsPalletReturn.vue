@@ -200,7 +200,7 @@ const isModalAddress = ref(false)
 
 <style scoped lang="scss">
 :deep(.country) {
-    @apply font-bold text-sm
+    @apply font-medium text-sm
 }
 
 </style>
