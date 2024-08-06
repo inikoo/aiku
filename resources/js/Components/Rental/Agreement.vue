@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { routeType } from '@/types/route.js'
 import Popover from '@/Components/Popover.vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { trans } from 'laravel-vue-i18n'
 
 
 const layout = inject('layout', layoutStructure)
@@ -169,10 +170,10 @@ const onSavedAgreement = (updateAll: boolean) => {
                             
                             <template #content="{ close: closed }">
                                 <div class="max-w-min">
-                                    <div class="mb-2 w-fit text-xs text-gray-500">Update agreement only on this section or update for all?</div>
+                                    <div class="mb-2 w-fit text-xs text-gray-500">{{trans('You can just update the discounts for future bills or apply it to current ones')}}</div>
                                     <div class="flex gap-x-2">
-                                        <Button @click="() => (onSavedAgreement(false))" label="Just this section" type="tertiary" />
-                                        <Button @click="() => onSavedAgreement(true)" label="Update all" />
+                                        <Button @click="() => (onSavedAgreement(false))" :label="trans('Update')" type="tertiary" />
+                                        <Button @click="() => onSavedAgreement(true)" :label="trans('Update & Change Open Bills')" />
                                     </div>
 
                                     <div v-if="form.processing" class="absolute inset-0 bg-black/20 rounded-md flex justify-center items-center">
