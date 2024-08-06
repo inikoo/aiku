@@ -35,7 +35,7 @@ const locale = inject('locale', {})
 <template>
     <div class="relative select-none w-full flex flex-wrap px-4 sm:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
         <!-- Tab: Home/dashboard -->
-        <div v-if="dataNavigation.length"
+        <div v-if="dataNavigation.length && false"
             class="py-1 flex items-center transition-all"
             :class="[
                 layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-2 bg-white rounded-t-md rounded-tl-none sm:border sm:border-transparent sm:border-r-gray-300' : 'tabSubNav -ml-2 md:ml-0'
@@ -82,21 +82,15 @@ const locale = inject('locale', {})
         <!-- Tabs -->
         <TransitionGroup>
             <component
-                v-for="subNav, itemIdx in [...dataNavigation].slice(1)"
+                v-for="subNav, itemIdx in dataNavigation"
                 :key="'subNav' + itemIdx"
                 :is="subNav.href?.name ? Link : 'div'"
                 :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
                 @start="() => isLoading = itemIdx"
                 @finish="() => isLoading = false"
                 class="py-1.5 flex items-center transition-all"
-                :class="[
-                    layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
-                ]"
             >
                 <div class="px-1.5 flex items-center transition-all"
-                    :class="[
-                        layout.currentRoute.includes(subNav.href?.name) ? `translate-y-1 pb-1` : `py-1`
-                    ]"
                 >
                     <div v-if="subNav.leftIcon" class="pr-1">
                         <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="animate-spin" />
