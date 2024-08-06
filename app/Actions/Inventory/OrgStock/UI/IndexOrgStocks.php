@@ -188,7 +188,7 @@ class IndexOrgStocks extends OrgAction
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
                             'route'   => match ($request->route()->getName()) {
-                                'grp.org.inventory.org-stock-families.show.stocks.index' => [
+                                'grp.org.inventory.org_stock_families.show.org_stocks.index' => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
@@ -225,7 +225,7 @@ class IndexOrgStocks extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.inventory.org-stocks.index' =>
+            'grp.org.inventory.org_stocks.index' =>
             array_merge(
                 ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

@@ -31,7 +31,7 @@ function stockFamilyRoute(stock: Stock) {
     switch (route().current()) {
         default:
             return route(
-                'grp.org.inventory.org-stock-families.show',
+                'grp.org.inventory.org_stock_families.show',
                 [
                     route().params['organisation'],
                     stock.family_slug
