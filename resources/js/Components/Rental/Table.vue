@@ -101,38 +101,36 @@ const showAll = () => {
 
 <template>
 
-    <div class="flex justify-between mb-3">
+    <div class="h-9 flex  items-center justify-between mb-3">
         <!-- Button: Show all or only show edited field  -->
-        <div>
-            <div class="flex items-center gap-x-3" v-if="bluprint.checkbox">
-                <div @click="() => showEdited()"
-                    class="text-base leading-none font-medium cursor-pointer select-none"
-                    :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-gray-400' : 'text-indigo-500'"
-                >
-                    Modified
-                </div>
-                <Switch
-                    @click="() => props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? showEdited() : showAll()"
-                    :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? '' : ''"
-                    class="pr-1 relative inline-flex h-5 aspect-[2/1] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-                >
-                    <!-- <span class="sr-only">Use setting</span> -->
-                    <span aria-hidden="true" :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'translate-x-5 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
-                        class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
-                </Switch>
-                <div @click="() => showAll()"
-                    class="text-base leading-none font-medium cursor-pointer select-none"
-                    :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-indigo-500' : ' text-gray-400'"
-                >
-                    Show All
-                </div>
+        <div v-if="bluprint.checkbox" class="flex items-center gap-x-3">
+            <div @click="() => showEdited()"
+                class="text-base leading-none font-medium cursor-pointer select-none"
+                :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-gray-400' : 'text-indigo-500'"
+            >
+                Modified
+            </div>
+            <Switch
+                @click="() => props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? showEdited() : showAll()"
+                :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? '' : ''"
+                class="pr-1 relative inline-flex h-5 aspect-[2/1] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            >
+                <!-- <span class="sr-only">Use setting</span> -->
+                <span aria-hidden="true" :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'translate-x-5 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
+                    class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
+            </Switch>
+            <div @click="() => showAll()"
+                class="text-base leading-none font-medium cursor-pointer select-none"
+                :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-indigo-500' : ' text-gray-400'"
+            >
+                Show All
             </div>
         </div>
 
         <Popover class="relative h-full">
             <template #button>
                 <Button v-if="bulkData.length" :key="bulkData.length" label="Set all discount (%)"
-                    :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon="['fal', 'list-alt']" class="mr-2" />
+                    :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon="['fal', 'list-alt']" class="" />
             </template>
 
             <template #content="{ close: closed }">

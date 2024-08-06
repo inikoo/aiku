@@ -111,7 +111,9 @@ const checkVerification = async () => {
                         :form="form"
                         :fieldName="field"
                         :options="fieldData.options"
-                        :fieldData="fieldData">
+                        :fieldData="fieldData"
+                        :updateRoute
+                    >
                     </component>
 
                     <!-- Verification: Label -->

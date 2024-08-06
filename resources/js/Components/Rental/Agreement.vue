@@ -9,6 +9,11 @@ import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { cloneDeep } from 'lodash'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { routeType } from '@/types/route.js'
+import Popover from '@/Components/Popover.vue'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+
 
 const layout = inject('layout', layoutStructure)
 
@@ -17,7 +22,7 @@ const props = withDefaults(defineProps<{
     tabs?: Array
     fieldName: string
     options?: any
-    reset?: Boolean
+    reset?: boolean
     fieldData?: {
         type: string
         placeholder: string
@@ -35,6 +40,7 @@ const props = withDefaults(defineProps<{
             data: {}
         },
     }
+    updateRoute: routeType
 }>(), {
     reset : true,
     tabs: [
@@ -112,7 +118,15 @@ onBeforeMount(() => {
     });
     props.form.reset(props.fieldName);
 });
-console.log(props)
+
+// Section: Replace the button from fieldform
+const onSavedAgreement = (updateAll: boolean) => {
+    props.form.transform((data) => ({
+        ...data,
+        update_all: updateAll,
+    }))
+    .post(route(props.updateRoute.name, props.updateRoute.parameters), { preserveScroll: true })
+}
 
 </script>
 
@@ -120,28 +134,59 @@ console.log(props)
 <template>
     <div class="border-2 rounded-lg p-3">
         <TabGroup>
-            <TabList class="flex space-x-8 border-b-2">
-                <Tab v-for="tab in tabs" as="template" :key="tab.key" v-slot="{ selected }">
-                    <button
-                        :style="selected ? { color: layout.app.theme[0], borderBottomColor: layout.app.theme[0] } : {}"
-                        :class="[
-                            'whitespace-nowrap border-b-2 py-1.5 px-1 text-sm font-medium focus:ring-0 focus:outline-none mb-2',
-                            selected
-                                ? `border-org-5s00 text-[${layout.app.theme[0]}]`
-                                : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
-                        ]">
-                        {{ tab.title }}
-                        <span v-if="reset">
-                            ({{ props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price !=
-                                xxx.agreed_price).length ? '+' +
-                            props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price !=
-                                xxx.agreed_price).length : 0 }})
-                        </span>
-                    </button>
-                </Tab>
-                <div style="margin-left: auto;" v-if="reset">
-                    <Button :label="`Reset`" :icon="['fal', 'history']" type="tertiary" @click="resetValue" />
+            <TabList class="flex justify-between items-center pb-1 border-b-2">
+                <div class="space-x-8">
+                    <Tab v-for="tab in tabs" as="template" :key="tab.key" v-slot="{ selected }">
+                        <button
+                            :style="selected ? { color: layout.app.theme[0], borderBottomColor: layout.app.theme[0] } : {}"
+                            :class="[
+                                'whitespace-nowrap border-b-2 py-1.5 px-1 text-sm font-medium focus:ring-0 focus:outline-none',
+                                selected
+                                    ? `text-[${layout.app.theme[0]}]`
+                                    : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
+                            ]">
+                            {{ tab.title }}
+                            <span v-if="reset">
+                                ({{
+                                    props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price != xxx.agreed_price).length
+                                    ? '+' + props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price != xxx.agreed_price).length
+                                    : 0
+                                }})
+                            </span>
+                        </button>
+                    </Tab>
                 </div>
+
+                <div class="self-end flex gap-x-3 items-center">
+                    <Button v-if="reset" label="Reset" size="s" :icon="['fal', 'history']" type="tertiary" @click="resetValue" />
+
+                    <div class="">
+                        <LoadingIcon v-if="form.processing" class="text-[23px]" />
+                        <Popover v-else-if="form.isDirty">
+                            <template #button="{ open }">
+                                <FontAwesomeIcon icon="fad fa-save" class="h-8" :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
+                            </template>
+                            
+                            <template #content="{ close: closed }">
+                                <div class="max-w-min">
+                                    <div class="mb-2 w-fit text-xs text-gray-500">Update agreement only on this section or update for all?</div>
+                                    <div class="flex gap-x-2">
+                                        <Button @click="() => (onSavedAgreement(false))" label="Just this section" type="tertiary" />
+                                        <Button @click="() => onSavedAgreement(true)" label="Update all" />
+                                    </div>
+
+                                    <div v-if="form.processing" class="absolute inset-0 bg-black/20 rounded-md flex justify-center items-center">
+                                        <LoadingIcon class="text-white text-4xl" />
+                                    </div>
+                                </div>
+                            </template>
+                        </Popover>
+                        <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
+                        <!-- <pre>{{ form }}</pre> -->
+                    </div>
+                </div>
+                
+
             </TabList>
 
             <TabPanels class="mt-2">
@@ -153,5 +198,6 @@ console.log(props)
                 </TabPanel>
             </TabPanels>
         </TabGroup>
+
     </div>
 </template>
