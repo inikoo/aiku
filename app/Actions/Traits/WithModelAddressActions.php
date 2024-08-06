@@ -68,6 +68,10 @@ trait WithModelAddressActions
         }
         data_set($addressData, 'group_id', $groupId);
 
+        $label = isset($addressData['label']) ? $addressData['label'] : null;
+        
+        unset($addressData['label']);        
+        
         $address = Address::create($addressData);
 
 
@@ -83,7 +87,9 @@ trait WithModelAddressActions
         if($canShip!==null) {
             $pivotData['can_ship']=$canShip;
         }
+        
 
+        $pivotData['label'] = $label;
 
         $model->addresses()->attach(
             $address->id,

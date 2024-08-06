@@ -110,6 +110,7 @@ class EditRentalAgreement extends OrgAction
                                         'label'          => __('Clauses'),
                                         'required'       => false,
                                         'full'           => true,
+                                        'noSaveButton'   => true,
                                         'rentals'        => RentalsResource::collection($rentalAgreement->fulfilment->rentals),
                                         'services'       => ServicesResource::collection($rentalAgreement->fulfilment->shop->services),
                                         'physical_goods' => OutersResource::collection($rentalAgreement->fulfilment->shop->products),
