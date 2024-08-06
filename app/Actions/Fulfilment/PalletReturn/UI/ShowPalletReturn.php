@@ -473,9 +473,9 @@ class ShowPalletReturn extends OrgAction
                                 ],
                                 'store_route' => [
                                     'method'      => 'post',
-                                    'name'        => 'grp.models.customer.address.store',
+                                    'name'        => 'grp.models.fulfilment-customer.address.store',
                                     'parameters'  => [
-                                        'customer' => $palletReturn->fulfilmentCustomer->customer
+                                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer
                                     ]
                                 ]
                             ],
