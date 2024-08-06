@@ -17,6 +17,7 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
@@ -34,6 +35,8 @@ use Symfony\Component\HttpFoundation\Response;
 class StorePalletReturn extends OrgAction
 {
     use WithDeliverableStoreProcessing;
+    use WithModelAddressActions;
+
     public Customer $customer;
 
     private bool $action = false;
@@ -57,14 +60,23 @@ class StorePalletReturn extends OrgAction
         }
 
         data_set($modelData, 'currency_id', $fulfilmentCustomer->fulfilment->shop->currency_id, overwrite: false);
-        data_set($modelData, 'delivery_address_id', $fulfilmentCustomer->customer->delivery_address_id);
 
         $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_RETURN);
-
 
         /** @var PalletReturn $palletReturn */
         $palletReturn = $fulfilmentCustomer->palletReturns()->create($modelData);
         $palletReturn->stats()->create();
+
+
+        $palletReturn = $this->addAddressToModel(
+            model: $palletReturn,
+            addressData: $fulfilmentCustomer->customer->deliveryAddress,
+            scope: 'delivery',
+            updateLocation: false,
+            updateAddressField: 'delivery_address_id'
+        );
+
+
         $palletReturn->refresh();
 
         PalletReturnRecordSearch::dispatch($palletReturn);
@@ -214,13 +226,7 @@ class StorePalletReturn extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-return.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
-                'organisation'           => $palletReturn->organisation->slug,
-                'fulfilment'             => $palletReturn->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->slug
-            ])),
-            'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+            'grp.models.fulfilment-customer.pallet-return.store', 'grp.models.fulfilment-customer.pallet-return-stored-items.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
