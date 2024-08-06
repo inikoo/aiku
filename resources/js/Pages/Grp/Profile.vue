@@ -17,6 +17,7 @@ import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
 import TableNotifications from "@/Components/Profile/TableNotifications.vue"
 import ProfileKPIs from "@/Components/Profile/ProfileKPIs.vue"
 import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
+import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
 // import EditProfile from "@/Pages/Grp/EditProfile.vue"
 
 import axios from 'axios'
@@ -73,6 +74,7 @@ const currentTab = ref('')
 const component = computed(() => {
     const components: Component = {
         todo: ProfileTodo,
+        dashboard: ProfileDashboard,
         notifications: TableNotifications,
         kpi: ProfileKPIs,
         visit_logs: TableUserRequestLogs,
