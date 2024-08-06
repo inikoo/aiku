@@ -22,7 +22,7 @@ trait HasUIStock
                     'routeParameters' => $stock->id,
                     'name'            => $stock->code,
                     'index'           => [
-                        'route'   => 'grp.org.inventory.org-stocks.index',
+                        'route'   => 'grp.org.inventory.org_stocks.index',
                         'overlay' => __('stocks list')
                     ],
                     'modelLabel'      => [

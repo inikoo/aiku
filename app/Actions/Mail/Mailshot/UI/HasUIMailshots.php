@@ -15,7 +15,7 @@ use App\Models\SysAdmin\Organisation;
 
 trait HasUIMailshots
 {
-    public function getBreadcrumbs(string $routeName, Outbox|PostRoom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, Outbox|PostRoom|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -30,10 +30,22 @@ trait HasUIMailshots
         };
 
         return match ($routeName) {
-            'mail.mailshots.index' =>
+            'grp.org.shops.show.marketing.mailshots.index' =>
             array_merge(
-                (new MarketingHub())->getBreadcrumbs(),
-                $headCrumb()
+                (new MarketingHub())->getBreadcrumbs($routeName, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.marketing.mailshots.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('mailshots'),
+                            'icon'  => 'fal fa-bars'
+                        ],
+                    ],
+                ]
             ),
             'mail.post_rooms.show.mailshots.show' =>
             array_merge(

@@ -116,7 +116,7 @@ class StoreOrgStock extends OrgAction
     public function htmlResponse(Stock $stock): RedirectResponse
     {
         if (!$stock->stock_family_id) {
-            return Redirect::route('grp.org.inventory.org-stock-families.show.stocks.show', [
+            return Redirect::route('grp.org.inventory.org_stock_families.show.stocks.show', [
                 $stock->stockFamily->slug,
                 $stock->slug
             ]);

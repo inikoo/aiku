@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -20,6 +21,7 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
@@ -77,6 +79,11 @@ class IndexPalletsInDelivery extends OrgAction
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix)
             ->withQueryString();
+    }
+
+    public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
+    {
+        return PalletsResource::collection($pallets);
     }
 
     public function tableStructure(PalletDelivery $palletDelivery, $prefix = null, $modelOperations = []): Closure

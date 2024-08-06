@@ -90,7 +90,7 @@ class RemoveStock extends InertiaAction
                             'name'       => 'grp.models.location.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.org.inventory.org-stock-families.show.stocks.remove' => [
+                        'grp.org.inventory.org_stock_families.show.stocks.remove' => [
                             'name'       => 'grp.models.stock-family.stock.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]

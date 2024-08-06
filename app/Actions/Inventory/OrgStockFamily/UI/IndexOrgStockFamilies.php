@@ -84,7 +84,7 @@ class IndexOrgStockFamilies extends OrgAction
                'code',
                'org_stock_families.id as id',
                'name',
-               'number_stocks'
+               'number_org_stocks'
            ])
            ->leftJoin('org_stock_family_stats', 'org_stock_family_stats.org_stock_family_id', 'org_stock_families.id')
            ->allowedSorts(['code', 'name', 'number_org_stocks'])
@@ -123,7 +123,7 @@ class IndexOrgStockFamilies extends OrgAction
                             'tooltip' => __('new stock family'),
                             'label'   => __('stock family'),
                             'route'   => [
-                                'name'       => 'grp.org.inventory.org-stock-families.create',
+                                'name'       => 'grp.org.inventory.org_stock_families.create',
                                 'parameters' => [$organisation->slug]
                             ]
                         ] : null
@@ -183,7 +183,7 @@ class IndexOrgStockFamilies extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.inventory.org-stock-families.index',
+                            'name'       => 'grp.org.inventory.org_stock_families.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __("SKUs families"),

@@ -17,15 +17,24 @@ const props = defineProps<{
 function stockFamilyRoute(stockFamily: StockFamily) {
     switch (route().current()) {
 
-        case 'grp.goods.stock-families.index':
+      case 'grp.org.inventory.org_stock_families.index':
             return route(
-                'grp.goods.stock-families.show',
-                [stockFamily.slug, stockFamily.slug]);
+                'grp.org.inventory.org_stock_families.show',
+                [route().params['organisation'], stockFamily.slug]);
     }
 
 }
 
+function orgStockFamilyOrgStocksRoute(stockFamily: StockFamily) {
+  switch (route().current()) {
 
+    case 'grp.org.inventory.org_stock_families.index':
+      return route(
+        'grp.org.inventory.org_stock_families.show.org_stocks.index',
+        [route().params['organisation'], stockFamily.slug]);
+  }
+
+}
 
 </script>
 
@@ -34,16 +43,16 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: stockFamily }">
-            <Link :href="stockFamilyRoute(stockFamily)">
+            <Link :href="stockFamilyRoute(stockFamily)" class="primaryLink">
                 {{ stockFamily['code'] }}
             </Link>
         </template>
         <template #cell(name)="{ item: stockFamily }">
                 {{ stockFamily['name'] }}
         </template>
-        <template #cell(number_stocks)="{ item: stockFamily }">
-            <Link :href="route('grp.org.inventory.org-stock-families.show.stocks.index',stockFamily['slug'])">
-                {{ stockFamily['number_stocks'] }}
+        <template #cell(number_org_stocks)="{ item: stockFamily }">
+          <Link :href="orgStockFamilyOrgStocksRoute(stockFamily)" class="secondaryLink">
+                {{ stockFamily['number_org_stocks'] }}
             </Link>
         </template>
     </Table>
