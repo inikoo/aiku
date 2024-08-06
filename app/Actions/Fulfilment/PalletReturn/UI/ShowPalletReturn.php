@@ -275,19 +275,19 @@ class ShowPalletReturn extends OrgAction
         }
 
 
-    
+
         $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
-    
+
         $processedAddresses = $addresses->map(function ($address) {
 
 
-            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->exists()){
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->exists()) {
 
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);
             }
 
-    
+
             return $address->setAttribute('can_delete', true)
                             ->setAttribute('can_edit', true);
         });
@@ -472,9 +472,9 @@ class ShowPalletReturn extends OrgAction
                                     ]
                                 ],
                                 'store_route' => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.customer.address.store',
-                                    'parameter'  => [
+                                    'method'      => 'post',
+                                    'name'        => 'grp.models.customer.address.store',
+                                    'parameters'  => [
                                         'customer' => $palletReturn->fulfilmentCustomer->customer
                                     ]
                                 ]
