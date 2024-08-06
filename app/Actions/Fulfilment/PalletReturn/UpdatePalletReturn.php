@@ -51,7 +51,14 @@ class UpdatePalletReturn extends OrgAction
             if (Arr::exists($addressData, 'id')) {
                 $countryCode = Country::find(Arr::get($addressData, 'country_id'))->code;
                 data_set($addressData, 'country_code', $countryCode);
-                UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
+                $label = isset($addressData['label']) ? $addressData['label'] : null;
+                unset($addressData['label']);        
+                $updatedAddress = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
+                $pivotData['label'] = $label;
+                $palletReturn->fulfilmentCustomer->customer->addresses()->updateExistingPivot(
+                    $updatedAddress->id,
+                    $pivotData
+                );
             } else {
                 $this->addAddressToModel(
                     $palletReturn->fulfilmentCustomer->customer,
