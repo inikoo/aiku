@@ -24,7 +24,7 @@ const props = defineProps<{
 console.log('ini',props)
 
 onMounted(() => {
-    JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
+    JsBarcode('#palletDeliveryBarcode', route().v().params.palletDelivery, {
         lineColor: "rgb(41 37 36)",
         width: 2,
         height: 50,
