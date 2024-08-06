@@ -41,7 +41,7 @@ class AddDeliveryAddressToFulfilmentCustomer extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
