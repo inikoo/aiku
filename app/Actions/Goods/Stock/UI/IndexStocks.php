@@ -252,7 +252,7 @@ class IndexStocks extends GrpAction
     }
 
 
-    public function getStocksSubNavigation(ActionRequest $request): array
+    public function getStocksSubNavigation(): array
     {
         return [
 
@@ -309,7 +309,7 @@ class IndexStocks extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
-        $subNavigation = $this->getStocksSubNavigation($request);
+        $subNavigation = $this->getStocksSubNavigation();
 
         $title = match ($this->bucket) {
             'active'        => __('Active SKUs'),
