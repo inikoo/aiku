@@ -25,7 +25,8 @@ class IndexUniversalScan extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('universal_searches.keyword', $value);
+                $query->whereStartWith('universal_searches.keyword', $value)
+                ->orWhereStartWith('universal_searches.keyword_2', $value);
             });
         });
 

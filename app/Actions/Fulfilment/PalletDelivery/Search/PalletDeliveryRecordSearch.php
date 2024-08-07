@@ -92,12 +92,13 @@ class PalletDeliveryRecordSearch
         $palletDelivery->retinaSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $palletDelivery->group_id,
-                'organisation_id'   => $palletDelivery->organisation_id,
-                'customer_id'       => $palletDelivery->fulfilmentCustomer->customer_id,
-                'haystack_tier_1'   => $palletDelivery->reference,
-                'result'            => $result,
-                'keyword'           => $palletDelivery->slug
+                'group_id'            => $palletDelivery->group_id,
+                'organisation_id'     => $palletDelivery->organisation_id,
+                'customer_id'         => $palletDelivery->fulfilmentCustomer->customer_id,
+                'haystack_tier_1'     => $palletDelivery->reference,
+                'result'              => $result,
+                'keyword'             => $palletDelivery->slug,
+                'keyword_2'           => $palletDelivery->reference
             ]
         );
     }

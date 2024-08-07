@@ -29,17 +29,18 @@ class PalletRecordSearch
         $pallet->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $pallet->group_id,
-                'organisation_id'   => $pallet->organisation_id,
-                'organisation_slug' => $pallet->organisation->slug,
-                'fulfilment_id'     => $pallet->fulfilment_id,
-                'fulfilment_slug'   => $pallet->fulfilment->slug,
-                'warehouse_id'      => $pallet->warehouse_id,
-                'warehouse_slug'    => $pallet->warehouse->slug,
-                'sections'          => ['fulfilment'],
-                'haystack_tier_1'   => $pallet->reference ?? $pallet->id,
-                'keyword'           => $pallet->slug,
-                'result'            => [
+                'group_id'            => $pallet->group_id,
+                'organisation_id'     => $pallet->organisation_id,
+                'organisation_slug'   => $pallet->organisation->slug,
+                'fulfilment_id'       => $pallet->fulfilment_id,
+                'fulfilment_slug'     => $pallet->fulfilment->slug,
+                'warehouse_id'        => $pallet->warehouse_id,
+                'warehouse_slug'      => $pallet->warehouse->slug,
+                'sections'            => ['fulfilment'],
+                'haystack_tier_1'     => $pallet->reference ?? $pallet->id,
+                'keyword'             => $pallet->slug,
+                'keyword_2'           => $pallet->reference,
+                'result'              => [
                     'route'     => [
                         'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
                         'parameters'    => [

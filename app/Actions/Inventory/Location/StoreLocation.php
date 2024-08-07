@@ -40,6 +40,7 @@ class StoreLocation extends OrgAction
         /** @var Location $location */
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
+        $location->updateQuietly(['barcode' => $location->slug]);
         GroupHydrateLocations::run($organisation->group);
         OrganisationHydrateLocations::dispatch($organisation);
 

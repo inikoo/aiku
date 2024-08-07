@@ -21,12 +21,13 @@ class StoredItemRecordSearch
         $storedItem->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'        => $storedItem->group_id,
-                'organisation_id' => $storedItem->organisation_id,
-                'sections'        => ['fulfilment'],
-                'haystack_tier_1' => $storedItem->reference,
-                'haystack_tier_2' => $storedItem->notes,
-                'keyword'         => $storedItem->slug,
+                'group_id'          => $storedItem->group_id,
+                'organisation_id'   => $storedItem->organisation_id,
+                'sections'          => ['fulfilment'],
+                'haystack_tier_1'   => $storedItem->reference,
+                'haystack_tier_2'   => $storedItem->notes,
+                'keyword'           => $storedItem->slug,
+                'keyword_2'         => $storedItem->reference,
             ]
         );
     }
