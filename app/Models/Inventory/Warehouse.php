@@ -76,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read Collection<int, UniversalSearch> $universalSearches
  * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
  * @method static \Database\Factories\Inventory\WarehouseFactory factory($count = null, $state = [])
  * @method static Builder|Warehouse newModelQuery()

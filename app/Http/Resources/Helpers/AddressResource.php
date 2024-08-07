@@ -40,7 +40,7 @@ class AddressResource extends JsonResource
         $adr = $adr
             ->withCountryCode($address->country_code)
             ->withAdministrativeArea($address->administrative_area)
-            ->withDependentLocality($address->dependant_locality)
+            ->withDependentLocality($address->dependent_locality)
             ->withLocality($address->locality)
             ->withPostalCode($address->postal_code)
             ->withSortingCode($address->sorting_code)
@@ -54,7 +54,7 @@ class AddressResource extends JsonResource
             'sorting_code'        => $address->sorting_code,
             'postal_code'         => $address->postal_code,
             'locality'            => $address->locality,
-            'dependant_locality'  => $address->dependant_locality,
+            'dependent_locality'  => $address->dependent_locality,
             'administrative_area' => $address->administrative_area,
             'country_code'        => $address->country_code,
             'country_id'          => $address->country_id,

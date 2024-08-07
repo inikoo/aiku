@@ -58,6 +58,7 @@ use Spatie\Tags\HasTags;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property string|null $barcode
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks

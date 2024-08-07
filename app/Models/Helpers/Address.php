@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $address_line_2
  * @property string|null $sorting_code
  * @property string|null $postal_code
- * @property string|null $dependant_locality
+ * @property string|null $dependent_locality
  * @property string|null $locality
  * @property string|null $administrative_area
  * @property string|null $country_code

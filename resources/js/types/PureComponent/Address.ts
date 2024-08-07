@@ -7,7 +7,7 @@ export interface Address {
     sorting_code?: string
     postal_code?: number
     locality?: string
-    dependant_locality?: string
+    dependent_locality?: string
     administrative_area?: string
     country_code?: string
     country_id: number | null

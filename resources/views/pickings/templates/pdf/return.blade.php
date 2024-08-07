@@ -103,7 +103,7 @@
                     {{ $shop->address['address_line_2'] }}
                 </div>
                 <div style="font-size:7pt">
-                    {{ $shop->address['dependant_locality'] }}
+                    {{ $shop->address['dependent_locality'] }}
                 </div>
                 <div style="font-size:7pt">
                     {{ $shop->address['locality'] }}
