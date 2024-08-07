@@ -18,6 +18,7 @@ use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 
 class GetFulfilmentCustomerShowcase
 {
@@ -101,31 +102,36 @@ class GetFulfilmentCustomerShowcase
                     'fulfilmentCustomer' => $fulfilmentCustomer->id
                 ]
             ],
-            'addresses_list'   => [
-                'all_addresses'                  => $addressCollection,
+            'addresses'   => [
+                'address_list'                  => $addressCollection,
+                'options'                       => [
+                    'countriesAddressData' => GetAddressData::run()
+                ],
                 'pinned_address_id'              => $fulfilmentCustomer->customer->delivery_address_id,
                 'home_address_id'                => $fulfilmentCustomer->customer->address_id,
                 'current_selected_address_id'    => $fulfilmentCustomer->customer->delivery_address_id,
                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                'pinned_route'                   => [
-                    'method'     => 'patch',
-                    'name'       => 'grp.models.customer.delivery-address.update',
-                    'parameters' => [
-                        'customer' => $fulfilmentCustomer->customer_id
-                    ]
-                ],
-                'delete_route'  => [
-                    'method'     => 'delete',
-                    'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
-                    'parameters' => [
-                        'fulfilmentCustomer' => $fulfilmentCustomer->id
-                    ]
-                ],
-                'store_route' => [
-                    'method'      => 'post',
-                    'name'        => 'grp.models.fulfilment-customer.address.store',
-                    'parameters'  => [
-                        'fulfilmentCustomer' => $fulfilmentCustomer->id
+                'routes_list'                    => [
+                    'pinned_route'                   => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.customer.delivery-address.update',
+                        'parameters' => [
+                            'customer' => $fulfilmentCustomer->customer_id
+                        ]
+                    ],
+                    'delete_route'  => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $fulfilmentCustomer->id
+                        ]
+                    ],
+                    'store_route' => [
+                        'method'      => 'post',
+                        'name'        => 'grp.models.fulfilment-customer.address.store',
+                        'parameters'  => [
+                            'fulfilmentCustomer' => $fulfilmentCustomer->id
+                        ]
                     ]
                 ]
             ],
