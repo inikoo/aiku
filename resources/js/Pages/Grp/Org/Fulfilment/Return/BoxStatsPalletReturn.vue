@@ -196,8 +196,7 @@ const isModalAddress = ref(false)
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
 		<ModalAddress
-            :addressCustomer="boxStats.fulfilment_customer.address"
-            :addressList="boxStats.fulfilment_customer.addresses_list"
+            :addresses="boxStats.fulfilment_customer.address"
             :updateRoute    
         />
 	</Modal>

@@ -18,23 +18,21 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateCustomerAddress extends OrgAction
 {
-    public function handle(Customer $customer, array $modelData): Customer
+    public function handle(Customer $customer, array $modelData): void
     {
         $addressData = Arr::get($modelData, 'address');
-        $countryCode = Country::find(Arr::get($modelData, 'country_id'))->code;
+        $countryCode = Country::find($addressData['country_id'])->code;
         data_set($addressData, 'country_code', $countryCode);
-        $label = isset($modelData['label']) ? $modelData['label'] : null;
-        unset($modelData['label']);
-        unset($modelData['can_edit']);
-        unset($modelData['can_delete']);
+        $label = isset($addressData['label']) ? $addressData['label'] : null;
+        unset($addressData['label']);
+        unset($addressData['can_edit']);
+        unset($addressData['can_delete']);
         $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
         $pivotData['label'] = $label;
         $customer->addresses()->updateExistingPivot(
             $updatedAddress->id,
             $pivotData
         );
-
-        return $customer;
     }
 
     public function rules(): array
@@ -58,27 +56,27 @@ class UpdateCustomerAddress extends OrgAction
         return false;
     }
 
-    public function asController(Customer $customer, ActionRequest $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): void
     {
         $this->scope = $customer;
         $this->initialisationFromShop($customer->shop, $request);
 
-        return $this->handle($customer, $this->validatedData);
+        $this->handle($customer, $this->validatedData);
     }
 
-    public function fromFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Customer
+    public function fromFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): void
     {
         $this->scope = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer->customer, $this->validatedData);
+        $this->handle($fulfilmentCustomer->customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, $modelData): Customer
+    public function action(Customer $customer, $modelData): void
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($customer, $this->validatedData);
+        $this->handle($customer, $this->validatedData);
     }
 }

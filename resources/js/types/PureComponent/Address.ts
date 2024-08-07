@@ -61,6 +61,7 @@ export interface AddressManagement {
     pinned_address_id: number
     home_address_id: number
     current_selected_address_id: number
+    isShowcase: boolean 
     selected_delivery_addresses_id: number[]
     routes_list: {
         pinned_route: routeType
