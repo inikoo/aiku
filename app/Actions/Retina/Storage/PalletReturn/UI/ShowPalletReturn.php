@@ -95,8 +95,8 @@ class ShowPalletReturn extends RetinaAction
                             ->setAttribute('can_edit', true);
         });
 
-        $customerAddressId = $palletReturn->fulfilmentCustomer->customer->address->id;
-        $customerDeliveryAddressId = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
+        $customerAddressId              = $palletReturn->fulfilmentCustomer->customer->address->id;
+        $customerDeliveryAddressId      = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
         $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
                                             ->pluck('delivery_address_id')
                                             ->unique()
@@ -106,7 +106,7 @@ class ShowPalletReturn extends RetinaAction
             $palletReturnDeliveryAddressIds,
             [$customerAddressId, $customerDeliveryAddressId]
         );
-        
+
         $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
             if (in_array($address->id, $forbiddenAddressIds, true)) {
                 $address->setAttribute('can_delete', false)
@@ -334,7 +334,7 @@ class ShowPalletReturn extends RetinaAction
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id'    => $palletReturn->delivery_address_id,
                                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                'pinned_route'                => [
+                                'pinned_route'                   => [
                                     'method'     => 'patch',
                                     'name'       => 'retina.models.customer.delivery-address.update',
                                     'parameters' => [

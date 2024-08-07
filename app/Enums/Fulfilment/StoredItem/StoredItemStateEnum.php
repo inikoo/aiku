@@ -19,6 +19,7 @@ enum StoredItemStateEnum: string
 {
     use EnumHelperTrait;
 
+    case SUBMITTED     = 'submitted';
     case IN_PROCESS    = 'in-process';
     case ACTIVE        = 'active';
     case DISCONTINUING = 'discontinuing';
@@ -28,6 +29,7 @@ enum StoredItemStateEnum: string
     public static function labels(): array
     {
         return [
+            'submitted'     => __('Submitted'),
             'in-process'    => __('In Process'),
             'active'        => __('Active'),
             'discontinuing' => __('Discontinuing'),
@@ -49,6 +51,7 @@ enum StoredItemStateEnum: string
         }
 
         return [
+            'submitted'       => $stats?->number_stored_items_in_submitted,
             'in-process'      => $stats?->number_stored_items_in_process,
             'active'          => $stats?->number_stored_items_received,
             'discontinuing'   => $stats?->number_stored_items_booked_in,
