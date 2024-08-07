@@ -37,7 +37,7 @@ enum StoredItemStateEnum: string
         ];
     }
 
-    public static function stateIcon(): array
+    public function stateIcon(): array
     {
         return [
             'submitted'   => [

@@ -63,7 +63,7 @@ class UpdateCustomerAddress extends OrgAction
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
-        
+
         return $this->handle($customer, $this->validatedData);
     }
 }
