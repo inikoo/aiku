@@ -14,6 +14,7 @@ use App\Models\Accounting\InvoiceTransaction;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoiceTransactions extends OrgAction
@@ -43,14 +44,14 @@ class IndexInvoiceTransactions extends OrgAction
                 'assets.slug',
                 'invoice_transactions.quantity',
                 'invoice_transactions.net_amount',
+                DB::raw("'{$invoice->currency->code}'  AS currency_code")
 
             ]
         );
         $queryBuilder->defaultSort('-invoice_transactions.updated_at');
 
 
-
-        return $queryBuilder->allowedSorts(['code','name','quantity','net_amount'])
+        return $queryBuilder->allowedSorts(['code', 'name', 'quantity', 'net_amount'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -74,7 +75,7 @@ class IndexInvoiceTransactions extends OrgAction
 
             $table->column(key: 'name', label: __('description'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
-            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'amount_'.$invoice->currency->code);
+            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
             $table->defaultSort('-invoice_transactions.updated_at');
         };
     }

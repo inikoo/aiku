@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $quantity
  * @property string $net_amount
  * @property string $name
+ * @property string $currency_code
  */
 class InvoiceTransactionsResource extends JsonResource
 {
@@ -24,6 +25,7 @@ class InvoiceTransactionsResource extends JsonResource
             'name'          => $this->name,
             'quantity'      => $this->quantity,
             'net_amount'    => $this->net_amount,
+            'currency_code' => $this->currency_code
         ];
     }
 }
