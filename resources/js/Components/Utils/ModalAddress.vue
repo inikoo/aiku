@@ -191,7 +191,6 @@ const onDeleteAddress = (addressID: number) => {
                             fieldLabel
                         />
                         <div class="mt-6 flex justify-center gap-x-2">
-                            <Button label="Cancel" type="cancel" @click="() => isCreateNewAddress = false" />
                             <Button
                                 @click="() => onSubmitNewAddress(selectedAddress)"
                                 label="Create new and select"
@@ -208,7 +207,7 @@ const onDeleteAddress = (addressID: number) => {
                     </div>
                 </div>
 
-                <!-- Form: Edit address -->
+                <!-- Section: Edit address -->
                 <div v-else-if="isEditAddress" :key="'edit' + selectedAddress?.id" class="col-span-2 relative py-4 h-fit grid grid-cols-2 gap-x-4">
                     <div class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-fit transition-all"
                         :class="[
@@ -263,7 +262,6 @@ const onDeleteAddress = (addressID: number) => {
                                 :loading="isSubmitAddressLoading"
                                 full
                             />
-                            {{ props.updateRoute.name }}
                         </div>
                     </div>
                 </div>
@@ -271,9 +269,8 @@ const onDeleteAddress = (addressID: number) => {
                 <!-- Section: Address list -->
                 <div v-else class="col-span-2 relative py-4 h-fit">
                     <template v-if="addresses.address_list.data?.length">
-                        <!-- Section: Address list -->
                         <div class="grid gap-x-3 gap-y-4 h-fit transition-all"
-                            :class="[isEditAddress ? '' : 'col-span-2 grid-cols-4']">
+                            :class="[isEditAddress ? '' : 'col-span-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4']">
 
                             <!-- Section: Address Home -->
                             <div v-if="homeAddress" class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-full transition-all">
@@ -304,7 +301,7 @@ const onDeleteAddress = (addressID: number) => {
 
                                     <!-- Action: Pin, edit, delete -->
                                     <div class="flex items-center">
-                                        <LoadingIcon v-if="isLoading == 'onPinned' + homeAddress?.id"/>
+                                        <LoadingIcon v-if="isLoading == 'onPinned' + homeAddress?.id" class="px-0.5"/>
                                         <FontAwesomeIcon v-else-if="addresses.address_list.data?.length > 1" @click="() => onPinnedAddress(homeAddress.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addresses.pinned_address_id === homeAddress?.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
                                         <FontAwesomeIcon @click="() => onEditAddress(homeAddress)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
                                     </div>
@@ -317,7 +314,7 @@ const onDeleteAddress = (addressID: number) => {
                             <TransitionGroup>
                                 <div v-for="(address, idxAddress) in addresses.address_list.data.filter(xxx => xxx.id != addresses.home_address_id)"
                                     :key="idxAddress + address.id"
-                                    class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-40 transition-all"
+                                    class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-40"
                                     :class="[
                                         selectedAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
                                     ]"
@@ -350,9 +347,19 @@ const onDeleteAddress = (addressID: number) => {
                                             </div>
                                         </div>
                                         <div class="flex items-center">
-                                            <LoadingIcon v-if="isLoading === 'onPinned' + address.id"/>
-                                            <FontAwesomeIcon v-else-if="addresses.address_list.data?.length > 1" @click="() => onPinnedAddress(address.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addresses.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
+                                            <LoadingIcon v-if="isLoading === 'onPinned' + address.id" class="px-0.5"/>
+                                            <FontAwesomeIcon v-else-if="addresses.address_list.data?.length > 1"
+                                                @click="() => addresses.pinned_address_id === address.id ? false : onPinnedAddress(address.id)"
+                                                icon='fal fa-truck'
+                                                class='px-0.5 py-1'
+                                                :class="addresses.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600 cursor-pointer'"
+                                                fixed-width
+                                                aria-hidden='true'
+                                                v-tooltip="addresses.pinned_address_id === address.id ? trans('Selected as default delivery address') : trans('Select as default delivery address')"
+                                            />
+
                                             <FontAwesomeIcon v-if="address.can_edit" @click="() => onEditAddress(address)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
+
                                             <template v-if="address.can_delete">
                                                 <LoadingIcon v-if="isLoading === 'onDelete' + address.id" class="text-sm px-[1px]" />
                                                 <FontAwesomeIcon v-else @click="() => onDeleteAddress(address.id)" icon='fal fa-trash-alt' class='px-0.5 py-1 text-gray-400 hover:text-red-500 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Delete this address')" />
