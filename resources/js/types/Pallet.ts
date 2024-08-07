@@ -2,7 +2,7 @@
 
 import { Timeline } from "@/types/Timeline"
 import { routeType } from "@/types/route"
-import { Address, Addresses } from "@/types/PureComponent/Address"
+import { AddressManagement } from "@/types/PureComponent/Address"
 import { Icon, StateIcon } from '@/types/Utils/Icon'
 
 
@@ -138,8 +138,7 @@ export interface FieldOrderSummary {
 export interface BoxStats {
     delivery_status: Icon
     fulfilment_customer: {
-        address: Addresses
-        addresses_list: Address[]
+        address: AddressManagement
         customer: {
             slug: string
             reference: string

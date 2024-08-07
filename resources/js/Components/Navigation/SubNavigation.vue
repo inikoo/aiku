@@ -34,7 +34,7 @@ const locale = inject('locale', {})
 </script>
 
 <template>
-    <div class="relative select-none w-full flex flex-wrap px-4 sm:mt-1 lg:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 gap-x-4 items-end text-gray-400 text-xs">
+    <div class="relative select-none w-full flex flex-wrap px-4 sm:mt-1 lg:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
         <!-- Tab: Home/dashboard -->
         <!-- <div v-if="dataNavigation.length && false"
             class="py-1 flex items-center transition-all"
