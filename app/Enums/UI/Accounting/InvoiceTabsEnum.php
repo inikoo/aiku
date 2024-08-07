@@ -15,8 +15,7 @@ enum InvoiceTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE               = 'showcase';
-    // case ITEMS                  = 'items';
+    case ITEMS                  = 'items';
     case HISTORY                = 'history';
     case PAYMENTS               = 'payments';
 
@@ -26,26 +25,23 @@ enum InvoiceTabsEnum: string
         return match ($this) {
 
             InvoiceTabsEnum::PAYMENTS     => [
-                'title' => __('payments'),
+                'title' => __('Payments'),
                 'type'  => 'icon',
                 'align' => 'right',
                 'icon'  => 'fal fa-credit-card',
             ],
 
             InvoiceTabsEnum::HISTORY     => [
-                'title' => __('history'),
+                'title' => __('History'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            InvoiceTabsEnum::SHOWCASE => [
-                'title' => __('items'),
-                'icon'  => 'fas fa-file-invoice',
+
+            InvoiceTabsEnum::ITEMS => [
+                'title' => __('Items'),
+                'icon'  => 'fal fa-bars',
             ],
-            // InvoiceTabsEnum::ITEMS => [
-            //     'title' => __('items'),
-            //     'icon'  => 'fas fa-file-invoice',
-            // ],
         };
     }
 }

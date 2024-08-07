@@ -38,23 +38,23 @@ class ShowInvoice extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-
-        if($this->parent instanceof Organisation) {
+        if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
-        } elseif($this->parent instanceof Shop) {
+        } elseif ($this->parent instanceof Shop) {
             //todo think about it
             return false;
-        } elseif($this->parent instanceof Fulfilment) {
+        } elseif ($this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif($this->parent instanceof FulfilmentCustomer) {
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
+
         return false;
     }
 
     public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(InvoiceTabsEnum::values());
 
         return $this->handle($invoice);
@@ -63,16 +63,18 @@ class ShowInvoice extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->parent=$shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(InvoiceTabsEnum::values());
+
         return $this->handle($invoice);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->parent=$fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
+
         return $this->handle($invoice);
     }
 
@@ -105,27 +107,28 @@ class ShowInvoice extends OrgAction
         } else {
             $recurringBillRoute = null;
         }
+
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
-                'title'                                 => __('invoice'),
-                'breadcrumbs'                           => $this->getBreadcrumbs(
+                'title'                => __('invoice'),
+                'breadcrumbs'          => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'           => [
                     'previous' => $this->getPrevious($invoice, $request),
                     'next'     => $this->getNext($invoice, $request),
                 ],
-                'pageHead'    => [
-                    'model'     => __('invoice'),
-                    'title'     => $invoice->number,
-                    'icon'      => [
+                'pageHead'             => [
+                    'model' => __('invoice'),
+                    'title' => $invoice->number,
+                    'icon'  => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'title' => $invoice->number
                     ]
                 ],
-                'tabs'=> [
+                'tabs'                 => [
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
@@ -136,49 +139,49 @@ class ShowInvoice extends OrgAction
                 'order_summary'        => [
                     [
                         [
-                            'label'         => __('Services'),
-                            'price_total'   => $invoice->services_amount
+                            'label'       => __('Services'),
+                            'price_total' => $invoice->services_amount
                         ],
                         [
-                            'label'         => __('Physical Goods'),
-                            'price_total'   => $invoice->goods_amount
+                            'label'       => __('Physical Goods'),
+                            'price_total' => $invoice->goods_amount
                         ],
                         [
-                            'label'         => __('Rental'),
-                            'price_total'   => $invoice->rental_amount
+                            'label'       => __('Rental'),
+                            'price_total' => $invoice->rental_amount
                         ],
                     ],
                     [
                         [
-                            'label'         => __('Charges'),
+                            'label'       => __('Charges'),
                             // 'information'   => __('Shipping fee to your address using DHL service.'),
-                            'price_total'   => $invoice->charges_amount
+                            'price_total' => $invoice->charges_amount
                         ],
                         [
-                            'label'         => __('Shipping'),
+                            'label'       => __('Shipping'),
                             // 'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total'   => $invoice->shipping_amount
+                            'price_total' => $invoice->shipping_amount
                         ],
                         [
-                            'label'         => __('Insurance'),
+                            'label'       => __('Insurance'),
                             // 'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total'   => $invoice->insurance_amount
+                            'price_total' => $invoice->insurance_amount
                         ],
                         [
-                            'label'         => __('Tax'),
-                            'information'   => __('Tax is based on 10% of total order.'),
-                            'price_total'   => $invoice->tax_amount
+                            'label'       => __('Tax'),
+                            'information' => __('Tax is based on 10% of total order.'),
+                            'price_total' => $invoice->tax_amount
                         ],
                         [
-                            'label'         => __('Discount'),
-                            'information'   => __('Discounts applied within vouchers or seasonal promos.'),
-                            'price_total'   => $invoice->discounts_total
+                            'label'       => __('Discount'),
+                            'information' => __('Discounts applied within vouchers or seasonal promos.'),
+                            'price_total' => $invoice->discounts_total
                         ],
                     ],
                     [
                         [
-                            'label'         => __('Total'),
-                            'price_total'   => $invoice->total_amount
+                            'label'       => __('Total'),
+                            'price_total' => $invoice->total_amount
                         ],
                     ],
                 ],
@@ -190,7 +193,7 @@ class ShowInvoice extends OrgAction
                         'invoice'      => $invoice->slug
                     ]
                 ],
-                'box_stats'         => [
+                'box_stats'      => [
                     'customer' => [
                         'slug'         => $invoice->customer->slug,
                         'reference'    => $invoice->customer->reference,
@@ -202,19 +205,19 @@ class ShowInvoice extends OrgAction
                     ],
                 ],
 
-                'invoice'   => [
-                    'number'                    => $invoice->number,
-                    'profit_amount'             => $invoice->profit_amount,
-                    'margin_percentage'         => $invoice->margin_percentage,
-                    'date'                      => $invoice->date,
+                'invoice' => [
+                    'number'            => $invoice->number,
+                    'profit_amount'     => $invoice->profit_amount,
+                    'margin_percentage' => $invoice->margin_percentage,
+                    'date'              => $invoice->date,
 
-                    'currency_code'             => $invoice->currency->code,
-                    'items_net'                 => $invoice->items_net,
-                    'net_amount'                => $invoice->net_amount,
-                    'tax_percentage'            => $invoice->tax_percentage,
-                    'payment_amount'            => $invoice->payment_amount,
-                    'tax_liability_at'          => $invoice->tax_liability_at,
-                    'paid_at'                   => $invoice->paid_at,
+                    'currency_code'    => $invoice->currency->code,
+                    'items_net'        => $invoice->items_net,
+                    'net_amount'       => $invoice->net_amount,
+                    'tax_percentage'   => $invoice->tax_percentage,
+                    'payment_amount'   => $invoice->payment_amount,
+                    'tax_liability_at' => $invoice->tax_liability_at,
+                    'paid_at'          => $invoice->paid_at,
 
                     // 'item_gross'                => $invoice->item_gross,
                     // 'discounts_total'           => $invoice->discounts_total,
@@ -226,23 +229,18 @@ class ShowInvoice extends OrgAction
 
                 ],
 
-                InvoiceTabsEnum::SHOWCASE->value => $this->tab == InvoiceTabsEnum::SHOWCASE->value ?
-                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::SHOWCASE->value))
-                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::SHOWCASE->value))),
-
-                // InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                //     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
-                //     : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
+                InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
+                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
                     fn () => PaymentsResource::collection(IndexPayments::run($invoice))
                     : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($invoice))),
 
 
-
             ]
         )->table(IndexPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
-        ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::SHOWCASE->value));
+            ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -259,9 +257,8 @@ class ShowInvoice extends OrgAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix=''): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-
         $headCrumb = function (Invoice $invoice, array $routeParameters, string $suffix = null) {
             return [
                 [
@@ -278,12 +275,12 @@ class ShowInvoice extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
-        $invoice = Invoice::where('slug', $routeParameters['invoice'])->first();
+        $invoice   = Invoice::where('slug', $routeParameters['invoice'])->first();
 
 
         return match ($routeName) {
@@ -295,11 +292,11 @@ class ShowInvoice extends OrgAction
                     [
                         'index' => [
                             'name'       => 'grp.org.fulfilments.show.operations.invoices.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.fulfilments.show.operations.invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment','invoice'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'invoice'])
                         ]
                     ],
                     $suffix
@@ -314,11 +311,11 @@ class ShowInvoice extends OrgAction
                     [
                         'index' => [
                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment','fulfilmentCustomer','invoice'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'invoice'])
                         ]
                     ],
                     $suffix
@@ -337,7 +334,7 @@ class ShowInvoice extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'grp.org.accounting.invoices.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation','invoice'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'invoice'])
                         ]
                     ],
                     $suffix
@@ -347,8 +344,6 @@ class ShowInvoice extends OrgAction
 
             default => []
         };
-
-
     }
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
@@ -356,8 +351,8 @@ class ShowInvoice extends OrgAction
         $previous = Invoice::where('number', '<', $invoice->number)
             ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('number', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
@@ -365,45 +360,47 @@ class ShowInvoice extends OrgAction
         $next = Invoice::where('number', '>', $invoice->number)
             ->where('invoices.shop_id', $invoice->shop_id)
             ->orderBy('number')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?Invoice $invoice, string $routeName): ?array
     {
-        if(!$invoice) {
+        if (!$invoice) {
             return null;
         }
+
         return match ($routeName) {
-            'grp.org.accounting.invoices.show'=> [
-                'label'=> $invoice->number,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'=> $invoice->organisation->slug,
-                        'invoice'     => $invoice->slug
+            'grp.org.accounting.invoices.show' => [
+                'label' => $invoice->number,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $invoice->organisation->slug,
+                        'invoice'      => $invoice->slug
                     ]
 
                 ]
             ],
 
-            'grp.org.fulfilments.show.operations.invoices.show'=> [
-                'label'=> $invoice->number,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'=> $invoice->organisation->slug,
-                        'fulfilment'  => $this->parent->slug,
-                        'invoice'     => $invoice->slug
+            'grp.org.fulfilments.show.operations.invoices.show' => [
+                'label' => $invoice->number,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $invoice->organisation->slug,
+                        'fulfilment'   => $this->parent->slug,
+                        'invoice'      => $invoice->slug
                     ]
 
                 ]
             ],
 
-            'grp.org.fulfilments.show.crm.customers.show.invoices.show'=> [
-                'label'=> $invoice->number,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
+            'grp.org.fulfilments.show.crm.customers.show.invoices.show' => [
+                'label' => $invoice->number,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
                         'organisation'       => $invoice->organisation->slug,
                         'fulfilment'         => $this->parent->slug,
                         'fulfilmentCustomer' => $this->parent->slug,
