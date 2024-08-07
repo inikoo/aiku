@@ -13,20 +13,19 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property string $quantity
  * @property string $net_amount
- * @property string $description
+ * @property string $name
+ * @property string $currency_code
  */
-
 class InvoiceTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        //         dd($this);
         return [
-            'code'        => $this->code,
-            'name'        => $this->name,
-            'quantity'    => intval($this->quantity),
-            'price'       => $this->net_amount,
-            'description' => $this->description,
+            'code'          => $this->code,
+            'name'          => $this->name,
+            'quantity'      => $this->quantity,
+            'net_amount'    => $this->net_amount,
+            'currency_code' => $this->currency_code
         ];
     }
 }

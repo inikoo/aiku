@@ -36,7 +36,7 @@ class GetCustomerShowcase
                             ->setAttribute('can_edit', true);
         });
 
-        $customerAddressId = $customer->address->id;
+        $customerAddressId         = $customer->address->id;
         $customerDeliveryAddressId = $customer->deliveryAddress->id;
         if ($customer->fulfilmentCustomer) {
             $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $customer->fulfilmentCustomer->id)
@@ -51,7 +51,7 @@ class GetCustomerShowcase
             $palletReturnDeliveryAddressIds,
             [$customerAddressId, $customerDeliveryAddressId]
         );
-        
+
         $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
             if (in_array($address->id, $forbiddenAddressIds, true)) {
                 $address->setAttribute('can_delete', false)
@@ -62,14 +62,14 @@ class GetCustomerShowcase
         $addressCollection = AddressResource::collection($processedAddresses);
         return [
 
-            'customer'=> CustomersResource::make($customer)->getArray(),
+            'customer'         => CustomersResource::make($customer)->getArray(),
             'addresses_list'   => [
                 'all_addresses'                  => $addressCollection,
                 'pinned_address_id'              => $customer->delivery_address_id,
                 'home_address_id'                => $customer->address_id,
                 'current_selected_address_id'    => $customer->delivery_address_id,
                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                'pinned_route'                => [
+                'pinned_route'                   => [
                     'method'     => 'patch',
                     'name'       => 'grp.models.customer.delivery-address.update',
                     'parameters' => [

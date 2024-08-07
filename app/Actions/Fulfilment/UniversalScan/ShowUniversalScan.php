@@ -16,9 +16,10 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUniversalScan extends OrgAction
 {
-    public function handle(string $ulid, ActionRequest $request): UniversalSearch
+    public function handle(Warehouse $warehouse, string $ulid, ActionRequest $request): UniversalSearch
     {
-        $query = UniversalSearch::query();
+        /** @var UniversalSearch $query */
+        $query = $warehouse->universalSearches();
 
         if($type = $request->get('type')) {
             $query->where('model_type', $type);
@@ -33,7 +34,7 @@ class ShowUniversalScan extends OrgAction
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($ulid, $request);
+        return $this->handle($warehouse, $ulid, $request);
     }
 
     public function jsonResponse(UniversalSearch $universalSearch): UniversalScanResource

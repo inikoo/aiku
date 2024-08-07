@@ -21,7 +21,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexUniversalScan extends OrgAction
 {
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,6 +35,7 @@ class IndexUniversalScan extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(UniversalSearch::class);
+        $queryBuilder->where('warehouse_id', $parent->id);
 
         return $queryBuilder
             ->defaultSort('universal_searches.id')
@@ -48,7 +49,7 @@ class IndexUniversalScan extends OrgAction
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $this->handle($warehouse);
     }
 
     public function jsonResponse(LengthAwarePaginator $universalSearch): AnonymousResourceCollection

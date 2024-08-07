@@ -17,10 +17,8 @@ class FetchAuroraStockFamily extends FetchAurora
     protected function parseModel(): void
     {
 
-
         $code=$this->auroraModelData->{'Category Code'};
-
-        if($code=='') {
+        if($code=='' || $code=='GloveSupply') {
             return;
         }
 

@@ -198,6 +198,10 @@ class ShowAccountingDashboard extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
+
+
+
+
         return match ($routeName) {
             'grp.org.accounting.shops.show.dashboard' =>
             array_merge(

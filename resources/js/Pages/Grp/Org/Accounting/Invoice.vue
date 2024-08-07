@@ -16,9 +16,8 @@ import { useTabChange } from "@/Composables/tab-change"
 import AddressSelector from "@/Components/DataDisplay/AddressSelector.vue"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue"
-import OperationsInvoiceShowcase from "@/Components/Showcases/Grp/Fulfilment/OperationsInvoiceShowcase.vue"
+import OperationsInvoiceShowcase from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
-// import TableOperationsInvoiceItems from "@/Components/Tables/TableOperationsInvoiceItems.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { trans } from 'laravel-vue-i18n'
@@ -40,6 +39,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+import TableInvoiceTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue";
 const locale = useLocaleStore()
 
 const props = defineProps<{
@@ -49,14 +49,7 @@ const props = defineProps<{
         current: string
         navigation: {}
     }
-    showcase: {
-        // invoice_information: Calculation 
-        currency: string
-        items: {
-            data: ProductTransaction[]
-        }
-        // items: TableTS
-    }
+
     box_stats: {
         customer: {
             company_name: string
@@ -85,17 +78,13 @@ const props = defineProps<{
     history: {}
 }>()
 
-// console.log('aaa', props.address)
-// console.log('bbb', props.billing_address)
-// console.log('ccc', props.fixed_addresses)
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components: Component = {
-        showcase: OperationsInvoiceShowcase,
-        // items: TableOperationsInvoiceItems,
+        items: TableInvoiceTransactions,
         payments: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
