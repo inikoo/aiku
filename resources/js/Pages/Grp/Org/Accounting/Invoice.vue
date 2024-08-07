@@ -40,7 +40,28 @@ import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import TableInvoiceTransactions from "@/Components/Tables/Grp/Org/Accounting/TableInvoiceTransactions.vue";
+import { Address } from '@/types/PureComponent/Address'
+import { Icon } from '@/types/Utils/Icon'
+// import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 const locale = useLocaleStore()
+
+interface InvoiceResource {
+    address: Address
+    created_at: string
+    date: string
+    net_amount: string
+    number: string
+    paid_at: string
+    slug: string
+    tax_liability_at: string
+    total_amount: string
+    type: {
+        icon: Icon
+        label: string
+    }
+    currency_code: string
+    updated_at: string
+}
 
 const props = defineProps<{
     title: string,
@@ -63,15 +84,8 @@ const props = defineProps<{
     }
     exportPdfRoute: routeType
     order_summary: FieldOrderSummary[][]
-    address: {}
-    billing_address: {}
-    fixed_addresses: {}
     recurring_bill_route: routeType
-    invoice: {
-        date: string
-        currency_code: string
-        payment_amount: number
-    }
+    invoice: InvoiceResource
     items: {}
     payments: {}
     details: {}
@@ -106,7 +120,7 @@ const boxFieldDetail = [
     },
     {
         icon: 'fal fa-dollar-sign',
-        label: locale.currencyFormat(props.invoice.currency_code, props.invoice.payment_amount),
+        label: locale.currencyFormat(props.invoice.currency_code || 'usd', Number(props.invoice.total_amount)),
         tooltip: 'Amount need to pay by customer'
     },
 ]
@@ -120,12 +134,12 @@ console.log('pp', props.recurring_bill_route)
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
+
+        <!-- Button: PDF -->
         <template #other >
-        
             <a v-if="exportPdfRoute?.name" :href="route(exportPdfRoute.name, exportPdfRoute.parameters)" target="_blank" class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none text-base" v-tooltip="trans('Download in')">
-                    <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
-                </a>
-        
+                <Button label="PDF" icon="fas fa-file-pdf" type="tertiary" />
+            </a>
         </template>
     </PageHeading>
     
@@ -179,23 +193,23 @@ console.log('pp', props.recurring_bill_route)
             </div> -->
 
             <!-- Field: Location -->
-            <div v-if="box_stats?.customer.location"
+            <!-- <div v-if="box_stats?.customer.location"
                 class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
+                <dt v-tooltip="'Location'" class="flex-none">
                     <span class="sr-only">Location</span>
-                    <FontAwesomeIcon icon='fal fa-map-marked-alt' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-map-marked-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.location.join(', ') }}</dd>
-            </div>
+                <dd class="text-xs text-gray-500">
+                    <AddressLocation :data="box_stats?.customer.location" />
+                </dd>
+            </div> -->
 
             <!-- Field: Phone -->
             <div v-if="box_stats?.customer.phone"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats?.customer.phone }}</dd>
             </div>
@@ -204,22 +218,17 @@ console.log('pp', props.recurring_bill_route)
             <div class="flex items-start w-full gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 
                 <dd class="text-xs text-gray-500 w-full">
-                    <div v-if="address" class="relative bg-gray-50 border border-gray-300 rounded px-2 py-1">
-                        <div v-html="address.formatted_address" /> 
-                        <!-- <div class="absolute right-2 bottom-1 px-1 text-gray-400 hover:text-gray-600 cursor-pointer">
-                            <FontAwesomeIcon icon='fal fa-pencil' class='' fixed-width aria-hidden='true' />
-                        </div> -->
+                    <div v-if="invoice.address" class="relative bg-gray-50 border border-gray-300 rounded px-2 py-1">
+                        <div v-html="invoice.address.formatted_address" />
                     </div>
 
                     <div v-else class="text-gray-400 italic">
                         No address
                     </div>
-                    <!-- <AddressSelector v-else :addressList="fixed_addresses.data" /> -->
                 </dd>
             </div>
         </BoxStatPallet>

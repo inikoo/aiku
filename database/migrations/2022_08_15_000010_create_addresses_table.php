@@ -29,7 +29,7 @@ return new class () extends Migration {
                 $table->string('address_line_2', 255)->nullable();
                 $table->string('sorting_code')->nullable();
                 $table->string('postal_code')->nullable();
-                $table->string('dependant_locality')->nullable();
+                $table->string('dependent_locality')->nullable();
                 $table->string('locality')->nullable();
                 $table->string('administrative_area')->nullable();
                 $table->string('country_code', 2)->nullable()->index();

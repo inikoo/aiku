@@ -43,6 +43,7 @@ import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import Modal from "@/Components/Utils/Modal.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -78,7 +79,7 @@ const isOpen = ref(false)
 const warehouseValue = ref(null)
 const errorMessage = ref(null)
 const isModalOpen = ref(false)
-const layout = inject('layout')
+const layout = inject('layout', layoutStructure)
 const loadingCreatePalletDelivery = ref(false)
 
 
@@ -112,7 +113,7 @@ const onButtonCreateDeliveryClick = (action: Action) => {
 
 
 onMounted(() => {
-    window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).listen('.PalletDelivery', (e) => {
+    window.Echo.private(`grp.${layout.group?.id}.fulfilmentCustomer.${layout.user.id}`).listen('.PalletDelivery', (e) => {
         notify({
             title: e.data.title,
             text: e.data.text,
@@ -122,7 +123,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).stopListening('.PalletDelivery')
+    window.Echo.private(`grp.${layout.group?.id}.fulfilmentCustomer.${layout.user.id}`).stopListening('.PalletDelivery')
 })
 
 
