@@ -200,7 +200,6 @@ Route::prefix('clocking-machine/{clockingMachine:id}')->name('clocking_machine..
 Route::patch('fulfilment/{fulfilment:id}', UpdateFulfilment::class)->name('fulfilment.update');
 Route::patch('customer/{customer:id}', UpdateCustomer::class)->name('customer.update')->withoutScopedBindings();
 Route::patch('customer/delivery-address/{customer:id}', UpdateCustomerDeliveryAddress::class)->name('customer.delivery-address.update')->withoutScopedBindings();
-Route::delete('customer/{fulfilmentCustomer:id}/address/{address:id}/delete', DeleteCustomerDeliveryAddress::class)->name('customer.delivery-address.delete')->withoutScopedBindings();
 
 
 /*
@@ -372,6 +371,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
 
     Route::post('address', AddDeliveryAddressToFulfilmentCustomer::class)->name('address.store');
+    Route::delete('address/{address:id}/delete', DeleteCustomerDeliveryAddress::class)->name('delivery-address.delete')->withoutScopedBindings();
 
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
@@ -492,6 +492,7 @@ Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.upd
 Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('', [StoreWebUser::class, 'inCustomer'])->name('web-user.store');
     Route::post('address', AddDeliveryAddressToCustomer::class)->name('address.store');
+    Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

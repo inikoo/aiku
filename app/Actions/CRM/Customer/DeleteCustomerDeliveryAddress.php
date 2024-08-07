@@ -50,6 +50,13 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         $this->handle($fulfilmentCustomer->customer, $address);
     }
 
+    public function inCustomer(Customer $customer, Address $address, ActionRequest $request): void
+    {
+        $this->address = $address;
+        $this->initialisationFromShop($customer->shop, $request);
+        $this->handle($customer, $address);
+    }
+
     public function fromRetina(Customer $customer, Address $address, ActionRequest $request): Customer
     {
         $this->address = $address;

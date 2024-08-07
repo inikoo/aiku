@@ -12,7 +12,10 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Catalogue\RentalAgreementResource;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletReturn;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -45,6 +48,43 @@ class GetFulfilmentCustomerShowcase
             ];
         }
 
+        $addresses = $fulfilmentCustomer->customer->addresses;
+
+        $processedAddresses = $addresses->map(function ($address) {
+
+
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+
+                return $address->setAttribute('can_delete', false)
+                    ->setAttribute('can_edit', true);
+            }
+
+
+            return $address->setAttribute('can_delete', true)
+                            ->setAttribute('can_edit', true);
+        });
+
+        $customerAddressId = $fulfilmentCustomer->customer->address->id;
+        $customerDeliveryAddressId = $fulfilmentCustomer->customer->deliveryAddress->id;
+        $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $fulfilmentCustomer->id)
+                                            ->pluck('delivery_address_id')
+                                            ->unique()
+                                            ->toArray();
+
+        $forbiddenAddressIds = array_merge(
+            $palletReturnDeliveryAddressIds,
+            [$customerAddressId, $customerDeliveryAddressId]
+        );
+        
+        $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
+            if (in_array($address->id, $forbiddenAddressIds, true)) {
+                $address->setAttribute('can_delete', false)
+                        ->setAttribute('can_edit', true);
+            }
+        });
+
+        $addressCollection = AddressResource::collection($processedAddresses);
+
         return [
             'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'rental_agreement'             => [
@@ -53,6 +93,34 @@ class GetFulfilmentCustomerShowcase
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
                     'parameters' => array_values($request->route()->originalParameters())
                 ],
+            ],
+            'addresses_list'   => [
+                'all_addresses'                  => $addressCollection,
+                'pinned_address_id'              => $fulfilmentCustomer->customer->delivery_address_id,
+                'home_address_id'                => $fulfilmentCustomer->customer->address_id,
+                'current_selected_address_id'    => $fulfilmentCustomer->customer->delivery_address_id,
+                'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
+                'pinned_route'                => [
+                    'method'     => 'patch',
+                    'name'       => 'grp.models.customer.delivery-address.update',
+                    'parameters' => [
+                        'customer' => $fulfilmentCustomer->customer_id
+                    ]
+                ],
+                'delete_route'  => [
+                    'method'     => 'delete',
+                    'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $fulfilmentCustomer->id
+                    ]
+                ],
+                'store_route' => [
+                    'method'      => 'post',
+                    'name'        => 'grp.models.fulfilment-customer.address.store',
+                    'parameters'  => [
+                        'fulfilmentCustomer' => $fulfilmentCustomer->id
+                    ]
+                ]
             ],
             'recurring_bill'               => $recurringBillData,
             'updateRoute'                  => [
