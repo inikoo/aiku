@@ -197,4 +197,9 @@ class Warehouse extends Model implements Auditable
         return $this->hasMany(DeliveryNote::class);
     }
 
+    public function universalSearches(): HasMany
+    {
+        return $this->hasMany(UniversalSearch::class);
+    }
+
 }
