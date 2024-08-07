@@ -16,14 +16,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
+/**
+ * Summary of DeleteCustomerDeliveryAddress
+ * @author Kirin (Arya Permana)
+ * @copyright (c) 2024
+ */
 class DeleteCustomerDeliveryAddress extends OrgAction
 {
     protected Address $address;
     public function handle(Customer $customer, Address $address)
     {
         $customer->addresses()->detach($address->id);
-        $customer->delivery_address_id = $customer->address_id;
-        $customer->save();
 
         $address->delete();
 
@@ -34,7 +37,7 @@ class DeleteCustomerDeliveryAddress extends OrgAction
     public function afterValidator(Validator $validator): void
     {
 
-        if(DB::table('model_has_addresses')->where('address_id', $this->address->id)->exists()) {
+        if(DB::table('model_has_addresses')->where('address_id', $this->address->id)->where('model_type', '!=', 'Customer')->exists()) {
             abort(419);
         }
 

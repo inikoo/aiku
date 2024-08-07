@@ -33,6 +33,7 @@ class AddDeliveryAddressToCustomer extends OrgAction
             addressData: $modelData['delivery_address'],
             scope: 'delivery',
             updateLocation: false,
+            updateAddressField:false
         );
 
         CustomerHydrateUniversalSearch::dispatch($customer)->delay($this->hydratorsDelay);

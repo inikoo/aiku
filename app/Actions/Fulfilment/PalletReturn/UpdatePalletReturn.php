@@ -53,6 +53,8 @@ class UpdatePalletReturn extends OrgAction
                 data_set($addressData, 'country_code', $countryCode);
                 $label = isset($addressData['label']) ? $addressData['label'] : null;
                 unset($addressData['label']);
+                unset($addressData['can_edit']);
+                unset($addressData['can_delete']);
                 $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($addressData, 'id')), $addressData);
                 $pivotData['label'] = $label;
                 $palletReturn->fulfilmentCustomer->customer->addresses()->updateExistingPivot(

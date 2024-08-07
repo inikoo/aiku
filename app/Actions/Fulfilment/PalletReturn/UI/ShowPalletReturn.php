@@ -38,6 +38,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
+
 class ShowPalletReturn extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
@@ -281,7 +282,7 @@ class ShowPalletReturn extends OrgAction
         $processedAddresses = $addresses->map(function ($address) {
 
 
-            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->exists()) {
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
 
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);
@@ -292,9 +293,30 @@ class ShowPalletReturn extends OrgAction
                             ->setAttribute('can_edit', true);
         });
 
+        $customerAddressId = $palletReturn->fulfilmentCustomer->customer->address->id;
+        $customerDeliveryAddressId = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
+        $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
+                                            ->pluck('delivery_address_id')
+                                            ->unique()
+                                            ->toArray();
 
+        $forbiddenAddressIds = array_merge(
+            $palletReturnDeliveryAddressIds,
+            [$customerAddressId, $customerDeliveryAddressId]
+        );
+        
+        $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
+            if (in_array($address->id, $forbiddenAddressIds, true)) {
+                $address->setAttribute('can_delete', false)
+                        ->setAttribute('can_edit', true);
+            }
+        });
 
         $addressCollection = AddressResource::collection($processedAddresses);
+        // dd($palletReturn->fulfilmentCustomer->customer->address_id);
+        // dd($addressCollection);
+        // dd($palletReturnDeliveryAddressIds);
+        
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
@@ -453,10 +475,11 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ],
                             'addresses_list'   => [
-                                'all_addresses'               => $addressCollection,
-                                'pinned_address_id'           => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
-                                'home_address_id'             => $palletReturn->fulfilmentCustomer->customer->address_id,
-                                'current_selected_address_id' => $palletReturn->delivery_address_id,
+                                'all_addresses'                  => $addressCollection,
+                                'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
+                                'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
+                                'current_selected_address_id'    => $palletReturn->delivery_address_id,
+                                'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
                                 'pinned_route'                => [
                                     'method'     => 'patch',
                                     'name'       => 'grp.models.customer.delivery-address.update',
