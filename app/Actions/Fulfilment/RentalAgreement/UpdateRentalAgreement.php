@@ -159,19 +159,19 @@ class UpdateRentalAgreement extends OrgAction
                 Rule::exists('assets', 'id')
 
             ],
-            'clauses.rentals.*.percentage_off'        => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.rentals.*.percentage_off'        => ['sometimes', 'numeric', 'gt:0', 'lte:100'],
             'clauses.services.*.asset_id'             => [
                 'sometimes',
                 Rule::exists('assets', 'id')
 
             ],
-            'clauses.services.*.percentage_off'       => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.services.*.percentage_off'       => ['sometimes', 'numeric', 'gt:0', 'lte:100'],
             'clauses.physical_goods.*.asset_id'       => [
                 'sometimes',
                 Rule::exists('assets', 'id')
 
             ],
-            'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0', 'lte:100'],
             'username'                                => [
                 'sometimes',
                 'required',
