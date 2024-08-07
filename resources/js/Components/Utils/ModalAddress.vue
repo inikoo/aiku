@@ -335,7 +335,7 @@ const onDeleteAddress = (addressID: number) => {
                                                 <Transition name="slide-to-left">
                                                     <FontAwesomeIcon v-if="addresses.current_selected_address_id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                     <Button
-                                                        v-else
+                                                        v-else-if="!addresses.isShowcase"
                                                         @click="() => onSelectAddress(address)"
                                                         :label="isSelectAddressLoading == address.id ? '' : 'Use this'"
                                                         size="xxs"

@@ -79,9 +79,9 @@ class IndexStoredItems extends OrgAction
                         default => []
                     }
                 )
+                ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'state', label: __('Delivery State'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'actions', label: __('Action'), canBeHidden: false, sortable: true, searchable: true)
                 // ->column(key: 'notes', label: __('Notes'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');

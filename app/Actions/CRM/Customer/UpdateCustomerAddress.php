@@ -18,7 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class UpdateCustomerAddress extends OrgAction
 {
-    public function handle(Customer $customer, array $modelData): Customer
+    public function handle(Customer $customer, array $modelData): void
     {
         $addressData = Arr::get($modelData, 'address');
         $countryCode = Country::find($addressData['country_id'])->code;
@@ -33,8 +33,6 @@ class UpdateCustomerAddress extends OrgAction
             $updatedAddress->id,
             $pivotData
         );
-
-        return $customer;
     }
 
     public function rules(): array
@@ -59,27 +57,27 @@ class UpdateCustomerAddress extends OrgAction
         return false;
     }
 
-    public function asController(Customer $customer, ActionRequest $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): void
     {
         $this->scope = $customer;
         $this->initialisationFromShop($customer->shop, $request);
 
-        return $this->handle($customer, $this->validatedData);
+        $this->handle($customer, $this->validatedData);
     }
 
-    public function fromFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Customer
+    public function fromFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): void
     {
         $this->scope = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer->customer, $this->validatedData);
+        $this->handle($fulfilmentCustomer->customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, $modelData): Customer
+    public function action(Customer $customer, $modelData): void
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($customer, $this->validatedData);
+        $this->handle($customer, $this->validatedData);
     }
 }
