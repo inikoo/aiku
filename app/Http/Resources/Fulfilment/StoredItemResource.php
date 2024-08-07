@@ -30,19 +30,20 @@ class StoredItemResource extends JsonResource
         $storedItem = $this;
 
         return [
-            'id'            => $storedItem->id,
-            'reference'     => $storedItem->reference,
-            'slug'          => $storedItem->slug,
-            'customer_name' => $storedItem->fulfilmentCustomer?->customer['name'],
-            'location'      => $storedItem->location ? $storedItem->location['slug'] : '-',
-            'state'         => $storedItem->state,
-            'notes'         => $storedItem->notes ?? '-',
-            'status'        => $storedItem->status,
-            'quantity'      => (int) $storedItem->pallets?->sum('pivot.quantity'),
-            'total_quantity'=> $storedItem->pallets?->sum('pivot.quantity'),
-            'max_quantity'  => $storedItem->pallets?->sum('pivot.quantity'),
-            'pallet_name'   => $storedItem->pallets()->pluck('reference')->implode(', '),
-            'deleteRoute'   => match (request()->routeIs('retina.*')) {
+            'id'             => $storedItem->id,
+            'reference'      => $storedItem->reference,
+            'slug'           => $storedItem->slug,
+            'customer_name'  => $storedItem->fulfilmentCustomer?->customer['name'],
+            'location'       => $storedItem->location ? $storedItem->location['slug'] : '-',
+            'state'          => $storedItem->state,
+            'notes'          => $storedItem->notes ?? '-',
+            'status'         => $storedItem->status,
+            'state_icon'     => $storedItem->state->stateIcon()[$storedItem->state->value],
+            'quantity'       => (int) $storedItem->pallets?->sum('pivot.quantity'),
+            'total_quantity' => $storedItem->pallets?->sum('pivot.quantity'),
+            'max_quantity'   => $storedItem->pallets?->sum('pivot.quantity'),
+            'pallet_name'    => $storedItem->pallets()->pluck('reference')->implode(', '),
+            'deleteRoute'    => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.stored-item.delete',
                     'parameters' => [
