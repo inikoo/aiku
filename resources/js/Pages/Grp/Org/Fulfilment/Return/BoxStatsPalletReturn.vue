@@ -34,7 +34,7 @@ const props = defineProps<{
 
 
 onMounted(() => {
-    JsBarcode('#palletReturnBarcode', 'par-' + route().v().params.palletDelivery, {
+    JsBarcode('#palletReturnBarcode', route().v().params.palletReturn, {
         lineColor: "rgb(41 37 36)",
         width: 2,
         height: 50,
@@ -108,16 +108,16 @@ const isModalAddress = ref(false)
             </div>
 
             <!-- Field: Delivery Address -->
-            <div class="flex items-start w-full flex-none gap-x-2">
+            <div class="flex items-start w-full flex-none gap-x-2 mb-1">
                 <dt v-tooltip="`Pallet Return's address`" class="flex-none">
                     <span class="sr-only">Delivery address</span>
                     <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
 
-                <dd v-if="dataPalletReturn.delivery_address" class="text-xs text-gray-500">
-                    <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
-                        <span class="" v-html="dataPalletReturn.delivery_address.formatted_address" />
+                <dd v-if="boxStats.fulfilment_customer.address.value" class="text-xs text-gray-500">
+                    <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
+                        <span class="" v-html="boxStats.fulfilment_customer.address.value.formatted_address" />
 
                         <div @click="() => isModalAddress = true"
                             class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
@@ -134,20 +134,25 @@ const isModalAddress = ref(false)
 
         <!-- Box Stats: 2 -->
         <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletReturn.state)" icon="fal fa-truck-couch">
-            <div class="mt-2 mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
+            <div class="mt-2 mb-4 h-full w-full lg:max-w-72 mx-auto py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
                 <svg id="palletReturnBarcode" class="w-full h-full" />
-                <div class="text-xxs md:text-xxs text-gray-500">
-                    par-{{ route().params.palletReturn }}
+                <div class="text-xs text-gray-500">
+                    {{ route().params.palletReturn }}
                 </div>
             </div>
 
-            <div class="flex items-center flex-none gap-x-2 w-fit" v-tooltip="trans('Delivery status')">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ boxStats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='boxStats.delivery_status.icon' :class='boxStats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ boxStats.delivery_status.tooltip }}</dd>
+            <div class="border-t border-gray-300 pt-1.5">
+                <div class="flex items-center flex-none gap-x-2 w-fit" :class='boxStats.delivery_status.class' v-tooltip="trans('Delivery status')">
+                    <dt class="flex-none">
+                        <span class="sr-only">{{ boxStats.delivery_status.tooltip }}</span>
+                        <FontAwesomeIcon
+                            :icon='boxStats.delivery_status.icon'
+                            fixed-width
+                            aria-hidden='true'
+                        />
+                    </dt>
+                    <dd class="text-xs">{{ boxStats.delivery_status.tooltip }}</dd>
+                </div>
             </div>
 
             <!-- Section: Pallets, Services, Physical Goods -->
@@ -182,7 +187,7 @@ const isModalAddress = ref(false)
 
         <!-- Box: Order summary -->
         <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
-            <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
+            <section aria-labelledby="summary-heading" class="lg:max-w-xl rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
                 <!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
                 <OrderSummary :order_summary="boxStats.order_summary" />
             </section>

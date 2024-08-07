@@ -10,7 +10,6 @@ import { router } from '@inertiajs/vue3'
 import Popover from '@/Components/Popover.vue'
 import { PalletDelivery, BoxStats, PalletReturn, PDRNotes } from '@/types/Pallet'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { inject, ref } from 'vue'
 import { capitalize } from '@/Composables/capitalize'
 import { routeType } from "@/types/route"
@@ -19,6 +18,11 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import RetinaBoxNote from "@/Components/Retina/Storage/RetinaBoxNote.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faBuilding, faIdCardAlt, faMapMarkerAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faBuilding, faIdCardAlt, faMapMarkerAlt)
+
 
 const props = defineProps<{
     box_stats: BoxStats
@@ -26,11 +30,15 @@ const props = defineProps<{
     updateRoute: {
         route: routeType
     }
-    notes_data: PDRNotes[]
+    notes_data: {
+        [key: string]: PDRNotes
+    }
 }>()
 
 const layout = inject('layout', layoutStructure)
-const isLoadingSetEstimatedDate = ref<string | boolean>(false)
+
+
+const isModalAddress = ref(false)
 
 console.log('fff', props.box_stats)
 
@@ -77,13 +85,62 @@ console.log('fff', props.box_stats)
         <!-- Box: Detail -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class=" pb-2 py-5 px-3"
             :tooltip="trans('Detail')" :label="capitalize(data_pallet.state)" icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2 mb-2">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
+
+            <!-- Field: Reference -->
+            <div as="a" v-if="box_stats.fulfilment_customer.customer.reference"
+                class="flex items-center w-fit flex-none gap-x-2">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Reference</span>
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
+            </div>
+
+            <!-- Field: Contact name -->
+            <div v-if="box_stats.fulfilment_customer.customer.contact_name"
+                class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Contact name'" class="flex-none">
+                    <span class="sr-only">Contact name</span>
+                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
+            </div>
+
+
+            <!-- Field: Company name -->
+            <div v-if="box_stats.fulfilment_customer.customer.company_name"
+                class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Company name</span>
+                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
+            </div>
+            
+            <!-- Field: Delivery Address -->
+            <div class="flex items-start w-full flex-none gap-x-2">
+                <dt v-tooltip="`Pallet Return's address`" class="flex-none">
+                    <span class="sr-only">Delivery address</span>
+                    <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+
+                <dd v-if="false" class="text-xs text-gray-500">
+                    <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
+                        <span class="" v-html="dataPalletReturn.delivery_address.formatted_address" />
+
+                        <div @click="() => isModalAddress = true"
+                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                            <span>Edit</span>
+                        </div>
+                    </div>
+                </dd>
+                <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                    <span>Setup delivery address</span>
+                </div>
             </div>
         </BoxStatPallet>
 
@@ -91,24 +148,27 @@ console.log('fff', props.box_stats)
         <!-- Box: Notes -->
         <BoxStatPallet :color="{ bgColor: layout.app.theme[0], textColor: layout.app.theme[1] }" class="pb-2 pt-6 px-3"
             :tooltip="trans('Notes')" :percentage="0">
-            <div class="grid gap-y-3">
+            <div class="grid gap-y-3 mb-3">
                 <RetinaBoxNote
-                    v-for="(note, index) in notes_data"
-                    :key="index+note.label"
-                    :noteData="note"
+                    :noteData="notes_data.return"
                     :updateRoute="updateRoute.route"
                 />
 
             </div>
             
-            <!-- <div class="flex items-end gap-x-3">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data_pallet.number_pallets }}</dd>
-            </div> -->
+            <div class="border-t border-gray-300 pt-1">
+                <div class="flex items-center w-full flex-none gap-x-2" 
+                    :class='box_stats.delivery_status.class'>
+                    <dt class="flex-none">
+                        <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                        <FontAwesomeIcon
+                            :icon='box_stats.delivery_status.icon'
+                            size="xs"
+                            fixed-width aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs">{{ box_stats.delivery_status.tooltip }}</dd>
+                </div>
+            </div>
         </BoxStatPallet>
 
 
