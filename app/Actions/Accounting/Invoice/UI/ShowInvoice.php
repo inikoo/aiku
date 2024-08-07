@@ -13,10 +13,9 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
-use App\Http\Resources\Accounting\InvoicesResource;
+use App\Http\Resources\Accounting\InvoiceResource;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
-use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -89,9 +88,8 @@ class ShowInvoice extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-        $billingAddress = AddressResource::make($invoice->billingAddress);
-        $address        = AddressResource::make($invoice->address);
-        $fixedAddresses = AddressResource::collection($invoice->fixedAddresses);
+
+
         if ($invoice->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
@@ -132,9 +130,9 @@ class ShowInvoice extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
-                'address'              => $address,
-                'billing_address'      => $billingAddress,
-                'fixed_addresses'      => $fixedAddresses,
+
+
+
                 'recurring_bill_route' => $recurringBillRoute,
                 'order_summary'        => [
                     [
@@ -172,11 +170,7 @@ class ShowInvoice extends OrgAction
                             'information' => __('Tax is based on 10% of total order.'),
                             'price_total' => $invoice->tax_amount
                         ],
-                        [
-                            'label'       => __('Discount'),
-                            'information' => __('Discounts applied within vouchers or seasonal promos.'),
-                            'price_total' => $invoice->discounts_total
-                        ],
+
                     ],
                     [
                         [
@@ -205,29 +199,8 @@ class ShowInvoice extends OrgAction
                     ],
                 ],
 
-                'invoice' => [
-                    'number'            => $invoice->number,
-                    'profit_amount'     => $invoice->profit_amount,
-                    'margin_percentage' => $invoice->margin_percentage,
-                    'date'              => $invoice->date,
+                'invoice'=> InvoiceResource::make($invoice),
 
-                    'currency_code'    => $invoice->currency->code,
-                    'items_net'        => $invoice->items_net,
-                    'net_amount'       => $invoice->net_amount,
-                    'tax_percentage'   => $invoice->tax_percentage,
-                    'payment_amount'   => $invoice->payment_amount,
-                    'tax_liability_at' => $invoice->tax_liability_at,
-                    'paid_at'          => $invoice->paid_at,
-
-                    // 'item_gross'                => $invoice->item_gross,
-                    // 'discounts_total'           => $invoice->discounts_total,
-                    // 'charges'                   => $invoice->charges,
-                    // 'shipping'                  => $invoice->shipping,
-                    // 'insurance'                 => $invoice->insurance,
-                    // 'tax_amount'       => $invoice->tax_amount,
-                    // 'total_amount'     => $invoice->total_amount,
-
-                ],
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
                     fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
@@ -243,17 +216,10 @@ class ShowInvoice extends OrgAction
             ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
-    }
-
-    public function jsonResponse(Invoice $invoice): InvoicesResource
+    public function jsonResponse(Invoice $invoice): InvoiceResource
     {
-        return new InvoicesResource($invoice);
+        return new InvoiceResource($invoice);
     }
 
 

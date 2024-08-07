@@ -11,12 +11,14 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliverie
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
+use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletDeliveries;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletDelivery;
@@ -42,6 +44,14 @@ class SubmitPalletDelivery extends OrgAction
         $totalPallets = $numberPallets + $numberStoredPallets;
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
+
+        foreach ($palletDelivery->pallets as $pallet) {
+            foreach ($pallet->storedItems as $storedItem) {
+                UpdateStoredItem::run($storedItem, [
+                    'state' => StoredItemStateEnum::SUBMITTED->value
+                ]);
+            }
+        }
 
         if($totalPallets < $palletLimits && !(request()->user() instanceof WebUser)) {
             $palletDelivery = ConfirmPalletDelivery::run($palletDelivery);

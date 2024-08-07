@@ -23,7 +23,7 @@ if (props.options !== undefined && props.options.defaultCountry) {
 
 const handleChange = (number, phoneObject) => {
     props.form.phone = phoneObject.number || ''
-    console.log(props.form.phone)
+    // console.log(props.form.phone)
 }
 
 const phone = ref(props.form[props['fieldName']])
@@ -31,7 +31,7 @@ const phone = ref(props.form[props['fieldName']])
 
 <template>
     <div class="relative rounded-md shadow-sm">
-    {{ phone }} --- {{ form.phone }}
+    <!-- {{ phone }} --- {{ form.phone }} -->
         <VueTelInput
             @on-input="handleChange"
             v-model="phone"
