@@ -295,7 +295,7 @@ class IndexStocks extends GrpAction
             [
                 'label' => __('All SKUs'),
                 'icon'  => 'fal fa-bars',
-                'root'  => 'grp.goods.stocks.',
+                'root'  => 'grp.goods.stocks.index',
                 'href'  => [
                     'name'       => 'grp.goods.stocks.index',
                     'parameters' => []

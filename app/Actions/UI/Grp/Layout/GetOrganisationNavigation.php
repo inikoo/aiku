@@ -135,6 +135,7 @@ class GetOrganisationNavigation
                             "label"   => __("SKUs Families"),
                             "tooltip" => __("SKUs families"),
                             "icon"    => ["fal", "fa-boxes-alt"],
+                            'root'    => 'grp.org.inventory.org_stock_families.',
                             "route"   => [
                                 "name"       => "grp.org.inventory.org_stock_families.index",
                                 "parameters" => [$organisation->slug],
@@ -143,6 +144,7 @@ class GetOrganisationNavigation
                         [
                             "label" => __("SKUs"),
                             "icon"  => ["fal", "fa-box"],
+                            'root'  => 'grp.org.inventory.org_stocks.current_org_stocks.',
                             "route" => [
                                 "name"       => "grp.org.inventory.org_stocks.current_org_stocks.index",
                                 "parameters" => [$organisation->slug],
