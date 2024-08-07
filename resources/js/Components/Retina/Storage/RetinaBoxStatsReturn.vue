@@ -9,6 +9,7 @@ import { router } from '@inertiajs/vue3'
 
 import Popover from '@/Components/Popover.vue'
 import { PalletDelivery, BoxStats, PalletReturn, PDRNotes } from '@/types/Pallet'
+import Modal from '@/Components/Utils/Modal.vue'
 
 import { inject, ref } from 'vue'
 import { capitalize } from '@/Composables/capitalize'
@@ -17,6 +18,7 @@ import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import RetinaBoxNote from "@/Components/Retina/Storage/RetinaBoxNote.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
+import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBuilding, faIdCardAlt, faMapMarkerAlt } from '@fal'
@@ -128,9 +130,9 @@ console.log('fff', props.box_stats)
                         aria-hidden='true' />
                 </dt>
 
-                <dd v-if="false" class="text-xs text-gray-500">
+                <dd v-if="box_stats.fulfilment_customer.address.value" class="text-xs text-gray-500">
                     <div class="relative px-2 py-1 ring-1 ring-gray-300 rounded bg-gray-50">
-                        <span class="" v-html="dataPalletReturn.delivery_address.formatted_address" />
+                        <span class="" v-html="box_stats.fulfilment_customer.address.value.formatted_address" />
 
                         <div @click="() => isModalAddress = true"
                             class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
@@ -138,8 +140,9 @@ console.log('fff', props.box_stats)
                         </div>
                     </div>
                 </dd>
-                <div v-else @click="() => isModalAddress = true" class="text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                    <span>Setup delivery address</span>
+                
+                <div v-else @click="() => isModalAddress = true" class="leading-6 text-xs inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                    Setup delivery address
                 </div>
             </div>
         </BoxStatPallet>
@@ -186,4 +189,11 @@ console.log('fff', props.box_stats)
             </section>
         </BoxStatPallet>
     </div>
+
+    <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+        <ModalAddress
+            :addresses="box_stats.fulfilment_customer.address"
+            :updateRoute="updateRoute.route"
+        />
+    </Modal>
 </template>

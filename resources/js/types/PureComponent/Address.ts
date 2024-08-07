@@ -1,3 +1,5 @@
+import { routeType } from '@/types/route'
+
 export interface Address {
     id?: number | null
     address_line_1?: string
@@ -50,7 +52,19 @@ export interface AddressOptions {
     }
 }
 
-export interface Addresses {
+export interface AddressManagement {
     value: Address
     options: AddressOptions
+    address_list: {
+        data: Address[]
+    }
+    pinned_address_id: number
+    home_address_id: number
+    current_selected_address_id: number
+    selected_delivery_addresses_id: number[]
+    routes_list: {
+        pinned_route: routeType
+        delete_route: routeType
+        store_route: routeType
+    }
 }

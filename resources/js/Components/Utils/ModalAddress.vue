@@ -6,7 +6,7 @@ import { notify } from '@kyvg/vue3-notification'
 import { ref } from 'vue'
 import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
-import { Address, AddressOptions } from "@/types/PureComponent/Address"
+import { Address, AddressManagement } from "@/types/PureComponent/Address"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch } from '@fal'
@@ -17,42 +17,27 @@ library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch)
 
 const props = defineProps<{
     updateRoute: routeType
-    addressCustomer: {
-        value: Address
-        options: AddressOptions
-    }
-    addressList: {
-        pinned_address_id: number
-        home_address_id: number
-        current_selected_address_id: number
-        all_addresses: {
-            data: Address[]
-        }
-        selected_delivery_addresses_id: number[]
-        pinned_route: routeType
-        delete_route: routeType
-        store_route: routeType
-    }
+    addresses: AddressManagement
 }>()
 
 const emits = defineEmits<{
     (e: 'setModal', value: boolean): void
 }>()
-
-const homeAddress = props.addressList.all_addresses.data.find(address => address.id === props.addressList.home_address_id)
+// console.log('address list', props.addresses.address_list)
+const homeAddress = props.addresses.address_list.data.find(address => address.id === props.addresses.home_address_id)
 
 
 // Method: Create new address
 const isSubmitAddressLoading = ref(false)
 const onSubmitNewAddress = async (address: Address) => {
-    // console.log(props.address.value)
+    // console.log(props.addresses.value)
     const filterDataAdddress = {...address}
     delete filterDataAdddress.formatted_address
     delete filterDataAdddress.country
     delete filterDataAdddress.id  // Remove id cuz create new one
 
-    router[props.addressList.store_route.method || 'post'](
-        route(props.addressList.store_route.name, props.addressList.store_route.parameters),
+    router[props.addresses.routes_list.store_route.method || 'post'](
+        route(props.addresses.routes_list.store_route.name, props.addresses.routes_list.store_route.parameters),
         {
             delivery_address: filterDataAdddress
         },
@@ -85,7 +70,7 @@ const onEditAddress = (address: Address) => {
     selectedAddress.value = {...address}
 }
 const onSubmitEditAddress = (address: Address) => {
-    // console.log(props.address.value)
+    // console.log(props.addresses.value)
     const filterDataAdddress = {...address}
     delete filterDataAdddress.formatted_address
     delete filterDataAdddress.country
@@ -127,13 +112,13 @@ const onSelectAddress = (selectedAddress: Address) => {
             onFinish: () => isSelectAddressLoading.value = false
         }
     )
-    // props.address.value = selectedAddress
+    // props.addresses.value = selectedAddress
 }
 
 const isLoading = ref<string | boolean>(false)
 const onPinnedAddress = (addressID: number) => {
-    router[props.addressList.pinned_route.method || 'patch'](
-        route(props.addressList.pinned_route.name, props.addressList.pinned_route.parameters),
+    router[props.addresses.routes_list.pinned_route.method || 'patch'](
+        route(props.addresses.routes_list.pinned_route.name, props.addresses.routes_list.pinned_route.parameters),
         {
             delivery_address_id: addressID
         },
@@ -152,10 +137,10 @@ const onPinnedAddress = (addressID: number) => {
     )
 }
 const onDeleteAddress = (addressID: number) => {
-    // console.log('vvcxvcxvcx', props.addressList.delete_route.method, route(props.addressList.delete_route.name, props.addressList.delete_route.parameters))
-    router[props.addressList.delete_route.method || 'delete'](
-        route(props.addressList.delete_route.name, {
-            ...props.addressList.delete_route.parameters,
+    // console.log('vvcxvcxvcx', props.addressesList.delete_route.method, route(props.addressesList.delete_route.name, props.addressesList.delete_route.parameters))
+    router[props.addresses.routes_list.delete_route.method || 'delete'](
+        route(props.addresses.routes_list.delete_route.name, {
+            ...props.addresses.routes_list.delete_route.parameters,
             address: addressID
         }),
         {
@@ -178,9 +163,9 @@ const onDeleteAddress = (addressID: number) => {
 
 <template>
     <div class="h-[600px] px-2 py-1 overflow-auto">
-    <!-- <pre>current selected {{ addressList.current_selected_address_id }}</pre>
-    <pre>pinned address {{ addressList.pinned_address_id }}</pre>
-    <pre>home {{ addressList.home_address_id }}</pre> -->
+    <!-- <pre>current selected {{ addresses.current_selected_address_id }}</pre>
+    <pre>pinned address {{ addresses.pinned_address_id }}</pre>
+    <pre>home {{ addresses.home_address_id }}</pre> -->
         <div class="flex justify-between border-b border-gray-300">
             <div class="text-2xl font-bold text-center mb-2">
                 {{ trans('Address management') }}
@@ -202,7 +187,7 @@ const onDeleteAddress = (addressID: number) => {
                     <div class="border border-gray-300 rounded-lg relative p-3 ">
                         <PureAddress
                             v-model="selectedAddress"
-                            :options="addressCustomer.options"
+                            :options="addresses.options"
                             fieldLabel
                         />
                         <div class="mt-6 flex justify-center gap-x-2">
@@ -231,18 +216,18 @@ const onDeleteAddress = (addressID: number) => {
                         ]"
                     >
                         <div class="flex justify-between border-b border-gray-300 px-3 py-2"
-                            :class="addressList.current_selected_address_id == selectedAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
+                            :class="addresses.current_selected_address_id == selectedAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
                         >
                             <div class="flex gap-x-1 items-center relative">
                                 <div v-if="selectedAddress?.label" class="font-semibold text-sm whitespace-nowrap">
-                                    {{ [...addressList.all_addresses.data].find(xxx => xxx.id === selectedAddress?.id)?.label }}
+                                    {{ [...addresses.address_list.data].find(xxx => xxx.id === selectedAddress?.id)?.label }}
                                 </div>
                                 <div v-else class="text-xs italic whitespace-nowrap text-gray-400">
                                     (No label)
                                 </div>
                                 <div class="relative">
                                     <Transition name="slide-to-left">
-                                        <FontAwesomeIcon v-if="addressList.current_selected_address_id == selectedAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-if="addresses.current_selected_address_id == selectedAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                         <Button
                                             v-else
                                             @click="() => onSelectAddress(selectedAddress)"
@@ -268,7 +253,7 @@ const onDeleteAddress = (addressID: number) => {
                         </div>
                         <PureAddress
                             v-model="selectedAddress"
-                            :options="addressCustomer.options"
+                            :options="addresses.options"
                             fieldLabel
                         />
                         <div class="mt-6 flex justify-center">
@@ -285,7 +270,7 @@ const onDeleteAddress = (addressID: number) => {
                 
                 <!-- Section: Address list -->
                 <div v-else class="col-span-2 relative py-4 h-fit">
-                    <template v-if="addressList.all_addresses.data?.length">
+                    <template v-if="addresses.address_list.data?.length">
                         <!-- Section: Address list -->
                         <div class="grid gap-x-3 gap-y-4 h-fit transition-all"
                             :class="[isEditAddress ? '' : 'col-span-2 grid-cols-4']">
@@ -293,9 +278,9 @@ const onDeleteAddress = (addressID: number) => {
                             <!-- Section: Address Home -->
                             <div v-if="homeAddress" class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-full transition-all">
                                 <div class="flex justify-between border-b border-gray-300 px-3 py-2"
-                                    :class="addressList.current_selected_address_id == homeAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
+                                    :class="addresses.current_selected_address_id == homeAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
                                 >
-                                <!-- {{ homeAddress.id }} -->
+                                <!-- {{ homeAddresses.id }} -->
                                     <div class="flex gap-x-1 items-center relative">
                                         <div class="font-semibold text-sm whitespace-nowrap">
                                             <FontAwesomeIcon icon='fal fa-house' class='' fixed-width aria-hidden='true' />
@@ -303,7 +288,7 @@ const onDeleteAddress = (addressID: number) => {
 
                                         <div class="relative">
                                             <Transition name="slide-to-left">
-                                                <FontAwesomeIcon v-if="addressList.current_selected_address_id == homeAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-if="addresses.current_selected_address_id == homeAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                 <Button
                                                     v-else
                                                     @click="() => onSelectAddress(homeAddress)"
@@ -320,7 +305,7 @@ const onDeleteAddress = (addressID: number) => {
                                     <!-- Action: Pin, edit, delete -->
                                     <div class="flex items-center">
                                         <LoadingIcon v-if="isLoading == 'onPinned' + homeAddress?.id"/>
-                                        <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(homeAddress.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === homeAddress?.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
+                                        <FontAwesomeIcon v-else-if="addresses.address_list.data?.length > 1" @click="() => onPinnedAddress(homeAddress.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addresses.pinned_address_id === homeAddress?.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
                                         <FontAwesomeIcon @click="() => onEditAddress(homeAddress)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
                                     </div>
                                 </div>
@@ -330,7 +315,7 @@ const onDeleteAddress = (addressID: number) => {
 
                             <!-- Section: Address looping -->
                             <TransitionGroup>
-                                <div v-for="(address, idxAddress) in addressList.all_addresses.data.filter(xxx => xxx.id != addressList.home_address_id)"
+                                <div v-for="(address, idxAddress) in addresses.address_list.data.filter(xxx => xxx.id != addresses.home_address_id)"
                                     :key="idxAddress + address.id"
                                     class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-40 transition-all"
                                     :class="[
@@ -339,10 +324,10 @@ const onDeleteAddress = (addressID: number) => {
                                 >
                                 <!-- {{ address.id }} -->
                                     <div class="flex justify-between border-b border-gray-300 px-3 py-2"
-                                        :class="addressList.current_selected_address_id == address.id ? 'bg-green-50' : 'bg-gray-100'"
+                                        :class="addresses.current_selected_address_id == address.id ? 'bg-green-50' : 'bg-gray-100'"
                                     >
                                         <div class="flex gap-x-1 items-center relative">
-                                            <FontAwesomeIcon v-if="addressList.selected_delivery_addresses_id.includes(address.id)" icon='fal fa-truck-couch' class='px-0.5 py-1 cursor-pointer' :class="addressList.selected_delivery_addresses_id.includes(address.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('This address is already selected')" />
+                                            <FontAwesomeIcon v-if="addresses.selected_delivery_addresses_id.includes(address.id)" icon='fal fa-truck-couch' class='px-0.5 py-1 cursor-pointer' :class="addresses.selected_delivery_addresses_id.includes(address.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('This address is already selected')" />
                                             <div v-if="address.label" class="font-semibold text-sm whitespace-nowrap">
                                                 {{ useTruncate(address.label, 14) }}
                                             </div>
@@ -351,7 +336,7 @@ const onDeleteAddress = (addressID: number) => {
                                             </div>
                                             <div class="relative">
                                                 <Transition name="slide-to-left">
-                                                    <FontAwesomeIcon v-if="addressList.current_selected_address_id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon v-if="addresses.current_selected_address_id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                     <Button
                                                         v-else
                                                         @click="() => onSelectAddress(address)"
@@ -366,7 +351,7 @@ const onDeleteAddress = (addressID: number) => {
                                         </div>
                                         <div class="flex items-center">
                                             <LoadingIcon v-if="isLoading === 'onPinned' + address.id"/>
-                                            <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(address.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
+                                            <FontAwesomeIcon v-else-if="addresses.address_list.data?.length > 1" @click="() => onPinnedAddress(address.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addresses.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
                                             <FontAwesomeIcon v-if="address.can_edit" @click="() => onEditAddress(address)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
                                             <template v-if="address.can_delete">
                                                 <LoadingIcon v-if="isLoading === 'onDelete' + address.id" class="text-sm px-[1px]" />
@@ -387,8 +372,6 @@ const onDeleteAddress = (addressID: number) => {
             </Transition>
         </div>
 
-
-        <!-- {{ address.value }} -->
     </div>
 </template>
 

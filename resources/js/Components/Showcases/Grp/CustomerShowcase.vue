@@ -14,6 +14,9 @@ import { faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt } from '@fal
 import { library } from '@fortawesome/fontawesome-svg-core'
 import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 import { trans } from 'laravel-vue-i18n'
+import { ref } from 'vue'
+import Modal from '@/Components/Utils/Modal.vue'
+import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt)
 
@@ -37,9 +40,10 @@ const props = defineProps<{
 
     },
     tab: string
+    updateRoute: routeType
 }>()
 
-
+const isModalAddress = ref(false)
 </script>
 
 <template>
@@ -124,6 +128,11 @@ const props = defineProps<{
                             <dd class="text-gray-500">
                                 <AddressLocation :data="data.customer.location" />
                             </dd>
+                            <div @click="() => isModalAddress = true"
+                                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                                            <span>Edit</span>
+                            </div>
                         </div>
                     </div>
                 </dl>
@@ -132,5 +141,11 @@ const props = defineProps<{
 
 
     </div>
+    <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+        <ModalAddress
+            :addressCustomer="data.customer.address.formatted_address"
+            :addressList="data.addresses_list"
+            :updateRoute    
+        />
+    </Modal>
 </template>
-
