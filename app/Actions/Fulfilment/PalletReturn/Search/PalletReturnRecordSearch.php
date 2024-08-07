@@ -88,12 +88,13 @@ class PalletReturnRecordSearch
         $palletReturn->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $palletReturn->group_id,
-                'organisation_id'   => $palletReturn->organisation_id,
-                'customer_id'       => $palletReturn->fulfilmentCustomer->customer_id,
-                'haystack_tier_1'   => $palletReturn->reference,
-                'result'            => $result,
-                'keyword'           => $palletReturn->slug
+                'group_id'            => $palletReturn->group_id,
+                'organisation_id'     => $palletReturn->organisation_id,
+                'customer_id'         => $palletReturn->fulfilmentCustomer->customer_id,
+                'haystack_tier_1'     => $palletReturn->reference,
+                'result'              => $result,
+                'keyword'             => $palletReturn->slug,
+                'keyword_2'           => $palletReturn->reference
             ]
         );
     }

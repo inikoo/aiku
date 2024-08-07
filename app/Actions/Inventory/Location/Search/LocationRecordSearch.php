@@ -32,7 +32,8 @@ class LocationRecordSearch
                 'warehouse_slug'    => $location->warehouse->slug,
                 'sections'          => ['inventory'],
                 'haystack_tier_1'   => $location->code,
-                'keyword'           => $location->code,
+                'keyword'           => $location->barcode,
+                'keyword_2'         => $location->code
             ]
         );
     }

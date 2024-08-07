@@ -16,16 +16,24 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUniversalScan extends OrgAction
 {
-    public function handle(string $ulid): UniversalSearch
+    public function handle(string $ulid, ActionRequest $request): UniversalSearch
     {
-        return UniversalSearch::where('keyword', $ulid)->firstOrFail();
+        $query = UniversalSearch::query();
+
+        if($type = $request->get('type')) {
+            $query->where('model_type', $type);
+        }
+
+        $query->where('keyword', $ulid);
+
+        return $query->firstOrFail();
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, string $ulid, ActionRequest $request): UniversalSearch
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($ulid);
+        return $this->handle($ulid, $request);
     }
 
     public function jsonResponse(UniversalSearch $universalSearch): UniversalScanResource
