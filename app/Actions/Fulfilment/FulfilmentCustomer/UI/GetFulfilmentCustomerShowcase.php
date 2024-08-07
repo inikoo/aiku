@@ -96,9 +96,9 @@ class GetFulfilmentCustomerShowcase
             ],
             'address_update_route'  => [
                 'method'     => 'patch',
-                'name'       => 'grp.models.customer.address.update',
+                'name'       => 'grp.models.fulfilment-customer.address.update',
                 'parameters' => [
-                    'customer' => $fulfilmentCustomer->customer->id
+                    'fulfilmentCustomer' => $fulfilmentCustomer->id
                 ]
             ],
             'addresses_list'   => [

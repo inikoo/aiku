@@ -373,7 +373,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::post('address', AddDeliveryAddressToFulfilmentCustomer::class)->name('address.store');
     Route::delete('address/{address:id}/delete', DeleteCustomerDeliveryAddress::class)->name('delivery-address.delete')->withoutScopedBindings();
-
+    Route::patch('address/update', [UpdateCustomerAddress::class, 'fromFulfilmentCustomer'])->name('address.update');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
         Route::prefix('pallet/{pallet:id}')->group(function () {
