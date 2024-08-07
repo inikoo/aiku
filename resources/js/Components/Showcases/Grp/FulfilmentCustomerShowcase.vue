@@ -24,6 +24,8 @@ import Tag from '@/Components/Tag.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
+import Modal from '@/Components/Utils/Modal.vue'
+import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
@@ -76,6 +78,7 @@ const props = defineProps<{
         }
     },
     tab: string
+    updateRoute: routeType
 }>()
 
 // console.log(props.data)
@@ -103,7 +106,7 @@ const optionRadio = [
 
 const isLoadingButtonRentalAgreement = ref(false)
 const isLoading = ref<string | boolean>(false)
-
+const isModalAddress = ref(false)
 </script>
 
 <template>
@@ -180,6 +183,11 @@ const isLoading = ref<string | boolean>(false)
                                             </dt>
                                             <dd class="text-gray-500" v-html="data.fulfilment_customer.customer.address.formatted_address">
                                             </dd>
+                                            <div @click="() => isModalAddress = true"
+                                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                                            <span>Edit</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </dl>
@@ -190,6 +198,13 @@ const isLoading = ref<string | boolean>(false)
 
                 <!-- Box Group: Pallets -->
                 <CustomerShowcaseStats v-if="data?.rental_agreement?.stats" :stats="data.stats" />
+                <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+                    <ModalAddress
+                        :addressCustomer="data.fulfilment_customer.customer.address.formatted_address"
+                        :addressList="data.addresses_list"
+                        :updateRoute    
+                    />
+                </Modal>
             </div>
         </div>
 
