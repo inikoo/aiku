@@ -38,7 +38,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class ShowPalletReturn extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
@@ -293,8 +292,8 @@ class ShowPalletReturn extends OrgAction
                             ->setAttribute('can_edit', true);
         });
 
-        $customerAddressId = $palletReturn->fulfilmentCustomer->customer->address->id;
-        $customerDeliveryAddressId = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
+        $customerAddressId              = $palletReturn->fulfilmentCustomer->customer->address->id;
+        $customerDeliveryAddressId      = $palletReturn->fulfilmentCustomer->customer->deliveryAddress->id;
         $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
                                             ->pluck('delivery_address_id')
                                             ->unique()
@@ -304,7 +303,7 @@ class ShowPalletReturn extends OrgAction
             $palletReturnDeliveryAddressIds,
             [$customerAddressId, $customerDeliveryAddressId]
         );
-        
+
         $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
             if (in_array($address->id, $forbiddenAddressIds, true)) {
                 $address->setAttribute('can_delete', false)
@@ -316,7 +315,7 @@ class ShowPalletReturn extends OrgAction
         // dd($palletReturn->fulfilmentCustomer->customer->address_id);
         // dd($addressCollection);
         // dd($palletReturnDeliveryAddressIds);
-        
+
         if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
@@ -480,7 +479,7 @@ class ShowPalletReturn extends OrgAction
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id'    => $palletReturn->delivery_address_id,
                                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                'pinned_route'                => [
+                                'pinned_route'                   => [
                                     'method'     => 'patch',
                                     'name'       => 'grp.models.customer.delivery-address.update',
                                     'parameters' => [

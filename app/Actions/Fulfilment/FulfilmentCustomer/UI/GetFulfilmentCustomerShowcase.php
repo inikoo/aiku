@@ -64,8 +64,8 @@ class GetFulfilmentCustomerShowcase
                             ->setAttribute('can_edit', true);
         });
 
-        $customerAddressId = $fulfilmentCustomer->customer->address->id;
-        $customerDeliveryAddressId = $fulfilmentCustomer->customer->deliveryAddress->id;
+        $customerAddressId              = $fulfilmentCustomer->customer->address->id;
+        $customerDeliveryAddressId      = $fulfilmentCustomer->customer->deliveryAddress->id;
         $palletReturnDeliveryAddressIds = PalletReturn::where('fulfilment_customer_id', $fulfilmentCustomer->id)
                                             ->pluck('delivery_address_id')
                                             ->unique()
@@ -75,7 +75,7 @@ class GetFulfilmentCustomerShowcase
             $palletReturnDeliveryAddressIds,
             [$customerAddressId, $customerDeliveryAddressId]
         );
-        
+
         $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
             if (in_array($address->id, $forbiddenAddressIds, true)) {
                 $address->setAttribute('can_delete', false)
@@ -100,7 +100,7 @@ class GetFulfilmentCustomerShowcase
                 'home_address_id'                => $fulfilmentCustomer->customer->address_id,
                 'current_selected_address_id'    => $fulfilmentCustomer->customer->delivery_address_id,
                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                'pinned_route'                => [
+                'pinned_route'                   => [
                     'method'     => 'patch',
                     'name'       => 'grp.models.customer.delivery-address.update',
                     'parameters' => [
