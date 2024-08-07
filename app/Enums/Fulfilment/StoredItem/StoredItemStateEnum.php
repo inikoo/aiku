@@ -37,6 +37,42 @@ enum StoredItemStateEnum: string
         ];
     }
 
+    public static function stateIcon(): array
+    {
+        return [
+            'submitted'   => [
+                'tooltip' => __('Submitted'),
+                'icon'    => 'fal fa-share',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+            ],
+            'in-process'   => [
+                'tooltip' => __('In process'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+            ],
+            'active'   => [
+                'tooltip' => __('Active'),
+                'icon'    => 'fal fa-spell-check',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+            ],
+            'discontinuing'   => [
+                'tooltip' => __('Discontinuing'),
+                'icon'    => 'fal fa-sign-out-alt',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+            ],
+            'discontinued'   => [
+                'tooltip' => __('Discontinued'),
+                'icon'    => 'fal fa-ghost',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+            ],
+        ];
+    }
+
     public static function count(
         Pallet|FulfilmentCustomer|Fulfilment|Organisation|Group|Warehouse $parent,
     ): array {
