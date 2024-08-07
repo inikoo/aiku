@@ -13,7 +13,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Models\CRM\Customer;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -33,6 +32,7 @@ class AddDeliveryAddressToCustomer extends OrgAction
             addressData: $modelData['delivery_address'],
             scope: 'delivery',
             updateLocation: false,
+            updateAddressField:false
         );
 
         CustomerHydrateUniversalSearch::dispatch($customer)->delay($this->hydratorsDelay);
@@ -59,7 +59,7 @@ class AddDeliveryAddressToCustomer extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): Customer
     {
         $this->customer = $customer;
         $this->initialisationFromShop($customer->shop, $request);

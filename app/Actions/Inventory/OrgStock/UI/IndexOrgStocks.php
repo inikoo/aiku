@@ -43,6 +43,15 @@ class IndexOrgStocks extends OrgAction
         return $this->handle(parent: $organisation);
     }
 
+    public function current(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'current';
+        $this->parent = $organisation;
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle($this->parent);
+    }
+
     public function active(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'active';
@@ -136,7 +145,9 @@ class IndexOrgStocks extends OrgAction
         }
 
 
-        if ($this->bucket == 'active') {
+        if ($this->bucket == 'current') {
+            $queryBuilder->whereIn('org_stocks.state', [StockStateEnum::ACTIVE, StockStateEnum::DISCONTINUING]);
+        } elseif ($this->bucket == 'active') {
             $queryBuilder->where('org_stocks.state', StockStateEnum::ACTIVE);
         } elseif ($this->bucket == 'discontinuing') {
             $queryBuilder->where('org_stocks.state', StockStateEnum::DISCONTINUING);
@@ -218,34 +229,31 @@ class IndexOrgStocks extends OrgAction
 
     public function getOrgStocksSubNavigation(): array
     {
+        if ($this->parent instanceof Organisation) {
+            $stats = $this->parent->inventoryStats;
+        } else {
+            $stats = $this->parent->stats;
+        }
+
         return [
 
             [
-                'label' => __('Active'),
-                'root'  => 'grp.org.inventory.org_stocks.active_org_stocks.',
-                'href'  => [
-                    'name'       => 'grp.org.inventory.org_stocks.active_org_stocks.index',
+                'label'  => __('Current'),
+                'root'   => 'grp.org.inventory.org_stocks.current_org_stocks.',
+                'href'   => [
+                    'name'       => 'grp.org.inventory.org_stocks.current_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug
                     ]
                 ],
-                'number' => 0
+                'number' => $stats->number_current_org_stocks
             ],
+
+            /*
             [
-                'label' => __('In process'),
-                'root'  => 'grp.org.inventory.org_stocks.in_process_org_stocks.',
-                'href'  => [
-                    'name'       => 'grp.org.inventory.org_stocks.in_process_org_stocks.index',
-                    'parameters' => [
-                        $this->organisation->slug
-                    ]
-                ],
-                'number' => 0
-            ],
-            [
-                'label' => __('Discounting'),
-                'root'  => 'grp.org.inventory.org_stocks.discontinuing_org_stocks.',
-                'href'  => [
+                'label'  => __('Discounting'),
+                'root'   => 'grp.org.inventory.org_stocks.discontinuing_org_stocks.',
+                'href'   => [
                     'name'       => 'grp.org.inventory.org_stocks.discontinuing_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug
@@ -253,28 +261,31 @@ class IndexOrgStocks extends OrgAction
                 ],
                 'number' => 0
             ],
+            */
             [
-                'label' => __('Discontinued'),
-                'root'  => 'grp.org.inventory.org_stocks.discontinued_org_stocks.',
-                'href'  => [
+                'label'  => __('Discontinued'),
+                'root'   => 'grp.org.inventory.org_stocks.discontinued_org_stocks.',
+                'href'   => [
                     'name'       => 'grp.org.inventory.org_stocks.discontinued_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug
                     ]
                 ],
-                'number' => 0
+                'align'  => 'right',
+                'number' => $stats->number_org_stocks_state_discontinued
             ],
             [
-                'label' => __('All SKUs'),
-                'icon'  => 'fal fa-bars',
-                'root'  => 'grp.org.inventory.org_stocks.',
-                'href'  => [
-                    'name'       => 'grp.org.inventory.org_stocks.index',
+                'label'  => __('All SKUs'),
+                'icon'   => 'fal fa-bars',
+                'root'   => 'grp.org.inventory.org_stocks.all_org_stocks.',
+                'href'   => [
+                    'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug
                     ]
                 ],
-                'number' => 0
+                'number' => $stats->number_org_stocks,
+                'align'  => 'right'
             ],
 
         ];
@@ -282,9 +293,14 @@ class IndexOrgStocks extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
-
         $subNavigation = $this->getOrgStocksSubNavigation();
 
+
+        $title=__("SKUs");
+
+        if($this->bucket=='current') {
+            $title=__('Current SKUs');
+        }
 
 
         return Inertia::render(
@@ -294,14 +310,14 @@ class IndexOrgStocks extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __("SKUs"),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title'      => __("SKUs"),
-                    'icon'       => [
+                    'title'         => $title,
+                    'icon'          => [
                         'icon'  => ['fal', 'fa-box'],
                         'title' => __('SKU')
                     ],
-                    'actions_xx' => [
+                    'actions_xx'    => [
                         $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -346,7 +362,7 @@ class IndexOrgStocks extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.inventory.org_stocks.index' =>
+            'grp.org.inventory.org_stocks.all_org_stocks.index' =>
             array_merge(
                 ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

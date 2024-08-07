@@ -9,11 +9,11 @@ import { trans } from 'laravel-vue-i18n'
 import { Address, AddressOptions } from "@/types/PureComponent/Address"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faThumbtack, faPencil, faHouse, faTrashAlt } from '@fal'
+import { faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useTruncate } from '../../Composables/useTruncate'
-library.add(faThumbtack, faPencil, faHouse, faTrashAlt)
+library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch)
 
 const props = defineProps<{
     updateRoute: routeType
@@ -28,6 +28,7 @@ const props = defineProps<{
         all_addresses: {
             data: Address[]
         }
+        selected_delivery_addresses_id: number[]
         pinned_route: routeType
         delete_route: routeType
         store_route: routeType
@@ -319,7 +320,7 @@ const onDeleteAddress = (addressID: number) => {
                                     <!-- Action: Pin, edit, delete -->
                                     <div class="flex items-center">
                                         <LoadingIcon v-if="isLoading == 'onPinned' + homeAddress?.id"/>
-                                        <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(homeAddress.id)" icon='fal fa-thumbtack' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === homeAddress?.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Pin this addres for all scope')" />
+                                        <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(homeAddress.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === homeAddress?.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
                                         <FontAwesomeIcon @click="() => onEditAddress(homeAddress)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
                                     </div>
                                 </div>
@@ -331,7 +332,7 @@ const onDeleteAddress = (addressID: number) => {
                             <TransitionGroup>
                                 <div v-for="(address, idxAddress) in addressList.all_addresses.data.filter(xxx => xxx.id != addressList.home_address_id)"
                                     :key="idxAddress + address.id"
-                                    class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-full transition-all"
+                                    class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-40 transition-all"
                                     :class="[
                                         selectedAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
                                     ]"
@@ -341,6 +342,7 @@ const onDeleteAddress = (addressID: number) => {
                                         :class="addressList.current_selected_address_id == address.id ? 'bg-green-50' : 'bg-gray-100'"
                                     >
                                         <div class="flex gap-x-1 items-center relative">
+                                            <FontAwesomeIcon v-if="addressList.selected_delivery_addresses_id.includes(address.id)" icon='fal fa-truck-couch' class='px-0.5 py-1 cursor-pointer' :class="addressList.selected_delivery_addresses_id.includes(address.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('This address is already selected')" />
                                             <div v-if="address.label" class="font-semibold text-sm whitespace-nowrap">
                                                 {{ useTruncate(address.label, 14) }}
                                             </div>
@@ -364,7 +366,7 @@ const onDeleteAddress = (addressID: number) => {
                                         </div>
                                         <div class="flex items-center">
                                             <LoadingIcon v-if="isLoading === 'onPinned' + address.id"/>
-                                            <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(address.id)" icon='fal fa-thumbtack' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Pin this addres for all scope')" />
+                                            <FontAwesomeIcon v-else-if="addressList.all_addresses.data?.length > 1" @click="() => onPinnedAddress(address.id)" icon='fal fa-truck' class='px-0.5 py-1 cursor-pointer' :class="addressList.pinned_address_id === address.id ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('Select as default delivery address')" />
                                             <FontAwesomeIcon v-if="address.can_edit" @click="() => onEditAddress(address)" icon='fal fa-pencil' class='px-0.5 py-1 text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' v-tooltip="trans('Edit this address')" />
                                             <template v-if="address.can_delete">
                                                 <LoadingIcon v-if="isLoading === 'onDelete' + address.id" class="text-sm px-[1px]" />

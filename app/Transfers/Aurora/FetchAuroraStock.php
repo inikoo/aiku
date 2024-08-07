@@ -22,6 +22,11 @@ class FetchAuroraStock extends FetchAurora
 
     protected function parseModel(): void
     {
+
+        if($this->auroraModelData->{'Part Customer Key'}) {
+            return;
+        }
+
         $tradeUnitReference = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
         $tradeUnitSlug      = Str::lower($tradeUnitReference);
 

@@ -263,7 +263,7 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.active_stocks.index',
                     'parameters' => []
                 ],
-                'number' => 0
+                'number' => $this->group->inventoryStats->number_stocks_state_active
             ],
             [
                 'label' => __('In process'),
@@ -272,7 +272,7 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.in_process_stocks.index',
                     'parameters' => []
                 ],
-                'number' => 0
+                'number' => $this->group->inventoryStats->number_stocks_state_in_process
             ],
             [
                 'label' => __('Discounting'),
@@ -281,7 +281,7 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.discontinuing_stocks.index',
                     'parameters' => []
                 ],
-                'number' => 0
+                'number' => $this->group->inventoryStats->number_stocks_state_discontinuing
             ],
             [
                 'label' => __('Discontinued'),
@@ -290,7 +290,7 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.discontinued_stocks.index',
                     'parameters' => []
                 ],
-                'number' => 0
+                'number' => $this->group->inventoryStats->number_stocks_state_discontinued
             ],
             [
                 'label' => __('All SKUs'),
@@ -300,7 +300,8 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.index',
                     'parameters' => []
                 ],
-                'number' => 0
+                'number' => $this->group->inventoryStats->number_stocks
+
             ],
 
         ];
