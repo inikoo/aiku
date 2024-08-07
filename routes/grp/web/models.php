@@ -29,6 +29,7 @@ use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\DeletePortfolio;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\CRM\Customer\UpdateCustomerAddress;
 use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\Prospect\ImportShopProspects;
@@ -492,6 +493,7 @@ Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.upd
 Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('', [StoreWebUser::class, 'inCustomer'])->name('web-user.store');
     Route::post('address', AddDeliveryAddressToCustomer::class)->name('address.store');
+    Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
 });
 
