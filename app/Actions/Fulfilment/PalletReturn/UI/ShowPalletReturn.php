@@ -471,34 +471,34 @@ class ShowPalletReturn extends OrgAction
                                 'value'   => AddressResource::make($palletReturn->deliveryAddress ?? new Address()),
                                 'options' => [
                                     'countriesAddressData' => GetAddressData::run()
-                                ]
-                            ],
-                            'addresses_list'   => [
-                                'all_addresses'                  => $addressCollection,
+                                ],
+                                'address_list'                   => $addressCollection,
                                 'pinned_address_id'              => $palletReturn->fulfilmentCustomer->customer->delivery_address_id,
                                 'home_address_id'                => $palletReturn->fulfilmentCustomer->customer->address_id,
                                 'current_selected_address_id'    => $palletReturn->delivery_address_id,
                                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                                'pinned_route'                   => [
-                                    'method'     => 'patch',
-                                    'name'       => 'grp.models.customer.delivery-address.update',
-                                    'parameters' => [
-                                        'customer' => $palletReturn->fulfilmentCustomer->customer_id
-                                    ]
-                                ],
-                                'delete_route'  => [
-                                    'method'     => 'delete',
-                                    'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
-                                    'parameters' => [
-                                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
-                                    ]
-                                ],
-                                'store_route' => [
-                                    'method'      => 'post',
-                                    'name'        => 'grp.models.fulfilment-customer.address.store',
-                                    'parameters'  => [
-                                        'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
-                                    ]
+                                'routes_list'                    => [
+                                    'pinned_route'                   => [
+                                        'method'     => 'patch',
+                                        'name'       => 'grp.models.customer.delivery-address.update',
+                                        'parameters' => [
+                                            'customer' => $palletReturn->fulfilmentCustomer->customer_id
+                                        ]
+                                    ],
+                                    'delete_route'  => [
+                                        'method'     => 'delete',
+                                        'name'       => 'grp.models.fulfilment-customer.delivery-address.delete',
+                                        'parameters' => [
+                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                                        ]
+                                    ],
+                                    'store_route' => [
+                                        'method'      => 'post',
+                                        'name'        => 'grp.models.fulfilment-customer.address.store',
+                                        'parameters'  => [
+                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id
+                                        ]
+                                    ],
                                 ]
                             ],
                         ]

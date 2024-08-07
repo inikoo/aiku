@@ -25,11 +25,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
 import Modal from '@/Components/Utils/Modal.vue'
+import { AddressManagement } from '@/types/PureComponent/Address'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
     data: {
+        addresses: AddressManagement
+        address_update_route: routeType
         // customer: PalletCustomer
         fulfilment_customer: {
             radioTabs: {
@@ -78,10 +81,7 @@ const props = defineProps<{
         }
     },
     tab: string
-    updateRoute: routeType
 }>()
-
-// console.log(props.data)
 
 const locale = inject('locale', {})
 
@@ -183,10 +183,9 @@ const isModalAddress = ref(false)
                                             </dt>
                                             <dd class="text-gray-500" v-html="data.fulfilment_customer.customer.address.formatted_address">
                                             </dd>
-                                            <div @click="() => isModalAddress = true"
-                                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
-                                            <span>Edit</span>
+                                            <div @click="() => isModalAddress = true" class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                                <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                                                <span>Edit</span>
                                             </div>
                                         </div>
                                     </div>
@@ -200,9 +199,8 @@ const isModalAddress = ref(false)
                 <CustomerShowcaseStats v-if="data?.rental_agreement?.stats" :stats="data.stats" />
                 <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
                     <ModalAddress
-                        :addressCustomer="data.fulfilment_customer.customer.address.formatted_address"
-                        :addressList="data.addresses_list"
-                        :updateRoute    
+                        :addresses="data.addresses"
+                        :updateRoute="data.address_update_route"
                     />
                 </Modal>
             </div>
