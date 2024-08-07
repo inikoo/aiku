@@ -103,6 +103,7 @@ class GetFulfilmentCustomerShowcase
                 ]
             ],
             'addresses'   => [
+                'isShowcase'                    => true,
                 'address_list'                  => $addressCollection,
                 'options'                       => [
                     'countriesAddressData' => GetAddressData::run()
