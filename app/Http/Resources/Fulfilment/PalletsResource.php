@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Models\Fulfilment\Rental;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -59,11 +60,13 @@ class PalletsResource extends JsonResource
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
             'audited_at'                       => $this->audited_at,
-            'stored_items'                     => $this->storedItems->map(fn ($storedItem) => [
-                'id'        => $storedItem->id,
-                'reference' => $storedItem->reference,
-                'notes'     => $storedItem->notes,
-                'quantity'  => (int)$storedItem->pivot->quantity,
+            'stored_items'                     => $this->storedItems->map(fn (StoredItem $storedItem) => [
+                'id'             => $storedItem->id,
+                'reference'      => $storedItem->reference,
+                'notes'          => $storedItem->notes,
+                'state'          => $storedItem->state,
+                'state_icon'     => $storedItem->state->stateIcon()[$storedItem->state->value],
+                'quantity'       => (int)$storedItem->pivot->quantity,
             ]),
             'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
             'updateRoute'           => match (request()->routeIs('retina.*')) {

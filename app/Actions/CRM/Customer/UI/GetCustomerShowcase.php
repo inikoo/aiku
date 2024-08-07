@@ -62,7 +62,14 @@ class GetCustomerShowcase
         $addressCollection = AddressResource::collection($processedAddresses);
         return [
 
-            'customer'         => CustomersResource::make($customer)->getArray(),
+            'customer'              => CustomersResource::make($customer)->getArray(),
+            'address_update_route'  => [
+                'method'     => 'patch',
+                'name'       => 'grp.models.customer.address.update',
+                'parameters' => [
+                    'customer' => $customer->id
+                ]
+            ],
             'addresses_list'   => [
                 'all_addresses'                  => $addressCollection,
                 'pinned_address_id'              => $customer->delivery_address_id,
