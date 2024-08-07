@@ -75,7 +75,7 @@ class IndexInvoiceTransactions extends OrgAction
 
             $table->column(key: 'name', label: __('description'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
-            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
             $table->defaultSort('-invoice_transactions.updated_at');
         };
     }
