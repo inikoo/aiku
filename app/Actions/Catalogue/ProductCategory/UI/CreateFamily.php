@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -20,7 +20,7 @@ use Spatie\LaravelOptions\Options;
 
 class CreateFamily extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
     private Shop|ProductCategory $parent;
 
     public function authorize(ActionRequest $request): bool

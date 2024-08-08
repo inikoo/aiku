@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Catalogue\Shop;
@@ -27,7 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowMailshot extends OrgAction
 {
     use HasUIMailshots;
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public function handle(Mailshot $mailshot): Mailshot
     {

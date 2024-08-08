@@ -13,7 +13,7 @@ use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -34,7 +34,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexProducts extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
     use WithFamilySubNavigation;
 

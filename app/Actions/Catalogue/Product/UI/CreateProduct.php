@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\ProductCategory;
@@ -21,7 +21,7 @@ use Spatie\LaravelOptions\Options;
 
 class CreateProduct extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public function handle(Organisation|Shop|ProductCategory $parent, ActionRequest $request): Response
     {

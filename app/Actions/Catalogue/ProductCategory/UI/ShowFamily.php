@@ -14,7 +14,7 @@ use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Enums\UI\Catalogue\FamilyTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
@@ -30,7 +30,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFamily extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
     use WithFamilySubNavigation;
 
 

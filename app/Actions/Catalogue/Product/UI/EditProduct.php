@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
@@ -25,7 +25,7 @@ use Spatie\LaravelOptions\Options;
 
 class EditProduct extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public function handle(Product $product): Product
     {

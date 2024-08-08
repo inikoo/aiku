@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\InertiaTable\InertiaTable;
@@ -27,7 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class IndexCollection extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     private Shop|Organisation $parent;
 

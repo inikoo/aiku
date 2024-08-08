@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDepartments extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
     private Shop|ProductCategory|Organisation $parent;
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

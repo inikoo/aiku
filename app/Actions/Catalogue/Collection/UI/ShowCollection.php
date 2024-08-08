@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Collection\UI;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\Models\Catalogue\Collection;
@@ -22,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowCollection extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     private Organisation|Shop $parent;
 
