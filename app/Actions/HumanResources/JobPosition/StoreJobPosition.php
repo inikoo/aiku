@@ -55,7 +55,7 @@ class StoreJobPosition extends OrgAction
                         ['column' => 'organisation_id', 'value' => $this->organisation->id]
                     ],
                 ),
-                'max:8',
+                'max:16',
                 'alpha_dash'
             ],
             'name'                  => ['required', 'max:255'],

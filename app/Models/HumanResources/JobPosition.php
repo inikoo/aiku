@@ -88,7 +88,7 @@ class JobPosition extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(26);
     }
 
     public function getRouteKeyName(): string

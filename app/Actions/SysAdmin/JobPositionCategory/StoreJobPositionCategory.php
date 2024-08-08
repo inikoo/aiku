@@ -38,7 +38,7 @@ class StoreJobPositionCategory extends GrpAction
                         ['column' => 'group_id', 'value' => $this->group->id]
                     ],
                 ),
-                'max:8',
+                'max:16',
                 'alpha_dash'
             ],
             'name'       => ['required', 'max:255'],

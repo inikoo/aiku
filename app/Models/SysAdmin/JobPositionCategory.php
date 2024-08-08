@@ -54,7 +54,7 @@ class JobPositionCategory extends Model
             ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(24);
     }
 
     public function getRouteKeyName(): string
