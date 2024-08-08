@@ -84,19 +84,19 @@ class EditUser extends InertiaAction
 
 
         $organisations = $user->group->organisations;
-        $reviewData = $organisations->mapWithKeys(function ($organisation) {
+        $reviewData    = $organisations->mapWithKeys(function ($organisation) {
             return [$organisation->slug => [
                 'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
-                'job_positions' => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
+                'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
                     return [$jobPosition->slug => [
-                        'job_position' => $jobPosition->name,
+                        'job_position'        => $jobPosition->name,
                         'number_roles'        => $jobPosition->stats->number_roles
                     ]];
                 })
             ]];
         })->toArray();
 
-        dd($reviewData);
+        // dd($reviewData);
 
         return Inertia::render("EditModel", [
             "title"       => __("user"),
@@ -173,7 +173,12 @@ class EditUser extends InertiaAction
                                     // 'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                                     // 'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                                 ,
-                                "value"             => $permissions,
+                                // "value"             => $permissions,
+                                "value"             => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
+                                    return [
+                                        $organisation->slug         => new \stdClass()
+                                    ];
+                                }),
                                 "fullComponentArea" => true,
                             ],
                         ],
