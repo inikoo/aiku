@@ -114,7 +114,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
- * @property-read LaravelCollection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Helpers\Media|null $image
@@ -122,6 +121,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Insurance> $insurances
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
  * @property-read \App\Models\SysAdmin\GroupMailStats|null $mailStats
@@ -371,9 +371,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(JobPosition::class);
     }
 
-    public function groupJobPositions(): HasMany
+    public function jobPositionCategories(): HasMany
     {
-        return $this->hasMany(GroupJobPosition::class);
+        return $this->hasMany(JobPositionCategory::class);
     }
 
     public function registerMediaCollections(): void

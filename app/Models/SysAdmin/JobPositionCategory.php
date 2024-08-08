@@ -28,12 +28,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupJobPosition newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupJobPosition newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupJobPosition query()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobPositionCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobPositionCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobPositionCategory query()
  * @mixin \Eloquent
  */
-class GroupJobPosition extends Model
+class JobPositionCategory extends Model
 {
     use HasSlug;
 

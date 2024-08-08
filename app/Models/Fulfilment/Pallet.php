@@ -62,6 +62,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $incident_report
  * @property bool $with_stored_items
+ * @property int $number_stored_items
+ * @property int $number_stored_items_state_submitted
+ * @property int $number_stored_items_state_in_process
+ * @property int $number_stored_items_state_active
+ * @property int $number_stored_items_state_discontinuing
  * @property int $number_stored_item_audits
  * @property int $number_stored_item_audits_state_in_process
  * @property int $number_stored_item_audits_state_completed

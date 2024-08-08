@@ -42,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Asset $asset
+ * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $clause
  * @property-read \App\Models\Fulfilment\Fulfilment|null $fulfilment
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -79,7 +80,7 @@ class FulfilmentTransaction extends Model
         return $this->belongsTo(Asset::class);
     }
 
-    public function clause():BelongsTo
+    public function clause(): BelongsTo
     {
         return $this->belongsTo(RentalAgreementClause::class, 'rental_agreement_clause_id');
     }

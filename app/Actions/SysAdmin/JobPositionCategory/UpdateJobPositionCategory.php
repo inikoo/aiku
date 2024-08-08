@@ -5,21 +5,21 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\GroupJobPosition;
+namespace App\Actions\SysAdmin\JobPositionCategory;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
-use App\Models\SysAdmin\GroupJobPosition;
+use App\Models\SysAdmin\JobPositionCategory;
 use Illuminate\Validation\Rule;
 
-class UpdateGroupJobPosition extends GrpAction
+class UpdateJobPositionCategory extends GrpAction
 {
     use WithActionUpdate;
 
-    public function handle(GroupJobPosition $groupJobPosition, array $modelData): GroupJobPosition
+    public function handle(JobPositionCategory $jobPositionCategory, array $modelData): JobPositionCategory
     {
-        return $this->update($groupJobPosition, $modelData, ['data']);
+        return $this->update($jobPositionCategory, $modelData, ['data']);
     }
 
 
@@ -35,11 +35,11 @@ class UpdateGroupJobPosition extends GrpAction
     }
 
 
-    public function action(GroupJobPosition $groupJobPosition, array $modelData): GroupJobPosition
+    public function action(JobPositionCategory $jobPositionCategory, array $modelData): JobPositionCategory
     {
-        $this->initialisation($groupJobPosition->group, $modelData);
+        $this->initialisation($jobPositionCategory->group, $modelData);
 
-        return $this->handle($groupJobPosition, $this->validatedData);
+        return $this->handle($jobPositionCategory, $this->validatedData);
     }
 
 

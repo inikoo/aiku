@@ -5,23 +5,23 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\GroupJobPosition;
+namespace App\Actions\SysAdmin\JobPositionCategory;
 
 use App\Actions\GrpAction;
 
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\GroupJobPosition;
+use App\Models\SysAdmin\JobPositionCategory;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 
-class StoreGroupJobPosition extends GrpAction
+class StoreJobPositionCategory extends GrpAction
 {
-    public function handle(Group $group, array $modelData): GroupJobPosition
+    public function handle(Group $group, array $modelData): JobPositionCategory
     {
-        /** @var GroupJobPosition $groupJobPosition */
-        $groupJobPosition = $group->groupJobPositions()->create($modelData);
-        return $groupJobPosition;
+        /** @var JobPositionCategory $jobPositionCategory */
+        $jobPositionCategory = $group->jobPositionCategories()->create($modelData);
+        return $jobPositionCategory;
     }
 
 
@@ -33,7 +33,7 @@ class StoreGroupJobPosition extends GrpAction
             'code'       => [
                 'required',
                 new IUnique(
-                    table: 'group_job_positions',
+                    table: 'job_position_categories',
                     extraConditions: [
                         ['column' => 'group_id', 'value' => $this->group->id]
                     ],
@@ -50,7 +50,7 @@ class StoreGroupJobPosition extends GrpAction
 
 
 
-    public function action(Group $group, array $modelData): GroupJobPosition
+    public function action(Group $group, array $modelData): JobPositionCategory
     {
         $this->asAction = true;
         $this->initialisation($group, $modelData);
