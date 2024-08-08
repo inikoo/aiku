@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -196,6 +197,12 @@ class Employee extends Model implements HasMedia, Auditable
             ->withPivot(['share', 'scopes'])
             ->withTimestamps();
     }
+
+    public function otherOrganisationJobPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(JobPosition::class, 'employee_has_other_organisation_job_positions')->withPivot('scope');
+    }
+
 
     public function user(): MorphOne
     {
