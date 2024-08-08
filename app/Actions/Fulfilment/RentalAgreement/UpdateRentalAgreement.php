@@ -18,6 +18,8 @@ use App\Actions\Fulfilment\RentalAgreementClause\UpdateRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementSnapshot\StoreRentalAgreementSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
@@ -135,6 +137,17 @@ class UpdateRentalAgreement extends OrgAction
         FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
 
         $rentalAgreement->refresh();
+
+        foreach ($rentalAgreement->fulfilmentCustomer->palletDeliveries as $delivery) {
+            if ($delivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
+                UpdatePalletDeliveryFulfilmentTransactionClause::run($delivery);
+            }
+        }
+        foreach ($rentalAgreement->fulfilmentCustomer->palletReturns as $return) {
+            if ($return->state == PalletReturnStateEnum::IN_PROCESS) {
+                UpdatePalletReturnFulfilmentTransactionClause::run($return);
+            }
+        }
 
         if (Arr::get($modelData, 'update_all', false)) {
             foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDelivery as $delivery) {

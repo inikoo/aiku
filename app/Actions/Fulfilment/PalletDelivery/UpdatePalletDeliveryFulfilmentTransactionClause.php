@@ -16,10 +16,18 @@ class UpdatePalletDeliveryFulfilmentTransactionClause extends OrgAction
 {
     public function handle(PalletDelivery $palletDelivery)
     {
-        foreach ($palletDelivery->pallets as $pallet) {
-            SetClausesInPallet::run($pallet, [
-                'rental_id' => $pallet->rental->id
-            ]);
+        $hasRental = $palletDelivery->pallets->contains(function ($pallet) {
+            return $pallet->rental !== null;
+        });
+
+        if ($hasRental) {
+            foreach ($palletDelivery->pallets as $pallet) {
+                if ($pallet->rental) {
+                    SetClausesInPallet::run($pallet, [
+                        'rental_id' => $pallet->rental->id
+                    ]);
+                }
+            }
         }
         foreach ($palletDelivery->transactions as $transaction) {
             SetClausesInFulfilmentTransaction::run($transaction);

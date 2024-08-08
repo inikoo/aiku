@@ -115,7 +115,7 @@ const isModalAddress = ref(false)
                         aria-hidden='true' />
                 </dt>
 
-                <dd v-if="boxStats.fulfilment_customer.address.value" class="text-xs text-gray-500">
+                <dd v-if="boxStats.fulfilment_customer.address.value" class="w-full text-xs text-gray-500">
                     <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
                         <span class="" v-html="boxStats.fulfilment_customer.address.value.formatted_address" />
 

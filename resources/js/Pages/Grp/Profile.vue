@@ -32,6 +32,7 @@ import { faIdCard, faClipboardListCheck, faRabbitFast } from '@fal'
 import { faInfoCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { useLogoutAuth } from '@/Composables/useAppMethod'
 library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSpinnerThird, faInfoCircle)
 
 const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue"))
@@ -99,6 +100,9 @@ const fetchTabData = async (tabSlug: string) => {
     let routeName = ''
 
     switch (tabSlug) {
+        case 'dashboard':
+            routeName = 'grp.profile.todo.index'
+            break
         case 'todo':
             routeName = 'grp.profile.todo.index'
             break
@@ -142,11 +146,22 @@ const fetchTabData = async (tabSlug: string) => {
             text: `Failed to show ${dataProfile.value?.tabs.navigation[tabSlug].title} tab.`,
             type: 'error',
         })
+    } finally {
+        isTabLoading.value = false
+
     }
 
-    isTabLoading.value = false
 }
 
+// Section: Logout
+const isLoadingLogout = ref(false)
+const onLogoutAuth = () => {
+    useLogoutAuth(layout.user, {
+        onStart: () => isLoadingLogout.value = true,
+        onError: () => isLoadingLogout.value = false,
+        onSuccess: () => layout.stackedComponents = []
+    })
+}
 
 onMounted(async () => {
     await fetchPageHead()
@@ -161,8 +176,18 @@ onMounted(async () => {
     <Head :title="trans('Profile')" />
     <PageHeading v-if="dataProfile?.pageHead" :data="dataProfile?.pageHead">
         <template #button-edit-profile="{ action }">
-            <Button @click="() => layout.stackedComponents.push({ component: EditProfile })" :label="action.label"
-                :style="action.style" />
+            <Button
+                @click="() => onLogoutAuth()"
+                label="Logout"
+                :loading="isLoadingLogout"
+                icon="fal fa-sign-out-alt"
+                :style="'negative'"
+            />
+            <Button
+                @click="() => layout.stackedComponents.push({ component: EditProfile })"
+                :label="action.label"
+                :style="action.style"
+            />
         </template>
     </PageHeading>
 
