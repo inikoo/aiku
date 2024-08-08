@@ -9,7 +9,6 @@ import { Link, router } from "@inertiajs/vue3"
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 
-
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
 const props = defineProps<{
@@ -29,8 +28,10 @@ const props = defineProps<{
         route_update_stored_item : routeType
     }
 }>()
+
 const isLoading = ref(false)
 const _editTable = ref(null)
+const totalQty = props.data.pallets.reduce((total, item) => total + item.quantity, 0)
 const options = {
     responsive: true,
     plugins: {
@@ -51,28 +52,26 @@ const options = {
 }
 
 const onChangeStoredItem = (data) => {
-
     router.patch(
-        route(props.data.route_update_stored_item.name,props.data.route_update_stored_item.parameters),
-        {pallets : data},
+        route(props.data.route_update_stored_item.name, props.data.route_update_stored_item.parameters),
+        { pallets: data },
         {
             onBefore: () => {
                 isLoading.value = true
             },
             onSuccess: () => {
-                if(_editTable.value) _editTable.value.editable = false
+                if (_editTable.value) _editTable.value.editable = false
             },
             onError: (error: {} | string) => {
                 isLoading.value = false
                 notify({
                     title: 'Something went wrong.',
-                    text: 'failed to save',
+                    text: 'Failed to save',
                     type: 'error',
                 })
             }
         })
 }
-
 </script>
 
 <template>
@@ -81,7 +80,9 @@ const onChangeStoredItem = (data) => {
         <div class="h-fit flex flex-col col-span-2 justify-between px-5 py-3 rounded-lg border border-gray-100 shadow tabular-nums">
             <div class="sm:flex sm:items-center">
                 <div class="sm:flex-auto">
-                    <h1 class="font-semibold leading-6">Pallet that contain this item <span class="font-light">({{ data.pieData.stats.length }})</span></h1>
+                    <h1 class="font-semibold leading-6">
+                        Pallet that contain this item <span class="font-light">({{ data.pieData.stats.length }})</span>
+                    </h1>
                 </div>
             </div>
 
@@ -95,6 +96,15 @@ const onChangeStoredItem = (data) => {
                             hoverOffset: 4
                         }]
                     }" :options="options" />
+                </div>
+            </div>
+            
+            <!-- Total Stored Item -->
+            <div class="sm:flex sm:items-center mt-4">
+                <div class="sm:flex-auto">
+                    <h1 class="font-semibold leading-6">
+                        Total Stored Item Quantity: <span class="font-light">{{totalQty}}</span>
+                    </h1>
                 </div>
             </div>
         </div>
