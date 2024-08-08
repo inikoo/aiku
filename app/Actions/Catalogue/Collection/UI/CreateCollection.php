@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateCollection extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public function handle(Shop $shop, ActionRequest $request): Response
     {

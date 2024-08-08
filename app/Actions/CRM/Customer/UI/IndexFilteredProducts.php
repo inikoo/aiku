@@ -3,7 +3,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\CRM\FilteredProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
@@ -18,7 +18,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFilteredProducts extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     private Shop|Customer|Organisation $parent;
 

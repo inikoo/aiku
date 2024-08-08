@@ -9,7 +9,7 @@ namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
@@ -24,7 +24,7 @@ class StoreMailshot extends OrgAction
     use AsAction;
     use WithAttributes;
     use HasUIMailshots;
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public function handle(Outbox|Shop $parent, array $modelData): Mailshot
     {

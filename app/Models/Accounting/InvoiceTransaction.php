@@ -8,7 +8,9 @@
 namespace App\Models\Accounting;
 
 use App\Models\Catalogue\Asset;
+use App\Models\Helpers\Currency;
 use App\Models\Ordering\Transaction;
+use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $date
+ * @property \Illuminate\Support\Carbon $date
  * @property int $shop_id
  * @property int|null $invoice_id
  * @property int $customer_id
@@ -48,7 +50,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $source_id
  * @property int|null $source_alt_id
  * @property-read Asset $asset
+ * @property-read Currency|null $currency
+ * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Model|\Eloquent $item
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
@@ -61,11 +68,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class InvoiceTransaction extends Model
 {
     use SoftDeletes;
+    use InCustomer;
 
     protected $table = 'invoice_transactions';
 
     protected $casts = [
-        'data' => 'array'
+        'data'           => 'array',
+        'date'           => 'datetime',
+        'quantity'       => 'decimal:3',
+        'gross_amount'   => 'decimal:2',
+        'net_amount'     => 'decimal:2',
+        'grp_exchange'   => 'decimal:4',
+        'org_exchange'   => 'decimal:4',
+        'grp_net_amount' => 'decimal:2',
+        'org_net_amount' => 'decimal:2',
     ];
 
     protected $attributes = [
@@ -89,8 +105,9 @@ class InvoiceTransaction extends Model
         return $this->belongsTo(Asset::class);
     }
 
-    public function setQuantityAttribute($val)
+    public function currency(): BelongsTo
     {
-        $this->attributes['quantity'] = sprintf('%.3f', $val);
+        return $this->belongsTo(Currency::class);
     }
+
 }

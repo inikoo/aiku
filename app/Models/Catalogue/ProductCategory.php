@@ -155,7 +155,7 @@ class ProductCategory extends Model implements Auditable, HasMedia
 
     public function subDepartments(): HasMany
     {
-        return $this->hasMany(ProductCategory::class, 'sub_department_id');
+        return $this->hasMany(ProductCategory::class, 'department_id');
     }
 
 

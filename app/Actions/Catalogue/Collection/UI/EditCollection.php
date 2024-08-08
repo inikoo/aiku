@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -18,7 +18,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditCollection extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public function handle(Collection $collection): Collection
     {

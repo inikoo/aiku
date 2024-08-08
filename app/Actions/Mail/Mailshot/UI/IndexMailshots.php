@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexMailshots extends OrgAction
 {
     use HasUIMailshots;
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
 
     public Outbox|PostRoom|Organisation $parent;
 

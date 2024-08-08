@@ -152,7 +152,7 @@ test('update dispatched email', function ($dispatchedEmail) {
     return $updatedDispatchEmail;
 })->depends('create dispatched email in mailshot');
 
-test('test postroom hydrator', function ($shop) {
+test('test post room hydrator', function ($shop) {
     $postRoom = $this->group->postRooms()->first();
 
     $outbox = StoreOutbox::make()->action(

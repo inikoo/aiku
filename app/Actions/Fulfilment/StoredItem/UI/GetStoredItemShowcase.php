@@ -26,8 +26,9 @@ class GetStoredItemShowcase
                     'slug'      => $pallet->slug,
                     'reference' => $pallet->reference,
                     'location'  => [
-                        'id'   => $pallet->location->id,
-                        'slug' => $pallet->location->slug,
+                        'id'     => $pallet->location?->id,
+                        'code'   => $pallet->location?->code,
+                        'slug'   => $pallet->location?->slug,
                     ],
                     'quantity' => (int) $pallet->pivot->quantity
                 ];
@@ -39,6 +40,12 @@ class GetStoredItemShowcase
                     'organisation'         => $storedItem->organisation->slug,
                     'fulfilment'           => $storedItem->fulfilment->slug,
                     'fulfilmentCustomer'   => $storedItem->fulfilmentCustomer->slug
+                ]
+            ],
+            'route_update_stored_item' => [
+                'name'       => 'grp.models.stored-items.pallets.update',
+                'parameters' => [
+                    'storedItem' => $storedItem->id
                 ]
             ]
         ];

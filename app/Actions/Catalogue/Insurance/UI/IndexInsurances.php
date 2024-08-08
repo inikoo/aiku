@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\Insurance\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Http\Resources\Catalogue\InsurancesResource;
 use App\InertiaTable\InertiaTable;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInsurances extends OrgAction
 {
-    use HaCatalogueAuthorisation;
+    use HasCatalogueAuthorisation;
     private Shop|Organisation $parent;
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

@@ -10,10 +10,15 @@ namespace App\Actions\Traits\Authorisations;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-trait HaCatalogueAuthorisation
+trait HasCatalogueAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {
+
+        if($this->asAction) {
+            return true;
+        }
+
         if ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasAnyPermission(
                 [
