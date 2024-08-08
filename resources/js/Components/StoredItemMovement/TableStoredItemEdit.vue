@@ -114,7 +114,7 @@ defineExpose({
 
 <template>
     <div class="flex justify-between border-b border-gray-300 p-2">
-        <div class="font-semibold">Stored Item in Pallet :</div>
+        <div class="font-semibold">Contain Pallet :</div>
         <div class="flex flex-shrink-0 gap-3">
             <Button v-if="!editable" type="edit" size="xs" @click="editable = true" />
             <Button v-if="editable" type="tertiary" label="Cancel" size="xs" @click="onCancel" />
@@ -171,7 +171,7 @@ defineExpose({
                                 Location
                             </th>
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
-                                Qty
+                                Quantity
                             </th>
                             <th v-if="editable" scope="col"
                                 class="px-4 py-3 text-sm font-semibold text-end border-b border-gray-500">
