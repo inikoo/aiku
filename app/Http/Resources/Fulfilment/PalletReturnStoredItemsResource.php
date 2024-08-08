@@ -38,7 +38,9 @@ class PalletReturnStoredItemsResource extends JsonResource
             'id'                               => $this->id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
-            'quantity'                         => $this->quantity,
+            'state'                            => $this->state,
+            'state_icon'                        => $this->state->stateIcon()[$this->state->value],
+            'quantity'                         => (int) $this->quantity,
             'deleteRoute'                      => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return.stored-item.delete',

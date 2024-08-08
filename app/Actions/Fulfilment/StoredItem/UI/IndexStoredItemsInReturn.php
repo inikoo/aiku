@@ -114,11 +114,7 @@ class IndexStoredItemsInReturn extends OrgAction
                 ->withModelOperations($modelOperations);
 
 
-            $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
-
-
-            /* $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon'); */
-
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 

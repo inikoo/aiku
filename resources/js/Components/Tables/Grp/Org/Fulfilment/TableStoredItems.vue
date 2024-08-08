@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { ref } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
@@ -14,7 +14,10 @@ import Icon from "@/Components/Icon.vue"
 const props = defineProps<{
     data?: {}
     tab?: string
+    state:any
+    key:any 
 }>()
+console.log(props)
 const isLoading = ref<string | boolean>(false)
 function storedItemRoute(storedItem) {
     switch (route().current()) {
@@ -27,7 +30,7 @@ function storedItemRoute(storedItem) {
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
         default:
-           null
+            null
     }
 }
 
@@ -36,11 +39,16 @@ function storedItemRoute(storedItem) {
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5">
         <template #cell(reference)="{ item: value }">
-            <Link v-if="route().current() != 'retina.storage.pallet-returns.show'" :href="storedItemRoute(value)" class="primaryLink">
-                {{ value.reference }}
+            <Link v-if="route().current() != 'retina.storage.pallet-returns.show'" :href="storedItemRoute(value)"
+                class="primaryLink">
+            {{ value.reference }}
             </Link>
         </template>
-        <template #cell(actions)="{ item: value }">
+        <template #cell(state)="{ item: palletDelivery }">
+                <Icon  :data="palletDelivery['state_icon']" class="px-1" />
+        </template>
+        
+        <  <template #cell(actions)="{ item: value }">
             <div v-if="value.state == 'in-process' || route().current() == 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show'">
                 <Link
                     :href="route(value.deleteRoute.name, value.deleteRoute.parameters)"
@@ -54,10 +62,7 @@ function storedItemRoute(storedItem) {
                 </Link>
             </div>
         </template>
-        <template #cell(state)="{ item: item }">
-            <Icon :data="item['state_icon']" class="px-1" />
-        </template>
+
+       
     </Table>
 </template>
-
-
