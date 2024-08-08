@@ -191,9 +191,8 @@ defineExpose({
                                 <span v-if="!editable">{{ useLocaleStore().number(pallet.quantity) }}</span>
 
                                 <PureInputNumber v-else v-model="pallet.quantity"
-                                    :maxValue="unlocatedPallet == 0 ? get(props.data[pallet.index], 'quantity', pallet.quantity) : pallet.quantity + unlocatedPallet"
+                                    :maxValue="pallet.quantity + unlocatedPallet"
                                     :minValue="0" />
-
                             </td>
                             <td v-if="editable"
                                 class="whitespace-nowrap px-4 py-3 text-sm text-end border-b border-gray-500 w-32">
