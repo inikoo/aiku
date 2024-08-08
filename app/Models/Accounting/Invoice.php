@@ -140,6 +140,11 @@ class Invoice extends Model implements Auditable
         'phone',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -177,11 +182,6 @@ class Invoice extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(InvoiceStats::class);
-    }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     public function address(): BelongsTo
