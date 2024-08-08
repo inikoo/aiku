@@ -17,6 +17,7 @@ import { trans } from 'laravel-vue-i18n'
 import { ref } from 'vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
+import { AddressManagement } from '@/types/PureComponent/Address'
 
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt)
 
@@ -35,6 +36,8 @@ interface CustomerDropshipping {
 
 const props = defineProps<{
     data: {
+        addresses: AddressManagement
+        address_update_route: routeType
         customer: CustomerDropshipping
         updateRoute: routeType
 
@@ -120,13 +123,12 @@ const isModalAddress = ref(false)
                         </div>
                         
                         <!-- Field: Phone -->
-                        <div v-if="data.customer?.location.length" class="flex items-center w-full flex-none gap-x-4 px-6">
+                        <div v-if="data.customer?.address" class="flex items-center w-full flex-none gap-x-4 px-6">
                             <dt v-tooltip="trans('Location')" class="flex-none">
                                 <span class="sr-only">Location</span>
                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-gray-500">
-                                <AddressLocation :data="data.customer.location" />
+                            <dd class="text-gray-500" v-html="data.customer.address.formatted_address">
                             </dd>
                             <div @click="() => isModalAddress = true"
                                             class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
@@ -143,9 +145,8 @@ const isModalAddress = ref(false)
     </div>
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
-            :addressCustomer="data.customer.address.formatted_address"
-            :addressList="data.addresses_list"
-            :updateRoute    
+            :addresses="data.addresses"
+            :updateRoute="data.address_update_route"   
         />
     </Modal>
 </template>
