@@ -25,7 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
 import Modal from '@/Components/Utils/Modal.vue'
-import { AddressManagement } from '@/types/PureComponent/Address'
+import { Address, AddressManagement } from '@/types/PureComponent/Address'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
@@ -43,7 +43,9 @@ const props = defineProps<{
             number_stored_items?: number
             number_pallets_deliveries?: number
             number_pallets_returns?: number
-            customer: {}
+            customer: {
+                address: Address
+            }
         }
         updateRoute: routeType
         stats: {
@@ -70,6 +72,7 @@ const props = defineProps<{
                 }
             }
             createRoute: routeType
+            updated_at: string
         }
         recurring_bill: {
             route: routeType
@@ -181,7 +184,7 @@ const isModalAddress = ref(false)
                                                 <span class="sr-only">Address</span>
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd v-if="data.fulfilment_customer.customer?.address" class="w-full text-gray-500">
+                                            <dd class="w-full text-gray-500">
                                                 <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
                                                     <span class="" v-html="data.fulfilment_customer.customer?.address.formatted_address" />
 
@@ -280,8 +283,8 @@ const isModalAddress = ref(false)
                     <!-- Stats -->
                     <div v-if="data.rental_agreement.stats" class="p-5 space-y-2">
                         <div class="flex gap-x-1 items-center text-sm">
-                            <div class="">{{ trans('Created at') }}:</div>
-                            <div class="text-gray-500">{{ useFormatTime(data.customer?.created_at) }}</div>
+                            <div class="">{{ trans('Last updated') }}:</div>
+                            <div class="text-gray-500">{{ useFormatTime(data.rental_agreement.updated_at) }}</div>
                         </div>
                         <div class="flex gap-x-1 items-center text-sm">
                             <div class="">{{ trans('Billing Cycle') }}:</div>

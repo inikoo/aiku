@@ -85,10 +85,10 @@ class GetFulfilmentCustomerShowcase
         });
 
         $addressCollection = AddressResource::collection($processedAddresses);
-
         return [
             'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'rental_agreement'             => [
+                'updated_at'                    => $fulfilmentCustomer->rentalAgreement->updated_at,
                 'stats'                         => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,
                 'createRoute'                   => [
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',

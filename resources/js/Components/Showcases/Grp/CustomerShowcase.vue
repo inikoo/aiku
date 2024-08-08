@@ -17,7 +17,7 @@ import { trans } from 'laravel-vue-i18n'
 import { ref } from 'vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
-import { AddressManagement } from '@/types/PureComponent/Address'
+import { Address, AddressManagement } from '@/types/PureComponent/Address'
 
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt)
 
@@ -32,6 +32,7 @@ interface CustomerDropshipping {
     phone: string
     created_at: string
     number_current_clients: number | null
+    address: Address
 }
 
 const props = defineProps<{
@@ -43,7 +44,6 @@ const props = defineProps<{
 
     },
     tab: string
-    updateRoute: routeType
 }>()
 
 const isModalAddress = ref(false)
@@ -52,7 +52,6 @@ const isModalAddress = ref(false)
 <template>
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
-        <!-- <pre>{{data}}</pre> -->
         
         <!-- Section: Profile box -->
         <div >
@@ -122,19 +121,23 @@ const isModalAddress = ref(false)
                             <dd class="text-gray-500">{{ data.customer?.phone }}</dd>
                         </div>
                         
-                        <!-- Field: Phone -->
-                        <div v-if="data.customer?.address" class="flex items-center w-full flex-none gap-x-4 px-6">
-                            <dt v-tooltip="trans('Location')" class="flex-none">
-                                <span class="sr-only">Location</span>
+                        <!-- Field: Address -->
+                        <div v-if="data.customer?.address" class="relative flex items w-full flex-none gap-x-4 px-6">
+                            <dt v-tooltip="'Address'" class="flex-none">
+                                <span class="sr-only">Address</span>
                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-gray-500" v-html="data.customer.address.formatted_address">
+                            <dd class="w-full text-gray-500">
+                                <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
+                                    <span class="" v-html="data.customer?.address.formatted_address" />
+
+                                    <div @click="() => isModalAddress = true"
+                                        class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                        <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                                        <span>Edit</span>
+                                    </div>
+                                </div>
                             </dd>
-                            <div @click="() => isModalAddress = true"
-                                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
-                                            <span>Edit</span>
-                            </div>
                         </div>
                     </div>
                 </dl>

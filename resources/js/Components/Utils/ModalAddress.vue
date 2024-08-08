@@ -10,10 +10,11 @@ import { Address, AddressManagement } from "@/types/PureComponent/Address"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch } from '@fal'
+import { faCheckCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useTruncate } from '@/Composables/useTruncate'
-library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch)
+library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch, faCheckCircle)
 
 const props = defineProps<{
     updateRoute: routeType
@@ -49,6 +50,13 @@ const onSubmitNewAddress = async (address: Address) => {
                 isCreateNewAddress.value = false
                 // isModalAddress.value = false
                 // emits('setModal', false)
+            },
+            onSuccess: () => {
+                notify({
+                    title: trans("Success"),
+                    text: trans("Successfully create new address."),
+                    type: "success",
+                })
             },
             onError: () => notify({
                 title: "Failed",
@@ -89,9 +97,16 @@ const onSubmitEditAddress = (address: Address) => {
                 isCreateNewAddress.value = false
                 // isModalAddress.value = false
             },
+            onSuccess: () => {
+                notify({
+                    title: trans("Success"),
+                    text: trans("Successfully update the address."),
+                    type: "success",
+                })
+            },
             onError: () => notify({
-                title: "Failed",
-                text: "Failed to update the address, try again.",
+                title: trans("Failed"),
+                text: trans("Failed to update the address, try again."),
                 type: "error",
             })
         }
@@ -167,11 +182,16 @@ const onDeleteAddress = (addressID: number) => {
     <pre>pinned address {{ addresses.pinned_address_id }}</pre>
     <pre>home {{ addresses.home_address_id }}</pre> -->
         <div class="flex justify-between border-b border-gray-300">
-            <div class="text-2xl font-bold text-center mb-2">
+            <div class="text-2xl font-bold text-center mb-2 flex gap-x-2">
                 {{ trans('Address management') }}
 
-                <div v-if="isEditAddress" class="inline text-gray-400 italic text-base font-normal">(Edit)</div>
-                <div v-if="isCreateNewAddress" class="inline text-gray-400 italic text-base font-normal">(Create new)</div>
+                <div class="relative">
+                    <Transition name="slide-to-right">
+                        <div v-if="isEditAddress" class="inline text-gray-400 italic text-base font-normal">({{ trans('Edit') }})</div>
+                        <div v-else-if="isCreateNewAddress" class="inline text-gray-400 italic text-base font-normal">({{ trans('Create new') }})</div>
+                        <div v-else></div>
+                    </Transition>
+                </div>
             </div>
             
             <div class="flex gap-x-2 h-fit">
@@ -181,7 +201,7 @@ const onDeleteAddress = (addressID: number) => {
         </div>
 
         <div class="relative">
-            <Transition name="slide-to-left">
+            <Transition name="v">
                 <div v-if="isCreateNewAddress" class="max-w-96 mx-auto py-4">
                     <div class="mb-2">{{ trans('Create new address')}} </div>
                     <div class="border border-gray-300 rounded-lg relative p-3 ">
@@ -209,9 +229,9 @@ const onDeleteAddress = (addressID: number) => {
 
                 <!-- Section: Edit address -->
                 <div v-else-if="isEditAddress" :key="'edit' + selectedAddress?.id" class="col-span-2 relative py-4 h-fit grid grid-cols-2 gap-x-4">
-                    <div class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-fit transition-all"
+                    <div class="overflow-hidden relative text-xs rounded-lg h-fit transition-all"
                         :class="[
-                            selectedAddress?.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
+                            selectedAddress?.id ? 'border border-gray-300 ring-2 ring-offset-4 ring-indigo-500' : 'ring-1 ring-gray-300'
                         ]"
                     >
                         <div class="flex justify-between border-b border-gray-300 px-3 py-2"
@@ -314,9 +334,9 @@ const onDeleteAddress = (addressID: number) => {
                             <TransitionGroup>
                                 <div v-for="(address, idxAddress) in addresses.address_list.data.filter(xxx => xxx.id != addresses.home_address_id)"
                                     :key="idxAddress + address.id"
-                                    class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-40"
+                                    class="overflow-hidden relative text-xs rounded-lg h-40"
                                     :class="[
-                                        selectedAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : ''
+                                        selectedAddress?.id == address.id ? 'ring-2 ring-offset-4 ring-indigo-500' : 'ring-1 ring-gray-300 '
                                     ]"
                                 >
                                 <!-- {{ address.id }} -->
