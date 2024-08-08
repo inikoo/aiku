@@ -34,7 +34,7 @@ const layout = useLayoutStore()
 
         <transition name="headlessui">
             <PopoverPanel class="absolute bottom-full right-0 z-10 sm:px-0">
-                <FooterTab tabName="activeUsers">
+                <FooterTab tabName="activeUsers" pinTab>
                     <template #default>
                         <Link v-for="(dataUser, index) in useLiveUsers().liveUsers"
                             :href="dataUser.current_page?.url || '#'"

@@ -34,8 +34,11 @@ const layout = useLayoutStore()
 
         <transition name="headlessui">
             <PopoverPanel class="absolute bottom-full right-0 z-10 sm:px-0">
-                <FooterTab @pinTab="() => $emit('isTabActive', false)"
-                    :tabName="`activeUsers`">
+                <FooterTab
+                    @pinTab="() => $emit('isTabActive', false)"
+                    :tabName="`activeUsers`"
+                    pinTab
+                >
                     <template #default>
                         
                         <template v-if="Object.keys(useLiveUsers().liveUsers || []).length">

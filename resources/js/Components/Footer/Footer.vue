@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import FooterActiveUsers from '@/Components/Footer/FooterActiveUsers.vue'
 import FooterLanguage from '@/Components/Footer/FooterLanguage.vue'
+import FooterCurrency from '@/Components/Footer/FooterCurrency.vue'
 import { faHeart, faComputerClassic } from '@fas'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -14,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n"
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+
 
 const layout = inject('layout', layoutStructure)
 
@@ -26,8 +28,10 @@ library.add(faHeart, faComputerClassic, faDiscord)
         <!-- Helper: Product background (close popup purpose) -->
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
-            <div class="pl-4 flex items-center gap-x-1.5 py-1 text-slate-400">
-                <span class="font-normal leading-none">Aiku</span>
+            <div class="pl-4 flex items-center gap-x-1.5 text-slate-400">
+                <div class="font-normal leading-none" :class="layout.app.environment === 'local' ? 'bg-yellow-500 text-gray-700 h-full flex items-center px-3 ' : ' py-1' ">
+                    Aiku {{ layout.app.environment }}
+                </div>
                 <img class="h-3 select-none hidden lg:inline pl-1 pr-1" src="/art/logo-yellow.svg" alt="aiku" />
                 <span class="text-xs hidden lg:inline">
                     {{ trans('Made with') }}
@@ -39,9 +43,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
 
             <!-- Right: Tab Section -->
             <div class="flex items-center text-sm">
-                <div v-if="layout.app.environment === 'local'" class="bg-yellow-500 text-gray-700 h-full flex items-center justify-center px-2 mr-10">
-                    Local
-                </div>
+                <FooterCurrency />
                 <FooterLanguage />
                 <FooterActiveUsers />
             </div>
