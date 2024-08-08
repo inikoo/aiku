@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
-import { useTruncate } from '../../Composables/useTruncate'
+import { useTruncate } from '@/Composables/useTruncate'
 library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch)
 
 const props = defineProps<{
@@ -62,7 +62,7 @@ const onSubmitNewAddress = async (address: Address) => {
 
 // Method: Edit address history
 const isEditAddress = ref(false)
-const selectedAddress = ref<Address | null | { country_id: null }>({
+const selectedAddress = ref<Address | { country_id: null }>({
     country_id: null
 })
 const onEditAddress = (address: Address) => {
@@ -218,7 +218,7 @@ const onDeleteAddress = (addressID: number) => {
                             :class="addresses.current_selected_address_id == selectedAddress?.id ? 'bg-green-50' : 'bg-gray-100'"
                         >
                             <div class="flex gap-x-1 items-center relative">
-                                <div v-if="selectedAddress?.label" class="font-semibold text-sm whitespace-nowrap">
+                                <div v-if="[...addresses.address_list.data].find(xxx => xxx.id === selectedAddress?.id)?.label" class="font-semibold text-sm whitespace-nowrap">
                                     {{ [...addresses.address_list.data].find(xxx => xxx.id === selectedAddress?.id)?.label }}
                                 </div>
                                 <div v-else class="text-xs italic whitespace-nowrap text-gray-400">
@@ -287,7 +287,7 @@ const onDeleteAddress = (addressID: number) => {
                                             <Transition name="slide-to-left">
                                                 <FontAwesomeIcon v-if="addresses.current_selected_address_id == homeAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                 <Button
-                                                    v-else
+                                                    v-else-if="!addresses.isCannotSelect"
                                                     @click="() => onSelectAddress(homeAddress)"
                                                     :label="isSelectAddressLoading == homeAddress?.id ? '' : 'Use this'"
                                                     size="xxs"
@@ -335,7 +335,7 @@ const onDeleteAddress = (addressID: number) => {
                                                 <Transition name="slide-to-left">
                                                     <FontAwesomeIcon v-if="addresses.current_selected_address_id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                     <Button
-                                                        v-else-if="!addresses.isShowcase"
+                                                        v-else-if="!addresses.isCannotSelect"
                                                         @click="() => onSelectAddress(address)"
                                                         :label="isSelectAddressLoading == address.id ? '' : 'Use this'"
                                                         size="xxs"

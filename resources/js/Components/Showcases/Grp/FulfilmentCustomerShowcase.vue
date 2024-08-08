@@ -176,17 +176,22 @@ const isModalAddress = ref(false)
                                         </div>
 
                                         <!-- Field: Address -->
-                                        <div v-if="data.fulfilment_customer.customer?.address" class="flex items-center w-full flex-none gap-x-4 px-6">
+                                        <div v-if="data.fulfilment_customer.customer?.address" class="flex items w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Address'" class="flex-none">
                                                 <span class="sr-only">Address</span>
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
-                                            <dd class="text-gray-500" v-html="data.fulfilment_customer.customer.address.formatted_address">
+                                            <dd v-if="data.fulfilment_customer.customer?.address" class="w-full text-gray-500">
+                                                <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
+                                                    <span class="" v-html="data.fulfilment_customer.customer?.address.formatted_address" />
+
+                                                    <div @click="() => isModalAddress = true"
+                                                        class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                                        <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                                                        <span>Edit</span>
+                                                    </div>
+                                                </div>
                                             </dd>
-                                            <div @click="() => isModalAddress = true" class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                                                <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
-                                                <span>Edit</span>
-                                            </div>
                                         </div>
                                     </div>
                                 </dl>
