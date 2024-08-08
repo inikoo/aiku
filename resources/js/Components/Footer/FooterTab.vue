@@ -5,12 +5,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
     tabName: 'activeUsers' | 'language'
     pinTab?: boolean
-}>(), {
-    pinTab: true
-})
+}>()
 
 library.add(faThumbtack)
 
@@ -25,7 +23,7 @@ const onPinTab = () => {
 <template>
     <div class="w-40 min-w-min overflow-hidden rounded-t border border-gray-300 border-b-0">
         <!-- Header of Tab Footer (Pin button) -->
-        <div class="h-6 flex justify-end items-center pr-1.5"
+        <div v-if="pinTab" class="h-6 flex justify-end items-center pr-1.5"
             :style="{
                 background: `linear-gradient(to right, color-mix(in srgb, ${layout?.app?.theme[0]} 80%, black), color-mix(in srgb, ${layout?.app?.theme[0]} 80%, white))`
             }"
@@ -43,7 +41,8 @@ const onPinTab = () => {
         <!-- The options list -->
         <div class="w-full shadow-lg flex-row items-start text-[11px] leading-none"
             :style="{
-                background: `color-mix(in srgb, ${layout?.app?.theme[0]} 10%, white)`,
+                //background: `color-mix(in srgb, ${layout?.app?.theme[0]} 10%, white)`,
+                background: '#000',
                 color: `color-mix(in srgb, ${layout?.app?.theme[1]} 30%, black)`
             }"
         >
