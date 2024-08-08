@@ -15,6 +15,9 @@ use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\ReindexSearch;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
+use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
+use App\Actions\HumanResources\Employee\StoreEmployee;
+use App\Actions\HumanResources\Employee\UpdateEmployeeOtherOrganisationJobPositions;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Group\UpdateGroup;
@@ -33,6 +36,8 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
+use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -522,4 +527,34 @@ test('should not show without authentication', function () {
 
 test('reindex search', function () {
     ReindexSearch::run();
+});
+
+test('employee job position in another organisation', function () {
+    $group = Group::where('slug', 'test')->first();
+    $org1 = $group->organisations()->first();
+    $org2 = $group->organisations()->skip(1)->first();
+
+
+    $employee = StoreEmployee::make()->action($org1, Employee::factory()->definition());
+    $user = CreateUserFromEmployee::run($employee);
+
+    $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
+
+    expect($group->number_organisations)->toBe(2)
+        ->and($employee)->toBeInstanceOf(Employee::class)
+        ->and($user)->toBeInstanceOf(User::class)
+        ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
+
+
+    UpdateEmployeeOtherOrganisationJobPositions::make()->action(
+        $user,
+        [
+            'positions' => [
+                [
+                'slug'  => $jobPosition1->slug,
+                'scopes'=> []
+                ]
+            ]
+        ]
+    );
 });
