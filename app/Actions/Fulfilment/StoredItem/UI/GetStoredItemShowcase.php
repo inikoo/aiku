@@ -26,8 +26,9 @@ class GetStoredItemShowcase
                     'slug'      => $pallet->slug,
                     'reference' => $pallet->reference,
                     'location'  => [
-                        'id'   => $pallet->location->id,
-                        'slug' => $pallet->location->slug,
+                        'id'   => $pallet->location?->id,
+                        'code'   => $pallet->location?->code,
+                        'slug' => $pallet->location?->slug,
                     ],
                     'quantity' => (int) $pallet->pivot->quantity
                 ];
