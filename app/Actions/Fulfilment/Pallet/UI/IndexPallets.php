@@ -130,6 +130,8 @@ class IndexPallets extends OrgAction
             $query->addSelect('customers.name as fulfilment_customer_name', 'customers.slug as fulfilment_customer_slug');
         }
 
+        $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
+        $query->addSelect('locations.code as location_code', 'locations.slug as location_slug');
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
