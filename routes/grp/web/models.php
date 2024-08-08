@@ -94,6 +94,7 @@ use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\SyncStoredItemPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
@@ -351,9 +352,9 @@ Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem
     Route::patch('undo-picking', UndoPickingPalletFromReturn::class)->name('undo-picking');
 });
 
+Route::patch('{storedItem:id}/stored-items/pallets', SyncStoredItemPallet::class)->name('stored-items.pallets.update');
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 Route::delete('{storedItem:id}/stored-items', DeleteStoredItem::class)->name('stored-items.delete');
-
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
