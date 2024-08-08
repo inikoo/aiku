@@ -26,7 +26,7 @@ trait IsAddress
         return $address
             ->withCountryCode($this->country_code)
             ->withAdministrativeArea($this->administrative_area)
-            ->withDependentLocality($this->dependant_locality)
+            ->withDependentLocality($this->dependent_locality)
             ->withLocality($this->locality)
             ->withPostalCode($this->postal_code)
             ->withSortingCode($this->sorting_code)
@@ -117,7 +117,7 @@ trait IsAddress
             'address_line_2'      => $this->address_line_2,
             'sorting_code'        => $this->sorting_code,
             'postal_code'         => $this->postal_code,
-            'dependant_locality'  => $this->dependant_locality,
+            'dependent_locality'  => $this->dependent_locality,
             'locality'            => $this->locality,
             'administrative_area' => $this->administrative_area,
             'country_code'        => $this->country_code,

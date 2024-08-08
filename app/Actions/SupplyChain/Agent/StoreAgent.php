@@ -103,6 +103,8 @@ class StoreAgent extends GrpAction
             'timezone_id'  => ['required', 'exists:timezones,id'],
             'language_id'  => ['required', 'exists:languages,id'],
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
+            'created_at'   => ['sometimes', 'nullable', 'date'],
+
         ];
     }
 

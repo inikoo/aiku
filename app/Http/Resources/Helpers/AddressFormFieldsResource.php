@@ -19,7 +19,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $country_code
  * @property integer $country_id
  * @property string $locality
- * @property string $dependant_locality
+ * @property string $dependent_locality
  * @property string $administrative_area
 
  * @property mixed $country
@@ -37,7 +37,7 @@ class AddressFormFieldsResource extends JsonResource
             'sorting_code'        => $this->sorting_code        ?? null,
             'postal_code'         => $this->postal_code         ?? null,
             'locality'            => $this->locality            ?? null,
-            'dependant_locality'  => $this->dependant_locality  ?? null,
+            'dependent_locality'  => $this->dependent_locality  ?? null,
             'administrative_area' => $this->administrative_area ?? null,
             'country_code'        => $this->country_code        ?? null,
             'country_id'          => $this->country_id          ?? null,

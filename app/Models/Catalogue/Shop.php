@@ -132,6 +132,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read \App\Models\Catalogue\ShopMailStats|null $mailStats
+ * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns

@@ -48,8 +48,7 @@ class UpdateCustomerAddress extends OrgAction
             return true;
         }
 
-        if($this->scope instanceof Customer)
-        {
+        if($this->scope instanceof Customer) {
             return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
         } else {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");

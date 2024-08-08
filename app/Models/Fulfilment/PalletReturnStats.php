@@ -62,6 +62,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_pallets_status_incident
  * @property int $number_pallets_with_stored_items_status_incident
  * @property int $number_stored_items
+ * @property int $number_stored_items_state_submitted
  * @property int $number_stored_items_state_in_process
  * @property int $number_stored_items_state_active
  * @property int $number_stored_items_state_discontinuing
