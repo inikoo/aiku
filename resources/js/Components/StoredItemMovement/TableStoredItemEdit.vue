@@ -114,7 +114,7 @@ defineExpose({
 
 <template>
     <div class="flex justify-between border-b border-gray-300 p-2">
-        <div class="font-semibold">Contain Pallet :</div>
+        <div class="font-semibold">{{trans("Contain Pallet")}} :</div>
         <div class="flex flex-shrink-0 gap-3">
             <Button v-if="!editable" type="edit" size="xs" @click="editable = true" />
             <Button v-if="editable" type="tertiary" label="Cancel" size="xs" @click="onCancel" />
@@ -125,10 +125,10 @@ defineExpose({
     <div v-if="editable" class="flex justify-between align-middle">
         <div>
             <div class="text-sm text-blue-500 font-medium px-2 py-2">
-                Total Quantity: {{ totalQuantity }}
+                {{trans("Total Quantity :")}} {{ totalQuantity }}
             </div>
             <div class="text-sm text-red-500 font-medium px-2 py-2">
-                Unlocated Stored Items : {{ unlocatedPallet }}
+                {{ trans("Unlocated Stored Items")}} : {{ unlocatedPallet }}
             </div>
         </div>
         <div class="px-2 py-4">
@@ -155,7 +155,7 @@ defineExpose({
     <div v-if="editable && unlocatedPallet !== 0"
         class="flex justify-start flex-shrink-0 gap-4 bg-yellow-100 rounded-md border p-2 border-yellow-500 my-2">
         <font-awesome-icon :icon="['fal', 'exclamation-triangle']" class="text-yellow-600" />
-        <span class="text-xs text-yellow-600">You have to set all unlocated items</span>
+        <span class="text-xs text-yellow-600">{{trans("You have to set all unlocated items")}}</span>
     </div>
 
     <div class="mt-2 flow-root">
@@ -165,17 +165,17 @@ defineExpose({
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
-                                Pallet
+                                {{ trans('Pallet') }}
                             </th>
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
-                                Location
+                                {{ trans('Location') }}
                             </th>
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
-                                Quantity
+                                {{ trans('Quantity') }}
                             </th>
                             <th v-if="editable" scope="col"
                                 class="px-4 py-3 text-sm font-semibold text-end border-b border-gray-500">
-                                Action
+                                {{ trans('Action') }}
                             </th>
                         </tr>
                     </thead>
@@ -204,7 +204,7 @@ defineExpose({
 
                                     <template #content="{ close: closed }">
                                         <div class="py-2 font-medium">
-                                            Are you sure you want to delete this pallet?
+                                           {{trans("Are you sure you want to delete this pallet?")}}
                                         </div>
                                         <div class="flex  flex-shrink-0 gap-2 justify-end">
                                             <Button label="No" type="tertiary" size="xs" @click="() => closed()" />
