@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\CRM\Customer;
@@ -61,7 +62,6 @@ class GetCustomerShowcase
 
         $addressCollection = AddressResource::collection($processedAddresses);
         return [
-
             'customer'              => CustomersResource::make($customer)->getArray(),
             'address_update_route'  => [
                 'method'     => 'patch',
@@ -70,31 +70,37 @@ class GetCustomerShowcase
                     'customer' => $customer->id
                 ]
             ],
-            'addresses_list'   => [
-                'all_addresses'                  => $addressCollection,
+            'addresses'     => [
+                'isShowcase'                    => true,
+                'address_list'                  => $addressCollection,
+                'options'                       => [
+                    'countriesAddressData' => GetAddressData::run()
+                ],
                 'pinned_address_id'              => $customer->delivery_address_id,
                 'home_address_id'                => $customer->address_id,
                 'current_selected_address_id'    => $customer->delivery_address_id,
                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                'pinned_route'                   => [
-                    'method'     => 'patch',
-                    'name'       => 'grp.models.customer.delivery-address.update',
-                    'parameters' => [
-                        'customer' => $customer->id
-                    ]
-                ],
-                'delete_route'  => [
-                    'method'     => 'delete',
-                    'name'       => 'grp.models.customer.delivery-address.delete',
-                    'parameters' => [
-                        'customer' => $customer->id
-                    ]
-                ],
-                'store_route' => [
-                    'method'      => 'post',
-                    'name'        => 'grp.models.customer.address.store',
-                    'parameters'  => [
-                        'customer' => $customer->id
+                'routes_list'                    => [        
+                    'pinned_route'   => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.customer.delivery-address.update',
+                        'parameters' => [
+                            'customer' => $customer->id
+                        ]
+                    ],
+                    'delete_route'   => [
+                        'method'     => 'delete',
+                        'name'       => 'grp.models.customer.delivery-address.delete',
+                        'parameters' => [
+                            'customer' => $customer->id
+                        ]
+                    ],
+                    'store_route'     => [
+                        'method'      => 'post',
+                        'name'        => 'grp.models.customer.address.store',
+                        'parameters'  => [
+                            'customer' => $customer->id
+                        ]
                     ]
                 ]
             ],
