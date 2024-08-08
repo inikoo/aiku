@@ -21,6 +21,14 @@ class GetStoredItemShowcase
         return [
             'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
             'pieData'             => $this->getDashboardData($storedItem),
+            'route_pallets'       => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                'parameters' => [
+                    'organisation'         => request()->route('organisation'),
+                    'fulfilment'           => request()->route('fulfilment'),
+                    'fulfilmentCustomer'   => request()->route('fulfilmentCustomer')
+                ]
+            ]
         ];
     }
 

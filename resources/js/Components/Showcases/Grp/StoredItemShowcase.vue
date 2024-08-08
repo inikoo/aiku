@@ -20,12 +20,12 @@ const props = defineProps<{
                 value: number
             }[]
         }
+        route_pallets: routeType
     }
-    tab: any  // Not in used: to avoid warning  
-    palletRoute: any  // Not in used: to avoid warning
-    locationRoute: any  // Not in used: to avoid warning
-    updateRoute: any  // Not in used: to avoid warning
+    
 }>()
+
+console.log(props)
 
 const options = {
     responsive: true,
@@ -87,7 +87,7 @@ console.log(props)
                 </div>
             </div> -->
             
-           <tableStoredItemEdit :data="data.pieData.stats" />
+           <tableStoredItemEdit :data="data.pieData.stats" :route_pallets="data.route_pallets"/>
         </div>
     </div>
 </template>
