@@ -142,7 +142,6 @@ class IndexStoredItemPallets extends OrgAction
 
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'stored_items_quantity', label: 'stored items', canBeHidden: false, searchable: true)
-                ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');
         };
     }
