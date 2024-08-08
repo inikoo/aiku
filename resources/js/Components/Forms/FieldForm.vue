@@ -98,7 +98,7 @@ const checkVerification = async () => {
     <form @submit.prevent="submit" class="divide-y divide-gray-200 w-full" :class="props.fieldData.full ? '' : 'max-w-2xl'">
         <dl class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4 ">
             <!-- Title -->
-            <dt v-if="!fieldData.noTitle" class="text-sm font-medium text-gray-400 capitalize">
+            <dt v-if="!fieldData.noTitle && fieldData.label" class="text-sm font-medium text-gray-400 capitalize">
                 <div class="inline-flex items-start leading-none">
                     <FontAwesomeIcon v-if="fieldData.required" icon="fas fa-asterisk" class="font-light text-[12px] text-red-400 mr-1"/>
                     {{ fieldData.label }}

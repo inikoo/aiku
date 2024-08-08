@@ -14,7 +14,6 @@ use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
@@ -169,7 +168,7 @@ class EditUser extends InertiaAction
                                         'user' => $user->id
                                     ]
                                 ],
-                                "label"             => __("permissions"),
+                                // "label"             => __("permissions"),
                                 'options'           => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
                                     return [
                                         $organisation->slug         => [
