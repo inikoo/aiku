@@ -17,37 +17,19 @@
       state:any
       key:any 
   }>()
-  console.log(props)
+  
   const isLoading = ref<string | boolean>(false)
-  function storedItemRoute(storedItem) {
-      switch (route().current()) {
-          case 'grp.org.fulfilments.show.crm.customers.show.stored-items.index':
-              return route(
-                  'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
-                  [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
-          case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show':
-              return route(
-                  'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
-                  [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
-          default:
-              null
-      }
-  }
   
   </script>
   
   <template>
       <Table :resource="data" :name="'stored_items'" class="mt-5">
           <template #cell(reference)="{ item: value }">
-              <Link v-if="route().current() != 'retina.storage.pallet-returns.show'" :href="storedItemRoute(value)"
-                  class="primaryLink">
               {{ value.reference }}
-              </Link>
           </template>
           <template #cell(state)="{ item: palletDelivery }">
                   <Icon  :data="palletDelivery['state_icon']" class="px-1" />
           </template>
-          
           <template #cell(actions)="{ item: value }">
               <div v-if="state == 'in-process'">
                   <Link :href="route(value.deleteRoute.name, value.deleteRoute.parameters)" method="delete"
@@ -57,8 +39,6 @@
                   </Link>
               </div>
           </template>
-  
-         
       </Table>
   </template>
   
