@@ -80,7 +80,7 @@ class GetCustomerShowcase
                 'home_address_id'                => $customer->address_id,
                 'current_selected_address_id'    => $customer->delivery_address_id,
                 'selected_delivery_addresses_id' => $palletReturnDeliveryAddressIds,
-                'routes_list'                    => [        
+                'routes_list'                    => [
                     'pinned_route'   => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.customer.delivery-address.update',
