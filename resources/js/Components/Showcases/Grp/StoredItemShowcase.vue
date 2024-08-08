@@ -8,6 +8,8 @@ import { ref } from 'vue'
 import { Link, router } from "@inertiajs/vue3"
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
+
+
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
 const props = defineProps<{
@@ -28,6 +30,7 @@ const props = defineProps<{
     }
 }>()
 const isLoading = ref(false)
+const _editTable = ref(null)
 const options = {
     responsive: true,
     plugins: {
@@ -48,6 +51,7 @@ const options = {
 }
 
 const onChangeStoredItem = (data) => {
+
     router.patch(
         route(props.data.route_update_stored_item.name,props.data.route_update_stored_item.parameters),
         {pallets : data},
@@ -56,7 +60,7 @@ const onChangeStoredItem = (data) => {
                 isLoading.value = true
             },
             onSuccess: () => {
-                null
+                if(_editTable.value) _editTable.value.editable = false
             },
             onError: (error: {} | string) => {
                 isLoading.value = false
@@ -101,7 +105,9 @@ const onChangeStoredItem = (data) => {
                 :data="data.pallets" 
                 :route_pallets="data.route_pallets" 
                 @Save="onChangeStoredItem" 
-                :loading="isLoading"/>
+                :loading="isLoading"
+                ref="_editTable"
+            />
         </div>
     </div>
 </template>
