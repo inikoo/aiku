@@ -10,18 +10,17 @@ import LeftSidebarNavigation from "@/Layouts/Grp/LeftSidebarNavigation.vue"
 import LeftSidebarBottomNav from "@/Layouts/Grp/LeftSidebarBottomNav.vue"
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
+import { useLogoutAuth } from "@/Composables/useAppMethod"
 
-import { router } from '@inertiajs/vue3'
-import { useLiveUsers } from '@/Stores/active-users'
-import { trans } from 'laravel-vue-i18n'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faChevronLeft } from "@far"
+import { faSignOutAlt } from "@fal"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { inject } from "vue"
+import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 // import Popover from "@/Components/Popover.vue"
-library.add(faChevronLeft)
+library.add(faChevronLeft, faSignOutAlt)
 
 const layout = inject('layout', layoutStructure)
 
@@ -34,26 +33,15 @@ const handleToggleLeftBar = () => {
 const logoutData = {
     label: 'Logout',
     tooltip: 'Logout the app',
-    icon: 'far fa-door-open',
+    icon: 'fal fa-sign-out-alt',
 }
 
+const isLoadingLogout = ref(false)
 const onLogoutAuth = () => {
-    router.post(route('grp.logout'))
-
-    const dataActiveUser = {
-        ...layout.user,
-        name: null,
-        last_active: new Date(),
-        action: 'logout',
-        current_page: {
-            label: trans('Logout'),
-            url: null,
-            icon_left: null,
-            icon_right: null,
-        },
-    }
-    window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
-    useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
+    useLogoutAuth(layout.user, {
+        onStart: () => isLoadingLogout.value = true,
+        onError: () => isLoadingLogout.value = false,
+    })
 }
 
 </script>
@@ -111,7 +99,7 @@ const onLogoutAuth = () => {
                             <div class="min-w-32 flex flex-col justify-center gap-y-2">
                                 <div class="whitespace-nowrap text-gray-500 text-xs">Are you sure want to logout?</div>
                                 <div class="mx-auto">
-                                    <Button @click="onLogoutAuth()" label="Yes, Logout" type="red" />
+                                    <Button @click="onLogoutAuth()" :loading="isLoadingLogout" label="Yes, Logout" type="red" />
                                 </div>
                             </div>
                         </PopoverPanel>
