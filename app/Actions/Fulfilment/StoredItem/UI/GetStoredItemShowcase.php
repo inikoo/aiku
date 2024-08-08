@@ -20,6 +20,18 @@ class GetStoredItemShowcase
     {
         return [
             'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
+            'pallets'             => $storedItem->pallets->map(function (Pallet $pallet) {
+                return [
+                    'id'        => $pallet->id,
+                    'slug'      => $pallet->slug,
+                    'reference' => $pallet->reference,
+                    'location'  => [
+                        'id'   => $pallet->location->id,
+                        'slug' => $pallet->location->slug,
+                    ],
+                    'quantity' => (int) $pallet->pivot->quantity
+                ];
+            }),
             'pieData'             => $this->getDashboardData($storedItem),
             'route_pallets'       => [
                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
