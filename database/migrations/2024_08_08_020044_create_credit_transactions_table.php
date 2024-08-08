@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->dateTimeTz('date')->index();
             $table->decimal('amount', 16, 2);
-            $table->decimal('running_amount', 16, 2);
+            $table->decimal('running_amount', 16, 2)->nullable();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('grp_exchange', 16, 4)->default(1);

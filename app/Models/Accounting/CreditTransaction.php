@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $type
  * @property \Illuminate\Support\Carbon $date
  * @property string $amount
- * @property string $running_amount
+ * @property string|null $running_amount
  * @property int $currency_id
  * @property string $grp_exchange
  * @property string $org_exchange
