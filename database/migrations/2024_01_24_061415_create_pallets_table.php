@@ -70,6 +70,7 @@ return new class () extends Migration {
 
 
                 $table->boolean('with_stored_items')->default(false);
+                $table=$this->storedItemsStatsFields($table);
 
                 $table=$this->storedItemsAuditStats($table);
 

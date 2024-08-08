@@ -38,17 +38,14 @@ class PalletHydrateStoredItems extends HydrateModel
             'number_stored_items'                     => $numberStoredItems,
             'with_stored_items'                       => $numberStoredItems > 0,
             'number_stored_items_state_in_process'    => $pallet->storedItems()
-                ->leftJoin('stored_items', 'stored_items.id', 'stored_item_id')
                 ->where('stored_items.state', StoredItemStateEnum::IN_PROCESS)->count(),
+            'number_stored_items_state_submitted'    => $pallet->storedItems()
+                ->where('stored_items.state', StoredItemStateEnum::SUBMITTED)->count(),
             'number_stored_items_state_discontinuing' => $pallet->storedItems()
-                ->leftJoin('stored_items', 'stored_items.id', 'stored_item_id')
                 ->where('stored_items.state', StoredItemStateEnum::DISCONTINUING)->count(),
             'number_stored_items_state_active'        => $pallet->storedItems()
-                ->leftJoin('stored_items', 'stored_items.id', 'stored_item_id')
                 ->where('stored_items.state', StoredItemStateEnum::ACTIVE)->count(),
         ];
-
-
         $pallet->update($stats);
     }
 }
