@@ -64,6 +64,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
 
         $queryBuilder->join('products', 'assets.model_id', '=', 'products.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('rental_agreement_clauses', 'fulfilment_transactions.rental_agreement_clause_id', '=', 'rental_agreement_clauses.id');
 
         foreach ($this->getElementGroups($palletDelivery) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -93,6 +94,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'fulfilment_transactions.parent_id  as pallet_delivery_id',
                 'currencies.code as currency_code',
                 'fulfilment_transactions.is_auto_assign',
+                'rental_agreement_clauses.percentage_off as discount'
             ]);
 
         return $queryBuilder->allowedSorts(['id','name'])

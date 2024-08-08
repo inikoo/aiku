@@ -36,7 +36,6 @@ class FulfilmentTransactionResource extends JsonResource
             $unitLabel        = __('unit');
         }
 
-
         return [
             'id'                => $this->id,
             'asset_type'        => $this->asset_type,
@@ -53,6 +52,7 @@ class FulfilmentTransactionResource extends JsonResource
             'quantity'          => (int) $this->quantity,
             'total'             => $this->net_amount,
             'is_auto_assign'    => $this->is_auto_assign,
+            'discount'          => (int) $this->discount
             // 'historic_assets_id'=> $this->historic_assets_id
 
 
