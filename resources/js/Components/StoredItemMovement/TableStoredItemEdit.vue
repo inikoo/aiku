@@ -2,40 +2,97 @@
 import { trans } from 'laravel-vue-i18n'
 import { useLocaleStore } from "@/Stores/locale"
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onMounted } from "vue"
 import PureInputNumber from "@/Components/Pure/PureInputNumber.vue"
-import { cloneDeep } from 'lodash'
+import { cloneDeep, get } from 'lodash'
 import Popover from '@/Components/Popover.vue'
 import SelectQuery from '@/Components/SelectQuery.vue'
 import { useForm } from "@inertiajs/vue3"
 
 const props = defineProps<{
     route_pallets: routeType
-    data: Array<{ label: string, location: string, value: number }>
+    data: Array<{ label: string, location: string, quantity: number }>
 }>()
 
-console.log('sss',props)
+const emits = defineEmits<{
+    (e: 'Save', value: Array): void
+}>()
 
-const cloneData = ref(cloneDeep(props.data))
+const cloneData = ref(cloneDeep(props.data).map((item, index) => ({ ...item, index })))
 const editable = ref(false)
 const unlocatedPallet = ref(0)
-const originalValues = ref(props.data.map(item => item.value))
+const totalQuantity = ref(0)
+const originalValues = ref(cloneDeep(props.data).map(item => item.quantity))
 const palletForm = useForm({
-    pallet : null
+    pallet: null    
 })
 
 const calculateUnlocatedPallet = () => {
     unlocatedPallet.value = originalValues.value.reduce((total, original, index) => {
-        return total + (original - cloneData.value[index].value)
+        return total + (original - (cloneData.value[index]?.quantity || 0))
     }, 0)
 }
 
-watch(cloneData, calculateUnlocatedPallet, { deep: true })
+const calculateTotalQuantity = () => {
+    totalQuantity.value = cloneData.value.reduce((total, item) => total + item.quantity, 0)
+}
+
+watch(cloneData, () => {
+    calculateUnlocatedPallet()
+    calculateTotalQuantity()
+}, { deep: true })
 
 const onCancel = () => {
     editable.value = false
-    cloneData.value = cloneDeep(props.data)
+    cloneData.value = cloneDeep(props.data).map((item, index) => ({ ...item, index }))
+    originalValues.value = cloneDeep(props.data).map(item => item.quantity)
+    calculateUnlocatedPallet()
+    calculateTotalQuantity()
 }
+
+const onAddRow = (closed) => {
+    console.log(palletForm.pallet)
+    cloneData.value.push({
+        id : palletForm.pallet.id,
+        reference: palletForm.pallet.reference,
+        location: {
+            code: palletForm.pallet.location_code,
+            id: palletForm.pallet.location_id,
+            slug: palletForm.pallet.location_slug
+        },
+        quantity: 0,
+        index: cloneData.value.length
+    })
+    originalValues.value.push(0)
+    calculateUnlocatedPallet()
+    calculateTotalQuantity()
+    palletForm.reset()
+    closed()
+}
+
+const onDeleteRow = (index) => {
+    cloneData.value.splice(index, 1)
+    originalValues.value.splice(index, 1)
+    calculateUnlocatedPallet()
+    calculateTotalQuantity()
+}
+
+const onSave = () =>{
+    const finalData = []
+    cloneData.value.map((item)=>{
+        finalData.push({
+            pallet : item.id,
+            location : item.location.id,
+            quantity  : item.quantity
+        })
+    })
+    emits('Save', finalData)
+}
+
+onMounted(()=>{
+    totalQuantity.value = cloneData.value.reduce((total, item) => total + item.quantity, 0)
+})
+
 
 </script>
 
@@ -45,14 +102,19 @@ const onCancel = () => {
         <div class="flex flex-shrink-0 gap-3">
             <Button v-if="!editable" type="edit" size="xs" @click="editable = true" />
             <Button v-if="editable" type="tertiary" label="Cancel" size="xs" @click="onCancel" />
-            <Button v-if="editable" :type="unlocatedPallet != 0 ? 'disabled' : 'save'" size="xs" label="Save"
-                :icon="['fas', 'fa-save']" @click="editable = false" />
+            <Button v-if="editable" :type="editable && unlocatedPallet == 0 ? 'save' : 'disabled'" size="xs" label="Save"
+                :icon="['fas', 'fa-save']" @click="onSave" />
         </div>
     </div>
     <div v-if="editable" class="flex justify-between align-middle">
-        <div class="text-sm text-red-500 font-medium px-2 py-4 ">
-            Unlocated pallet: {{ unlocatedPallet }}
+    <div>
+        <div class="text-sm text-blue-500 font-medium px-2 py-2">
+            Total Quantity: {{ totalQuantity }}
         </div>
+        <div class="text-sm text-red-500 font-medium px-2 py-2">
+            Unlocated Stored Items : {{ unlocatedPallet }}
+        </div>
+    </div>
         <div class="px-2 py-4">
             <Popover position="right-10">
                 <template #button>
@@ -72,11 +134,11 @@ const onCancel = () => {
                             :closeOnSelect="true" 
                             :clearOnSearch="false"
                             :fieldName="'pallet'" 
-                            @updateVModel="() => error.pallet = ''" 
+                            :object="true"
                         />
                     </div>
                     <div class="py-3">
-                    <Button full type="save" />
+                    <Button full type="save" @click="()=>onAddRow(closed)" />
                     </div>
                 </template>
             </Popover>
@@ -91,7 +153,7 @@ const onCancel = () => {
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
-                                Pallet name
+                                Pallet
                             </th>
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
                                 Location
@@ -99,20 +161,31 @@ const onCancel = () => {
                             <th scope="col" class="px-4 py-3 text-sm font-semibold text-start border-b border-gray-500">
                                 Qty
                             </th>
+                            <th v-if="editable" scope="col" class="px-4 py-3 text-sm font-semibold text-end border-b border-gray-500">
+                                Action
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white">
-                        <tr v-for="(pallet, index) in cloneData" :key="pallet.label + index" class="even:bg-gray-50">
+                        <tr v-for="(pallet, index) in cloneData" :key="pallet.index" class="even:bg-gray-50">
                             <td class="whitespace-nowrap px-4 py-3 text-sm border-b border-gray-500">
-                                {{ pallet.label }}
+                                {{ pallet.reference }}
                             </td>
                             <td class="whitespace-nowrap px-4 py-3 text-sm border-b border-gray-500">
-                                {{ pallet.location }}
+                                {{ pallet.location.code }}
                             </td>
-                            <td class="whitespace-nowrap px-4 py-3 text-sm border-b border-gray-00 w-32">
-                                <span v-if="!editable">{{ useLocaleStore().number(pallet.value) }}</span>
-                                <PureInputNumber v-else v-model="pallet.value" :maxValue="data[index].value"
+                            <td class="whitespace-nowrap px-4 py-3 text-sm border-b border-gray-500 w-32">
+                                <span v-if="!editable">{{ useLocaleStore().number(pallet.quantity) }}</span>
+                               
+                                <PureInputNumber 
+                                    v-else 
+                                    v-model="pallet.quantity" 
+                                    :maxValue="unlocatedPallet == 0 ? get(props.data[pallet.index], 'quantity', pallet.quantity) : pallet.quantity + unlocatedPallet"
                                     :minValue="0" />
+                                 
+                            </td>
+                            <td v-if="editable" class="whitespace-nowrap px-4 py-3 text-sm text-end border-b border-gray-500 w-32">
+                                <Button v-if="pallet.quantity == 0" type="red" :icon='["far", "fa-trash-alt"]' @click="()=>onDeleteRow(index)"/>
                             </td>
                         </tr>
                     </tbody>
