@@ -107,13 +107,6 @@ class StoreEmployee extends OrgAction
         if (!$this->get('username')) {
             $this->set('username', null);
         }
-
-        // this run if come from UI, so tests and migrations are not affected
-        //if(!$this->asAction) {
-        // don't know what this does if no need it,  delete it
-        // $this->preparePositionsForValidation();
-        // apply $this->generatePositions(...) here if needed
-        //}
     }
 
     public function rules(): array

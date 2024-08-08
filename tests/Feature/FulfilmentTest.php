@@ -1799,7 +1799,7 @@ test('create 2 stored item and attach to pallet (5th delivery)', function (Palle
 test('submit and confirm fifth pallet delivery', function (Pallet $pallet) {
 
     SendPalletDeliveryNotification::shouldRun()->andReturn();
-    
+
     $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($pallet->palletDelivery);
 
     $pallet = $palletDelivery->pallets->first();

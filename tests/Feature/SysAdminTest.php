@@ -531,12 +531,12 @@ test('reindex search', function () {
 
 test('employee job position in another organisation', function () {
     $group = Group::where('slug', 'test')->first();
-    $org1 = $group->organisations()->first();
-    $org2 = $group->organisations()->skip(1)->first();
+    $org1  = $group->organisations()->first();
+    $org2  = $group->organisations()->skip(1)->first();
 
 
     $employee = StoreEmployee::make()->action($org1, Employee::factory()->definition());
-    $user = CreateUserFromEmployee::run($employee);
+    $user     = CreateUserFromEmployee::run($employee);
 
     $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
 
@@ -546,8 +546,9 @@ test('employee job position in another organisation', function () {
         ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
 
 
-    UpdateEmployeeOtherOrganisationJobPositions::make()->action(
+    $user=UpdateEmployeeOtherOrganisationJobPositions::make()->action(
         $user,
+        $org2,
         [
             'positions' => [
                 [
@@ -557,4 +558,9 @@ test('employee job position in another organisation', function () {
             ]
         ]
     );
+
+    /** @var Employee $employee */
+    $employee=$user->parent;
+    expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
+
 });

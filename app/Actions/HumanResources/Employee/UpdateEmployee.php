@@ -41,7 +41,7 @@ class UpdateEmployee extends OrgAction
     public function handle(Employee $employee, array $modelData): Employee
     {
         if (Arr::exists($modelData, 'positions')) {
-            $jobPositions = $this->generatePositions($modelData);
+            $jobPositions = $this->generatePositions($employee->organisation, $modelData);
 
             SyncEmployableJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');

@@ -8,27 +8,14 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\GrpAction;
-use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
 use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
-use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
-use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
-use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\HumanResources\JobPosition\SyncEmployeeOtherOrganisationJobPositions;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
-use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
-use App\Rules\AlphaDashDot;
-use App\Rules\IUnique;
-use App\Rules\PinRule;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
-use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
@@ -41,15 +28,17 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
 
     private Employee $employee;
 
-    public function handle(User $user, array $modelData): User
-    {
-        $employee = $user->parent;
-        if (Arr::exists($modelData, 'positions')) {
-            $jobPositions = $this->generatePositions($modelData);
+    private User $user;
 
-            SyncEmployableJobPositions::run($employee, $jobPositions);
-            Arr::forget($modelData, 'positions');
-        }
+    private Organisation $otherOrganisation;
+
+    public function handle(User $user, Organisation $otherOrganisation, array $modelData): User
+    {
+        $employee     = $user->parent;
+        $jobPositions = $this->generatePositions($otherOrganisation, $modelData);
+
+        SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
+
 
         return $user;
     }
@@ -61,7 +50,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
     public function rules(): array
@@ -70,37 +59,38 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
             'positions'                             => ['sometimes', 'array'],
             'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->otherOrganisation->id)],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->otherOrganisation->id)],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->otherOrganisation->id)],
         ];
-
     }
 
-    public function action(User $user, $modelData): User
+    public function action(User $user, Organisation $otherOrganisation, $modelData): User
     {
-        $this->asAction = true;
-        $this->user = $user;
+        $this->asAction          = true;
+        $this->user              = $user;
+        $this->otherOrganisation = $otherOrganisation;
 
         $this->initialisation($user->group, $modelData);
 
-        return $this->handle($user, $this->validatedData);
+        return $this->handle($user, $otherOrganisation, $this->validatedData);
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if(!$this->user->parent instanceof Employee)
-        {
+        if (!$this->user->parent instanceof Employee) {
             abort(419);
         }
     }
 
-    public function asController(User $user, ActionRequest $request): User
+    public function asController(User $user, Organisation $organisation, ActionRequest $request): User
     {
-        $this->user = $user;
+        $this->user              = $user;
+        $this->otherOrganisation = $organisation;
+
         $this->initialisation(app('group'), $request);
 
-        return $this->handle($user, $this->validatedData);
+        return $this->handle($user, $organisation, $this->validatedData);
     }
 
     public function jsonResponse(User $user): EmployeeResource
