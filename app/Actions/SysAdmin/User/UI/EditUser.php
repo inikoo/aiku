@@ -10,6 +10,10 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\InertiaAction;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
+use App\Http\Resources\HumanResources\JobPositionResource;
+use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\Catalogue\ShopResource;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -79,6 +83,20 @@ class EditUser extends InertiaAction
         });
 
 
+        $organisations = $user->group->organisations;
+        $reviewData = $organisations->mapWithKeys(function ($organisation) {
+            return [$organisation->slug => [
+                'job_positions' => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
+                    return [$jobPosition->slug => [
+                        'job_position' => $jobPosition->name,
+                        'roles'        => $jobPosition->stats->number_roles
+                    ]];
+                })
+            ]];
+        })->toArray();
+
+        dd($reviewData);
+
         return Inertia::render("EditModel", [
             "title"       => __("user"),
             "breadcrumbs" => $this->getBreadcrumbs(
@@ -137,43 +155,60 @@ class EditUser extends InertiaAction
                             "permissions" => [
                                 "full"              => true,
                                 "type"              => "permissions",
+                                "review"            => $reviewData,
                                 "label"             => __("permissions"),
+                                'options'           => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
+                                    return [
+                                        $organisation->slug         => [
+                                            'positions'       => JobPositionResource::collection($organisation->jobPositions),
+                                            'shops'           => ShopResource::collection($organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                                            'fulfilments'     => ShopResource::collection($organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                                            'warehouses'      => WarehouseResource::collection($organisation->warehouses),
+                                        ]
+                                    ];
+                                })->toArray()
+                                    // 'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
+                                    // 'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                                    // 'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                                    // 'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
+                                ,
                                 "value"             => $permissions,
                                 "fullComponentArea" => true,
                             ],
                         ],
                     ],
-                    "permissions_agents" => [
-                        "label"   => __("Agents Permissions"),
-                        "title"   => __("Permissions"),
-                        "icon"    => "fa-light fa-user-lock",
-                        "current" => false,
-                        "fields"  => [
-                            "permissions" => [
-                                "full"              => true,
-                                "type"              => "permissions",
-                                "label"             => __("permissions"),
-                                "value"             => $permissions,
-                                "fullComponentArea" => true,
-                            ],
-                        ],
-                    ],
+                    // "permissions_agents" => [
+                    //     "label"   => __("Agents Permissions"),
+                    //     "title"   => __("Permissions"),
+                    //     "icon"    => "fa-light fa-user-lock",
+                    //     "current" => false,
+                    //     "fields"  => [
+                    //         "permissions" => [
+                    //             "full"              => true,
+                    //             "type"              => "permissions",
+                    //             "label"             => __("permissions"),
+                    //             "value"             => $permissions,
+                    //             "fullComponentArea" => true,
+                    //         ],
+                    //     ],
+                    // ],
 
-                    "permissions_digital_agency" => [
-                        "label"   => __("Digital agency permissions"),
-                        "title"   => __("Permissions"),
-                        "icon"    => "fa-light fa-user-lock",
-                        "current" => false,
-                        "fields"  => [
-                            "permissions" => [
-                                "full"              => true,
-                                "type"              => "permissions",
-                                "label"             => __("permissions"),
-                                "value"             => $permissions,
-                                "fullComponentArea" => true,
-                            ],
-                        ],
-                    ],
+
+                    // "permissions_digital_agency" => [
+                    //     "label"   => __("Digital agency permissions"),
+                    //     "title"   => __("Permissions"),
+                    //     "icon"    => "fa-light fa-user-lock",
+                    //     "current" => false,
+                    //     "fields"  => [
+                    //         "permissions" => [
+                    //             "full"              => true,
+                    //             "type"              => "permissions",
+                    //             "label"             => __("permissions"),
+                    //             "value"             => $permissions,
+                    //             "fullComponentArea" => true,
+                    //         ],
+                    //     ],
+                    // ],
 
                 ],
                 "args" => [

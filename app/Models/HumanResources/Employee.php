@@ -13,6 +13,7 @@ use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\SysAdmin\EmployeeHasOtherOrganisationJobPosition;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Task;
@@ -87,6 +88,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $otherOrganisationJobPositions
  * @property-read \App\Models\HumanResources\EmployeeStats|null $stats
  * @property-read Collection<int, Task> $tasks
  * @property-read Collection<int, \App\Models\HumanResources\TimeTracker> $timeTrackers
@@ -196,6 +198,13 @@ class Employee extends Model implements HasMedia, Auditable
             ->withPivot(['share', 'scopes'])
             ->withTimestamps();
     }
+
+    public function otherOrganisationJobPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(JobPosition::class, 'employee_has_other_organisation_job_positions')
+            ->using(EmployeeHasOtherOrganisationJobPosition::class);
+    }
+
 
     public function user(): MorphOne
     {

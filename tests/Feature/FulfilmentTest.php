@@ -1797,6 +1797,7 @@ test('create 2 stored item and attach to pallet (5th delivery)', function (Palle
 })->depends('add pallet to fifth pallet delivery');
 
 test('submit and confirm fifth pallet delivery', function (Pallet $pallet) {
+
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
     $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($pallet->palletDelivery);

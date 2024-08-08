@@ -9,7 +9,7 @@ import { Link, router } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faRobot } from '@fal'
+import { faRobot, faBadgePercent, faTag } from '@fal'
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -17,6 +17,7 @@ import { inject, ref } from "vue"
 import PureInput from '@/Components/Pure/PureInput.vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { routeType } from '@/types/route'
+import Tag from '@/Components/Tag.vue'
 
 library.add(faRobot)
 
@@ -100,6 +101,12 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
         <template #cell(name)="{ item }">
             {{ item['asset_name'] }} ({{ useLocaleStore().currencyFormat(item['currency_code'],
                 item['asset_price'])}}/{{ item['unit_abbreviation'] }})
+            <Tag v-if="item['discount'] > 0" :theme="17">
+                <template #label>
+                    <font-awesome-icon :icon="faTag" class="text-xs text-emerald-700"/>
+                    {{ item['discount'] }}%
+                </template>
+            </Tag>
         </template>
 
         <!-- Column: Quantity -->
