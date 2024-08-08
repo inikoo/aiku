@@ -82,6 +82,21 @@ class EditUser extends InertiaAction
             }];
         });
 
+
+        $organisations = $user->group->organisations;
+        $reviewData = $organisations->mapWithKeys(function ($organisation) {
+            return [$organisation->slug => [
+                'job_positions' => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
+                    return [$jobPosition->slug => [
+                        'job_position' => $jobPosition->name,
+                        'roles'        => $jobPosition->stats->number_roles
+                    ]];
+                })
+            ]];
+        })->toArray();
+
+        dd($reviewData);
+
         return Inertia::render("EditModel", [
             "title"       => __("user"),
             "breadcrumbs" => $this->getBreadcrumbs(
@@ -140,16 +155,7 @@ class EditUser extends InertiaAction
                             "permissions" => [
                                 "full"              => true,
                                 "type"              => "permissions",
-                                "review"            => [
-                                    'aw'  => [
-                                        'position'    => 7,
-                                        'roles'       => 25,
-                                    ],
-                                    'sk'  => [
-                                        'position'    => 15,
-                                        'roles'       => 25,
-                                    ],
-                                ],
+                                "review"            => $reviewData,
                                 "label"             => __("permissions"),
                                 'options'           => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
                                     return [
