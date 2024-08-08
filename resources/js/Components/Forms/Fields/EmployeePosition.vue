@@ -331,7 +331,6 @@ const optionsList = {
     positions: props.options.positions.data
 }
 
-console.log('options', props.options)
 
 // console.log('options Job', props.options.warehouses.data)
 // Temporary data
@@ -370,7 +369,9 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
         }
     }
 
-    props.form.errors[props.fieldName] = ''
+    if(props.form?.errors?.[props.fieldName]) {
+        props.form.errors[props.fieldName] = ''
+    }
 }
 
 // Method: on clicked radio inside 'Advanced selection'
@@ -433,7 +434,9 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
         }
     }
 
-    props.form.errors[props.fieldName] = ''
+    if(props.form?.errors?.[props.fieldName]) {
+        props.form.errors[props.fieldName] = ''
+    }
 }
 
 const fulfilmentLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length || 0
@@ -467,18 +470,18 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                         v-if="(subDepartment.optionsType?.includes('fulfilments') && fulfilmentLength > 0) || (subDepartment.optionsType?.includes('shops') && shopLength > 0) || (subDepartment.optionsType?.includes('warehouses') && warehouseLength > 0) || (subDepartment.optionsType?.includes('productions') && productionLength > 0) || !subDepartment.optionsType"
                                         @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, subDepartment.optionsType)"
                                         class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                        :class="Object.keys(form[fieldName]).includes('admin') && subDepartment.slug == 'admin' ? 'text-green-500' : ''"
-                                        :disabled="Object.keys(form[fieldName]).includes('admin') && subDepartment.slug != 'admin' ? true : false"
+                                        :class="Object.keys(form[fieldName] || {}).includes('admin') && subDepartment.slug == 'admin' ? 'text-green-500' : ''"
+                                        :disabled="Object.keys(form[fieldName] || {}).includes('admin') && subDepartment.slug != 'admin' ? true : false"
                                     >
                                         <span class="relative text-left">
                                             <!-- dd{{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${subDepartment.optionsType}`] }} -->
                                             <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                                <template v-if="Object.keys(form[fieldName]).includes('admin')">
+                                                <template v-if="Object.keys(form[fieldName] || {}).includes('admin')">
                                                     <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                 </template>
 
-                                                <template v-else-if="Object.keys(form[fieldName]).includes(subDepartment.slug)">
+                                                <template v-else-if="Object.keys(form[fieldName] || {}).includes(subDepartment.slug)">
                                                     <FontAwesomeIcon v-if="subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug)))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else-if="subDepartment.optionsType?.some((optionType: string) => get(form[fieldName], [subDepartment.slug, optionType], []).some((optionValue: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).includes(optionValue)))" icon='fal fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
@@ -487,7 +490,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                 <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                             </div>
                                             <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
+                                                Object.keys(form[fieldName] || {}).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
                                             ]">
                                                 {{ subDepartment.label }}
                                                 <!-- {{ subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug))) }} -->
@@ -538,11 +541,11 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                                     v-if="subDep.optionsType?.includes(optionKey)"
                                                                     @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                     class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                                                    :disabled="!!Object.keys(form[fieldName]).includes('admin')"
+                                                                    :disabled="!!Object.keys(form[fieldName] || {}).includes('admin')"
                                                                     v-tooltip="subDep.label"
                                                                 >
                                                                     <div class="relative text-left">
-                                                                        <template v-if="Object.keys(form[fieldName]).includes('admin')">
+                                                                        <template v-if="Object.keys(form[fieldName] || {}).includes('admin')">
                                                                             <FontAwesomeIcon v-if="idxGrade === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                                             <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                                         </template>
@@ -598,10 +601,11 @@ const productionLength = layout.organisations.data.find(organisation => organisa
 
         <!-- State: error icon & error description -->
         <Transition name="spin-to-down">
-            <FontAwesomeIcon v-if="form.errors[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon v-if="form.errors?.[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
             <FontAwesomeIcon v-else-if="form.recentlySuccessful" icon="fas fa-check-circle" class="absolute top-0 right-5 h-6 w-6 text-green-500" aria-hidden="true"/>
         </Transition>
-        <div v-if="form.errors[fieldName] " class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
+
+        <div v-if="form.errors?.[fieldName]" class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
             <p class="text-sm text-red-500 italic">*{{ form.errors[fieldName] }}</p>
         </div>
 

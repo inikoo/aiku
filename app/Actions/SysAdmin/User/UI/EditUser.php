@@ -14,6 +14,8 @@ use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -84,18 +86,21 @@ class EditUser extends InertiaAction
 
 
         $organisations = $user->group->organisations;
-        $reviewData = $organisations->mapWithKeys(function ($organisation) {
+        $reviewData    = $organisations->mapWithKeys(function ($organisation) {
             return [$organisation->slug => [
-                'job_positions' => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
+                'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
+                'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
                     return [$jobPosition->slug => [
-                        'job_position' => $jobPosition->name,
-                        'roles'        => $jobPosition->stats->number_roles
+                        'job_position'        => $jobPosition->name,
+                        'number_roles'        => $jobPosition->stats->number_roles
                     ]];
                 })
             ]];
         })->toArray();
 
-        dd($reviewData);
+        $organisationList = OrganisationsResource::collection($organisations);
+
+        // dd($reviewData);
 
         return Inertia::render("EditModel", [
             "title"       => __("user"),
@@ -156,6 +161,14 @@ class EditUser extends InertiaAction
                                 "full"              => true,
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
+                                'organisation_list' => $organisationList,
+                                'updateRoute'       => [
+                                    'method'     => 'patch',
+                                    "name"       => "grp.models.user.other-organisation.update",
+                                    'parameters' => [
+                                        'user' => $user->id
+                                    ]
+                                ],
                                 "label"             => __("permissions"),
                                 'options'           => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
                                     return [
@@ -172,7 +185,12 @@ class EditUser extends InertiaAction
                                     // 'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                                     // 'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                                 ,
-                                "value"             => $permissions,
+                                // "value"             => $permissions,
+                                "value"             => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
+                                    return [
+                                        $organisation->slug         => new \stdClass()
+                                    ];
+                                }),
                                 "fullComponentArea" => true,
                             ],
                         ],

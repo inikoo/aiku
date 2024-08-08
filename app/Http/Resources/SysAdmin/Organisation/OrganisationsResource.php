@@ -26,7 +26,7 @@ class OrganisationsResource extends JsonResource
         $organisation = $this;
 
         return [
-
+            'id'                               => $organisation->id,
             'slug'                             => $organisation->slug,
             'name'                             => $organisation->name,
             'type'                             => $organisation->type,
