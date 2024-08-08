@@ -62,11 +62,14 @@ class SyncStoredItemPallet extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $pallets = [];
         foreach ($request->input('pallets') as $pallet) {
-            $this->set('pallets', [$pallet['pallet'] => [
+            $pallets[$pallet['pallet']] = [
                 'quantity' => $pallet['quantity']
-            ]]);
+            ];
         }
+
+        $this->set('pallets', $pallets);
     }
 
     public function asController(StoredItem $storedItem, ActionRequest $request): void
