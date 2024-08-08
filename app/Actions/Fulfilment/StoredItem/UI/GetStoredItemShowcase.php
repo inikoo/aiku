@@ -22,12 +22,11 @@ class GetStoredItemShowcase
             'stored_item'         => StoredItemResource::make($storedItem)->getArray(),
             'pieData'             => $this->getDashboardData($storedItem),
             'route_pallets'       => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.stored-item.index',
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
                 'parameters' => [
                     'organisation'         => $storedItem->organisation->slug,
                     'fulfilment'           => $storedItem->fulfilment->slug,
-                    'fulfilmentCustomer'   => $storedItem->fulfilmentCustomer->slug,
-                    'storedItem'           => $storedItem->slug
+                    'fulfilmentCustomer'   => $storedItem->fulfilmentCustomer->slug
                 ]
             ]
         ];
