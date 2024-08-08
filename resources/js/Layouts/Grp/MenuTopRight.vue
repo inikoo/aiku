@@ -10,10 +10,9 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faDoorOpen } from '@far'
 import { faCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faDoorOpen, faCircle)
+library.add(faCircle)
 
 const Profile = defineAsyncComponent(() => import("@/Pages/Grp/Profile.vue"))
 
