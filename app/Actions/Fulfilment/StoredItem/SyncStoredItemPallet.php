@@ -13,7 +13,6 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -48,8 +47,7 @@ class SyncStoredItemPallet extends OrgAction
     {
         return [
             'pallets'            => ['sometimes', 'array'],
-            'pallets.*.quantity' => ['required', 'integer', 'min:1'],
-            'pallets.*.location' => ['required', 'integer', Rule::exists('locations', 'id')]
+            'pallets.*.quantity' => ['required', 'integer', 'min:1']
         ];
     }
 
@@ -65,9 +63,8 @@ class SyncStoredItemPallet extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         foreach ($request->input('pallets') as $pallet) {
-            $this->set('pallets', [$pallet->pallet => [
-                'quantity' => $pallet->quantity,
-                'location' => $pallet->location
+            $this->set('pallets', [$pallet['pallet'] => [
+                'quantity' => $pallet['quantity']
             ]]);
         }
     }
