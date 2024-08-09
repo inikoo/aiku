@@ -512,7 +512,7 @@ const isRadioChecked = (subDepartmentSlug: string) => {
 
 <template>
     <div class="relative">
-        <!-- ful:{{ fulfilmentLength }} -- shop:{{ shopLength }} -- warehouse:{{ warehouseLength }} -- production:{{ productionLength }} -->
+        authorised fulfilment: {{ fulfilmentLength }} <br> authorised shop: {{ shopLength }} <br> authorised warehouse: {{ warehouseLength }} <br> authorised production: {{ productionLength }}
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
                 <div v-if="(departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
