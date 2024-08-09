@@ -213,7 +213,6 @@ class ShowDashboard
                 return $responseData;
             })
         ];
-
         return Inertia::render(
             'Dashboard/Dashboard',
             [
@@ -245,7 +244,7 @@ class ShowDashboard
     public function calculatePercentageIncrease($thisYear, $lastYear)
     {
         if ($lastYear == 0) {
-            return $thisYear > 0 ? INF : 0;
+            return $thisYear > 0 ? null : 0;
         }
 
         $percentageIncrease = (($thisYear - $lastYear) / $lastYear) * 100;
