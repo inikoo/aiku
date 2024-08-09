@@ -102,7 +102,7 @@ class ShowDashboard
                 return $responseData;
             })
         ];
-        dd($sales);
+
         return Inertia::render(
             'Dashboard/Dashboard',
             [
