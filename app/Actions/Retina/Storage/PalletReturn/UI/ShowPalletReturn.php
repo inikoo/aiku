@@ -241,6 +241,13 @@ class ShowPalletReturn extends RetinaAction
                         'scope'          => $palletReturn->slug
                     ]
                 ],
+                'stored_item_list_route'   => [
+                    'name'       => 'retina.json.fulfilment.return.stored-items',
+                    'parameters' => [
+                        'fulfilment'     => $palletReturn->fulfilment->slug,
+                        'scope'          => $palletReturn->slug
+                    ]
+                ],
 
 
                 'updateRoute' => [

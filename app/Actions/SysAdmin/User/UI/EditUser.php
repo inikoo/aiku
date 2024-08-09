@@ -84,7 +84,7 @@ class EditUser extends InertiaAction
 
 
         $organisations = $user->group->organisations;
-        $reviewData = $organisations->mapWithKeys(function ($organisation) {
+        $reviewData    = $organisations->mapWithKeys(function ($organisation) {
             return [$organisation->slug => [
                 'job_positions' => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
                     return [$jobPosition->slug => [
