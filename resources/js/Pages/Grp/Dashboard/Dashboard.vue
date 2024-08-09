@@ -125,39 +125,8 @@ const tabs = [
     { name: 'Billing', href: '#', current: false },
 ]
 
-// Method: to check the data is increase of decrease based on last year data
-const isUpOrDown = (orgData: {}, keyName: string | null): string => {
-    const currentNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}`], 0))
-    const lastyearNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}_ly`], 0))
-    
-    if (!currentNumber) return 'nodata'
-    
-    else if (lastyearNumber > currentNumber) {
-        return 'decreased'
-    } else if (lastyearNumber < currentNumber) {
-        return 'increased'
-    } else {
-        return 'same'
-    }
-}
 
-// Method: to retrive the percentage based on last year data
-const calcPercentage = (orgData: {}, keyName: string | null) => {
-    const currentNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}`], 0))
-    const lastyearNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}_ly`], 0))
 
-    // console.log(currentNumber, lastyearNumber)
-
-    if (!currentNumber && lastyearNumber) {
-        return -100 // Percentage change is infinite if currentNumber is 0
-    } else if (currentNumber && !lastyearNumber) {
-        return 100
-    } else if (!currentNumber && !lastyearNumber) {
-        return 0
-    }
-
-    return ((lastyearNumber - currentNumber) / currentNumber) * 100
-}
 
 
 const groupCurrency = [
@@ -185,7 +154,7 @@ const groupCurrency = [
 
             <div v-if="false" class="grid grid-cols-2">
                 <!-- Sections: Tabs -->
-                <nav v-if="true" class="rounded-md overflow-hidden isolate flex divide-x divide-gray-200 border border-gray-100 w-fit" aria-label="Tabs">
+                <nav v-if="true" class="rounded-md overflow-hidden isolate flex divide-x divide-gray-200 w-fit" aria-label="Tabs">
                     <div v-for="(tab, tabIdx) in tabs" :key="tab.name"
                         @click="selectedTabGraph = tabIdx"
                         class="group relative flex-1 py-2 px-4 text-center text-sm font-medium focus:z-10 cursor-pointer transition-all"
@@ -229,103 +198,88 @@ const groupCurrency = [
             </div>
 
             
-            <div class="border border-gray-300 rounded-t-lg">
-                <table class="min-w-full divide-y divide-gray-400">
-                    <thead class="">
-                        <tr class="rounded-full">
-                            <!-- Radio: Show currency group/org -->
-                            <td colspan="4" class="px-2 py-2">
-                                <div class="flex items-center gap-x-2 text-sm">
-                                    <div @click="currencyValue = 'group'"
-                                        class="px-1 select-none cursor-pointer whitespace-nowrap"
-                                        :class="currencyValue === 'group' ? 'text-indigo-600' : 'text-gray-400'">
-                                        {{ useGetCurrencySymbol(groupStats.currency.code) }}
-                                    </div>
-                                    <div class="border border-indigo-300 w-fit rounded-full overflow-hidden">
-                                        <RadioGroup v-model="currencyValue" class="grid grid-cols-2">
-                                            <RadioGroupOption v-for="curr in groupCurrency" as="template" :key="curr.name" :value="curr.name" v-slot="{ active, checked }">
-                                                <div class="select-none cursor-pointer focus:outline-none flex items-center justify-center py-2 px-3 text-xs font-semibold uppercase sm:flex-1"
-                                                    :class="[checked ? 'bg-indigo-200 hover:bg-indigo-300' : 'bg-white hover:bg-indigo-50']">
-                                                    {{ curr.label }}
-                                                </div>
-                                            </RadioGroupOption>
-                                        </RadioGroup>
-                                    </div>
-                                    <div @click="currencyValue = 'organisation'"
-                                        class="select-none cursor-pointer whitespace-nowrap"
-                                        :class="currencyValue === 'organisation' ? 'text-indigo-600' : 'text-gray-400'">
-                                        <span v-for="org in [...new Set(groupStats.organisations.filter(org => org.type != 'agent').map(org => org.currency.code))]">
-                                            {{ useGetCurrencySymbol(org) }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </td>
-                
-                            <td colspan="4" class="px-2 py-2">
-                                <div class="flex flex-wrap justify-end gap-x-1.5 gap-y-2">
-                                    <div v-for="(xxxdate, idxXxxdate) in dateOptions" :key="xxxdate.value + idxXxxdate"
-                                        @click="() => selectedDateOption = xxxdate.value"
-                                        v-tooltip="xxxdate.label"
-                                        class="h-fit text-xs select-none whitespace-nowrap py-1 px-2.5 rounded-md w-fit cursor-pointer"
-                                        :class="xxxdate.value === selectedDateOption ? 'bg-indigo-500 text-white border border-transparent' : 'border border-gray-200  hover:bg-gray-200'"
-                                    >
-                                        {{ xxxdate.value }}
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+            <div class="rounded-t-lg">
+                <!-- Section: Date options -->
+                <div class="hidden sm:block">
+                    <nav class="isolate flex rounded-lg shadow" aria-label="Tabs">
+                        <div
+                            v-for="(xxxdate, idxXxxdate) in dateOptions"
+                            :key="idxXxxdate"
+                            @click="() => selectedDateOption = xxxdate.value"
+                            :class="[
+                                xxxdate.value === selectedDateOption ? '' : 'text-gray-500 hover:text-gray-700',
+                                idxXxxdate === 0 ? 'rounded-l-lg' : '',
+                                idxXxxdate === tabs.length - 1 ? 'rounded-r-lg' : '',
+                            ]"
+                                class='relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10'
+                            >
+                            <span>{{ xxxdate.value }}</span>
+                            <span aria-hidden="true" :class="[xxxdate.value === selectedDateOption ? 'bg-indigo-500' : 'bg-transparent', 'absolute inset-x-0 bottom-0 h-0.5']" />
+                        </div>
+                    </nav>
+                </div>
 
-                        <tr  class="bg-gray-100 relative divide-x divide-gray-200 text-gray-400"
+                <!-- <div class="flex flex-wrap justify-end gap-x-1.5 gap-y-2">
+                    <div v-for="(xxxdate, idxXxxdate) in dateOptions" :key="xxxdate.value + idxXxxdate"
+                        @click="() => selectedDateOption = xxxdate.value"
+                        v-tooltip="xxxdate.label"
+                        class="h-fit text-xs select-none whitespace-nowrap py-1 px-2.5 rounded-md w-fit cursor-pointer"
+                        :class="xxxdate.value === selectedDateOption ? 'bg-indigo-500 text-white border border-transparent' : 'border border-gray-200  hover:bg-gray-200'"
+                    >
+                        {{ xxxdate.value }}
+                    </div>
+                </div> -->
+
+                <table class="mt-2 border border-gray-300 rounded-md min-w-full divide-y divide-gray-400">
+                    <thead class="">
+
+                        <tr  class="text-sm bg-gray-100 relative divide-x divide-gray-200 text-gray-400"
                             :style="{
                                 backgroundColor: layout.app.theme[4],
                                 color: layout.app.theme[5]
                             }"
                         >
                             <!-- Column: Organisations -->
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left font-normal">
+                            <th scope="col" class="w-full pl-4 pr-3 text-left font-normal">
                                 Organisation
                             </th>
                 
                             <!-- Column: Refunds -->
-                            <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
+                            <th scope="col" class="px-3 text-left table-cell font-normal w-40 ">
                                 Refunds
                             </th>
                 
                             <!-- Column: Refunds LY -->
                             <Transition>
-                                <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
-                                    Refunds vs. last year
+                                <th scope="col" class="px-3 text-left sm:table-cell font-normal w-40">
+                                    &Delta;{{ trans('1y') }}
                                 </th>
                             </Transition>
                 
                             <!-- Column: Invoices -->
-                            <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
+                            <th scope="col" class="px-3 text-left table-cell font-normal w-40 ">
                                 Invoices
                             </th>
                 
                             <!-- Column: Invoices LY -->
                             <Transition>
-                                <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
-                                    Invoices vs. last year
+                                <th scope="col" class="px-3 text-left sm:table-cell font-normal w-40 ">
+                                    
+                                    &Delta;{{ trans('1y') }}
                                 </th>
                             </Transition>
                 
                             <!-- Column: Sales -->
-                            <th scope="col" class="min-w-40 px-3 py-3.5 text-left font-normal">
+                            <th scope="col" class="px-3 text-left font-normal w-40 ">
                                 Sales
                             </th>
                 
                             <!-- Column: Sales LY -->
                             <Transition>
-                                <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
-                                    vs. last year
+                                <th scope="col" class="px-3 text-left sm:table-cell font-normal w-40 ">
+                                    &Delta;{{ trans('1y') }}
                                 </th>
                             </Transition>
-                
-                            <!-- Column: Actions -->
-                            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                                <span class="sr-only">Edit</span>
-                            </th>
                         </tr>
                     </thead>
                 
@@ -333,31 +287,31 @@ const groupCurrency = [
                         <template v-for="(org, orgIdx) in groupStats.organisations" :key="org.name + orgIdx">
                             <tr v-if="org.type !== 'agent'" class="relative">
                                 <!-- Column: Organisations -->
-                                <td class="uppercase w-full max-w-0 py-4 pl-4 pr-3 text-sm sm:w-auto sm:max-w-none">
+                                <td class="uppercase w-full max-w-0 pl-4 py-1.5 pr-3 text-sm sm:w-auto sm:max-w-none">
                                     <span v-tooltip="org.name">{{ org.code }}</span>
                                 </td>
                 
                                 <!-- Column: Refunds -->
-                                <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices_type_refund || 0 }}</td>
+                                <td class="text-sm text-gray-500 table-cell text-right">{{ org.number_invoices_type_refund || 0 }}</td>
                 
                                 <!-- Column: Refunds LY -->
-                                <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
+                                <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
                                     ----
                                 </td>
                 
                                 <!-- Column: Invoices -->
-                                <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices || 0 }}</td>
+                                <td class="text-sm text-gray-500 table-cell text-right">{{ org.number_invoices || 0 }}</td>
                 
                                 <!-- Column: Invoices LY -->
                                 <Transition>
-                                    <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
+                                    <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
                                         {{ org.number_invoices_type_invoice }}
                                     </td>
                                 </Transition>
                 
                                 <!-- Column: Sales -->
-                                <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 table-cell">
-                                    <Transition name="spin-to-down" mode="out-in">
+                                <td class="overflow-hidden text-sm text-gray-500 table-cell text-right">
+                                    <!-- <Transition name="spin-to-down" mode="out-in">
                                         <div
                                             class="flex items-center gap-x-1"
                                             :class="
@@ -367,7 +321,6 @@ const groupCurrency = [
                                                     ? 'text-red-500'
                                                     : ''
                                         " :key="get(org, ['sales', `org_amount_${selectedDateOption}`], 0)">
-                                            {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption}`], 0)) }}
                                             <Tag v-if="calcPercentage(org, selectedDateOption) && isShowLastYear"
                                                     :theme="
                                                         isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
@@ -385,21 +338,23 @@ const groupCurrency = [
                                                 </template>
                                             </Tag>
                                         </div>
-                                    </Transition>
+                                    </Transition> -->
+                                    {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption}`], 0)) }}
                                 </td>
+
                                 <!-- Column: Sales LY -->
-                                <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
+                                <td class="overflow-hidden text-sm text-gray-500 lg:table-cell">
                                     <Transition name="spin-to-down" mode="out-in">
-                                        <div class="" :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
+                                        <div class=" text-right" :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
                                             <!-- groupStats.currency.code == 'GBP' -->
                                             <!-- org.currency.code == 'INR' -->
-                                            {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }}
+                                            <!-- {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }} -->
                                         </div>
                                     </Transition>
                                 </td>
                 
                                 <!-- Column: Sales Revenue -->
-                                <!-- <td class="px-3 py-4 text-sm text-gray-500 lg:table-cell tabular-nums"
+                                <!-- <td class="text-sm text-gray-500 lg:table-cell tabular-nums"
                                     :class="
                                         isUpOrDown(org, selectedDateOption) == 'increased'
                                             ? 'text-green-500'
@@ -413,12 +368,6 @@ const groupCurrency = [
                                     {{ calcPercentage(org, selectedDateOption) }}%
                                 </td> -->
                 
-                                <!-- Column: Actions -->
-                                <td class="py-4 pl-3 pr-4 text-right text-sm font-medium">
-                                    <!-- <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                        <Button label="open" />
-                                    </a> -->
-                                </td>
                             </tr>
                         </template>
                     </tbody>
