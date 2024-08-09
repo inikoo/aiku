@@ -55,7 +55,7 @@ beforeEach(function () {
 
 test('check seeded job positions', function () {
 
-    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(22);
+    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(26);
     /** @var JobPosition $jobPosition */
     $jobPosition = $this->organisation->jobPositions()->first();
     expect($jobPosition->stats)->toBeInstanceOf(JobPositionStats::class)
@@ -222,6 +222,7 @@ test('get clocking machine app qrcode', function (ClockingMachine $clockingMachi
 })->depends('create clocking machines');
 
 test('can show hr dashboard', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.hr.dashboard', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

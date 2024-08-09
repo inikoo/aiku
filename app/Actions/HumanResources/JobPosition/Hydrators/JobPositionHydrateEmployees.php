@@ -14,7 +14,6 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class JobPositionHydrateEmployees
@@ -39,11 +38,8 @@ class JobPositionHydrateEmployees
     {
 
 
-        $numberEmployees=DB::table('job_positionables')->leftJoin('employees', 'job_positionables.job_positionable_id', '=', 'employees.id')
-            ->where('job_positionable_type', 'Employee')->where('job_position_id', $jobPosition->id)->count();
-
-        $numberEmployeesWorkTime=DB::table('job_positionables')->leftJoin('employees', 'job_positionables.job_positionable_id', '=', 'employees.id')
-            ->where('job_positionable_type', 'Employee')->where('job_position_id', $jobPosition->id)->sum('share');
+        $numberEmployees        =$jobPosition->employees()->count();
+        $numberEmployeesWorkTime=$jobPosition->employees()->sum('share');
 
 
         $stats= [

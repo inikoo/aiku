@@ -37,6 +37,7 @@ class StoreGroup
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);
         SeedJobPositionCategories::run($group);
+        SeedJobPositionsScopeGroup::run($group);
         SeedStockImages::run($group);
         SeedWebBlockTypes::run($group);
         SeedPlatforms::run($group);

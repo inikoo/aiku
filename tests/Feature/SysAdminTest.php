@@ -86,10 +86,24 @@ test('create group', function () {
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
         ->and($group->webBlockTypeCategories()->count())->toBe(11)
-    ->and($group->webBlockTypes()->count())->toBe(18)
-    ->and($group->jobPositionCategories()->count())->toBe(34);
+        ->and($group->webBlockTypes()->count())->toBe(18)
+        ->and($group->jobPositionCategories()->count())->toBe(35);
+
     return $group;
 });
+
+test('group scoped job positions', function (Group $group) {
+    expect($group->jobPositions()->count())->toBe(4)
+        ->and($group->jobPositionCategories()->count())->toBe(35);
+
+    $this->artisan('group:seed-job-positions', [
+        'group' => $group->slug,
+    ])->assertSuccessful();
+
+    expect($group->jobPositions()->count())->toBe(4)
+        ->and($group->jobPositionCategories()->count())->toBe(35);
+})->depends('create group');
+
 
 test('set group logo by command', function (Group $group) {
     $this->artisan('group:logo', [
@@ -206,11 +220,31 @@ test('create guest', function (Group $group, Organisation $organisation) {
     app()->instance('group', $group);
     setPermissionsTeamId($group->id);
 
-    $guestData = Guest::factory()->definition();
+    $jobPosition1 = $group->jobPositions()->where('code', 'gp-sc')->first();
+    $jobPosition2 = $group->jobPositions()->where('code', 'admin')->where('organisation_id', $organisation->id)->first();
+    $guestData    = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
     data_set($guestData, 'password', 'secret-password');
     data_set($guestData, 'phone', '+6281212121212');
-    data_set($guestData, 'roles', ['supply-chain', 'org-shop-admin-'.$organisation->id]);
+    data_set(
+        $guestData,
+        'positions',
+        [
+            $jobPosition1->slug => [
+                'slug'   => $jobPosition1->slug,
+                'scopes' => []
+            ],
+            $jobPosition2->slug =>
+                [
+                    'slug'   => $jobPosition2->slug,
+                    'scopes' => [
+                        'organisations' => [
+                            $organisation->slug
+                        ]
+                    ]
+                ]
+        ]
+    );
 
     $guest = StoreGuest::make()->action(
         $group,
@@ -242,15 +276,26 @@ test('UserHydrateAuthorisedModels command', function (Guest $guest) {
 
 test('create guest from command', function (Group $group) {
     expect($group->sysadminStats->number_guests)->toBe(1);
+
+    $superAdminJobPosition = $group->jobPositions()->where('code', 'super-admin')->first();
+
+
+    $positions = json_encode([
+        [
+            'slug'   => $superAdminJobPosition->slug,
+            'scopes' => []
+        ],
+    ]);
+
     $this->artisan(
         'guest:create',
         [
-            'group'      => $group->slug,
-            'name'       => 'Mr Pika',
-            'username'   => 'pika',
-            '--password' => 'hello1234',
-            '--email'    => 'pika@inikoo.com',
-            '--roles'    => 'super-admin'
+            'group'       => $group->slug,
+            'name'        => 'Mr Pika',
+            'username'    => 'pika',
+            '--password'  => 'hello1234',
+            '--email'     => 'pika@inikoo.com',
+            '--positions' => $positions
         ]
     )->assertSuccessful();
 
@@ -510,7 +555,6 @@ test('update web block types', function (Group $group) {
 })->depends('create group');
 
 test('show log in', function () {
-
     $response = $this->get(route('grp.login.show'));
     $response->assertInertia(function (AssertableInertia $page) {
         $page->component('SysAdmin/Login');
@@ -518,7 +562,7 @@ test('show log in', function () {
 });
 
 test('should not show without authentication', function () {
-    $response= $this->get(route('grp.dashboard.show'));
+    $response = $this->get(route('grp.dashboard.show'));
     $response->assertStatus(302);
     $response->assertRedirect(route('grp.login.show'));
 });
@@ -544,21 +588,20 @@ test('employee job position in another organisation', function () {
         ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
 
 
-    $user=UpdateEmployeeOtherOrganisationJobPositions::make()->action(
+    $user = UpdateEmployeeOtherOrganisationJobPositions::make()->action(
         $user,
         $org2,
         [
             'positions' => [
                 [
-                'slug'  => $jobPosition1->slug,
-                'scopes'=> []
+                    'slug'   => $jobPosition1->slug,
+                    'scopes' => []
                 ]
             ]
         ]
     );
 
     /** @var Employee $employee */
-    $employee=$user->parent;
+    $employee = $user->parent;
     expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
-
 });

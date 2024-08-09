@@ -37,9 +37,7 @@ enum RolesEnum: string
     case ORGANISATIONS_MANAGER = 'organisations-manager';
 
 
-    case ORG_SHOP_ADMIN           = 'org-shop-admin';
-    case ORG_DIGITAL_AGENCY_ADMIN = 'org-digital-agency-admin';
-    case ORG_AGENT_ADMIN          = 'org-agent-admin';
+    case ORG_ADMIN                = 'org-admin';
 
     case PROCUREMENT_CLERK      = 'procurement-clerk';
     case PROCUREMENT_SUPERVISOR = 'procurement-supervisor';
@@ -107,8 +105,7 @@ enum RolesEnum: string
             RolesEnum::PROCUREMENT_SUPERVISOR          => __('Procurement supervisor'),
             RolesEnum::DISPATCH_CLERK                  => __('Dispatching clerk'),
             RolesEnum::DISPATCH_SUPERVISOR             => __('Dispatching supervisor'),
-            RolesEnum::ORG_SHOP_ADMIN                  => __('Organisation admin'),
-            RolesEnum::ORG_DIGITAL_AGENCY_ADMIN        => __('Digital agency admin'),
+            RolesEnum::ORG_ADMIN                       => __('Organisation admin'),
             RolesEnum::HUMAN_RESOURCES_CLERK           => __('Human resources clerk'),
             RolesEnum::HUMAN_RESOURCES_SUPERVISOR      => __('Human resources supervisor'),
             RolesEnum::STOCK_CONTROLLER                => __('Stock controller'),
@@ -132,7 +129,6 @@ enum RolesEnum: string
             RolesEnum::SOCIAL_CLERK                    => __('Social clerk'),
             RolesEnum::SAAS_SUPERVISOR                 => __('SAAS supervisor'),
             RolesEnum::SAAS_CLERK                      => __('SAAS clerk'),
-            RolesEnum::ORG_AGENT_ADMIN                 => __('Agent admin'),
             RolesEnum::WEBMASTER_CLERK                 => __('Webmaster clerk'),
             RolesEnum::WEBMASTER_SUPERVISOR            => __('Webmaster supervisor'),
             RolesEnum::SHOPKEEPER_CLERK                => __('Shopkeeper clerk'),
@@ -171,7 +167,7 @@ enum RolesEnum: string
                 GroupPermissionsEnum::GOODS
             ],
 
-            RolesEnum::ORG_SHOP_ADMIN => [
+            RolesEnum::ORG_ADMIN => [
                 OrganisationPermissionsEnum::ORG_REPORTS,
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
@@ -179,29 +175,13 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::ACCOUNTING,
                 OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING,
                 OrganisationPermissionsEnum::INVENTORY,
-
-            ],
-            RolesEnum::ORG_DIGITAL_AGENCY_ADMIN => [
-                OrganisationPermissionsEnum::ORG_REPORTS,
-                OrganisationPermissionsEnum::HUMAN_RESOURCES,
-                OrganisationPermissionsEnum::SUPERVISOR,
-                OrganisationPermissionsEnum::ACCOUNTING,
-                OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING,
                 OrganisationPermissionsEnum::SEO,
                 OrganisationPermissionsEnum::PPC,
                 OrganisationPermissionsEnum::SOCIAL,
                 OrganisationPermissionsEnum::SAAS
 
             ],
-            RolesEnum::ORG_AGENT_ADMIN => [
-                OrganisationPermissionsEnum::ORG_REPORTS,
-                OrganisationPermissionsEnum::PROCUREMENT,
-                OrganisationPermissionsEnum::HUMAN_RESOURCES,
-                OrganisationPermissionsEnum::SUPERVISOR,
-                OrganisationPermissionsEnum::INVENTORY,
-                OrganisationPermissionsEnum::ACCOUNTING,
-                OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING
-            ],
+
             RolesEnum::PROCUREMENT_CLERK => [
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::INVENTORY
@@ -397,7 +377,7 @@ enum RolesEnum: string
     public function scopeTypes(): array
     {
         return match ($this) {
-            RolesEnum::ORG_SHOP_ADMIN,
+            RolesEnum::ORG_ADMIN,
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
             RolesEnum::FULFILMENT_SHOP_CLERK,
             RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
@@ -410,7 +390,6 @@ enum RolesEnum: string
 
 
             => [OrganisationTypeEnum::SHOP],
-            RolesEnum::ORG_DIGITAL_AGENCY_ADMIN,
             RolesEnum::SEO_SUPERVISOR,
             RolesEnum::SEO_CLERK,
             RolesEnum::PPC_SUPERVISOR,
@@ -421,8 +400,7 @@ enum RolesEnum: string
             RolesEnum::SAAS_CLERK,
 
             => [OrganisationTypeEnum::DIGITAL_AGENCY],
-            RolesEnum::ORG_AGENT_ADMIN,
-            => [OrganisationTypeEnum::AGENT],
+
             RolesEnum::PROCUREMENT_CLERK,
             RolesEnum::PROCUREMENT_SUPERVISOR,
             RolesEnum::DISPATCH_CLERK,

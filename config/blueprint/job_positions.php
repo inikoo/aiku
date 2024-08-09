@@ -38,8 +38,8 @@ return [
         'gp-sc'    => [
             'code'               => 'gp-sc',
             'name'               => 'Supply Chain Manager',
-            'scope'              => JobPositionScopeEnum::GROUP          ,
             'department'         => 'group procurement',
+            'scope'              => JobPositionScopeEnum::GROUP ,
             'roles'              => [
                 RolesEnum::SUPPLY_CHAIN
             ],
@@ -61,7 +61,7 @@ return [
             'scope'              => JobPositionScopeEnum::ORGANISATION,
             'department'         => 'admin',
             'roles'              => [
-                RolesEnum::ORGANISATIONS_MANAGER
+                RolesEnum::ORG_ADMIN
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,

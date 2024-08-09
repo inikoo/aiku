@@ -72,11 +72,7 @@ class StoreOrganisation
                 Role::where(
                     'name',
                     RolesEnum::getRoleName(
-                        match ($organisation->type) {
-                            OrganisationTypeEnum::SHOP           => 'org-shop-admin',
-                            OrganisationTypeEnum::DIGITAL_AGENCY => 'org-digital_agency-admin',
-                            OrganisationTypeEnum::AGENT          => 'org-agent-admin',
-                        },
+                        'org-admin',
                         $organisation
                     )
                 )->where('scope_id', $organisation->id)->first()

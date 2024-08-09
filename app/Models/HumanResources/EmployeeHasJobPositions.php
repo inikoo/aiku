@@ -7,17 +7,17 @@
 
 namespace App\Models\HumanResources;
 
-use Illuminate\Database\Eloquent\Relations\MorphPivot;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  *
  *
- * @method static \Illuminate\Database\Eloquent\Builder|JobPositionable newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobPositionable newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobPositionable query()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasJobPositions newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasJobPositions newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasJobPositions query()
  * @mixin \Eloquent
  */
-class JobPositionable extends MorphPivot
+class EmployeeHasJobPositions extends Pivot
 {
     protected $guarded = [];
 

@@ -25,8 +25,6 @@ class StoreJobPositionCategory extends GrpAction
     }
 
 
-
-
     public function rules(): array
     {
         return [
@@ -53,7 +51,10 @@ class StoreJobPositionCategory extends GrpAction
     public function action(Group $group, array $modelData): JobPositionCategory
     {
         $this->asAction = true;
+
+
         $this->initialisation($group, $modelData);
+
         return $this->handle($group, $this->validatedData);
     }
 
