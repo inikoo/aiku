@@ -98,8 +98,6 @@ const props = defineProps<{
     stored_items_add_route : routeType
 }>()
 
-console.log(props)
-
 // console.log('box stats', props.box_stats)
 // console.log('notes data', props.notes_data)
 

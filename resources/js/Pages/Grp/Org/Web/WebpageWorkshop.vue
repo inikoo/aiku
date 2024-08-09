@@ -84,7 +84,6 @@ const sendOrderBlock = async (block) => {
         )
         const set = { ...response.data.data }
         data.value = set
-        console.log('saved', response)
     } catch (error: any) {
         console.error('error', error)
     }
@@ -99,7 +98,6 @@ const sendDeleteBlock = async (block) => {
         )
         const set = { ...response.data.data }
         data.value = set
-        console.log('saved', response)
     } catch (error: any) {
         console.error('error', error)
     }

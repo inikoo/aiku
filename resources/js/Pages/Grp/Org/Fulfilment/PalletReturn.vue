@@ -28,6 +28,7 @@ import { BoxStats, PDRNotes, PalletReturn, UploadPallet } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import StoredItemReturnDescriptor from  '@/Components/PalletReturn/Descriptor/StoredItemReturn.ts'
+import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 
 import { trans } from "laravel-vue-i18n"
 // import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
@@ -495,23 +496,13 @@ const isModalUploadOpen = ref(false)
 				:descriptor="storedItemDescriptor"
                 :beforeSubmit="(descriptor?: string, dataList: {}[], storedItem: number[]) => beforeSubmitStoredItem(dataList, storedItem)"
 			>
+            <template #column-quantity="{data}">
+                   <PureInputNumber v-model="data.columnData.quantity" />
+                </template>
             </TablePalletReturn>
         </div>
     </Modal>
 
-    <!-- Modal: Upload via spreadsheet -->
-    <!-- <UploadExcel
-        v-model="isModalUploadOpen"
-        information="The list of column file: customer_reference, notes, stored_items"
-        propName="pallet returns" description="Adding Pallet Returns"
-        :routes="{
-            upload: uploadRoutes.upload,
-            download: uploadRoutes.download,
-            history: uploadRoutes.history
-        }"
-        :upload
-        :required_fields="['customer_reference', 'notes', 'stored_items']"
-    /> -->
 
     <UploadExcel
         v-model="isModalUploadOpen"

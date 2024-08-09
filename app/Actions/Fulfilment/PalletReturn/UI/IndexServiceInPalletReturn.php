@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletReturn;
@@ -58,12 +59,11 @@ class IndexServiceInPalletReturn extends OrgAction
         $queryBuilder->where('fulfilment_transactions.parent_type', class_basename($palletReturn));
         $queryBuilder->where('fulfilment_transactions.parent_id', $palletReturn->id);
         $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::SERVICE->value);
-        $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
-        $queryBuilder->join('historic_assets', 'fulfilment_transactions.historic_asset_id', '=', 'historic_assets.id');
+        $queryBuilder->leftjoin('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->leftjoin('historic_assets', 'fulfilment_transactions.historic_asset_id', '=', 'historic_assets.id');
 
-        $queryBuilder->join('services', 'assets.model_id', '=', 'services.id');
-        $queryBuilder->join('currencies', 'services.currency_id', '=', 'currencies.id');
-
+        $queryBuilder->leftjoin('services', 'assets.model_id', '=', 'services.id');
+        $queryBuilder->leftjoin('rental_agreement_clauses', 'fulfilment_transactions.rental_agreement_clause_id', '=', 'rental_agreement_clauses.id');
 
 
 
@@ -77,32 +77,32 @@ class IndexServiceInPalletReturn extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('services.id')
-            ->select([
-                'fulfilment_transactions.id',
-                'fulfilment_transactions.asset_id',
-                'fulfilment_transactions.type as asset_type',
-                'fulfilment_transactions.historic_asset_id',
-                'fulfilment_transactions.net_amount',
-                'services.slug as asset_slug',
-                'historic_assets.code as asset_code',
-                'historic_assets.name as asset_name',
-                'historic_assets.price as asset_price',
-                'historic_assets.unit as asset_unit',
-                'historic_assets.units as asset_units',
-
-                'fulfilment_transactions.quantity',
-                'fulfilment_transactions.parent_id  as pallet_delivery_id',
-                'currencies.code as currency_code',
-                'fulfilment_transactions.is_auto_assign',
+        ->defaultSort('code')
+        ->select([
+            'fulfilment_transactions.id',
+            'fulfilment_transactions.asset_id',
+            'fulfilment_transactions.net_amount',
+            'fulfilment_transactions.historic_asset_id',
+            'services.slug as asset_slug',
+            'historic_assets.code as code',
+            'historic_assets.name as name',
+            'historic_assets.price as price',
+            'historic_assets.unit as unit',
+            'historic_assets.units as units',
+            'fulfilment_transactions.quantity',
+            'fulfilment_transactions.parent_id  as pallet_return_id',
+            'fulfilment_transactions.is_auto_assign',
+            'rental_agreement_clauses.percentage_off as discount'
 
 
-            ]);
+        ]);
+        $queryBuilder->selectRaw("'{$palletReturn->currency->code}'  as currency_code");
 
-        return $queryBuilder->allowedSorts(['id', 'name'])
-            ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
-            ->withQueryString();
+
+    return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
+        ->allowedFilters([$globalSearch])
+        ->withPaginator($prefix)
+        ->withQueryString();
     }
 
     public function tableStructure(
@@ -135,13 +135,13 @@ class IndexServiceInPalletReturn extends OrgAction
             ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
             ->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
-            ->defaultSort('id');
+            ->defaultSort('code');
         };
     }
 
 
     public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
     {
-        return FulfilmentTransactionResource::collection($services);
+        return FulfilmentTransactionsResource::collection($services);
     }
 }

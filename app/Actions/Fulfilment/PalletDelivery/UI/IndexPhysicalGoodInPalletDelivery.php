@@ -129,7 +129,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->defaultSort('id');
+                ->defaultSort('code');
             if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello');
             }
