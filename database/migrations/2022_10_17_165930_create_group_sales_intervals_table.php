@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->salesIntervalFields($table, ['group_amount']);
+            $table = $this->salesIntervalFields($table, ['group_amount','invoices','refunds']);
             $table->timestampsTz();
         });
     }
