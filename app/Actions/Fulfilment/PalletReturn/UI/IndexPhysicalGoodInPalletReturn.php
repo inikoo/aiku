@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -91,7 +90,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
                 'fulfilment_transactions.is_auto_assign',
                 'rental_agreement_clauses.percentage_off as discount'
             ]);
-            $queryBuilder->selectRaw("'{$palletReturn->currency->code}'  as currency_code");
+        $queryBuilder->selectRaw("'{$palletReturn->currency->code}'  as currency_code");
 
         return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
             ->allowedFilters([$globalSearch])

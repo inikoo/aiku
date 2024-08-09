@@ -16,6 +16,7 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -31,7 +32,7 @@ class IndexStoredItems extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
 
-    public function handle(Organisation|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -48,6 +49,10 @@ class IndexStoredItems extends OrgAction
             ->when($parent, function ($query) use ($parent) {
                 if($parent instanceof FulfilmentCustomer) {
                     $query->where('fulfilment_customer_id', $parent->id);
+                }
+
+                if($parent instanceof Fulfilment) {
+                    $query->where('fulfilment_id', $parent->id);
                 }
             })
             ->allowedSorts(['slug', 'state'])
@@ -176,6 +181,12 @@ class IndexStoredItems extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($fulfilmentCustomer, 'stored_items');
+    }
+
+    public function inApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($fulfilment, 'stored_items');
     }
 
     /** @noinspection PhpUnusedParameterInspection */

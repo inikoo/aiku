@@ -11,7 +11,6 @@ use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -95,7 +94,7 @@ class IndexServiceInPalletDelivery extends OrgAction
 
 
             ]);
-            $queryBuilder->selectRaw("'{$palletDelivery->currency->code}'  as currency_code");
+        $queryBuilder->selectRaw("'{$palletDelivery->currency->code}'  as currency_code");
 
 
         return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])

@@ -11,8 +11,12 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletStoredItem;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -22,7 +26,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletStoredItems extends OrgAction
 {
-    public function handle(FulfilmentCustomer $fulfilmentCustomer): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Pallet $parent): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -37,7 +41,14 @@ class IndexPalletStoredItems extends OrgAction
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
         $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
-        $queryBuilder->where('stored_items.fulfilment_customer_id', $fulfilmentCustomer->id);
+
+        if($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
+        }
+
+        if($parent instanceof Pallet) {
+            $queryBuilder->where('pallet_stored_items.pallet_id', $parent->id);
+        }
 
         $queryBuilder
             ->defaultSort('pallet_stored_items.id')
@@ -115,6 +126,12 @@ class IndexPalletStoredItems extends OrgAction
         return $this->handle($fulfilmentCustomer);
     }
 
+    public function inApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($pallet->fulfilment, $request);
+
+        return $this->handle($pallet);
+    }
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {

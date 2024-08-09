@@ -22,9 +22,9 @@ class ShowDashboard
     {
 
         /** @var Group $group */
-        $group = Group::first();
+        $group   = Group::first();
         $testOrg = $group->organisations->skip(1)->first();
-        $sales = [
+        $sales   = [
             'sales'         => JsonResource::make($group->salesStats),
             'currency'      => $group->currency,
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
@@ -98,7 +98,7 @@ class ShowDashboard
                         ],
                     ];
                 }
-        
+
                 return $responseData;
             })
         ];
