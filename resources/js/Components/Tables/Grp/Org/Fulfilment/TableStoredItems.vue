@@ -48,7 +48,7 @@ function storedItemRoute(storedItem) {
                 <Icon  :data="palletDelivery['state_icon']" class="px-1" />
         </template>
         
-        <  <template #cell(actions)="{ item: value }">
+        <template #cell(actions)="{ item: value }">
             <div v-if="value.state == 'in-process' || route().current() == 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show'">
                 <Link
                     :href="route(value.deleteRoute.name, value.deleteRoute.parameters)"

@@ -28,9 +28,9 @@ import { kebabCase } from 'lodash'
 import CountUp from 'vue-countup-v3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCheckSquare, faCheck } from '@fal'
+import { faCheckSquare, faCheck, faSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faCheckSquare, faCheck)
+library.add(faCheckSquare, faCheck, faSquare)
 
 const locale = inject('locale', {})
 
@@ -608,14 +608,20 @@ const selectRow: {[key: string]: boolean} = reactive({})
 // To preserve the object selectRow
 if (props.isCheckBox) {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = false
+        selectRow[props.resource.data[row].id] = {
+            data : props.resource.data[row],
+            checked : false
+        }
     }
 }
 
 // On select select all
 const onClickSelectAll = (state: boolean) => {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = !state
+        selectRow[props.resource.data[row].id] = {
+            data : props.resource.data[row],
+            checked : !state
+        } 
     }
 }
 
@@ -805,10 +811,10 @@ watch(selectRow, () => {
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
                                     <div v-if="isCheckBox"
-                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
+                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value.checked === true))"
                                         class="py-1.5 cursor-pointer">
                                         <FontAwesomeIcon
-                                            v-if="Object.values(selectRow).every((value) => value === true)"
+                                            v-if="Object.values(selectRow).every((value) => value.checked === true)"
                                             icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width
                                             aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
@@ -834,14 +840,14 @@ watch(selectRow, () => {
                                         ]">
                                             <!-- Column: Check box -->
                                             <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
-                                                <div v-if="selectRow[item.id]"
+                                                <div v-if="selectRow[item.id].checked"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
-                                                <FontAwesomeIcon v-if="selectRow[item.id] === true"
-                                                    @click="selectRow[item.id] = !selectRow[item.id]"
+                                                <FontAwesomeIcon v-if="selectRow[item.id].checked === true"
+                                                    @click="selectRow[item.id].checked = !selectRow[item.id].checked"
                                                     icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                                 <FontAwesomeIcon v-else
-                                                    @click="selectRow[item.id] = !selectRow[item.id]"
+                                                    @click="selectRow[item.id].checked = !selectRow[item.id].checked"
                                                     icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                             </td>
