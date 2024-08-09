@@ -75,12 +75,11 @@ const currentTab = ref('')
 const component = computed(() => {
     const components: Component = {
         todo: ProfileTodo,
-        dashboard: ProfileDashboard,
         notifications: TableNotifications,
         kpi: ProfileKPIs,
         visit_logs: TableUserRequestLogs,
         timesheets: TableTimesheets,
-        my_data: ProfileShowcase,
+        dashboard: ProfileShowcase,
         history: TableHistories,
     }
 
