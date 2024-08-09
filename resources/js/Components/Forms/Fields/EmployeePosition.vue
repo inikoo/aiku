@@ -78,7 +78,13 @@ const props = defineProps<{
             data: TypeWarehouse[]
         }
     }
-    fieldData?: {
+    fieldData: {
+        list_authorised: {
+            authorised_shops: number
+            authorised_fulfilments: number
+            authorised_warehouses: number
+            authorised_productions: number
+        }
     }
 }>()
 
@@ -483,20 +489,16 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
     }
 }
 
-const fulfilmentLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length || 0
-const shopLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.length || 0
-const warehouseLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || 0
-const productionLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_productions.length || 0
+const shopLength = props.fieldData.list_authorised.authorised_shops
+const fulfilmentLength = props.fieldData.list_authorised.authorised_fulfilments
+const warehouseLength = props.fieldData.list_authorised.authorised_warehouses
+const productionLength = props.fieldData.list_authorised.authorised_productions
 
-// console.log('===', layout.organisations.data)
-// console.log('===', layout.currentParams)
-// console.log('===', fulfilmentLength)
 </script>
 
 <template>
     <div class="relative">
-        ful:{{ fulfilmentLength }} -- shop:{{ shopLength }} -- warehouse:{{ warehouseLength }} -- production:{{ productionLength }}
-    <pre>{{ fieldData.length }}</pre>
+        <!-- ful:{{ fulfilmentLength }} -- shop:{{ shopLength }} -- warehouse:{{ warehouseLength }} -- production:{{ productionLength }} -->
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
                 <div v-if="(departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">

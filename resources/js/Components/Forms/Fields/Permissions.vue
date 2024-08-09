@@ -20,7 +20,12 @@ const props = defineProps<{
     fieldName: string
     options?: any
     fieldData?: {
-        
+        list_authorised: {
+            authorised_shops: number
+            authorised_fulfilments: number
+            authorised_warehouses: number
+            authorised_productions: number
+        }
     }
 }>()
 
@@ -37,30 +42,6 @@ const handleBox = (shopsSelected: string[], shopSlug: string) => {
     // }
 }
 
-// const xxx = [
-//     {
-//         "Super admin": {
-//             "organisations": ['awa', 'aw']
-//         }
-//     }
-// ]
-
-// const abc = {
-//     "Human resources supervisor": {
-//         "Ancient Wisdom": {
-//             "shops": ['uk', 'ed', 'awa'],
-//             "warehouse": ['ed'],
-//         },
-//         "AW Gifts": {
-//             "fulfilment": ['awf', 'es'],
-//         }
-//     },
-//     "Super Admin": {
-//         "AW Europe": {
-//             "warehouse": ['ed', 'bl'],
-//         }
-//     }
-// }
 
 const organisation = [
     {
@@ -81,7 +62,6 @@ const organisation = [
     },
 ]
 const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
-console.log('ppp', props.fieldData)
 
 </script>
 
@@ -110,8 +90,11 @@ console.log('ppp', props.fieldData)
                 <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
                     <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">
                         <EmployeePosition
-                            :key="'employeePosition' + review.slug " :form="form[fieldName]" :fieldData
-                            :fieldName="review.slug" :options="options?.[review.slug]" />
+                            :key="'employeePosition' + review.slug "
+                            :form="form[fieldName]"
+                            :fieldData
+                            :fieldName="review.slug"
+                            :options="options?.[review.slug]" />
                     </div>
                     <div v-else class="text-center border border-gray-300 rounded-md mb-2">
                         No data positions

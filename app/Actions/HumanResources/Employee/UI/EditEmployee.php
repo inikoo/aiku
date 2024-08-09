@@ -133,19 +133,19 @@ class EditEmployee extends OrgAction
                     'required'    => true
                 ],
                 'positions' => [
-                    'type'     => 'employeePosition',
-                    'required' => true,
-                    'label'    => __('position'),
-                    'length'        =>   [
-                                            'authorised_shops' =>
-                                                $request->user()->authorisedShops()->where('organisation_id', $this->organisation->id)->count() ?? 0,
-                                            'authorised_fulfilments' =>
-                                                $request->user()->authorisedFulfilments()->where('organisation_id', $this->organisation->id)->count() ?? 0,
-                                            'authorised_warehouses' =>
-                                                $request->user()->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count() ?? 0,
-                                            'authorised_productions' =>
-                                                $request->user()->authorisedProductions()->where('organisation_id', $this->organisation->id)->count() ?? 0
-                                        ],
+                    'type'                   => 'employeePosition',
+                    'required'               => true,
+                    'label'                  => __('position'),
+                    'list_authorised'        => [
+                        'authorised_shops' =>
+                            $request->user()->authorisedShops()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                        'authorised_fulfilments' =>
+                            $request->user()->authorisedFulfilments()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                        'authorised_warehouses' =>
+                            $request->user()->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                        'authorised_productions' =>
+                            $request->user()->authorisedProductions()->where('organisation_id', $this->organisation->id)->count() ?? 0
+                    ],
 
                     'options'  => [
                         'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
@@ -221,7 +221,7 @@ class EditEmployee extends OrgAction
         if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
             $currentSection = $request->get('section');
         }
-        
+
 
         return Inertia::render(
             'EditModel',

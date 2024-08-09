@@ -173,7 +173,7 @@ class EditUser extends InertiaAction
                                         'user' => $user->id
                                     ]
                                 ],
-                                'length'        => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                'list_authorised'        => Organisation::get()->flatMap(function (Organisation $organisation) {
                                     return [
                                         $organisation->slug         => [
                                             'authorised_shops' => ShopsNavigationResource::collection(
