@@ -21,6 +21,7 @@ use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
@@ -408,12 +409,12 @@ class ShowPalletDelivery extends RetinaAction
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
 
                 PalletDeliveryTabsEnum::SERVICES->value => $this->tab == PalletDeliveryTabsEnum::SERVICES->value ?
-                    fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))),
+                    fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))
+                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))),
 
                 PalletDeliveryTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletDeliveryTabsEnum::PHYSICAL_GOODS->value ?
-                    fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
-                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
+                    fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
+                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(

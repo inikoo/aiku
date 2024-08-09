@@ -12,6 +12,7 @@ use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\PalletDelivery;
@@ -59,12 +60,10 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
         $queryBuilder->where('fulfilment_transactions.parent_type', class_basename($palletDelivery));
         $queryBuilder->where('fulfilment_transactions.parent_id', $palletDelivery->id);
         $queryBuilder->where('fulfilment_transactions.type', FulfilmentTransactionTypeEnum::PRODUCT->value);
-        $queryBuilder->join('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
-        $queryBuilder->join('historic_assets', 'fulfilment_transactions.historic_asset_id', '=', 'historic_assets.id');
-
-        $queryBuilder->join('products', 'assets.model_id', '=', 'products.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
-        $queryBuilder->join('rental_agreement_clauses', 'fulfilment_transactions.rental_agreement_clause_id', '=', 'rental_agreement_clauses.id');
+        $queryBuilder->leftjoin('assets', 'fulfilment_transactions.asset_id', '=', 'assets.id');
+        $queryBuilder->leftjoin('historic_assets', 'fulfilment_transactions.historic_asset_id', '=', 'historic_assets.id');
+        $queryBuilder->leftjoin('products', 'assets.model_id', '=', 'products.id');
+        $queryBuilder->leftjoin('rental_agreement_clauses', 'fulfilment_transactions.rental_agreement_clause_id', '=', 'rental_agreement_clauses.id');
 
         foreach ($this->getElementGroups($palletDelivery) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -81,23 +80,21 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'fulfilment_transactions.id',
                 'fulfilment_transactions.asset_id',
                 'fulfilment_transactions.net_amount',
-                'fulfilment_transactions.type as asset_type',
                 'fulfilment_transactions.historic_asset_id',
                 'products.slug as asset_slug',
-                'historic_assets.code as asset_code',
-                'historic_assets.name as asset_name',
-                'historic_assets.price as asset_price',
-                'historic_assets.unit as asset_unit',
-                'historic_assets.units as asset_units',
-
+                'historic_assets.code as code',
+                'historic_assets.name as name',
+                'historic_assets.price as price',
+                'historic_assets.unit as unit',
+                'historic_assets.units as units',
                 'fulfilment_transactions.quantity',
                 'fulfilment_transactions.parent_id  as pallet_delivery_id',
-                'currencies.code as currency_code',
                 'fulfilment_transactions.is_auto_assign',
                 'rental_agreement_clauses.percentage_off as discount'
             ]);
+            $queryBuilder->selectRaw("'{$palletDelivery->currency->code}'  as currency_code");
 
-        return $queryBuilder->allowedSorts(['id','name'])
+        return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -142,6 +139,6 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection
     {
-        return FulfilmentTransactionResource::collection($physicalGoods);
+        return FulfilmentTransactionsResource::collection($physicalGoods);
     }
 }
