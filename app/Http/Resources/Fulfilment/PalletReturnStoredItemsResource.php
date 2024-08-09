@@ -35,13 +35,13 @@ class PalletReturnStoredItemsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'                               => $this->id,
-            'slug'                             => $this->slug,
-            'reference'                        => $this->reference,
-            'state'                            => $this->state,
+            'id'                                => $this->id,
+            'slug'                              => $this->slug,
+            'reference'                         => $this->reference,
+            'state'                             => $this->state,
             'state_icon'                        => $this->state->stateIcon()[$this->state->value],
-            'quantity'                         => (int) $this->quantity,
-            'deleteRoute'                      => match (request()->routeIs('retina.*')) {
+            'quantity'                          => (int) $this->quantity,
+            'deleteRoute'                       => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return.stored-item.delete',
                     'parameters' => [$this->pallet_return_id, $this->pallet_id]

@@ -19,4 +19,4 @@ Route::get('fulfilment/{fulfilment}/return/{scope}/physical-goods', [GetFulfilme
 
 Route::get('fulfilment/return/pallets', [GetReturnPallets::class, 'fromRetina'])->name('fulfilment.return.pallets');
 
-Route::get('fulfilment/{fulfilment}/return/{palletReturn}/stored-items', [GetReturnStoredItems::class, 'fromRetina'])->name('fulfilment.return.stored-items');
+Route::get('fulfilment/{fulfilment}/return/{scope}/stored-items', [GetReturnStoredItems::class, 'fromRetina'])->name('fulfilment.return.stored-items');

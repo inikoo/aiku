@@ -167,6 +167,12 @@ class ShowPalletReturn extends RetinaAction
                                     'style'   => 'secondary',
                                     'icon'    => 'fal fa-plus',
                                     'label'   => __('add Stored Item'),
+                                    'route'   => [
+                                        'name'       => 'retina.models.pallet-return.stored_item.store',
+                                        'parameters' => [
+                                            'palletReturn'       => $palletReturn->id
+                                        ]
+                                    ]
                                 ],
                                 [
                                     'type'  => 'button',
