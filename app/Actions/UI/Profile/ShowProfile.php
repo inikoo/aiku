@@ -76,7 +76,7 @@ class ShowProfile extends GrpAction
                 ],
 
                 // pls fix the current tab
-                ProfileTabsEnum::MY_DATA->value => $this->tab == ProfileTabsEnum::MY_DATA->value ?
+                ProfileTabsEnum::DASHBOARD->value => $this->tab == ProfileTabsEnum::DASHBOARD->value ?
                     fn () => GetProfileShowcase::run($user)
                     : Inertia::lazy(fn () => GetProfileShowcase::run($user)),
 
