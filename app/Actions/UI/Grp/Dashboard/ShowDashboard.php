@@ -27,6 +27,11 @@ class ShowDashboard
         $sales   = [
             'sales'         => JsonResource::make($group->salesStats),
             'currency'      => $group->currency,
+            'total'         => [
+                'total_invoices' => $group->salesStats->number_invoices_type_invoice,
+                'total_refunds'  => $group->salesStats->number_invoices_type_refund,
+                'total_sales'    => $group->salesIntervals->group_amount_all
+            ],
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
                 // Initialize the response data
                 $responseData = [
@@ -40,7 +45,7 @@ class ShowDashboard
                     ],
                     'refunds' => [
                         'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
-                    ]
+                    ],
                 ];
                 if ($organisation->salesIntervals !== null) {
                     $responseData['interval_percentages'] = [
