@@ -94,13 +94,13 @@ const onDeleteTransaction = (idFulfilmentTransaction: number) => {
     <Table :key="tab" :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item }">
-            {{ item.asset_code || '-' }}
+            {{ item.code || '-' }}
         </template>
 
         <!-- Column: Name -->
         <template #cell(name)="{ item }">
-            {{ item['asset_name'] }} ({{ useLocaleStore().currencyFormat(item['currency_code'],
-                item['asset_price'])}}/{{ item['unit_abbreviation'] }})
+            {{ item['name'] }} ({{ useLocaleStore().currencyFormat(item['currency_code'],
+                item['price'])}}/{{ item['unit_abbreviation'] }})
             <Tag v-if="item['discount'] > 0" :theme="17">
                 <template #label>
                     <font-awesome-icon :icon="faTag" class="text-xs text-emerald-700"/>
