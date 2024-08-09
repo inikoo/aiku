@@ -12,21 +12,21 @@
   import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
   import { Link, router } from "@inertiajs/vue3"
   import { notify } from "@kyvg/vue3-notification"
-  
+
   const props = defineProps<{
       data?: {}
       tab?: string
       state:any
-      key:any 
+      key:any
   }>()
-  
+
   const isLoading = ref<string | boolean>(false)
   const selectedRow = ref({})
 
   const onShowSelected = (ButtonData) =>{
     const finalValue = []
         for(const row in selectedRow.value){
-          if(selectedRow.value[row].checked) finalValue.push(selectedRow[row])
+          if(selectedRow.value[row].checked) finalValue.push({quantity: selectedRow.value[row].data.quantity})
         }
 
     router[ButtonData.route.method](
@@ -43,12 +43,12 @@
             }
         })
   }
-  
+
   </script>
-  
+
   <template>
       <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="true" @onSelectRow="(value)=>selectedRow = value">
-       
+
        <template #button-save="{ linkButton : value }">
        <div>
             <Button label="Show Selected" @click="()=>onShowSelected(value)"/>
@@ -79,4 +79,3 @@
 
       </Table>
   </template>
-  

@@ -665,11 +665,9 @@ class ShowPalletReturn extends OrgAction
                             'label'   => __('Save'),
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.org.shops.show.crm.customers.show.web-users.create',
+                                'name'       => 'grp.models.pallet-return.stored_item.store',
                                 'parameters' => [
-                                    $palletReturn->organisation->slug,
-                                    $palletReturn->fulfilment->shop->slug,
-                                    $palletReturn->slug
+                                    $palletReturn->organisation->id
                                 ]
                             ]
                         ]
