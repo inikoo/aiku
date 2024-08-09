@@ -134,7 +134,7 @@ defineExpose({
 
 <template>
     <div class="mb-4 text-center text-xl font-medium">
-        {{ trans('Select pallet')}}
+        {{ trans(descriptor.title)}}
     </div>
 
 	<div class="flex items-center justify-between gap-x-6 mb-4">
@@ -155,14 +155,14 @@ defineExpose({
 
         <!-- Button: Add Pallet -->
 		<div class="">
-			<Button :style="'create'" :label="`add ${descriptor.title}`" size="l" :disabled="!form[props.descriptor.key].length" :key="form[props.descriptor.key].length"
+			<Button :style="'create'" :label="`Add ${descriptor.key}`" size="l" :disabled="!form[props.descriptor.key].length" :key="form[props.descriptor.key].length"
                 :loading="isAddPalletLoading"
 				@click="onSubmitPallet" />
 		</div>
 	</div>
     
     <!-- Section: Table -->
-	<div class="h-96 overflow-auto ring-1 ring-black/5 sm:rounded-lg align-middle shadow">
+	<div class="overflow-auto ring-1 ring-black/5 sm:rounded-lg align-middle shadow" :style="{ maxHeight : '500px', minHeight: '200px'}">
         <table class="min-w-full border-separate border-spacing-0">
             <thead class="sticky top-0 z-10 bg-gray-100">
                 <tr>
@@ -226,7 +226,6 @@ defineExpose({
                             </template>
                             <template v-else>{{ defaultTo(get(pallet, [column.key]), "-") }}</template>
                         </slot>
-                        
                     </td>
                 </tr>
             </tbody>

@@ -6,6 +6,7 @@ import { useLocaleStore } from "@/Stores/locale"
 import TableStoredItemEdit from '@/Components/StoredItemMovement/TableStoredItemEdit.vue'
 import { ref } from 'vue'
 import { Link, router } from "@inertiajs/vue3"
+import { notify } from "@kyvg/vue3-notification"
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 
