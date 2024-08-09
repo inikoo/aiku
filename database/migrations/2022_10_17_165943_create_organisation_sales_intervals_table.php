@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->salesIntervalFields($table, ['org_amount', 'group_amount', 'invoices', 'refunds']);
+            $table = $this->salesIntervalFields($table, ['org_amount', 'group_amount', 'invoices', 'refunds','orders','delivery_notes','new_customers']);
             $table->timestampsTz();
         });
     }
