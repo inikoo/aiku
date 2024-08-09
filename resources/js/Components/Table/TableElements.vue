@@ -159,8 +159,12 @@ onMounted(() => {
                 >
                     <FontAwesomeIcon v-if="selectedElement[selectedGroup]?.includes(element)" icon="fal fa-check-square" aria-hidden="true" />
                     <FontAwesomeIcon v-else icon="fal fa-square" aria-hidden="true" />
-                    <div :class="[ selectedElement[selectedGroup]?.includes(element) ? 'text-gray-600' : 'text-gray-600',
-                        'capitalize space-x-1']">
+                    <div class="capitalize space-x-1"
+                        :class="[
+                            selectedElement[selectedGroup]?.includes(element)
+                            ? 'text-gray-700'
+                            : 'text-gray-400'
+                    ]">
                         <span class="hidden lg:inline font-normal">{{ value[0] }}</span>
                         <span class="lg:hidden font-normal">{{ value[2] || value[0] }}</span>
                         <span :class="[value[1] ? 'font-semibold' : 'text-gray-400']" class="">({{ useLocaleStore().number(value[1]) }})</span>

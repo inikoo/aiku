@@ -348,9 +348,9 @@ const options = {
 
 
 
-            <div class="">
+            <div class="mt-10">
                 <div class="w-fit font-semibold py-1 mb-1">Organisation by sales</div>
-                <div class="py-3 px-5 flex gap-x-4">
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300">
                     <div class="w-48">
                         <Pie :data="{
                             labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
@@ -360,10 +360,10 @@ const options = {
                             }]
                         }" :options="options" />
                     </div>
-                    <div class="">
+                    <div class="flex flex-col justify-between ">
                         <template v-for="org in groupStats.organisations">
                             <div v-if="org.type !== 'agent'" class="space-x-2">
-                                <span class="">{{ org.name }}:</span>
+                                <span class="text-lg">{{ org.name }}:</span>
                                 <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
                             </div>
                         </template>
