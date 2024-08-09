@@ -16,10 +16,6 @@ use App\Http\Resources\Catalogue\ShopResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 
-use App\Http\Resources\UI\FulfilmentsNavigationResource;
-use App\Http\Resources\UI\ProductionsNavigationResource;
-use App\Http\Resources\UI\ShopsNavigationResource;
-use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -173,24 +169,16 @@ class EditUser extends InertiaAction
                                         'user' => $user->id
                                     ]
                                 ],
-                                'length'        => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                'list_authorised'        => Organisation::get()->flatMap(function (Organisation $organisation) {
                                     return [
                                         $organisation->slug         => [
-                                            'authorised_shops' => ShopsNavigationResource::collection(
-                                                $this->user->authorisedShops()->where('organisation_id', $organisation->id)->get()
-                                            )->count(),
-                                            'authorised_fulfilments' => FulfilmentsNavigationResource::collection(
-                                                $this->user->authorisedFulfilments()->where('organisation_id', $organisation->id)->get()
-                                            )->count(),
-                                            'authorised_warehouses' => WarehousesNavigationResource::collection(
-                                                $this->user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()
-                                            )->count(),
-                                            'authorised_productions' => ProductionsNavigationResource::collection(
-                                                $this->user->authorisedProductions()->where('organisation_id', $organisation->id)->get()
-                                            )->count()
+                                            'authorised_shops'       => '99999',
+                                            'authorised_fulfilments' => '99999',
+                                            'authorised_warehouses'  => '99999',
+                                            'authorised_productions' => '99999',
                                         ]
                                     ];
-                                })->toArray(),
+                                }),
 
                                 // "label"             => __("permissions"),
                                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
