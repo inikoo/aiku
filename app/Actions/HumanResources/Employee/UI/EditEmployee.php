@@ -133,10 +133,10 @@ class EditEmployee extends OrgAction
                     'required'    => true
                 ],
                 'positions' => [
-                    'type'     => 'employeePosition',
-                    'required' => true,
-                    'label'    => __('position'),
-                    'length'        =>   [
+                    'type'          => 'employeePosition',
+                    'required'      => true,
+                    'label'         => __('position'),
+                    'length'        => [
                                             'authorised_shops' =>
                                                 $request->user()->authorisedShops()->where('organisation_id', $this->organisation->id)->count() ?? 0,
                                             'authorised_fulfilments' =>
@@ -221,7 +221,7 @@ class EditEmployee extends OrgAction
         if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
             $currentSection = $request->get('section');
         }
-        
+
 
         return Inertia::render(
             'EditModel',

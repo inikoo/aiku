@@ -167,6 +167,12 @@ class ShowPalletReturn extends RetinaAction
                                     'style'   => 'secondary',
                                     'icon'    => 'fal fa-plus',
                                     'label'   => __('add Stored Item'),
+                                    'route'   => [
+                                        'name'       => 'retina.models.pallet-return.stored_item.store',
+                                        'parameters' => [
+                                            'palletReturn'       => $palletReturn->id
+                                        ]
+                                    ]
                                 ],
                                 [
                                     'type'  => 'button',
@@ -241,8 +247,19 @@ class ShowPalletReturn extends RetinaAction
                         'scope'          => $palletReturn->slug
                     ]
                 ],
-
-
+                'stored_item_list_route'   => [
+                    'name'       => 'retina.json.fulfilment.return.stored-items',
+                    'parameters' => [
+                        'fulfilment'     => $palletReturn->fulfilment->slug,
+                        'scope'          => $palletReturn->slug
+                    ]
+                ],
+                'stored_items_add_route'  => [
+                        'name'       => 'retina.models.pallet-return.stored_item.store',
+                        'parameters' => [
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                ],
                 'updateRoute' => [
                     'route' => [
                         'name'       => 'retina.models.pallet-return.update',

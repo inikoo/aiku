@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn\Json;
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletStoredItem;
@@ -21,7 +22,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class GetReturnStoredItems extends OrgAction
 {
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $scope): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Fulfilment $parent, PalletReturn $scope): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,7 +39,14 @@ class GetReturnStoredItems extends OrgAction
         $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
         $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
-        $queryBuilder->where('stored_items.fulfilment_customer_id', $fulfilmentCustomer->id);
+
+        if($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
+        }
+
+        if($parent instanceof Fulfilment) {
+            $queryBuilder->where('stored_items.fulfilment_id', $parent->id);
+        }
 
         $queryBuilder->whereNotIn('pallet_stored_items.id', $exceptional);
         $queryBuilder
@@ -82,6 +90,13 @@ class GetReturnStoredItems extends OrgAction
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $palletReturn);
+    }
+
+    public function fromRetina(Fulfilment $fulfilment, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $palletReturn);
     }
 
 
