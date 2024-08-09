@@ -25,19 +25,47 @@ const props = defineProps<{
         currency: {
             code: string
         }
-        organisations: [
-            {
-                currency: {
-                    code: string
-                }
-                type: string
-                name: string
+        organisations: {
+            name: string
+            type: string
+            code: string
+            currency: {
                 code: string
-                number_invoices_type_refund?: number
-                number_invoices?: number
-                number_invoices_type_invoice?: number
             }
-        ]
+            invoices: {
+                number_invoices: number
+            }
+            sales: {
+                number_sales: number
+            }
+            refunds: {
+                number_refunds: number
+            }
+
+            // number_invoices_type_refund?: number
+            // number_invoices?: number
+            // number_invoices_type_invoice?: number
+            interval_percentages?: {
+                sales?: {
+                    [key: string]: {
+                        percentage: number
+                        difference: number
+                    }
+                }
+                invoices?: {
+                    [key: string]: {
+                        percentage: number
+                        difference: number
+                    }
+                }
+                refunds?: {
+                    [key: string]: {
+                        percentage: number
+                        difference: number
+                    }
+                }
+            }
+        }[]
     }
     interval_options: {
         label: string
@@ -46,8 +74,9 @@ const props = defineProps<{
     }[]
 }>()
 
+// console.log('asdsadsa', props.groupStats.organisations)
 const layout = inject('layout', layoutStructure)
-// console.log('asdsadsa', layout.organisations)
+const locale = inject('locale', {})
 
 const isShowLastYear = ref(true)
 
@@ -158,9 +187,9 @@ const options = {
                     <table class="min-w-full divide-y divide-gray-400">
                         <thead class="">
                             <tr class="text-sm bg-gray-100 relative divide-x divide-gray-200 text-gray-400" :style="{
-                                    backgroundColor: layout.app.theme[4],
-                                    color: layout.app.theme[5]
-                                }">
+                                backgroundColor: layout.app.theme[4],
+                                color: layout.app.theme[5]
+                            }">
                                 <!-- Column: Organisations -->
                                 <th scope="col" class="w-full pl-4 pr-3 text-left font-normal">
                                     Organisation
@@ -216,37 +245,41 @@ const options = {
 
                                     <!-- Column: Refunds -->
                                     <td class="text-sm text-gray-500 table-cell text-right">
-                                        <div class="w-24 ">{{ org.number_invoices_type_refund || 0 }}</div>
+                                        <div class="w-24 ">
+                                            {{ locale.number(org.refunds.number_refunds || 0) }}
+                                        </div>
                                     </td>
 
                                     <!-- Column: Refunds LY -->
                                     <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div class="w-12 text-right pl-1 pr-3">
-                                            ---
+                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.refunds?.[selectedDateOption || 'all'].percentage || 0 }}
                                         </div>
                                     </td>
 
                                     <!-- Column: Invoices -->
                                     <td class="text-sm text-gray-500 table-cell text-right">
                                         <div class="w-32 ">
-                                            {{ org.number_invoices || 0 }}
+                                            {{ locale.number(org.invoices.number_invoices || 0) }}
                                         </div>
                                     </td>
 
                                     <!-- Column: Invoices LY -->
                                     <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div class="w-12 text-right pl-1 pr-3">
-                                            ---
+                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.invoices?.[selectedDateOption || 'all'].percentage || 0 }}
                                         </div>
                                     </td>
 
                                     <!-- Column: Sales -->
                                     <td class="overflow-hidden text-sm text-gray-500 table-cell text-right">
                                         <div class="w-32">
-                                            {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
+                                            {{ locale.number(org.interval_percentages?.sales?.amount || 0) }}
+                                            <!-- {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
                                             org.currency.code : groupStats.currency.code , get(org, ['sales',
-                                            `org_amount_${selectedDateOption}`], 0)) }}
+                                            `org_amount_${selectedDateOption}`], 0)) }} -->
                                         </div>
+
                                         <!-- <Transition name="spin-to-down" mode="out-in">
                                             <div
                                                 class="flex items-center gap-x-1"
@@ -279,17 +312,9 @@ const options = {
 
                                     <!-- Column: Sales LY -->
                                     <td class="overflow-hidden text-sm text-gray-500 lg:table-cell">
-                                        <div class="w-12 text-right pl-1 pr-3">
-                                            ---
+                                        <div v-tooltip="org.interval_percentages?.sales?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.sales?.[selectedDateOption || 'all'].percentage || 0 }}
                                         </div>
-                                        <Transition name="spin-to-down" mode="out-in">
-                                            <div class=" text-right"
-                                                :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
-                                                <!-- groupStats.currency.code == 'GBP' -->
-                                                <!-- org.currency.code == 'INR' -->
-                                                <!-- {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }} -->
-                                            </div>
-                                        </Transition>
                                     </td>
 
                                     <!-- Column: Sales Revenue -->
