@@ -655,7 +655,26 @@ class ShowPalletReturn extends OrgAction
             IndexStoredItemsInReturn::make()->tableStructure(
                 $palletReturn,
                 request: $request,
-                prefix: PalletReturnTabsEnum::STORED_ITEMS->value
+                prefix: PalletReturnTabsEnum::STORED_ITEMS->value,
+                modelOperations: [
+                    'createLink' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('Save'),
+                            'label'   => __('Save'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.org.shops.show.crm.customers.show.web-users.create',
+                                'parameters' => [
+                                    $palletReturn->organisation->slug,
+                                    $palletReturn->fulfilment->shop->slug,
+                                    $palletReturn->slug
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
             )
         )->table(
             IndexServiceInPalletReturn::make()->tableStructure(

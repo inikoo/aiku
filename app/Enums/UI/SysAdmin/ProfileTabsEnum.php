@@ -25,7 +25,7 @@ enum ProfileTabsEnum: string
     case VISIT_LOGS = 'visit_logs';
     case TIMESHEETS = 'timesheets';
 
-    case MY_DATA = 'my_data';
+    // case MY_DATA = 'my_data';
 
 
     public function blueprint(): array
@@ -66,12 +66,12 @@ enum ProfileTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            ProfileTabsEnum::MY_DATA => [
-                'title' => __('My data'),
-                'icon'  => 'fas fa-info-circle',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+            // ProfileTabsEnum::MY_DATA => [
+            //     'title' => __('My data'),
+            //     'icon'  => 'fas fa-info-circle',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],
         };
     }
 }
