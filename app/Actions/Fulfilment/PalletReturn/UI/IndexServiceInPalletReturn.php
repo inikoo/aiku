@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
-use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentTransaction;
@@ -99,10 +98,10 @@ class IndexServiceInPalletReturn extends OrgAction
         $queryBuilder->selectRaw("'{$palletReturn->currency->code}'  as currency_code");
 
 
-    return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
-        ->allowedFilters([$globalSearch])
-        ->withPaginator($prefix)
-        ->withQueryString();
+        return $queryBuilder->allowedSorts([ 'name', 'code','quantity','net_amount'])
+            ->allowedFilters([$globalSearch])
+            ->withPaginator($prefix)
+            ->withQueryString();
     }
 
     public function tableStructure(
