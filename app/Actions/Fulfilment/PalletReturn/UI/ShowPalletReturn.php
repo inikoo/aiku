@@ -27,6 +27,7 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionResource;
+use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Helpers\Address;
@@ -638,12 +639,12 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
-                    fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
+                    fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
 
                 PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
-                    fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
-                    : Inertia::lazy(fn () => FulfilmentTransactionResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
+                    fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
             ]
         )->table(
             IndexPalletsInReturn::make()->tableStructure(

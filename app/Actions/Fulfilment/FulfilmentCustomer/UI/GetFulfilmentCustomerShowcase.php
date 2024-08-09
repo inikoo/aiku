@@ -88,7 +88,7 @@ class GetFulfilmentCustomerShowcase
         return [
             'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'rental_agreement'             => [
-                'updated_at'                    => $fulfilmentCustomer->rentalAgreement->updated_at,
+                'updated_at'                    => $fulfilmentCustomer->rentalAgreement->updated_at ?? null,
                 'stats'                         => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,
                 'createRoute'                   => [
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
