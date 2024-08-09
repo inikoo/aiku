@@ -15,13 +15,53 @@ return [
 
 
     'positions' => [
+        'super-admin'    => [
+            'code'               => 'super-admin',
+            'name'               => 'Super Administrator',
+            'scope'              => JobPositionScopeEnum::GROUP          ,
+            'department'         => 'super admin',
+            'roles'              => [
+                RolesEnum::SUPER_ADMIN
+            ],
+            'organisation_types' => []
+        ],
+        'sys-admin'    => [
+            'code'               => 'sys-admin',
+            'name'               => 'System Administrator',
+            'scope'              => JobPositionScopeEnum::GROUP          ,
+            'department'         => 'sysadmin',
+            'roles'              => [
+                RolesEnum::SYSTEM_ADMIN
+            ],
+            'organisation_types' => []
+        ],
+        'gp-sc'    => [
+            'code'               => 'gp-sc',
+            'name'               => 'Supply Chain Manager',
+            'scope'              => JobPositionScopeEnum::GROUP          ,
+            'department'         => 'group procurement',
+            'roles'              => [
+                RolesEnum::SUPPLY_CHAIN
+            ],
+            'organisation_types' => []
+        ],
+        'gp-g'    => [
+            'code'               => 'gp-g',
+            'name'               => 'Goods Manager',
+            'scope'              => JobPositionScopeEnum::GROUP          ,
+            'department'         => 'group procurement',
+            'roles'              => [
+                RolesEnum::GOODS_MANAGER
+            ],
+            'organisation_types' => []
+        ],
         'admin'    => [
             'code'               => 'admin',
             'name'               => 'Administrator',
             'scope'              => JobPositionScopeEnum::ORGANISATION,
             'department'         => 'admin',
             'roles'              => [
-                RolesEnum::SUPER_ADMIN
+                RolesEnum::ORGANISATIONS_MANAGER
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,

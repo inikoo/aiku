@@ -36,7 +36,7 @@ class StoreGroup
         app()->instance('group', $group);
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);
-        SeedGroupJobPositions::run($group);
+        SeedJobPositionCategories::run($group);
         SeedStockImages::run($group);
         SeedWebBlockTypes::run($group);
         SeedPlatforms::run($group);

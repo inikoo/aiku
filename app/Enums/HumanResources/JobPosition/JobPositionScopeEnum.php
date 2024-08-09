@@ -19,5 +19,5 @@ enum JobPositionScopeEnum: string
     case FULFILMENTS_WAREHOUSES = 'fulfilments_warehouses';
     case PRODUCTIONS            = 'productions';
     case ORGANISATION           = 'organisation';
-
+    case GROUP                  = 'group';
 }

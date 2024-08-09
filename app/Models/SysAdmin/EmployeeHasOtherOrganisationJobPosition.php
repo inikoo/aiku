@@ -9,6 +9,14 @@ namespace App\Models\SysAdmin;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
+/**
+ *
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasOtherOrganisationJobPosition newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasOtherOrganisationJobPosition newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasOtherOrganisationJobPosition query()
+ * @mixin \Eloquent
+ */
 class EmployeeHasOtherOrganisationJobPosition extends Pivot
 {
     protected $guarded = [];

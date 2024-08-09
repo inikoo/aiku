@@ -2,11 +2,14 @@
 import { inject, reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
-import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
+import { faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { get } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle)
+import { trans } from 'laravel-vue-i18n'
+
+
+library.add(faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle,fasCrown)
 
 interface TypeShop {
     id: number
@@ -82,18 +85,59 @@ const props = defineProps<{
 // console.log(props.options)
 
 const optionsJob = reactive<{ [key: string]: optionsJob }>({
-    admin: {
-        department: "admin",
-        icon: 'fal fa-crown',
+    super_admin: {
+        department: "group admin",
+        icon: 'fas fa-crown',
         subDepartment: [
             {
-                slug: "admin",
-                label: "Administrator",
+                slug: "super-admin",
+                label: trans("Super Administrator"),
                 number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
             }
         ],
-        // value: null
     },
+  system_admin: {
+    department: "Group sysadmin",
+    icon: 'fas fa-computer-classic',
+    subDepartment: [
+      {
+        slug: "system-admin",
+        label: trans("System Administrator"),
+        number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
+      }
+    ],
+  },
+  group_procurement: {
+    icon: "fal fa-user-hard-hat",
+    department: "Group Procurement",
+    subDepartment: [
+      {
+        slug: "gp-sc",
+        grade: "manager",
+        label: "Supply Chain Manager",
+        number_employees: props.options.positions.data.find(position => position.slug == 'hr-m')?.number_employees || 0,
+      },
+      {
+        slug: "gp-g",
+        grade: "manager",
+        label: "Goods Manager",
+        number_employees: props.options.positions.data.find(position => position.slug == 'hr-c')?.number_employees || 0,
+      }
+    ],
+    // value: null
+  },
+  admin: {
+    department: "admin",
+    icon: 'fal fa-crown',
+    subDepartment: [
+      {
+        slug: "admin",
+        label: "Administrator",
+        number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
+      }
+    ],
+    // value: null
+  },
 
     hr: {
         icon: "fal fa-user-hard-hat",
@@ -507,7 +551,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                 <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
                                     class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
                                 >
-                                    Advanced selection
+                                    {{trans('Shops Fine tuning')}}
                                 </button>
                             </div>
                         </div>
