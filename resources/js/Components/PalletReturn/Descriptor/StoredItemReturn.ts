@@ -1,16 +1,8 @@
 export default {
         useSearch : true,
-        title : 'Stored Item',
-        key : null,
+        title : 'Choose Stored Item',
+        key : 'Store Items',
         column : [
-            {
-                label : "Pallet",
-                key   : 'pallet_reference'
-            },
-            {
-                label : "Location",
-                key   : 'location'
-            },
             {
                 label : "Name",
                 key   : 'reference'

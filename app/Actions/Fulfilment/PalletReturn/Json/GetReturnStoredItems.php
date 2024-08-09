@@ -8,12 +8,13 @@
 namespace App\Actions\Fulfilment\PalletReturn\Json;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Fulfilment\PalletStoredItem;
+use App\Models\Fulfilment\StoredItem;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,15 +31,13 @@ class GetReturnStoredItems extends OrgAction
             });
         });
 
-        $storedItems = $scope->storedItems()->get();
-        $exceptional = $storedItems->map(function ($item) {
-            return $item->pivot->pallet_stored_item_id;
-        })->toArray();
+        $queryBuilder = QueryBuilder::for(StoredItem::class);
 
-        $queryBuilder = QueryBuilder::for(PalletStoredItem::class);
-        $queryBuilder->join('stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
+        $queryBuilder->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
         $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
+
+        $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
 
         if($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
@@ -48,11 +47,10 @@ class GetReturnStoredItems extends OrgAction
             $queryBuilder->where('stored_items.fulfilment_id', $parent->id);
         }
 
-        $queryBuilder->whereNotIn('pallet_stored_items.id', $exceptional);
         $queryBuilder
-            ->defaultSort('pallet_stored_items.id')
+            ->defaultSort('stored_items.id')
             ->select([
-                'pallet_stored_items.id',
+                'stored_items.id',
                 'pallets.id as pallet_id',
                 'pallets.slug as pallet_slug',
                 'pallets.reference as pallet_reference',
@@ -60,8 +58,6 @@ class GetReturnStoredItems extends OrgAction
                 'stored_items.reference as stored_item_reference',
                 'stored_items.slug as stored_item_slug',
                 'stored_items.state as stored_item_state',
-                'pallet_stored_items.quantity',
-                'pallet_stored_items.damaged_quantity',
                 'locations.code as location_code'
             ]);
 

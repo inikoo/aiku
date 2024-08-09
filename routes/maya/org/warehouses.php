@@ -13,6 +13,9 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\StoredItem\UI\IndexPalletStoredItems;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
+use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\UniversalScan\IndexUniversalScan;
 use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
@@ -39,6 +42,9 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
             Route::get('locations/{location:id}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index')->withoutScopedBindings();
             Route::get('pallets', IndexPallets::class)->name('pallets.index');
             Route::get('pallets/{pallet:id}', ShowPallet::class)->name('pallets.show')->withoutScopedBindings();
+            Route::get('stored-items', [IndexStoredItems::class, 'inApi'])->name('stored-items.index')->withoutScopedBindings();
+            Route::get('pallets/{pallet:id}/stored-items', [IndexPalletStoredItems::class, 'inApi'])->name('pallets.stored-items.index')->withoutScopedBindings();
+            Route::get('stored-items/{storedItem:id}', ShowStoredItem::class)->name('pallets.stored-items.show')->withoutScopedBindings();
         });
 
         Route::prefix('pallet-deliveries')->name('pallet-delivery.')->group(function () {

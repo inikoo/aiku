@@ -9,14 +9,15 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
-use App\Models\Fulfilment\PalletReturnItem;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
@@ -30,7 +31,7 @@ class IndexStoredItemsInReturn extends OrgAction
     private bool $selectStoredPallets = false;
 
 
-    public function handle(PalletReturn $palletReturn, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -38,45 +39,40 @@ class IndexStoredItemsInReturn extends OrgAction
             });
         });
 
+        $queryBuilder = QueryBuilder::for(StoredItem::class);
 
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
+        $queryBuilder->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
+        $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
+        $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
+
+        // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
+
+        if($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
         }
 
-        $query = QueryBuilder::for(PalletReturnItem::class);
+        if($parent instanceof Fulfilment) {
+            $queryBuilder->where('stored_items.fulfilment_id', $parent->id);
+        }
 
-
-        $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-        $query->where('pallet_return_items.type', 'StoredItem');
-        $query->join('pallets', 'pallet_return_items.pallet_id', '=', 'pallets.id');
-        $query->join('stored_items', 'pallet_return_items.stored_item_id', '=', 'stored_items.id');
-
-
-        $query->join('locations', 'pallets.location_id', '=', 'locations.id');
-
-
-        $query->defaultSort('stored_items.id')
-            ->select(
-                'pallet_return_items.id',
-                'pallet_return_items.pallet_return_id',
-                'stored_items.id as stored_item_id',
+        $queryBuilder
+            ->defaultSort('stored_items.id')
+            ->select([
+                'stored_items.id',
                 'pallets.id as pallet_id',
-                'pallets.location_id',
-                'stored_items.slug',
+                'pallets.slug as pallet_slug',
+                'pallets.reference as pallet_reference',
                 'stored_items.reference',
-                'stored_items.notes',
+                'pallets.fulfilment_customer_id',
+                'stored_items.slug',
                 'stored_items.state',
-                'stored_items.received_at',
-                'pallet_return_items.quantity_ordered as quantity',
-                'stored_items.fulfilment_customer_id',
-                'locations.slug as location_slug',
-                'locations.slug as location_code'
-            );
+                'locations.code as location_code'
+            ]);
 
 
-        return $query->allowedSorts(['reference', 'id'])
-            ->allowedFilters([$globalSearch, 'id', 'reference'])
-            ->withPaginator($prefix)
+        return $queryBuilder->allowedSorts(['code','price','name','state'])
+            ->allowedFilters([$globalSearch])
+            ->withPaginator(null)
             ->withQueryString();
     }
 
@@ -118,9 +114,10 @@ class IndexStoredItemsInReturn extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
+            $table->column(key: 'total_quantity', label: __('total quantity'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+            //            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 
 
             $table->defaultSort('reference');

@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -28,21 +29,38 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $storedItems = $modelData;
-        foreach ($storedItems as $storedItem) {
-            $storedItemId      = Arr::get($storedItem, 'stored_item');
-            $palletId          = Arr::get($storedItem, 'pallet');
-            $palletStoreItemId = Arr::get($storedItem, 'pallet_stored_item');
-            $quantity          = Arr::get($storedItem, 'quantity');
+        $currentQuantity = 0;
+        $selectedPallets = [];
 
-            $palletReturn->storedItems()->attach($storedItemId, [
-                'pallet_id'             => $palletId,
-                'pallet_stored_item_id' => $palletStoreItemId,
-                'quantity_ordered'      => $quantity,
-                'type'                  => 'StoredItem'
-            ]);
+        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('id', array_keys($modelData))->get();
+        foreach ($storedItems as $value) {
+            /** @var StoredItem $storedItem */
+            $storedItem = $value;
 
+            $pallets = $storedItem->pallets;
+            foreach ($pallets as $pallet) {
+                $requiredQuantity  = Arr::get($modelData, $value)['quantity'];
+                $remainingQuantity = $requiredQuantity - $currentQuantity;
 
+                if ($pallet->quantity <= $remainingQuantity) {
+                    $currentQuantity += $pallet->quantity;
+                    $selectedPallets[] = $pallet;
+                } else {
+                    $partialPallet           = clone $pallet;
+                    $partialPallet->quantity = $remainingQuantity;
+                    $currentQuantity += $remainingQuantity;
+                    $selectedPallets[] = $partialPallet;
+                }
+
+                if ($currentQuantity == $requiredQuantity) {
+                    $palletReturn->storedItems()->attach($value, [
+                        'pallet_id'             => $pallet->id,
+                        'pallet_stored_item_id' => $pallet->pivot->id,
+                        'quantity_ordered'      => $currentQuantity,
+                        'type'                  => 'StoredItem'
+                    ]);
+                }
+            }
         }
 
         $palletReturn->refresh();

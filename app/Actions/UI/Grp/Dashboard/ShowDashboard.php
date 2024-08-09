@@ -20,33 +20,289 @@ class ShowDashboard
 
     public function handle(): Response
     {
+
         /** @var Group $group */
-        $group = Group::first();
-        $sales = [
+        $group   = Group::first();
+        $testOrg = $group->organisations->skip(1)->first();
+        $sales   = [
             'sales'         => JsonResource::make($group->salesStats),
             'currency'      => $group->currency,
+            'total'         => [
+                'total_invoices' => $group->salesStats->number_invoices_type_invoice,
+                'total_refunds'  => $group->salesStats->number_invoices_type_refund,
+                'total_sales'    => $group->salesIntervals->group_amount_all
+            ],
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
-                return [
+                // Initialize the response data
+                $responseData = [
                     'name'      => $organisation->name,
                     'code'      => $organisation->code,
                     'type'      => $organisation->type,
                     'currency'  => $organisation->currency,
                     'sales'     => $organisation->salesIntervals,
                     'invoices'  => [
-                        'number_invoices' => $organisation->accountingStats->number_invoices_type_invoice ?? null
+                        'number_invoices' => $organisation->salesStats->number_invoices_type_invoice ?? null
                     ],
                     'refunds' => [
-                        'number_refunds' => $organisation->accountingStats->number_invoices_type_refund ?? null
-                    ]
+                        'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
+                    ],
                 ];
+                if ($organisation->salesIntervals !== null) {
+                    $responseData['interval_percentages'] = [
+                            'sales' => [
+                                        'ytd' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_ytd, $organisation->salesIntervals->org_amount_ytd_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_ytd - $organisation->salesIntervals->org_amount_ytd_ly
+                                        ],
+                                        'qtd' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_qtd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_qtd, $organisation->salesIntervals->org_amount_qtd_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_qtd - $organisation->salesIntervals->org_amount_qtd_ly
+                                        ],
+                                        'mtd' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_mtd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_mtd, $organisation->salesIntervals->org_amount_mtd_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_mtd - $organisation->salesIntervals->org_amount_mtd_ly
+                                        ],
+                                        'wtd' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_wtd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_wtd, $organisation->salesIntervals->org_amount_wtd_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_wtd - $organisation->salesIntervals->org_amount_wtd_ly
+                                        ],
+                                        'lm' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_lm,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_lm, $organisation->salesIntervals->org_amount_lm_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_lm - $organisation->salesIntervals->org_amount_lm_ly
+                                        ],
+                                        'lw' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_lw,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_lw, $organisation->salesIntervals->org_amount_lw_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_lw - $organisation->salesIntervals->org_amount_lw_ly
+                                        ],
+                                        'yda' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_yda,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_yda, $organisation->salesIntervals->org_amount_yda_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_yda - $organisation->salesIntervals->org_amount_yda_ly
+                                        ],
+                                        'tdy' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_tdy,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_tdy, $organisation->salesIntervals->org_amount_tdy_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_tdy - $organisation->salesIntervals->org_amount_tdy_ly
+                                        ],
+                                        '1y' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_1y,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1y, $organisation->salesIntervals->org_amount_1y_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_1y - $organisation->salesIntervals->org_amount_1y_ly
+                                        ],
+                                        '1q' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_1q,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1q, $organisation->salesIntervals->org_amount_1q_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_1q - $organisation->salesIntervals->org_amount_1q_ly
+                                        ],
+                                        '1m' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_1m,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1m, $organisation->salesIntervals->org_amount_1m_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_1m - $organisation->salesIntervals->org_amount_1m_ly
+                                        ],
+                                        '1w' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_1w,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1w, $organisation->salesIntervals->org_amount_1w_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_1w - $organisation->salesIntervals->org_amount_1w_ly
+                                        ],
+                                        'all' => [
+                                            'amount'     => $organisation->salesIntervals->org_amount_all,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_all, $organisation->salesIntervals->org_amount_all_ly),
+                                            'difference' => $organisation->salesIntervals->org_amount_all - $organisation->salesIntervals->org_amount_all_ly
+                                        ],
+                                    ],
+                        // 'invoices' => [
+                        //                 'ytd' => [
+                        //                 'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_ytd, $organisation->salesIntervals->invoices_ytd_ly),
+                        //                 'difference' => $organisation->salesIntervals->invoices_ytd - $organisation->salesIntervals->invoices_ytd_ly
+                        //                 ],
+                        //                 'qtd' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_qtd, $organisation->salesIntervals->invoices_qtd_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_qtd - $organisation->salesIntervals->invoices_qtd_ly
+                        //                 ],
+                        //                 'mtd' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_mtd, $organisation->salesIntervals->invoices_mtd_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_mtd - $organisation->salesIntervals->invoices_mtd_ly
+                        //                 ],
+                        //                 'wtd' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_wtd, $organisation->salesIntervals->invoices_wtd_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_wtd - $organisation->salesIntervals->invoices_wtd_ly
+                        //                 ],
+                        //                 'lm' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_lm, $organisation->salesIntervals->invoices_lm_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_lm - $organisation->salesIntervals->invoices_lm_ly
+                        //                 ],
+                        //                 'lw' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_lw, $organisation->salesIntervals->invoices_lw_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_lw - $organisation->salesIntervals->invoices_lw_ly
+                        //                 ],
+                        //                 'yda' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_yda, $organisation->salesIntervals->invoices_yda_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_yda - $organisation->salesIntervals->invoices_yda_ly
+                        //                 ],
+                        //                 'tdy' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_tdy, $organisation->salesIntervals->invoices_tdy_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_tdy - $organisation->salesIntervals->invoices_tdy_ly
+                        //                 ],
+                        //                 '1y' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_1y, $organisation->salesIntervals->invoices_1y_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_1y - $organisation->salesIntervals->invoices_1y_ly
+                        //                 ],
+                        //                 '1q' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_1q, $organisation->salesIntervals->invoices_1q_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_1q - $organisation->salesIntervals->invoices_1q_ly
+                        //                 ],
+                        //                 '1m' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_1m, $organisation->salesIntervals->invoices_1m_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_1m - $organisation->salesIntervals->invoices_1m_ly
+                        //                 ],
+                        //                 '1w' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_1w, $organisation->salesIntervals->invoices_1w_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_1w - $organisation->salesIntervals->invoices_1w_ly
+                        //                 ],
+                        //                 'all' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->invoices_all, $organisation->salesIntervals->invoices_all_ly),
+                        //                     'difference' => $organisation->salesIntervals->invoices_all - $organisation->salesIntervals->invoices_all_ly
+                        //                 ],
+                        //             ],
+                        // 'refunds' => [
+                        //                 'ytd' => [
+                        //                 'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_ytd, $organisation->salesIntervals->refunds_ytd_ly),
+                        //                 'difference' => $organisation->salesIntervals->refunds_ytd - $organisation->salesIntervals->refunds_ytd_ly
+                        //                 ],
+                        //                 'qtd' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_qtd, $organisation->salesIntervals->refunds_qtd_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_qtd - $organisation->salesIntervals->refunds_qtd_ly
+                        //                 ],
+                        //                 'mtd' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_mtd, $organisation->salesIntervals->refunds_mtd_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_mtd - $organisation->salesIntervals->refunds_mtd_ly
+                        //                 ],
+                        //                 'wtd' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_wtd, $organisation->salesIntervals->refunds_wtd_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_wtd - $organisation->salesIntervals->refunds_wtd_ly
+                        //                 ],
+                        //                 'lm' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_lm, $organisation->salesIntervals->refunds_lm_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_lm - $organisation->salesIntervals->refunds_lm_ly
+                        //                 ],
+                        //                 'lw' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_lw, $organisation->salesIntervals->refunds_lw_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_lw - $organisation->salesIntervals->refunds_lw_ly
+                        //                 ],
+                        //                 'yda' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_yda, $organisation->salesIntervals->refunds_yda_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_yda - $organisation->salesIntervals->refunds_yda_ly
+                        //                 ],
+                        //                 'tdy' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_tdy, $organisation->salesIntervals->refunds_tdy_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_tdy - $organisation->salesIntervals->refunds_tdy_ly
+                        //                 ],
+                        //                 '1y' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_1y, $organisation->salesIntervals->refunds_1y_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_1y - $organisation->salesIntervals->refunds_1y_ly
+                        //                 ],
+                        //                 '1q' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_1q, $organisation->salesIntervals->refunds_1q_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_1q - $organisation->salesIntervals->refunds_1q_ly
+                        //                 ],
+                        //                 '1m' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_1m, $organisation->salesIntervals->refunds_1m_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_1m - $organisation->salesIntervals->refunds_1m_ly
+                        //                 ],
+                        //                 '1w' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_1w, $organisation->salesIntervals->refunds_1w_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_1w - $organisation->salesIntervals->refunds_1w_ly
+                        //                 ],
+                        //                 'all' => [
+                        //                     'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->refunds_all, $organisation->salesIntervals->refunds_all_ly),
+                        //                     'difference' => $organisation->salesIntervals->refunds_all - $organisation->salesIntervals->refunds_all_ly
+                        //                 ],
+                        //             ]
+
+                    ];
+                }
+
+                return $responseData;
             })
         ];
-
         return Inertia::render(
             'Dashboard/Dashboard',
             [
-                'breadcrumbs'      => $this->getBreadcrumbs(__('Dashboard')),
-                'groupStats'       => $sales,
+                'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
+                'groupStats'        => $sales,
+                'interval_options'  => [
+                    [
+                        'label'      => __('Year to date'),
+                        'labelShort' => __('Ytd'),
+                        'value'      => 'ytd'
+                    ],
+                    [
+                        'label'      => __('Quarter to date'),
+                        'labelShort' => __('Qtd'),
+                        'value'      => 'qtd'
+                    ],
+                    [
+                        'label'      => __('Month to date'),
+                        'labelShort' => __('Mtd'),
+                        'value'      => 'mtd'
+                    ],
+                    [
+                        'label'      => __('Week to date'),
+                        'labelShort' => __('Wtd'),
+                        'value'      => 'wtd'
+                    ],
+                    [
+                        'label'      => __('Last month'),
+                        'labelShort' => __('lm'),
+                        'value'      => 'lm'
+                    ],
+                    [
+                        'label'      => __('Last week'),
+                        'labelShort' => __('lw'),
+                        'value'      => 'lw'
+                    ],
+                    [
+                        'label'      => __('Yesterday'),
+                        'labelShort' => __('y'),
+                        'value'      => 'yda'
+                    ],
+                    [
+                        'label'      => __('Today'),
+                        'labelShort' => __('t'),
+                        'value'      => 'tdy'
+                    ],
+                    [
+                        'label'      => __('1 Year'),
+                        'labelShort' => __('1y'),
+                        'value'      => '1y'
+                    ],
+                    [
+                        'label'      => __('1 Quarter'),
+                        'labelShort' => __('1q'),
+                        'value'      => '1q'
+                    ],
+                    [
+                        'label'      => __('1 Month'),
+                        'labelShort' => __('1m'),
+                        'value'      => '1m'
+                    ],
+                    [
+                        'label'      => __('1 Week'),
+                        'labelShort' => __('1w'),
+                        'value'      => '1w'
+                    ],
+                    [
+                        'label'      => __('All'),
+                        'labelShort' => __('All'),
+                        'value'      => 'all'
+                    ],
+                ]
             ]
         );
     }
@@ -68,5 +324,16 @@ class ShowDashboard
             ],
 
         ];
+    }
+
+    public function calculatePercentageIncrease($thisYear, $lastYear)
+    {
+        if ($lastYear == 0) {
+            return $thisYear > 0 ? null : 0;
+        }
+
+        $percentageIncrease = (($thisYear - $lastYear) / $lastYear) * 100;
+
+        return $percentageIncrease;
     }
 }
