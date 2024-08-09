@@ -23,6 +23,7 @@ import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletR
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { Action } from '@/types/Action'
 import { BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet'
+import StoredItemReturnDescriptor from  '@/Components/PalletReturn/Descriptor/StoredItemReturn.ts'
 
 import '@/Composables/Icon/PalletReturnStateEnum'
 import '@/Composables/Icon/Pallet/PalletType'
@@ -93,13 +94,18 @@ const props = defineProps<{
 
     physical_goods?: {}
     physical_good_list_route: routeType
+    stored_item_list_route : routeType
+    stored_items_add_route : routeType
 }>()
+
+console.log(props)
 
 // console.log('box stats', props.box_stats)
 // console.log('notes data', props.notes_data)
 
 
 const layout = inject('layout', layoutStructure)
+const isModalStoredItems = ref(false)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -210,6 +216,23 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     )
 }
 
+// Method: change data before submit Stored Items
+const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) => {
+    return selectedStoredItem.map(id => {
+        const dataItem = dataList.find(item => item.id === id);
+        if (dataItem) {
+        return {
+            pallet_stored_item: dataItem.id,
+            pallet: dataItem.pallet_id,
+            stored_item: dataItem.stored_item_id,
+            quantity: dataItem.quantity
+        };
+        } else {
+        return null;
+        }
+    }).filter(item => item !== null); // Filter out any null values if aaa contains ids not present in bbb
+}
+
 watch(
 	props,
 	(newValue) => {
@@ -281,6 +304,7 @@ const isModalUploadOpen = ref(false)
                 :key="`ActionButton${action.label}${action.style}`"
                 :tooltip="action.tooltip"
                 class="border-none rounded-[4px]"
+                @click="() => isModalStoredItems = true"
             />
             <div v-else />
         </template>
@@ -494,7 +518,19 @@ const isModalUploadOpen = ref(false)
                         <span v-else class="text-xs text-gray-400 italic">Have no stored items.</span>
                     </div>
                 </template>
+            </TablePalletReturn>
+        </div>
+    </Modal>
 
+    <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false">
+        <div class="">
+            <TablePalletReturn
+                :dataRoute="stored_item_list_route"
+                :saveRoute="stored_items_add_route"
+				@onClose="() => isModalStoredItems = false"
+				:descriptor="StoredItemReturnDescriptor"
+                :beforeSubmit="(descriptor?: string, dataList: {}[], storedItem: number[]) => beforeSubmitStoredItem(dataList, storedItem)"
+			>
             </TablePalletReturn>
         </div>
     </Modal>
