@@ -108,7 +108,73 @@ class ShowDashboard
             [
                 'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
                 'groupStats'        => $sales,
-
+                'interval_options'  => [
+                    [
+                        'label'      => __('Year to date'),
+                        'labelShort' => __('Ytd'),
+                        'value'      => 'ytd'
+                    ],
+                    [
+                        'label'      => __('Quarter to date'),
+                        'labelShort' => __('Qtd'),
+                        'value'      => 'qtd'
+                    ],
+                    [
+                        'label'      => __('Month to date'),
+                        'labelShort' => __('Mtd'),
+                        'value'      => 'mtd'
+                    ],
+                    [
+                        'label'      => __('Week to date'),
+                        'labelShort' => __('Wtd'),
+                        'value'      => 'wtd'
+                    ],
+                    [
+                        'label'      => __('Last month'),
+                        'labelShort' => __('lm'),
+                        'value'      => 'lm'
+                    ],
+                    [
+                        'label'      => __('Last week'),
+                        'labelShort' => __('lw'),
+                        'value'      => 'lw'
+                    ],
+                    [
+                        'label'      => __('Yesterday'),
+                        'labelShort' => __('y'),
+                        'value'      => 'yda'
+                    ],
+                    [
+                        'label'      => __('Today'),
+                        'labelShort' => __('t'),
+                        'value'      => 'tdy'
+                    ],
+                    [
+                        'label'      => __('1 Year'),
+                        'labelShort' => __('1y'),
+                        'value'      => '1y'
+                    ],
+                    [
+                        'label'      => __('1 Quarter'),
+                        'labelShort' => __('1q'),
+                        'value'      => '1q'
+                    ],
+                    [
+                        'label'      => __('1 Month'),
+                        'labelShort' => __('1m'),
+                        'value'      => '1m'
+                    ],
+                    [
+                        'label'      => __('1 Week'),
+                        'labelShort' => __('1w'),
+                        'value'      => '1w'
+                    ],
+                    [
+                        'label'      => __('All'),
+                        'labelShort' => __('All'),
+                        'value'      => 'all'
+                    ],
+                ]
             ]
         );
     }
