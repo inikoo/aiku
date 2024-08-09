@@ -451,6 +451,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
 
 <template>
     <div class="relative">
+    <pre>{{ fieldData.length?.[fieldName] }}</pre>
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
                 <div v-if="(departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
@@ -464,6 +465,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                         <div class="flex items-center divide-x divide-slate-300">
                             <!-- Button: Radio position -->
                             <div class="pl-2 flex items-center gap-x-4">
+                            <!-- <pre>{{ jobGroup.subDepartment }}</pre> -->
                                 <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
                                     <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
                                     <button
