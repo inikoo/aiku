@@ -23,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditEmployee extends OrgAction
 {
+    protected Organisation $organisation;
+
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -35,6 +37,7 @@ class EditEmployee extends OrgAction
 
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
+        $this->organisation = $organisation;
         $this->initialisation($organisation, $request);
 
         return $this->handle($employee);
@@ -133,6 +136,17 @@ class EditEmployee extends OrgAction
                     'type'     => 'employeePosition',
                     'required' => true,
                     'label'    => __('position'),
+                    'length'        =>   [
+                                            'authorised_shops' =>
+                                                $request->user()->authorisedShops()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                                            'authorised_fulfilments' =>
+                                                $request->user()->authorisedFulfilments()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                                            'authorised_warehouses' =>
+                                                $request->user()->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                                            'authorised_productions' =>
+                                                $request->user()->authorisedProductions()->where('organisation_id', $this->organisation->id)->count() ?? 0
+                                        ],
+
                     'options'  => [
                         'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
                         'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
@@ -207,6 +221,7 @@ class EditEmployee extends OrgAction
         if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
             $currentSection = $request->get('section');
         }
+        
 
         return Inertia::render(
             'EditModel',

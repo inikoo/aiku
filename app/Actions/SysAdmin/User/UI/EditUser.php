@@ -14,6 +14,12 @@ use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
+
+use App\Http\Resources\UI\FulfilmentsNavigationResource;
+use App\Http\Resources\UI\ProductionsNavigationResource;
+use App\Http\Resources\UI\ShopsNavigationResource;
+use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -25,6 +31,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditUser extends InertiaAction
 {
+    private User $user;
+
     public function handle(User $user): User
     {
         return $user;
@@ -37,6 +45,8 @@ class EditUser extends InertiaAction
 
     public function asController(User $user, ActionRequest $request): User
     {
+        $this->user = $user;
+
         $this->initialisation($request);
 
         return $this->handle($user);
@@ -50,10 +60,6 @@ class EditUser extends InertiaAction
 
         $roles       = collect(RolesEnum::cases());
         $permissions = $roles->map(function ($role) {
-
-
-
-
             return [$role->label() => match ($role->scope()) {
                 class_basename(Group::class) => Group::all()->map(function (Group $group) {
                     return [$group->name => [
@@ -86,16 +92,19 @@ class EditUser extends InertiaAction
         $organisations = $user->group->organisations;
         $reviewData    = $organisations->mapWithKeys(function ($organisation) {
             return [$organisation->slug => [
-                'job_positions' => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
+                'number_job_positions' => $organisation->humanResourcesStats->number_job_positions,
+                'job_positions'        => $organisation->jobPositions->mapWithKeys(function ($jobPosition) {
                     return [$jobPosition->slug => [
-                        'job_position' => $jobPosition->name,
-                        'roles'        => $jobPosition->stats->number_roles
+                        'job_position'        => $jobPosition->name,
+                        'number_roles'        => $jobPosition->stats->number_roles
                     ]];
                 })
             ]];
         })->toArray();
 
-        dd($reviewData);
+        $organisationList = OrganisationsResource::collection($organisations);
+
+        // dd($user);
 
         return Inertia::render("EditModel", [
             "title"       => __("user"),
@@ -156,8 +165,35 @@ class EditUser extends InertiaAction
                                 "full"              => true,
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
-                                "label"             => __("permissions"),
-                                'options'           => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
+                                'organisation_list' => $organisationList,
+                                'updateRoute'       => [
+                                    'method'     => 'patch',
+                                    "name"       => "grp.models.user.other-organisation.update",
+                                    'parameters' => [
+                                        'user' => $user->id
+                                    ]
+                                ],
+                                'length'        => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                    return [
+                                        $organisation->slug         => [
+                                            'authorised_shops' => ShopsNavigationResource::collection(
+                                                $this->user->authorisedShops()->where('organisation_id', $organisation->id)->get()
+                                            )->count(),
+                                            'authorised_fulfilments' => FulfilmentsNavigationResource::collection(
+                                                $this->user->authorisedFulfilments()->where('organisation_id', $organisation->id)->get()
+                                            )->count(),
+                                            'authorised_warehouses' => WarehousesNavigationResource::collection(
+                                                $this->user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()
+                                            )->count(),
+                                            'authorised_productions' => ProductionsNavigationResource::collection(
+                                                $this->user->authorisedProductions()->where('organisation_id', $organisation->id)->get()
+                                            )->count()
+                                        ]
+                                    ];
+                                })->toArray(),
+
+                                // "label"             => __("permissions"),
+                                'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                                     return [
                                         $organisation->slug         => [
                                             'positions'       => JobPositionResource::collection($organisation->jobPositions),
@@ -166,13 +202,13 @@ class EditUser extends InertiaAction
                                             'warehouses'      => WarehouseResource::collection($organisation->warehouses),
                                         ]
                                     ];
-                                })->toArray()
-                                    // 'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
-                                    // 'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
-                                    // 'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
-                                    // 'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
-                                ,
-                                "value"             => $permissions,
+                                })->toArray(),
+                                // "value"             => $permissions,
+                                "value"             => Organisation::where('type', '=', 'shop')->get()->flatMap(function (Organisation $organisation) {
+                                    return [
+                                        $organisation->slug         => new \stdClass()
+                                    ];
+                                }),
                                 "fullComponentArea" => true,
                             ],
                         ],

@@ -8,10 +8,10 @@
 // This file is used on CustomerApp, PublicApp
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faLanguage, faMoneyBillAlt, faLayerGroup } from '@fal'
+import { faLanguage, faMoneyBillAlt, faLayerGroup, faPoundSign } from '@fal'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faLanguage, faMoneyBillAlt, faLayerGroup, faSpinnerThird)
+library.add(faLanguage, faMoneyBillAlt, faLayerGroup, faPoundSign, faSpinnerThird)
 
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { trans } from 'laravel-vue-i18n'
@@ -41,7 +41,7 @@ const onSelectCurrency = (currency) => {
 const currencyList = [
     {
         label: 'Organisation',
-        symbol: 'fal fa-poundsterling'
+        symbol: 'fal fa-pound-sign'
     },
     {
         label: 'Shop',

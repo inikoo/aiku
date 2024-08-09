@@ -55,7 +55,7 @@ class StoreJobPosition extends OrgAction
                         ['column' => 'organisation_id', 'value' => $this->organisation->id]
                     ],
                 ),
-                'max:8',
+                'max:16',
                 'alpha_dash'
             ],
             'name'                  => ['required', 'max:255'],
@@ -63,7 +63,7 @@ class StoreJobPosition extends OrgAction
             'scope'                 => ['required', Rule::enum(JobPositionScopeEnum::class)],
             'department'            => ['sometimes', 'nullable', 'string'],
             'team'                  => ['sometimes', 'nullable', 'string'],
-            'group_job_position_id' => ['sometimes', 'nullable', 'exists:group_job_positions,id'],
+            'group_job_position_id' => ['sometimes', 'nullable', 'exists:job_position_categories,id'],
         ];
     }
 

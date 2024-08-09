@@ -26,7 +26,7 @@ class OrganisationsResource extends JsonResource
         $organisation = $this;
 
         return [
-
+            'id'                               => $organisation->id,
             'slug'                             => $organisation->slug,
             'name'                             => $organisation->name,
             'type'                             => $organisation->type,
@@ -36,6 +36,7 @@ class OrganisationsResource extends JsonResource
             'number_employees_state_working'   => $this->number_employees_state_working,
             'number_shops_state_open'          => $this->number_shops_state_open,
             'number_customers'                 => $this->number_customers,
+            'number_job_positions'              => $organisation->humanResourcesStats->number_job_positions,
         ];
     }
 }

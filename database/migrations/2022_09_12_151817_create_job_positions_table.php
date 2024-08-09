@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table=$this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('group_job_position_id')->nullable();
-            $table->foreign('group_job_position_id')->references('id')->on('group_job_positions')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('group_job_position_id')->references('id')->on('job_position_categories')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name')->index()->collation('und_ci');

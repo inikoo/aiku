@@ -66,11 +66,11 @@ class SeedJobPositions extends Seeder
                 ]
             );
         } else {
-            $groupJobPosition= $organisation->group->groupJobPositions()->where('code', $jobPositionData['code'])->first();
-            $jobPosition     = StoreJobPosition::make()->action(
+            $jobPositionCategory= $organisation->group->jobPositionCategories()->where('code', $jobPositionData['code'])->first();
+            $jobPosition        = StoreJobPosition::make()->action(
                 $organisation,
                 [
-                    'group_job_position_id'=> $groupJobPosition->id,
+                    'group_job_position_id'=> $jobPositionCategory->id,
                     'code'                 => $jobPositionData['code'],
                     'name'                 => $jobPositionData['name'],
                     'department'           => Arr::get($jobPositionData, 'department'),

@@ -82,14 +82,12 @@ test('create group', function () {
     ]);
 
 
-
-
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
         ->and($group->webBlockTypeCategories()->count())->toBe(11)
-    ->and($group->webBlockTypes()->count())->toBe(18);
-
+    ->and($group->webBlockTypes()->count())->toBe(18)
+    ->and($group->jobPositionCategories()->count())->toBe(34);
     return $group;
 });
 

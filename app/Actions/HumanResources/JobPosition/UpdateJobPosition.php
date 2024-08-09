@@ -37,7 +37,7 @@ class UpdateJobPosition extends OrgAction
     public function rules(): array
     {
         return [
-            'code'       => ['sometimes', 'required', 'max:8'],
+            'code'       => ['sometimes', 'required', 'max:16'],
             'name'       => ['sometimes', 'required', 'max:255'],
             'scope'      => ['required', Rule::enum(JobPositionScopeEnum::class)],
             'department' => ['sometimes', 'nullable', 'string'],

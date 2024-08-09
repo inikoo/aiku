@@ -27,11 +27,12 @@ import Tag from "@/Components/Tag.vue"
 import { BoxStats, PDRNotes, PalletReturn, UploadPallet } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
+import StoredItemReturnDescriptor from  '@/Components/PalletReturn/Descriptor/StoredItemReturn.ts'
 
 import { trans } from "laravel-vue-i18n"
 // import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
 // import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
-import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
 import { get } from "lodash"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
@@ -131,33 +132,7 @@ watch(
     { deep: true }
 )
 
-const storedItemDescriptor = {
-    useSearch : true,
-    title : 'Stored Item',
-    key : null,
-    column : [
-        // {
-        //     label : "",
-        //     key   : 'type_icon'
-        // },
-        {
-            label : "Reference",
-            key   : 'reference'
-        },
-        {
-            label : "Quantity",
-            key   : 'quantity'
-        },
-        {
-            label : "Notes",
-            key   : 'notes'
-        },
-        {
-            label : "Location",
-            key   : 'location'
-        },
-    ]
-}
+const storedItemDescriptor = StoredItemReturnDescriptor
 
 
 // Tabs: Services

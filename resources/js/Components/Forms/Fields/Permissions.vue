@@ -3,6 +3,7 @@ import { Ref, ref } from 'vue'
 import { Collapse } from 'vue-collapsed'
 import CardPermissions from './Components/Permissions/Card.vue'
 import { get } from 'lodash'
+import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 
 const props = defineProps<{
     form: {
@@ -36,124 +37,108 @@ const handleBox = (shopsSelected: string[], shopSlug: string) => {
     // }
 }
 
-const xxx = [
+// const xxx = [
+//     {
+//         "Super admin": {
+//             "organisations": ['awa', 'aw']
+//         }
+//     }
+// ]
+
+// const abc = {
+//     "Human resources supervisor": {
+//         "Ancient Wisdom": {
+//             "shops": ['uk', 'ed', 'awa'],
+//             "warehouse": ['ed'],
+//         },
+//         "AW Gifts": {
+//             "fulfilment": ['awf', 'es'],
+//         }
+//     },
+//     "Super Admin": {
+//         "AW Europe": {
+//             "warehouse": ['ed', 'bl'],
+//         }
+//     }
+// }
+
+const organisation = [
     {
-        "Super admin": {
-            "organisations": ['awa', 'aw']
-        }
-    }
-]
-
-const abc = {
-    "Human resources supervisor": {
-        "Ancient Wisdom": {
-            "shops": ['uk', 'ed', 'awa'],
-            "warehouse": ['ed'],
-        },
-        "AW Gifts": {
-            "fulfilment": ['awf', 'es'],
-        }
+        label: 'Ancient Wisdom',
+        slug: 'aw'
     },
-    "Super Admin": {
-        "AW Europe": {
-            "warehouse": ['ed', 'bl'],
-        }
-    }
-}
-
+    {
+        label: 'Ancient Wisdom SRO',
+        slug: 'sk'
+    },
+    {
+        label: 'Aromatics',
+        slug: 'aroma'
+    },
+    {
+        label: 'AW Spain',
+        slug: 'es'
+    },
+]
+const selectedOrganisation = ref<typeof organisation[number] | null>(organisation[0])
+console.log('ppp', props.fieldData)
 
 </script>
 
 <template>
     <div class="flex flex-col gap-y-6">
+        <div class="grid">
+            <div class="flex justify-between px-2 border-b border-gray-300 bg-gray-100 py-2 mb-2">
+                <div>
+                    Organisations
+                </div>
+                <div>
+                    Number positions
+                </div>
+            </div>
+            <div v-for="(review, slugReview) in props.fieldData.organisation_list.data"
+                class="flex flex-col mb-1 gap-y-1"
+            >
+                <div
+                    @click="selectedOrganisation?.slug == review.slug ? selectedOrganisation = null : selectedOrganisation = review"
+                    class="cursor-pointer py-1 px-2 flex justify-between"
+                    :class="review.slug === selectedOrganisation?.slug ? 'rounded bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
+                >
+                    <div class="">{{ review.name }}</div>
+                    <div class="pl-3 pr-2">{{ review.number_job_positions }}</div>
+                </div>
+                <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
+                    <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">
+                        <EmployeePosition
+                            :key="'employeePosition' + review.slug " :form="form[fieldName]" :fieldData
+                            :fieldName="review.slug" :options="options?.[review.slug]" />
+                    </div>
+                    <div v-else class="text-center border border-gray-300 rounded-md mb-2">
+                        No data positions
+                    </div>
+                </Collapse>
+            </div>
+        </div>
+
+
         <!-- <pre>{{ form[fieldName] }}</pre> -->
-        <template v-for="permissions, permissionsName, idxPermissions  in form[fieldName]" >
+        <!-- <div class="">
+            <nav class="isolate flex divide-x divide-gray-200 rounded-lg shadow" aria-label="Tabs">
+                <div v-for="(org, idxOrg) in organisation" :key="idxOrg" @click="selectedOrganisation = org" :class="[
+                        selectedOrganisation?.slug === org.slug ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700',
+                        idxOrg === 0 ? 'rounded-l-lg' : '',
+                        idxOrg === idxOrg - 1 ? 'rounded-r-lg' : ''
+                    ]"
+                    class="cursor-pointer relative min-w-0 flex-1 overflow-hidden bg-white px-4 py-4 text-center text-sm font-medium hover:bg-gray-50 focus:z-10">
+                    <span>{{ org.label }}</span>
+                    <span aria-hidden="true"
+                        :class="[selectedOrganisation?.slug === org.slug ? 'bg-indigo-500' : 'bg-transparent', 'absolute inset-x-0 bottom-0 h-0.5']" />
+                </div>
+            </nav>
+        </div> -->
+        {{ selectedOrganisation?.slug }} --- {{ form[fieldName][selectedOrganisation?.slug] }}
 
-                <!-- <pre>{{ Object.keys(permissions).length }}</pre> -->
-            <!-- <template> -->
-                <!-- Permission Position -->
-                    <div v-if="true || Object.keys(permissions).length" class="flex flex-col gap-y-2">
-                        <div class="font-medium text-xl">{{ permissionsName }}</div>
-                
-                        <!-- Org and his shops -->
-                        <div v-for="optionsData, optionsName in permissions" class="flex flex-col">
-                            <div class="capitalize">{{ optionsName }}:</div>
+        
 
-                            <!-- Shop list -->
-                            <div class="flex flex-wrap gap-x-1 gap-y-2">
-                                <div v-for="option in optionsData">
-                                    <div v-for="xxslug in option"
-                                        @click="() => handleBox(optionsType, option)"
-                                        class="w-min px-2 py-1 hover:bg-gray-200"
-                                        :class="[false ? 'bg-indigo-500 text-white rounded' : 'bg-gray-100']"
-                                    >
-                                        {{ xxslug }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                
-                    </div>
-            <!-- </template> -->
-        </template>
-
-                <!-- <Collapse v-model="question.isExpanded" :when="question.isExpanded" class="Collapse"
-                    style="border-top: 1px solid #d9d9d9;">
-                    <div class="Content">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div v-for="(item, key) in question.branchShop" :key="key">
-                                <CardPermissions :data="item" :checkboxValues="checkboxValues"
-                                    :toggleCheckbox="toggleCheckbox" />
-                            </div>
-                        </div>
-                    </div>
-                </Collapse> -->
     </div>
 </template>
-
-<style scoped>
-.Content {
-    padding: 15px;
-}
-
-.Panel {
-    width: 100%;
-    font-size: 1rem;
-    color: var(--ForegroundColor);
-    text-align: left;
-    font-weight: 600;
-}
-
-.Panel:hover {
-    color: indigo;
-}
-
-.Active {
-    color: indigo;
-    background: #eef2ff;
-}
-
-.Section {
-    background: #fafafa;
-    width: 100%;
-    border: 1px solid #d9d9d9;
-    margin: 0;
-    border-radius: 6px;
-    margin-bottom: 5px;
-}
-
-.Section button {
-    width: 100%;
-    padding: 10px 10px;
-    cursor: pointer;
-}
-
-.Collapse {
-    transition: height var(--vc-auto-duration) cubic-bezier(0.37, 0, 0.63, 1);
-}
-
-.Collapse {
-    background: #ffff;
-    border-top: 1px solid #d9d9d9;
-}
-</style>

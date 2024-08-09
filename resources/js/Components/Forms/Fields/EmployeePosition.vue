@@ -2,11 +2,14 @@
 import { inject, reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
-import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
+import { faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { get } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle)
+import { trans } from 'laravel-vue-i18n'
+
+
+library.add(faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle,fasCrown)
 
 interface TypeShop {
     id: number
@@ -82,18 +85,59 @@ const props = defineProps<{
 // console.log(props.options)
 
 const optionsJob = reactive<{ [key: string]: optionsJob }>({
-    admin: {
-        department: "admin",
-        icon: 'fal fa-crown',
+    super_admin: {
+        department: "group admin",
+        icon: 'fas fa-crown',
         subDepartment: [
             {
-                slug: "admin",
-                label: "Administrator",
+                slug: "super-admin",
+                label: trans("Super Administrator"),
                 number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
             }
         ],
-        // value: null
     },
+  system_admin: {
+    department: "Group sysadmin",
+    icon: 'fas fa-computer-classic',
+    subDepartment: [
+      {
+        slug: "system-admin",
+        label: trans("System Administrator"),
+        number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
+      }
+    ],
+  },
+  group_procurement: {
+    icon: "fal fa-user-hard-hat",
+    department: "Group Procurement",
+    subDepartment: [
+      {
+        slug: "gp-sc",
+        grade: "manager",
+        label: "Supply Chain Manager",
+        number_employees: props.options.positions.data.find(position => position.slug == 'hr-m')?.number_employees || 0,
+      },
+      {
+        slug: "gp-g",
+        grade: "manager",
+        label: "Goods Manager",
+        number_employees: props.options.positions.data.find(position => position.slug == 'hr-c')?.number_employees || 0,
+      }
+    ],
+    // value: null
+  },
+  admin: {
+    department: "admin",
+    icon: 'fal fa-crown',
+    subDepartment: [
+      {
+        slug: "admin",
+        label: "Administrator",
+        number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
+      }
+    ],
+    // value: null
+  },
 
     hr: {
         icon: "fal fa-user-hard-hat",
@@ -331,7 +375,6 @@ const optionsList = {
     positions: props.options.positions.data
 }
 
-console.log('options', props.options)
 
 // console.log('options Job', props.options.warehouses.data)
 // Temporary data
@@ -370,7 +413,9 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
         }
     }
 
-    props.form.errors[props.fieldName] = ''
+    if(props.form?.errors?.[props.fieldName]) {
+        props.form.errors[props.fieldName] = ''
+    }
 }
 
 // Method: on clicked radio inside 'Advanced selection'
@@ -433,7 +478,9 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
         }
     }
 
-    props.form.errors[props.fieldName] = ''
+    if(props.form?.errors?.[props.fieldName]) {
+        props.form.errors[props.fieldName] = ''
+    }
 }
 
 const fulfilmentLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length || 0
@@ -448,6 +495,8 @@ const productionLength = layout.organisations.data.find(organisation => organisa
 
 <template>
     <div class="relative">
+        ful:{{ fulfilmentLength }} -- shop:{{ shopLength }} -- warehouse:{{ warehouseLength }} -- production:{{ productionLength }}
+    <pre>{{ fieldData.length }}</pre>
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
                 <div v-if="(departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
@@ -461,24 +510,25 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                         <div class="flex items-center divide-x divide-slate-300">
                             <!-- Button: Radio position -->
                             <div class="pl-2 flex items-center gap-x-4">
+                            <!-- <pre>{{ jobGroup.subDepartment }}</pre> -->
                                 <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
                                     <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
                                     <button
                                         v-if="(subDepartment.optionsType?.includes('fulfilments') && fulfilmentLength > 0) || (subDepartment.optionsType?.includes('shops') && shopLength > 0) || (subDepartment.optionsType?.includes('warehouses') && warehouseLength > 0) || (subDepartment.optionsType?.includes('productions') && productionLength > 0) || !subDepartment.optionsType"
                                         @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, subDepartment.optionsType)"
                                         class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                        :class="Object.keys(form[fieldName]).includes('admin') && subDepartment.slug == 'admin' ? 'text-green-500' : ''"
-                                        :disabled="Object.keys(form[fieldName]).includes('admin') && subDepartment.slug != 'admin' ? true : false"
+                                        :class="Object.keys(form[fieldName] || {}).includes('admin') && subDepartment.slug == 'admin' ? 'text-green-500' : ''"
+                                        :disabled="Object.keys(form[fieldName] || {}).includes('admin') && subDepartment.slug != 'admin' ? true : false"
                                     >
                                         <span class="relative text-left">
                                             <!-- dd{{ layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${subDepartment.optionsType}`] }} -->
                                             <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                                <template v-if="Object.keys(form[fieldName]).includes('admin')">
+                                                <template v-if="Object.keys(form[fieldName] || {}).includes('admin')">
                                                     <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                 </template>
 
-                                                <template v-else-if="Object.keys(form[fieldName]).includes(subDepartment.slug)">
+                                                <template v-else-if="Object.keys(form[fieldName] || {}).includes(subDepartment.slug)">
                                                     <FontAwesomeIcon v-if="subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug)))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else-if="subDepartment.optionsType?.some((optionType: string) => get(form[fieldName], [subDepartment.slug, optionType], []).some((optionValue: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).includes(optionValue)))" icon='fal fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
@@ -487,7 +537,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                 <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                             </div>
                                             <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
+                                                Object.keys(form[fieldName] || {}).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
                                             ]">
                                                 {{ subDepartment.label }}
                                                 <!-- {{ subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug))) }} -->
@@ -502,7 +552,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                 <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
                                     class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
                                 >
-                                    Advanced selection
+                                    {{trans('Shops Fine tuning')}}
                                 </button>
                             </div>
                         </div>
@@ -538,11 +588,11 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                                     v-if="subDep.optionsType?.includes(optionKey)"
                                                                     @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                     class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                                                    :disabled="!!Object.keys(form[fieldName]).includes('admin')"
+                                                                    :disabled="!!Object.keys(form[fieldName] || {}).includes('admin')"
                                                                     v-tooltip="subDep.label"
                                                                 >
                                                                     <div class="relative text-left">
-                                                                        <template v-if="Object.keys(form[fieldName]).includes('admin')">
+                                                                        <template v-if="Object.keys(form[fieldName] || {}).includes('admin')">
                                                                             <FontAwesomeIcon v-if="idxGrade === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                                             <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                                         </template>
@@ -598,10 +648,11 @@ const productionLength = layout.organisations.data.find(organisation => organisa
 
         <!-- State: error icon & error description -->
         <Transition name="spin-to-down">
-            <FontAwesomeIcon v-if="form.errors[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon v-if="form.errors?.[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
             <FontAwesomeIcon v-else-if="form.recentlySuccessful" icon="fas fa-check-circle" class="absolute top-0 right-5 h-6 w-6 text-green-500" aria-hidden="true"/>
         </Transition>
-        <div v-if="form.errors[fieldName] " class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
+
+        <div v-if="form.errors?.[fieldName]" class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
             <p class="text-sm text-red-500 italic">*{{ form.errors[fieldName] }}</p>
         </div>
 
