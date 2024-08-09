@@ -19,7 +19,7 @@ const props = defineProps<{
     }
     fieldName: string
     options?: any
-    fieldData?: {
+    fieldData: {
         list_authorised: {
             authorised_shops: number
             authorised_fulfilments: number
