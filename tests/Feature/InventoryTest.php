@@ -420,6 +420,7 @@ test('detach stock from location', function ($location, $orgStock) {
 })->depends('create location in warehouse area', 'create org stock');
 
 test('move stock location', function () {
+    /** @var LocationOrgStock $currentLocation */
     $currentLocation = LocationOrgStock::first();
     $targetLocation  = LocationOrgStock::latest()->first();
 

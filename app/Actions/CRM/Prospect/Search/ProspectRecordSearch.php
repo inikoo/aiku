@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:45:00 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 10 Aug 2024 22:04:40 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Prospect\Hydrators;
+namespace App\Actions\CRM\Prospect\Search;
 
 use App\Models\CRM\Prospect;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProspectHydrateUniversalSearch
+class ProspectRecordSearch
 {
     use AsAction;
 
@@ -18,6 +18,11 @@ class ProspectHydrateUniversalSearch
 
     public function handle(Prospect $prospect): void
     {
+        if ($prospect->trashed()) {
+            $prospect->universalSearch()->delete();
+            return;
+        }
+
         $prospect->universalSearch()->updateOrCreate(
             [],
             [

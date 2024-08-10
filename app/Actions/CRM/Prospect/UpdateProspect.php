@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Prospect;
 
-use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Actions\CRM\Prospect\Search\ProspectRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -16,8 +16,8 @@ use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Http\Resources\Lead\ProspectResource;
-use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Prospect;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -58,7 +58,7 @@ class UpdateProspect extends OrgAction
 
         }
 
-        ProspectHydrateUniversalSearch::dispatch($prospect);
+        ProspectRecordSearch::dispatch($prospect);
 
         return $prospect;
     }

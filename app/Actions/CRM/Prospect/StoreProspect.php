@@ -7,10 +7,10 @@
 
 namespace App\Actions\CRM\Prospect;
 
-use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProspects;
+use App\Actions\CRM\Prospect\Search\ProspectRecordSearch;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\Helpers\Query\HydrateModelTypeQueries;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProspects;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
 use App\Actions\Traits\WithCheckCanContactByEmail;
@@ -21,8 +21,8 @@ use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
-use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Prospect;
 use App\Rules\IUnique;
 use App\Rules\Phone;
 use App\Rules\ValidAddress;
@@ -90,7 +90,7 @@ class StoreProspect extends OrgAction
             );
         }
 
-        ProspectHydrateUniversalSearch::dispatch($prospect);
+        ProspectRecordSearch::dispatch($prospect);
         OrganisationHydrateProspects::dispatch($shop->organisation)->delay(now()->addSeconds(2));
         ShopHydrateProspects::dispatch($shop);
 
