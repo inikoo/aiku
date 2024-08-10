@@ -99,13 +99,13 @@ test('create shop', function () {
         ->and($organisation->catalogueStats->number_shops_state_in_process)->toBe(1)
         ->and($organisation->catalogueStats->number_shops_state_open)->toBe(0)
         ->and($shopRoles->count())->toBe(9)
-        ->and($shopPermissions->count())->toBe(23);
+        ->and($shopPermissions->count())->toBe(24);
 
 
     $user = $this->guest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(27)
+    expect($user->getAllPermissions()->count())->toBe(33)
         ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBeTrue();
 
 
