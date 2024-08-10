@@ -21,6 +21,11 @@ use Spatie\LaravelOptions\Options;
 
 class CreateShop extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo('org-admin.'.$this->organisation->id);
+    }
+
     public function handle()
     {
 
@@ -159,12 +164,6 @@ class CreateShop extends OrgAction
             ]
         );
     }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo('shops.edit');
-    }
-
 
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest

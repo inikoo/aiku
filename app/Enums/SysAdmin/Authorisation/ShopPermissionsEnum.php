@@ -11,6 +11,8 @@ use App\Models\Catalogue\Shop;
 
 enum ShopPermissionsEnum: string
 {
+    case SHOP_ADMIN      = 'shop-admin';
+
     case PRODUCTS      = 'products';
     case PRODUCTS_EDIT = 'products.edit';
     case PRODUCTS_VIEW = 'products.view';

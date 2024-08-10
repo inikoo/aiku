@@ -31,8 +31,6 @@ class SyncGuestJobPositions
 
         foreach ($newJobPositionsIds as $jobPositionId) {
 
-
-
             $guest->jobPositions()->attach(
                 [
                     $jobPositionId => [

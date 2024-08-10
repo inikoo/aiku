@@ -251,7 +251,7 @@ class FetchAuroraEmployee extends FetchAurora
             'CUSM'  => 'cus-m',
             'CUS'   => 'cus-c',
             'MRK'   => $isSupervisor ? 'mrk-m' : 'mrk-c',
-            'WEB'   => $isSupervisor ? 'web-m' : 'web-c',
+            'WEB'   => $isSupervisor ? 'shk-m' : 'shk-c',
             'HR'    => $isSupervisor ? 'hr-m' : 'hr-c',
             default => strtolower($sourceCode)
         };

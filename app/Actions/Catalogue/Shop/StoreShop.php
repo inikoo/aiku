@@ -46,6 +46,15 @@ class StoreShop extends OrgAction
     use WithShopRules;
     use WithModelAddressActions;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
+    }
+
     public function handle(Organisation $organisation, array $modelData): Shop
     {
         $warehouses = Arr::get($modelData, 'warehouses', []);
@@ -137,6 +146,7 @@ class StoreShop extends OrgAction
             );
 
             foreach ($orgAdmins as $orgAdmin) {
+
                 UserAddRoles::run($orgAdmin, [
                     Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
                 ]);
@@ -169,14 +179,6 @@ class StoreShop extends OrgAction
         return $shop;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-    }
 
     public function rules(): array
     {
@@ -216,6 +218,7 @@ class StoreShop extends OrgAction
         $this->asAction = true;
 
         try {
+            /** @var Organisation $organisation */
             $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());

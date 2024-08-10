@@ -20,12 +20,10 @@ enum RolesEnum: string
 {
     use EnumHelperTrait;
 
-    case SUPER_ADMIN  = 'super-admin';
+    case GROUP_ADMIN = 'group-admin';
 
     case HUMAN_RESOURCES_SUPERVISOR = 'human-resources-supervisor';
     case HUMAN_RESOURCES_CLERK      = 'human-resources-clerk';
-
-
 
 
     case SYSTEM_ADMIN = 'system-admin';
@@ -37,7 +35,7 @@ enum RolesEnum: string
     case ORGANISATIONS_MANAGER = 'organisations-manager';
 
 
-    case ORG_ADMIN                = 'org-admin';
+    case ORG_ADMIN = 'org-admin';
 
     case PROCUREMENT_CLERK      = 'procurement-clerk';
     case PROCUREMENT_SUPERVISOR = 'procurement-supervisor';
@@ -49,10 +47,25 @@ enum RolesEnum: string
     case ACCOUNTING_CLERK      = 'accounting-clerk';
     case ACCOUNTING_SUPERVISOR = 'accounting-supervisor';
 
+    // Shop roles
 
     case SHOP_ADMIN = 'shop-admin';
 
+    case WEBMASTER_SUPERVISOR  = 'webmaster-supervisor';
+    case WEBMASTER_CLERK       = 'webmaster-clerk';
+    case SHOPKEEPER_CLERK      = 'shopkeeper-clerk';
+    case SHOPKEEPER_SUPERVISOR = 'shopkeeper-supervisor';
 
+
+    case MARKETING_CLERK      = 'marketing-clerk';
+    case MARKETING_SUPERVISOR = 'marketing-supervisor';
+
+
+    case CUSTOMER_SERVICE_CLERK      = 'customer-service-clerk';
+    case CUSTOMER_SERVICE_SUPERVISOR = 'customer-service-supervisor';
+
+
+    // fulfilment roles
 
     case FULFILMENT_SHOP_SUPERVISOR = 'fulfilment-shop-supervisor';
     case FULFILMENT_SHOP_CLERK      = 'fulfilment-shop-clerk';
@@ -63,19 +76,6 @@ enum RolesEnum: string
     case WAREHOUSE_ADMIN = 'warehouse-admin';
 
     case STOCK_CONTROLLER = 'stock-controller';
-
-    case CUSTOMER_SERVICE_CLERK      = 'customer-service-clerk';
-    case CUSTOMER_SERVICE_SUPERVISOR = 'customer-service-supervisor';
-
-    case WEBMASTER_SUPERVISOR = 'webmaster-supervisor';
-    case WEBMASTER_CLERK      = 'webmaster-clerk';
-
-    case SHOPKEEPER_CLERK      = 'shopkeeper-clerk';
-    case SHOPKEEPER_SUPERVISOR = 'shopkeeper-supervisor';
-
-    case MARKETING_CLERK      = 'marketing-clerk';
-    case MARKETING_SUPERVISOR = 'marketing-supervisor';
-
 
     // Digital agency roles
 
@@ -98,7 +98,7 @@ enum RolesEnum: string
     public function label(): string
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN                     => __('Super admin'),
+            RolesEnum::GROUP_ADMIN                     => __('Group admin'),
             RolesEnum::SYSTEM_ADMIN                    => __('System admin'),
             RolesEnum::SUPPLY_CHAIN                    => __('Supply chain'),
             RolesEnum::PROCUREMENT_CLERK               => __('Procurement clerk'),
@@ -146,7 +146,7 @@ enum RolesEnum: string
     public function getPermissions(): array
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN => [
+            RolesEnum::GROUP_ADMIN => [
                 GroupPermissionsEnum::GROUP_REPORTS,
                 GroupPermissionsEnum::GROUP_OVERVIEW,
                 GroupPermissionsEnum::SYSADMIN,
@@ -168,6 +168,7 @@ enum RolesEnum: string
             ],
 
             RolesEnum::ORG_ADMIN => [
+                OrganisationPermissionsEnum::ORG_ADMIN,
                 OrganisationPermissionsEnum::ORG_REPORTS,
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
@@ -214,12 +215,18 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::SUPERVISOR_PROCUREMENT
             ],
             RolesEnum::SHOP_ADMIN => [
+                ShopPermissionsEnum::SHOP_ADMIN,
                 ShopPermissionsEnum::PRODUCTS,
                 ShopPermissionsEnum::WEB,
                 ShopPermissionsEnum::CRM,
                 ShopPermissionsEnum::ORDERS,
+                ShopPermissionsEnum::MARKETING,
+                ShopPermissionsEnum::SUPERVISOR_PRODUCTS,
                 ShopPermissionsEnum::SUPERVISOR_CRM,
-                ShopPermissionsEnum::SUPERVISOR_PRODUCTS
+                ShopPermissionsEnum::SUPERVISOR_CRM,
+                ShopPermissionsEnum::SUPERVISOR_WEB,
+                ShopPermissionsEnum::SUPERVISOR_ORDERS,
+                ShopPermissionsEnum::SUPERVISOR_MARKETING
             ],
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR => [
                 FulfilmentPermissionsEnum::FULFILMENT_SHOP,
@@ -237,13 +244,7 @@ enum RolesEnum: string
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER => [
                 WarehousePermissionsEnum::FULFILMENT,
             ],
-            RolesEnum::CUSTOMER_SERVICE_CLERK => [
-                ShopPermissionsEnum::CRM,
-            ],
-            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => [
-                ShopPermissionsEnum::CRM,
-                ShopPermissionsEnum::SUPERVISOR_CRM
-            ],
+
             RolesEnum::WAREHOUSE_ADMIN => [
                 WarehousePermissionsEnum::LOCATIONS,
                 WarehousePermissionsEnum::STOCKS,
@@ -292,19 +293,61 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_WEB,
             ],
             RolesEnum::SHOPKEEPER_CLERK => [
-                ShopPermissionsEnum::PRODUCTS
+                ShopPermissionsEnum::PRODUCTS,
+                ShopPermissionsEnum::WEB,
+                ShopPermissionsEnum::ORDERS,
+                ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::MARKETING_VIEW,
+
             ],
             RolesEnum::SHOPKEEPER_SUPERVISOR => [
                 ShopPermissionsEnum::PRODUCTS,
-                ShopPermissionsEnum::SUPERVISOR_PRODUCTS
+                ShopPermissionsEnum::SUPERVISOR_PRODUCTS,
+                ShopPermissionsEnum::WEB,
+                ShopPermissionsEnum::SUPERVISOR_WEB,
+                ShopPermissionsEnum::SUPERVISOR_WEB,
+                ShopPermissionsEnum::SUPERVISOR_ORDERS,
+                ShopPermissionsEnum::ORDERS,
+                ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::MARKETING_VIEW,
             ],
             RolesEnum::MARKETING_CLERK => [
-                ShopPermissionsEnum::MARKETING
+                ShopPermissionsEnum::MARKETING,
+                ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::CRM_PROSPECTS,
+                ShopPermissionsEnum::PRODUCTS_VIEW,
+                ShopPermissionsEnum::ORDERS,
+
             ],
             RolesEnum::MARKETING_SUPERVISOR => [
                 ShopPermissionsEnum::MARKETING,
-                ShopPermissionsEnum::SUPERVISOR_MARKETING
+                ShopPermissionsEnum::SUPERVISOR_MARKETING,
+                ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::CRM_PROSPECTS,
+                ShopPermissionsEnum::PRODUCTS_VIEW,
+                ShopPermissionsEnum::WEB_EDIT,
+                ShopPermissionsEnum::SUPERVISOR_WEB,
             ],
+            RolesEnum::CUSTOMER_SERVICE_CLERK => [
+                ShopPermissionsEnum::CRM,
+                ShopPermissionsEnum::ORDERS,
+                ShopPermissionsEnum::PRODUCTS_VIEW,
+                ShopPermissionsEnum::WEB_VIEW,
+                ShopPermissionsEnum::MARKETING_VIEW,
+
+            ],
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR => [
+                ShopPermissionsEnum::CRM,
+                ShopPermissionsEnum::SUPERVISOR_CRM,
+                ShopPermissionsEnum::ORDERS,
+                ShopPermissionsEnum::SUPERVISOR_ORDERS,
+                ShopPermissionsEnum::PRODUCTS_VIEW,
+                ShopPermissionsEnum::WEB_VIEW,
+                ShopPermissionsEnum::MARKETING_VIEW,
+
+            ],
+
+
             RolesEnum::MANUFACTURING_ADMIN => [
                 ProductionPermissionsEnum::PRODUCTION_OPERATIONS,
                 ProductionPermissionsEnum::PRODUCTION_RD,
@@ -331,7 +374,7 @@ enum RolesEnum: string
     public function scope(): string
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN,
+            RolesEnum::GROUP_ADMIN,
             RolesEnum::SYSTEM_ADMIN,
             RolesEnum::SUPPLY_CHAIN,
             RolesEnum::GOODS_MANAGER,

@@ -36,6 +36,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Media;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Admin;
@@ -81,27 +82,30 @@ test('create group', function () {
         'name' => 'Test Group',
     ]);
 
+    $jobPositions = collect(config("blueprint.job_positions.positions"));
+
 
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
         ->and($group->webBlockTypeCategories()->count())->toBe(11)
         ->and($group->webBlockTypes()->count())->toBe(18)
-        ->and($group->jobPositionCategories()->count())->toBe(35);
+        ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
 });
 
 test('group scoped job positions', function (Group $group) {
+    $jobPositions = collect(config("blueprint.job_positions.positions"));
     expect($group->jobPositions()->count())->toBe(4)
-        ->and($group->jobPositionCategories()->count())->toBe(35);
+        ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     $this->artisan('group:seed-job-positions', [
         'group' => $group->slug,
     ])->assertSuccessful();
 
     expect($group->jobPositions()->count())->toBe(4)
-        ->and($group->jobPositionCategories()->count())->toBe(35);
+        ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 })->depends('create group');
 
 
@@ -221,7 +225,7 @@ test('create guest', function (Group $group, Organisation $organisation) {
     setPermissionsTeamId($group->id);
 
     $jobPosition1 = $group->jobPositions()->where('code', 'gp-sc')->first();
-    $jobPosition2 = $group->jobPositions()->where('code', 'admin')->where('organisation_id', $organisation->id)->first();
+    $jobPosition2 = $group->jobPositions()->where('code', 'org-admin')->where('organisation_id', $organisation->id)->first();
     $guestData    = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
     data_set($guestData, 'password', 'secret-password');
@@ -277,7 +281,7 @@ test('UserHydrateAuthorisedModels command', function (Guest $guest) {
 test('create guest from command', function (Group $group) {
     expect($group->sysadminStats->number_guests)->toBe(1);
 
-    $superAdminJobPosition = $group->jobPositions()->where('code', 'super-admin')->first();
+    $superAdminJobPosition = $group->jobPositions()->where('code', 'group-admin')->first();
 
 
     $positions = json_encode([
@@ -382,17 +386,17 @@ test('add user roles', function ($guest) {
 test('remove user roles', function ($guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    $user = UserRemoveRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
+    $user = UserRemoveRoles::make()->action($guest->user, ['group-admin', 'system-admin']);
 
-    expect($user->hasRole(['super-admin', 'system-admin']))->toBeFalse();
+    expect($user->hasRole(['group-admin', 'system-admin']))->toBeFalse();
 })->depends('create guest');
 
 test('sync user roles', function ($guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    $user = UserSyncRoles::make()->action($guest->user, ['super-admin', 'system-admin']);
+    $user = UserSyncRoles::make()->action($guest->user, ['group-admin', 'system-admin']);
 
-    expect($user->hasRole(['super-admin', 'system-admin']))->toBeTrue();
+    expect($user->hasRole(['group-admin', 'system-admin']))->toBeTrue();
 })->depends('create guest');
 
 
@@ -569,6 +573,7 @@ test('should not show without authentication', function () {
 
 test('reindex search', function () {
     ReindexSearch::run();
+    expect(UniversalSearch::count())->toBe(5);
 });
 
 test('employee job position in another organisation', function () {

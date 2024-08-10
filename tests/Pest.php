@@ -102,7 +102,7 @@ function createAdminGuest(Group $group): Guest
                     [
                         'positions' => [
                             [
-                                'slug'   => 'super-admin',
+                                'slug'   => 'group-admin',
                                 'scopes' => []
                             ]
                         ]

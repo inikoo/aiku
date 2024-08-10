@@ -15,13 +15,13 @@ return [
 
 
     'positions' => [
-        'super-admin'    => [
-            'code'               => 'super-admin',
-            'name'               => 'Super Administrator',
+        'group-admin'    => [
+            'code'               => 'group-admin',
+            'name'               => 'Group Administrator',
             'scope'              => JobPositionScopeEnum::GROUP          ,
-            'department'         => 'super admin',
+            'department'         => 'group admin',
             'roles'              => [
-                RolesEnum::SUPER_ADMIN
+                RolesEnum::GROUP_ADMIN
             ],
             'organisation_types' => []
         ],
@@ -55,9 +55,9 @@ return [
             ],
             'organisation_types' => []
         ],
-        'admin'    => [
-            'code'               => 'admin',
-            'name'               => 'Administrator',
+        'org-admin'    => [
+            'code'               => 'org-admin',
+            'name'               => 'Organisation Administrator',
             'scope'              => JobPositionScopeEnum::ORGANISATION,
             'department'         => 'admin',
             'roles'              => [
@@ -126,6 +126,49 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
+
+        // Shops positions
+        'shop-admin'    => [
+            'code'               => 'shop-admin',
+            'name'               => 'Shop Administrator',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'admin',
+            'roles'              => [
+                RolesEnum::SHOP_ADMIN
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+        'shk-m'    => [
+            'code'               => 'shk-m',
+            'name'               => 'Shopkeeper supervisor',
+            'department'         => 'products',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'roles'              => [
+                RolesEnum::SHOPKEEPER_SUPERVISOR,
+                RolesEnum::WEBMASTER_SUPERVISOR
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+        'shk-c'    => [
+            'code'               => 'shk-c',
+            'name'               => 'Shopkeeper clerk',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'products',
+            'roles'              => [
+                RolesEnum::SHOPKEEPER_CLERK,
+                RolesEnum::WEBMASTER_CLERK
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
         'mrk-m'    => [
             'code'               => 'mrk-m',
             'name'               => 'Deals supervisor',
@@ -152,32 +195,34 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'shk-m'    => [
-            'code'               => 'shk-m',
-            'name'               => 'Shopkeeper supervisor',
-            'department'         => 'products',
+        'cus-m'    => [
+            'code'               => 'cus-m',
+            'name'               => 'Customer service supervisor',
             'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'customer-services',
             'roles'              => [
-                RolesEnum::SHOPKEEPER_SUPERVISOR
+                RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'shk-c'    => [
-            'code'               => 'web-c',
-            'name'               => 'Shopkeeper clerk',
+        'cus-c'    => [
+            'code'               => 'cus-c',
+            'name'               => 'Customer service',
+            'department'         => 'customer-services',
             'scope'              => JobPositionScopeEnum::SHOPS,
-            'department'         => 'products',
             'roles'              => [
-                RolesEnum::SHOPKEEPER_CLERK
+                RolesEnum::CUSTOMER_SERVICE_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
+
+
         'buy'      => [
             'code'               => 'buy',
             'name'               => 'Buyer',
@@ -303,32 +348,7 @@ return [
                 OrganisationTypeEnum::SHOP,
             ]
         ],
-        'cus-m'    => [
-            'code'               => 'cus-m',
-            'name'               => 'Customer service supervisor',
-            'scope'              => JobPositionScopeEnum::SHOPS,
-            'department'         => 'customer-services',
-            'roles'              => [
-                RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
-            ],
-            'organisation_types' => [
-                OrganisationTypeEnum::SHOP,
-                OrganisationTypeEnum::DIGITAL_AGENCY,
-            ]
-        ],
-        'cus-c'    => [
-            'code'               => 'cus-c',
-            'name'               => 'Customer service',
-            'department'         => 'customer-services',
-            'scope'              => JobPositionScopeEnum::SHOPS,
-            'roles'              => [
-                RolesEnum::CUSTOMER_SERVICE_CLERK
-            ],
-            'organisation_types' => [
-                OrganisationTypeEnum::SHOP,
-                OrganisationTypeEnum::DIGITAL_AGENCY,
-            ]
-        ],
+
         'seo-m'    => [
             'code'               => 'seo-m',
             'name'               => 'Seo supervisor',

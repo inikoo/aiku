@@ -19,9 +19,9 @@ const props = defineProps<{
 
 const optionsRoles1 = ref(
 {
-    label: 'Super admin',
-    name: 'super-admin',
-    value: props.form[props.fieldName].includes("super-admin"),
+    label: 'Group admin',
+    name: 'group-admin',
+    value: props.form[props.fieldName].includes("group-admin"),
     disabled: false
 })
 
@@ -38,7 +38,7 @@ const optionsRoles3 = reactive([
     {
         label: 'Banners',
         name: 'banners',
-        value: props.form[props.fieldName].includes("super-admin"),
+        value: props.form[props.fieldName].includes("group-admin"),
         disabled: false
     },
     {

@@ -87,7 +87,7 @@ class StoreGuest extends GrpAction
             $role    = Role::where('name', $roleName)->where('group_id', $group->id)->first();
             $roles[] = $role->name;
 
-            if ($role->name === RolesEnum::SUPER_ADMIN->value) {
+            if ($role->name === RolesEnum::GROUP_ADMIN->value) {
                 foreach (Organisation::all() as $organisation) {
                     UserAddRoles::run($user, [
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()

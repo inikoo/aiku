@@ -45,7 +45,8 @@ class SyncRolesFromJobPositions
 
         $user->syncRoles($roles);
 
-        if ($user->roles()->where('name', RolesEnum::SUPER_ADMIN->value)->exists()) {
+        if ($user->roles()->where('name', RolesEnum::GROUP_ADMIN->value)->exists()) {
+
             foreach ($user->group->organisations as $organisation) {
                 UserAddRoles::run($user, [
                     Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
