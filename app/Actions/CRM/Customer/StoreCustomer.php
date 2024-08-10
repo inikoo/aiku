@@ -7,23 +7,23 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
+use App\Actions\CRM\Customer\Search\CustomerRecordSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerFromCustomer;
 use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\OrgAction;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -137,7 +137,7 @@ class StoreCustomer extends OrgAction
         GroupHydrateCustomers::dispatch($customer->group)->delay($this->hydratorsDelay);
         OrganisationHydrateCustomers::dispatch($customer->organisation)->delay($this->hydratorsDelay);
 
-        CustomerHydrateUniversalSearch::dispatch($customer);
+        CustomerRecordSearch::dispatch($customer);
 
 
         return $customer;

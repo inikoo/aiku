@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers;
 
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
+use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
 use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
@@ -26,6 +27,7 @@ use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Models\Accounting\Invoice;
+use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -137,6 +139,9 @@ class ReindexSearch extends HydrateModel
 
     public function reindexCrm(): void
     {
+        foreach (Customer::withTrashed()->get() as $model) {
+            ReindexCustomerSearch::run($model);
+        }
         foreach (Prospect::withTrashed()->get() as $model) {
             ReindexProspectSearch::run($model);
         }

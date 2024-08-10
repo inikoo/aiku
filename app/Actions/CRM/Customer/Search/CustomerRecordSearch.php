@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 10 Aug 2024 22:13:05 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Customer\Hydrators;
+namespace App\Actions\CRM\Customer\Search;
 
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerHydrateUniversalSearch
+class CustomerRecordSearch
 {
     use AsAction;
 
@@ -19,6 +19,7 @@ class CustomerHydrateUniversalSearch
     public function handle(Customer $customer): void
     {
         if ($customer->trashed()) {
+            $customer->universalSearch()->delete();
             return;
         }
 
