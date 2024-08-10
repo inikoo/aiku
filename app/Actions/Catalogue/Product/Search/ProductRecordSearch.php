@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Sat, 10 Aug 2024 22:33:19 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Product\Hydrators;
+namespace App\Actions\Catalogue\Product\Search;
 
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductHydrateUniversalSearch
+class ProductRecordSearch
 {
     use AsAction;
 
@@ -19,6 +19,10 @@ class ProductHydrateUniversalSearch
 
     public function handle(Product $product): void
     {
+        if ($product->trashed()) {
+            $product->universalSearch()->delete();
+            return;
+        }
 
         $shop=$product->shop;
 

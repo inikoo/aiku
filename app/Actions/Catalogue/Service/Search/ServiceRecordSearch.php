@@ -24,7 +24,6 @@ class ServiceRecordSearch
             return;
         }
 
-
         $shop = $service->shop;
 
         $modelData =

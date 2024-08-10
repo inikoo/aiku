@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\Product;
 
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Catalogue\Product\Search\ProductRecordSearch;
 use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
 use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
@@ -65,7 +65,7 @@ class UpdateProduct extends OrgAction
         }
 
         if(count($changed)>0) {
-            ProductHydrateUniversalSearch::dispatch($product)->delay($this->hydratorsDelay);
+            ProductRecordSearch::dispatch($product)->delay($this->hydratorsDelay);
         }
 
 
