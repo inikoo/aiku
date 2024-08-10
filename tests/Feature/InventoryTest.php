@@ -63,6 +63,7 @@ test('create warehouse', function () {
             'name' => 'testName',
         ]
     );
+    $this->guest->user->refresh();
 
     expect($warehouse)->toBeInstanceOf(Warehouse::class)
         ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1)

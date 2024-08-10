@@ -120,7 +120,7 @@ beforeEach(function () {
         );
     }
 
-
+    $this->adminGuest->refresh();
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]

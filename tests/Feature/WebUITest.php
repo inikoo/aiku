@@ -32,7 +32,7 @@ beforeEach(function () {
     }
 
 
-
+    $this->user->refresh();
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]

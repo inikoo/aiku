@@ -45,7 +45,7 @@ test('create production', function () {
             'name' => 'testName',
         ]
     );
-
+    $this->guest->user->refresh();
     expect($production)->toBeInstanceOf(Production::class)
         ->and($this->organisation->manufactureStats->number_productions)->toBe(1)
         ->and($this->organisation->manufactureStats->number_productions_state_in_process)->toBe(1)

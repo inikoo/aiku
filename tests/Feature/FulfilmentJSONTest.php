@@ -159,7 +159,7 @@ beforeEach(function () {
 
     $this->physicalGoods = $physicalGoods;
 
-
+    $this->adminGuest->user->refresh();
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
