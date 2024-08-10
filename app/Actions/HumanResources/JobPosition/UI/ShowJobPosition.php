@@ -31,8 +31,7 @@ class ShowJobPosition extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
@@ -47,7 +46,7 @@ class ShowJobPosition extends OrgAction
         return Inertia::render(
             'Org/HumanResources/JobPosition',
             [
-                'title'       => __('position'),
+                'title'       => __('responsibility'),
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'  => [
                     'previous' => $this->getPrevious($jobPosition, $request),
@@ -55,27 +54,8 @@ class ShowJobPosition extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'     => $jobPosition->name,
-                    'icon'      => ['fal', 'fa-network-wired'],
-                    'model'     => __('job position'),
-                    'actions'   => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'grp.org.hr.job_positions.remove',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-
-                        ] : false
-                    ]
+                    'icon'      => ['fal', 'fa-clipboard-list-check'],
+                    'model'     => __('responsibility'),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -147,15 +127,15 @@ class ShowJobPosition extends OrgAction
                         'index' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.job_positions.index',
-                                'parameters' => ['organisation' => $jobPosition->organisation->slug]
+                                'parameters' => ['organisation' => $this->organisation->slug]
                             ],
-                            'label' => __('Positions')
+                            'label' => __('Responsibilities'),
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.hr.job_positions.show',
                                 'parameters' => [
-                                    'organisation' => $jobPosition->organisation->slug,
+                                    'organisation' => $this->organisation->slug,
                                     'jobPosition'  => $jobPosition->slug
                                 ]
                             ],

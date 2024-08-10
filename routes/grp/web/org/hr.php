@@ -25,8 +25,6 @@ use App\Actions\HumanResources\Employee\UI\EditEmployee;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\HumanResources\Employee\UI\RemoveEmployee;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
-use App\Actions\HumanResources\JobPosition\UI\CreateJobPosition;
-use App\Actions\HumanResources\JobPosition\UI\EditJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\JobPosition\UI\RemoveJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
@@ -67,9 +65,7 @@ Route::prefix('employees')->as('employees.')->group(function () {
 
 
 Route::get('/positions', IndexJobPositions::class)->name('job_positions.index');
-Route::get('/positions/create', CreateJobPosition::class)->name('job_positions.create');
 Route::get('/positions/{jobPosition}', ShowJobPosition::class)->name('job_positions.show');
-Route::get('/positions/{jobPosition}/edit', EditJobPosition::class)->name('job_positions.edit');
 Route::get('/positions/{jobPosition}/delete', RemoveJobPosition::class)->name('job_positions.remove');
 
 

@@ -81,7 +81,7 @@ class ShowHumanResourcesDashboard
                         ]
                     ],
                     [
-                        'name' => __('job positions'),
+                        'name' => __('responsabilities'),
                         'stat' => $this->organisation->humanResourcesStats->number_job_positions,
                         'href' => [
                             'name'       => 'grp.org.hr.job_positions.index',

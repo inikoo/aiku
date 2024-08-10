@@ -39,24 +39,7 @@ enum EmployeeTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            /*
-            EmployeeTabsEnum::TIMESHEETS => [
-                'title' => __('timesheets'),
-                'icon'  => 'fal fa-stopwatch',
-            ],
-            EmployeeTabsEnum::JOB_POSITIONS => [
-                'title' => __('job positions'),
-                'icon'  => 'fal fa-network-wired',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            EmployeeTabsEnum::DATA => [
-                'title' => __('database'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            */
+
             EmployeeTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',

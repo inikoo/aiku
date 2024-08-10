@@ -55,8 +55,8 @@ class JobPositionHydrateEmployees
                 enum: EmployeeStateEnum::class,
                 models: Employee::class,
                 where: function ($q) use ($jobPosition) {
-                    $q->leftJoin('job_positionables', 'job_positionables.job_positionable_id', '=', 'employees.id')
-                        ->where('job_positionable_type', 'Employee')->where('job_position_id', $jobPosition->id);
+                    $q->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', '=', 'employees.id')
+                        ->where('job_position_id', $jobPosition->id);
                 }
             )
         );

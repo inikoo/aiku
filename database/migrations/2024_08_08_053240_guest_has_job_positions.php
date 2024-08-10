@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->foreign('guest_id')->references('id')->on('guests')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('job_position_id')->index()->nullable();
             $table->foreign('job_position_id')->references('id')->on('job_positions')->onUpdate('cascade')->onDelete('cascade');
+            $table->double('share')->nullable();
             $table->jsonb('scopes');
             $table->timestampsTz();
         });
