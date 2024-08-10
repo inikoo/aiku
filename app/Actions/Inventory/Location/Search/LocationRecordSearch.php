@@ -19,6 +19,7 @@ class LocationRecordSearch
     public function handle(Location $location): void
     {
         if ($location->trashed()) {
+            $location->universalSearch()->delete();
             return;
         }
 

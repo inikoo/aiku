@@ -8,8 +8,8 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
+use App\Actions\Inventory\WarehouseArea\Search\WarehouseAreaRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Models\Inventory\WarehouseArea;
@@ -25,7 +25,7 @@ class UpdateWarehouseArea extends OrgAction
     public function handle(WarehouseArea $warehouseArea, array $modelData): WarehouseArea
     {
         $warehouseArea = $this->update($warehouseArea, $modelData, ['data']);
-        WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
+        WarehouseAreaRecordSearch::dispatch($warehouseArea);
 
         return $warehouseArea;
     }

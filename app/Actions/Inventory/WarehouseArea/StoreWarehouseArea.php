@@ -8,9 +8,9 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
-use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
-use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
+use App\Actions\Inventory\WarehouseArea\Search\WarehouseAreaRecordSearch;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
 use App\Models\Inventory\Warehouse;
@@ -31,7 +31,7 @@ class StoreWarehouseArea extends OrgAction
         /** @var WarehouseArea $warehouseArea */
         $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
-        WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
+        WarehouseAreaRecordSearch::dispatch($warehouseArea);
         GroupHydrateWarehouseAreas::dispatch($warehouse->group);
         OrganisationHydrateWarehouseAreas::dispatch($warehouse->organisation);
         WarehouseHydrateWarehouseAreas::dispatch($warehouse);

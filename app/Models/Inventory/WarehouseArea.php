@@ -62,7 +62,6 @@ class WarehouseArea extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;

@@ -19,6 +19,7 @@ use App\Actions\Fulfilment\StoredItemAudit\Search\ReindexStoredItemAuditSearch;
 use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
 use App\Actions\Inventory\Location\Search\ReindexLocationSearch;
+use App\Actions\Inventory\WarehouseArea\Search\ReindexWarehouseAreaSearch;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
@@ -33,6 +34,7 @@ use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
@@ -110,6 +112,9 @@ class ReindexSearch extends HydrateModel
 
     public function reindexWarehouse(): void
     {
+        foreach (WarehouseArea::withTrashed()->get() as $model) {
+            ReindexWarehouseAreaSearch::run($model);
+        }
         foreach (Location::withTrashed()->get() as $model) {
             ReindexLocationSearch::run($model);
         }
