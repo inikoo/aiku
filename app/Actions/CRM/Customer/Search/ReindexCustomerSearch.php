@@ -21,7 +21,6 @@ class ReindexCustomerSearch extends HydrateModel
         CustomerRecordSearch::run($customer);
     }
 
-
     protected function getModel(string $slug): Customer
     {
         return Customer::withTrashed()->where('slug', $slug)->first();

@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Sat, 10 Aug 2024 22:25:01 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Service\Hydrators;
+namespace App\Actions\Catalogue\Service\Search;
 
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Service;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ServiceHydrateUniversalSearch
+class ServiceRecordSearch
 {
     use AsAction;
 
@@ -19,6 +19,12 @@ class ServiceHydrateUniversalSearch
 
     public function handle(Service $service): void
     {
+        if ($service->trashed()) {
+            $service->universalSearch()->delete();
+            return;
+        }
+
+
         $shop = $service->shop;
 
         $modelData =
