@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 10:02:57 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 10 Aug 2024 21:53:05 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\Warehouse\Hydrators;
+namespace App\Actions\Inventory\Warehouse\Search;
 
 use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class WarehouseHydrateUniversalSearch
+class WarehouseRecordSearch
 {
     use AsAction;
 
@@ -19,6 +19,11 @@ class WarehouseHydrateUniversalSearch
 
     public function handle(Warehouse $warehouse): void
     {
+        if ($warehouse->trashed()) {
+            $warehouse->universalSearch()->delete();
+            return;
+        }
+
         $warehouse->universalSearch()->updateOrCreate(
             [],
             [
@@ -27,6 +32,7 @@ class WarehouseHydrateUniversalSearch
                 'organisation_slug' => $warehouse->organisation->slug,
                 'sections'          => ['inventory'],
                 'haystack_tier_1'   => trim($warehouse->name.' '.$warehouse->code),
+                'keyword'           => $warehouse->code,
 
             ]
         );

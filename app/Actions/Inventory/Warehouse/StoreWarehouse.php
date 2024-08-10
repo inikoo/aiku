@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
+use App\Actions\Inventory\Warehouse\Search\WarehouseRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
@@ -16,8 +16,8 @@ use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
@@ -65,7 +65,7 @@ class StoreWarehouse extends OrgAction
 
         GroupHydrateWarehouses::run($organisation->group);
         OrganisationHydrateWarehouses::run($organisation);
-        WarehouseHydrateUniversalSearch::dispatch($warehouse);
+        WarehouseRecordSearch::dispatch($warehouse);
         SeedJobPositions::run($organisation);
 
 
