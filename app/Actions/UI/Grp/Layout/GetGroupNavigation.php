@@ -78,6 +78,13 @@ class GetGroupNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'root'  => 'grp.supply-chain.dashboard',
+                            'route' => [
+                                'name'       => 'grp.supply-chain.dashboard',
+                            ]
+                        ],
+                        [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'root'  => 'grp.supply-chain.agents.',

@@ -9,7 +9,6 @@ use App\Actions\Manufacturing\Artefact\UI\CreateArtefact;
 use App\Actions\Manufacturing\Artefact\UI\EditArtefact;
 use App\Actions\Manufacturing\Artefact\UI\IndexArtefacts;
 use App\Actions\Manufacturing\Artefact\UI\ShowArtefact;
-use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
 use App\Actions\Manufacturing\ManufactureTask\UI\CreateManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UI\EditManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UI\IndexManufactureTasks;
@@ -24,6 +23,8 @@ use App\Actions\Manufacturing\RawMaterial\UI\CreateRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UI\EditRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UI\IndexRawMaterials;
 use App\Actions\Manufacturing\RawMaterial\UI\ShowRawMaterial;
+use App\Stubs\UIDummies\IndexDummies;
+use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexProductions::class)->name('index');
@@ -39,10 +40,10 @@ Route::prefix('{production}')
                 Route::name('.operations.')->prefix('operations')
                     ->group(function () {
                         Route::get('', ShowProductionOperations::class)->name('dashboard');
-                        Route::get('artisans', ShowJobOrder::class)->name('artisans.index');
+                        Route::get('artisans', ShowDummy::class)->name('artisans.index');
 
-                        Route::get('job-orders', ShowJobOrder::class)->name('job-orders.index');
-                        Route::get('job-orders/{jobOrder}', ShowJobOrder::class)->name('job-orders.show');
+                        Route::get('job-orders', IndexDummies::class)->name('job-orders.index');
+                        Route::get('job-orders/{jobOrder}', ShowDummy::class)->name('job-orders.show');
                     });
 
                 Route::name('.crafts.')->prefix('crafts')

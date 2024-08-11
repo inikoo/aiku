@@ -477,7 +477,7 @@ test('can show hr dashboard', function (Guest $guest) {
 })->depends('create guest');
 
 test('Hydrate group via command', function (Group $group) {
-    $this->artisan('hydrate:group '.$group->slug)->assertSuccessful();
+    $this->artisan('hydrate:groups '.$group->slug)->assertSuccessful();
 })->depends('create group');
 
 test('Hydrate organisations via command', function (Organisation $organisation) {

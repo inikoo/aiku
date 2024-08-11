@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
 use App\Actions\SupplyChain\Agent\UI\CreateAgent;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
@@ -29,6 +28,16 @@ Route::prefix("agents")->name("agents.")->group(
         Route::get('', IndexAgents::class)->name('index');
         Route::get('create', CreateAgent::class)->name('create');
         Route::get('{agent}', ShowAgent::class)->name('show');
+
+        Route::prefix('{agent}')->as('show')->group(function () {
+            Route::get('', ShowAgent::class);
+            Route::get('suppliers', [IndexSuppliers::class, 'inAgent'])->name('.suppliers.index');
+            Route::get('suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('.suppliers.show');
+            Route::get('suppliers/{supplier}/edit', [EditSupplier::class, 'inAgent'])->name('.suppliers.edit');
+            Route::get('supplier-products', [IndexSupplierProducts::class, 'inAgent'])->name('.supplier_products.index');
+            Route::get('supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inAgent'])->name('.supplier_products.show');
+        });
+
     }
 );
 
@@ -51,38 +60,3 @@ Route::prefix("supplier-products")->name("supplier_products.")->group(
 
     }
 );
-
-
-
-/*
-
-
-Route::get('/agents/export', ExportAgents::class)->name('agents.export');
-
-
-
-Route::get('/agents/{agent}', ShowOrgAgent::class)->name('agents.show');
-Route::get('/agents/{agent}/edit', EditOrgAgent::class)->name('agents.edit');
-Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
-
-Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');
-Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('agents.show.suppliers.show');
-Route::get('/agents/{agent}/suppliers/{supplier}/edit', [EditOrgSupplier::class, 'inAgent'])->name('agents.show.suppliers.edit');
-Route::get('/agents/{agent}/supplier-products', [IndexSupplierProducts::class, 'inAgent'])->name('agents.show.supplier_products.index');
-Route::get('/agents/{agent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inAgent'])->name('agents.show.supplier_products.show');
-
-Route::get('/supplier-products/export', ExportSupplierProducts::class)->name('supplier_products.export');
-
-
-
-
-
-Route::prefix("marketplace")
-    ->name("marketplace.")
-    ->group(
-        function () {
-            $parent='shop';
-            require __DIR__.'/procurement-marketplace.php';
-        }
-    );
-*/

@@ -40,7 +40,7 @@ const props = defineProps<{
     supplier_products?: object,
     purchase_orders?: object,
     errors?: object,
-    history: object
+    history?: object
 }>()
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import {useForm} from "@inertiajs/vue3";
