@@ -34,9 +34,9 @@ class OrganisationHydrateOrgAgents
         $activeAgents = $organisation->orgAgents()->where('org_agents.status', true)->count();
 
         $stats = [
-            'number_agents'          => $numberAgents,
-            'number_active_agents'   => $activeAgents,
-            'number_archived_agents' => $numberAgents - $activeAgents
+            'number_org_agents'          => $numberAgents,
+            'number_active_org_agents'   => $activeAgents,
+            'number_archived_org_agents' => $numberAgents - $activeAgents
         ];
 
 

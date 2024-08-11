@@ -68,6 +68,8 @@ beforeEach(function () {
 });
 
 test('UI Index org suppliers', function () {
+
+    $this->withoutExceptionHandling();
     $response = $this->get(route('grp.org.procurement.org_suppliers.index', [$this->organisation->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {

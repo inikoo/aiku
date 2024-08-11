@@ -13,6 +13,7 @@ use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderItemQuantity;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToCheckedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToCreatingPurchaseOrder;
@@ -20,18 +21,17 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToDispatchedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToDispatchStockDelivery;
-use App\Actions\Procurement\StockDelivery\UpdateStockDeliveryStateToReceived;
 use App\Actions\Procurement\StockDelivery\UpdateStateToSettledStockDelivery;
+use App\Actions\Procurement\StockDelivery\UpdateStockDeliveryStateToReceived;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItem;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderItem;
 use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
-use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Procurement\OrgSupplier;
@@ -76,7 +76,7 @@ test('create independent supplier', function () {
 
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($this->group->supplyChainStats->number_suppliers)->toBe(1)
-        ->and($this->organisation->procurementStats->number_suppliers)->toBe(0);
+        ->and($this->organisation->procurementStats->number_org_suppliers)->toBe(0);
 
     return $supplier;
 });
@@ -86,7 +86,7 @@ test('attach supplier to organisation', function ($supplier) {
 
 
     expect($orgSupplier)->toBeInstanceOf(OrgSupplier::class)
-        ->and($this->organisation->procurementStats->number_suppliers)->toBe(1);
+        ->and($this->organisation->procurementStats->number_org_suppliers)->toBe(1);
 
     return $orgSupplier;
 })->depends('create independent supplier');

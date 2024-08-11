@@ -16,17 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $org_partner_id
  * @property int $number_supplier_products
- * @property int $number_supplier_products_state_active_and_discontinuing
+ * @property int $number_current_supplier_products status=true equivalent to state=active|discontinuing
  * @property int $number_supplier_products_state_creating
  * @property int $number_supplier_products_state_active
  * @property int $number_supplier_products_state_discontinuing
  * @property int $number_supplier_products_state_discontinued
- * @property int $number_supplier_products_stock_quantity_status_excess
- * @property int $number_supplier_products_stock_quantity_status_ideal
- * @property int $number_supplier_products_stock_quantity_status_low
- * @property int $number_supplier_products_stock_quantity_status_critical
- * @property int $number_supplier_products_stock_quantity_status_out_of_stock
- * @property int $number_supplier_products_stock_quantity_status_no_applicable
  * @property int $number_purchase_orders
  * @property int $number_purchase_orders_except_cancelled Number purchase orders (except cancelled and failed)
  * @property int $number_open_purchase_orders Number purchase orders (except creating, settled)

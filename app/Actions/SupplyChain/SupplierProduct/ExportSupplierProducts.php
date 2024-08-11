@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 11 Aug 2024 14:47:08 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\SupplierProduct;
+namespace App\Actions\SupplyChain\SupplierProduct;
 
 use App\Actions\Traits\WithExportData;
 use App\Exports\Procurement\SupplierProductsExport;

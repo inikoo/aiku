@@ -8,6 +8,8 @@
 namespace App\Actions\Procurement\OrgSupplierProducts;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydrateOrgSupplierProducts;
+use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydrateOrgSupplierProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSupplierProducts;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
@@ -25,13 +27,16 @@ class StoreOrgSupplierProduct extends OrgAction
         data_set($modelData, 'org_agent_id', $orgSupplier->org_agent_id);
         data_set($modelData, 'org_supplier_id', $orgSupplier->id);
 
-        //
 
         /** @var OrgSupplierProduct $orgSupplierProduct */
         $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->create($modelData);
         $orgSupplierProduct->stats()->create();
 
         OrganisationHydrateOrgSupplierProducts::dispatch($orgSupplier->organisation);
+        OrgSupplierHydrateOrgSupplierProducts::dispatch($orgSupplier);
+        if($orgSupplierProduct->org_agent_id) {
+            OrgAgentHydrateOrgSupplierProducts::dispatch($orgSupplierProduct->orgAgent);
+        }
 
 
         return $orgSupplierProduct;

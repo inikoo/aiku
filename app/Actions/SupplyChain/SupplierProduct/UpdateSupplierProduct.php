@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 17 Feb 2023 22:27:24 Malaysia Time, Plane Bali - KL
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 11 Aug 2024 14:46:44 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\SupplierProduct;
+namespace App\Actions\SupplyChain\SupplierProduct;
 
 use App\Actions\GrpAction;
-use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
+use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\SupplyChain\SupplierProduct;
@@ -36,7 +36,7 @@ class UpdateSupplierProduct extends GrpAction
             //todo create HistoricSupplierProduct and update current_historic_asset_id if
         }
 
-        SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
+        SupplierProductRecordSearch::dispatch($supplierProduct);
 
         return $supplierProduct;
     }

@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 17 Feb 2023 18:00:17 Malaysia Time, Bali Airport
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 11 Aug 2024 14:46:37 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\SupplierProduct;
+namespace App\Actions\SupplyChain\SupplierProduct;
 
 use App\Actions\GrpAction;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
-use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
@@ -60,7 +60,7 @@ class StoreSupplierProduct extends GrpAction
 
         SupplierHydrateSupplierProducts::dispatch($supplier)->delay($this->hydratorsDelay);
         AgentHydrateSupplierProducts::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
-        SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
+        SupplierProductRecordSearch::dispatch($supplierProduct);
 
 
         GroupHydrateProductSuppliers::dispatch($supplier->group)->delay($this->hydratorsDelay);

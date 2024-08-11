@@ -84,11 +84,11 @@ class IndexOrgSuppliers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_org_supplier_products', 'number_purchase_orders'])
             ->leftJoin('suppliers', 'org_suppliers.supplier_id', 'suppliers.id')
 
             ->leftJoin('org_supplier_stats', 'org_supplier_stats.org_supplier_id', 'org_suppliers.id')
-            ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
+            ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_org_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -129,7 +129,7 @@ class IndexOrgSuppliers extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)
-                ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_org_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
@@ -162,7 +162,7 @@ class IndexOrgSuppliers extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {
-        return SupplierResource::collection($suppliers);
+        return OrgSuppliersResource::collection($suppliers);
     }
 
 

@@ -33,9 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Agent $agent
  * @property-read Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $orgSupplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplier> $orgSuppliers
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgAgentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
@@ -92,7 +92,7 @@ class OrgAgent extends Model
         return $this->morphMany(StockDelivery::class, 'parent');
     }
 
-    public function products(): HasMany
+    public function orgSupplierProducts(): HasMany
     {
         return $this->hasMany(OrgSupplierProduct::class);
     }

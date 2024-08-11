@@ -9,9 +9,9 @@
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
-use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgAgentStats;

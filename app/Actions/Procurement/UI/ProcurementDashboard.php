@@ -66,7 +66,7 @@ class ProcurementDashboard extends OrgAction
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'index'        => [
-                                'number' => $this->organisation->procurementStats->number_agents
+                                'number' => $this->organisation->procurementStats->number_active_org_agents
                             ],
 //                            'rightSubLink' => [
 //                                'tooltip'    => __('marketplace agents'),
@@ -88,7 +88,7 @@ class ProcurementDashboard extends OrgAction
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'index'        => [
-                                'number' => $this->organisation->procurementStats->number_suppliers
+                                'number' => $this->organisation->procurementStats->number_active_independent_org_suppliers
                             ],
 //                            'rightSubLink' => [
 //                                'tooltip'    => __('marketplace suppliers'),
@@ -108,15 +108,8 @@ class ProcurementDashboard extends OrgAction
                             'icon'         => ['fal', 'fa-box-usd'],
                             'href'         => ['name' => 'grp.org.procurement.org_supplier_products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index'        => [
-                                'number' => $this->organisation->procurementStats->number_supplier_products
-                            ],
-//                            'rightSubLink' => [
-//                                'tooltip'    => __('marketplace suppliers'),
-//                                'icon'       => ['fal', 'fa-store'],
-//                                'labelStyle' => 'bordered',
-//                                'href'       => ['name' => 'grp.org.procurement.marketplace.org_supplier_products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
-//
-//                            ]
+                                'number' => $this->organisation->procurementStats->number_current_org_supplier_products
+                            ]
 
                         ],
                     ],

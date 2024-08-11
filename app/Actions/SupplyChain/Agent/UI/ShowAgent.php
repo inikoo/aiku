@@ -15,7 +15,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\SupplyChain\AgentTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
-use App\Http\Resources\SupplyChain\AgentResource;
+use App\Http\Resources\SupplyChain\AgentsResource;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -181,9 +181,9 @@ class ShowAgent extends GrpAction
     }
 
 
-    public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(Agent $agent): AgentsResource
     {
-        return new AgentResource($agent);
+        return new AgentsResource($agent);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
@@ -32,7 +31,6 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->string('state')->nullable()->index();
             $table->boolean('status')->nullable()->index();
-            $table->string('stock_quantity_status')->default(SupplierProductQuantityStatusEnum::NO_APPLICABLE->value)->nullable()->index();
             $table = $this->assertCodeDescription($table);
             $table->decimal('cost', 18, 4)->comment('unit cost');
             $table->unsignedSmallInteger('currency_id');

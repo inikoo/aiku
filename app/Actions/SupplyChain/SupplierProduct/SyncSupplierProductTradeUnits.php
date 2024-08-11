@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 May 2023 15:26:45 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 11 Aug 2024 14:47:08 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\SupplierProduct;
+namespace App\Actions\SupplyChain\SupplierProduct;
 
 use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;

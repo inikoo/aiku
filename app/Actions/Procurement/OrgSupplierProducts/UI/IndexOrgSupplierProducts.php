@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\UI\ProcurementDashboard;
-use App\Http\Resources\SupplyChain\SupplierProductResource;
+use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
@@ -71,9 +71,9 @@ class IndexOrgSupplierProducts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|OrgAgent|OrgSupplier $parent, array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -119,7 +119,7 @@ class IndexOrgSupplierProducts extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $orgSupplierProducts): AnonymousResourceCollection
     {
-        return SupplierProductResource::collection($orgSupplierProducts);
+        return OrgSupplierProductsResource::collection($orgSupplierProducts);
     }
 
 
@@ -136,7 +136,7 @@ class IndexOrgSupplierProducts extends OrgAction
                 'pageHead'    => [
                     'title' => __('supplier products'),
                 ],
-                'data'        => SupplierProductResource::collection($orgSupplierProducts),
+                'data'        => OrgSupplierProductsResource::collection($orgSupplierProducts),
 
 
             ]

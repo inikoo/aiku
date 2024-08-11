@@ -7,7 +7,6 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
@@ -48,7 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $agent_id
  * @property SupplierProductStateEnum|null $state
  * @property bool|null $status
- * @property string|null $stock_quantity_status
  * @property string $code
  * @property string|null $name
  * @property string|null $description
@@ -68,7 +66,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug_inter_org
  * @property string|null $source_organisation_id
  * @property string|null $source_id
- * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $gross_weight
@@ -105,7 +102,6 @@ class SupplierProduct extends Model implements Auditable
         'settings'               => 'array',
         'status'                 => 'boolean',
         'state'                  => SupplierProductStateEnum::class,
-        'quantity_status'        => SupplierProductQuantityStatusEnum::class,
         'trade_unit_composition' => SupplierProductTradeUnitCompositionEnum::class,
     ];
 

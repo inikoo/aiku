@@ -21,7 +21,7 @@ class StoreOrgSupplierFromSupplierInAgent extends OrgAction
 
         foreach ($supplier->agent->orgAgents as $orgAgent) {
             StoreOrgSupplier::make()->action(
-                $orgAgent->organisation,
+                $orgAgent,
                 $supplier,
                 $modelData
             );

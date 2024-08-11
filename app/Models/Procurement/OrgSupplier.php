@@ -31,13 +31,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $supplier_id
  * @property int|null $agent_id
  * @property int|null $org_agent_id
+ * @property bool $status
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read \App\Models\Procurement\OrgAgent|null $orgAgent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $orgSupplierProducts
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgSupplierStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
@@ -72,6 +74,11 @@ class OrgSupplier extends Model
         return 'slug';
     }
 
+    public function orgAgent(): BelongsTo
+    {
+        return $this->belongsTo(OrgAgent::class);
+    }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
@@ -93,7 +100,7 @@ class OrgSupplier extends Model
     }
 
 
-    public function products(): HasMany
+    public function orgSupplierProducts(): HasMany
     {
         return $this->hasMany(OrgSupplierProduct::class);
     }

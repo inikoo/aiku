@@ -18,7 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property numeric $number_supplier_products
  * @property numeric $number_purchase_orders
  */
-class AgentResource extends JsonResource
+class AgentsResource extends JsonResource
 {
     public function toArray($request): array
     {

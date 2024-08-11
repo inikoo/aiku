@@ -18,27 +18,20 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $organisation_id
- * @property int $number_agents Total number agens active+archived
- * @property int $number_active_agents Active agents, status=true
- * @property int $number_archived_agents Archived agents, status=false
- * @property int $number_suppliers Active + Archived  suppliers
- * @property int $number_active_suppliers Active suppliers, status=true
- * @property int $number_archived_suppliers Archived suppliers status=false
- * @property int $number_suppliers_in_agents Active + Archived suppliers
- * @property int $number_active_suppliers_in_agents Active suppliers, status=true
- * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
- * @property int $number_supplier_products
- * @property int $number_supplier_products_state_active_and_discontinuing
- * @property int $number_supplier_products_state_creating
- * @property int $number_supplier_products_state_active
- * @property int $number_supplier_products_state_discontinuing
- * @property int $number_supplier_products_state_discontinued
- * @property int $number_supplier_products_stock_quantity_status_excess
- * @property int $number_supplier_products_stock_quantity_status_ideal
- * @property int $number_supplier_products_stock_quantity_status_low
- * @property int $number_supplier_products_stock_quantity_status_critical
- * @property int $number_supplier_products_stock_quantity_status_out_of_stock
- * @property int $number_supplier_products_stock_quantity_status_no_applicable
+ * @property int $number_org_agents Total number agens active+archived
+ * @property int $number_active_org_agents Active agents, status=true
+ * @property int $number_archived_org_agents Archived agents, status=false
+ * @property int $number_org_suppliers Active + Archived  suppliers
+ * @property int $number_active_org_suppliers Active suppliers, status=true
+ * @property int $number_archived_org_suppliers Archived suppliers status=false
+ * @property int $number_independent_org_suppliers Active + Archived no agent suppliers
+ * @property int $number_active_independent_org_suppliers Active no agent suppliers, status=true
+ * @property int $number_archived_independent_org_suppliers Archived no agent suppliers status=false
+ * @property int $number_org_suppliers_in_agents Active + Archived suppliers
+ * @property int $number_active_org_suppliers_in_agents Active suppliers, status=true
+ * @property int $number_archived_org_suppliers_in_agents Archived suppliers status=false
+ * @property int $number_org_supplier_products
+ * @property int $number_current_org_supplier_products status=true
  * @property int $number_purchase_orders
  * @property int $number_purchase_orders_except_cancelled Number purchase orders (except cancelled and failed)
  * @property int $number_open_purchase_orders Number purchase orders (except creating, settled)

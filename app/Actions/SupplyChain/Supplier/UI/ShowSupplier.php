@@ -12,7 +12,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;

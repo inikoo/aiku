@@ -8,9 +8,9 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
-use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
-use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
-use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\SyncSupplierProductTradeUnits;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;

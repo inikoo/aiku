@@ -14,7 +14,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\SupplyChain\AgentResource;
+use App\Http\Resources\SupplyChain\AgentsResource;
 use App\Models\SupplyChain\Agent;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -111,8 +111,8 @@ class UpdateAgent extends GrpAction
     }
 
 
-    public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(Agent $agent): AgentsResource
     {
-        return new AgentResource($agent);
+        return new AgentsResource($agent);
     }
 }

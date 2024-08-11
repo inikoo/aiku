@@ -11,7 +11,6 @@ use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 
 use Illuminate\Database\Schema\Blueprint;
@@ -27,6 +26,15 @@ trait HasProcurementStats
         return $table;
     }
 
+    public function orgAgentStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_org_agents')->default(0)->comment('Total number agens active+archived');
+        $table->unsignedInteger('number_active_org_agents')->default(0)->comment('Active agents, status=true');
+        $table->unsignedInteger('number_archived_org_agents')->default(0)->comment('Archived agents, status=false');
+
+        return $table;
+    }
+
     public function suppliersStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_suppliers')->default(0)->comment('Active + Archived  suppliers');
@@ -35,6 +43,11 @@ trait HasProcurementStats
 
 
         if($table->getTable()!='agent_stats') {
+
+            $table->unsignedInteger('number_independent_suppliers')->default(0)->comment('Active + Archived no agent suppliers');
+            $table->unsignedInteger('number_active_independent_suppliers')->default(0)->comment('Active no agent suppliers, status=true');
+            $table->unsignedInteger('number_archived_independent_suppliers')->default(0)->comment('Archived no agent suppliers status=false');
+
             $table->unsignedInteger('number_suppliers_in_agents')->default(0)->comment('Active + Archived suppliers');
             $table->unsignedInteger('number_active_suppliers_in_agents')->default(0)->comment('Active suppliers, status=true');
             $table->unsignedInteger('number_archived_suppliers_in_agents')->default(0)->comment('Archived suppliers status=false');
@@ -44,20 +57,42 @@ trait HasProcurementStats
         return $table;
     }
 
+    public function orgSuppliersStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_org_suppliers')->default(0)->comment('Active + Archived  suppliers');
+        $table->unsignedInteger('number_active_org_suppliers')->default(0)->comment('Active suppliers, status=true');
+        $table->unsignedInteger('number_archived_org_suppliers')->default(0)->comment('Archived suppliers status=false');
+
+        if($table->getTable()!='agent_stats') {
+
+            $table->unsignedInteger('number_independent_org_suppliers')->default(0)->comment('Active + Archived no agent suppliers');
+            $table->unsignedInteger('number_active_independent_org_suppliers')->default(0)->comment('Active no agent suppliers, status=true');
+            $table->unsignedInteger('number_archived_independent_org_suppliers')->default(0)->comment('Archived no agent suppliers status=false');
+
+            $table->unsignedInteger('number_org_suppliers_in_agents')->default(0)->comment('Active + Archived suppliers');
+            $table->unsignedInteger('number_active_org_suppliers_in_agents')->default(0)->comment('Active suppliers, status=true');
+            $table->unsignedInteger('number_archived_org_suppliers_in_agents')->default(0)->comment('Archived suppliers status=false');
+        }
+        return $table;
+    }
+
+
     public function supplierProductsStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_supplier_products')->default(0);
-        $table->unsignedInteger('number_supplier_products_state_active_and_discontinuing')->default(0);
-
+        $table->unsignedInteger('number_current_supplier_products')->default(0)->comment('status=true equivalent to state=active|discontinuing ');
 
         foreach (SupplierProductStateEnum::cases() as $productState) {
             $table->unsignedInteger('number_supplier_products_state_'.$productState->snake())->default(0);
         }
 
+        return $table;
+    }
 
-        foreach (SupplierProductQuantityStatusEnum::cases() as $productStockQuantityStatus) {
-            $table->unsignedInteger('number_supplier_products_stock_quantity_status_'.$productStockQuantityStatus->snake())->default(0);
-        }
+    public function orgSupplierProductsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_org_supplier_products')->default(0);
+        $table->unsignedInteger('number_current_org_supplier_products')->default(0)->comment('status=true');
 
 
         return $table;

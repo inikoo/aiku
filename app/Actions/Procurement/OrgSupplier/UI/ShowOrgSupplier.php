@@ -10,9 +10,9 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -144,18 +144,10 @@ class ShowOrgSupplier extends OrgAction
                     fn () => GetOrgSupplierShowcase::run($orgSupplier)
                     : Inertia::lazy(fn () => GetOrgSupplierShowcase::run($orgSupplier)),
 
-                SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
-                    fn () => SupplierProductResource::collection(
-                        IndexSupplierProducts::run(
-                            parent: $orgSupplier,
-                            prefix: 'supplier_products'
-                        )
-                    )
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($orgSupplier))),
 
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($orgSupplier))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($orgSupplier))),
+                    fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))),
 
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplier))
@@ -169,8 +161,7 @@ class ShowOrgSupplier extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplier))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier)))
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure())
-            ->table(IndexSupplierProducts::make()->tableStructure())
+        )->table(IndexOrgSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));

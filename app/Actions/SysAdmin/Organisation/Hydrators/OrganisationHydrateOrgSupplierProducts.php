@@ -14,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrganisationHydrateOrgSupplierProducts
 {
     use AsAction;
+
     private Organisation $organisation;
 
     public function __construct(Organisation $organisation)
@@ -28,8 +29,10 @@ class OrganisationHydrateOrgSupplierProducts
 
     public function handle(Organisation $organisation): void
     {
-        $stats         = [
-            'number_supplier_products' => $organisation->orgSupplierProducts()->count(),
+        $stats = [
+            'number_org_supplier_products'         => $organisation->orgSupplierProducts()->count(),
+            'number_current_org_supplier_products' => $organisation->orgSupplierProducts()->where('status', true)->count(),
+
         ];
 
 

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -31,10 +30,10 @@ class GroupHydrateAgents
     public function handle(Group $group): void
     {
         $stats = [
-            'number_agents'             => Agent::count(),
-            'number_active_agents'      => Agent::where('agents.status', true)->count(),
-            'number_archived_agents'    => Agent::where('agents.status', false)->count(),
+            'number_agents'                 => $group->agents()->count(),
+            'number_active_agents'          => $group->agents()->where('status', 'true')->count(),
         ];
+        $stats['number_archived_agents'] = $stats['number_agents'] - $stats['number_active_agents'];
 
 
         $group->supplyChainStats()->update($stats);

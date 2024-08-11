@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 10 Mar 2023 11:05:41 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 11 Aug 2024 14:38:32 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\SupplierProduct\Hydrators;
+namespace App\Actions\SupplyChain\SupplierProduct\Search;
 
 use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SupplierProductHydrateUniversalSearch
+class SupplierProductRecordSearch
 {
     use AsAction;
 

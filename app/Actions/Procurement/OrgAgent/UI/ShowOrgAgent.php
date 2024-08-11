@@ -17,7 +17,7 @@ use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Http\Resources\SupplyChain\AgentResource;
+use App\Http\Resources\SupplyChain\AgentsResource;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\Procurement\OrgAgent;
@@ -226,9 +226,9 @@ class ShowOrgAgent extends OrgAction
     }
 
 
-    public function jsonResponse(Agent $orgAgent): AgentResource
+    public function jsonResponse(Agent $orgAgent): AgentsResource
     {
-        return new AgentResource($orgAgent);
+        return new AgentsResource($orgAgent);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

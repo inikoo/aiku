@@ -18,8 +18,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('org_agent_id')->index();
             $table->foreign('org_agent_id')->references('id')->on('org_agents');
-            $table = $this->suppliersStats($table);
-            $table = $this->supplierProductsStats($table);
+            $table = $this->orgSuppliersStats($table);
+            $table = $this->orgSupplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);
             $table = $this->stockDeliveriesStats($table);
             $table->timestampsTz();

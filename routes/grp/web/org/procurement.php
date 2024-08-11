@@ -26,7 +26,6 @@ use App\Actions\Procurement\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -42,7 +41,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::get('suppliers', [IndexOrgSuppliers::class, 'inOrgAgent'])->name('.suppliers.index');
         Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
         Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
-        Route::get('supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
+        Route::get('supplier-products', [IndexOrgSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
         Route::get('supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('.supplier_products.show');
     });
 });

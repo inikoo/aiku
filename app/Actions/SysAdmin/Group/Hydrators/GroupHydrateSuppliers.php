@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Models\SupplyChain\Supplier;
+use App\Actions\Traits\Hydrators\WithHydrateSuppliers;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class GroupHydrateSuppliers
 {
     use AsAction;
+    use WithHydrateSuppliers;
 
     private Group $group;
 
@@ -30,14 +31,7 @@ class GroupHydrateSuppliers
 
     public function handle(Group $group): void
     {
-        $stats = [
-            'number_suppliers'          => Supplier::count(),
-            'number_active_suppliers'   => Supplier::where('suppliers.status', true)->count(),
-            'number_archived_suppliers' => Supplier::where('suppliers.status', false)->count(),
-
-        ];
-
-
+        $stats=$this->getSuppliersStats($group);
         $group->supplyChainStats()->update($stats);
     }
 

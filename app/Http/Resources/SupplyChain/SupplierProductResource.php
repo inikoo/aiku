@@ -7,29 +7,23 @@
 
 namespace App\Http\Resources\SupplyChain;
 
+use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $code
- * @property string $name
- * @property string $slug
- * @property string $created_at
- * @property string $updated_at
- * @property string $description
- */
 class SupplierProductResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var SupplierProduct $supplierProduct */
+        $supplierProduct=$this;
+
         return [
-            'code'          => $this->code,
-            'name'          => $this->name,
-            'slug'          => $this->slug,
-            'agent_slug'    => $this->whenHas('agent_slug'),
-            'supplier_slug' => $this->whenHas('supplier_slug'),
-            'description'   => $this->description,
-            'created_at'    => $this->created_at,
-            'updated_at'    => $this->updated_at,
+            'code'          => $supplierProduct->code,
+            'name'          => $supplierProduct->name,
+            'slug'          => $supplierProduct->slug,
+            'description'   => $supplierProduct->description,
+            'created_at'    => $supplierProduct->created_at,
+            'updated_at'    => $supplierProduct->updated_at,
 
         ];
     }

@@ -7,7 +7,6 @@
 
 namespace App\Actions\SupplyChain\Agent\Hydrators;
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
@@ -45,14 +44,7 @@ class AgentHydrateSupplierProducts
             $stats['number_supplier_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
 
-        $stockQuantityStatusCounts = SupplierProduct::where('agent_id', $agent->id)
-            ->selectRaw('stock_quantity_status, count(*) as total')
-            ->groupBy('stock_quantity_status')
-            ->pluck('total', 'stock_quantity_status')->all();
 
-        foreach (SupplierProductQuantityStatusEnum::cases() as $stockQuantityStatus) {
-            $stats['number_supplier_products_stock_quantity_status_'.$stockQuantityStatus->snake()] = Arr::get($stockQuantityStatusCounts, $stockQuantityStatus->value, 0);
-        }
         $agent->stats()->update($stats);
     }
 

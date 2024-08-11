@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 27 Mar 2023 15:54:59 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 11 Aug 2024 14:53:58 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
@@ -10,7 +10,7 @@ namespace App\Actions\SupplyChain\SupplierProduct\UI;
 use App\Actions\GrpAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\UI\ProcurementDashboard;
-use App\Http\Resources\SupplyChain\SupplierProductResource;
+use App\Http\Resources\SupplyChain\SupplierProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -32,7 +32,7 @@ class IndexSupplierProducts extends GrpAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('supplier_products.code', $value)
-                    ->orWhereANyWordStartWith('supplier_products.name', $value);
+                    ->orWhereAnyWordStartWith('supplier_products.name', $value);
             });
         });
         if ($prefix) {
@@ -130,7 +130,7 @@ class IndexSupplierProducts extends GrpAction
 
     public function jsonResponse(LengthAwarePaginator $supplier_products): AnonymousResourceCollection
     {
-        return SupplierProductResource::collection($supplier_products);
+        return SupplierProductsResource::collection($supplier_products);
     }
 
 
@@ -147,7 +147,7 @@ class IndexSupplierProducts extends GrpAction
                 'pageHead'    => [
                     'title' => __('supplier products'),
                 ],
-                'data'        => SupplierProductResource::collection($supplier_products),
+                'data'        => SupplierProductsResource::collection($supplier_products),
 
 
             ]

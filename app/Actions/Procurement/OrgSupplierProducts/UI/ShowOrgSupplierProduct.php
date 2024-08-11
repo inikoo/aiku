@@ -11,7 +11,6 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -91,8 +90,8 @@ class ShowOrgSupplierProduct extends OrgAction
                     fn () => GetOrgAgentShowcase::run($supplierProduct)
                     : Inertia::lazy(fn () => GetOrgAgentShowcase::run($supplierProduct)),
                 SupplierProductTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierProductTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplierProduct))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplierProduct))),
+                    fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($supplierProduct))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($supplierProduct))),
 
                 SupplierProductTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierProductTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplierProduct))
@@ -103,7 +102,7 @@ class ShowOrgSupplierProduct extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplierProduct)))
 
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure())
+        )->table(IndexOrgSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierProductTabsEnum::HISTORY->value));
     }
