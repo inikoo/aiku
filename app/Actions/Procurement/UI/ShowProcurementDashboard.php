@@ -17,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProcurementDashboard extends OrgAction
+class ShowProcurementDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;

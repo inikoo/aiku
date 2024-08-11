@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
@@ -142,7 +142,7 @@ class IndexPurchaseOrders extends OrgAction
     {
         return
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                ShowProcurementDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
                 [
                     [
                         'type'   => 'simple',

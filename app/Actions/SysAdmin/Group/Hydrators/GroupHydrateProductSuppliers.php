@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;

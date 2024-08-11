@@ -13,7 +13,7 @@ use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\OrgSupplierResource;
@@ -195,7 +195,7 @@ class ShowOrgSupplier extends OrgAction
         return match ($routeName) {
             'grp.org.procurement.org_suppliers.show' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [

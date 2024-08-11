@@ -7,36 +7,20 @@
 
 namespace App\Actions\SupplyChain\Supplier\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateSupplierProducts;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\Supplier;
-use App\Models\SupplyChain\SupplierProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SupplierHydrateSupplierProducts
 {
     use AsAction;
     use WithEnumStats;
+    use WithHydrateSupplierProducts;
 
     public function handle(Supplier $supplier): void
     {
-        $stats = [
-            'number_supplier_products' => $supplier->products->count()
-        ];
-
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'supplier_products',
-                field: 'state',
-                enum: SupplierProductStateEnum::class,
-                models: SupplierProduct::class,
-                where: function ($q) use ($supplier) {
-                    $q->where('supplier_id', $supplier->id);
-                }
-            )
-        );
-
+        $stats=$this->getSupplierProductsStats($supplier);
         $supplier->stats()->update($stats);
     }
 

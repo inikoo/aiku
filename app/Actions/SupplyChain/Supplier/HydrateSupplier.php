@@ -13,11 +13,11 @@ use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateStockDeliveries;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Models\SupplyChain\Supplier;
-use Illuminate\Support\Collection;
+use Illuminate\Console\Command;
 
 class HydrateSupplier extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:supplier {organisations?*} {--i|id=} ';
+    public string $commandSignature = 'hydrate:suppliers';
 
     public function handle(Supplier $supplier): void
     {
@@ -26,14 +26,18 @@ class HydrateSupplier extends HydrateModel
         SupplierHydrateStockDeliveries::run($supplier);
     }
 
-
-    protected function getModel(string $slug): Supplier
+    public function asCommand(Command $command): int
     {
-        return Supplier::where('slug', $slug)->first();
+
+        $command->withProgressBar(Supplier::all(), function ($supplier) {
+            $this->handle($supplier);
+
+        });
+        $command->info("");
+
+        return 0;
     }
 
-    protected function getAllModels(): Collection
-    {
-        return Supplier::withTrashed()->get();
-    }
+
+
 }

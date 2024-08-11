@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -73,18 +73,15 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $data     = [];
         $settings = [];
 
-        $status = true;
+        $isAvailable = true;
         if ($this->auroraModelData->{'Supplier Part Status'} == 'NoAvailable') {
-            $status = false;
+            $isAvailable = false;
         }
         $state = match ($this->auroraModelData->{'Supplier Part Status'}) {
             'Discontinued', 'NoAvailable' => SupplierProductStateEnum::DISCONTINUED,
             default => SupplierProductStateEnum::ACTIVE,
         };
 
-        if ($state == SupplierProductStateEnum::DISCONTINUED) {
-            $status = false;
-        }
 
         if ($this->auroraModelData->{'Supplier Part From'} == '0000-00-00 00:00:00') {
             $created_at = null;
@@ -128,7 +125,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'units_per_carton' => $this->auroraModelData->{'Supplier Part Packages Per Carton'} * $auroraPartData->{'Part Units Per Package'},
 
 
-                'status'                => $status,
+                'is_available'          => $isAvailable,
                 'state'                 => $state,
                 'stock_quantity_status' => $stock_quantity_status,
 

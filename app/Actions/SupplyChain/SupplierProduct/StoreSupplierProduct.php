@@ -13,6 +13,8 @@ use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
@@ -45,8 +47,8 @@ class StoreSupplierProduct extends GrpAction
 
 
         /** @var SupplierProduct $supplierProduct */
-        $supplierProduct = $supplier->products()->create($modelData);
-
+        $supplierProduct = $supplier->supplierProducts()->create($modelData);
+        $supplierProduct->refresh();
         $supplierProduct->stats()->create();
 
         if (!$this->skipHistoric) {
@@ -58,6 +60,7 @@ class StoreSupplierProduct extends GrpAction
             );
         }
 
+        GroupHydrateSupplierProducts::dispatch($supplier->group)->delay($this->hydratorsDelay);
         SupplierHydrateSupplierProducts::dispatch($supplier)->delay($this->hydratorsDelay);
         AgentHydrateSupplierProducts::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
         SupplierProductRecordSearch::dispatch($supplierProduct);
@@ -85,6 +88,8 @@ class StoreSupplierProduct extends GrpAction
 
             ],
             'name'                   => ['required', 'string', 'max:255'],
+            'state'                  => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
+            'is_available'           => ['sometimes', 'required', 'boolean'],
             'cost'                   => ['required'],
             'source_id'              => ['sometimes', 'nullable', 'string'],
             'source_slug'            => ['sometimes', 'nullable', 'string'],
@@ -93,7 +98,8 @@ class StoreSupplierProduct extends GrpAction
         ];
     }
 
-    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict=true): SupplierProduct
+
+    public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict = true): SupplierProduct
     {
         $this->supplier_id    = $supplier->id;
         $this->asAction       = true;

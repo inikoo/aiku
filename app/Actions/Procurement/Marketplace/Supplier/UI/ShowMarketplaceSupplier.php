@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Marketplace\Supplier\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\MarketplaceSupplierTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
@@ -157,7 +157,7 @@ class ShowMarketplaceSupplier extends InertiaAction
         };
         return match ($routeName) {
             'grp.org.procurement.marketplace.org_suppliers.show' => array_merge(
-                (new ProcurementDashboard())->getBreadcrumbs(),
+                (new ShowProcurementDashboard())->getBreadcrumbs(),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [

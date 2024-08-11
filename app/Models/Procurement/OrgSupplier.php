@@ -99,7 +99,6 @@ class OrgSupplier extends Model
         return $this->morphMany(StockDelivery::class, 'parent');
     }
 
-
     public function orgSupplierProducts(): HasMany
     {
         return $this->hasMany(OrgSupplierProduct::class);

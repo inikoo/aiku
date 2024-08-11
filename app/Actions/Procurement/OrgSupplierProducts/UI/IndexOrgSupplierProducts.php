@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
@@ -162,7 +162,7 @@ class IndexOrgSupplierProducts extends OrgAction
         return match ($routeName) {
             'grp.org.procurement.org_supplier_products.index' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                ShowProcurementDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.procurement.org_supplier_products.index',

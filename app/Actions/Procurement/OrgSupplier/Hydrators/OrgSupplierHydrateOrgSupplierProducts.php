@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\OrgSupplier\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateOrgSupplierProducts;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrgSupplierHydrateOrgSupplierProducts
 {
     use AsAction;
+    use WithHydrateOrgSupplierProducts;
 
     private OrgSupplier $orgSupplier;
 
@@ -31,11 +33,7 @@ class OrgSupplierHydrateOrgSupplierProducts
 
     public function handle(OrgSupplier $orgSupplier): void
     {
-        $stats = [
-            'number_org_supplier_products'             => $orgSupplier->orgSupplierProducts()->count(),
-            'number_current_org_supplier_products'     => $orgSupplier->orgSupplierProducts()->where('status', true)->count(),
-        ];
-
+        $stats=$this->getOrgSupplierProductsStats($orgSupplier);
         $orgSupplier->stats()->update($stats);
     }
 

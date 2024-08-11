@@ -59,10 +59,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, OrgAgent> $orgAgents
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Organisation $organisation
- * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\SupplyChain\AgentStats|null $stats
  * @property-read Collection<int, StockDelivery> $stockDeliveries
+ * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
  * @property-read Collection<int, \App\Models\SupplyChain\Supplier> $suppliers
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\AgentFactory factory($count = null, $state = [])
@@ -132,7 +132,7 @@ class Agent extends Model implements HasMedia, Auditable
         return $this->hasMany(Supplier::class);
     }
 
-    public function products(): HasMany
+    public function supplierProducts(): HasMany
     {
         return $this->hasMany(SupplierProduct::class);
     }

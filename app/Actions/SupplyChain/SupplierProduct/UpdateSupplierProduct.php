@@ -8,12 +8,18 @@
 namespace App\Actions\SupplyChain\SupplierProduct;
 
 use App\Actions\GrpAction;
+use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
+use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class UpdateSupplierProduct extends GrpAction
@@ -21,14 +27,24 @@ class UpdateSupplierProduct extends GrpAction
     use WithActionUpdate;
 
 
-    public bool $skipHistoric  = false;
+    public bool $skipHistoric = false;
 
 
     private SupplierProduct $supplierProduct;
 
     public function handle(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false): SupplierProduct
     {
+        if (Arr::exists($modelData, 'state')) {
+            if ($modelData['state'] == SupplierProductStateEnum::DISCONTINUED
+                || SupplierProductStateEnum::IN_PROCESS
+            ) {
+                $modelData['is_available'] = false;
+            }
+        }
+
         $supplierProduct = $this->update($supplierProduct, $modelData, ['data', 'settings']);
+
+
         /** @noinspection PhpStatementHasEmptyBodyInspection */
         if (!$skipHistoric and $supplierProduct->wasChanged(
             ['price', 'code', 'name', 'units']
@@ -36,7 +52,27 @@ class UpdateSupplierProduct extends GrpAction
             //todo create HistoricSupplierProduct and update current_historic_asset_id if
         }
 
-        SupplierProductRecordSearch::dispatch($supplierProduct);
+        if (!$skipHistoric and $supplierProduct->wasChanged(
+            ['state', 'is_available']
+        )) {
+            foreach ($supplierProduct->orgSupplierProducts as $orgSupplierProduct) {
+                UpdateOrgSupplierProduct::run(
+                    $orgSupplierProduct,
+                    [
+                        'state'        => $supplierProduct->state,
+                        'is_available' => $supplierProduct->is_available
+                    ]
+                );
+                GroupHydrateSupplierProducts::dispatch($supplierProduct->group)->delay($this->hydratorsDelay);
+                SupplierHydrateSupplierProducts::dispatch($supplierProduct->supplier)->delay($this->hydratorsDelay);
+                AgentHydrateSupplierProducts::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
+            }
+        }
+
+        if ($supplierProduct->wasChanged()) {
+            SupplierProductRecordSearch::dispatch($supplierProduct);
+        }
+
 
         return $supplierProduct;
     }
@@ -44,7 +80,7 @@ class UpdateSupplierProduct extends GrpAction
     public function rules(): array
     {
         return [
-            'code' => [
+            'code'         => [
                 'sometimes',
                 'required',
                 'max:64',
@@ -62,8 +98,10 @@ class UpdateSupplierProduct extends GrpAction
                     ]
                 ),
             ],
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'cost' => ['sometimes', 'required'],
+            'name'         => ['sometimes', 'required', 'string', 'max:255'],
+            'cost'         => ['sometimes', 'required'],
+            'state'        => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
+            'is_available' => ['sometimes', 'required', 'boolean'],
         ];
     }
 

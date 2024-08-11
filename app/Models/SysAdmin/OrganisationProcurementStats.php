@@ -32,6 +32,11 @@ use Illuminate\Support\Carbon;
  * @property int $number_archived_org_suppliers_in_agents Archived suppliers status=false
  * @property int $number_org_supplier_products
  * @property int $number_current_org_supplier_products status=true
+ * @property int $number_available_org_supplier_products
+ * @property int $number_no_available_org_supplier_products only for state=active|discontinuing
+ * @property int $number_org_supplier_products_state_active
+ * @property int $number_org_supplier_products_state_discontinuing
+ * @property int $number_org_supplier_products_state_discontinued
  * @property int $number_purchase_orders
  * @property int $number_purchase_orders_except_cancelled Number purchase orders (except cancelled and failed)
  * @property int $number_open_purchase_orders Number purchase orders (except creating, settled)

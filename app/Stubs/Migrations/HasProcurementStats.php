@@ -7,12 +7,12 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasProcurementStats
@@ -80,7 +80,9 @@ trait HasProcurementStats
     public function supplierProductsStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_supplier_products')->default(0);
-        $table->unsignedInteger('number_current_supplier_products')->default(0)->comment('status=true equivalent to state=active|discontinuing ');
+        $table->unsignedInteger('number_current_supplier_products')->default(0)->comment('state=active|discontinuing');
+        $table->unsignedInteger('number_available_supplier_products')->default(0);
+        $table->unsignedInteger('number_no_available_supplier_products')->default(0)->comment('only for state=active|discontinuing');
 
         foreach (SupplierProductStateEnum::cases() as $productState) {
             $table->unsignedInteger('number_supplier_products_state_'.$productState->snake())->default(0);
@@ -93,7 +95,12 @@ trait HasProcurementStats
     {
         $table->unsignedInteger('number_org_supplier_products')->default(0);
         $table->unsignedInteger('number_current_org_supplier_products')->default(0)->comment('status=true');
+        $table->unsignedInteger('number_available_org_supplier_products')->default(0);
+        $table->unsignedInteger('number_no_available_org_supplier_products')->default(0)->comment('only for state=active|discontinuing');
 
+        foreach (OrgSupplierProductStateEnum::cases() as $productState) {
+            $table->unsignedInteger('number_org_supplier_products_state_'.$productState->snake())->default(0);
+        }
 
         return $table;
     }

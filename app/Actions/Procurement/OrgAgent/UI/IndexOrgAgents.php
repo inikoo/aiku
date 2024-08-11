@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\Procurement\OrgAgentsResource;
 use App\InertiaTable\InertiaTable;
@@ -141,7 +141,7 @@ class IndexOrgAgents extends OrgAction
     {
         return
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

@@ -7,8 +7,8 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Procurement\HistoricSupplierProduct;
@@ -45,8 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $supplier_id
  * @property int|null $agent_id
- * @property SupplierProductStateEnum|null $state
- * @property bool|null $status
+ * @property SupplierProductStateEnum $state
+ * @property bool $is_available
  * @property string $code
  * @property string|null $name
  * @property string|null $description

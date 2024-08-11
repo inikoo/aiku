@@ -43,6 +43,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubDepartments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubscriptions;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
@@ -100,6 +101,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateFamilies::run($group);
         GroupHydratePostRooms::run($group);
         GroupHydrateOutboxes::run($group);
+        GroupHydrateSupplierProducts::run($group);
 
         //fulfilment
         GroupHydratePallets::run($group);

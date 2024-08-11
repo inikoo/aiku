@@ -31,7 +31,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $org_agent_id
  * @property int|null $org_supplier_id
  * @property string $slug
- * @property bool $status
+ * @property string $state
+ * @property bool $is_available
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $source_id

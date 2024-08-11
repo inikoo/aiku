@@ -16,8 +16,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $org_partner_id
  * @property int $number_supplier_products
- * @property int $number_current_supplier_products status=true equivalent to state=active|discontinuing
- * @property int $number_supplier_products_state_creating
+ * @property int $number_current_supplier_products state=active|discontinuing
+ * @property int $number_available_supplier_products
+ * @property int $number_no_available_supplier_products only for state=active|discontinuing
+ * @property int $number_supplier_products_state_in_process
  * @property int $number_supplier_products_state_active
  * @property int $number_supplier_products_state_discontinuing
  * @property int $number_supplier_products_state_discontinued

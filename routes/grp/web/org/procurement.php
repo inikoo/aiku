@@ -26,10 +26,10 @@ use App\Actions\Procurement\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ProcurementDashboard::class)->name('dashboard');
+Route::get('/', ShowProcurementDashboard::class)->name('dashboard');
 
 Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::get('', IndexOrgAgents::class)->name('index');

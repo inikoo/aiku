@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\StockDeliveryTabsEnum;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Models\Procurement\StockDelivery;
@@ -75,7 +75,7 @@ class ShowStockDelivery extends InertiaAction
     public function getBreadcrumbs(StockDelivery $stockDelivery, $suffix = null): array
     {
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
+            (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

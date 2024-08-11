@@ -91,7 +91,7 @@ test('attach supplier to organisation', function ($supplier) {
     return $orgSupplier;
 })->depends('create independent supplier');
 
-test('create purchase order while no products', function ($orgSupplier) {
+test('create purchase order while no available products', function ($orgSupplier) {
     expect(function () use ($orgSupplier) {
         StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
     })->toThrow(ValidationException::class);
@@ -106,6 +106,7 @@ test('create supplier product', function ($supplier) {
     ];
 
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $arrayData);
+
     expect($supplierProduct)->toBeInstanceOf(SupplierProduct::class)
         ->and($supplierProduct->supplier_id)->toBe($supplier->id)
         ->and($supplierProduct->code)->toBe($arrayData['code'])
@@ -117,6 +118,7 @@ test('create supplier product', function ($supplier) {
 })->depends('create independent supplier');
 
 test('attach supplier product to organisation', function (SupplierProduct $supplierProduct, OrgSupplier $orgSupplier) {
+
     $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
     $orgSupplierProduct->refresh();

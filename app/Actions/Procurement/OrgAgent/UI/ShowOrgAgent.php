@@ -70,7 +70,7 @@ class ShowOrgAgent extends OrgAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
-                    'title'         => $orgAgent->organisation->name,
+                    'title'         => $orgAgent->agent->organisation->name,
                     'create_direct' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.models.org_agent.purchase-order.store',
@@ -237,7 +237,7 @@ class ShowOrgAgent extends OrgAction
         $orgAgent=OrgAgent::where('slug', $routeParameters['orgAgent'])->first();
 
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs($routeParameters),
+            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
