@@ -20,6 +20,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -42,25 +43,28 @@ class IndexOrgSupplierProducts extends OrgAction
         $queryBuilder = QueryBuilder::for(OrgSupplierProduct::class);
         $queryBuilder->leftJoin('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id');
 
+
+        if (class_basename($parent) == 'OrgAgent') {
+            $queryBuilder->leftJoin('org_agents', 'org_agents.id', 'org_supplier_products.agent_id');
+            //$queryBuilder->leftJoin('agents', 'agents.id', 'org_agents.agent_id');
+
+            $queryBuilder->where('org_supplier_products.agent_id', $parent->id);
+            $queryBuilder->addSelect('org_agents.slug as org_agent_slug');
+        } elseif (class_basename($parent) == 'OrgSupplier') {
+            $queryBuilder->where('org_supplier_products.org_supplier_id', $parent->id);
+        } else {
+            $queryBuilder->where('org_supplier_products.organisation_id', $this->organisation->id);
+        }
+
+
         return $queryBuilder
             ->defaultSort('supplier_products.code')
             ->select([
+                'org_supplier_products.slug',
                 'supplier_products.code',
-                'supplier_products.slug',
                 'supplier_products.name'
             ])
-            ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Agent') {
-                    $query->leftJoin('agents', 'agents.id', 'supplier_products.agent_id');
-                    $query->where('supplier_products.agent_id', $parent->id);
-                    $query->addSelect('agents.slug as agent_slug');
-                } elseif (class_basename($parent) == 'Supplier') {
-                    $query->where('supplier_products.supplier_id', $parent->id);
-                } else {
-                    $query->where('supplier_products.group_id', $this->group->if);
-                }
-            })
+            ->leftJoin('org_supplier_product_stats', 'org_supplier_product_stats.org_supplier_product_id', 'org_supplier_products.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -78,7 +82,7 @@ class IndexOrgSupplierProducts extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
@@ -87,23 +91,25 @@ class IndexOrgSupplierProducts extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+
         return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation);
     }
 
-    public function inAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
+    public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
 
         return $this->handle($orgAgent);
     }
 
-    public function inSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
 
@@ -154,24 +160,24 @@ class IndexOrgSupplierProducts extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.procurement.org_supplier_products.index' =>
+            'grp.org.procurement.org_supplier_products.index' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(),
+                ProcurementDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
                 $headCrumb(
                     [
-                        'name' => 'grp.procurement.org_supplier_products.index',
-                        null
+                        'name'       => 'grp.org.procurement.org_supplier_products.index',
+                        'parameters' => Arr::only($routeParameters, 'organisation')
                     ]
                 ),
             ),
 
 
-            'grp.procurement.org_agents.show.org_supplier_products.index' =>
+            'grp.org.procurement.org_agents.show.org_supplier_products.index' =>
             array_merge(
                 (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
-                        'name'       => 'grp.procurement.org_agents.show.org_supplier_products.index',
+                        'name'       => 'grp.org.procurement.org_agents.show.org_supplier_products.index',
                         'parameters' =>
                             [
                                 $routeParameters['supplierProduct']->slug

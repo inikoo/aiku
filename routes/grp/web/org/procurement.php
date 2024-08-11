@@ -14,6 +14,7 @@ use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\OrgSupplierProducts\UI\ShowOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
@@ -25,9 +26,7 @@ use App\Actions\Procurement\StockDelivery\UI\CreateStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
-use App\Actions\Procurement\SupplierProduct\ExportSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
 use App\Actions\Procurement\UI\ProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -44,7 +43,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
         Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
         Route::get('supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
-        Route::get('supplier-products/{orfSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('.supplier_products.show');
+        Route::get('supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('.supplier_products.show');
     });
 });
 
@@ -58,9 +57,9 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
 });
 
 Route::prefix('supplier-products')->as('org_supplier_products.')->group(function () {
-    Route::get('', IndexSupplierProducts::class)->name('index');
-    Route::get('export', ExportSupplierProducts::class)->name('export');
-    Route::get('{supplierProduct}', ShowSupplierProduct::class)->name('show');
+    Route::get('', IndexOrgSupplierProducts::class)->name('index');
+    //todo  Route::get('export', ExportOrgSupplierProducts::class)->name('export');
+    Route::get('{orgSupplierProduct}', ShowOrgSupplierProduct::class)->name('show');
 });
 
 Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {

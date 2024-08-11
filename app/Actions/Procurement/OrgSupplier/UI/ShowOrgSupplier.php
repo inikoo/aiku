@@ -93,7 +93,7 @@ class ShowOrgSupplier extends OrgAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.procurement.org_suppliers.remove',
+                                'name'       => 'grp.org.procurement.org_suppliers.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
@@ -101,7 +101,7 @@ class ShowOrgSupplier extends OrgAction
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'grp.procurement.org_suppliers.show.purchase_orders.create',
+                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('purchase order')
@@ -112,7 +112,7 @@ class ShowOrgSupplier extends OrgAction
                             'name'     => trans_choice('Purchases|Sales', $orgSupplier->stats->number_open_purchase_orders),
                             'number'   => $orgSupplier->stats->number_open_purchase_orders,
                             'href'     => [
-                                'grp.procurement.org_supplier_products.show',
+                                'grp.org.procurement.org_supplier_products.show',
                                 $orgSupplier->slug
                             ],
                             'leftIcon' => [
@@ -124,7 +124,7 @@ class ShowOrgSupplier extends OrgAction
                             'name'     => trans_choice('product|products', $orgSupplier->stats->number_supplier_products),
                             'number'   => $orgSupplier->stats->number_supplier_products,
                             'href'     => [
-                                'grp.procurement.org_supplier_products.show',
+                                'grp.org.procurement.org_supplier_products.show',
                                 $orgSupplier->slug
                             ],
                             'leftIcon' => [
@@ -202,25 +202,25 @@ class ShowOrgSupplier extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.procurement.org_suppliers.show' =>
+            'grp.org.procurement.org_suppliers.show' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'grp.procurement.org_suppliers.index',
+                            'name'       => 'grp.org.procurement.org_suppliers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.procurement.org_suppliers.show',
+                            'name'       => 'grp.org.procurement.org_suppliers.show',
                             'parameters' => [$routeParameters['supplier']->slug]
                         ]
                     ],
                     $suffix
                 ),
             ),
-            'grp.procurement.org_agents.show.org_suppliers.show' =>
+            'grp.org.procurement.org_agents.show.org_suppliers.show' =>
             array_merge(
                 (new ShowOrgAgent())->getBreadcrumbs(
                     ['agent' => $routeParameters['agent']]
@@ -229,13 +229,13 @@ class ShowOrgSupplier extends OrgAction
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'grp.procurement.org_agents.show.org_suppliers.index',
+                            'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.index',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.procurement.org_agents.show.org_suppliers.show',
+                            'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                                 $routeParameters['supplier']->slug
@@ -258,7 +258,7 @@ class ShowOrgSupplier extends OrgAction
     public function getPrevious(OrgSupplier $orgSupplier, ActionRequest $request): ?array
     {
         $previous = OrgSupplier::where('code', '<', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
+            if ($request->route()->getName() == 'grp.org.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $orgSupplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -269,7 +269,7 @@ class ShowOrgSupplier extends OrgAction
     public function getNext(OrgSupplier $orgSupplier, ActionRequest $request): ?array
     {
         $next = OrgSupplier::where('code', '>', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
+            if ($request->route()->getName() == 'grp.org.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $orgSupplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -284,7 +284,7 @@ class ShowOrgSupplier extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.procurement.org_suppliers.show' => [
+            'grp.org.procurement.org_suppliers.show' => [
                 'label' => $orgSupplier->code,
                 'route' => [
                     'name'       => $routeName,
@@ -294,7 +294,7 @@ class ShowOrgSupplier extends OrgAction
 
                 ]
             ],
-            'grp.procurement.org_agents.show.org_suppliers.show' => [
+            'grp.org.procurement.org_agents.show.org_suppliers.show' => [
                 'label' => $orgSupplier->code,
                 'route' => [
                     'name'       => $routeName,

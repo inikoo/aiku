@@ -124,13 +124,13 @@ class ShowOrgSupplierProduct extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.org_supplier_products.index',
+                                'name' => 'grp.org.procurement.org_supplier_products.index',
                             ],
                             'label' => __('supplierProduct')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.org_supplier_products.show',
+                                'name'       => 'grp.org.procurement.org_supplier_products.show',
                                 'parameters' => [$supplierProduct->slug]
                             ],
                             'label' => $supplierProduct->name,
@@ -148,8 +148,8 @@ class ShowOrgSupplierProduct extends OrgAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.procurement.org_agents.show.show.supplier.org_supplier_products.show',
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.org.procurement.org_agents.show.show.supplier.org_supplier_products.show',
             'grp.procurement.supplier.org_supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
@@ -166,8 +166,8 @@ class ShowOrgSupplierProduct extends OrgAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.procurement.org_agents.show.show.supplier.org_supplier_products.show',
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.org.procurement.org_agents.show.show.supplier.org_supplier_products.show',
             'grp.procurement.supplier.org_supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
@@ -185,7 +185,7 @@ class ShowOrgSupplierProduct extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.procurement.org_supplier_products.show' => [
+            'grp.org.procurement.org_supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,
@@ -195,7 +195,7 @@ class ShowOrgSupplierProduct extends OrgAction
 
                 ]
             ],
-            'grp.procurement.org_agents.show.org_supplier_products.show' => [
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,

@@ -1,21 +1,23 @@
+
+
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 11 Aug 2024 10:11:50 Central Indonesia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {SupplierProduct} from "@/types/supplier-product";
+import {OrgSupplierProduct}  from "@/types/org-supplier-product";
 
-const props = defineProps<{
+defineProps<{
     data: object,
     tab?: string
 }>()
 
 
-function supplierProductRoute(supplierProduct: SupplierProduct) {
+function supplierProductRoute(supplierProduct: OrgSupplierProduct) {
     // console.log(route().current())
     switch (route().current()) {
         case 'grp.org.procurement.suppliers.show':
@@ -33,7 +35,7 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
         default:
             return route(
                 'grp.org.procurement.org_supplier_products.show',
-                [supplierProduct.slug]);
+                [route().params['organisation'],supplierProduct.slug]);
     }
 }
 
@@ -41,9 +43,9 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: supplier_product }">
-            <Link :href="supplierProductRoute(supplier_product)">
-                {{ supplier_product['slug'] }}
+        <template #cell(code)="{ item: supplier_product }">
+            <Link :href="supplierProductRoute(supplier_product)" class="primaryLink">
+                {{ supplier_product['code'] }}
             </Link>
         </template>
     </Table>
