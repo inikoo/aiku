@@ -291,6 +291,7 @@ class InertiaTable
     public function column(
         string $key,
         array|string $label = null,
+        string $shortLabel = null,
         array|string $icon = null,
         string $tooltip = null,
         bool $canBeHidden = true,
@@ -309,6 +310,7 @@ class InertiaTable
             $column = new Column(
                 key: $key,
                 label: $label,
+                shortLabel: $shortLabel,
                 icon: $icon,
                 tooltip: $tooltip,
                 canBeHidden: $canBeHidden,
