@@ -16,10 +16,10 @@ use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgSupplierProductsResource;
+use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\SupplyChain\AgentsResource;
-use App\Http\Resources\SupplyChain\SupplierProductResource;
-use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -149,7 +149,7 @@ class ShowOrgAgent extends OrgAction
                             prefix: 'purchase_orders'
                         )
                     )),
-                OrgAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::SUPPLIER_PRODUCTS->value
+                OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
                     ?
                     fn () => SupplierProductResource::collection(
                         IndexSupplierProducts::run(
@@ -163,7 +163,7 @@ class ShowOrgAgent extends OrgAction
                             prefix: 'supplier_products'
                         )
                     )),
-                OrgAgentTabsEnum::SUPPLIERS->value         => $this->tab == OrgAgentTabsEnum::SUPPLIERS->value
+                OrgAgentTabsEnum::ORG_SUPPLIERS->value         => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIERS->value
                     ?
                     fn () => SupplierResource::collection(
                         IndexSuppliers::run(

@@ -15,15 +15,15 @@ enum OrgAgentTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE          = 'showcase';
-    case SUPPLIERS         = 'suppliers';
-    case SUPPLIER_PRODUCTS = 'supplier_products';
-    case PURCHASE_ORDERS   = 'purchase_orders';
-    case DELIVERIES        = 'deliveries';
-    case SYSTEM_USERS      = 'system_users';
-    case HISTORY           = 'history';
-    case DATA              = 'data';
-    case IMAGES            = 'images';
+    case SHOWCASE              = 'showcase';
+    case ORG_SUPPLIERS         = 'org_suppliers';
+    case ORG_SUPPLIER_PRODUCTS = 'org_supplier_products';
+    case PURCHASE_ORDERS       = 'purchase_orders';
+    case DELIVERIES            = 'deliveries';
+    case SYSTEM_USERS          = 'system_users';
+    case HISTORY               = 'history';
+    case DATA                  = 'data';
+    case IMAGES                = 'images';
 
 
     public function blueprint(): array
@@ -35,11 +35,11 @@ enum OrgAgentTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            OrgAgentTabsEnum::SUPPLIERS => [
+            OrgAgentTabsEnum::ORG_SUPPLIERS => [
                 'title' => __('suppliers'),
                 'icon'  => 'fal fa-person-dolly',
             ],
-            OrgAgentTabsEnum::SUPPLIER_PRODUCTS => [
+            OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-box-usd',
             ],

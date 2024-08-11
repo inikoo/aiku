@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
-use App\Http\Resources\SupplyChain\SupplierResource;
+use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
@@ -66,11 +66,13 @@ class IndexOrgSuppliers extends OrgAction
 
 
         if (class_basename($parent) == 'OrgAgent') {
-            $queryBuilder->where('suppliers.owner_id', $parent->id);
-            $queryBuilder->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
-            $queryBuilder->addSelect(['agents.slug as agent_slug', 'agents.name as agent_name']);
+
+            $queryBuilder->where('org_suppliers.org_agent_id', $parent->id);
+
+
         } else {
             $queryBuilder->where('org_suppliers.organisation_id', $parent->id);
+            $queryBuilder->whereNull('org_suppliers.org_agent_id');
         }
 
         foreach ($this->getSupplierElementGroups($parent) as $key => $elementGroup) {
@@ -82,12 +84,14 @@ class IndexOrgSuppliers extends OrgAction
             );
         }
 
+
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_org_supplier_products', 'number_purchase_orders'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products', 'number_purchase_orders'])
             ->leftJoin('suppliers', 'org_suppliers.supplier_id', 'suppliers.id')
 
             ->leftJoin('org_supplier_stats', 'org_supplier_stats.org_supplier_id', 'org_suppliers.id')
+
             ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_org_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -128,7 +132,7 @@ class IndexOrgSuppliers extends OrgAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'number_org_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -180,7 +184,7 @@ class IndexOrgSuppliers extends OrgAction
                     'icon'  => ['fal', 'fa-person-dolly'],
                     'title' => __('suppliers'),
                 ],
-                'data'        => SupplierResource::collection($suppliers),
+                'data'        => OrgSuppliersResource::collection($suppliers),
 
 
             ]

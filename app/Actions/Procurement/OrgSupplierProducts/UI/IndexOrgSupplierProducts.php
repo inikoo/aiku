@@ -28,6 +28,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrgSupplierProducts extends OrgAction
 {
+    private OrgSupplier|OrgAgent|Organisation $parent;
+
     public function handle(Organisation|OrgAgent|OrgSupplier $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -97,22 +99,22 @@ class IndexOrgSupplierProducts extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$organisation;
         $this->initialisation($organisation, $request);
-
         return $this->handle($organisation);
     }
 
     public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$orgAgent;
         $this->initialisation($organisation, $request);
-
         return $this->handle($orgAgent);
     }
 
     public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$orgSupplier;
         $this->initialisation($organisation, $request);
-
         return $this->handle($orgSupplier);
     }
 
@@ -140,7 +142,7 @@ class IndexOrgSupplierProducts extends OrgAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
 
