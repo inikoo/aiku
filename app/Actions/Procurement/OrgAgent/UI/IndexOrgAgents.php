@@ -78,8 +78,8 @@ class IndexOrgAgents extends OrgAction
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
 
                 ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), shortLabel: 'PO', canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_supplier_products', label: __('supplier products'),  shortLabel: 'SP',canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
