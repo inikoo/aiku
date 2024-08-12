@@ -32,7 +32,7 @@ class IndexPurchaseOrders extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('purchase_orders.number', $value);
+                $query->whereStartWith('purchase_orders.reference', $value);
             });
         });
 
@@ -59,7 +59,7 @@ class IndexPurchaseOrders extends OrgAction
         }
 
 
-        return $query->defaultSort('purchase_orders.number')
+        return $query->defaultSort('purchase_orders.reference')
 
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -78,12 +78,12 @@ class IndexPurchaseOrders extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_name', label: __('supplier'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('number');
+                ->defaultSort('reference');
         };
     }
 

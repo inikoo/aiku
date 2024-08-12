@@ -8,11 +8,13 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
@@ -612,6 +614,16 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function shippings(): HasMany
     {
         return $this->hasMany(Shipping::class);
+    }
+
+    public function topUps(): HasMany
+    {
+        return $this->hasMany(TopUp::class);
+    }
+
+    public function creditTransactions(): HasMany
+    {
+        return $this->hasMany(CreditTransaction::class);
     }
 
 

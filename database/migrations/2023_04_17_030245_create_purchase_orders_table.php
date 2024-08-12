@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->unsignedInteger('parent_id')->index();
             $table->string('parent_code')->index()->collation('und_ns')->comment('Parent code on the time of consolidation');
             $table->string('parent_name')->index()->comment('Parent name on the time of consolidation');
-            $table->string('number');
+            $table->string('reference')->index();
             $table->jsonb('data');
             $table->string('state')->index()->default(PurchaseOrderItemStateEnum::CREATING->value);
             $table->string('status')->index()->default(PurchaseOrderItemStatusEnum::PROCESSING->value);

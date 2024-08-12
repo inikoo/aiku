@@ -48,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $warehouse_id
  * @property int $shop_id
  * @property int $customer_id
- * @property string $number
+ * @property string $reference
  * @property DeliveryNoteTypeEnum $type
  * @property DeliveryNoteStateEnum $state
  * @property DeliveryNoteStatusEnum $status
@@ -142,7 +142,7 @@ class DeliveryNote extends Model implements Auditable
     }
 
     protected array $auditInclude = [
-        'number',
+        'reference',
         'type',
         'net_amount',
         'currency_id',
@@ -154,7 +154,7 @@ class DeliveryNote extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }

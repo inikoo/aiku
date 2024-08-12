@@ -84,19 +84,19 @@ test('update shipper', function ($createdShipper) {
 
 test('create delivery note', function () {
     $arrayData = [
-        'number'           => 'A123456',
-        'state'            => DeliveryNoteStateEnum::SUBMITTED,
-        'status'           => DeliveryNoteStatusEnum::HANDLING,
-        'email'            => 'test@email.com',
-        'phone'            => '+62081353890000',
-        'date'             => date('Y-m-d'),
-        'delivery_address' => new Address(Address::factory()->definition()),
-        'warehouse_id'     => $this->warehouse->id
+        'reference'           => 'A123456',
+        'state'               => DeliveryNoteStateEnum::SUBMITTED,
+        'status'              => DeliveryNoteStatusEnum::HANDLING,
+        'email'               => 'test@email.com',
+        'phone'               => '+62081353890000',
+        'date'                => date('Y-m-d'),
+        'delivery_address'    => new Address(Address::factory()->definition()),
+        'warehouse_id'        => $this->warehouse->id
     ];
 
     $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
     expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
-        ->and($deliveryNote->number)->toBe($arrayData['number']);
+        ->and($deliveryNote->reference)->toBe($arrayData['reference']);
 
 
     return $deliveryNote;
@@ -104,17 +104,17 @@ test('create delivery note', function () {
 
 test('update delivery note', function ($lastDeliveryNote) {
     $arrayData = [
-        'number' => 'A2321321',
-        'state'  => DeliveryNoteStateEnum::PICKING,
-        'status' => DeliveryNoteStatusEnum::DISPATCHED,
-        'email'  => 'test@email.com',
-        'phone'  => '+62081353890000',
-        'date'   => date('Y-m-d')
+        'reference' => 'A2321321',
+        'state'     => DeliveryNoteStateEnum::PICKING,
+        'status'    => DeliveryNoteStatusEnum::DISPATCHED,
+        'email'     => 'test@email.com',
+        'phone'     => '+62081353890000',
+        'date'      => date('Y-m-d')
     ];
 
     $updatedDeliveryNote = UpdateDeliveryNote::make()->action($lastDeliveryNote, $arrayData);
 
-    expect($updatedDeliveryNote->number)->toBe($arrayData['number']);
+    expect($updatedDeliveryNote->reference)->toBe($arrayData['reference']);
 })->depends('create delivery note');
 
 test('create delivery note item', function (DeliveryNote $deliveryNote) {

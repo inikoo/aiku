@@ -141,9 +141,9 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'parent_code'=> $this->auroraModelData->{'Purchase Order Parent Code'},
             'parent_name'=> $this->auroraModelData->{'Purchase Order Parent Name'},
 
-            "number" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
-            "state"  => $state,
-            "status" => $status,
+            "reference" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
+            "state"     => $state,
+            "status"    => $status,
 
             "cost_items"    => $this->auroraModelData->{'Purchase Order Items Net Amount'},
             "cost_shipping" => $this->auroraModelData->{'Purchase Order Shipping Net Amount'},

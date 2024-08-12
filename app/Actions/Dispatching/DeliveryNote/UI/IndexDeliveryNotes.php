@@ -35,7 +35,7 @@ class IndexDeliveryNotes extends OrgAction
         // dd($parent);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartsWith('delivery_notes.number', $value);
+                $query->whereStartsWith('delivery_notes.reference', $value);
             });
         });
 
@@ -53,11 +53,11 @@ class IndexDeliveryNotes extends OrgAction
         }
 
 
-        return $query->defaultSort('delivery_notes.number')
-            ->select(['delivery_notes.number', 'delivery_notes.date', 'delivery_notes.state', 'delivery_notes.created_at', 'delivery_notes.updated_at', 'delivery_notes.slug', 'shops.slug as shop_slug'])
+        return $query->defaultSort('delivery_notes.reference')
+            ->select(['delivery_notes.reference', 'delivery_notes.date', 'delivery_notes.state', 'delivery_notes.created_at', 'delivery_notes.updated_at', 'delivery_notes.slug', 'shops.slug as shop_slug'])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
-            ->allowedSorts(['number', 'date'])
+            ->allowedSorts(['reference', 'date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -75,7 +75,7 @@ class IndexDeliveryNotes extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

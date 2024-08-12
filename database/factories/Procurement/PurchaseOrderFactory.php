@@ -1,28 +1,26 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 12 Aug 2024 14:43:20 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace Database\Factories\Procurement;
 
 use App\Models\Helpers\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Procurement\PurchaseOrder>
- */
 class PurchaseOrderFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
+        /** @var Currency $currency */
         $currency = Currency::where('code', 'USD')->firstOrFail();
 
         return [
-            'number'        => fake()->numberBetween(100, 999),
-            'date'          => fake()->date,
-            'currency_id'   => $currency->id,
+            'reference'   => fake()->numberBetween(100, 999),
+            'date'        => fake()->date,
+            'currency_id' => $currency->id,
         ];
     }
 }

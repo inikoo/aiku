@@ -30,6 +30,10 @@ class CustomerHydrateCreditTransactions
 
     public function handle(Customer $customer): void
     {
+        $stats          = [
+            'number_credit_transactions' => $customer->creditTransactions()->count(),
+        ];
+
         $balance            = 0;
         $creditTransactions = $customer->creditTransactions()
         ->orderBy('date', 'asc')
@@ -41,6 +45,8 @@ class CustomerHydrateCreditTransactions
             ]);
         }
         data_set($modelData, 'balance', $balance);
+
+        $customer->stats()->update($stats);
 
         UpdateCustomer::make()->action($customer, $modelData);
     }

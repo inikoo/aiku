@@ -208,7 +208,7 @@ test('update quantity items in purchase order', function ($purchaseOrder) {
 
 test('update purchase order', function ($purchaseOrder) {
     $dataToUpdate  = [
-        'number' => 'PO-12345bis',
+        'reference' => 'PO-12345bis',
     ];
     $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, $dataToUpdate);
     $this->assertModelExists($purchaseOrder);
@@ -323,8 +323,8 @@ test('change state to creating from submitted purchase order', function ($purcha
 
 test('create supplier delivery', function (OrgSupplier $orgSupplier) {
     $arrayData = [
-        'number' => 12345,
-        'date'   => date('Y-m-d')
+        'reference' => 12345,
+        'date'      => date('Y-m-d')
     ];
 
     $stockDelivery = StoreStockDelivery::make()->action($this->organisation, $orgSupplier, $arrayData);
@@ -337,7 +337,7 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
         ->and($stockDelivery->partner_id)->toBeNull()
         ->and($stockDelivery->parent_type)->toBe('OrgSupplier')
         ->and($stockDelivery->parent_id)->toBe($orgSupplier->id)
-        ->and($stockDelivery->number)->toBeNumeric($arrayData['number']);
+        ->and($stockDelivery->reference)->toBeNumeric($arrayData['reference']);
 
     return $stockDelivery;
 })->depends('attach supplier to organisation');

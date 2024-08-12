@@ -31,9 +31,9 @@ function stockDeliveryRoute(stockDelivery: { } ) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(number)="{ item: stockDelivery }">
+        <template #cell(reference)="{ item: stockDelivery }">
             <Link :href="stockDeliveryRoute(stockDelivery)">
-                {{ stockDelivery['number'] }}
+                {{ stockDelivery['reference'] }}
             </Link>
         </template>
     </Table>

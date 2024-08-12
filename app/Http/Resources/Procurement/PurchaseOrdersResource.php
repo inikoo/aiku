@@ -20,10 +20,10 @@ class PurchaseOrdersResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'number'       => $this->number,
-            'slug'         => $this->slug,
-            'date'         => $this->date,
-            'parent_name'  => $this->parent_name,
+            'reference'       => $this->reference,
+            'slug'            => $this->slug,
+            'date'            => $this->date,
+            'parent_name'     => $this->parent_name,
         ];
     }
 

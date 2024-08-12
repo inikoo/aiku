@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Organisation;
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollectionCategories;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollections;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCreditTransactions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
@@ -43,6 +44,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAud
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubscription;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateTopUps;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
@@ -103,6 +105,9 @@ class HydrateOrganisations extends HydrateModel
             OrganisationHydrateStoredItemAudits::run($organisation);
             OrganisationHydrateStoredItems::run($organisation);
             OrganisationHydrateRecurringBills::run($organisation);
+
+            OrganisationHydrateTopUps::run($organisation);
+            OrganisationHydrateCreditTransactions::run($organisation);
 
 
         }

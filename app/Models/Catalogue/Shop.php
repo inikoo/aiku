@@ -11,12 +11,14 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\OrgPaymentServiceProviderShop;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
+use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
 use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\CRM\Appointment;
@@ -120,6 +122,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read Country $country
+ * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
@@ -161,6 +164,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone
+ * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
@@ -496,6 +500,16 @@ class Shop extends Model implements HasMedia, Auditable
     public function mailshots(): HasMany
     {
         return $this->hasMany(Mailshot::class);
+    }
+
+    public function topUps(): HasMany
+    {
+        return $this->hasMany(TopUp::class);
+    }
+
+    public function creditTransactions(): HasMany
+    {
+        return $this->hasMany(CreditTransaction::class);
     }
 
 }

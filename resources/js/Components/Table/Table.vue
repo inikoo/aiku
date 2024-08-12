@@ -603,12 +603,12 @@ watch(() => props.name, () => {
     resetQuery()
 })
 
-const selectRow: {[key: string]: boolean} = reactive({})
+const selectRow: {[key: string]: boolean} = reactive({...props.selectedRow})
 
 // To preserve the object selectRow
 if (props.isCheckBox) {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = false
+        selectRow[props.resource.data[row].id] = selectRow[props.resource.data[row].id] ? true : false
     }
 }
 
@@ -625,7 +625,8 @@ watch(selectRow, () => {
 
 defineExpose({
     data : props.resource.data,
-    queryBuilderData : queryBuilderData
+    queryBuilderData : queryBuilderData,
+    selectRow : selectRow
 })
 
 

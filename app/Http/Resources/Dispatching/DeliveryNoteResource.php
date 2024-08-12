@@ -18,7 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $state
  * @property string $shop_slug
  * @property string $date
- * @property string $number
+ * @property string $reference
  *
  */
 class DeliveryNoteResource extends JsonResource
@@ -27,7 +27,7 @@ class DeliveryNoteResource extends JsonResource
     {
         return [
             'slug'       => $this->slug,
-            'number'     => $this->number,
+            'reference'  => $this->reference,
             'date'       => $this->date,
             'state'      => $this->state,
             'created_at' => $this->created_at,

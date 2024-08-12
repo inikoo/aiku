@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -66,6 +67,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\TopUp> $topUps
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
  * @method static Builder|Payment newModelQuery()
@@ -141,4 +143,8 @@ class Payment extends Model implements Auditable
         return $this->belongsTo(Currency::class);
     }
 
+    public function topUps(): HasMany
+    {
+        return $this->hasMany(TopUp::class);
+    }
 }

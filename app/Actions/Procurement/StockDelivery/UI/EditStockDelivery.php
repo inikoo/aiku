@@ -44,7 +44,7 @@ class EditStockDelivery extends InertiaAction
                     'next'     => $this->getNext($stockDelivery, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $stockDelivery->number,
+                    'title'     => $stockDelivery->reference,
                     'actions'   => [
                         [
                             'type'  => 'button',
@@ -105,7 +105,7 @@ class EditStockDelivery extends InertiaAction
         }
         return match ($routeName) {
             'grp.org.procurement.stock_deliveries.edit'=> [
-                'label'=> $stockDelivery->number,
+                'label'=> $stockDelivery->reference,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

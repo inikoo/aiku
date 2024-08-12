@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $parent_id
  * @property string $parent_code Parent code on the time of consolidation
  * @property string $parent_name Parent name on the time of consolidation
- * @property string $number
+ * @property string $reference
  * @property StockDeliveryStateEnum $state
  * @property StockDeliveryStatusEnum $status
  * @property string $date latest relevant date
@@ -115,7 +115,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }
@@ -124,6 +124,17 @@ class StockDelivery extends Model implements HasMedia, Auditable
     {
         return 'slug';
     }
+
+    public function generateTags(): array
+    {
+        return [
+            'procurement'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'reference',
+    ];
 
 
     public function purchaseOrders(): BelongsToMany
