@@ -42,7 +42,10 @@ class PalletReturnStoredItemsResource extends JsonResource
             'state_icon'                           => $this->state->stateIcon()[$this->state->value],
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
             'quantity'                             => intval($this->pallets->sum('pivot.quantity')),
-            'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity'))
+            'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),
+            'is_checked'                           => (bool) $this->whereHas('palletReturns', function ($query) {
+                $query->whereNotNull('pallet_return_id');
+            })
         ];
     }
 }
