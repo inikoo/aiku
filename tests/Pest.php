@@ -277,10 +277,10 @@ function createOrder(Customer $customer, Product $product): Order
     if (!$order) {
         $arrayData = [
             'reference'           => '123456',
-            'date'             => date('Y-m-d'),
-            'customer_id'      => $customer->id,
-            'delivery_address' => new Address(Address::factory()->definition()),
-            'billing_address'  => new Address(Address::factory()->definition()),
+            'date'                => date('Y-m-d'),
+            'customer_id'         => $customer->id,
+            'delivery_address'    => new Address(Address::factory()->definition()),
+            'billing_address'     => new Address(Address::factory()->definition()),
         ];
 
         $order = StoreOrder::make()->action($customer, $arrayData);
