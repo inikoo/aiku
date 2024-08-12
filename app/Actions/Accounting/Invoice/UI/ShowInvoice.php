@@ -197,6 +197,10 @@ class ShowInvoice extends OrgAction
                         'phone'        => $invoice->customer->phone,
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
+                    'informations' => [
+                        'paid_amount' => $invoice->payment_amount,
+                        'pay_amount'  => $invoice->total_amount - $invoice->payment_amount
+                    ]
                 ],
 
                 'invoice'=> InvoiceResource::make($invoice),
