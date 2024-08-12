@@ -1,47 +1,44 @@
 <script setup lang="ts">
 import Table from '@/Components/Table/Table.vue';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
-import { Link, router } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 import { notify } from "@kyvg/vue3-notification";
 import { Switch } from '@headlessui/vue';
+import { useLayoutStore } from "@/Stores/layout";
 
 const props = defineProps<{
-    data?: {};
+    data?: { data: any[] };
     tab?: string;
     state: any;
     key: any;
     route_check_stored_items : routeType;
 }>();
 
-console.log(props);
-
 const isLoading = ref<string | boolean>(false);
-const selectedRow = ref({});
+const selectedRow = ref<Record<string, boolean>>({});
 const _table = ref(null);
 
-const onShowSelected = () => {
-    const data = props.data.data;
-    const finalValue = {};
+const SetSelected = () => {
+    const data = props.data?.data || [];
+    const finalValue: Record<string, { quantity: number }> = {};
 
     for (const rowId in selectedRow.value) {
         if (selectedRow.value[rowId]) {
-            // Find the corresponding data entry by id
             const tempData = data.find((item) => item.id == rowId);
             if (tempData) {
-                // Add the selected item to the finalValue object
                 finalValue[rowId] = { quantity: tempData.quantity };
             }
         }
     }
 
-    router['post'](
+    router.post(
         route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),
         { stored_items: finalValue },
         {
-            onSuccess: () => { },
+            onSuccess: () => {},
             onError: (error: {} | string) => {
                 notify({
                     title: 'Something went wrong.',
@@ -49,19 +46,39 @@ const onShowSelected = () => {
                     type: 'error',
                 });
             }
-        });
+        }
+    );
 };
 
+const setUpChecked = () => {
+    console.log(  _table.value.selectRow)
+    const set: Record<string, boolean> = {};
+    if (props.data?.data) {
+        props.data.data.forEach((item) => {
+            set[item.id] = item.is_checked;
+        });
+     if(_table.value.selectRow){
+        console.log('inii',set)
+        _table.value.selectRow = set
+     } 
+    }
+};
+
+
+
 watch(selectedRow, () => {
-        onShowSelected();
+    SetSelected();
+}, { deep: true });
+
+onMounted(() => {
+    setUpChecked();
 });
 
 </script>
 
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="true"
-        @onSelectRow="(value) => selectedRow = value" ref="_table">
-
+        @onSelectRow="(value) => selectedRow.value = value" ref="_table" :selectedRow="{ 1 : true}">
 
         <template #cell(reference)="{ item: value }">
             {{ value.reference }}
@@ -74,20 +91,12 @@ watch(selectedRow, () => {
         <template #cell(quantity)="{ item: item }">
             <div class='w-full flex justify-end'>
                 <div class="flex w-32 justify-end">
-                    <PureInputNumber v-model="item.data.quantity" @update:modelValue="(e) => item.quantity = e" :maxValue="item.total_quantity" :minValue="1" />
+                {{ item.is_checked }}
+                {{ item.id }}
+                    <PureInputNumber v-model="item.quantity" @update:modelValue="(e) => item.quantity = e" :maxValue="item.total_quantity" :minValue="1" />
                 </div>
             </div>
         </template>
-
-        <!--  <template #cell(actions)="{ item: value }">
-              <div v-if="state == 'in-process'">
-                  <Link :href="route(value.deleteRoute.name, value.deleteRoute.parameters)" method="delete"
-                      preserve-scroll as="div" @start="() => isLoading = 'delete' + value.id"
-                      v-tooltip="'Delete Stored Item'">
-                     <Button icon="far fa-trash-alt" :loading="isLoading === 'delete' + value.id" type="negative" />
-                  </Link>
-              </div>
-          </template> -->
 
     </Table>
 </template>

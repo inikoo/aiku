@@ -101,7 +101,6 @@ const props = defineProps<{
     route_check_stored_items : routeType
 }>()
 
-console.log('qwewqewq', props)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
