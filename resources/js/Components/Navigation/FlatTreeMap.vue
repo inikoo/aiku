@@ -11,6 +11,8 @@ import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
+import { inject } from 'vue'
+import { Icon } from '@/types/Utils/Icon'
 library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt, faTasks)
 
 const props = defineProps<{
@@ -19,6 +21,7 @@ const props = defineProps<{
             number: number
         }
         name: string
+        description?: string
         href: routeType
         icon: string | string[]
         shortName: string
@@ -27,11 +30,16 @@ const props = defineProps<{
             href: routeType
             tooltip: string
         }
+        sub_data: {
+            icon: Icon
+            count: number | null
+            href: routeType
+        }[]
     }[]
     mode?: string
 }>()
 
-const locale = useLocaleStore()
+const locale = inject('locale', {})
 </script>
 
 <template>
@@ -39,26 +47,49 @@ const locale = useLocaleStore()
         <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
-                <component :is="node.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.href.name, node.href.parameters) : '#'" class="group flex-1 items-center">
-                    <div class="flex items-center px-4 text-lg xl:px-6 font-medium gap-x-4" :class="[mode == 'compact' ? 'py-2' : 'py-4']">
+                <component :is="node.href?.name ? Link : 'div'" :href="node.href?.name ? route(node.href.name, node.href.parameters) : ''"
+                    class="group/node flex flex-col md:flex-row w-full items-start md:items-center justify-between pr-10"
+                >
+                    <div class="flex items-center px-4 text-lg xl:px-6 font-medium gap-x-4" :class="[mode == 'compact' ? 'py-2' : node.sub_data?.length ? 'pt-4 pb-1' : 'py-4']">
                         <FontAwesomeIcon v-if="node.icon" :size="mode == 'compact' ? undefined : 'lg'" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" fixed-width />
-                        <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover:text-gray-600">
+                        <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover/node:text-gray-700">
                             <span class="hidden lg:inline">{{ node.name }}</span>
                             <span class="inline lg:hidden">{{ node.shortName ? node.shortName : node.name }}</span>
                         </p>
 
                         <!-- Bars and count -->
-                        <span v-if="node.index" class="font-medium whitespace-nowrap text-gray-400">
+                        <span class="font-medium whitespace-nowrap text-gray-400 group-hover/node:text-gray-600">
                             <FontAwesomeIcon icon="fal fa-bars" class="mr-1" fixed-width />
-                            <span v-if="node.index.number">{{ locale.number(node.index.number) }}</span>
+                            <span v-if="node.index?.number">{{ locale.number(node.index.number) }}</span>
                             <FontAwesomeIcon v-else icon="fal fa-empty-set" fixed-width />
+                            <span v-if="node.description" class="ml-2">
+                                {{ node.description }}
+                            </span>
                         </span>
+
+                    </div>
+
+                    <!-- Section: Sub data -->
+                    <div v-if="node.sub_data?.length" class="pb-2 md:pb-0 px-3 md:px-0 text-sm text-gray-500 flex gap-x-3 justify-end items-center flex-wrap">
+                        <Link
+                            v-for="subData in node.sub_data"
+                            :is="subData.href?.name ? Link : 'div'"
+                            :href="subData.href?.name ? route(subData.href.name, subData.href.parameters) : ''"
+                            class="group/sub px-2 py-1 flex gap-x-0.5 items-center font-normal"
+                            v-tooltip="capitalize(subData.icon?.tooltip)"
+                        >
+                            <FontAwesomeIcon :icon="subData.icon?.icon" class="md:opacity-50 group-hover/sub:opacity-100" :class="subData.icon?.class" fixed-width :title="subData.icon?.tooltip" aria-hidden="true" />
+                            <span class="text-gray-400 group-hover/sub:text-gray-700 font-semibold">
+                                {{ locale.number(subData.count) }}
+                            </span>
+                        </Link>
                     </div>
                 </component>
 
+
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
-                    <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : '#'"
+                    <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : ''"
                         class="w-9 h-9 flex justify-center items-center specialBox">
                         <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" fixed-width />
                     </component>
