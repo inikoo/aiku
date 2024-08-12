@@ -38,13 +38,13 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Accounting\Invoice
+ *
  *
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $number
+ * @property string $reference
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $order_id
@@ -132,7 +132,7 @@ class Invoice extends Model implements Auditable
     }
 
     protected array $auditInclude = [
-        'number',
+        'reference',
         'type',
         'state',
         'status',
@@ -148,7 +148,7 @@ class Invoice extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }

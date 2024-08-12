@@ -124,7 +124,7 @@ class StoreInvoice extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'number'           => [
+            'reference'           => [
                 'required',
                 'max:64',
                 'string',
@@ -149,7 +149,7 @@ class StoreInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['number'] = ['required', 'max:64', 'string'];
+            $rules['reference'] = ['required', 'max:64', 'string'];
 
 
             $rules['grp_exchange'] = ['sometimes', 'numeric'];
