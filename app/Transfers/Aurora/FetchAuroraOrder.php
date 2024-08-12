@@ -146,11 +146,11 @@ class FetchAuroraOrder extends FetchAurora
             'delivery_locked' => $deliveryLocked,
             'tax_category_id' => $taxCategory->id,
 
-            "number"          => $this->auroraModelData->{'Order Public ID'},
-            'customer_number' => (string)$this->auroraModelData->{'Order Customer Purchase Order ID'},
-            "state"           => $state,
-            "status"          => $status,
-            "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Order Key'},
+            "reference"          => $this->auroraModelData->{'Order Public ID'},
+            'customer_reference' => (string)$this->auroraModelData->{'Order Customer Purchase Order ID'},
+            "state"              => $state,
+            "status"             => $status,
+            "source_id"          => $this->organisation->id.':'.$this->auroraModelData->{'Order Key'},
 
             "created_at"     => $this->auroraModelData->{'Order Created Date'},
             "cancelled_at"   => $cancelled_at,

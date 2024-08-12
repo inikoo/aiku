@@ -35,7 +35,7 @@ class IndexOrders extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('orders.number', '~*', "\y$value\y")
+                $query->where('orders.reference', '~*', "\y$value\y")
                     ->orWhere('orders.date', '=', $value);
             });
         });
@@ -45,9 +45,9 @@ class IndexOrders extends OrgAction
         }
 
         return QueryBuilder::for(Order::class)
-            ->defaultSort('orders.number')
+            ->defaultSort('orders.reference')
             ->select([
-                'orders.number',
+                'orders.reference',
                 'orders.date',
                 'orders.state',
                 'orders.created_at',
@@ -64,7 +64,7 @@ class IndexOrders extends OrgAction
                     $query->where('orders.customer_id', $parent->id);
                 }
             })
-            ->allowedSorts(['number', 'date'])
+            ->allowedSorts(['reference', 'date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -88,7 +88,7 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
-            $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

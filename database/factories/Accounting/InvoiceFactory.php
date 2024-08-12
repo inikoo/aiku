@@ -18,13 +18,13 @@ class InvoiceFactory extends Factory
         $currency = Currency::first();
 
         return [
-            'number'         => '00001',
-            'type'           => InvoiceTypeEnum::INVOICE,
-            'currency_id'    => $currency->id,
-            'net_amount'     => 10,
-            'total_amount'   => 10,
-            'payment_amount' => 0,
-            'data'           => [],
+            'reference'         => '00001',
+            'type'              => InvoiceTypeEnum::INVOICE,
+            'currency_id'       => $currency->id,
+            'net_amount'        => 10,
+            'total_amount'      => 10,
+            'payment_amount'    => 0,
+            'data'              => [],
         ];
     }
 }

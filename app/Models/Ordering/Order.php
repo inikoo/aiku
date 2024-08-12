@@ -51,8 +51,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $customer_client_id
- * @property string|null $number
- * @property string|null $customer_number Customers own order number
+ * @property string|null $reference
+ * @property string|null $customer_reference Customers own order reference
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
  * @property OrderHandingTypeEnum $handing_type
@@ -158,7 +158,7 @@ class Order extends Model implements HasMedia, Auditable
     }
 
     protected array $auditInclude = [
-        'number',
+        'reference',
         'handing_type',
     ];
 
@@ -171,7 +171,7 @@ class Order extends Model implements HasMedia, Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }

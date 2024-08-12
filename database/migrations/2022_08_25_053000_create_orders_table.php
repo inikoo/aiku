@@ -32,8 +32,8 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_client_id')->nullable()->index();
             $table->foreign('customer_client_id')->references('id')->on('customer_clients');
 
-            $table->string('number')->nullable()->index();
-            $table->string('customer_number')->index()->nullable()->comment('Customers own order number');
+            $table->string('reference')->nullable()->index();
+            $table->string('customer_reference')->index()->nullable()->comment('Customers own order reference');
 
 
             $table->string('state')->default(OrderStateEnum::CREATING->value)->index();
