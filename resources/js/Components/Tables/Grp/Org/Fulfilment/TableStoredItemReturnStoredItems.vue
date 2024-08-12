@@ -83,7 +83,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="true"
+    <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="state == 'in-process' ? true : false"
         @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
         <template #cell(reference)="{ item: value }">
@@ -99,7 +99,7 @@ onBeforeMount(() => {
                 <div class="flex min-w-8 max-w-32 justify-end">
                     <PureInputNumber v-if="item.is_checked && state == 'in-process'" v-model="item.data.quantity"
                         :maxValue="item.total_quantity" :minValue="1" @update:modelValue="changeValueQty" />
-                    <div v-else class="py-3">{{ item.data.quantity }}</div>
+                    <div v-if="state != 'in-process'" class="py-3">{{ item.data.quantity }}</div>
                 </div>
             </div>
         </template>

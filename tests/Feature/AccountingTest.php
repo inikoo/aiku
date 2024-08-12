@@ -164,10 +164,9 @@ test(
     }
 )->depends('create payment account');
 
-test('create and set success 1st top up', function ($payment)
-{
+test('create and set success 1st top up', function ($payment) {
     $topUp = StoreTopUp::make()->action($payment, [
-        'amount' => 100,
+        'amount'    => 100,
         'reference' => 'ASA01'
     ]);
 
@@ -185,11 +184,11 @@ test('create and set success 1st top up', function ($payment)
         ->and($topUp->creditTransaction->type)->toBe(CreditTransactionTypeEnum::TOP_UP->value);
 
     return $topUp;
-    
+
 
 })->depends('create payment');
 
-test('check customer balance and stats', function ($topUp){
+test('check customer balance and stats', function ($topUp) {
     $customer = $topUp->customer;
 
     expect($customer)->toBeInstanceOf(Customer::class)
@@ -202,7 +201,7 @@ test('check customer balance and stats', function ($topUp){
 
 })->depends('create and set success 1st top up');
 
-test('check shop stats', function ($topUp){
+test('check shop stats', function ($topUp) {
     $shop = $topUp->shop;
 
     expect($shop)->toBeInstanceOf(Shop::class)
@@ -214,7 +213,7 @@ test('check shop stats', function ($topUp){
 
 })->depends('create and set success 1st top up');
 
-test('check organisation stats', function ($topUp){
+test('check organisation stats', function ($topUp) {
     $organisation = $topUp->organisation;
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
@@ -226,7 +225,7 @@ test('check organisation stats', function ($topUp){
 
 })->depends('create and set success 1st top up');
 
-test('check Group stats', function ($topUp){
+test('check Group stats', function ($topUp) {
     $group = $topUp->group;
 
     expect($group)->toBeInstanceOf(Group::class)
@@ -238,10 +237,9 @@ test('check Group stats', function ($topUp){
 
 })->depends('create and set success 1st top up');
 
-test('create and set success 2nd top up', function ($payment)
-{
+test('create and set success 2nd top up', function ($payment) {
     $topUp = StoreTopUp::make()->action($payment, [
-        'amount' => 150,
+        'amount'    => 150,
         'reference' => 'ASA02'
     ]);
 
@@ -259,11 +257,11 @@ test('create and set success 2nd top up', function ($payment)
         ->and($topUp->creditTransaction->type)->toBe(CreditTransactionTypeEnum::TOP_UP->value);
 
     return $topUp;
-    
+
 
 })->depends('create payment');
 
-test('check customer balance and stats 2nd time', function ($topUp){
+test('check customer balance and stats 2nd time', function ($topUp) {
     $customer = $topUp->customer;
 
     expect($customer)->toBeInstanceOf(Customer::class)
@@ -273,12 +271,12 @@ test('check customer balance and stats 2nd time', function ($topUp){
         ->and($customer->stats->number_top_ups_status_success)->toBe(2)
         ->and($customer->stats->number_top_ups_status_fail)->toBe(0)
         ->and($customer->stats->number_credit_transactions)->toBe(2);
-        
+
 
 
 })->depends('create and set success 2nd top up');
 
-test('check shop stats 2nd time', function ($topUp){
+test('check shop stats 2nd time', function ($topUp) {
     $shop = $topUp->shop;
 
     expect($shop)->toBeInstanceOf(Shop::class)
@@ -290,7 +288,7 @@ test('check shop stats 2nd time', function ($topUp){
 
 })->depends('create and set success 2nd top up');
 
-test('check organisation stats 2nd time', function ($topUp){
+test('check organisation stats 2nd time', function ($topUp) {
     $organisation = $topUp->organisation;
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
@@ -302,7 +300,7 @@ test('check organisation stats 2nd time', function ($topUp){
 
 })->depends('create and set success 2nd top up');
 
-test('check Group stats 2nd time', function ($topUp){
+test('check Group stats 2nd time', function ($topUp) {
     $group = $topUp->group;
 
     expect($group)->toBeInstanceOf(Group::class)
@@ -314,10 +312,9 @@ test('check Group stats 2nd time', function ($topUp){
 
 })->depends('create and set success 2nd top up');
 
-test('create 3rd top up', function ($payment)
-{
+test('create 3rd top up', function ($payment) {
     $topUp = StoreTopUp::make()->action($payment, [
-        'amount' => 200,
+        'amount'    => 200,
         'reference' => 'ASA03'
     ]);
 
@@ -327,11 +324,11 @@ test('create 3rd top up', function ($payment)
         ->and($topUp->amount)->toBe('200.00');
 
     return $topUp;
-    
+
 
 })->depends('create payment');
 
-test('check customer balance 3rd time', function ($topUp){
+test('check customer balance 3rd time', function ($topUp) {
     $customer = $topUp->customer;
 
     expect($customer)->toBeInstanceOf(Customer::class)
@@ -346,7 +343,7 @@ test('check customer balance 3rd time', function ($topUp){
 
 })->depends('create 3rd top up');
 
-test('check shop stats 3rd time', function ($topUp){
+test('check shop stats 3rd time', function ($topUp) {
     $shop = $topUp->shop;
 
     expect($shop)->toBeInstanceOf(Shop::class)
@@ -358,7 +355,7 @@ test('check shop stats 3rd time', function ($topUp){
 
 })->depends('create 3rd top up');
 
-test('check organisation stats 3rd time', function ($topUp){
+test('check organisation stats 3rd time', function ($topUp) {
     $organisation = $topUp->organisation;
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
@@ -370,7 +367,7 @@ test('check organisation stats 3rd time', function ($topUp){
 
 })->depends('create 3rd top up');
 
-test('check Group stats 3rd time', function ($topUp){
+test('check Group stats 3rd time', function ($topUp) {
     $group = $topUp->group;
 
     expect($group)->toBeInstanceOf(Group::class)

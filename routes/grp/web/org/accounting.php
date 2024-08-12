@@ -27,7 +27,6 @@ use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
 use App\Actions\Accounting\UI\IndexCustomerBalances;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
-use App\Stubs\UIDummies\IndexDummies;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ShowAccountingDashboard::class, 'inOrganisation'])->name('dashboard');
