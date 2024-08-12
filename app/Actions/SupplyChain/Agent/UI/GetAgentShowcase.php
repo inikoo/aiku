@@ -18,23 +18,23 @@ class GetAgentShowcase
     public function handle(Agent $agent): array
     {
         return [
-            'agent'              => AgentResource::make($agent)->getArray(),
-            'stats'              => [
+            'contactCard'              => AgentResource::make($agent)->getArray(),
+            'stats'                    => [
                 [
                     'label' => __('suppliers'),
-                    'value' => $agent->stats->number_suppliers
+                    'count' => $agent->stats->number_suppliers
                 ],
                 [
                     'label' => __('products'),
-                    'value' => $agent->stats->number_supplier_products
+                    'count' => $agent->stats->number_supplier_products
                 ],
                 [
                     'label' => __('purchase orders'),
-                    'value' => $agent->stats->number_purchase_orders
+                    'count' => $agent->stats->number_purchase_orders
                 ],
                 [
                     'label' => __('deliveries'),
-                    'value' => $agent->stats->number_stock_deliveries
+                    'count' => $agent->stats->number_stock_deliveries
                 ],
 
             ]

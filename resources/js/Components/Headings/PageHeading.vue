@@ -21,6 +21,7 @@ import { faLayerPlus } from "@far"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { useTruncate } from '@/Composables/useTruncate'
 
 library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
 
@@ -52,7 +53,7 @@ const layout = inject('layout', layoutStructure)
         
     </slot>
 
-    <div class="relative px-4 pt-2 pb-4 sm:py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
+    <div class="relative px-4 py-2 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
         <div class="">
 
             <!-- Section: Main Title -->
@@ -79,7 +80,7 @@ const layout = inject('layout', layoutStructure)
                 <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3">
                     <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="">
                         <span v-if="data.model" class="text-gray-400 mr-2 font-medium block sm:inline">{{ data.model }}</span>
-                        <span class="mt-1 sm:mt-0 inline-block">{{ data.title }}</span>
+                        <span class="mt-1 sm:mt-0 inline-block">{{ useTruncate(data.title, 30) }}</span>
                     </h2>
                     
                     <!-- Section: After Title -->

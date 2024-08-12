@@ -275,7 +275,7 @@ test('create invoice from customer', function () {
 
 test('update invoice from customer', function ($invoice) {
     $invoice = UpdateInvoice::make()->action($invoice, [
-        'number' => '00001a'
+        'reference' => '00001a'
 
     ]);
     expect($invoice->reference)->toBe('00001a');
@@ -284,7 +284,7 @@ test('update invoice from customer', function ($invoice) {
 test('create invoice from order', function (Order $order) {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
-    data_set($invoiceData, 'number', '00002');
+    data_set($invoiceData, 'reference', '00002');
     $invoice  = StoreInvoice::make()->action($order, $invoiceData);
     $customer = $invoice->customer;
     $this->shop->refresh();

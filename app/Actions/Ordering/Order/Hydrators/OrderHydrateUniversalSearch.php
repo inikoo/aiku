@@ -29,7 +29,7 @@ class OrderHydrateUniversalSearch
                 'customer_id'       => $order->customer_id,
                 'customer_slug'     => $order->customer->slug,
                 'sections'          => ['ordering'],
-                'haystack_tier_1'   => $order->number,
+                'haystack_tier_1'   => $order->reference,
             ]
         );
     }

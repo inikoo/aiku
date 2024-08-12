@@ -68,7 +68,7 @@ class ShowOrder extends OrgAction
                     'next'     => $this->getNext($order, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $order->number,
+                    'title' => $order->reference,
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -187,22 +187,22 @@ class ShowOrder extends OrgAction
 
     public function getPrevious(Order $order, ActionRequest $request): ?array
     {
-        $previous = Order::where('number', '<', $order->number)->when(true, function ($query) use ($order, $request) {
+        $previous = Order::where('reference', '<', $order->reference)->when(true, function ($query) use ($order, $request) {
             if ($request->route()->getName() == 'shops.show.orders.show') {
                 $query->where('orders.shop_id', $order->shop_id);
             }
-        })->orderBy('number', 'desc')->first();
+        })->orderBy('reference', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Order $order, ActionRequest $request): ?array
     {
-        $next = Order::where('number', '>', $order->number)->when(true, function ($query) use ($order, $request) {
+        $next = Order::where('reference', '>', $order->reference)->when(true, function ($query) use ($order, $request) {
             if ($request->route()->getName() == 'shops.show.orders.show') {
                 $query->where('orders.shop_id', $order->shop_id);
             }
-        })->orderBy('number')->first();
+        })->orderBy('reference')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
@@ -216,7 +216,7 @@ class ShowOrder extends OrgAction
         return match ($routeName) {
             'orders.show',
             'shops.orders.show' => [
-                'label' => $order->number,
+                'label' => $order->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
@@ -226,7 +226,7 @@ class ShowOrder extends OrgAction
                 ]
             ],
             'shops.show.orders.show' => [
-                'label' => $order->number,
+                'label' => $order->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [

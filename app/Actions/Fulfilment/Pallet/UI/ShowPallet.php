@@ -360,7 +360,7 @@ class ShowPallet extends OrgAction
             ],
 
             'grp.org.fulfilments.show.operations.pallets.show'=> [
-                'label'=> $pallet->number,
+                'label'=> $pallet->reference,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

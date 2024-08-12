@@ -8,7 +8,7 @@ export interface Order {
 
     slug:string,
     number:number,
-    customer_number: string,
+    customer_reference: string,
     type: string,
     state: string
     date: string

@@ -17,9 +17,9 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'number'      => fake()->lexify(),
-            'date'        => fake()->date,
-            'customer_id' => fake()->numberBetween(1, 100)
+            'reference'      => fake()->lexify(),
+            'date'           => fake()->date,
+            'customer_id'    => fake()->numberBetween(1, 100)
         ];
     }
 }
