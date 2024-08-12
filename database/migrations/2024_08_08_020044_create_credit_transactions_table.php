@@ -37,6 +37,7 @@ return new class () extends Migration {
             $table->decimal('grp_amount', 16)->default(0);
             $table->decimal('org_amount', 16)->default(0);
             $table->string('notes')->nullable();
+            $table->jsonb('data');
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
         });

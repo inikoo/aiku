@@ -7,15 +7,11 @@
 
 namespace App\Actions\Accounting\CreditTransaction;
 
-use AlibabaCloud\SDK\Dm\V20151123\Models\GetIpfilterListResponseBody\data;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
-use App\Models\Accounting\Invoice;
-use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
+use App\Models\Accounting\CreditTransaction;
 use App\Models\CRM\Customer;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,8 +19,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoreCreditTransaction extends OrgAction
 {
     use AsAction;
+    use WithOrderExchanges;
 
-    public function handle(Customer $customer, array $modelData): void
+    public function handle(Customer $customer, array $modelData): CreditTransaction
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
@@ -32,15 +29,15 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'currency_id', $customer->shop->currency_id);
         data_set($modelData, 'date', now(), overwrite:false);
 
-        $amount = Arr::get($modelData, 'amount');
+        $amount                  = Arr::get($modelData, 'amount');
         $latestCreditTransaction = $customer->creditTransactions()
         ->orderBy('created_at', 'desc')
         ->first();
 
-        $runningAmount = $latestCreditTransaction ? $latestCreditTransaction->running_amount : 0;
+        $runningAmount    = $latestCreditTransaction ? $latestCreditTransaction->running_amount : 0;
         $newRunningAmount = $runningAmount + $amount;
 
-        data_set($modelData, 'running_amount', $newRunningAmount );
+        data_set($modelData, 'running_amount', $newRunningAmount);
 
         $modelData = $this->processExchanges($modelData, $customer->shop, 'amount');
 
@@ -50,14 +47,14 @@ class StoreCreditTransaction extends OrgAction
 
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'amount'           => ['required', 'numeric'],
             'date'             => ['sometimes', 'date'],
             'type'             => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
             'source_id'        => ['sometimes', 'string'],
-            'payment_id'       => ['sometimes', 'nullable', 
+            'payment_id'       => ['sometimes', 'nullable',
                                         Rule::exists('payments', 'id')
                                                 ->where('shop_id', $this->shop->id)
                                     ],
@@ -68,10 +65,10 @@ class StoreCreditTransaction extends OrgAction
         ];
     }
 
-    public function action(Customer $customer, $modelData): void
+    public function action(Customer $customer, $modelData): CreditTransaction
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
-        $this->handle($customer, $modelData);
+        return $this->handle($customer, $modelData);
     }
 }

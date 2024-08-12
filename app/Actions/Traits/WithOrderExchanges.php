@@ -28,8 +28,8 @@ trait WithOrderExchanges
 
         data_set($modelData, 'org_exchange', $orgExchange, overwrite: false);
         data_set($modelData, 'grp_exchange', $grpExchange, overwrite: false);
-        data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net_amount') * $orgExchange);
-        data_set($modelData, 'grp_net_amount', Arr::get($modelData, 'net_amount') * $grpExchange);
+        data_set($modelData, 'org_'.$field, Arr::get($modelData, 'net_amount') * $orgExchange);
+        data_set($modelData, 'grp_'.$field, Arr::get($modelData, 'net_amount') * $grpExchange);
 
 
         return $modelData;

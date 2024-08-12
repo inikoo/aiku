@@ -66,6 +66,8 @@ class CreditTransaction extends Model
         'data' => '{}',
     ];
 
+    protected $guarded = [];
+
     public function topUp(): BelongsTo
     {
         return $this->belongsTo(TopUp::class);
