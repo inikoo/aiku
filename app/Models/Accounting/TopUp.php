@@ -14,6 +14,8 @@ use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -61,8 +63,13 @@ class TopUp extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'status' => TopUpStatusEnum::class,
-        'data'   => 'array',
+        'status'         => TopUpStatusEnum::class,
+        'data'           => 'array',
+        'amount'         => 'decimal:2',
+        'grp_exchange'   => 'decimal:4',
+        'org_exchange'   => 'decimal:4',
+        'grp_amount'     => 'decimal:2',
+        'org_amount'     => 'decimal:2',
     ];
 
     protected $attributes = [
@@ -103,6 +110,11 @@ class TopUp extends Model implements Auditable
     public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    public function creditTransaction(): HasOne
+    {
+        return $this->hasOne(CreditTransaction::class);
     }
 
 }
