@@ -84,12 +84,15 @@ beforeEach(function () {
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
+    $this->user->refresh();
     actingAs($this->user);
 });
 
 // Department
 
 test('UI Index catalogue departments', function () {
+    $this->withoutExceptionHandling();
+
     $response = get(route('grp.org.shops.show.catalogue.departments.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -101,6 +104,7 @@ test('UI Index catalogue departments', function () {
 });
 
 test('UI show department', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.shops.show.catalogue.departments.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

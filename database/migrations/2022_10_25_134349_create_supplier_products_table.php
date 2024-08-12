@@ -5,8 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -30,9 +30,8 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');
-            $table->string('state')->nullable()->index();
-            $table->boolean('status')->nullable()->index();
-            $table->string('stock_quantity_status')->default(SupplierProductQuantityStatusEnum::NO_APPLICABLE->value)->nullable()->index();
+            $table->string('state')->index()->default(SupplierProductStateEnum::IN_PROCESS->value);
+            $table->boolean('is_available')->index()->default(true);
             $table = $this->assertCodeDescription($table);
             $table->decimal('cost', 18, 4)->comment('unit cost');
             $table->unsignedSmallInteger('currency_id');

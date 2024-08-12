@@ -285,8 +285,10 @@ test('UI edit employee', function () {
     });
 });
 
-test('UI show job positions', function () {
+test('UI show job position', function () {
     $this->withoutExceptionHandling();
+
+
     $response = $this->get(route('grp.org.hr.job_positions.show', [$this->organisation->slug, $this->jobPosition->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -317,30 +319,14 @@ test('UI Index job positions', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Job positions')
+                        ->where('title', 'Responsibilities')
                         ->etc()
             )
             ->has('data');
     });
 });
 
-test('UI edit job position', function () {
-    $response = get(route('grp.org.hr.job_positions.edit', [$this->organisation->slug, $this->jobPosition->slug]));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('EditModel')
-            ->has('title')
-            ->has('pageHead')
-            ->has('formData')
-            ->has(
-                'formData.args.updateRoute',
-                fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.job_position.update')
-                        ->where('parameters', $this->jobPosition->id)
-            )
-            ->has('breadcrumbs', 3);
-    });
-});
+
 
 test('UI create workplace', function () {
     $response = get(route('grp.org.hr.workplaces.create', [$this->organisation->slug]));

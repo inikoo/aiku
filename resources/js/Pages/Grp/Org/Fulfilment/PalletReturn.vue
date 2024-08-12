@@ -282,19 +282,65 @@ const isModalUploadOpen = ref(false)
         </template>
 
         <!-- Button: Add Stored Items -->
-        <template #button-group-add-stored-item="{ action }">
-            <Button
-                v-if="currentTab === 'stored_items'"
-                :style="action.style"
-                :label="action.label"
-                :icon="action.icon"
-                :iconRight="action.iconRight"
-                :key="`ActionButton${action.label}${action.style}`"
-                :tooltip="action.tooltip"
-                @click="() => isModalStoredItems = true"
-            />
+      <!--   <template #button-group-add-stored-item="{ action }">
+            <Popover v-if="currentTab === 'stored_items'" >
+                <template #button="{ open }">
+                    <Button
+                        v-if="currentTab === 'stored_items'"
+                        :style="action.style"
+                        :label="action.label"
+                        :icon="action.icon"
+                        :iconRight="action.iconRight"
+                        :key="`ActionButton${action.label}${action.style}`"
+                        :tooltip="action.tooltip"
+                    />
+                </template>
+
+                <template #content="{ close: closed }">
+                    <div class="w-[350px]">
+                        <span class="text-xs px-1 my-2">{{ trans('Stored Items') }}: </span>
+                        <div class="">
+                            <PureMultiselect
+                                v-model="formAddService.service_id"
+                                autofocus
+                                caret
+                                required
+                                searchable
+                                placeholder="Services"
+                                :options="dataServiceList"
+                                label="name"
+                                valueProp="id"
+                            />
+                            <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
+                                {{ formAddService.errors.service_id }}
+                            </p>
+                        </div>
+                        <div class="mt-3">
+                            <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
+                            <PureInput
+                                v-model="formAddService.quantity"
+                                :placeholder="trans('Quantity')"
+                                @keydown.enter="() => onSubmitAddService(action, closed)"
+                            />
+                            <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
+                                {{ formAddService.errors.quantity }}
+                            </p>
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            <Button
+                                :style="'save'"
+                                :loading="isLoadingButton == 'addService'"
+                                :label="'save'"
+                                :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
+                                full
+                            />
+                        </div>
+                    </div>
+                </template>
+            </Popover>
+
             <div v-else />
-        </template>
+        </template> -->
 
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
@@ -487,7 +533,7 @@ const isModalUploadOpen = ref(false)
 
 
     <!-- Modal: Add stored items -->
-    <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false">
+   <!--  <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false" width='w-[800px]'>
         <div class="">
             <TablePalletReturn
                 :dataRoute="storedItemRoute.index"
@@ -496,12 +542,23 @@ const isModalUploadOpen = ref(false)
 				:descriptor="storedItemDescriptor"
                 :beforeSubmit="(descriptor?: string, dataList: {}[], storedItem: number[]) => beforeSubmitStoredItem(dataList, storedItem)"
 			>
-            <template #column-quantity="{data}">
-                   <PureInputNumber v-model="data.columnData.quantity" />
+
+            <template #head-quantity="{data}">
+                <div class="w-full text-end flex justify-end">
+                    <div class="w-32 text-end flex justify-start">
+                    Quantity
+                </div>
+                </div>
+                </template>
+
+                <template #column-quantity="{data}">
+                <div class="w-full text-end flex justify-end">
+                    <div class="w-32"><PureInputNumber v-model="data.columnData.quantity" :maxValue="{...data.columnData.quantity}" :minValue="1" /></div>
+                </div>
                 </template>
             </TablePalletReturn>
         </div>
-    </Modal>
+    </Modal> -->
 
 
     <UploadExcel

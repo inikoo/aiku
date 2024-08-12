@@ -17,7 +17,7 @@ class HydrateAgent
 {
     use asAction;
 
-    public string $commandSignature = 'agents:hydrate';
+    public string $commandSignature = 'hydrate:agents';
 
     public function handle(Agent $agent): void
     {

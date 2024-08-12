@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
 use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
-use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
+use App\Actions\HumanResources\JobPosition\SyncEmployeeJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
@@ -43,7 +43,7 @@ class UpdateEmployee extends OrgAction
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = $this->generatePositions($employee->organisation, $modelData);
 
-            SyncEmployableJobPositions::run($employee, $jobPositions);
+            SyncEmployeeJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');
         }
 

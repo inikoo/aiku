@@ -18,8 +18,8 @@ class OrgSupplierResource extends JsonResource
         $orgSupplier=$this;
 
         return [
-            'code'                     => $orgSupplier->code,
-            'name'                     => $orgSupplier->name,
+            'code'                     => $orgSupplier->supplier->code,
+            'name'                     => $orgSupplier->supplier->name,
 
         ];
     }

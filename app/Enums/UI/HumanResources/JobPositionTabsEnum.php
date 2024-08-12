@@ -20,7 +20,6 @@ enum JobPositionTabsEnum: string
     case GUESTS    = 'guests';
     case ROLES     = 'roles';
     case HISTORY   = 'history';
-    case DATA      = 'data';
 
     public function blueprint(): array
     {
@@ -37,12 +36,6 @@ enum JobPositionTabsEnum: string
                 'title' => __('guests'),
                 'icon'  => 'fal fa-user-alien',
             ],
-            JobPositionTabsEnum::DATA => [
-                'title' => __('database'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             JobPositionTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
@@ -50,7 +43,7 @@ enum JobPositionTabsEnum: string
                 'align' => 'right',
             ],
             JobPositionTabsEnum::SHOWCASE => [
-                'title' => __('job position'),
+                'title' => __('responsibility'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

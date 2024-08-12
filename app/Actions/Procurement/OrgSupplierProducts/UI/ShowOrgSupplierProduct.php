@@ -11,8 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -91,8 +90,8 @@ class ShowOrgSupplierProduct extends OrgAction
                     fn () => GetOrgAgentShowcase::run($supplierProduct)
                     : Inertia::lazy(fn () => GetOrgAgentShowcase::run($supplierProduct)),
                 SupplierProductTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierProductTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplierProduct))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplierProduct))),
+                    fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($supplierProduct))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($supplierProduct))),
 
                 SupplierProductTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierProductTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplierProduct))
@@ -103,7 +102,7 @@ class ShowOrgSupplierProduct extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplierProduct)))
 
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure())
+        )->table(IndexOrgSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierProductTabsEnum::HISTORY->value));
     }
@@ -117,20 +116,20 @@ class ShowOrgSupplierProduct extends OrgAction
     public function getBreadcrumbs(SupplierProduct $supplierProduct, $suffix = null): array
     {
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
+            (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.org_supplier_products.index',
+                                'name' => 'grp.org.procurement.org_supplier_products.index',
                             ],
                             'label' => __('supplierProduct')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.org_supplier_products.show',
+                                'name'       => 'grp.org.procurement.org_supplier_products.show',
                                 'parameters' => [$supplierProduct->slug]
                             ],
                             'label' => $supplierProduct->name,
@@ -148,8 +147,8 @@ class ShowOrgSupplierProduct extends OrgAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.procurement.org_agents.show.show.supplier.org_supplier_products.show',
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.org.procurement.org_agents.show.show.supplier.org_supplier_products.show',
             'grp.procurement.supplier.org_supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
@@ -166,8 +165,8 @@ class ShowOrgSupplierProduct extends OrgAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.procurement.org_agents.show.show.supplier.org_supplier_products.show',
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.org.procurement.org_agents.show.show.supplier.org_supplier_products.show',
             'grp.procurement.supplier.org_supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
@@ -185,7 +184,7 @@ class ShowOrgSupplierProduct extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.procurement.org_supplier_products.show' => [
+            'grp.org.procurement.org_supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,
@@ -195,7 +194,7 @@ class ShowOrgSupplierProduct extends OrgAction
 
                 ]
             ],
-            'grp.procurement.org_agents.show.org_supplier_products.show' => [
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,

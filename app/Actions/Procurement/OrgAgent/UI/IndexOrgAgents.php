@@ -8,9 +8,9 @@
 namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
-use App\Http\Resources\SupplyChain\AgentResource;
+use App\Http\Resources\Procurement\OrgAgentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
@@ -47,10 +47,10 @@ class IndexOrgAgents extends OrgAction
 
         return $queryBuilder
             ->defaultSort('organisations.code')
-            ->select(['organisations.code','organisations.name', 'org_agents.slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
+            ->select(['organisations.code','organisations.name', 'org_agents.slug', 'location', 'number_org_suppliers', 'number_purchase_orders', 'number_org_supplier_products'])
             ->leftJoin('agents', 'agents.id', 'org_agents.agent_id')
             ->leftJoin('organisations', 'organisations.id', 'agents.organisation_id')
-            ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
+            ->leftJoin('org_agent_stats', 'org_agent_stats.org_agent_id', 'org_agents.id')
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -69,17 +69,17 @@ class IndexOrgAgents extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => __('no agents'),
-                        'count' => $organisation->procurementStats->number_agents,
+                        'count' => $organisation->procurementStats->number_org_agents,
 
                     ]
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'number_purchase_orders', label: __('purchase orders'), shortLabel: 'PO', canBeHidden: false, sortable: true, searchable: true)
 
-                ->column(key: 'number_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_org_suppliers', label: __('suppliers'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_org_supplier_products', label: __('supplier products'), shortLabel: 'SP', canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -100,7 +100,7 @@ class IndexOrgAgents extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $agents): AnonymousResourceCollection
     {
-        return AgentResource::collection($agents);
+        return OrgAgentsResource::collection($agents);
     }
 
 
@@ -132,7 +132,7 @@ class IndexOrgAgents extends OrgAction
                         ] : false,
                     ]
                 ],
-                'data'        => AgentResource::collection($agents),
+                'data'        => OrgAgentsResource::collection($agents),
             ]
         )->table($this->tableStructure($this->organisation));
     }
@@ -141,7 +141,7 @@ class IndexOrgAgents extends OrgAction
     {
         return
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

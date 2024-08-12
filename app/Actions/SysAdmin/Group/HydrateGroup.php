@@ -43,6 +43,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubDepartments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubscriptions;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
@@ -59,7 +60,7 @@ class HydrateGroup extends HydrateModel
 {
     use WithNormalise;
 
-    public string $commandSignature = 'hydrate:group {group : Group slug}';
+    public string $commandSignature = 'hydrate:groups {group? : Group slug}';
 
 
     public function handle(Group $group): void
@@ -100,6 +101,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateFamilies::run($group);
         GroupHydratePostRooms::run($group);
         GroupHydrateOutboxes::run($group);
+        GroupHydrateSupplierProducts::run($group);
 
         //fulfilment
         GroupHydratePallets::run($group);
@@ -114,15 +116,24 @@ class HydrateGroup extends HydrateModel
 
     public function asCommand(Command $command): int
     {
-        try {
-            $group = Group::where('slug', $command->argument('group'))->firstorFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
+        if($command->argument('group')) {
+            try {
+                $group = Group::where('slug', $command->argument('group'))->firstorFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
 
-            return 1;
+                return 1;
+            }
+
+
+            $this->handle($group);
+        } else {
+            $groups = Group::all();
+
+            foreach($groups as $group) {
+                $this->handle($group);
+            }
         }
-
-        $this->handle($group);
 
         return 0;
     }

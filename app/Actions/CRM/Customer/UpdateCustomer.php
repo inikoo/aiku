@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
+use App\Actions\CRM\Customer\Search\CustomerRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
@@ -100,7 +100,7 @@ class UpdateCustomer extends OrgAction
         $customer = $this->update($customer, $modelData, ['data']);
 
 
-        CustomerHydrateUniversalSearch::dispatch($customer)->delay($this->hydratorsDelay);
+        CustomerRecordSearch::dispatch($customer)->delay($this->hydratorsDelay);
 
         return $customer;
     }

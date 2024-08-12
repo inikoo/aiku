@@ -8,6 +8,10 @@
 namespace App\Actions\Helpers;
 
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
+use App\Actions\Catalogue\Product\Search\ReindexProductSearch;
+use App\Actions\Catalogue\Service\Search\ReindexServiceSearch;
+use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
+use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
@@ -19,10 +23,16 @@ use App\Actions\Fulfilment\StoredItemAudit\Search\ReindexStoredItemAuditSearch;
 use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
 use App\Actions\Inventory\Location\Search\ReindexLocationSearch;
+use App\Actions\Inventory\Warehouse\Search\ReindexWarehouseSearch;
+use App\Actions\Inventory\WarehouseArea\Search\ReindexWarehouseAreaSearch;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Models\Accounting\Invoice;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Service;
+use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -33,6 +43,8 @@ use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
@@ -50,6 +62,8 @@ class ReindexSearch extends HydrateModel
         $this->reindexSysadmin();
         $this->reindexWarehouse();
         $this->reindexWeb();
+        $this->reindexCrm();
+        $this->reindexCatalogue();
     }
 
     public function reindexFulfilment(): void
@@ -110,6 +124,12 @@ class ReindexSearch extends HydrateModel
 
     public function reindexWarehouse(): void
     {
+        foreach (Warehouse::withTrashed()->get() as $model) {
+            ReindexWarehouseSearch::run($model);
+        }
+        foreach (WarehouseArea::withTrashed()->get() as $model) {
+            ReindexWarehouseAreaSearch::run($model);
+        }
         foreach (Location::withTrashed()->get() as $model) {
             ReindexLocationSearch::run($model);
         }
@@ -119,6 +139,26 @@ class ReindexSearch extends HydrateModel
     {
         foreach (Website::withTrashed()->get() as $model) {
             ReindexWebsiteSearch::run($model);
+        }
+    }
+
+    public function reindexCrm(): void
+    {
+        foreach (Customer::withTrashed()->get() as $model) {
+            ReindexCustomerSearch::run($model);
+        }
+        foreach (Prospect::withTrashed()->get() as $model) {
+            ReindexProspectSearch::run($model);
+        }
+    }
+
+    public function reindexCatalogue(): void
+    {
+        foreach (Product::withTrashed()->get() as $model) {
+            ReindexProductSearch::run($model);
+        }
+        foreach (Service::withTrashed()->get() as $model) {
+            ReindexServiceSearch::run($model);
         }
     }
 
@@ -134,12 +174,6 @@ class ReindexSearch extends HydrateModel
         $command->line('Workplaces');
         $command->call('workplace:search');
 
-
-        $command->line('Products');
-        $command->call('products:search');
-
-        $command->line('Services');
-        $command->call('services:search');
 
 
         $command->line('Product categories');

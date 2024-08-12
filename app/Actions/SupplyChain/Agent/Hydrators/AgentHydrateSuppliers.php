@@ -7,14 +7,15 @@
 
 namespace App\Actions\SupplyChain\Agent\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateSuppliers;
 use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AgentHydrateSuppliers
 {
     use AsAction;
+    use WithHydrateSuppliers;
     private Agent $agent;
 
     public function __construct(Agent $agent)
@@ -29,10 +30,7 @@ class AgentHydrateSuppliers
 
     public function handle(Agent $agent): void
     {
-        $stats = [
-            'number_suppliers'          => Supplier::where('agent_id', $agent->id)->where('status', true)->count(),
-            'number_archived_suppliers' => Supplier::where('agent_id', $agent->id)->where('status', false)->count(),
-        ];
+        $stats=$this->getSuppliersStats($agent);
         $agent->stats()->update($stats);
     }
 

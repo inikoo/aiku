@@ -7,20 +7,19 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
-use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:deleted-supplier-products {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
         if ($supplierDeletedProductData = $organisationSource->fetchDeletedSupplierProduct($organisationSourceId)) {
             if (!empty($supplierDeletedProductData['supplierProduct'])) {

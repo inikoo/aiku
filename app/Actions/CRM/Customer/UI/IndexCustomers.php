@@ -32,7 +32,8 @@ class IndexCustomers extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit       = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-        $this->canCreateShop = $request->user()->hasPermissionTo('shops.edit');
+        $this->canCreateShop = $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
+
 
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
@@ -57,7 +58,7 @@ class IndexCustomers extends OrgAction
 
     public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
-        // dd($parent->type);
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('customers.name', $value)

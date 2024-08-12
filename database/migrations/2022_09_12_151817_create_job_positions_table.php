@@ -5,18 +5,20 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('job_positions', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('organisation_id')->nullable();
+            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+
             $table->unsignedSmallInteger('group_job_position_id')->nullable();
             $table->foreign('group_job_position_id')->references('id')->on('job_position_categories')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');

@@ -28,7 +28,7 @@ function supplierRoute(supplier: Supplier) {
             return route(
                 'grp.supply-chain.agents.show.suppliers.show',
                 [
-                    supplier.agent_slug,
+                    route().params['agent'],
                     supplier.slug
                 ]);
     }

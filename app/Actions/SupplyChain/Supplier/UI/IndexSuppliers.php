@@ -35,8 +35,8 @@ class IndexSuppliers extends GrpAction
             'status' => [
                 'label'    => __('status'),
                 'elements' => [
-                    'active'   => [__('active'), $parent instanceof Group ? $parent->supplyChainStats->number_suppliers : $parent->stats->number_suppliers],
-                    'archived' => [__('archived'), $parent instanceof Group ? $parent->supplyChainStats->number_archived_suppliers : $parent->stats->number_archived_suppliers]
+                    'active'   => [__('active'), $parent instanceof Group ? $parent->supplyChainStats->number_active_independent_suppliers : $parent->stats->number_active_suppliers],
+                    'archived' => [__('archived'), $parent instanceof Group ? $parent->supplyChainStats->number_archived_independent_suppliers : $parent->stats->number_archived_suppliers]
                 ],
 
                 'engine' => function ($query, $elements) {
@@ -67,6 +67,8 @@ class IndexSuppliers extends GrpAction
             $queryBuilder->where('suppliers.agent_id', $parent->id);
         } else {
             $queryBuilder->where('suppliers.group_id', $parent->id);
+            $queryBuilder->whereNull('suppliers.agent_id');
+
         }
 
 

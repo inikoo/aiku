@@ -59,7 +59,7 @@ class ShowSupplyChainDashboard extends GrpAction
                                 'name' => 'grp.supply-chain.agents.index'
                             ],
                             'index' => [
-                                'number' => $this->group->supplyChainStats->number_agents
+                                'number' => $this->group->supplyChainStats->number_active_agents
                             ],
                         ],
                         [
@@ -67,7 +67,7 @@ class ShowSupplyChainDashboard extends GrpAction
                             'icon'  => ['fal', 'fa-person-dolly'],
                             'href'  => ['name'=> 'grp.supply-chain.suppliers.index'],
                             'index' => [
-                                'number' => $this->group->supplyChainStats->number_suppliers
+                                'number' => $this->group->supplyChainStats->number_active_independent_suppliers
                             ],
 
                         ],
@@ -77,7 +77,7 @@ class ShowSupplyChainDashboard extends GrpAction
                             'icon'      => ['fal', 'fa-box-usd'],
                             'href'      => ['name' => 'grp.supply-chain.supplier_products.index'],
                             'index'     => [
-                                'number' => $this->group->supplyChainStats->number_supplier_products
+                                'number' => $this->group->supplyChainStats->number_current_supplier_products
                             ],
 
                         ],

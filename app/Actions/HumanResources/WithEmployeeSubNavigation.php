@@ -45,10 +45,10 @@ trait WithEmployeeSubNavigation
 
             ],
 
-            'label'     => __('Job positions'),
+            'label'     => __('Responsibilities'),
             'leftIcon'  => [
-                'icon'    => 'fal fa-network-wired',
-                'tooltip' => __('Job positions'),
+                'icon'    => 'fal fa-clipboard-list-checked',
+                'tooltip' => __('Responsibilities'),
             ],
             'number'=> $employee->stats->number_job_positions
 

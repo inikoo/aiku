@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
+use App\Actions\CRM\Customer\Search\CustomerRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
@@ -35,7 +35,7 @@ class AddDeliveryAddressToCustomer extends OrgAction
             updateAddressField:false
         );
 
-        CustomerHydrateUniversalSearch::dispatch($customer)->delay($this->hydratorsDelay);
+        CustomerRecordSearch::dispatch($customer)->delay($this->hydratorsDelay);
 
         return $customer;
     }

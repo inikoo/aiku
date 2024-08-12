@@ -42,7 +42,7 @@ enum FulfilmentCustomerTabsEnum: string
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('webhook'),
-                'icon'  => 'fal fa-network-wired',
+                'icon'  => 'fal fa-clipboard-list-check',
             ],
             FulfilmentCustomerTabsEnum::SHOWCASE => [
                 'title' => __('customer'),

@@ -20,10 +20,13 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TableSuppliers from "@/Components/Tables/Grp/SupplyChain/TableSuppliers.vue";
-import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
+import TableOrgSuppliers from "@/Components/Tables/Grp/Org/Procurement/TableOrgSuppliers.vue";
+import TableOrgSupplierProducts from "@/Components/Tables/Grp/Org/Procurement/TableOrgSupplierProducts.vue";
 import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
+import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
+import {useForm} from "@inertiajs/vue3";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -35,15 +38,13 @@ const props = defineProps<{
         navigation: object;
     },
     showcase?: object
-    suppliers?: object
-    supplier_products?: object,
+    org_suppliers?: object
+    org_supplier_products?: object,
     purchase_orders?: object,
     errors?: object,
-    history: object
+    history?: object
 }>()
-import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
-import {useForm} from "@inertiajs/vue3";
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+
 
 library.add(
     faInventory,
@@ -65,8 +66,8 @@ const component = computed(() => {
 
     const components = {
         showcase: AgentShowcase,
-        suppliers: TableSuppliers,
-        supplier_products: TableSupplierProducts,
+        org_suppliers: TableOrgSuppliers,
+        org_supplier_products: TableOrgSupplierProducts,
         purchase_orders: TablePurchaseOrders,
         details: ModelDetails,
         history: TableHistories

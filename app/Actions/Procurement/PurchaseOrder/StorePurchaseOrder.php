@@ -121,7 +121,7 @@ class StorePurchaseOrder extends OrgAction
             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
         }
 
-        if ($this->strict && $this->parent->products()->where('status', true)->count() == 0) {
+        if ($this->strict && $this->parent->orgSupplierProducts()->where('is_available', true)->count() == 0) {
             $message = match (class_basename($this->parent)) {
                 'OrgAgent'    => __("Agent don't have any product"),
                 'OrgSupplier' => __("Supplier don't have any product"),

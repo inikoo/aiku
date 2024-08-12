@@ -31,11 +31,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $org_agent_id
  * @property int|null $org_supplier_id
  * @property string $slug
- * @property bool $status
+ * @property string $state
+ * @property bool $is_available
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read \App\Models\Procurement\OrgAgent|null $orgAgent
  * @property-read \App\Models\Procurement\OrgSupplier|null $orgSupplier
  * @property-read Organisation $organisation
  * @property-read \App\Models\Procurement\OrgSupplierProductStats|null $stats
@@ -78,6 +80,11 @@ class OrgSupplierProduct extends Model
     public function orgSupplier(): BelongsTo
     {
         return $this->belongsTo(OrgSupplier::class);
+    }
+
+    public function orgAgent(): BelongsTo
+    {
+        return $this->belongsTo(OrgAgent::class);
     }
 
     public function supplierProduct(): BelongsTo

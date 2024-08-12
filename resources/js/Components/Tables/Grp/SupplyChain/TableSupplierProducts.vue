@@ -32,7 +32,7 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
                 [supplierProduct.agent_slug, supplierProduct.supplier_slug, supplierProduct.slug]);
         default:
             return route(
-                'grp.org.procurement.supplier_products.show',
+                'grp.org.procurement.org_supplier_products.show',
                 [supplierProduct.slug]);
     }
 }

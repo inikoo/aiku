@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 08 Aug 2024 19:17:59 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,6 +24,7 @@ return new class () extends Migration {
             $table->foreign('other_organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('job_position_id')->index()->nullable();
             $table->foreign('job_position_id')->references('id')->on('job_positions')->onUpdate('cascade')->onDelete('cascade');
+            $table->double('share')->nullable();
             $table->jsonb('scopes')->default('{}');
             $table->timestampsTz();
         });

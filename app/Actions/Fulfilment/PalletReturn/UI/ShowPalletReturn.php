@@ -124,11 +124,11 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ]
                         ],
-                        [
+                       /*  [
                             'type'    => 'button',
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-plus',
-                            'label'   => __('add Stored Item'),
+                            'label'   => __('add Stored Item'), */
                             // 'tooltip' => __('Add single service'),
                             // 'route'   => [
                             //     'name'       => 'grp.models.pallet-return.transaction.store',
@@ -136,7 +136,7 @@ class ShowPalletReturn extends OrgAction
                             //         'palletReturn' => $palletReturn->id
                             //     ]
                             // ]
-                        ],
+                       /*  ], */
                         [
                             'type'    => 'button',
                             'style'   => 'secondary',
@@ -665,11 +665,9 @@ class ShowPalletReturn extends OrgAction
                             'label'   => __('Save'),
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.org.shops.show.crm.customers.show.web-users.create',
+                                'name'       => 'grp.models.pallet-return.stored_item.store',
                                 'parameters' => [
-                                    $palletReturn->organisation->slug,
-                                    $palletReturn->fulfilment->shop->slug,
-                                    $palletReturn->slug
+                                    $palletReturn->organisation->id
                                 ]
                             ]
                         ]

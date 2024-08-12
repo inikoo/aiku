@@ -8,8 +8,8 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
+use App\Actions\Inventory\Warehouse\Search\WarehouseRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\Traits\WithActionUpdate;
@@ -41,7 +41,7 @@ class UpdateWarehouse extends OrgAction
             GroupHydrateWarehouses::run($warehouse->group);
             OrganisationHydrateWarehouses::dispatch($warehouse->organisation);
         }
-        WarehouseHydrateUniversalSearch::dispatch($warehouse);
+        WarehouseRecordSearch::dispatch($warehouse);
 
         return $warehouse;
     }

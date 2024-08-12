@@ -7,7 +7,7 @@
 
 namespace App\Actions\SupplyChain\Agent\UI;
 
-use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\SupplyChain\AgentResource;
 use App\Models\SupplyChain\Agent;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -18,15 +18,8 @@ class GetAgentShowcase
     public function handle(Agent $agent): array
     {
         return [
-            'contactCard' => [
-                'company' => $agent->organisation->name,
-                'contact' => $agent->organisation->contact_name,
-                'email'   => $agent->organisation->email,
-                'phone'   => $agent->organisation->phone,
-                'address' => AddressResource::make($agent->organisation->address),
-                'photo'   => $agent->organisation->imageSources()
-            ],
-            'stats'       => [
+            'agent'              => AgentResource::make($agent)->getArray(),
+            'stats'              => [
                 [
                     'label' => __('suppliers'),
                     'value' => $agent->stats->number_suppliers

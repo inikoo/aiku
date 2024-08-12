@@ -18,10 +18,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -57,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Clocking> $clockings
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\GuestHasJobPositions $pivot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\SysAdmin\GuestStats|null $stats
@@ -145,9 +146,11 @@ class Guest extends Model implements HasMedia, Auditable
         return 'slug';
     }
 
-    public function jobPositions(): MorphToMany
+
+    public function jobPositions(): BelongsToMany
     {
-        return $this->morphToMany(JobPosition::class, 'job_positionable')->withPivot('share')->withTimestamps();
+        return $this->belongsToMany(JobPosition::class, 'guest_has_job_positions')
+            ->using(GuestHasJobPositions::class);
     }
 
     public function group(): BelongsTo

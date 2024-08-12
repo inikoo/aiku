@@ -296,7 +296,7 @@ class EditOrgSupplier extends OrgAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
+            if ($request->route()->getName() == 'grp.org.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -311,7 +311,7 @@ class EditOrgSupplier extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.procurement.org_suppliers.edit'=> [
+            'grp.org.procurement.org_suppliers.edit'=> [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -321,7 +321,7 @@ class EditOrgSupplier extends OrgAction
 
                 ]
             ],
-            'grp.procurement.org_agents.show.org_suppliers.edit' => [
+            'grp.org.procurement.org_agents.show.org_suppliers.edit' => [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,

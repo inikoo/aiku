@@ -11,7 +11,7 @@ import { capitalize } from "@/Composables/capitalize"
 import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJobPositions.vue";
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps <{
+defineProps <{
     pageHead: PageHeadingTypes
     title: string
     data: object

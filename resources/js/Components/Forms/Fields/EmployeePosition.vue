@@ -1,15 +1,16 @@
     <script setup lang="ts">
 import { inject, reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
-import { faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
+import { faBullhorn,faCashRegister,faChessQueen,faCube,faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
+import { faBoxUsd,faHelmetBattle,faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { get } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { trans } from 'laravel-vue-i18n'
+import subDepartment from "@/Pages/Grp/Org/Catalogue/SubDepartment.vue";
 
 
-library.add(faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle,fasCrown)
+library.add(faBoxUsd,faHelmetBattle,faChessQueen,faCube,faStore,faCashRegister,  faBullhorn,faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle,fasCrown)
 
 interface TypeShop {
     id: number
@@ -38,6 +39,7 @@ interface TypeFulfilment {
 
 interface optionsJob {
     department: string
+    departmentRightIcons: string[]
     icon?: string
     level?: string  // group_admin || group_sysadmin || etc..
     subDepartment: {
@@ -92,14 +94,14 @@ const props = defineProps<{
 // console.log(props.options)
 
 const optionsJob = reactive<{ [key: string]: optionsJob }>({
-    super_admin: {
+    group_admin: {
         department: "group admin",
         level: 'group_admin',
-        icon: 'fas fa-crown',
+        icon: 'fas fa-helmet-battle',
         subDepartment: [
             {
-                slug: "super-admin",
-                label: trans("Super Administrator"),
+                slug: "group-admin",
+                label: trans("Group Administrator"),
                 number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
             }
         ],
@@ -117,7 +119,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
     },
     group_procurement: {
-        icon: "fal fa-user-hard-hat",
+        icon: "fal fa-box-usd",
         level: 'group_procurement',
         department: "Group Procurement",
         subDepartment: [
@@ -136,13 +138,13 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         // value: null
     },
-    admin: {
-        department: "admin",
+    org_admin: {
+        department: "org admin",
         icon: 'fal fa-crown',
         subDepartment: [
             {
-                slug: "admin",
-                label: "Administrator",
+                slug: "org-admin",
+                label: "Organisation Administrator",
                 number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
             }
         ],
@@ -189,9 +191,46 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         // value: null
     },
 
+  shop_admin: {
+    department: "Shop admin",
+    icon: 'fal fa-chess-queen',
+    subDepartment: [
+      {
+        slug: "shop-admin",
+        label: "Shop Administrator",
+        number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
+      }
+    ],
+    // value: null
+  },
+  shk: {
+    icon: 'fal fa-cash-register',
+    department: "Shopkeeping",
+    departmentRightIcons: ['fal fa-cube','fal fa-globe'],
+    subDepartment: [
+      {
+        slug: "shk-m",
+        grade: "manager",
+        label: "Supervisor",
+        optionsType: ['shops'],
+        number_employees: props.options.positions.data.find(position => position.slug == 'web-m')?.number_employees || 0,
+      },
+      {
+        slug: "web-c",
+        grade: "clerk",
+        label: "Worker",
+        optionsType: ['shops'],
+        number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees || 0,
+      }
+    ],
+    optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
+    optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+    // value: null
+  },
+
     mrk: {
-        icon: "fal fa-comments-dollar",
-        department: "Deals",
+        icon: "fal fa-bullhorn",
+        department: "Marketing",
         subDepartment: [
             {
                 slug: "mrk-m",
@@ -213,29 +252,31 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         // value: null
     },
 
-    web: {
-        icon: 'fal fa-globe',
-        department: "Webmaster",
-        subDepartment: [
-            {
-                slug: "web-m",
-                grade: "manager",
-                label: "Supervisor",
-                optionsType: ['shops'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'web-m')?.number_employees || 0,
-            },
-            {
-                slug: "web-c",
-                grade: "clerk",
-                label: "Worker",
-                optionsType: ['shops'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees || 0,
-            }
-        ],
-        optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
-        optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
-        // value: null
-    },
+
+
+    cus: {
+    department: "Customer Service",
+      departmentRightIcons: ['fal fa-user','fal fa-route'],
+    subDepartment: [
+      {
+        slug: "cus-m",
+        grade: "manager",
+        label: "Supervisor",
+        optionsType: ['shops'],
+        number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
+      },
+      {
+        slug: "cus-c",
+        grade: "clerk",
+        label: "Worker",
+        optionsType: ['shops'],
+        number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees || 0,
+      }
+    ],
+    optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
+    optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+    // value: null
+  },
 
     buy: {
         department: "Buyer",
@@ -325,28 +366,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         // value: null
     },
 
-    cus: {
-        department: "Customer Service",
-        subDepartment: [
-            {
-                slug: "cus-m",
-                grade: "manager",
-                label: "Supervisor",
-                optionsType: ['shops'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
-            },
-            {
-                slug: "cus-c",
-                grade: "clerk",
-                label: "Worker",
-                optionsType: ['shops'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees || 0,
-            }
-        ],
-        optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
-        optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
-        // value: null
-    },
+
 
     ful: {
         department: "Fulfilment",
@@ -518,7 +538,7 @@ const isRadioChecked = (subDepartmentSlug: string) => {
                 <div v-if="(departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
                     <!-- Section: Department label -->
                     <div class="flex items-center capitalize gap-x-1.5">
-                        <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400' aria-hidden='true' />
+                        <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
                         {{ jobGroup.department }}
                     </div>
 
@@ -534,14 +554,14 @@ const isRadioChecked = (subDepartmentSlug: string) => {
                                         v-if="(subDepartment.optionsType?.includes('fulfilments') && fulfilmentLength > 0) || (subDepartment.optionsType?.includes('shops') && shopLength > 0) || (subDepartment.optionsType?.includes('warehouses') && warehouseLength > 0) || (subDepartment.optionsType?.includes('productions') && productionLength > 0) || !subDepartment.optionsType"
                                         @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, subDepartment.optionsType)"
                                         class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                        :class="(isRadioChecked('admin') && subDepartment.slug != 'admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('super-admin') && subDepartment.slug != 'super-admin') ? 'text-green-500' : ''"
-                                        :disabled="(isRadioChecked('admin') && subDepartment.slug != 'admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('super-admin') && subDepartment.slug != 'super-admin') ? true : false"
+                                        :class="(isRadioChecked('admin') && subDepartment.slug != 'admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
+                                        :disabled="(isRadioChecked('admin') && subDepartment.slug != 'admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? true : false"
                                     >
-                                    <!-- {{ (isRadioChecked('super-admin') && subDepartment.slug != 'super-admin') }} -->
+                                    <!-- {{ (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') }} -->
                                     
                                         <div class="relative text-left">
                                             <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                                <template v-if="(isRadioChecked('admin') && subDepartment.slug != 'admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('super-admin') && subDepartment.slug != 'super-admin')">
+                                                <template v-if="(isRadioChecked('admin') && subDepartment.slug != 'admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin')">
                                                     <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                 </template>
@@ -606,11 +626,11 @@ const isRadioChecked = (subDepartmentSlug: string) => {
                                                                     v-if="subDep.optionsType?.includes(optionKey)"
                                                                     @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                     class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                                                    :disabled="isRadioChecked('admin') || isRadioChecked('super-admin')"
+                                                                    :disabled="isRadioChecked('admin') || isRadioChecked('group-admin')"
                                                                     v-tooltip="subDep.label"
                                                                 >
                                                                     <div class="relative text-left">
-                                                                        <template v-if="isRadioChecked('admin') || isRadioChecked('super-admin')">
+                                                                        <template v-if="isRadioChecked('admin') || isRadioChecked('group-admin')">
                                                                             <FontAwesomeIcon v-if="idxGrade === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                                             <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                                         </template>

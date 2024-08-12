@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
@@ -98,7 +98,7 @@ class ShowPurchaseOrder extends InertiaAction
     public function getBreadcrumbs(PurchaseOrder $purchaseOrder, $suffix = null): array
     {
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
+            (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

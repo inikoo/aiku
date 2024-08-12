@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

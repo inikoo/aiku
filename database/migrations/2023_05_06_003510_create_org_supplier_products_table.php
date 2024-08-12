@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -26,7 +27,8 @@ return new class () extends Migration {
             $table->unsignedInteger('org_supplier_id')->nullable();
             $table->foreign('org_supplier_id')->references('id')->on('org_suppliers');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->boolean('status')->default(true)->index();
+            $table->string('state')->index()->default(OrgSupplierProductStateEnum::ACTIVE->value);
+            $table->boolean('is_available')->index()->default(true);
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
         });

@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\StockDelivery;
@@ -115,7 +115,7 @@ class IndexStockDeliveries extends InertiaAction
     {
         return
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(),
+                ShowProcurementDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

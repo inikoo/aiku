@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Marketplace\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -182,7 +182,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
         return match ($routeName) {
             'grp.org.procurement.marketplace.org_supplier_products.index' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(),
+                ShowProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'grp.org.procurement.marketplace.org_supplier_products.index',

@@ -11,7 +11,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositionsS
 use App\Actions\Traits\WithNormalise;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class JobPositionHydrateGuests
@@ -34,11 +33,8 @@ class JobPositionHydrateGuests
     public function handle(JobPosition $jobPosition): void
     {
 
-        $numberGuests=DB::table('job_positionables')->leftJoin('guests', 'job_positionables.job_positionable_id', '=', 'guests.id')
-            ->where('job_positionable_type', 'Guest')->where('job_position_id', $jobPosition->id)->count();
-
-        $numberGuestsWorkTime=DB::table('job_positionables')->leftJoin('guests', 'job_positionables.job_positionable_id', '=', 'guests.id')
-            ->where('job_positionable_type', 'Guest')->where('job_position_id', $jobPosition->id)->sum('share');
+        $numberGuests        =$jobPosition->guests()->count();
+        $numberGuestsWorkTime=$jobPosition->employees()->sum('share');
 
         $jobPosition->stats()->update(
             [
@@ -47,7 +43,9 @@ class JobPositionHydrateGuests
             ]
         );
 
-        OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
+        if($jobPosition->organisation_id) {
+            OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
+        }
 
 
     }

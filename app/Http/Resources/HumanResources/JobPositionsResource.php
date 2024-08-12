@@ -16,6 +16,7 @@ use JsonSerializable;
  * @property string $name
  * @property int $number_employees_currently_working
  * @property string $code
+ * @property mixed $share
  */
 class JobPositionsResource extends JsonResource
 {
@@ -26,7 +27,7 @@ class JobPositionsResource extends JsonResource
             'code'                               => $this->code,
             'name'                               => $this->name,
             'number_employees_currently_working' => $this->number_employees_currently_working,
-           // 'share'=>$this->share
+            'share'                              => percentage($this->share, 1)
 
         ];
     }

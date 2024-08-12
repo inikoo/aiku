@@ -23,14 +23,14 @@ use Spatie\LaravelOptions\Options;
 
 class EditShop extends OrgAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasAnyPermission(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
+    }
+
     public function handle(Shop $shop): Shop
     {
         return $shop;
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("supervisor-products.{$this->shop->id}");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop

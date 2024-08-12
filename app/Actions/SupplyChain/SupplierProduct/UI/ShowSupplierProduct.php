@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 27 Mar 2023 15:55:20 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 11 Aug 2024 14:57:03 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
@@ -11,8 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -117,7 +116,7 @@ class ShowSupplierProduct extends InertiaAction
     public function getBreadcrumbs(SupplierProduct $supplierProduct, $suffix = null): array
     {
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
+            (new ShowProcurementDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',

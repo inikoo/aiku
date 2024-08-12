@@ -44,20 +44,22 @@ class IndexJobPositions extends OrgAction
 
         $queryBuilder = QueryBuilder::for(JobPosition::class);
         $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
-
+        $queryBuilder->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working']);
         if ($parent instanceof Organisation) {
             $queryBuilder->where('organisation_id', $parent->id);
         } else {
-            $queryBuilder->whereHas('employees', function ($query) use ($parent) {
-                $query->where('job_positionable_id', $parent->id);
-                $query->where('job_positionable_type', class_basename($parent));
-            });
+            $queryBuilder->leftJoin('employee_has_job_positions', 'job_positions.id', 'employee_has_job_positions.job_position_id');
+            $queryBuilder->where('employee_id', $parent->id);
+            $queryBuilder->addSelect('employee_has_job_positions.share');
+
+
+
         }
+
 
         return $queryBuilder
             ->defaultSort('job_positions.code')
-            ->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working'])
-            ->allowedSorts(['slug', 'name', 'number_employees_currently_working'])
+            ->allowedSorts(['code', 'name', 'number_employees_currently_working','share'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -88,11 +90,11 @@ class IndexJobPositions extends OrgAction
             $table->withEmptyState(
                 match (class_basename($parent)) {
                     'Organisation' => [
-                        'title'       => __("No job positions found"),
+                        'title'       => __("No responsibilities found"),
                         'count'       => $parent->humanResourcesStats->number_job_positions,
                     ],
                     'Employee' => [
-                        'title'       => __("Employee has no job positions"),
+                        'title'       => __("Employee has no responsibilities"),
                         'count'       => $parent->stats->number_job_positions
 
                     ],
@@ -100,14 +102,23 @@ class IndexJobPositions extends OrgAction
                 }
             );
 
-            $table->withLabelRecord(__('Job Positions'));
+            $table->withLabelRecord(__('responsibility'), __('responsibilities'));
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_employees_currently_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if($parent instanceof Organisation) {
+                $table->column(key: 'number_employees_currently_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true);
+
+                //$table->column(key: 'department', label: __('department'), canBeHidden: false, sortable: true, searchable: true);
+                //$table->column(key: 'team', label: __('team'), canBeHidden: false, sortable: true, searchable: true);
+            } else {
+                $table->column(key: 'share', label: __('Share'), canBeHidden: false, sortable: true, searchable: true);
+
+            }
+            $table->defaultSort('slug');
         };
     }
 
@@ -125,29 +136,14 @@ class IndexJobPositions extends OrgAction
             'Org/HumanResources/JobPositions',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('job positions'),
+                'title'       => __('Responsibilities'),
                 'pageHead'    => [
                     'icon'    => [
-                        'title' => __('Job positions'),
-                        'icon'  => 'fal fa-network-wired'
+                        'title' => __('Responsibilities'),
+                        'icon'  => 'fal fa-clipboard-list-check'
                     ],
-                    'title'         => __('Job positions'),
+                    'title'         => __('Responsibilities'),
                     'subNavigation' => $subNavigation,
-                    /*
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('job position'),
-                            'route' => [
-                                'name'       => 'grp.org.hr.job_positions.create',
-                                'parameters' => [
-                                    'organisation' => $this->organisation->slug
-                                ]
-                            ]
-                        ] : false
-                    ]
-                    */
                 ],
                 'data'        => JobPositionsResource::collection($jobPositions),
 
@@ -184,7 +180,7 @@ class IndexJobPositions extends OrgAction
                             'name'       => 'grp.org.hr.job_positions.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('Positions'),
+                        'label' => __('Responsibilities'),
                         'icon'  => 'fal fa-bars',
                     ],
 

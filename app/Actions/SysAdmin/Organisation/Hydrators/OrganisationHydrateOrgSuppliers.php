@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateOrgSuppliers;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrganisationHydrateOrgSuppliers
 {
     use AsAction;
+    use WithHydrateOrgSuppliers;
 
     private Organisation $organisation;
 
@@ -31,10 +33,7 @@ class OrganisationHydrateOrgSuppliers
     public function handle(Organisation $organisation): void
     {
 
-        $stats = [
-            'number_suppliers'          => $organisation->orgSuppliers()->count(),
-        ];
-
+        $stats=$this->getOrgSuppliersStats($organisation);
 
         $organisation->procurementStats()->update($stats);
     }

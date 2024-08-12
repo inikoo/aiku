@@ -8,14 +8,14 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\SupplyChain\AgentTabsEnum;
-use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
-use App\Http\Resources\Procurement\MarketplaceSupplierResource;
-use App\Http\Resources\SupplyChain\AgentResource;
+use App\Http\Resources\SupplyChain\AgentsResource;
+use App\Http\Resources\SupplyChain\SupplierProductsResource;
+use App\Http\Resources\SupplyChain\SuppliersResource;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -47,9 +47,6 @@ class ShowAgent extends GrpAction
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
-        if ($agent->trashed()) {
-            return $this->deletedHtmlResponse($agent, $request);
-        }
 
         return Inertia::render(
             'SupplyChain/Agent',
@@ -97,28 +94,7 @@ class ShowAgent extends GrpAction
                             'label' => __('supplier')
                         ] : false,
                     ],
-                    /*
-                    'meta'   => [
-                        [
-                            'href'     => ['grp.org.procurement.marketplace.agents.show.suppliers.index', $agent->slug],
-                            'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
-                            'number'   => $agent->stats->number_suppliers,
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-person-dolly',
-                                'tooltip' => __('Suppliers'),
-                            ],
-                        ],
-                        [
-                            'href'     => ['grp.org.procurement.marketplace.agents.show.supplier_products.index', $agent->slug],
-                            'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
-                            'number'   => $agent->stats->number_supplier_products,
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-box-usd',
-                                'tooltip' => __('products'),
-                            ],
-                        ]
-                    ]
-                    */
+
 
                 ],
                 'tabs'                                    => [
@@ -131,13 +107,13 @@ class ShowAgent extends GrpAction
 
                 AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value
                     ?
-                    fn () => MarketplaceSupplierResource::collection(
+                    fn () => SuppliersResource::collection(
                         IndexSuppliers::run(
                             parent: $agent,
                             prefix: 'suppliers'
                         )
                     )
-                    : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(
+                    : Inertia::lazy(fn () => SuppliersResource::collection(
                         IndexSuppliers::run(
                             parent: $agent,
                             prefix: 'suppliers'
@@ -145,13 +121,14 @@ class ShowAgent extends GrpAction
                     )),
 
                 AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
-                    : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
+                    fn () => SupplierProductsResource::collection(IndexSupplierProducts::run($agent))
+                    : Inertia::lazy(fn () => SupplierProductsResource::collection(IndexSupplierProducts::run($agent))),
 
             ]
         )->table(
             IndexSuppliers::make()->tableStructure(
-                parent:$agent
+                parent:$agent,
+                prefix: AgentTabsEnum::SUPPLIERS->value
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
@@ -161,11 +138,12 @@ class ShowAgent extends GrpAction
                         'label' => __('suppliers')
                     ] : false,
                 ],
-                prefix: 'suppliers' */
+                */
             )
         )
             ->table(
-                IndexMarketplaceSupplierProducts::make()->tableStructure(
+                IndexSupplierProducts::make()->tableStructure(
+                    prefix: AgentTabsEnum::SUPPLIER_PRODUCTS->value
                     /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
@@ -175,15 +153,15 @@ class ShowAgent extends GrpAction
                             'label' => __('product')
                         ] : false,
                     ],
-                    prefix: 'supplier_products' */
+                   ' */
                 )
             );
     }
 
 
-    public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(Agent $agent): AgentsResource
     {
-        return new AgentResource($agent);
+        return new AgentsResource($agent);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

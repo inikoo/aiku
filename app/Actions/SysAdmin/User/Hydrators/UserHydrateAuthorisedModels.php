@@ -30,6 +30,11 @@ class UserHydrateAuthorisedModels
         $authorisedWarehouses    = [];
         $authorisedProductions   = [];
 
+        if($user->getAllPermissions()->count()) {
+            //   dd($user->getAllPermissions());
+        }
+
+
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];

@@ -39,6 +39,7 @@ class SeedJobPositionCategories extends Seeder
                     ]
                 );
             } else {
+
                 StoreJobPositionCategory::make()->action(
                     $group,
                     [

@@ -100,7 +100,12 @@ function createAdminGuest(Group $group): Guest
                 array_merge(
                     Guest::factory()->definition(),
                     [
-                        'roles' => ['super-admin']
+                        'positions' => [
+                            [
+                                'slug'   => 'group-admin',
+                                'scopes' => []
+                            ]
+                        ]
                     ]
                 )
             );

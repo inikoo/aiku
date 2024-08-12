@@ -30,6 +30,15 @@ class UpdateShop extends OrgAction
     use WithActionUpdate;
     use WithModelAddressActions;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasAnyPermission(['org-admin.'.$this->organisation->id, 'shop-admin.'.$this->shop->id]);
+    }
+
     public function handle(Shop $shop, array $modelData): Shop
     {
         if (Arr::exists($modelData, 'address')) {
@@ -42,15 +51,14 @@ class UpdateShop extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'shopify_shop_name'        => 'settings.shopify.shop_name',
-                    'shopify_api_key'          => 'settings.shopify.api_key',
-                    'shopify_api_secret'       => 'settings.shopify.api_secret',
-                    'shopify_access_token'     => 'settings.shopify.access_token',
-                    default                    => $key
+                    'shopify_shop_name'    => 'settings.shopify.shop_name',
+                    'shopify_api_key'      => 'settings.shopify.api_key',
+                    'shopify_api_secret'   => 'settings.shopify.api_secret',
+                    'shopify_access_token' => 'settings.shopify.access_token',
+                    default                => $key
                 },
                 $value
             );
-
         }
 
         data_forget($modelData, ['shopify_shop_name', 'shopify_api_key', 'shopify_api_secret', 'shopify_access_token']);
@@ -81,17 +89,6 @@ class UpdateShop extends OrgAction
         return $shop;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return true;
-
-        // Need fix this
-        return $request->user()->hasPermissionTo("shops.view." . $this->shop->id);
-    }
 
     public function rules(): array
     {
@@ -116,23 +113,23 @@ class UpdateShop extends OrgAction
                 ),
 
             ],
-            'contact_name'              => ['sometimes', 'nullable', 'string', 'max:255'],
-            'company_name'              => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'                     => ['sometimes', 'nullable', 'email'],
-            'phone'                     => ['sometimes', 'nullable'],
-            'identity_document_number'  => ['sometimes', 'nullable', 'string'],
-            'identity_document_type'    => ['sometimes', 'nullable', 'string'],
-            'type'                      => ['sometimes', 'required', Rule::enum(ShopTypeEnum::class)],
-            'currency_id'               => ['sometimes', 'required', 'exists:currencies,id'],
-            'language_id'               => ['sometimes', 'required', 'exists:languages,id'],
-            'timezone_id'               => ['sometimes', 'required', 'exists:timezones,id'],
-            'address'                   => ['sometimes', 'required', new ValidAddress()],
-            'collection_address'        => ['sometimes', 'required', new ValidAddress()],
-            'state'                     => ['sometimes', Rule::enum(ShopStateEnum::class)],
-            'shopify_shop_name'         => ['sometimes', 'string'],
-            'shopify_api_key'           => ['sometimes', 'string'],
-            'shopify_api_secret'        => ['sometimes', 'string'],
-            'shopify_access_token'      => ['sometimes', 'string']
+            'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'                    => ['sometimes', 'nullable', 'email'],
+            'phone'                    => ['sometimes', 'nullable'],
+            'identity_document_number' => ['sometimes', 'nullable', 'string'],
+            'identity_document_type'   => ['sometimes', 'nullable', 'string'],
+            'type'                     => ['sometimes', 'required', Rule::enum(ShopTypeEnum::class)],
+            'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
+            'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
+            'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
+            'address'                  => ['sometimes', 'required', new ValidAddress()],
+            'collection_address'       => ['sometimes', 'required', new ValidAddress()],
+            'state'                    => ['sometimes', Rule::enum(ShopStateEnum::class)],
+            'shopify_shop_name'        => ['sometimes', 'string'],
+            'shopify_api_key'          => ['sometimes', 'string'],
+            'shopify_api_secret'       => ['sometimes', 'string'],
+            'shopify_access_token'     => ['sometimes', 'string']
         ];
     }
 

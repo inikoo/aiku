@@ -40,12 +40,12 @@ function supplierRoute(supplier: Supplier) {
   <Table :resource="data" :name="tab" class="mt-5">
 
 
-    <template #cell(code)="{ item: supplier }">
+    <template #cell(codez)="{ item: supplier }">
       <Link :href="supplierRoute(supplier)" class="primaryLink">
         {{ supplier["code"] }}
       </Link>
     </template>
-    <template #cell(number_supplier_products)="{ item: supplier }">
+    <template #cell(number_supplier_productsz)="{ item: supplier }">
       {{ locale.number(supplier.number_supplier_products) }}
     </template>
     <template #cell(location)="{ item: supplier }">

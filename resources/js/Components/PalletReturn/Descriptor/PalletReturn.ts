@@ -1,7 +1,7 @@
 export default {
     useSearch : true,
-    title : 'Pallet',
-    key : 'pallets',
+    title : 'Choose Pallet',
+    key : 'Pallet',
     column : [
         {
             label : "",

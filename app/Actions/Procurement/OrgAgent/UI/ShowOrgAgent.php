@@ -10,16 +10,15 @@ namespace App\Actions\Procurement\OrgAgent\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
+use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\Procurement\UI\ProcurementDashboard;
-use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgSupplierProductsResource;
+use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Http\Resources\SupplyChain\AgentResource;
-use App\Http\Resources\SupplyChain\SupplierProductResource;
-use App\Http\Resources\SupplyChain\SupplierResource;
+use App\Http\Resources\SupplyChain\AgentsResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
@@ -45,7 +44,6 @@ class ShowOrgAgent extends OrgAction
 
     public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): RedirectResponse|OrgAgent
     {
-
         $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
 
         return $this->handle($orgAgent);
@@ -70,7 +68,7 @@ class ShowOrgAgent extends OrgAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
-                    'title'         => $orgAgent->organisation->name,
+                    'title'         => $orgAgent->agent->organisation->name,
                     'create_direct' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.models.org_agent.purchase-order.store',
@@ -78,7 +76,7 @@ class ShowOrgAgent extends OrgAction
                         ],
                         'label' => __('purchase order')
                     ] : false,
-                    'actions' => [
+                    'actions'       => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -97,10 +95,10 @@ class ShowOrgAgent extends OrgAction
                         ] : false,
                     ],
 
-                    'meta'          => [
+                    'meta' => [
                         [
-                            'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_suppliers),
-                            'number'   => $orgAgent->stats->number_suppliers,
+                            'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_org_suppliers),
+                            'number'   => $orgAgent->stats->number_org_suppliers,
                             'href'     => [
                                 'grp.org.procurement.org_agents.show.org_suppliers.index',
                                 $orgAgent->organisation->slug
@@ -111,8 +109,8 @@ class ShowOrgAgent extends OrgAction
                             ]
                         ],
                         [
-                            'name'     => trans_choice('product|products', $orgAgent->stats->number_supplier_products),
-                            'number'   => $orgAgent->stats->number_supplier_products,
+                            'name'     => trans_choice('product|products', $orgAgent->stats->number_org_supplier_products),
+                            'number'   => $orgAgent->stats->number_org_supplier_products,
                             'href'     => [
                                 'grp.org.procurement.org_agents.show.org_suppliers.index',
                                 $orgAgent->organisation->slug
@@ -149,32 +147,32 @@ class ShowOrgAgent extends OrgAction
                             prefix: 'purchase_orders'
                         )
                     )),
-                OrgAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::SUPPLIER_PRODUCTS->value
+                OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
                     ?
-                    fn () => SupplierProductResource::collection(
-                        IndexSupplierProducts::run(
+                    fn () => OrgSupplierProductsResource::collection(
+                        IndexOrgSupplierProducts::run(
                             parent: $orgAgent,
-                            prefix: 'supplier_products'
+                            prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
                         )
                     )
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(
-                        IndexSupplierProducts::run(
+                    : Inertia::lazy(fn () => OrgSupplierProductsResource::collection(
+                        IndexOrgSupplierProducts::run(
                             parent: $orgAgent,
-                            prefix: 'supplier_products'
+                            prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
                         )
                     )),
-                OrgAgentTabsEnum::SUPPLIERS->value         => $this->tab == OrgAgentTabsEnum::SUPPLIERS->value
+                OrgAgentTabsEnum::ORG_SUPPLIERS->value         => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIERS->value
                     ?
-                    fn () => SupplierResource::collection(
-                        IndexSuppliers::run(
+                    fn () => OrgSuppliersResource::collection(
+                        IndexOrgSuppliers::run(
                             parent: $orgAgent,
-                            prefix: 'suppliers'
+                            prefix: OrgAgentTabsEnum::ORG_SUPPLIERS->value
                         )
                     )
-                    : Inertia::lazy(fn () => SupplierResource::collection(
-                        IndexSuppliers::run(
+                    : Inertia::lazy(fn () => OrgSuppliersResource::collection(
+                        IndexOrgSuppliers::run(
                             parent: $orgAgent,
-                            prefix: 'suppliers'
+                            prefix: OrgAgentTabsEnum::ORG_SUPPLIERS->value
                         )
                     )),
 
@@ -184,60 +182,42 @@ class ShowOrgAgent extends OrgAction
             ]
         )->table(
             IndexPurchaseOrders::make()->tableStructure(
-                /* modelOperations: [
+                modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.org.procurement.org_agents.show.purchase_orders.create',
-                            'parameters' => array_values([$orgAgent->slug])
+                            'parameters' => array_values([$this->organisation->slug, $orgAgent->slug])
                         ],
-                        'label' => __('purchase_orders')
+                        'label' => __('purchase orders')
                     ] : false
                 ],
-                prefix: 'purchase_orders' */
+                prefix: OrgAgentTabsEnum::PURCHASE_ORDERS->value
             )
         )->table(
-            IndexSupplierProducts::make()->tableStructure(
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'grp.org.procurement.org_agents.show.supplier-products-orders.create',
-                            'parameters' => array_values([$orgAgent->slug])
-                        ],
-                        'label' => __('supplier products')
-                    ] : false
-                ],
-                prefix: 'supplier_products' */
+            IndexOrgSupplierProducts::make()->tableStructure(
+                parent: $orgAgent,
+                prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
             )
         )->table(
             IndexOrgSuppliers::make()->tableStructure(
-                $orgAgent
-                /* modelOperations: [
-                     'createLink' => $this->canEdit ? [
-                         'route' => [
-                             'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.create',
-                             'parameters' => array_values([$orgAgent->slug])
-                         ],
-                         'label' => __('suppliers')
-                     ] : false
-                 ],
-                 prefix: 'suppliers' */
+                parent: $orgAgent,
+                prefix: OrgAgentTabsEnum::ORG_SUPPLIERS->value
             )
         )->table(IndexHistory::make()->tableStructure(prefix: OrgAgentTabsEnum::HISTORY->value));
     }
 
 
-    public function jsonResponse(Agent $orgAgent): AgentResource
+    public function jsonResponse(Agent $orgAgent): AgentsResource
     {
-        return new AgentResource($orgAgent);
+        return new AgentsResource($orgAgent);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
-        $orgAgent=OrgAgent::where('slug', $routeParameters['orgAgent'])->first();
+        $orgAgent = OrgAgent::where('slug', $routeParameters['orgAgent'])->first();
 
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs($routeParameters),
+            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -246,7 +226,8 @@ class ShowOrgAgent extends OrgAction
                             'route' => [
                                 'name'       => 'grp.org.procurement.org_agents.index',
                                 'parameters' => [
-                                    $routeParameters['organisation'],]
+                                    $routeParameters['organisation'],
+                                ]
                             ],
                             'label' => __('Agents')
                         ],

@@ -276,7 +276,7 @@ class GetOrganisationNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
-                            'root'  => 'grp.org.procurement.dashboard',
+                            'root'  => 'grp.procurement.dashboard',
                             'route' => [
                                 'name'       => 'grp.org.procurement.dashboard',
                                 'parameters' => [$organisation->slug],
@@ -427,8 +427,8 @@ class GetOrganisationNavigation
 
 
                         [
-                            'tooltip' => __('job positions'),
-                            'icon'    => ['fal', 'fa-network-wired'],
+                            'tooltip' => __('Responsibilities'),
+                            'icon'    => ['fal', 'fa-clipboard-list-check'],
                             'root'    => 'grp.org.hr.job_positions.',
                             'route'   => [
                                 'name'       => 'grp.org.hr.job_positions.index',

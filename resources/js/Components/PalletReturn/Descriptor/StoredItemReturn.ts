@@ -1,7 +1,7 @@
 export default {
         useSearch : true,
-        title : 'Stored Item',
-        key : null,
+        title : 'Choose Stored Item',
+        key : 'Store Items',
         column : [
             {
                 label : "Name",

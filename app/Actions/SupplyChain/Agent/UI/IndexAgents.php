@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Http\Resources\SupplyChain\AgentResource;
+use App\Http\Resources\SupplyChain\AgentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
@@ -152,7 +152,7 @@ class IndexAgents extends GrpAction
 
     public function jsonResponse(LengthAwarePaginator $agent): AnonymousResourceCollection
     {
-        return AgentResource::collection($agent);
+        return AgentsResource::collection($agent);
     }
 
     public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request): Response
@@ -184,7 +184,7 @@ class IndexAgents extends GrpAction
                         ] : false,
                     ]
                 ],
-                'data'        => AgentResource::collection($agent),
+                'data'        => AgentsResource::collection($agent),
             ]
         )->table($this->tableStructure($this->group));
     }

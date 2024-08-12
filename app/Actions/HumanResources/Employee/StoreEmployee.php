@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
-use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
+use App\Actions\HumanResources\JobPosition\SyncEmployeeJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
@@ -83,7 +83,7 @@ class StoreEmployee extends OrgAction
             $jobPositions[$jobPosition->id] = $positionData['scopes'];
         }
 
-        SyncEmployableJobPositions::run($employee, $jobPositions);
+        SyncEmployeeJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
         GroupHydrateEmployees::dispatch($employee->group);
         OrganisationHydrateEmployees::dispatch($organisation);
@@ -112,7 +112,7 @@ class StoreEmployee extends OrgAction
     public function rules(): array
     {
         return [
-            'worker_number'                         => [
+            'worker_number'                           => [
                 'required',
                 'max:64',
                 'alpha_dash',
@@ -124,8 +124,8 @@ class StoreEmployee extends OrgAction
                 ),
 
             ],
-            'employment_start_at'                   => ['sometimes', 'nullable', 'date'],
-            'work_email'                            => [
+            'employment_start_at'                     => ['sometimes', 'nullable', 'date'],
+            'work_email'                              => [
                 'sometimes',
                 'nullable',
                 'email',
@@ -136,7 +136,7 @@ class StoreEmployee extends OrgAction
                     ]
                 )
             ],
-            'alias'                                 => [
+            'alias'                                   => [
                 'required',
                 'string',
                 'max:24',
@@ -147,18 +147,19 @@ class StoreEmployee extends OrgAction
                     ]
                 ),
             ],
-            'contact_name'                          => ['required', 'string', 'max:256'],
-            'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'                                 => ['required', Rule::enum(EmployeeStateEnum::class)],
-            'positions'                             => ['sometimes', 'array'],
-            'positions.*.slug'                      => ['sometimes', 'string'],
-            'positions.*.scopes'                    => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
-            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
-            'email'                                 => ['sometimes', 'nullable', 'email'],
-            'username'                              => [
+            'contact_name'                            => ['required', 'string', 'max:256'],
+            'date_of_birth'                           => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'job_title'                               => ['sometimes', 'nullable', 'string', 'max:256'],
+            'state'                                   => ['required', Rule::enum(EmployeeStateEnum::class)],
+            'positions'                               => ['sometimes', 'array'],
+            'positions.*.slug'                        => ['sometimes', 'string'],
+            'positions.*.scopes'                      => ['sometimes', 'array'],
+            'positions.*.scopes.organisations.slug.*' => ['sometimes', Rule::exists('organisations', 'slug')->where('group_id', $this->organisation->group_id)],
+            'positions.*.scopes.warehouses.slug.*'    => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.fulfilments.slug.*'   => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.shops.slug.*'         => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
+            'email'                                   => ['sometimes', 'nullable', 'email'],
+            'username'                                => [
                 'nullable',
                 new AlphaDashDot(),
                 new IUnique(
@@ -168,10 +169,10 @@ class StoreEmployee extends OrgAction
                     ]
                 )
             ],
-            'password'                              => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'                        => ['exclude_if:username,null', 'sometimes', 'boolean'],
-            'source_id'                             => ['sometimes', 'string', 'max:64'],
-            'deleted_at'                            => ['sometimes', 'nullable', 'date'],
+            'password'                                => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+            'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
+            'source_id'                               => ['sometimes', 'string', 'max:64'],
+            'deleted_at'                              => ['sometimes', 'nullable', 'date'],
         ];
     }
 

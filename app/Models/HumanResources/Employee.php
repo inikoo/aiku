@@ -192,11 +192,10 @@ class Employee extends Model implements HasMedia, Auditable
             ->slugsShouldBeNoLongerThan(16);
     }
 
-    public function jobPositions(): MorphToMany
+    public function jobPositions(): BelongsToMany
     {
-        return $this->morphToMany(JobPosition::class, 'job_positionable')->using(JobPositionable::class)
-            ->withPivot(['share', 'scopes'])
-            ->withTimestamps();
+        return $this->belongsToMany(JobPosition::class, 'employee_has_job_positions')
+            ->using(EmployeeHasJobPositions::class);
     }
 
     public function otherOrganisationJobPositions(): BelongsToMany

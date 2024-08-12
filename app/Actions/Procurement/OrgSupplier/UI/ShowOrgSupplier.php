@@ -10,10 +10,10 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\OrgSupplierResource;
@@ -93,7 +93,7 @@ class ShowOrgSupplier extends OrgAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.procurement.org_suppliers.remove',
+                                'name'       => 'grp.org.procurement.org_suppliers.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
@@ -101,7 +101,7 @@ class ShowOrgSupplier extends OrgAction
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'grp.procurement.org_suppliers.show.purchase_orders.create',
+                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('purchase order')
@@ -112,7 +112,7 @@ class ShowOrgSupplier extends OrgAction
                             'name'     => trans_choice('Purchases|Sales', $orgSupplier->stats->number_open_purchase_orders),
                             'number'   => $orgSupplier->stats->number_open_purchase_orders,
                             'href'     => [
-                                'grp.procurement.org_supplier_products.show',
+                                'grp.org.procurement.org_supplier_products.show',
                                 $orgSupplier->slug
                             ],
                             'leftIcon' => [
@@ -124,7 +124,7 @@ class ShowOrgSupplier extends OrgAction
                             'name'     => trans_choice('product|products', $orgSupplier->stats->number_supplier_products),
                             'number'   => $orgSupplier->stats->number_supplier_products,
                             'href'     => [
-                                'grp.procurement.org_supplier_products.show',
+                                'grp.org.procurement.org_supplier_products.show',
                                 $orgSupplier->slug
                             ],
                             'leftIcon' => [
@@ -144,18 +144,10 @@ class ShowOrgSupplier extends OrgAction
                     fn () => GetOrgSupplierShowcase::run($orgSupplier)
                     : Inertia::lazy(fn () => GetOrgSupplierShowcase::run($orgSupplier)),
 
-                SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
-                    fn () => SupplierProductResource::collection(
-                        IndexSupplierProducts::run(
-                            parent: $orgSupplier,
-                            prefix: 'supplier_products'
-                        )
-                    )
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($orgSupplier))),
 
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($orgSupplier))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($orgSupplier))),
+                    fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))),
 
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplier))
@@ -169,8 +161,7 @@ class ShowOrgSupplier extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplier))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier)))
             ]
-        )->table(IndexSupplierProducts::make()->tableStructure())
-            ->table(IndexSupplierProducts::make()->tableStructure())
+        )->table(IndexOrgSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
@@ -202,25 +193,25 @@ class ShowOrgSupplier extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.procurement.org_suppliers.show' =>
+            'grp.org.procurement.org_suppliers.show' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'grp.procurement.org_suppliers.index',
+                            'name'       => 'grp.org.procurement.org_suppliers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.procurement.org_suppliers.show',
+                            'name'       => 'grp.org.procurement.org_suppliers.show',
                             'parameters' => [$routeParameters['supplier']->slug]
                         ]
                     ],
                     $suffix
                 ),
             ),
-            'grp.procurement.org_agents.show.org_suppliers.show' =>
+            'grp.org.procurement.org_agents.show.org_suppliers.show' =>
             array_merge(
                 (new ShowOrgAgent())->getBreadcrumbs(
                     ['agent' => $routeParameters['agent']]
@@ -229,13 +220,13 @@ class ShowOrgSupplier extends OrgAction
                     $routeParameters['supplier'],
                     [
                         'index' => [
-                            'name'       => 'grp.procurement.org_agents.show.org_suppliers.index',
+                            'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.index',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.procurement.org_agents.show.org_suppliers.show',
+                            'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.show',
                             'parameters' => [
                                 $routeParameters['agent']->slug,
                                 $routeParameters['supplier']->slug
@@ -258,7 +249,7 @@ class ShowOrgSupplier extends OrgAction
     public function getPrevious(OrgSupplier $orgSupplier, ActionRequest $request): ?array
     {
         $previous = OrgSupplier::where('code', '<', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
+            if ($request->route()->getName() == 'grp.org.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $orgSupplier->agent_id);
             }
         })->orderBy('code', 'desc')->first();
@@ -269,7 +260,7 @@ class ShowOrgSupplier extends OrgAction
     public function getNext(OrgSupplier $orgSupplier, ActionRequest $request): ?array
     {
         $next = OrgSupplier::where('code', '>', $orgSupplier->code)->when(true, function ($query) use ($orgSupplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.org_agents.show.org_suppliers.show') {
+            if ($request->route()->getName() == 'grp.org.procurement.org_agents.show.org_suppliers.show') {
                 $query->where('suppliers.agent_id', $orgSupplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -284,7 +275,7 @@ class ShowOrgSupplier extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.procurement.org_suppliers.show' => [
+            'grp.org.procurement.org_suppliers.show' => [
                 'label' => $orgSupplier->code,
                 'route' => [
                     'name'       => $routeName,
@@ -294,7 +285,7 @@ class ShowOrgSupplier extends OrgAction
 
                 ]
             ],
-            'grp.procurement.org_agents.show.org_suppliers.show' => [
+            'grp.org.procurement.org_agents.show.org_suppliers.show' => [
                 'label' => $orgSupplier->code,
                 'route' => [
                     'name'       => $routeName,

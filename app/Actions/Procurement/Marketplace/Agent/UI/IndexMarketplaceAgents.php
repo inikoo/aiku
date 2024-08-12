@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\UI\ProcurementDashboard;
+use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceAgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -169,7 +169,7 @@ class IndexMarketplaceAgents extends OrgAction
     {
         return
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

@@ -75,10 +75,9 @@ class IndexEmployees extends OrgAction
         if (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('organisation_id', $parent->id);
         } elseif (class_basename($parent) == 'JobPosition') {
-            $queryBuilder->leftJoin('job_positionables', 'job_positionable_id', 'employees.id');
-            $queryBuilder->where('job_positionable_type', 'Employee');
-            $queryBuilder->where('job_position_id', $parent->id);
-            $queryBuilder->where('organisation_id', $parent->organisation_id);
+            $queryBuilder->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', 'employees.id');
+            $queryBuilder->where('employee_has_job_positions.job_position_id', $parent->id);
+            $queryBuilder->where('employees.organisation_id', $parent->organisation_id);
         } else {
             $queryBuilder->where('job_positions.group_id', $parent->id);
         }
@@ -96,21 +95,19 @@ class IndexEmployees extends OrgAction
         $queryBuilder->select(['slug', 'job_title', 'contact_name', 'state']);
 
         if (class_basename($parent) == 'Organisation') {
-            $jobPositions = DB::table('job_positionables')
+            $jobPositions = DB::table('employee_has_job_positions')
                 ->select(
-                    'job_positionable_id',
+                    'employee_id',
                     DB::raw('jsonb_agg(json_build_object(\'name\',job_positions.name,\'slug\',job_positions.slug)) as job_positions')
                 )
-                ->leftJoin('job_positions', 'job_positionables.job_position_id', 'job_positions.id')
-                ->where('job_positionable_type', 'Employee')
-                ->groupBy('job_positionable_id');
+                ->leftJoin('job_positions', 'employee_has_job_positions.job_position_id', 'job_positions.id')
+                ->groupBy('employee_id');
             $queryBuilder->leftJoinSub($jobPositions, 'job_positions', function (JoinClause $join) {
-                $join->on('employees.id', '=', 'job_positions.job_positionable_id');
+                $join->on('employees.id', '=', 'job_positions.employee_id');
             });
             $queryBuilder->addSelect('job_positions');
         } elseif (class_basename($parent) == 'Group') {
-            $queryBuilder->leftJoin('job_positionables', 'job_positionables.job_positionable_id', 'employees.id')
-                ->where('job_positionables.job_positionable_type', 'Employee')
+            $queryBuilder->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', 'employees.id')
                 ->where('job_position_id', $parent->id);
         }
 
@@ -173,7 +170,7 @@ class IndexEmployees extends OrgAction
                 ->column(key: 'job_title', label: __('job title'), canBeHidden: false);
 
             if (class_basename($parent) == 'Organisation') {
-                $table->column(key: 'positions', label: __('positions'), canBeHidden: false);
+                $table->column(key: 'positions', label: __('responsibilities'), canBeHidden: false);
             }
             $table->defaultSort('slug');
         };

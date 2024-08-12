@@ -22,6 +22,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shipping;
+use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -152,6 +153,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Service> $services
  * @property-read LaravelCollection<int, Shipping> $shippings
+ * @property-read LaravelCollection<int, Shop> $shops
  * @property-read LaravelCollection<int, StockFamily> $stockFamilies
  * @property-read LaravelCollection<int, Stock> $stocks
  * @property-read LaravelCollection<int, Subscription> $subscriptions
@@ -475,6 +477,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function recurringBills(): HasMany
     {
         return $this->hasMany(RecurringBill::class);
+    }
+
+    public function shops(): HasMany
+    {
+        return $this->hasMany(Shop::class);
     }
 
     public function warehouses(): HasMany
