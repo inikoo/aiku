@@ -35,6 +35,7 @@ return new class () extends Migration {
             $table->decimal('org_exchange', 16, 4)->default(1);
             $table->decimal('grp_amount', 16)->default(0);
             $table->decimal('org_amount', 16)->default(0);
+            $table->string('notes')->nullable();
 
 
 
