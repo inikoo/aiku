@@ -276,7 +276,7 @@ function createOrder(Customer $customer, Product $product): Order
     $order = $customer->organisation->orders()->first();
     if (!$order) {
         $arrayData = [
-            'number'           => '123456',
+            'reference'           => '123456',
             'date'             => date('Y-m-d'),
             'customer_id'      => $customer->id,
             'delivery_address' => new Address(Address::factory()->definition()),
