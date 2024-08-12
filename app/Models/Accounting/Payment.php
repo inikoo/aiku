@@ -67,6 +67,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\TopUp> $topUps
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
  * @method static Builder|Payment newModelQuery()

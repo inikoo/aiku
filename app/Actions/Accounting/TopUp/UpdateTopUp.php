@@ -7,11 +7,9 @@
 
 namespace App\Actions\Accounting\TopUp;
 
-
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\TopUp;
-
 
 class UpdateTopUp extends OrgAction
 {
@@ -25,11 +23,11 @@ class UpdateTopUp extends OrgAction
         return $topUp;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'amount'           => ['required', 'numeric'],
-            'number'        => ['sometimes', 'string'],
+            'reference'        => ['sometimes', 'string'],
             'source_id'        => ['sometimes', 'string'],
         ];
     }

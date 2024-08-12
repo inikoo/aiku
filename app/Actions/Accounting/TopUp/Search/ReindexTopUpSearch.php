@@ -9,7 +9,6 @@ namespace App\Actions\Accounting\TopUp\Search;
 
 use App\Actions\HydrateModel;
 use App\Models\Accounting\TopUp;
-use App\Models\Inventory\Location;
 use Illuminate\Support\Collection;
 
 class ReindexTopUpSearch extends HydrateModel

@@ -33,7 +33,7 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'date', now(), overwrite: false);
 
         $modelData = $this->processExchanges($modelData, $customer->shop, 'amount');
-        
+
         $creditTransaction = $customer->creditTransactions()->create($modelData);
 
         CustomerHydrateCreditTransactions::run($customer);

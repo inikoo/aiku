@@ -85,13 +85,13 @@ test('update shipper', function ($createdShipper) {
 test('create delivery note', function () {
     $arrayData = [
         'reference'           => 'A123456',
-        'state'            => DeliveryNoteStateEnum::SUBMITTED,
-        'status'           => DeliveryNoteStatusEnum::HANDLING,
-        'email'            => 'test@email.com',
-        'phone'            => '+62081353890000',
-        'date'             => date('Y-m-d'),
-        'delivery_address' => new Address(Address::factory()->definition()),
-        'warehouse_id'     => $this->warehouse->id
+        'state'               => DeliveryNoteStateEnum::SUBMITTED,
+        'status'              => DeliveryNoteStatusEnum::HANDLING,
+        'email'               => 'test@email.com',
+        'phone'               => '+62081353890000',
+        'date'                => date('Y-m-d'),
+        'delivery_address'    => new Address(Address::factory()->definition()),
+        'warehouse_id'        => $this->warehouse->id
     ];
 
     $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
@@ -105,11 +105,11 @@ test('create delivery note', function () {
 test('update delivery note', function ($lastDeliveryNote) {
     $arrayData = [
         'reference' => 'A2321321',
-        'state'  => DeliveryNoteStateEnum::PICKING,
-        'status' => DeliveryNoteStatusEnum::DISPATCHED,
-        'email'  => 'test@email.com',
-        'phone'  => '+62081353890000',
-        'date'   => date('Y-m-d')
+        'state'     => DeliveryNoteStateEnum::PICKING,
+        'status'    => DeliveryNoteStatusEnum::DISPATCHED,
+        'email'     => 'test@email.com',
+        'phone'     => '+62081353890000',
+        'date'      => date('Y-m-d')
     ];
 
     $updatedDeliveryNote = UpdateDeliveryNote::make()->action($lastDeliveryNote, $arrayData);
