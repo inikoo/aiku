@@ -15,6 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class AgentResource extends JsonResource
 {
     use HasSelfCall;
+    public static $wrap = null;
 
     public function toArray($request): array
     {
