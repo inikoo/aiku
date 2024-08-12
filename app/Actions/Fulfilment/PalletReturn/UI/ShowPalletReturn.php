@@ -633,7 +633,7 @@ class ShowPalletReturn extends OrgAction
                     'method'     => 'post',
                     'name'       => 'grp.models.pallet-return.stored_item.store',
                     'parameters' => [
-                        $palletReturn->organisation->id
+                        $palletReturn->id
                     ]
                 ],
 

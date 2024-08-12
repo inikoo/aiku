@@ -28,9 +28,21 @@ trait WithOrderExchanges
 
         data_set($modelData, 'org_exchange', $orgExchange, overwrite: false);
         data_set($modelData, 'grp_exchange', $grpExchange, overwrite: false);
-        data_set($modelData, 'org_'.$field, Arr::get($modelData, $field) * $orgExchange);
-        data_set($modelData, 'grp_'.$field, Arr::get($modelData, $field) * $grpExchange);
 
+        if($orgExchange) {
+            $orgAmount = Arr::get($modelData, $field) * $orgExchange;
+        } else {
+            $orgAmount = null;
+        }
+
+        if($grpExchange) {
+            $grpAmount = Arr::get($modelData, $field) * $grpExchange;
+        } else {
+            $grpAmount = null;
+        }
+
+        data_set($modelData, 'org_'.$field, $orgAmount);
+        data_set($modelData, 'grp_'.$field, $grpAmount);
 
         return $modelData;
     }

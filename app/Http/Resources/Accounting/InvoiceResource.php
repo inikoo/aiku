@@ -21,12 +21,12 @@ class InvoiceResource extends JsonResource
         $invoice = $this;
 
         return [
-            'slug'             => $invoice->slug,
-            'number'           => $invoice->number,
-            'total_amount'     => $invoice->total_amount,
-            'net_amount'       => $invoice->net_amount,
-            'date'             => $invoice->date,
-            'type'             => [
+            'slug'                => $invoice->slug,
+            'reference'           => $invoice->reference,
+            'total_amount'        => $invoice->total_amount,
+            'net_amount'          => $invoice->net_amount,
+            'date'                => $invoice->date,
+            'type'                => [
                 'label' => $invoice->type->labels()[$invoice->type->value],
                 'icon'  => $invoice->type->typeIcon()[$invoice->type->value],
             ],

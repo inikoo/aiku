@@ -32,11 +32,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string $quantity
  * @property string $gross_amount net amount before discounts
  * @property string $net_amount
- * @property string $grp_net_amount
- * @property string $org_net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
  * @property int $tax_category_id
- * @property string $grp_exchange
- * @property string $org_exchange
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property bool $is_auto_assign
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at

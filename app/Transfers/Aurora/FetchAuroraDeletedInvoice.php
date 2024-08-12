@@ -56,15 +56,15 @@ class FetchAuroraDeletedInvoice extends FetchAurora
 
         $this->parsedData['invoice'] =
             [
-                'number'     => $this->auroraModelData->{'Invoice Deleted Public ID'},
-                'type'       => strtolower($this->auroraModelData->{'Invoice Deleted Type'}),
-                'exchange'   => $auroraDeletedData->{'Invoice Currency Exchange'},
-                'created_at' => $auroraDeletedData->{'Invoice Date'},
-                'deleted_at' => $deleted_at,
-                'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Deleted Key'},
-                'net'        => $auroraDeletedData->{'Invoice Total Net Amount'},
-                'total'      => $this->auroraModelData->{'Invoice Deleted Total Amount'},
-                'data'       => $data
+                'reference'     => $this->auroraModelData->{'Invoice Deleted Public ID'},
+                'type'          => strtolower($this->auroraModelData->{'Invoice Deleted Type'}),
+                'exchange'      => $auroraDeletedData->{'Invoice Currency Exchange'},
+                'created_at'    => $auroraDeletedData->{'Invoice Date'},
+                'deleted_at'    => $deleted_at,
+                'source_id'     => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Deleted Key'},
+                'net'           => $auroraDeletedData->{'Invoice Total Net Amount'},
+                'total'         => $this->auroraModelData->{'Invoice Deleted Total Amount'},
+                'data'          => $data
             ];
 
 

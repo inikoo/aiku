@@ -51,7 +51,7 @@ class UpdateInvoice extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'number'           => [
+            'reference'           => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -73,7 +73,7 @@ class UpdateInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['number'] = ['required', 'max:64', 'string'];
+            $rules['reference'] = ['required', 'max:64', 'string'];
         }
 
         return $rules;

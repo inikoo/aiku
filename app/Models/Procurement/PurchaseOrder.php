@@ -57,8 +57,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $settled_at
  * @property Carbon|null $cancelled_at
  * @property int $currency_id
- * @property string $grp_exchange
- * @property string $org_exchange
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight

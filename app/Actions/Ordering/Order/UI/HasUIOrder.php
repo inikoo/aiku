@@ -22,7 +22,7 @@ trait HasUIOrder
                 $routeName => [
                     'route'           => $routeName,
                     'routeParameters' => $parameters,
-                    'name'            => $order->number,
+                    'name'            => $order->reference,
                     'index'           =>
                         match ($routeName) {
                             'shops.show.customers.show.orders.show', 'customers.show.orders.show' => null,
