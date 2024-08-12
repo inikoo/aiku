@@ -71,6 +71,10 @@ const props = defineProps<{
             slug: string
         }
         information: {
+            recurring_bill: {
+                reference: string
+                route: routeType
+            }
             routes: {
                 payment_accounts: routeType
             }
@@ -143,8 +147,6 @@ const onSubmitPayment = () => {
 
 
 <template>
-    <!-- <pre>{{ invoice }}</pre> -->
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
 
@@ -248,20 +250,28 @@ const onSubmitPayment = () => {
         <!-- Section: Detail -->
         <BoxStatPallet class="py-2 px-3">
             <div class="mt-1">
-                <div v-for="field in boxFieldDetail" v-tooltip="field.tooltip"
+                <div v-tooltip="'Recurring bill'"
                     class="flex items-center w-full flex-none gap-x-2">
                     <dt class="flex-none">
-                        <FontAwesomeIcon :icon='field.icon' fixed-width aria-hidden='true' class="text-gray-500" />
+                        <FontAwesomeIcon icon='fal fa-receipt' fixed-width aria-hidden='true' class="text-gray-500" />
+                    </dt>
+                    <Link as="dd" :href="route(box_stats.information.recurring_bill.route.name, box_stats.information.recurring_bill.route.parameters)" class="primaryLink cursor-pointer text-xs text-gray-500" :class='"ff"'>
+                        {{ box_stats.information.recurring_bill.reference }}
+                    </Link>
+                </div>
+                <div v-tooltip="'Invoice created'"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-calendar-alt' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
                     <dd class="text-xs text-gray-500" :class='"ff"'>
-                        {{ field.label }}
+                        {{ useFormatTime(props.invoice.date) }}
                     </dd>
                 </div>
 
                 <div class="flex items-start w-full flex-none gap-x-2">
                     <dt class="flex-none pt-1">
-                        <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true'
-                            class="text-gray-500" />
+                        <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
                     <dd @click="() => isOpenModalPayment = true"
                         class="cursor-pointer hover:bg-gray-100 w-full flex flex-col border px-2.5 py-1 rounded-md border-gray-300">
