@@ -134,9 +134,9 @@ class IndexStoredItemsInReturn extends OrgAction
                 $emptyStateData['description'] = __("This customer don't have any pallets");
             }
 
-            if (!$palletReturn instanceof PalletDelivery and !$palletReturn instanceof PalletReturn) {
-                $table->withGlobalSearch();
-            }
+            //            if (!$palletReturn instanceof PalletDelivery and !$palletReturn instanceof PalletReturn) {
+            $table->withGlobalSearch();
+            //            }
 
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);

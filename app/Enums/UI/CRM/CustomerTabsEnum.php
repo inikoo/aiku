@@ -21,10 +21,10 @@ enum CustomerTabsEnum: string
     case PORTFOLIO = 'portfolio';
     case ORDERS    = 'orders';
 
-    case DATA              = 'data';
-    case ATTACHMENTS       = 'attachments';
-    case DISPATCHED_EMAILS = 'dispatched_emails';
-    case WEB_USERS         = 'web_users';
+    case DATA                        = 'data';
+    case ATTACHMENTS                 = 'attachments';
+    case DISPATCHED_EMAILS           = 'dispatched_emails';
+    case WEB_USERS                   = 'web_users';
     case CREDIT_TRANSACTIONS         = 'credit_transactions';
 
 
