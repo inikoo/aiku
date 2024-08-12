@@ -33,7 +33,7 @@ class CustomerHydrateCreditTransactions
         $stats          = [
             'number_credit_transactions' => $customer->creditTransactions()->count(),
         ];
-        
+
         $balance            = 0;
         $creditTransactions = $customer->creditTransactions()
         ->orderBy('date', 'asc')

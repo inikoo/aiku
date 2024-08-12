@@ -324,7 +324,7 @@ test('change state to creating from submitted purchase order', function ($purcha
 test('create supplier delivery', function (OrgSupplier $orgSupplier) {
     $arrayData = [
         'reference' => 12345,
-        'date'   => date('Y-m-d')
+        'date'      => date('Y-m-d')
     ];
 
     $stockDelivery = StoreStockDelivery::make()->action($this->organisation, $orgSupplier, $arrayData);

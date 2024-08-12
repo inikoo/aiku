@@ -346,6 +346,7 @@ class GetOrganisationNavigation
                                 'parameters' => [$organisation->slug],
                             ]
                         ],
+                        /*
                         [
                             'label' => __('Providers'),
                             'icon'  => ['fal', 'fa-cash-register'],
@@ -356,6 +357,7 @@ class GetOrganisationNavigation
 
                             ]
                         ],
+                        */
                         [
                             'label' => __('Accounts'),
                             'icon'  => ['fal', 'fa-money-check-alt'],
@@ -392,6 +394,17 @@ class GetOrganisationNavigation
                             'root'  => 'grp.org.accounting.customer-balances.',
                             'route' => [
                                 'name'       => 'grp.org.accounting.customer-balances.index',
+                                'parameters' => [$organisation->slug],
+
+                            ]
+                        ],
+
+                        [
+                            'label' => __('Customers Balances'),
+                            'icon'  => ['fal', 'fa-piggy-bank'],
+                            'root'  => 'grp.org.accounting.balances.',
+                            'route' => [
+                                'name'       => 'grp.org.accounting.balances.index',
                                 'parameters' => [$organisation->slug],
 
                             ]

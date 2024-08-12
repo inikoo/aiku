@@ -68,7 +68,7 @@ class IndexStoredItemsInReturn extends OrgAction
 
         // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
 
-        $queryBuilder->with('pallets');
+        $queryBuilder->with(['pallets', 'palletReturns']);
         $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {

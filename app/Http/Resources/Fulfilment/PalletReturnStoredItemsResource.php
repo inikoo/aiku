@@ -7,6 +7,8 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -34,6 +36,9 @@ class PalletReturnStoredItemsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $palletReturn          = PalletReturn::where('slug', $request->route()->originalParameters()['palletReturn'])->first();
+        $palletReturnItemQuery = PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->first();
+
         return [
             'id'                                   => $this->id,
             'slug'                                 => $this->slug,
@@ -41,11 +46,9 @@ class PalletReturnStoredItemsResource extends JsonResource
             'state'                                => $this->state,
             'state_icon'                           => $this->state->stateIcon()[$this->state->value],
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
-            'quantity'                             => intval($this->pallets->sum('pivot.quantity')),
+            'quantity'                             => (int) $palletReturnItemQuery?->quantity_ordered ?: intval($this->pallets->sum('pivot.quantity')),
             'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),
-            'is_checked'                           => (bool) $this->whereHas('palletReturns', function ($query) {
-                $query->whereNotNull('pallet_return_id');
-            })
+            'is_checked'                           => (bool) $palletReturnItemQuery
         ];
     }
 }
