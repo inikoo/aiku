@@ -29,21 +29,24 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $currentQuantity = 0;
-        $selectedPallets = [];
+        $storedItemModels = Arr::get($modelData, 'stored_items');
+        $currentQuantity  = 0;
+        $selectedPallets  = [];
 
-        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('id', array_keys($modelData))->get();
+        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('id', array_keys($storedItemModels))->get();
         foreach ($storedItems as $value) {
             /** @var StoredItem $storedItem */
             $storedItem = $value;
 
-            $pallets = $storedItem->pallets;
-            foreach ($pallets as $pallet) {
-                $requiredQuantity  = Arr::get($modelData, $value)['quantity'];
-                $remainingQuantity = $requiredQuantity - $currentQuantity;
+            $pallets           = $storedItem->pallets;
+            $requiredQuantity  = Arr::get($storedItemModels, $value->id)['quantity'];
 
-                if ($pallet->quantity <= $remainingQuantity) {
-                    $currentQuantity += $pallet->quantity;
+            foreach ($pallets as $pallet) {
+                $remainingQuantity   = $requiredQuantity - $currentQuantity;
+                $palletStoredItemQty = $pallet->storedItems->sum('pivot.quantity');
+
+                if ($palletStoredItemQty <= $remainingQuantity) {
+                    $currentQuantity += $palletStoredItemQty;
                     $selectedPallets[] = $pallet;
                 } else {
                     $partialPallet           = clone $pallet;
@@ -87,10 +90,7 @@ class StoreStoredItemToReturn extends OrgAction
     public function rules(): array
     {
         return [
-            '*.stored_item'        => ['required', 'integer', 'exists:stored_items,id'],
-            '*.pallet'             => ['required', 'integer', 'exists:pallets,id'],
-            '*.pallet_stored_item' => ['required', 'integer', 'exists:pallet_stored_items,id'],
-            '*.quantity'           => ['required', 'integer'],
+            'stored_items.*.quantity' => ['required', 'integer']
         ];
     }
 
@@ -101,7 +101,7 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        // dd($request->all());
+        //         dd($request->all());
         $this->parent = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 

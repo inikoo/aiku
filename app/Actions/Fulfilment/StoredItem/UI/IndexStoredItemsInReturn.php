@@ -41,11 +41,9 @@ class IndexStoredItemsInReturn extends OrgAction
 
         $queryBuilder = QueryBuilder::for(StoredItem::class);
 
-        $queryBuilder->join('pallet_stored_items', 'pallet_stored_items.stored_item_id', '=', 'stored_items.id');
-        $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
-        $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
-
         // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
+
+        $queryBuilder->with('pallets');
 
         if($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
@@ -55,20 +53,7 @@ class IndexStoredItemsInReturn extends OrgAction
             $queryBuilder->where('stored_items.fulfilment_id', $parent->id);
         }
 
-        $queryBuilder
-            ->defaultSort('stored_items.id')
-            ->select([
-                'stored_items.id',
-                'pallets.id as pallet_id',
-                'pallets.slug as pallet_slug',
-                'pallets.reference as pallet_reference',
-                'stored_items.reference',
-                'pallets.fulfilment_customer_id',
-                'stored_items.slug',
-                'stored_items.state',
-                'locations.code as location_code'
-            ]);
-
+        $queryBuilder->defaultSort('stored_items.id');
 
         return $queryBuilder->allowedSorts(['code','price','name','state'])
             ->allowedFilters([$globalSearch])
