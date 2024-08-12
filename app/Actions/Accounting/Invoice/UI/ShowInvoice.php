@@ -198,6 +198,14 @@ class ShowInvoice extends OrgAction
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'informations' => [
+                        'routes' => [
+                            'payment_accounts' => [
+                                'name'       => 'grp.json.shop.payment-accounts',
+                                'parameters' => [
+                                    'shop' => $invoice->shop->slug
+                                ]
+                            ]
+                        ],
                         'paid_amount' => $invoice->payment_amount,
                         'pay_amount'  => $invoice->total_amount - $invoice->payment_amount
                     ]
