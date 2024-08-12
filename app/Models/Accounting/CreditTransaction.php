@@ -78,6 +78,10 @@ class CreditTransaction extends Model
         return $this->belongsTo(Currency::class);
     }
 
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
+    }
 
 
 }
