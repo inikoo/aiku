@@ -7,10 +7,8 @@
 
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
-use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -34,7 +32,7 @@ class ShopHydrateCreditTransactions
         $stats          = [
             'number_credit_transactions' => $shop->creditTransactions()->count(),
         ];
-        
+
         $shop->stats()->update($stats);
     }
 

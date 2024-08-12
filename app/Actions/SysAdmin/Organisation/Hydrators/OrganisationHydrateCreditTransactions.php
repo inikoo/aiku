@@ -7,10 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
-use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -35,7 +32,7 @@ class OrganisationHydrateCreditTransactions
         $stats          = [
             'number_credit_transactions' => $organisation->creditTransactions()->count(),
         ];
-        
+
         $organisation->accountingStats()->update($stats);
     }
 

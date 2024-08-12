@@ -9,12 +9,8 @@ namespace App\Actions\CRM\Customer\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\TopUp\TopUpStatusEnum;
-use App\Enums\Ordering\Order\OrderHandingTypeEnum;
-use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Accounting\TopUp;
 use App\Models\CRM\Customer;
-use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -53,7 +49,7 @@ class CustomerHydrateTopUps
                 }
             )
         );
-        
+
         $customer->stats()->update($stats);
     }
 

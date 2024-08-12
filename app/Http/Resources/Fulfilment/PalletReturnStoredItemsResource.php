@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -46,9 +47,7 @@ class PalletReturnStoredItemsResource extends JsonResource
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
             'quantity'                             => intval($this->pallets->sum('pivot.quantity')),
             'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),
-            'is_checked'                           => $this->whereHas('palletReturns', function ($query) use ($palletReturn) {
-                $query->where('pallet_return_id', $palletReturn->id);
-            })->count() > 0
+            'is_checked'                           => PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->exists()
         ];
     }
 }
