@@ -197,7 +197,7 @@ class ShowInvoice extends OrgAction
                         'phone'        => $invoice->customer->phone,
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
-                    'informations' => [
+                    'information' => [
                         'routes' => [
                             'payment_accounts' => [
                                 'name'       => 'grp.json.shop.payment-accounts',

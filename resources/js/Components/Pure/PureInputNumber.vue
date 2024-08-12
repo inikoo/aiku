@@ -78,7 +78,7 @@ defineExpose({
                 @input="onChange"
                 @change="onChange"
                 @keyup.enter="(event) => emits('onEnter', event.target.value)"
-                :placeholder="placeholder" 
+                :placeholder="placeholder || '0'" 
                 :autofocus="autofocus" 
                 :min="minValue" 
                 :max="maxValue" 
