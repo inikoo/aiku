@@ -6,40 +6,33 @@
 
 <script setup lang="ts">
 import ShowcaseStats from '@/Components/ShowcaseStats.vue'
-import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue";
+import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue"
+import { Agent } from '@/types/Grp/Agent'
 
 const props = defineProps<{
-  data: {
-    contactCard: {
-      company?: string
-      contact?: string
-      email?: string
-      phone?: string
-      address?: string
-      photo?: string
-    },
-    stats: [{
-      label: string,
-      value: number,
-    }],
-  },
+    data: {
+        agent: Agent
+        stats: {
+            label: string
+            value: number
+        }[]
+    }
 
 }>()
 </script>
 
-<template >
-  <div class="grid text-gray-600  grid-flow-col grid-cols-2 px-4 pt-4">
-    <!-- Section 1 -->
-    <div class="">
-      <ShowcaseContactCard :data="data.contactCard" />
+<template>
+    <div class="grid text-gray-600  grid-flow-col grid-cols-2 px-4 pt-4 gap-x-6">
+        <!-- Section 1 -->
+        <div class="">
+            <ShowcaseContactCard :data="data.agent" />
+        </div>
+
+        <!-- Section 2: Statistic -->
+        <div class="">
+            <ShowcaseStats :data="data.stats" />
+        </div>
+
+
     </div>
-
-    <!-- Section 2: Statistic -->
-    <div class="pl-6">
-      <ShowcaseStats :data="data.stats" />
-    </div>
-
-
-  </div>
 </template>
-

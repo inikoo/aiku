@@ -674,7 +674,11 @@ watch(selectRow, () => {
                                     </span>
                                     
                                     <span class="font-light">
-                                        {{ queryBuilderProps.labelRecord || (compResourceMeta.total > 1 ? trans('records') : trans('record')) }}
+                                        {{ 
+                                            compResourceMeta.total > 1
+                                            ? queryBuilderProps.labelRecord?.[1] || queryBuilderProps.labelRecord?.[0] || trans('records')
+                                            : queryBuilderProps.labelRecord?.[0] || trans('record')
+                                        }}
                                     </span>
                                 </div>
                             </div>
