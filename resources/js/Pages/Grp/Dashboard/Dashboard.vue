@@ -25,19 +25,47 @@ const props = defineProps<{
         currency: {
             code: string
         }
-        organisations: [
-            {
-                currency: {
-                    code: string
-                }
-                type: string
-                name: string
+        organisations: {
+            name: string
+            type: string
+            code: string
+            currency: {
                 code: string
-                number_invoices_type_refund?: number
-                number_invoices?: number
-                number_invoices_type_invoice?: number
             }
-        ]
+            invoices: {
+                number_invoices: number
+            }
+            sales: {
+                number_sales: number
+            }
+            refunds: {
+                number_refunds: number
+            }
+
+            // number_invoices_type_refund?: number
+            // number_invoices?: number
+            // number_invoices_type_invoice?: number
+            interval_percentages?: {
+                sales?: {
+                    [key: string]: {
+                        percentage: number
+                        difference: number
+                    }
+                }
+                invoices?: {
+                    [key: string]: {
+                        percentage: number
+                        difference: number
+                    }
+                }
+                refunds?: {
+                    [key: string]: {
+                        percentage: number
+                        difference: number
+                    }
+                }
+            }
+        }[]
     }
     interval_options: {
         label: string
@@ -46,8 +74,9 @@ const props = defineProps<{
     }[]
 }>()
 
+// console.log('asdsadsa', props.groupStats.organisations)
 const layout = inject('layout', layoutStructure)
-// console.log('asdsadsa', layout.organisations)
+const locale = inject('locale', {})
 
 const isShowLastYear = ref(true)
 
@@ -158,9 +187,9 @@ const options = {
                     <table class="min-w-full divide-y divide-gray-400">
                         <thead class="">
                             <tr class="text-sm bg-gray-100 relative divide-x divide-gray-200 text-gray-400" :style="{
-                                    backgroundColor: layout.app.theme[4],
-                                    color: layout.app.theme[5]
-                                }">
+                                backgroundColor: layout.app.theme[4],
+                                color: layout.app.theme[5]
+                            }">
                                 <!-- Column: Organisations -->
                                 <th scope="col" class="w-full pl-4 pr-3 text-left font-normal">
                                     Organisation
@@ -216,37 +245,41 @@ const options = {
 
                                     <!-- Column: Refunds -->
                                     <td class="text-sm text-gray-500 table-cell text-right">
-                                        <div class="w-24 ">{{ org.number_invoices_type_refund || 0 }}</div>
+                                        <div class="w-24 ">
+                                            {{ locale.number(org.refunds.number_refunds || 0) }}
+                                        </div>
                                     </td>
 
                                     <!-- Column: Refunds LY -->
                                     <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div class="w-12 text-right pl-1 pr-3">
-                                            ---
+                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.refunds?.[selectedDateOption || 'all'].percentage || 0 }}
                                         </div>
                                     </td>
 
                                     <!-- Column: Invoices -->
                                     <td class="text-sm text-gray-500 table-cell text-right">
                                         <div class="w-32 ">
-                                            {{ org.number_invoices || 0 }}
+                                            {{ locale.number(org.invoices.number_invoices || 0) }}
                                         </div>
                                     </td>
 
                                     <!-- Column: Invoices LY -->
                                     <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div class="w-12 text-right pl-1 pr-3">
-                                            ---
+                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.invoices?.[selectedDateOption || 'all'].percentage || 0 }}
                                         </div>
                                     </td>
 
                                     <!-- Column: Sales -->
                                     <td class="overflow-hidden text-sm text-gray-500 table-cell text-right">
                                         <div class="w-32">
+                                            <!-- {{ locale.number(org.interval_percentages?.sales?.amount || 0) }} -->
                                             {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
                                             org.currency.code : groupStats.currency.code , get(org, ['sales',
                                             `org_amount_${selectedDateOption}`], 0)) }}
                                         </div>
+
                                         <!-- <Transition name="spin-to-down" mode="out-in">
                                             <div
                                                 class="flex items-center gap-x-1"
@@ -279,17 +312,9 @@ const options = {
 
                                     <!-- Column: Sales LY -->
                                     <td class="overflow-hidden text-sm text-gray-500 lg:table-cell">
-                                        <div class="w-12 text-right pl-1 pr-3">
-                                            ---
+                                        <div v-tooltip="org.interval_percentages?.sales?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.sales?.[selectedDateOption || 'all'].percentage || 0 }}
                                         </div>
-                                        <Transition name="spin-to-down" mode="out-in">
-                                            <div class=" text-right"
-                                                :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
-                                                <!-- groupStats.currency.code == 'GBP' -->
-                                                <!-- org.currency.code == 'INR' -->
-                                                <!-- {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }} -->
-                                            </div>
-                                        </Transition>
                                     </td>
 
                                     <!-- Column: Sales Revenue -->
@@ -323,10 +348,10 @@ const options = {
 
 
 
-            <div class="">
-                <div class="w-fit font-semibold py-1 mb-1">Organisation by sales</div>
-                <div class="py-3 px-5 flex gap-x-4">
-                    <div class="w-48">
+            <div class="mt-10 w-1/2 flex gap-x-4">
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
+                    <div class="w-24">
                         <Pie :data="{
                             labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
                             datasets: [{
@@ -335,14 +360,54 @@ const options = {
                             }]
                         }" :options="options" />
                     </div>
-                    <div class="">
+                    <!-- <div class="flex flex-col justify-between ">
                         <template v-for="org in groupStats.organisations">
                             <div v-if="org.type !== 'agent'" class="space-x-2">
-                                <span class="">{{ org.name }}:</span>
+                                <span class="text-lg">{{ org.code }}:</span>
                                 <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
                             </div>
                         </template>
+                    </div> -->
+                </div>
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
+                    <div class="w-24">
+                        <Pie :data="{
+                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                            datasets: [{
+                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                                hoverOffset: 4
+                            }]
+                        }" :options="options" />
                     </div>
+                    <!-- <div class="flex flex-col justify-between ">
+                        <template v-for="org in groupStats.organisations">
+                            <div v-if="org.type !== 'agent'" class="space-x-2">
+                                <span class="text-lg">{{ org.code }}:</span>
+                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            </div>
+                        </template>
+                    </div> -->
+                </div>
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
+                    <div class="w-24">
+                        <Pie :data="{
+                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                            datasets: [{
+                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                                hoverOffset: 4
+                            }]
+                        }" :options="options" />
+                    </div>
+                    <!-- <div class="flex flex-col justify-between ">
+                        <template v-for="org in groupStats.organisations">
+                            <div v-if="org.type !== 'agent'" class="space-x-2">
+                                <span class="text-lg">{{ org.code }}:</span>
+                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            </div>
+                        </template>
+                    </div> -->
                 </div>
             </div>
         </div>

@@ -21,7 +21,7 @@ library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faCheck)
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const locale = useLocaleStore()
 
-defineProps<{
+const props = defineProps<{
     stats: {
         [key: string]: FulfilmentCustomerStats
     }
