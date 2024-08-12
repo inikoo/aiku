@@ -66,7 +66,7 @@ class StoreCreditTransaction extends OrgAction
     public function action(Customer $customer, $modelData): void
     {
         $this->asAction = true;
-        $this->initialisation($customer->organisation, $modelData);
+        $this->initialisationFromShop($customer->shop, $modelData);
         $this->handle($customer, $modelData);
     }
 }
