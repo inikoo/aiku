@@ -73,7 +73,7 @@ class EditShop extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('Detail'),
+                            'label'  => __('Detail'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
                                 'code' => [
@@ -101,7 +101,7 @@ class EditShop extends OrgAction
                             ]
                         ],
                         [
-                            'title'  => __('properties'),
+                            'label'  => __('properties'),
                             'icon'   => 'fa-light fa-fingerprint',
                             'fields' => [
                                 'country_id'  => [
@@ -116,6 +116,7 @@ class EditShop extends OrgAction
                                     'type'          => 'select',
                                     'label'         => __('currency'),
                                     'placeholder'   => __('Select your currency'),
+                                    'required'      => true,
                                     'value'         => $shop->currency_id,
                                     'options'       => GetCurrenciesOptions::run(),
                                     'searchable'    => true
@@ -124,6 +125,7 @@ class EditShop extends OrgAction
                                     'type'          => 'select',
                                     'label'         => __('language'),
                                     'placeholder'   => __('Select your language'),
+                                    'required'      => true,
                                     'value'         => $shop->language_id,
                                     'options'       => GetLanguagesOptions::make()->all(),
                                     'searchable'    => true
@@ -132,7 +134,7 @@ class EditShop extends OrgAction
 
                         ],
                         [
-                            'title'  => __('contact/details'),
+                            'label'  => __('contact/details'),
                             'icon'   => 'fa-light fa-user',
                             'fields' => [
                                 'contact_name' => [
@@ -161,7 +163,7 @@ class EditShop extends OrgAction
                             ]
                         ],
                         [
-                            'title'  => __('shopify'),
+                            'label'  => __('shopify'),
                             'icon'   => 'fa-light fa-shopping-bag',
                             'fields' => [
                                 'shopify_shop_name'  => [

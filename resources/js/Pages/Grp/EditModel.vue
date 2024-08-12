@@ -153,7 +153,7 @@ function connectToPlatform(routeName, parameters) {
         <div v-if="!isMobile" class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
             <!-- Tab: Navigation -->
-            <aside v-if="!formData.fullLayout" class="bg-gray-50/50 py-0 lg:col-span-3 lg:h-full">
+            <aside v-if="!formData.fullLayout" class="qwezxcbg-gray-50/50 py-0 lg:col-span-3 lg:h-full">
                 <div class="sticky top-16">
                     <template v-for="(sectionData, key) in formData.blueprint">
                         <!-- If Section: all fields is not hidden -->

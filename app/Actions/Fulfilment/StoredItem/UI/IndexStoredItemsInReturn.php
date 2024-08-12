@@ -46,6 +46,12 @@ class IndexStoredItemsInReturn extends OrgAction
                         $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
                             $query->where('pallet_return_id', $palletReturn->id);
                         });
+                    } else {
+                        if(in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
+                            $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
+                                $query->where('pallet_return_id', $palletReturn->id);
+                            });
+                        }
                     }
                 }
             ],
