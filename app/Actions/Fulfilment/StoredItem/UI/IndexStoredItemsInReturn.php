@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Fulfilment\Fulfilment;
@@ -42,16 +43,14 @@ class IndexStoredItemsInReturn extends OrgAction
                     StoredItemInReturnOptionEnum::count()
                 ),
                 'engine' => function ($query, $elements) use ($palletReturn) {
-                    if(in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+                    if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
                         $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
                             $query->where('pallet_return_id', $palletReturn->id);
                         });
-                    } else {
-                        if(in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-                            $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
-                                $query->where('pallet_return_id', $palletReturn->id);
-                            });
-                        }
+                    } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
+                        $query->whereDoesntHave('palletReturns', function ($query) use ($palletReturn) {
+                            $query->where('pallet_return_id', $palletReturn->id);
+                        });
                     }
                 }
             ],
@@ -77,18 +76,24 @@ class IndexStoredItemsInReturn extends OrgAction
         $queryBuilder->with(['pallets', 'palletReturns']);
         $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if ($parent->state === PalletReturnStateEnum::IN_PROCESS) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
+        } else {
+            $queryBuilder->whereHas('palletReturns', function ($query) use ($parent) {
+                $query->where('pallet_return_id', $parent->id);
+            });
         }
 
         $queryBuilder->defaultSort('stored_items.id');
 
-        return $queryBuilder->allowedSorts(['reference', 'code','price','name','state'])
+        return $queryBuilder->allowedSorts(['reference', 'code', 'price', 'name', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -100,7 +105,7 @@ class IndexStoredItemsInReturn extends OrgAction
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix.'Page');
+                    ->pageName($prefix . 'Page');
             }
 
             $emptyStateData = [
@@ -112,12 +117,14 @@ class IndexStoredItemsInReturn extends OrgAction
                 }*/
             ];
 
-            foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
+                foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
 
             if ($palletReturn instanceof Fulfilment) {
@@ -139,7 +146,10 @@ class IndexStoredItemsInReturn extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            $table->column(key: 'total_quantity', label: __('total quantity'), canBeHidden: false, sortable: true, searchable: true);
+            if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
+                $table->column(key: 'total_quantity', label: __('total quantity'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
 
             //            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
@@ -151,12 +161,12 @@ class IndexStoredItemsInReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.' . $this->organisation->id);
 
         return $request->user()->hasAnyPermission(
             [
-                'org-supervisor.'.$this->organisation->id,
-                'warehouses-view.'.$this->organisation->id
+                'org-supervisor.' . $this->organisation->id,
+                'warehouses-view.' . $this->organisation->id
             ]
         );
     }
