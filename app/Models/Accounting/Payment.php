@@ -41,7 +41,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $shop_id
  * @property int $customer_id
  * @property PaymentTypeEnum $type
- * @property string $reference
+ * @property string|null $reference
  * @property PaymentStatusEnum $status
  * @property PaymentStateEnum $state
  * @property PaymentSubsequentStatusEnum|null $subsequent_status
