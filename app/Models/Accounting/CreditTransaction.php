@@ -27,10 +27,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $amount
  * @property string|null $running_amount
  * @property int $currency_id
- * @property string $grp_exchange
- * @property string $org_exchange
- * @property string $grp_amount
- * @property string $org_amount
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
+ * @property string|null $grp_amount
+ * @property string|null $org_amount
  * @property string|null $notes
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -40,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Accounting\Payment|null $payment
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Accounting\TopUp|null $topUp
  * @method static \Illuminate\Database\Eloquent\Builder|CreditTransaction newModelQuery()
