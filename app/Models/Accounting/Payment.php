@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -141,4 +142,8 @@ class Payment extends Model implements Auditable
         return $this->belongsTo(Currency::class);
     }
 
+    public function topUps(): HasMany
+    {
+        return $this->hasMany(TopUp::class);
+    }
 }

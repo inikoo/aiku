@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers;
 
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
+use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Catalogue\Product\Search\ReindexProductSearch;
 use App\Actions\Catalogue\Service\Search\ReindexServiceSearch;
 use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
@@ -29,6 +30,7 @@ use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
@@ -105,6 +107,9 @@ class ReindexSearch extends HydrateModel
     {
         foreach (Invoice::withTrashed()->get() as $model) {
             ReindexInvoiceSearch::run($model);
+        }
+        foreach (TopUp::all() as $model) {
+            ReindexTopUpSearch::run($model);
         }
     }
 

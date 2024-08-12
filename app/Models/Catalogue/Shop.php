@@ -11,12 +11,14 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\OrgPaymentServiceProviderShop;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
+use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
 use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\CRM\Appointment;
@@ -496,6 +498,16 @@ class Shop extends Model implements HasMedia, Auditable
     public function mailshots(): HasMany
     {
         return $this->hasMany(Mailshot::class);
+    }
+
+    public function topUps(): HasMany
+    {
+        return $this->hasMany(TopUp::class);
+    }
+
+    public function creditTransactions(): HasMany
+    {
+        return $this->hasMany(CreditTransaction::class);
     }
 
 }

@@ -14,6 +14,7 @@ use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
+use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
@@ -366,5 +367,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function creditTransactions(): HasMany
     {
         return $this->hasMany(CreditTransaction::class);
+    }
+
+    public function topUps(): HasMany
+    {
+        return $this->hasMany(TopUp::class);
     }
 }
