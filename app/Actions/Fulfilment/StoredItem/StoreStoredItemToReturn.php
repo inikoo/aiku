@@ -71,7 +71,7 @@ class StoreStoredItemToReturn extends OrgAction
     public function attach(PalletReturn $palletReturn, Pallet $pallet, $value, $currentQuantity): void
     {
         $palletReturn->storedItems()
-            ->syncWithPivotValues($value->id, [
+            ->attach($value->id, [
             'pallet_id'             => $pallet->id,
             'pallet_stored_item_id' => $pallet->pivot->id,
             'quantity_ordered'      => $currentQuantity,
