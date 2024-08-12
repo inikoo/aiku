@@ -29,7 +29,7 @@ class DeliveryNoteHydrateUniversalSearch
                 'customer_id'       => $deliveryNote->customer_id,
                 'customer_slug'     => $deliveryNote->customer->slug,
                 'sections'          => ['dispatching'],
-                'haystack_tier_1'   => $deliveryNote->number,
+                'haystack_tier_1'   => $deliveryNote->reference,
                 'haystack_tier_2'   => $deliveryNote->email
             ]
         );

@@ -51,9 +51,9 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
 <template>
 {{ data }} 
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(number)="{ item: deliveryNote }">
+        <template #cell(reference)="{ item: deliveryNote }">
             <Link :href="deliveryNoteRoute(deliveryNote)">
-                {{ deliveryNote["number"] }}
+                {{ deliveryNote["reference"] }}
             </Link>
         </template>
     </Table>

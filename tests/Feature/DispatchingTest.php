@@ -96,7 +96,7 @@ test('create delivery note', function () {
 
     $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
     expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
-        ->and($deliveryNote->number)->toBe($arrayData['number']);
+        ->and($deliveryNote->reference)->toBe($arrayData['number']);
 
 
     return $deliveryNote;
@@ -114,7 +114,7 @@ test('update delivery note', function ($lastDeliveryNote) {
 
     $updatedDeliveryNote = UpdateDeliveryNote::make()->action($lastDeliveryNote, $arrayData);
 
-    expect($updatedDeliveryNote->number)->toBe($arrayData['number']);
+    expect($updatedDeliveryNote->reference)->toBe($arrayData['number']);
 })->depends('create delivery note');
 
 test('create delivery note item', function (DeliveryNote $deliveryNote) {

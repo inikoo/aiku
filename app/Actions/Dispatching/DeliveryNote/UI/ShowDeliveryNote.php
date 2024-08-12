@@ -80,7 +80,7 @@ class ShowDeliveryNote extends OrgAction
                 //     'next'     => $this->getNext($deliveryNote, $request),
                 // ],
                 'pageHead'      => [
-                    'title' => $deliveryNote->number,
+                    'title' => $deliveryNote->reference,
 
 
                 ],
@@ -114,7 +114,7 @@ class ShowDeliveryNote extends OrgAction
                 $routeName => [
                     'route'           => $routeName,
                     'routeParameters' => $routeParameters,
-                    'name'            => $deliveryNote->number,
+                    'name'            => $deliveryNote->reference,
                     'index'           =>
                         match ($routeName) {
                             'shops.show.orders.show.delivery-notes.show', 'orders.show.delivery-notes.show' => null,
@@ -162,11 +162,11 @@ class ShowDeliveryNote extends OrgAction
     public function getPrevious(DeliveryNote $deliveryNote, ActionRequest $request): ?array
     {
 
-        $previous = DeliveryNote::where('number', '<', $deliveryNote->number)->when(true, function ($query) use ($deliveryNote, $request) {
+        $previous = DeliveryNote::where('reference', '<', $deliveryNote->reference)->when(true, function ($query) use ($deliveryNote, $request) {
             if ($request->route()->getName() == 'shops.show.delivery-notes.show') {
                 $query->where('delivery_notes.shop_id', $deliveryNote->shop_id);
             }
-        })->orderBy('number', 'desc')->first();
+        })->orderBy('reference', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
 
@@ -174,11 +174,11 @@ class ShowDeliveryNote extends OrgAction
 
     public function getNext(DeliveryNote $deliveryNote, ActionRequest $request): ?array
     {
-        $next = DeliveryNote::where('number', '>', $deliveryNote->number)->when(true, function ($query) use ($deliveryNote, $request) {
+        $next = DeliveryNote::where('reference', '>', $deliveryNote->reference)->when(true, function ($query) use ($deliveryNote, $request) {
             if ($request->route()->getName() == 'shops.show.delivery-notes.show') {
                 $query->where('delivery_notes.shop_id', $deliveryNote->shop_id);
             }
-        })->orderBy('number')->first();
+        })->orderBy('reference')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
@@ -192,7 +192,7 @@ class ShowDeliveryNote extends OrgAction
         return match ($routeName) {
             'delivery-notes.show' ,
             'shops.delivery-notes.show'=> [
-                'label'=> $deliveryNote->number,
+                'label'=> $deliveryNote->reference,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
@@ -202,7 +202,7 @@ class ShowDeliveryNote extends OrgAction
                 ]
             ],
             'shops.show.delivery-notes.show'=> [
-                'label'=> $deliveryNote->number,
+                'label'=> $deliveryNote->reference,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
