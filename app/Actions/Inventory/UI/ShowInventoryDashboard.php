@@ -65,20 +65,21 @@ class ShowInventoryDashboard extends OrgAction
 
                         ],
                         [
-                            'name'  => 'SKUs',
-                            'icon'  => ['fal', 'fa-box'],
-                            'href'  => [
+                            'name'          => 'SKUs',
+                            'icon'          => ['fal', 'fa-box'],
+                            'description'   => __('current'),
+                            'href'          => [
                                 'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
                                 'number' => $this->organisation->inventoryStats->number_current_org_stocks
-                            ]
-
+                            ],
+                            'sub_data'  => $this->getDashboardStats()['stock']['cases']
                         ]
                     ]
                 ],
-                'dashboardStats' => $this->getDashboardStats(),
+                // 'dashboardStats' => $this->getDashboardStats(),
 
             ]
         );
@@ -102,7 +103,7 @@ class ShowInventoryDashboard extends OrgAction
             }
 
 
-            $stats['stock']['cases'][$case->value] = [
+            $stats['stock']['cases'][] = [
                 'value' => $case->value,
                 'icon'  => OrgStockStateEnum::stateIcon()[$case->value],
                 'count' => $count,

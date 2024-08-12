@@ -37,7 +37,6 @@ const onSelectOption = (value: number) => {
             <template #button="{ open, close }">
                 <div class="relative cursor-pointer underline">
                     <div class="flex gap-x-1">
-                        Date
                         <span class="relative">
                             <Transition name="spin-to-down"><div :key="form[fieldName].date" class="">{{ useOrdinalSuffix(form[fieldName].date) }}</div></Transition>
                         </span>

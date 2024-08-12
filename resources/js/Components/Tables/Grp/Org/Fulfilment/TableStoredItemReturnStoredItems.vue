@@ -7,11 +7,7 @@ import { ref, watch, onBeforeMount } from 'vue';
 import { router } from "@inertiajs/vue3";
 import { notify } from "@kyvg/vue3-notification";
 import { useLayoutStore } from "@/Stores/layout";
-
-type routeType = {
-  name: string;
-  parameters: Record<string, any>;
-};
+import { debounce } from 'lodash';
 
 const props = defineProps<{
     data?: { data: any[] };
@@ -47,18 +43,14 @@ const SetSelected = () => {
             }
         }
     }
+    console.log(finalValue)
 
     router.post(
         route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),
         { stored_items: finalValue },
         {
-            onSuccess: () => {
-                notify({
-                    title: 'Success',
-                    text: 'Items successfully saved.',
-                    type: 'success',
-                });
-            },
+            preserveScroll: true,
+            onSuccess: () => {},
             onError: () => {
                 notify({
                     title: 'Something went wrong.',
@@ -71,9 +63,14 @@ const SetSelected = () => {
 };
 
 const onChangeCheked = (value) => {
-    selectedRow.value = value
+    selectedRow.value = value;
     SetSelected();
 }
+
+// Debounce the changeValueQty function
+const changeValueQty = debounce(() => {
+    SetSelected();
+}, 500);
 
 /* watch(selectedRow, () => {
     SetSelected();
@@ -98,11 +95,11 @@ onBeforeMount(() => {
         </template>
 
         <template #cell(quantity)="{ item: item }">
-        {{ item.is_checked  }}
             <div class="w-full flex justify-end">
                 <div class="flex w-32 justify-end">
-                    <PureInputNumber v-model="item.quantity" @update:modelValue="(e) => item.quantity = e" 
-                        :maxValue="item.total_quantity" :minValue="1" />
+                    <PureInputNumber v-if="item.is_checked" v-model="item.data.quantity"
+                        :maxValue="item.total_quantity" :minValue="1" @update:modelValue="changeValueQty" />
+                    <div v-else class="py-3">{{ item.data.quantity }}</div>
                 </div>
             </div>
         </template>
