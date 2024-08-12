@@ -43,7 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $parent_id
  * @property string $parent_code Parent code on the time of consolidation
  * @property string $parent_name Parent name on the time of consolidation
- * @property string $number
+ * @property string $reference
  * @property array $data
  * @property PurchaseOrderStateEnum $state
  * @property PurchaseOrderStatusEnum $status
@@ -129,7 +129,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }
@@ -147,7 +147,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     }
 
     protected array $auditInclude = [
-        'number',
+        'reference',
     ];
 
     public function parent(): MorphTo

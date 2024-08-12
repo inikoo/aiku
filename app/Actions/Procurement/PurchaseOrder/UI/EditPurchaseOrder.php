@@ -42,7 +42,7 @@ class EditPurchaseOrder extends InertiaAction
             [
                 'title'       => __('purchase order'),
                 'pageHead'    => [
-                    'title'     => $purchaseOrder->number,
+                    'title'     => $purchaseOrder->reference,
                     'actions'   => [
                         [
                             'type'  => 'button',

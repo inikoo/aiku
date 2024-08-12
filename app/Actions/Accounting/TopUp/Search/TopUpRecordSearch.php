@@ -32,7 +32,7 @@ class TopUpRecordSearch
                 'payment_slug'      => $topUp->payment->slug,
                 'sections'          => ['accounting'],
                 'haystack_tier_1'   => $topUp->slug,
-                'keyword'           => $topUp->number,
+                'keyword'           => $topUp->reference,
                 'keyword_2'         => $topUp->slug
             ]
         );
