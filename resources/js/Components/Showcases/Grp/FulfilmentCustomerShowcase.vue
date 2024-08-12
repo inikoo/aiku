@@ -145,7 +145,6 @@ const isModalAddress = ref(false)
                                         <!-- Field: Contact name -->
                                         <div v-if="data.fulfilment_customer.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Contact name'" class="flex-none">
-                                                <span class="sr-only">Contact name</span>
                                                 <FontAwesomeIcon icon='fal fa-address-card' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">{{ data.fulfilment_customer.customer.contact_name }}</dd>
@@ -154,7 +153,6 @@ const isModalAddress = ref(false)
                                         <!-- Field: Company name -->
                                         <div v-if="data.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Company name'" class="flex-none">
-                                                <span class="sr-only">Company name</span>
                                                 <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="text-gray-500">{{ data.fulfilment_customer.customer.company_name }}</dd>
@@ -163,7 +161,6 @@ const isModalAddress = ref(false)
                                         <!-- Field: Email -->
                                         <div v-if="data.fulfilment_customer.customer?.email" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Email'" class="flex-none">
-                                                <span class="sr-only">Email</span>
                                                 <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <a :href="`mailto:${data.fulfilment_customer.customer?.email}`" v-tooltip="'Click to send email'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.email }}</a>
@@ -172,7 +169,6 @@ const isModalAddress = ref(false)
                                         <!-- Field: Phone -->
                                         <div v-if="data.fulfilment_customer.customer?.phone" class="flex items-center w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Phone'" class="flex-none">
-                                                <span class="sr-only">Phone</span>
                                                 <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <a :href="`tel:${data.fulfilment_customer.customer?.phone}`" v-tooltip="'Click to make a phone call'" class="text-gray-500 hover:text-gray-700">{{ data.fulfilment_customer.customer?.phone }}</a>
@@ -181,7 +177,6 @@ const isModalAddress = ref(false)
                                         <!-- Field: Address -->
                                         <div v-if="data.fulfilment_customer.customer?.address" class="flex items w-full flex-none gap-x-4 px-6">
                                             <dt v-tooltip="'Address'" class="flex-none">
-                                                <span class="sr-only">Address</span>
                                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                                             </dt>
                                             <dd class="w-full text-gray-500">

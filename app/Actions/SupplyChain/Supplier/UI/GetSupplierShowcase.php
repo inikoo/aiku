@@ -29,15 +29,15 @@ class GetSupplierShowcase
             'stats'       => [
                 [
                     'label' => __('products'),
-                    'value' => $supplier->stats->number_supplier_products
+                    'count' => $supplier->stats->number_supplier_products
                 ],
                 [
                     'label' => __('purchase orders'),
-                    'value' => $supplier->stats->number_purchase_orders
+                    'count' => $supplier->stats->number_purchase_orders
                 ],
                 [
                     'label' => __('deliveries'),
-                    'value' => $supplier->stats->number_stock_deliveries
+                    'count' => $supplier->stats->number_stock_deliveries
                 ],
 
             ]
