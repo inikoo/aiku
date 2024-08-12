@@ -11,20 +11,14 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dispatching\Shipper>
- */
+
 class DeliveryNoteFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+
+    public function definition(): array
     {
         return [
-            'number' => fake()->numberBetween(100, 999),
+            'reference' => fake()->numberBetween(100, 999),
             'state'  => DeliveryNoteStateEnum::PACKING,
             'status' => DeliveryNoteStatusEnum::HANDLING,
             'email'  => fake()->email,
