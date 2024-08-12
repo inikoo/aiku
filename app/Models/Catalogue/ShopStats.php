@@ -69,6 +69,15 @@ use Illuminate\Support\Carbon;
  * @property int $number_subscriptions_state_discontinued
  * @property int $number_product_variants
  * @property int $number_credit_transactions
+ * @property string $customer_balances_amount
+ * @property string $customer_positive_balances_amount
+ * @property string $customer_negative_balances_amount
+ * @property string $customer_balances_org_amount
+ * @property string $customer_positive_balances_org_amount
+ * @property string $customer_negative_balances_org_amount
+ * @property string $customer_balances_grp_amount
+ * @property string $customer_positive_balances_grp_amount
+ * @property string $customer_negative_balances_grp_amount
  * @property int $number_top_ups
  * @property int $number_top_ups_status_in_process
  * @property int $number_top_ups_status_success

@@ -31,6 +31,8 @@ class FetchAuroraCredits extends FetchAuroraAction
                 $creditTransaction = StoreCreditTransaction::make()->action(
                     customer: $creditData['customer'],
                     modelData: $creditData['credit'],
+                    hydratorsDelay:60,
+                    strict: false
                 );
 
 
