@@ -68,6 +68,12 @@ use Illuminate\Support\Carbon;
  * @property string $group_amount_successfully_paid
  * @property string $group_amount_refunded
  * @property int $number_credit_transactions
+ * @property string $customer_balances_org_amount
+ * @property string $customer_positive_balances_org_amount
+ * @property string $customer_negative_balances_org_amount
+ * @property string $customer_balances_grp_amount
+ * @property string $customer_positive_balances_grp_amount
+ * @property string $customer_negative_balances_grp_amount
  * @property int $number_top_ups
  * @property int $number_top_ups_status_in_process
  * @property int $number_top_ups_status_success

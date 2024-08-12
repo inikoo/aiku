@@ -13,6 +13,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +34,10 @@ class StoreStoredItemToReturn extends OrgAction
         $storedItemModels = Arr::get($modelData, 'stored_items');
         $currentQuantity  = 0;
 
-        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('id', array_keys($storedItemModels))->get();
+        PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+            ->whereNotIn('stored_item_id', array_keys($storedItemModels))->delete();
+
+        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('stored_items.id', array_keys($storedItemModels))->get();
         foreach ($storedItems as $value) {
             /** @var StoredItem $storedItem */
             $storedItem = $value;
@@ -68,15 +72,30 @@ class StoreStoredItemToReturn extends OrgAction
         return $palletReturn;
     }
 
-    public function attach(PalletReturn $palletReturn, Pallet $pallet, $value, $currentQuantity): void
+    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $value, $currentQuantity): void
     {
-        $palletReturn->storedItems()
-            ->syncWithPivotValues($value->id, [
-            'pallet_id'             => $pallet->id,
-            'pallet_stored_item_id' => $pallet->pivot->id,
-            'quantity_ordered'      => $currentQuantity,
-            'type'                  => 'StoredItem'
-        ]);
+        // Check if the pivot table already has an entry with the same pallet_return_id and stored_item_id
+        $exists = $value->palletReturns()
+            ->wherePivot('pallet_return_id', $palletReturn->id)
+            ->wherePivot('stored_item_id', $value->id)
+            ->exists();
+
+        // If it doesn't exist, attach the new entry
+        if (!$exists) {
+            $value->palletReturns()->attach($palletReturn->id, [
+                'stored_item_id'       => $value->id,
+                'pallet_id'            => $pallet->id,
+                'pallet_stored_item_id'=> $pallet->pivot->id,
+                'quantity_ordered'     => $currentQuantity,
+                'type'                 => 'StoredItem'
+            ]);
+        } else {
+            // Optionally, update the existing pivot entry instead of attaching a new one
+            $value->palletReturns()->updateExistingPivot($palletReturn->id, [
+                'quantity_ordered'     => $currentQuantity,
+                'type'                 => 'StoredItem'
+            ]);
+        }
     }
 
     public function authorize(ActionRequest $request): bool

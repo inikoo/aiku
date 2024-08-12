@@ -7,6 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -46,9 +47,12 @@ class FetchAuroraCredit extends FetchAurora
 
         $this->parsedData['credit'] =
             [
-                'date'      => $date,
-                'type'      => $type,
-                'amount'    => $this->auroraModelData->{'Credit Transaction Amount'},
+                'date'         => $date,
+                'type'         => $type,
+                'amount'       => $this->auroraModelData->{'Credit Transaction Amount'},
+                'org_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['customer']->shop->currency, $this->parsedData['customer']->organisation->currency, $date),
+                'grp_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['customer']->shop->currency, $this->parsedData['customer']->group->currency, $date),
+
                 'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Credit Transaction Key'},
             ];
 

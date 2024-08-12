@@ -34,19 +34,26 @@ class StoreCreditTransaction extends OrgAction
 
         $modelData = $this->processExchanges($modelData, $customer->shop, 'amount');
 
+        /** @var CreditTransaction $creditTransaction */
         $creditTransaction = $customer->creditTransactions()->create($modelData);
 
-        CustomerHydrateCreditTransactions::run($customer);
-        ShopHydrateCreditTransactions::dispatch($creditTransaction->shop);
-        OrganisationHydrateCreditTransactions::dispatch($creditTransaction->organisation);
-        GroupHydrateCreditTransactions::dispatch($creditTransaction->group);
+        if($this->hydratorsDelay>0) {
+            CustomerHydrateCreditTransactions::dispatch($customer)->delay($this->hydratorsDelay);
+
+        } else {
+            CustomerHydrateCreditTransactions::run($customer);
+        }
+
+        ShopHydrateCreditTransactions::dispatch($creditTransaction->shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateCreditTransactions::dispatch($creditTransaction->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateCreditTransactions::dispatch($creditTransaction->group)->delay($this->hydratorsDelay);
 
         return $creditTransaction;
     }
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'amount'     => ['required', 'numeric'],
             'date'       => ['sometimes', 'date'],
             'type'       => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
@@ -64,11 +71,21 @@ class StoreCreditTransaction extends OrgAction
                     ->where('shop_id', $this->shop->id)
             ]
         ];
+        if (!$this->strict) {
+            $rules['grp_exchange'] = ['sometimes', 'numeric'];
+            $rules['org_exchange'] = ['sometimes', 'numeric'];
+
+        }
+
+        return $rules;
+
     }
 
-    public function action(Customer $customer, $modelData): CreditTransaction
+    public function action(Customer $customer, $modelData, int $hydratorsDelay = 0, bool $strict = true): CreditTransaction
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $modelData);
 
         return $this->handle($customer, $modelData);
