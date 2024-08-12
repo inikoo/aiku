@@ -22,7 +22,7 @@ const props = defineProps<{
 }>();
 
 const isLoading = ref<string | boolean>(false);
-const selectedRow = ref<Record<string, boolean>>({});
+const selectedRow = ref({});
 const _table = ref(null);
 
 const setUpChecked = () => {
@@ -39,14 +39,14 @@ const SetSelected = () => {
     const data = props.data?.data || [];
     const finalValue: Record<string, { quantity: number }> = {};
 
-    Object.keys(selectedRow.value).forEach((rowId) => {
-        if (selectedRow.value[rowId]) {
-            const tempData = data.find((item) => item.id === rowId);
+    for(const key in selectedRow.value){
+        if (selectedRow.value[key]) {
+            const tempData = data.find((item) => item.id == key);
             if (tempData) {
-                finalValue[rowId] = { quantity: tempData.quantity };
+                finalValue[key] = { quantity: tempData.quantity };
             }
         }
-    });
+    }
 
     router.post(
         route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),
@@ -70,9 +70,14 @@ const SetSelected = () => {
     );
 };
 
-watch(selectedRow, () => {
+const onChangeCheked = (value) => {
+    selectedRow.value = value
     SetSelected();
-}, { deep: true });
+}
+
+/* watch(selectedRow, () => {
+    SetSelected();
+}, { deep: true }); */
 
 onBeforeMount(() => {
     setUpChecked();
@@ -82,7 +87,7 @@ onBeforeMount(() => {
 
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="true"
-        @onSelectRow="(value) => selectedRow.value = value" ref="_table" :selectedRow="selectedRow">
+        @onSelectRow="onChangeCheked" ref="_table" :selectedRow="selectedRow">
         
         <template #cell(reference)="{ item: value }">
             {{ value.reference }}
@@ -93,6 +98,7 @@ onBeforeMount(() => {
         </template>
 
         <template #cell(quantity)="{ item: item }">
+        {{ item.is_checked  }}
             <div class="w-full flex justify-end">
                 <div class="flex w-32 justify-end">
                     <PureInputNumber v-model="item.quantity" @update:modelValue="(e) => item.quantity = e" 
