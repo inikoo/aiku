@@ -36,7 +36,8 @@ class PalletReturnStoredItemsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $palletReturn = PalletReturn::where('slug', $request->route()->originalParameters()['palletReturn'])->first();
+        $palletReturn          = PalletReturn::where('slug', $request->route()->originalParameters()['palletReturn'])->first();
+        $palletReturnItemQuery = PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->first();
 
         return [
             'id'                                   => $this->id,
@@ -45,9 +46,9 @@ class PalletReturnStoredItemsResource extends JsonResource
             'state'                                => $this->state,
             'state_icon'                           => $this->state->stateIcon()[$this->state->value],
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
-            'quantity'                             => intval($this->pallets->sum('pivot.quantity')),
+            'quantity'                             => (int) $palletReturnItemQuery?->quantity_ordered ?: intval($this->pallets->sum('pivot.quantity')),
             'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),
-            'is_checked'                           => PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->exists()
+            'is_checked'                           => (bool) $palletReturnItemQuery
         ];
     }
 }
