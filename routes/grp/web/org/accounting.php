@@ -26,6 +26,7 @@ use App\Actions\Accounting\PaymentServiceProvider\UI\CreatePaymentServiceProvide
 use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Stubs\UIDummies\IndexDummies;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ShowAccountingDashboard::class, 'inOrganisation'])->name('dashboard');
@@ -70,3 +71,5 @@ Route::get('/invoices/{invoice}/export', PdfInvoice::class)->name('invoices.down
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 Route::get('/invoices', [IndexInvoices::class, 'inOrganisation'])->name('invoices.index');
 Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show');
+
+Route::get('/customer-balances', [IndexDummies::class, 'inOrganisation'])->name('balances.index');
