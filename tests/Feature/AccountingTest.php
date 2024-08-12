@@ -10,17 +10,23 @@ use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
+use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
+use App\Actions\Accounting\TopUp\StoreTopUp;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Accounting\TopUp;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 
 uses()->group('base');
 
@@ -157,3 +163,221 @@ test(
         return $payment;
     }
 )->depends('create payment account');
+
+test('create and set success 1st top up', function ($payment)
+{
+    $topUp = StoreTopUp::make()->action($payment, [
+        'amount' => 100,
+        'reference' => 'ASA01'
+    ]);
+
+    $topUp->refresh();
+
+    expect($topUp)->toBeInstanceOf(TopUp::class)
+        ->and($topUp->amount)->toBe('100.00');
+
+    SetTopUpStatusToSuccess::make()->action($topUp);
+
+    $topUp->refresh();
+
+    expect($topUp->creditTransaction->amount)->toBe('100.00')
+        ->and($topUp->creditTransaction->running_amount)->toBe('100.00')
+        ->and($topUp->creditTransaction->type)->toBe(CreditTransactionTypeEnum::TOP_UP->value);
+
+    return $topUp;
+    
+
+})->depends('create payment');
+
+test('check customer balance and stats', function ($topUp){
+    $customer = $topUp->customer;
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->balance)->toBe('100.00')
+        ->and($customer->stats->number_top_ups)->toBe(1)
+        ->and($customer->stats->number_top_ups_status_in_process)->toBe(0)
+        ->and($customer->stats->number_top_ups_status_success)->toBe(1)
+        ->and($customer->stats->number_top_ups_status_fail)->toBe(0)
+        ->and($customer->stats->number_credit_transactions)->toBe(1);
+
+})->depends('create and set success 1st top up');
+
+test('check shop stats', function ($topUp){
+    $shop = $topUp->shop;
+
+    expect($shop)->toBeInstanceOf(Shop::class)
+        ->and($shop->stats->number_top_ups)->toBe(1)
+        ->and($shop->stats->number_top_ups_status_in_process)->toBe(0)
+        ->and($shop->stats->number_top_ups_status_success)->toBe(1)
+        ->and($shop->stats->number_top_ups_status_fail)->toBe(0)
+        ->and($shop->stats->number_credit_transactions)->toBe(1);
+
+})->depends('create and set success 1st top up');
+
+test('check organisation stats', function ($topUp){
+    $organisation = $topUp->organisation;
+
+    expect($organisation)->toBeInstanceOf(Organisation::class)
+        ->and($organisation->accountingStats->number_top_ups)->toBe(1)
+        ->and($organisation->accountingStats->number_top_ups_status_in_process)->toBe(0)
+        ->and($organisation->accountingStats->number_top_ups_status_success)->toBe(1)
+        ->and($organisation->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($organisation->accountingStats->number_credit_transactions)->toBe(1);
+
+})->depends('create and set success 1st top up');
+
+test('check Group stats', function ($topUp){
+    $group = $topUp->group;
+
+    expect($group)->toBeInstanceOf(Group::class)
+        ->and($group->accountingStats->number_top_ups)->toBe(1)
+        ->and($group->accountingStats->number_top_ups_status_in_process)->toBe(0)
+        ->and($group->accountingStats->number_top_ups_status_success)->toBe(1)
+        ->and($group->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($group->accountingStats->number_credit_transactions)->toBe(1);
+
+})->depends('create and set success 1st top up');
+
+test('create and set success 2nd top up', function ($payment)
+{
+    $topUp = StoreTopUp::make()->action($payment, [
+        'amount' => 150,
+        'reference' => 'ASA02'
+    ]);
+
+    $topUp->refresh();
+
+    expect($topUp)->toBeInstanceOf(TopUp::class)
+        ->and($topUp->amount)->toBe('150.00');
+
+    SetTopUpStatusToSuccess::make()->action($topUp);
+
+    $topUp->refresh();
+
+    expect($topUp->creditTransaction->amount)->toBe('150.00')
+        ->and($topUp->creditTransaction->running_amount)->toBe('250.00')
+        ->and($topUp->creditTransaction->type)->toBe(CreditTransactionTypeEnum::TOP_UP->value);
+
+    return $topUp;
+    
+
+})->depends('create payment');
+
+test('check customer balance and stats 2nd time', function ($topUp){
+    $customer = $topUp->customer;
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->balance)->toBe('250.00')
+        ->and($customer->stats->number_top_ups)->toBe(2)
+        ->and($customer->stats->number_top_ups_status_in_process)->toBe(0)
+        ->and($customer->stats->number_top_ups_status_success)->toBe(2)
+        ->and($customer->stats->number_top_ups_status_fail)->toBe(0)
+        ->and($customer->stats->number_credit_transactions)->toBe(2);
+        
+
+
+})->depends('create and set success 2nd top up');
+
+test('check shop stats 2nd time', function ($topUp){
+    $shop = $topUp->shop;
+
+    expect($shop)->toBeInstanceOf(Shop::class)
+        ->and($shop->stats->number_top_ups)->toBe(2)
+        ->and($shop->stats->number_top_ups_status_in_process)->toBe(0)
+        ->and($shop->stats->number_top_ups_status_success)->toBe(2)
+        ->and($shop->stats->number_top_ups_status_fail)->toBe(0)
+        ->and($shop->stats->number_credit_transactions)->toBe(2);
+
+})->depends('create and set success 2nd top up');
+
+test('check organisation stats 2nd time', function ($topUp){
+    $organisation = $topUp->organisation;
+
+    expect($organisation)->toBeInstanceOf(Organisation::class)
+        ->and($organisation->accountingStats->number_top_ups)->toBe(2)
+        ->and($organisation->accountingStats->number_top_ups_status_in_process)->toBe(0)
+        ->and($organisation->accountingStats->number_top_ups_status_success)->toBe(2)
+        ->and($organisation->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($organisation->accountingStats->number_credit_transactions)->toBe(2);
+
+})->depends('create and set success 2nd top up');
+
+test('check Group stats 2nd time', function ($topUp){
+    $group = $topUp->group;
+
+    expect($group)->toBeInstanceOf(Group::class)
+        ->and($group->accountingStats->number_top_ups)->toBe(2)
+        ->and($group->accountingStats->number_top_ups_status_in_process)->toBe(0)
+        ->and($group->accountingStats->number_top_ups_status_success)->toBe(2)
+        ->and($group->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($group->accountingStats->number_credit_transactions)->toBe(2);
+
+})->depends('create and set success 2nd top up');
+
+test('create 3rd top up', function ($payment)
+{
+    $topUp = StoreTopUp::make()->action($payment, [
+        'amount' => 200,
+        'reference' => 'ASA03'
+    ]);
+
+    $topUp->refresh();
+
+    expect($topUp)->toBeInstanceOf(TopUp::class)
+        ->and($topUp->amount)->toBe('200.00');
+
+    return $topUp;
+    
+
+})->depends('create payment');
+
+test('check customer balance 3rd time', function ($topUp){
+    $customer = $topUp->customer;
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->balance)->toBe('250.00')
+        ->and($customer->stats->number_top_ups)->toBe(3)
+        ->and($customer->stats->number_top_ups_status_in_process)->toBe(1)
+        ->and($customer->stats->number_top_ups_status_success)->toBe(2)
+        ->and($customer->stats->number_top_ups_status_fail)->toBe(0)
+        ->and($customer->stats->number_credit_transactions)->toBe(2);
+
+
+
+})->depends('create 3rd top up');
+
+test('check shop stats 3rd time', function ($topUp){
+    $shop = $topUp->shop;
+
+    expect($shop)->toBeInstanceOf(Shop::class)
+        ->and($shop->stats->number_top_ups)->toBe(3)
+        ->and($shop->stats->number_top_ups_status_in_process)->toBe(1)
+        ->and($shop->stats->number_top_ups_status_success)->toBe(2)
+        ->and($shop->stats->number_top_ups_status_fail)->toBe(0)
+        ->and($shop->stats->number_credit_transactions)->toBe(2);
+
+})->depends('create 3rd top up');
+
+test('check organisation stats 3rd time', function ($topUp){
+    $organisation = $topUp->organisation;
+
+    expect($organisation)->toBeInstanceOf(Organisation::class)
+        ->and($organisation->accountingStats->number_top_ups)->toBe(3)
+        ->and($organisation->accountingStats->number_top_ups_status_in_process)->toBe(1)
+        ->and($organisation->accountingStats->number_top_ups_status_success)->toBe(2)
+        ->and($organisation->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($organisation->accountingStats->number_credit_transactions)->toBe(2);
+
+})->depends('create 3rd top up');
+
+test('check Group stats 3rd time', function ($topUp){
+    $group = $topUp->group;
+
+    expect($group)->toBeInstanceOf(Group::class)
+        ->and($group->accountingStats->number_top_ups)->toBe(3)
+        ->and($group->accountingStats->number_top_ups_status_in_process)->toBe(1)
+        ->and($group->accountingStats->number_top_ups_status_success)->toBe(2)
+        ->and($group->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($group->accountingStats->number_credit_transactions)->toBe(2);
+
+})->depends('create 3rd top up');

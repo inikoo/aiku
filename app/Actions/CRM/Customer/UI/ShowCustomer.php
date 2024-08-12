@@ -150,6 +150,10 @@ class ShowCustomer extends OrgAction
                     'navigation' => CustomerTabsEnum::navigation()
 
                 ],
+                'accounting' => [
+                    'balance'             => $customer->balance,
+                    'credit_transactions' => $customer->stats->number_credit_transactions
+                ],
 
                 CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
                     fn () => GetCustomerShowcase::run($customer)
