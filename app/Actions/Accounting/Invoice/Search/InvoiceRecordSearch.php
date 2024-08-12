@@ -39,7 +39,7 @@ class InvoiceRecordSearch
             'customer_slug'     => $invoice->slug,
             'sections'          => ['accounting'],
             'haystack_tier_1'   => $invoice->reference,
-            'keyword'          => $invoice->reference,
+            'keyword'           => $invoice->reference,
             'result'            => [
                 'route'     => [
                     'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
