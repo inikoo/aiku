@@ -7,8 +7,11 @@
 
 namespace App\Actions\Accounting\TopUp;
 
-
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateTopUps;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateTopUps;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTopUps;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateTopUps;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\TopUp;
 
@@ -24,6 +27,13 @@ class StoreTopUp extends OrgAction
         data_set($modelData, 'shop_id', $payment->shop_id);
 
         $topUp = $payment->topUps()->create($modelData);
+
+        $topUp->refresh();
+
+        CustomerHydrateTopUps::dispatch($topUp->customer);
+        ShopHydrateTopUps::dispatch($topUp->shop);
+        OrganisationHydrateTopUps::dispatch($topUp->organisation);
+        GroupHydrateTopUps::dispatch($topUp->group);
 
         return $topUp;
     }
