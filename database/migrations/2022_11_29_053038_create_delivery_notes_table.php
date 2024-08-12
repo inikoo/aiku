@@ -25,7 +25,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->string('number')->index();
+            $table->string('reference')->index();
             $table->string('type')->default(DeliveryNoteTypeEnum::ORDER->value)->index();
 
             $table->string('state')->index();

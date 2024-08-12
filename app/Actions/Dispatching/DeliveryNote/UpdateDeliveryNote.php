@@ -72,7 +72,7 @@ class UpdateDeliveryNote extends OrgAction
     public function rules(): array
     {
         return [
-            'number'           => [
+            'reference'           => [
                 'sometimes',
                 'string',
                 'max:64',

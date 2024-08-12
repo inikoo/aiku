@@ -76,7 +76,7 @@ class StoreDeliveryNote extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'number'           => [
+            'reference'           => [
                 'required',
                 'max:64',
                 'string',
@@ -113,7 +113,7 @@ class StoreDeliveryNote extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['number'] = ['required', 'max:64', 'string'];
+            $rules['reference'] = ['required', 'max:64', 'string'];
         }
 
         return $rules;
