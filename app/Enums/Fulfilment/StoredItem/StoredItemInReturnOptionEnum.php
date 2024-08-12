@@ -13,23 +13,23 @@ enum StoredItemInReturnOptionEnum: string
 {
     use EnumHelperTrait;
 
-    case ALL         = 'all';
+    case UNSELECTED  = 'unselected';
     case SELECTED    = 'selected';
 
 
     public static function labels(): array
     {
         return [
-            'all'         => __('All'),
-            'selected'    => __('Selected')
+            'unselected'         => __('Unselected'),
+            'selected'           => __('Selected')
         ];
     }
 
     public static function count(): array
     {
         return [
-            'all'      => 0,
-            'selected' => 0
+            'unselected'      => 0,
+            'selected'        => 0
         ];
     }
 }
