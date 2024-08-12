@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\CreditTransaction;
 
 use AlibabaCloud\SDK\Dm\V20151123\Models\GetIpfilterListResponseBody\data;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateCreditTransactions;
 use App\Actions\OrgAction;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -32,17 +33,9 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'currency_id', $customer->shop->currency_id);
         data_set($modelData, 'date', now(), overwrite:false);
 
-        $amount = Arr::get($modelData, 'amount');
-        $latestCreditTransaction = $customer->creditTransactions()
-        ->orderBy('created_at', 'desc')
-        ->first();
-
-        $runningAmount = $latestCreditTransaction ? $latestCreditTransaction->running_amount : 0;
-        $newRunningAmount = $runningAmount + $amount;
-
-        data_set($modelData, 'running_amount', $newRunningAmount );
-
         $customer->creditTransactions()->create($modelData);
+
+        CustomerHydrateCreditTransactions::run($customer);
     }
 
     public function rules()
