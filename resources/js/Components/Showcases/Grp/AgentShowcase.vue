@@ -7,14 +7,17 @@
 <script setup lang="ts">
 import ShowcaseStats from '@/Components/ShowcaseStats.vue'
 import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue"
+import BoxDisplay from "@/Components/DataDisplay/BoxDisplay.vue"
 import { Agent } from '@/types/Grp/Agent'
 
 const props = defineProps<{
     data: {
-        agent: Agent
+        contactCard: Agent
         stats: {
             label: string
-            value: number
+            count: number
+            description?: string
+            full?: boolean
         }[]
     }
 
@@ -22,15 +25,16 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="grid text-gray-600  grid-flow-col grid-cols-2 px-4 pt-4 gap-x-6">
+    <div class="grid text-gray-600 gap-y-3 md:gap-y-0 md:grid-cols-2 px-4 pt-4 gap-x-6">
         <!-- Section 1 -->
         <div class="">
-            <ShowcaseContactCard :data="data.agent" />
+            <ShowcaseContactCard :data="data.contactCard" />
         </div>
 
         <!-- Section 2: Statistic -->
         <div class="">
-            <ShowcaseStats :data="data.stats" />
+            <BoxDisplay :data="data.stats" />
+            <!-- <ShowcaseStats :data="data.stats" /> -->
         </div>
 
 

@@ -24,25 +24,28 @@ class GetOrgAgentShowcase
                 'contact'  => $agent->organisation->contact_name,
                 'email'    => $agent->organisation->email,
                 'phone'    => $agent->organisation->phone,
-                'address'  => AddressResource::make($agent->organisation->address)->getArray(),
+                'location' => $agent->organisation->location,
+                // 'address'  => AddressResource::make($agent->organisation->address)->getArray(),
                 'photo'    => $agent->organisation->imageSources()
             ],
             'stats'       => [
                 [
+                    'label' => __('purchase orders'),
+                    'count' => $orgAgent->stats->number_purchase_orders,
+                    'full'  => true
+                ],
+                [
                     'label' => __('suppliers'),
-                    'value' => $orgAgent->stats->number_suppliers
+                    'count' => $orgAgent->stats->number_suppliers
                 ],
                 [
                     'label' => __('products'),
-                    'value' => $orgAgent->stats->number_supplier_products
-                ],
-                [
-                    'label' => __('purchase orders'),
-                    'value' => $orgAgent->stats->number_purchase_orders
+                    'count' => $orgAgent->stats->number_supplier_products
                 ],
                 [
                     'label' => __('deliveries'),
-                    'value' => $orgAgent->stats->number_stock_deliveries
+                    'count' => $orgAgent->stats->number_stock_deliveries,
+                    'full'  => true
                 ],
 
             ]

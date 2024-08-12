@@ -63,6 +63,7 @@ class ShowOrgAgent extends OrgAction
                     'next'     => $this->getNext($orgAgent, $request),
                 ],
                 'pageHead'    => [
+                    'model'         => __('agent'),
                     'icon'          =>
                         [
                             'icon'  => ['fal', 'people-arrows'],
