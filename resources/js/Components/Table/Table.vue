@@ -16,7 +16,7 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { Link } from "@inertiajs/vue3"
 import { trans } from 'laravel-vue-i18n'
 
-import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive, inject } from 'vue'
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive, inject, defineExpose } from 'vue'
 import qs from 'qs'
 import clone from 'lodash-es/clone'
 import filter from 'lodash-es/filter'
@@ -608,26 +608,26 @@ const selectRow: {[key: string]: boolean} = reactive({})
 // To preserve the object selectRow
 if (props.isCheckBox) {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = {
-            data : props.resource.data[row],
-            checked : false
-        }
+        selectRow[props.resource.data[row].id] = false
     }
 }
 
 // On select select all
 const onClickSelectAll = (state: boolean) => {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = {
-            data : props.resource.data[row],
-            checked : !state
-        } 
+        selectRow[props.resource.data[row].id] = !state
     }
 }
 
 watch(selectRow, () => {
     emits('onSelectRow', selectRow)
 }, {deep: true})
+
+defineExpose({
+    data : props.resource.data,
+    queryBuilderData : queryBuilderData
+})
+
 
 </script>
 
@@ -674,31 +674,15 @@ watch(selectRow, () => {
                                     </span>
                                     
                                     <span class="font-light">
-                                        {{ queryBuilderProps.labelRecord || (compResourceMeta.total > 1 ? trans('records') : trans('record')) }}
+                                        {{ 
+                                            compResourceMeta.total > 1
+                                            ? queryBuilderProps.labelRecord?.[1] || queryBuilderProps.labelRecord?.[0] || trans('records')
+                                            : queryBuilderProps.labelRecord?.[0] || trans('record')
+                                        }}
                                     </span>
                                 </div>
                             </div>
 
-                            <!-- Button: Model Operations -->
-                            <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
-                                <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
-                                    :name="`button-${kebabCase(linkButton.label)}`"
-                                    :linkButton="{...linkButton, btnIndex: btnIndex }">
-                                    <component v-if="linkButton?.route?.name" :is="linkButton.target ? 'a' : Link"
-                                        as="div" :target="linkButton.target || undefined"
-                                        :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                                        :method="linkButton.route?.method || 'get'" v-tooltip="linkButton.tooltip"
-                                        :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']">
-                                        <Button
-                                            :style="linkButton.style"
-                                            :icon="linkButton.icon"
-                                            :label="linkButton.label"
-                                            size="s"
-                                            class="h-full border-none rounded-none"
-                                        />
-                                    </component>
-                                </slot>
-                            </div>
                             <!-- Button: Model Operations Bulk -->
                             <div v-if="queryBuilderProps.modelOperations?.bulk" class="flex">
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.bulk"
@@ -717,6 +701,27 @@ watch(selectRow, () => {
                                 </slot>
                             </div>
                         </div>
+
+                        <!-- Button: Model Operations -->
+                        <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
+                                <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
+                                    :name="`button-${kebabCase(linkButton.label)}`"
+                                    :linkButton="{...linkButton, btnIndex: btnIndex }">
+                                    <component v-if="linkButton?.route?.name" :is="linkButton.target ? 'a' : Link"
+                                        as="div" :target="linkButton.target || undefined"
+                                        :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
+                                        :method="linkButton.route?.method || 'get'" v-tooltip="linkButton.tooltip"
+                                        :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']">
+                                        <Button
+                                            :style="linkButton.style"
+                                            :icon="linkButton.icon"
+                                            :label="linkButton.label"
+                                            size="s"
+                                            class="h-full border-none rounded-none"
+                                        />
+                                    </component>
+                                </slot>
+                            </div>
 
                         <!-- Search Input Button -->
                         <div v-if="queryBuilderProps.globalSearch" class="flex flex-row">
@@ -811,10 +816,10 @@ watch(selectRow, () => {
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
                                     <div v-if="isCheckBox"
-                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value.checked === true))"
+                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
                                         class="py-1.5 cursor-pointer">
                                         <FontAwesomeIcon
-                                            v-if="Object.values(selectRow).every((value) => value.checked === true)"
+                                            v-if="Object.values(selectRow).every((value) => value === true)"
                                             icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width
                                             aria-hidden='true' />
                                         <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
@@ -840,14 +845,14 @@ watch(selectRow, () => {
                                         ]">
                                             <!-- Column: Check box -->
                                             <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
-                                                <div v-if="selectRow[item.id].checked"
+                                                <div v-if="selectRow[item.id]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
-                                                <FontAwesomeIcon v-if="selectRow[item.id].checked === true"
-                                                    @click="selectRow[item.id].checked = !selectRow[item.id].checked"
+                                                <FontAwesomeIcon v-if="selectRow[item.id] === true"
+                                                    @click="selectRow[item.id] = !selectRow[item.id]"
                                                     icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                                 <FontAwesomeIcon v-else
-                                                    @click="selectRow[item.id].checked = !selectRow[item.id].checked"
+                                                    @click="selectRow[item.id] = !selectRow[item.id]"
                                                     icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                             </td>
@@ -865,7 +870,7 @@ watch(selectRow, () => {
                                                     column.className
                                                 ]">
                                                 <slot :name="`cell(${column.key})`"
-                                                    :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false, editMode: false } }"
+                                                    :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false, editMode: false }, data : item }"
                                                     :tabName="name" class="">
                                                     {{ typeof item[column.key] == 'number' || column.type === 'number' ? locale.number(item[column.key]) : item[column.key] }}
                                                 </slot>

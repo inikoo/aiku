@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { trans } from 'laravel-vue-i18n'
 import { faYinYang } from '@fal'
 import { capitalize } from "@/Composables/capitalize"
 
@@ -19,6 +17,7 @@ const props = defineProps<{
             tooltip?: string
             data: string | string[] // 'Pallets', ['fal', 'fa-yinyang']
         } | string
+        shortLabel?: string
         icon?: string | string[]
         sortable: boolean
         hidden: boolean
@@ -84,7 +83,8 @@ const isCellNumber = () => {
                     <div v-else class="capitalize text-xs md:text-sm lg:text-base" v-tooltip="cell.tooltip"
                         :class="[cell.type == 'number' ? 'text-right' : '']"
                     >
-                        {{ cell.label || ''}}
+                        <span class="hidden lg:inline">{{ cell.label || ''}}</span>
+                        <span class="inline lg:hidden">{{ cell.shortLabel || cell.label || ''}}</span>
                         <FontAwesomeIcon
                             v-if="cell.icon"
                             :icon="cell.icon"

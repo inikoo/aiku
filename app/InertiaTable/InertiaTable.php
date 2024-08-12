@@ -31,7 +31,7 @@ class InertiaTable
     private static bool|string $defaultGlobalSearch = false;
     private static array $defaultQueryBuilderConfig = [];
 
-    private string $labelRecord          = 'record';
+    private array $labelRecord          = [];
 
     public function __construct(Request $request)
     {
@@ -44,7 +44,7 @@ class InertiaTable
         $this->modelOperations  = new Collection();
         $this->exportLinks      = new Collection();
         $this->emptyState       = new Collection();
-        $this->labelRecord      = '';
+        $this->labelRecord      = [];
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -368,7 +368,7 @@ class InertiaTable
         return $this;
     }
 
-    public function withLabelRecord(string $labelRecord = null): self
+    public function withLabelRecord(array $labelRecord = null): self
     {
         $this->labelRecord = $labelRecord;
 

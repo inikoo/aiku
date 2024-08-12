@@ -61,6 +61,11 @@ use Illuminate\Support\Carbon;
  * @property int $number_current_web_users
  * @property int $number_clients
  * @property int $number_current_clients
+ * @property int $number_credit_transactions
+ * @property int $number_top_ups
+ * @property int $number_top_ups_status_in_process
+ * @property int $number_top_ups_status_success
+ * @property int $number_top_ups_status_fail
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\CRM\Customer $customer

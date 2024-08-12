@@ -102,7 +102,7 @@ class IndexJobPositions extends OrgAction
                 }
             );
 
-            $table->withLabelRecord(__('responsibility'), __('responsibilities'));
+            $table->withLabelRecord([__('responsibility'), __('responsibilities')]);
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()

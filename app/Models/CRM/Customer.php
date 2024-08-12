@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
+use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Asset;
@@ -103,6 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
+ * @property-read Collection<int, CreditTransaction> $creditTransactions
  * @property-read Address|null $deliveryAddress
  * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
@@ -361,4 +363,8 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(Transaction::class);
     }
 
+    public function creditTransactions(): HasMany
+    {
+        return $this->hasMany(CreditTransaction::class);
+    }
 }

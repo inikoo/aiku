@@ -148,7 +148,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                 ->where('Order Key', $order->source_id)
                 ->get() as $auroraData
         ) {
-            $payment = $this->parsePayment($organisationSource, $auroraData->{'Payment Key'});
+            $payment = $this->parseOrderPayment($organisationSource, $auroraData->{'Payment Key'});
 
 
             if (!in_array($payment->id, $paymentsToDelete)) {
@@ -168,7 +168,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     }
 
 
-    public function parsePayment($organisationSource, $source_id): Payment
+    public function parseOrderPayment($organisationSource, $source_id): Payment
     {
         $payment = Payment::withTrashed()->where('source_id', $source_id)->first();
         if (!$payment) {

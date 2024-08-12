@@ -186,7 +186,7 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), shortLabel: 'PR/N', canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
 
 

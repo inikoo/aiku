@@ -17,14 +17,15 @@ return new class () extends Migration {
     {
         Schema::create('credit_transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->unsignedInteger('top_up_id')->index()->nullable();
             $table->foreign('top_up_id')->references('id')->on('top_ups');
-
+            $table->unsignedInteger('payment_id')->index()->nullable();
+            $table->foreign('payment_id')->references('id')->on('payments');
             $table->string('type')->index();
             $table->dateTimeTz('date')->index();
             $table->decimal('amount', 16, 2);
@@ -35,12 +36,10 @@ return new class () extends Migration {
             $table->decimal('org_exchange', 16, 4)->default(1);
             $table->decimal('grp_amount', 16)->default(0);
             $table->decimal('org_amount', 16)->default(0);
-
-
-
+            $table->string('notes')->nullable();
+            $table->jsonb('data');
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
-
         });
     }
 

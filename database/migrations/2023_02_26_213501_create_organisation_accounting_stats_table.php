@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasCreditsStats;
 use App\Stubs\Migrations\HasPaymentStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasPaymentStats;
+    use HasCreditsStats;
 
     public function up(): void
     {
@@ -23,7 +25,8 @@ return new class () extends Migration {
             $table = $this->paymentServiceProviderStats($table);
             $table = $this->paymentAccountStats($table);
             $table = $this->paymentStats($table);
-
+            $table =$this->getCreditTransactionsStats($table);
+            $table =$this->getTopUpsStats($table);
             $table->timestampsTz();
         });
     }
