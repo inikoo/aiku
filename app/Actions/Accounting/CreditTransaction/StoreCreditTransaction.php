@@ -27,31 +27,36 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->shop_id);
         data_set($modelData, 'currency_id', $customer->shop->currency_id);
-        data_set($modelData, 'date', now(), overwrite:false);
+        data_set($modelData, 'date', now(), overwrite: false);
 
-        $creditTransaction=$customer->creditTransactions()->create($modelData);
+        $modelData = $this->processExchanges($modelData, $customer->shop, 'amount');
+
+        $creditTransaction = $customer->creditTransactions()->create($modelData);
 
         CustomerHydrateCreditTransactions::run($customer);
 
         return $creditTransaction;
-
     }
 
     public function rules(): array
     {
         return [
-            'amount'           => ['required', 'numeric'],
-            'date'             => ['sometimes', 'date'],
-            'type'             => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
-            'source_id'        => ['sometimes', 'string'],
-            'payment_id'       => ['sometimes', 'nullable',
-                                        Rule::exists('payments', 'id')
-                                                ->where('shop_id', $this->shop->id)
-                                    ],
-            'top_up_id'           => ['sometimes', 'nullable',
-                                        Rule::exists('top_ups', 'id')
-                                                ->where('shop_id', $this->shop->id)
-                                    ]
+            'amount'     => ['required', 'numeric'],
+            'date'       => ['sometimes', 'date'],
+            'type'       => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
+            'source_id'  => ['sometimes', 'string'],
+            'payment_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('payments', 'id')
+                    ->where('shop_id', $this->shop->id)
+            ],
+            'top_up_id'  => [
+                'sometimes',
+                'nullable',
+                Rule::exists('top_ups', 'id')
+                    ->where('shop_id', $this->shop->id)
+            ]
         ];
     }
 
@@ -59,6 +64,7 @@ class StoreCreditTransaction extends OrgAction
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
+
         return $this->handle($customer, $modelData);
     }
 }

@@ -22,8 +22,6 @@ class FetchAuroraCredits extends FetchAuroraAction
     {
         if ($creditData = $organisationSource->fetchCredit($organisationSourceId)) {
 
-            print_r($creditData);
-
             if ($creditTransaction = CreditTransaction::where('source_id', $creditData['credit']['source_id'])->first()) {
                 $creditTransaction = UpdateCreditTransaction::make()->action(
                     creditTransaction: $creditTransaction,
