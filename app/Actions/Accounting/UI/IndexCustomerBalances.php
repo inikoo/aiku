@@ -7,22 +7,16 @@
 
 namespace App\Actions\Accounting\UI;
 
-use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\CustomerBalancesResource;
-use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -97,7 +91,7 @@ class IndexCustomerBalances extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                []
+                    []
                 )
                 ->column(key: 'name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'balance', label: __('balance'), canBeHidden: false, sortable: true, searchable: true)

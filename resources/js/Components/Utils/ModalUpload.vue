@@ -9,12 +9,16 @@ import { faFileDownload, faDownload, faTimesCircle, faCheckCircle } from '@fas'
 import { faInfoCircle } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import axios from 'axios'
+import { Upload } from '@/types/Upload'
+
+
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { UploadPallet } from '@/types/Pallet'
 import { Link, router } from "@inertiajs/vue3"
 import { useEchoGrpPersonal } from '@/Stores/echo-grp-personal'
 import Papa from 'papaparse'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { notify } from '@kyvg/vue3-notification'
 library.add(falFile, faTimes, faTimesCircle, faCheckCircle, faFileDownload, faDownload, faInfoCircle)
 
 
@@ -25,7 +29,7 @@ const props = defineProps<{
         information?: string
     }
     additionalDataToSend?: string[]
-    upload_spreadsheet: UploadPallet
+    upload_spreadsheet?: Upload
 }>()
 
 const model = defineModel()
@@ -72,6 +76,14 @@ const onUploadFile = async (fileUploaded: File) => {
 
 // Method: submit the selected file to server
 const submitUpload = async () => {
+    if (!props.upload_spreadsheet?.route?.upload?.name) {
+        notify({
+            title: 'Something went wrong.',
+            text: 'Route is not set yet.',
+            type: 'error',
+        })
+        return 
+    }
     isDraggedFile.value = false
     errorMessage.value = null
     isLoadingUpload.value = true

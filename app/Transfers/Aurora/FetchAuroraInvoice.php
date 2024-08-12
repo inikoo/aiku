@@ -66,7 +66,6 @@ class FetchAuroraInvoice extends FetchAurora
             'created_at'       => $this->auroraModelData->{'Invoice Date'},
             'date'             => $this->auroraModelData->{'Invoice Date'},
             'tax_liability_at' => $taxLiabilityAt,
-            'exchange'         => $this->auroraModelData->{'Invoice Currency Exchange'},
 
             'org_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
             'grp_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),

@@ -111,6 +111,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, Collection> $collections
+ * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
@@ -165,6 +166,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
