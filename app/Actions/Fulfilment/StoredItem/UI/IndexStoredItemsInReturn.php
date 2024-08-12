@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -31,7 +32,27 @@ class IndexStoredItemsInReturn extends OrgAction
     private bool $selectStoredPallets = false;
 
 
-    public function handle(Fulfilment|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
+    protected function getElementGroups(PalletReturn $palletReturn): array
+    {
+        return [
+            'option' => [
+                'label'    => __('Option'),
+                'elements' => array_merge_recursive(
+                    StoredItemInReturnOptionEnum::labels(),
+                    StoredItemInReturnOptionEnum::count()
+                ),
+                'engine' => function ($query, $elements) use ($palletReturn) {
+                    if(in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
+                        $query->whereHas('palletReturns', function ($query) use ($palletReturn) {
+                            $query->where('pallet_return_id', $palletReturn->id);
+                        });
+                    }
+                }
+            ],
+        ];
+    }
+
+    public function handle(PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,25 +60,31 @@ class IndexStoredItemsInReturn extends OrgAction
             });
         });
 
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         $queryBuilder = QueryBuilder::for(StoredItem::class);
 
         // $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
 
         $queryBuilder->with('pallets');
+        $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->fulfilment_customer_id);
 
-        if($parent instanceof FulfilmentCustomer) {
-            $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
-        }
-
-        if($parent instanceof Fulfilment) {
-            $queryBuilder->where('stored_items.fulfilment_id', $parent->id);
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
         }
 
         $queryBuilder->defaultSort('stored_items.id');
 
-        return $queryBuilder->allowedSorts(['code','price','name','state'])
+        return $queryBuilder->allowedSorts(['reference', 'code','price','name','state'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator(null)
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
@@ -71,14 +98,21 @@ class IndexStoredItemsInReturn extends OrgAction
             }
 
             $emptyStateData = [
-                'icons' => ['fal fa-pallet'],
+                /*'icons' => ['fal fa-pallet'],
                 'title' => '',
                 'count' => match (class_basename($palletReturn)) {
                     'FulfilmentCustomer' => $palletReturn->number_stored_items,
                     default              => $palletReturn->stats->number_stored_items
-                }
+                }*/
             ];
 
+            foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             if ($palletReturn instanceof Fulfilment) {
                 $emptyStateData['description'] = __("There is no stored items this fulfilment shop");

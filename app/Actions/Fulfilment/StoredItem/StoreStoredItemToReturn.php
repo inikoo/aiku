@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Console\Command;
@@ -31,7 +32,6 @@ class StoreStoredItemToReturn extends OrgAction
     {
         $storedItemModels = Arr::get($modelData, 'stored_items');
         $currentQuantity  = 0;
-        $selectedPallets  = [];
 
         $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('id', array_keys($storedItemModels))->get();
         foreach ($storedItems as $value) {
@@ -47,21 +47,16 @@ class StoreStoredItemToReturn extends OrgAction
 
                 if ($palletStoredItemQty <= $remainingQuantity) {
                     $currentQuantity += $palletStoredItemQty;
-                    $selectedPallets[] = $pallet;
                 } else {
                     $partialPallet           = clone $pallet;
                     $partialPallet->quantity = $remainingQuantity;
                     $currentQuantity += $remainingQuantity;
-                    $selectedPallets[] = $partialPallet;
                 }
 
+                $this->attach($palletReturn, $pallet, $value, $currentQuantity);
+
                 if ($currentQuantity == $requiredQuantity) {
-                    $palletReturn->storedItems()->attach($value, [
-                        'pallet_id'             => $pallet->id,
-                        'pallet_stored_item_id' => $pallet->pivot->id,
-                        'quantity_ordered'      => $currentQuantity,
-                        'type'                  => 'StoredItem'
-                    ]);
+                    break;
                 }
             }
         }
@@ -71,6 +66,16 @@ class StoreStoredItemToReturn extends OrgAction
         PalletReturnHydratePallets::run($palletReturn);
 
         return $palletReturn;
+    }
+
+    public function attach(PalletReturn $palletReturn, Pallet $pallet, $value, $currentQuantity): void
+    {
+        $palletReturn->storedItems()->attach($value->id, [
+            'pallet_id'             => $pallet->id,
+            'pallet_stored_item_id' => $pallet->pivot->id,
+            'quantity_ordered'      => $currentQuantity,
+            'type'                  => 'StoredItem'
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool
