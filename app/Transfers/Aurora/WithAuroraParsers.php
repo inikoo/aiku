@@ -583,7 +583,8 @@ trait WithAuroraParsers
     {
         $payment = Payment::withTrashed()->where('source_id', $sourceId)->first();
         if (!$payment) {
-            $payment = FetchAuroraPayments::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $payment    = FetchAuroraPayments::run($this->organisationSource, $sourceData[1]);
         }
 
         return $payment;

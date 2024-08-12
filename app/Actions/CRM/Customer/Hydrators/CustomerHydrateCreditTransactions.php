@@ -30,12 +30,11 @@ class CustomerHydrateCreditTransactions
 
     public function handle(Customer $customer): void
     {
-        $balance = 0;
+        $balance            = 0;
         $creditTransactions = $customer->creditTransactions()
         ->orderBy('date', 'asc')
         ->get();
-        foreach($creditTransactions as $creditTransaction)
-        {
+        foreach($creditTransactions as $creditTransaction) {
             $balance += $creditTransaction->amount;
             $this->update($creditTransaction, [
                 'running_amount' => $balance

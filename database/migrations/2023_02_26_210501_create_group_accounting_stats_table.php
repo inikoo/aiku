@@ -6,6 +6,7 @@
  */
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Stubs\Migrations\HasCreditsStats;
 use App\Stubs\Migrations\HasPaymentStats;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasPaymentStats;
     use HasSalesStats;
+    use HasCreditsStats;
 
     public function up(): void
     {
@@ -32,8 +34,9 @@ return new class () extends Migration {
                 $table = $this->paymentServiceProviderStats($table);
                 $table = $this->paymentAccountStats($table);
                 $table = $this->paymentStats($table);
-
-                $table=$this->invoicesStatsFields($table);
+                $table =$this->invoicesStatsFields($table);
+                $table =$this->getCreditTransactionsStats($table);
+                $table =$this->getTopUpsStats($table);
 
                 $table->timestampsTz();
             });

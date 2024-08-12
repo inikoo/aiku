@@ -42,7 +42,12 @@ class StoreCreditTransaction extends OrgAction
 
         data_set($modelData, 'running_amount', $newRunningAmount );
 
-        $customer->creditTransactions()->create($modelData);
+        $modelData = $this->processExchanges($modelData, $customer->shop, 'amount');
+
+        /** @var CreditTransaction $creditTransaction */
+        $creditTransaction=$customer->creditTransactions()->create($modelData);
+        return $creditTransaction;
+
     }
 
     public function rules()

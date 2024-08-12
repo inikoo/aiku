@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 
 trait WithOrderExchanges
 {
-    protected function processExchanges($modelData, $shop)
+    protected function processExchanges($modelData, $shop, $field='net_amount'): array
     {
         if (!Arr::exists($modelData, 'org_exchange')) {
             $orgExchange = GetCurrencyExchange::run($shop->currency, $shop->organisation->currency);
