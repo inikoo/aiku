@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
+use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -42,7 +43,7 @@ class CustomerHydrateCreditTransactions
         }
         data_set($modelData, 'balance', $balance);
 
-        $this->update($customer, $modelData);
+        UpdateCustomer::make()->action($customer, $modelData);
     }
 
 
