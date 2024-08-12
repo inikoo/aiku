@@ -61,7 +61,9 @@ const component = computed(() => {
     return components[currentTab.value]
 })
 
-console.log(props)
+// Section 'Consolidate Now'
+const isLoading = ref(false)
+
 </script>
 
 
@@ -102,9 +104,11 @@ console.log(props)
                     v-if="compareAsc(new Date(timeline_rb.end_date), new Date()) === 1 && status_rb === 'current'" class=""
                     :is="consolidateRoute?.name ? Link : 'div'"
                     :href="consolidateRoute?.name ? route(consolidateRoute.name, consolidateRoute.parameters) : '#'"
+                    @start="() => isLoading = true"
+                    @finish="() => isLoading = false"
                     :method="consolidateRoute?.method"
                 >
-                    <Button label="Consolidate now" />
+                    <Button label="Consolidate now" :loading="isLoading" />
                 </component>
             </div>
             
