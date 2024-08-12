@@ -52,6 +52,14 @@ class StoreCreditTransaction extends OrgAction
             'date'             => ['sometimes', 'date'],
             'type'             => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
             'source_id'        => ['sometimes', 'string'],
+            'payment_id'       => ['sometimes', 'nullable', 
+                                        Rule::exists('payments', 'id')
+                                                ->where('shop_id', $this->shop->id)
+                                    ],
+            'top_up_id'           => ['sometimes', 'nullable',
+                                        Rule::exists('top_ups', 'id')
+                                                ->where('shop_id', $this->shop->id)
+                                    ]
         ];
     }
 
