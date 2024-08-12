@@ -56,7 +56,7 @@ const component = computed(() => {
                 <div class="font-semibold capitalize">{{ status_rb }}</div>
             </div>
         </div>
-        <div class="py-1 px-3">
+        <div class="py-1 px-3 flex items-center">
             <StartEndDate :startDate="timeline_rb.start_date" :endDate="timeline_rb.end_date" />
         </div>
     </div>

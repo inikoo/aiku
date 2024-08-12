@@ -198,6 +198,13 @@ class ShowInvoice extends OrgAction
                         // 'address'      => AddressResource::collection($invoice->customer->addresses),
                     ],
                     'information' => [
+                        'recurring_bill'    => [
+                            'reference'     => '#urfjkd3',  // TODO: should dynamic
+                            'route'         => [
+                                'name'      => 'grp.org.shops.index',  // TODO: should correct route
+                                'parameters'=> ['aw'],  // TODO: should correct route
+                            ],
+                        ],
                         'routes' => [
                             'payment_accounts' => [
                                 'name'       => 'grp.json.shop.payment-accounts',
