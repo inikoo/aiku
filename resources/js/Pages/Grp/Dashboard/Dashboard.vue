@@ -274,10 +274,10 @@ const options = {
                                     <!-- Column: Sales -->
                                     <td class="overflow-hidden text-sm text-gray-500 table-cell text-right">
                                         <div class="w-32">
-                                            {{ locale.number(org.interval_percentages?.sales?.amount || 0) }}
-                                            <!-- {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
+                                            <!-- {{ locale.number(org.interval_percentages?.sales?.amount || 0) }} -->
+                                            {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
                                             org.currency.code : groupStats.currency.code , get(org, ['sales',
-                                            `org_amount_${selectedDateOption}`], 0)) }} -->
+                                            `org_amount_${selectedDateOption}`], 0)) }}
                                         </div>
 
                                         <!-- <Transition name="spin-to-down" mode="out-in">
@@ -348,10 +348,10 @@ const options = {
 
 
 
-            <div class="mt-10">
-                <div class="w-fit font-semibold py-1 mb-1">Organisation by sales</div>
-                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300">
-                    <div class="w-48">
+            <div class="mt-10 w-1/2 flex gap-x-4">
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
+                    <div class="w-24">
                         <Pie :data="{
                             labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
                             datasets: [{
@@ -360,14 +360,54 @@ const options = {
                             }]
                         }" :options="options" />
                     </div>
-                    <div class="flex flex-col justify-between ">
+                    <!-- <div class="flex flex-col justify-between ">
                         <template v-for="org in groupStats.organisations">
                             <div v-if="org.type !== 'agent'" class="space-x-2">
-                                <span class="text-lg">{{ org.name }}:</span>
+                                <span class="text-lg">{{ org.code }}:</span>
                                 <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
                             </div>
                         </template>
+                    </div> -->
+                </div>
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
+                    <div class="w-24">
+                        <Pie :data="{
+                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                            datasets: [{
+                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                                hoverOffset: 4
+                            }]
+                        }" :options="options" />
                     </div>
+                    <!-- <div class="flex flex-col justify-between ">
+                        <template v-for="org in groupStats.organisations">
+                            <div v-if="org.type !== 'agent'" class="space-x-2">
+                                <span class="text-lg">{{ org.code }}:</span>
+                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            </div>
+                        </template>
+                    </div> -->
+                </div>
+                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
+                    <div class="w-24">
+                        <Pie :data="{
+                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                            datasets: [{
+                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                                hoverOffset: 4
+                            }]
+                        }" :options="options" />
+                    </div>
+                    <!-- <div class="flex flex-col justify-between ">
+                        <template v-for="org in groupStats.organisations">
+                            <div v-if="org.type !== 'agent'" class="space-x-2">
+                                <span class="text-lg">{{ org.code }}:</span>
+                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            </div>
+                        </template>
+                    </div> -->
                 </div>
             </div>
         </div>

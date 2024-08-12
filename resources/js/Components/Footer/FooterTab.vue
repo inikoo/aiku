@@ -43,7 +43,7 @@ const onPinTab = () => {
             :style="{
                 //background: `color-mix(in srgb, ${layout?.app?.theme[0]} 10%, white)`,
                 background: '#000',
-                color: `color-mix(in srgb, ${layout?.app?.theme[1]} 30%, black)`
+                color: `#fff`
             }"
         >
             <div class="flex flex-col justify-center text-center pt-0.5 pb-3 gap-y-1">
