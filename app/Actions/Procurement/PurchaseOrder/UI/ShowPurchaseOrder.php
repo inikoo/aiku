@@ -60,7 +60,7 @@ class ShowPurchaseOrder extends InertiaAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('warehouse')
                         ],
-                    'title' => $this->purchaseOrder->number,
+                    'title' => $this->purchaseOrder->reference,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -114,7 +114,7 @@ class ShowPurchaseOrder extends InertiaAction
                                 'name'       => 'grp.org.procurement.purchase_orders.show',
                                 'parameters' => [$purchaseOrder->slug]
                             ],
-                            'label' => $purchaseOrder->number,
+                            'label' => $purchaseOrder->reference,
                         ],
                     ],
                     'suffix' => $suffix,
@@ -145,7 +145,7 @@ class ShowPurchaseOrder extends InertiaAction
 
         return match ($routeName) {
             'grp.org.procurement.purchase_orders.show'=> [
-                'label'=> $purchaseOrder->number,
+                'label'=> $purchaseOrder->reference,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

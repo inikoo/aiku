@@ -78,7 +78,7 @@ class StorePurchaseOrder extends OrgAction
     public function rules(): array
     {
         return [
-            'number'          => [
+            'reference'          => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',

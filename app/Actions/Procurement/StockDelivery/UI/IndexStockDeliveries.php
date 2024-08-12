@@ -28,7 +28,7 @@ class IndexStockDeliveries extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('stock_deliveries.number', 'ILIKE', "$value%");
+                $query->where('stock_deliveries.reference', 'ILIKE', "$value%");
             });
         });
 
@@ -37,9 +37,9 @@ class IndexStockDeliveries extends InertiaAction
         }
 
         return QueryBuilder::for(StockDelivery::class)
-            ->defaultSort('stock_deliveries.number')
-            ->select(['slug', 'number'])
-            ->allowedSorts(['number'])
+            ->defaultSort('stock_deliveries.reference')
+            ->select(['slug', 'reference'])
+            ->allowedSorts(['reference'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -56,8 +56,8 @@ class IndexStockDeliveries extends InertiaAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('number');
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('reference');
         };
     }
 

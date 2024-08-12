@@ -32,9 +32,9 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(number)="{ item: purchaseOrderItem }">
+        <template #cell(reference)="{ item: purchaseOrderItem }">
             <Link :href="PurchaseOrderRoute(purchaseOrderItem)">
-                {{ purchaseOrderItem['number'] }}
+                {{ purchaseOrderItem['reference'] }}
             </Link>
         </template>
         <template #cell(name)="{ item: purchaseOrderItem }">

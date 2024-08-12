@@ -7,8 +7,11 @@
 
 namespace App\Actions\Accounting\CreditTransaction;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCreditTransactions;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateCreditTransactions;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCreditTransactions;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCreditTransactions;
 use App\Models\Accounting\CreditTransaction;
 
 class DeleteCreditTransaction extends OrgAction
@@ -19,6 +22,9 @@ class DeleteCreditTransaction extends OrgAction
         $creditTransaction->delete();
 
         CustomerHydrateCreditTransactions::run($customer);
+        ShopHydrateCreditTransactions::dispatch($creditTransaction->shop);
+        OrganisationHydrateCreditTransactions::dispatch($creditTransaction->organisation);
+        GroupHydrateCreditTransactions::dispatch($creditTransaction->group);
     }
 
     public function action(CreditTransaction $creditTransaction): void

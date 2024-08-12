@@ -605,11 +605,10 @@ watch(() => props.name, () => {
 
 const selectRow: {[key: string]: boolean} = reactive({...props.selectedRow})
 
-console.log(props.selectedRow)
 // To preserve the object selectRow
 if (props.isCheckBox) {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = false
+        selectRow[props.resource.data[row].id] = selectRow[props.resource.data[row].id] ? true : false
     }
 }
 

@@ -40,9 +40,9 @@ const formatDate = (dateIso: Date) => {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(number)="{ item: purchaseOrder }">
+        <template #cell(reference)="{ item: purchaseOrder }">
             <Link :href="PurchaseOrderRoute(purchaseOrder)">
-                {{ purchaseOrder['number'] }}
+                {{ purchaseOrder['reference'] }}
             </Link>
         </template>
         <template #cell(date)="{ item: purchaseOrder }">

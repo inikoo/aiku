@@ -91,7 +91,7 @@ class ShowStockDelivery extends InertiaAction
                                 'name'       => 'grp.org.procurement.stock_deliveries.show',
                                 'parameters' => [$stockDelivery->slug]
                             ],
-                            'label' => $stockDelivery->number,
+                            'label' => $stockDelivery->reference,
                         ],
                     ],
                     'suffix' => $suffix,
@@ -121,7 +121,7 @@ class ShowStockDelivery extends InertiaAction
         }
         return match ($routeName) {
             'grp.org.procurement.stock_deliveries.show'=> [
-                'label'=> $stockDelivery->number,
+                'label'=> $stockDelivery->reference,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

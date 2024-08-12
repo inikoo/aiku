@@ -7,8 +7,11 @@
 
 namespace App\Actions\Accounting\CreditTransaction;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCreditTransactions;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateCreditTransactions;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCreditTransactions;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCreditTransactions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Models\Accounting\CreditTransaction;
@@ -34,6 +37,9 @@ class StoreCreditTransaction extends OrgAction
         $creditTransaction = $customer->creditTransactions()->create($modelData);
 
         CustomerHydrateCreditTransactions::run($customer);
+        ShopHydrateCreditTransactions::dispatch($creditTransaction->shop);
+        OrganisationHydrateCreditTransactions::dispatch($creditTransaction->organisation);
+        GroupHydrateCreditTransactions::dispatch($creditTransaction->group);
 
         return $creditTransaction;
     }
