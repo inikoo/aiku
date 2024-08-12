@@ -9,6 +9,7 @@ namespace App\Actions\Accounting\CreditTransaction;
 
 use AlibabaCloud\SDK\Dm\V20151123\Models\GetIpfilterListResponseBody\data;
 use App\Actions\OrgAction;
+use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
@@ -16,6 +17,7 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCreditTransaction extends OrgAction
@@ -28,7 +30,7 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->shop_id);
         data_set($modelData, 'currency_id', $customer->shop->currency_id);
-        data_set($modelData, 'date', now());
+        data_set($modelData, 'date', now(), overwrite:false);
 
         $amount = Arr::get($modelData, 'amount');
         $latestCreditTransaction = $customer->creditTransactions()
@@ -41,6 +43,16 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'running_amount', $newRunningAmount );
 
         $customer->creditTransactions()->create($modelData);
+    }
+
+    public function rules()
+    {
+        return [
+            'amount'           => ['required', 'numeric'],
+            'date'             => ['sometimes', 'date'],
+            'type'             => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
+            'source_id'        => ['sometimes', 'string'],
+        ];
     }
 
     public function action(Customer $customer, $modelData): void
