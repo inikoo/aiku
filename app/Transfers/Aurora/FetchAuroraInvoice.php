@@ -58,10 +58,10 @@ class FetchAuroraInvoice extends FetchAurora
             $taxLiabilityAt = $this->auroraModelData->{'Invoice Date'};
         }
 
-        $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Invoice Tax Category Key'});
+        $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Invoice Tax Category Key'});
 
         $this->parsedData['invoice'] = [
-            'number'           => $this->auroraModelData->{'Invoice Public ID'},
+            'reference'        => $this->auroraModelData->{'Invoice Public ID'},
             'type'             => strtolower($this->auroraModelData->{'Invoice Type'}),
             'created_at'       => $this->auroraModelData->{'Invoice Date'},
             'date'             => $this->auroraModelData->{'Invoice Date'},
@@ -72,11 +72,11 @@ class FetchAuroraInvoice extends FetchAurora
             'grp_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
 
 
-            'gross_amount'       => $this->auroraModelData->{'Invoice Items Gross Amount'},
-            'goods_amount'       => $this->auroraModelData->{'Invoice Items Net Amount'},
-            'shipping_amount'    => $this->auroraModelData->{'Invoice Shipping Net Amount'},
-            'charges_amount'     => $this->auroraModelData->{'Invoice Charges Net Amount'},
-            'insurance_amount'   => $this->auroraModelData->{'Invoice Insurance Net Amount'},
+            'gross_amount'     => $this->auroraModelData->{'Invoice Items Gross Amount'},
+            'goods_amount'     => $this->auroraModelData->{'Invoice Items Net Amount'},
+            'shipping_amount'  => $this->auroraModelData->{'Invoice Shipping Net Amount'},
+            'charges_amount'   => $this->auroraModelData->{'Invoice Charges Net Amount'},
+            'insurance_amount' => $this->auroraModelData->{'Invoice Insurance Net Amount'},
 
             'net_amount' => $this->auroraModelData->{'Invoice Total Net Amount'},
             'tax_amount' => $this->auroraModelData->{'Invoice Total Tax Amount'},

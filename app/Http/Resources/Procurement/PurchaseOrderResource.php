@@ -30,7 +30,7 @@ class PurchaseOrderResource extends JsonResource
 
 
         return [
-            'number'     => $purchaseOrder->number,
+            'number'     => $purchaseOrder->reference,
             'slug'       => $purchaseOrder->slug,
             'date'       => $purchaseOrder->date,
             'created_at' => $purchaseOrder->created_at,

@@ -629,13 +629,21 @@ class ShowPalletReturn extends OrgAction
                     ]
                 ],
 
+                'route_check_stored_items'   => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.pallet-return.stored_item.store',
+                    'parameters' => [
+                        $palletReturn->id
+                    ]
+                ],
+
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))
                     : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletsInReturn::run($palletReturn))),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
-                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn->fulfilmentCustomer)) //todo idk if this is right
-                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn->fulfilmentCustomer))), //todo idk if this is right
+                    fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
+                    : Inertia::lazy(fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value))), //todo idk if this is right
 
                 PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
                     fn () => FulfilmentTransactionsResource::collection(IndexServiceInPalletReturn::run($palletReturn))
@@ -655,24 +663,7 @@ class ShowPalletReturn extends OrgAction
             IndexStoredItemsInReturn::make()->tableStructure(
                 $palletReturn,
                 request: $request,
-                prefix: PalletReturnTabsEnum::STORED_ITEMS->value,
-                modelOperations: [
-                    'createLink' => [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Save'),
-                            'label'   => __('Save'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.pallet-return.stored_item.store',
-                                'parameters' => [
-                                    $palletReturn->organisation->id
-                                ]
-                            ]
-                        ]
-                    ]
-                ],
+                prefix: PalletReturnTabsEnum::STORED_ITEMS->value
             )
         )->table(
             IndexServiceInPalletReturn::make()->tableStructure(

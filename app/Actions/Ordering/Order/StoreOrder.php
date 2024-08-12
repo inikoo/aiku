@@ -151,7 +151,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'number'          => [
+            'reference'          => [
                 'required',
                 'max:64',
                 'string',
@@ -162,16 +162,16 @@ class StoreOrder extends OrgAction
                     ]
                 ),
             ],
-            'date'            => ['required', 'date'],
-            'submitted_at'    => ['sometimes', 'nullable', 'date'],
-            'in_warehouse_at' => ['sometimes', 'nullable', 'date'],
-            'packed_at'       => ['sometimes', 'nullable', 'date'],
-            'finalised_at'    => ['sometimes', 'nullable', 'date'],
-            'dispatched_at'   => ['sometimes', 'nullable', 'date'],
-            'customer_number' => ['sometimes', 'string', 'max:64'],
-            'state'           => ['sometimes', Rule::enum(OrderStateEnum::class)],
-            'status'          => ['sometimes', Rule::enum(OrderStatusEnum::class)],
-            'handing_type'    => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
+            'date'               => ['required', 'date'],
+            'submitted_at'       => ['sometimes', 'nullable', 'date'],
+            'in_warehouse_at'    => ['sometimes', 'nullable', 'date'],
+            'packed_at'          => ['sometimes', 'nullable', 'date'],
+            'finalised_at'       => ['sometimes', 'nullable', 'date'],
+            'dispatched_at'      => ['sometimes', 'nullable', 'date'],
+            'customer_reference' => ['sometimes', 'string', 'max:64'],
+            'state'              => ['sometimes', Rule::enum(OrderStateEnum::class)],
+            'status'             => ['sometimes', Rule::enum(OrderStatusEnum::class)],
+            'handing_type'       => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
 
             'created_at'   => ['sometimes', 'required', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],
@@ -188,7 +188,7 @@ class StoreOrder extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['number'] = ['sometimes', 'string', 'max:64'];
+            $rules['reference'] = ['sometimes', 'string', 'max:64'];
 
             $rules['grp_exchange'] = ['sometimes', 'numeric'];
             $rules['org_exchange'] = ['sometimes', 'numeric'];

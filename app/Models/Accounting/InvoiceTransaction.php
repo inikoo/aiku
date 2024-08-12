@@ -39,10 +39,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $gross_amount
  * @property string $net_amount
  * @property int $tax_category_id
- * @property string $grp_exchange
- * @property string $org_exchange
- * @property string $grp_net_amount
- * @property string $org_net_amount
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

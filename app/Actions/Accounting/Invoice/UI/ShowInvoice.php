@@ -120,10 +120,10 @@ class ShowInvoice extends OrgAction
                 ],
                 'pageHead'             => [
                     'model' => __('invoice'),
-                    'title' => $invoice->number,
+                    'title' => $invoice->reference,
                     'icon'  => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                        'title' => $invoice->number
+                        'title' => $invoice->reference
                     ]
                 ],
                 'tabs'                 => [
@@ -256,7 +256,7 @@ class ShowInvoice extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $invoice->number,
+                            'label' => $invoice->reference,
                         ],
 
                     ],
@@ -333,18 +333,18 @@ class ShowInvoice extends OrgAction
 
     public function getPrevious(Invoice $invoice, ActionRequest $request): ?array
     {
-        $previous = Invoice::where('number', '<', $invoice->number)
+        $previous = Invoice::where('reference', '<', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
-            ->orderBy('number', 'desc')->first();
+            ->orderBy('reference', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Invoice $invoice, ActionRequest $request): ?array
     {
-        $next = Invoice::where('number', '>', $invoice->number)
+        $next = Invoice::where('reference', '>', $invoice->reference)
             ->where('invoices.shop_id', $invoice->shop_id)
-            ->orderBy('number')->first();
+            ->orderBy('reference')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
@@ -357,7 +357,7 @@ class ShowInvoice extends OrgAction
 
         return match ($routeName) {
             'grp.org.accounting.invoices.show' => [
-                'label' => $invoice->number,
+                'label' => $invoice->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
@@ -369,7 +369,7 @@ class ShowInvoice extends OrgAction
             ],
 
             'grp.org.fulfilments.show.operations.invoices.show' => [
-                'label' => $invoice->number,
+                'label' => $invoice->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
@@ -382,7 +382,7 @@ class ShowInvoice extends OrgAction
             ],
 
             'grp.org.fulfilments.show.crm.customers.show.invoices.show' => [
-                'label' => $invoice->number,
+                'label' => $invoice->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [

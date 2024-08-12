@@ -267,7 +267,7 @@ test('create invoice from customer', function () {
     $invoice = StoreInvoice::make()->action($this->customer, $invoiceData);
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($invoice->customer)->toBeInstanceOf(Customer::class)
-        ->and($invoice->number)->toBe('00001')
+        ->and($invoice->reference)->toBe('00001')
         ->and($invoice->customer->stats->number_invoices)->toBe(1);
 
     return $invoice;
@@ -275,23 +275,23 @@ test('create invoice from customer', function () {
 
 test('update invoice from customer', function ($invoice) {
     $invoice = UpdateInvoice::make()->action($invoice, [
-        'number' => '00001a'
+        'reference' => '00001a'
 
     ]);
-    expect($invoice->number)->toBe('00001a');
+    expect($invoice->reference)->toBe('00001a');
 })->depends('create invoice from customer');
 
 test('create invoice from order', function (Order $order) {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
-    data_set($invoiceData, 'number', '00002');
+    data_set($invoiceData, 'reference', '00002');
     $invoice  = StoreInvoice::make()->action($order, $invoiceData);
     $customer = $invoice->customer;
     $this->shop->refresh();
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->customer->id)->toBe($order->customer_id)
-        ->and($invoice->number)->toBe('00002')
+        ->and($invoice->reference)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
         ->and($this->shop->salesStats->number_invoices)->toBe(2);
 

@@ -84,7 +84,7 @@ class UpdateOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'number'           => [
+            'reference'           => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -104,7 +104,7 @@ class UpdateOrder extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['number'] = ['sometimes', 'string', 'max:64'];
+            $rules['reference'] = ['sometimes', 'string', 'max:64'];
         }
 
         return $rules;

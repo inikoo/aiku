@@ -1,36 +1,44 @@
-<!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
-  -->
-
 <script setup lang="ts">
 import Table from '@/Components/Table/Table.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
-import Icon from "@/Components/Icon.vue"
-import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
-import { Link, router } from "@inertiajs/vue3"
-import { notify } from "@kyvg/vue3-notification"
+import Icon from "@/Components/Icon.vue";
+import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
+import { Link, router } from "@inertiajs/vue3";
+import { notify } from "@kyvg/vue3-notification";
+import { Switch } from '@headlessui/vue';
 
 const props = defineProps<{
-    data?: {}
-    tab?: string
-    state: any
-    key: any
-}>()
+    data?: {};
+    tab?: string;
+    state: any;
+    key: any;
+    route_check_stored_items : routeType;
+}>();
 
-const isLoading = ref<string | boolean>(false)
-const selectedRow = ref({})
+console.log(props);
 
-const onShowSelected = (ButtonData) => {
-    const finalValue = {}
-    for (const row in selectedRow.value) {
-        if (selectedRow.value[row].checked) finalValue[row] = { quantity : selectedRow.value[row].data.quantity}
+const isLoading = ref<string | boolean>(false);
+const selectedRow = ref({});
+const _table = ref(null);
+
+const onShowSelected = () => {
+    const data = props.data.data;
+    const finalValue = {};
+
+    for (const rowId in selectedRow.value) {
+        if (selectedRow.value[rowId]) {
+            // Find the corresponding data entry by id
+            const tempData = data.find((item) => item.id == rowId);
+            if (tempData) {
+                // Add the selected item to the finalValue object
+                finalValue[rowId] = { quantity: tempData.quantity };
+            }
+        }
     }
 
-    router[ButtonData.route.method](
-        route(ButtonData.route.name, ButtonData.route.parameters),
+    router['post'](
+        route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),
         { stored_items: finalValue },
         {
             onSuccess: () => { },
@@ -39,22 +47,21 @@ const onShowSelected = (ButtonData) => {
                     title: 'Something went wrong.',
                     text: 'Failed to save',
                     type: 'error',
-                })
+                });
             }
-        })
-}
+        });
+};
+
+watch(selectedRow, () => {
+        onShowSelected();
+});
 
 </script>
 
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="true"
-        @onSelectRow="(value) => selectedRow = value">
+        @onSelectRow="(value) => selectedRow = value" ref="_table">
 
-        <template #button-save="{ linkButton: value }">
-            <div>
-                <Button label="Show Selected" @click="() => onShowSelected(value)" />
-            </div>
-        </template>
 
         <template #cell(reference)="{ item: value }">
             {{ value.reference }}
@@ -65,12 +72,11 @@ const onShowSelected = (ButtonData) => {
         </template>
 
         <template #cell(quantity)="{ item: item }">
-            <div class='w-full flex '>
+            <div class='w-full flex justify-end'>
                 <div class="flex w-32 justify-end">
-                    <PureInputNumber v-model="item.quantity" :maxValue="item.total_quantity" :minValue="1" />
+                    <PureInputNumber v-model="item.data.quantity" @update:modelValue="(e) => item.quantity = e" :maxValue="item.total_quantity" :minValue="1" />
                 </div>
             </div>
-
         </template>
 
         <!--  <template #cell(actions)="{ item: value }">

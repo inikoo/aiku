@@ -51,8 +51,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $customer_client_id
- * @property string|null $number
- * @property string|null $customer_number Customers own order number
+ * @property string|null $reference
+ * @property string|null $customer_reference Customers own order reference
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
  * @property OrderHandingTypeEnum $handing_type
@@ -77,8 +77,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
  * @property int $currency_id
- * @property string $grp_exchange
- * @property string $org_exchange
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property string $gross_amount Total asserts amount (excluding charges and shipping) before discounts
  * @property string $goods_amount
  * @property string $services_amount
@@ -86,8 +86,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $shipping_amount
  * @property string|null $insurance_amount
  * @property string $net_amount
- * @property string $grp_net_amount
- * @property string $org_net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
  * @property int $tax_category_id
  * @property string $tax_amount
  * @property string $total_amount
@@ -158,7 +158,7 @@ class Order extends Model implements HasMedia, Auditable
     }
 
     protected array $auditInclude = [
-        'number',
+        'reference',
         'handing_type',
     ];
 
@@ -171,7 +171,7 @@ class Order extends Model implements HasMedia, Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
     }

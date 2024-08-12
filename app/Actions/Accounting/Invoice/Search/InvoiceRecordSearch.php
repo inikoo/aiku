@@ -38,7 +38,8 @@ class InvoiceRecordSearch
             'customer_id'       => $invoice->customer_id,
             'customer_slug'     => $invoice->slug,
             'sections'          => ['accounting'],
-            'haystack_tier_1'   => $invoice->number,
+            'haystack_tier_1'   => $invoice->reference,
+            'keyword'           => $invoice->reference,
             'result'            => [
                 'route'     => [
                     'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
@@ -54,7 +55,7 @@ class InvoiceRecordSearch
                 'container' => [
                     'label' => $invoice->shop->name,
                 ],
-                'title'     => $invoice->number,
+                'title'     => $invoice->reference,
                 'icon'      => [
                     'icon' => 'fal fa-file-invoice-dollar',
                 ],
@@ -98,7 +99,7 @@ class InvoiceRecordSearch
                 'group_id'        => $invoice->group_id,
                 'organisation_id' => $invoice->organisation_id,
                 'customer_id'     => $invoice->customer_id,
-                'haystack_tier_1' => $invoice->number,
+                'haystack_tier_1' => $invoice->reference,
             ]
         );
     }

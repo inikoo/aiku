@@ -17,7 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  * @property string $state
  * @property string $shop_slug
- * @property string $number
+ * @property string $reference
  * @property string $total_amount
  * @property string $net_amount
  * @property mixed $date
@@ -37,13 +37,13 @@ class InvoicesResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'            => $this->slug,
-            'number'          => $this->number,
-            'total_amount'    => $this->total_amount,
-            'net_amount'      => $this->net_amount,
-            'state'           => $this->state,
-            'date'            => $this->date,
-            'type'            => [
+            'slug'               => $this->slug,
+            'reference'          => $this->reference,
+            'total_amount'       => $this->total_amount,
+            'net_amount'         => $this->net_amount,
+            'state'              => $this->state,
+            'date'               => $this->date,
+            'type'               => [
                 'label'      => $this->type->labels()[$this->type->value],
                 'icon'       => $this->type->typeIcon()[$this->type->value],
             ],
