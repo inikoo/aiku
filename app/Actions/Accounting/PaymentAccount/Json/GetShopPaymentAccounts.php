@@ -7,29 +7,19 @@
 
 namespace App\Actions\Accounting\PaymentAccount\Json;
 
-use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\OrgAction;
-use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
-use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
-use Inertia\Inertia;
-use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
 class GetShopPaymentAccounts extends OrgAction
 {
-
     public function handle(Shop $shop, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -78,7 +68,6 @@ class GetShopPaymentAccounts extends OrgAction
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($shop, $request);

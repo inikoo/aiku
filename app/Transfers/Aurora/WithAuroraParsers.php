@@ -256,22 +256,16 @@ trait WithAuroraParsers
     }
 
 
-
-
-
     public function parseHistoricAsset($organisation, $productKey): HistoricAsset|null
     {
-
-
         $historicAsset = HistoricAsset::where('source_id', $organisation->id.':'.$productKey)->first();
 
-        if($historicAsset) {
+        if ($historicAsset) {
             return $historicAsset;
         }
 
 
         return FetchAuroraHistoricAssets::run($this->organisationSource, $productKey);
-
     }
 
     public function parsePallet(string $sourceId): Pallet
@@ -291,7 +285,7 @@ trait WithAuroraParsers
         if (!$product) {
             $sourceData = explode(':', $sourceId);
 
-            $product    = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
+            $product = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $product;
@@ -300,12 +294,11 @@ trait WithAuroraParsers
 
     public function parseProduct(string $sourceId): ?Product
     {
-
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
 
-            $product    = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
+            $product = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $product;
@@ -346,7 +339,6 @@ trait WithAuroraParsers
     }
 
 
-
     public function parseCustomer(string $sourceId): ?Customer
     {
         if (!$sourceId) {
@@ -366,26 +358,27 @@ trait WithAuroraParsers
 
     public function parseSupplier($sourceSlug, $sourceID): ?Supplier
     {
-        $supplier= Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
+        $supplier = Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$supplier) {
             $sourceData = explode(':', $sourceID);
             $supplier   = FetchAuroraSuppliers::run($this->organisationSource, $sourceData[1]);
         }
+
         return $supplier;
     }
 
     public function parseAgent($sourceSlug, $sourceID): ?Agent
     {
-
-        if($sourceSlug=='awzesttex') {
-            $sourceSlug='awindia';
+        if ($sourceSlug == 'awzesttex') {
+            $sourceSlug = 'awindia';
         }
 
-        $agent= Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
+        $agent = Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$agent) {
             $sourceData = explode(':', $sourceID);
             $agent      = FetchAuroraAgents::run($this->organisationSource, $sourceData[1]);
         }
+
         return $agent;
     }
 
@@ -394,34 +387,30 @@ trait WithAuroraParsers
         $orgStock   = OrgStock::withTrashed()->where('source_id', $sourceId)->first();
         $sourceData = explode(':', $sourceId);
         if (!$orgStock) {
-
-            $res     = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
-            $orgStock=$res['orgStock'];
+            $res      = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
+            $orgStock = $res['orgStock'];
         }
 
         if (!$orgStock) {
-            $res     = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
-            $orgStock=$res['orgStock'];
-
+            $res      = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
+            $orgStock = $res['orgStock'];
         }
 
         return $orgStock;
     }
 
 
-
     public function parseStock($sourceId): ?Stock
     {
-
         $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
         $sourceData = explode(':', $sourceId);
         if (!$stock) {
-            $res  = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
-            $stock=$res['stock'];
+            $res   = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
+            $stock = $res['stock'];
         }
         if (!$stock) {
-            $res  = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
-            $stock=$res['stock'];
+            $res   = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
+            $stock = $res['stock'];
         }
 
         return $stock;
@@ -438,7 +427,7 @@ trait WithAuroraParsers
         return $location;
     }
 
-    public function parseOrder($sourceId, $forceTransactions=true): ?Order
+    public function parseOrder($sourceId, $forceTransactions = true): ?Order
     {
         if (!$sourceId) {
             return null;
@@ -446,9 +435,8 @@ trait WithAuroraParsers
 
         $order = Order::where('source_id', $sourceId)->first();
         if (!$order) {
-
-            $sourceData= explode(':', $sourceId);
-            $order     = FetchAuroraOrders::run($this->organisationSource, $sourceData[1], forceWithTransactions: $forceTransactions);
+            $sourceData = explode(':', $sourceId);
+            $order      = FetchAuroraOrders::run($this->organisationSource, $sourceData[1], forceWithTransactions: $forceTransactions);
         }
 
         return $order;
@@ -500,6 +488,7 @@ trait WithAuroraParsers
         if (!$employee) {
             $employee = FetchAuroraDeletedEmployees::run($this->organisationSource, $sourceId);
         }
+
         return $employee;
     }
 
@@ -518,7 +507,7 @@ trait WithAuroraParsers
     {
         $clockingMachine = ClockingMachine::where('source_id', $sourceId)->first();
         if (!$clockingMachine) {
-            $sourceData     = explode(':', $sourceId);
+            $sourceData = explode(':', $sourceId);
 
             $clockingMachine = FetchAuroraClockingMachines::run($this->organisationSource, $sourceData[1]);
         }
@@ -583,7 +572,8 @@ trait WithAuroraParsers
     {
         $payment = Payment::withTrashed()->where('source_id', $sourceId)->first();
         if (!$payment) {
-            $payment = FetchAuroraPayments::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $payment    = FetchAuroraPayments::run($this->organisationSource, $sourceData[1]);
         }
 
         return $payment;
@@ -811,17 +801,15 @@ trait WithAuroraParsers
 
     public function parseTaxCategory($auroraTaxCategoryId): TaxCategory
     {
-
-        $auroraTaxCategoryId=match ($auroraTaxCategoryId) {
-            25,30,38,39=>1,//Outside
-            27,28,29,42,43=>2,//EU_VTC
-            11,26,40,41=>3,//Exempt
+        $auroraTaxCategoryId = match ($auroraTaxCategoryId) {
+            25, 30, 38, 39 => 1,//Outside
+            27, 28, 29, 42, 43 => 2,//EU_VTC
+            11, 26, 40, 41 => 3,//Exempt
             default => $auroraTaxCategoryId
         };
 
         return TaxCategory::where('source_id', $auroraTaxCategoryId)
             ->firstOrFail();
-
     }
 
 }

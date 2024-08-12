@@ -129,4 +129,6 @@ interface SourceOrganisationService
 
     public function fetchCharge($id);
 
+    public function fetchCredit($id);
+
 }

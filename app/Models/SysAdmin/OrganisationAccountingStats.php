@@ -67,6 +67,11 @@ use Illuminate\Support\Carbon;
  * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
  * @property string $group_amount_successfully_paid
  * @property string $group_amount_refunded
+ * @property int $number_credit_transactions
+ * @property int $number_top_ups
+ * @property int $number_top_ups_status_in_process
+ * @property int $number_top_ups_status_success
+ * @property int $number_top_ups_status_fail
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
