@@ -122,6 +122,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read Country $country
+ * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
@@ -163,6 +164,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone
+ * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website

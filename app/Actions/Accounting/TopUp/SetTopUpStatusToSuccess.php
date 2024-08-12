@@ -14,7 +14,6 @@ use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Enums\Accounting\TopUp\TopUpStatusEnum;
 use App\Models\Accounting\TopUp;
 
-
 class SetTopUpStatusToSuccess extends OrgAction
 {
     use WithActionUpdate;

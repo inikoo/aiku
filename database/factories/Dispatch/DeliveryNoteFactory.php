@@ -11,18 +11,16 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class DeliveryNoteFactory extends Factory
 {
-
     public function definition(): array
     {
         return [
             'reference' => fake()->numberBetween(100, 999),
-            'state'  => DeliveryNoteStateEnum::PACKING,
-            'status' => DeliveryNoteStatusEnum::HANDLING,
-            'email'  => fake()->email,
-            'date'   => fake()->date
+            'state'     => DeliveryNoteStateEnum::PACKING,
+            'status'    => DeliveryNoteStatusEnum::HANDLING,
+            'email'     => fake()->email,
+            'date'      => fake()->date
         ];
     }
 }

@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('number')->index();
+            $table->string('reference')->index();
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();

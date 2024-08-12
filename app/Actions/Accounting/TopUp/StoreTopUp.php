@@ -7,14 +7,12 @@
 
 namespace App\Actions\Accounting\TopUp;
 
-
 use App\Actions\OrgAction;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\TopUp;
 
 class StoreTopUp extends OrgAction
 {
-
     public function handle(Payment $payment, array $modelData): TopUp
     {
         data_set($modelData, 'group_id', $payment->group_id);
@@ -28,12 +26,12 @@ class StoreTopUp extends OrgAction
         return $topUp;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'amount'           => ['required', 'numeric'],
-            'number'           => ['sometimes', 'string'],
-            'source_id'        => ['sometimes', 'string'],
+            'amount'              => ['required', 'numeric'],
+            'reference'           => ['sometimes', 'string'],
+            'source_id'           => ['sometimes', 'string'],
         ];
     }
 

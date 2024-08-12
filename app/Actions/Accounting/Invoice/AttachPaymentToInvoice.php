@@ -12,11 +12,9 @@ use App\Actions\OrgAction;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class AttachPaymentToInvoice extends OrgAction
 {
-
     public function handle(Invoice $invoice, Payment $payment, array $modelData): void
     {
         $invoice->payments()->attach($payment);
@@ -35,7 +33,7 @@ class AttachPaymentToInvoice extends OrgAction
     public function rules()
     {
         return [
-            'amount' => ['required', 'numeric'],
+            'amount'    => ['required', 'numeric'],
             'reference' => ['sometimes'],
         ];
     }
