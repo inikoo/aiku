@@ -25,12 +25,7 @@ const props = defineProps<{
     }
 }>()
 
-const dataModal = ref({ isModalOpen: false })
-
-const onUploadOpen = (action) => {
-    dataModal.value.isModalOpen = true
-    dataModal.value.uploadRoutes = action.route
-}
+const isModalUploadOpen = ref(false)
 </script>
 
 <template>
@@ -38,20 +33,24 @@ const onUploadOpen = (action) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-group-upload="{ action }">
-            <Button :style="'upload'" @click="() => onUploadOpen(action)"
-                class="rounded-r-none text-sm border-none focus:ring-transparent focus:ring-offset-transparent focus:ring-0" />
+            <Button
+                @click="() => isModalUploadOpen = true"
+                :style="'upload'"
+                class="rounded-r-none text-sm border-none focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+            />
         </template>
     </PageHeading>
     
     <TableLocations :data="data" :tagsList="tagsList.data" />
 
     <UploadExcel
-        :propName="'locations'"
-        description="Adding Locations"
-        :routes="{
-            upload: get(dataModal, 'uploadRoutes', {})
+        v-model="isModalUploadOpen"
+        scope="Pallet delivery"
+        :title="{
+            label: 'Upload your new pallet deliveries',
+            information: 'The list of column file: customer_reference, notes, stored_items'
         }"
-        :dataModal="dataModal"
+        progressDescription="Adding Pallet Deliveries"
     />
 
 </template>

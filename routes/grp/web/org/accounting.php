@@ -60,7 +60,6 @@ Route::get('/accounts/export', ExportPaymentAccounts::class)->name('payment-acco
 Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.create');
 Route::get('/payments/create', CreatePayment::class)->name('payments.create');
 Route::get('/accounts', [IndexPaymentAccounts::class, 'inOrganisation'])->name('payment-accounts.index');
-Route::get('/customer-balances', [IndexCustomerBalances::class, 'inOrganisation'])->name('customer-balances.index');
 Route::get('/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inOrganisation'])->name('payment-accounts.show');
 Route::get('/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.index');
 Route::get('/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.show');
@@ -74,4 +73,4 @@ Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 Route::get('/invoices', [IndexInvoices::class, 'inOrganisation'])->name('invoices.index');
 Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show');
 
-Route::get('/customer-balances', [IndexDummies::class, 'inOrganisation'])->name('balances.index');
+Route::get('/customer-balances', [IndexCustomerBalances::class, 'inOrganisation'])->name('balances.index');

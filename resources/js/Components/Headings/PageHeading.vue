@@ -100,13 +100,9 @@ const layout = inject('layout', layoutStructure)
             </div>
 
             <!-- Section: mini Tabs -->
-            <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-0.5 text-gray-500 text-xs pt-2">
-                <div v-for="item in data.meta" class="flex items-center">
+            <div v-if="data.meta?.length" class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5 text-gray-500 text-xs">
+                <template v-for="item in data.meta">
                     <slot :name="`tabs-${item.key}`" :data="item">
-                        <FontAwesomeIcon v-if="item.leftIcon"
-                            :title="item.leftIcon.tooltip"
-                            fixed-width
-                            aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-0.5" />
                         <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
                             :class="[
                                 item.href?.name
@@ -115,11 +111,16 @@ const layout = inject('layout', layoutStructure)
                                     : 'underline text-gray-400 hover:text-gray-500'
                                 : 'text-gray-400'
                             ]"
+                            class="first:pl-0 py-1 px-2 flex gap-x-1.5 items-center"
                         >
+                            <FontAwesomeIcon v-if="item.leftIcon"
+                                :title="item.leftIcon.tooltip"
+                                fixed-width
+                                aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400" />
                             <MetaLabel :item="item" />
                         </component>
                     </slot>
-                </div>
+                </template>
             </div>
         </div>
 

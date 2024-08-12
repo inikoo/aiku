@@ -96,8 +96,8 @@ onBeforeMount(() => {
 
         <template #cell(quantity)="{ item: item }">
             <div class="w-full flex justify-end">
-                <div class="flex w-32 justify-end">
-                    <PureInputNumber v-if="item.is_checked" v-model="item.data.quantity"
+                <div class="flex min-w-8 max-w-32 justify-end">
+                    <PureInputNumber v-if="item.is_checked && state == 'in-process'" v-model="item.data.quantity"
                         :maxValue="item.total_quantity" :minValue="1" @update:modelValue="changeValueQty" />
                     <div v-else class="py-3">{{ item.data.quantity }}</div>
                 </div>
