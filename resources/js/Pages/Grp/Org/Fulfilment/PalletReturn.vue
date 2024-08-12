@@ -98,9 +98,10 @@ const props = defineProps<{
     }
     box_stats: BoxStats
     notes_data: PDRNotes[]
+    route_check_stored_items : routeType
 }>()
 
-// console.log('qwewqewq', props.data)
+console.log('qwewqewq', props)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -497,7 +498,7 @@ const isModalUploadOpen = ref(false)
     <BoxStatsPalletReturn :dataPalletReturn="data.data" :boxStats="box_stats" :updateRoute="updateRoute" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" />
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" :route_check_stored_items="route_check_stored_items" />
 
     <!-- Modal: Add Pallet -->
     <Modal :isOpen="openModal" @onClose="openModal = false">

@@ -1,38 +1,30 @@
-<!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
-  -->
-
 <script setup lang="ts">
 import Table from '@/Components/Table/Table.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import Button from '@/Components/Elements/Buttons/Button.vue';
-import Icon from "@/Components/Icon.vue"
-import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
-import { Link, router } from "@inertiajs/vue3"
-import { notify } from "@kyvg/vue3-notification"
-import { Switch } from '@headlessui/vue'
+import Icon from "@/Components/Icon.vue";
+import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
+import { Link, router } from "@inertiajs/vue3";
+import { notify } from "@kyvg/vue3-notification";
+import { Switch } from '@headlessui/vue';
 
 const props = defineProps<{
-    data?: {}
-    tab?: string
-    state: any
-    key: any
-}>()
+    data?: {};
+    tab?: string;
+    state: any;
+    key: any;
+    route_check_stored_items : routeType;
+}>();
 
-console.log(props)
+console.log(props);
 
-const isLoading = ref<string | boolean>(false)
-const selectedRow = ref({})
-const showAll = ref(true)
-const _table = ref(null)
+const isLoading = ref<string | boolean>(false);
+const selectedRow = ref({});
+const _table = ref(null);
 
-const onShowSelected = (ButtonData) => {
-    showAll.value = false
-    const data = props.data.data
-    const finalValue = {}
-    
+const onShowSelected = () => {
+    const data = props.data.data;
+    const finalValue = {};
 
     for (const rowId in selectedRow.value) {
         if (selectedRow.value[rowId]) {
@@ -45,9 +37,8 @@ const onShowSelected = (ButtonData) => {
         }
     }
 
-
-    router[ButtonData.route.method](
-        route(ButtonData.route.name, ButtonData.route.parameters),
+    router['post'](
+        route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),
         { stored_items: finalValue },
         {
             onSuccess: () => { },
@@ -56,14 +47,14 @@ const onShowSelected = (ButtonData) => {
                     title: 'Something went wrong.',
                     text: 'Failed to save',
                     type: 'error',
-                })
+                });
             }
-        })
-}
+        });
+};
 
-const onShowAll = () =>{
-    showAll.value = true
-}
+watch(selectedRow, () => {
+        onShowSelected();
+});
 
 </script>
 
@@ -71,24 +62,6 @@ const onShowAll = () =>{
     <Table :resource="data" :name="'stored_items'" class="mt-5" :isCheckBox="true"
         @onSelectRow="(value) => selectedRow = value" ref="_table">
 
-        <template #button-save="{ linkButton: value }">
-            <div class="mx-4">
-                  <Button label="Show Selected" @click="() => onShowSelected(value)" />
-                <!-- <div class="flex items-center gap-x-3">
-                    <Switch :class="showAll ? '' : ''"
-                       @click="() => showAll ? onShowSelected() : onShowAll()"
-                        class="pr-1 relative inline-flex h-5 aspect-[2/1] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                        <span aria-hidden="true"
-                            :class="!showAll ? 'translate-x-5 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
-                            class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
-                    </Switch>
-                    <div class="text-base leading-none font-medium cursor-pointer select-none"
-                        :class="!showAll ? 'text-indigo-500' : ' text-gray-400'">
-                        Selected
-                    </div>
-                </div> -->
-            </div>
-        </template>
 
         <template #cell(reference)="{ item: value }">
             {{ value.reference }}
