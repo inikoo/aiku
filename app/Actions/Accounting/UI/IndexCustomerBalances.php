@@ -47,13 +47,15 @@ class IndexCustomerBalances extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Customer::class);
-        $queryBuilder->where('customers.balance', '>', 0);
+        $queryBuilder->where('customers.balance', '!=', 0);
 
         if ($parent instanceof Organisation) {
             $queryBuilder->where('customers.organisation_id', $parent->id);
         } elseif ($parent instanceof Shop) {
             $queryBuilder->where('customers.shop_id', $parent->id);
         }
+        $queryBuilder->leftjoin('shops', 'customers.shop_id', 'shops.id');
+        $queryBuilder->leftjoin('fulfilments', 'fulfilments.shop_id', 'shops.id');
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -72,7 +74,10 @@ class IndexCustomerBalances extends OrgAction
                 'customers.id as id',
                 'customers.slug as slug',
                 'customers.name as name',
-                'customers.balance as balance'
+                'customers.balance as balance',
+                'shops.slug as shop_slug',
+                'shops.type as shop_type',
+                'fulfilments.slug as fulfilment_slug'
             ])
             ->allowedSorts(['id', 'name', 'slug','balance'])
             ->allowedFilters([$globalSearch])
@@ -94,8 +99,7 @@ class IndexCustomerBalances extends OrgAction
                 ->withEmptyState(
                 []
                 )
-                ->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'balance', label: __('balance'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('id');
         };
@@ -195,7 +199,7 @@ class IndexCustomerBalances extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.accounting.customer-balances.index' =>
+            'grp.org.accounting.balances.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb($routeParameters)

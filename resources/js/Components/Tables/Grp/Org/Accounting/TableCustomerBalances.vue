@@ -8,8 +8,6 @@
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { FulfilmentCustomer } from "@/types/Customer";
-import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
-import { useFormatTime } from "@/Composables/useFormatTime";
 import { useLocaleStore } from "@/Stores/locale";
 
 const props = defineProps<{
@@ -19,10 +17,32 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
+function customerRoute(customer: {}) {
+    switch (route().current()) {
+        case 'grp.org.accounting.balances.index':
+            if(customer.shop_type === 'fulfilment')
+            {
+                return route(
+                'grp.org.fulfilments.show.crm.customers.show',
+                [route().params['organisation'], customer.fulfilment_slug, customer.slug])
+            } else {
+                return route(
+                'grp.org.shops.show.crm.customers.show',
+                [route().params['organisation'], customer.shop_slug, customer.slug])
+            }
+            
+    }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(name)="{ item: customer }">
+            <Link :href="customerRoute(customer)" class="primaryLink">
+                {{ customer.name }}
+            </Link>
+        </template>
     </Table>
 </template>
 

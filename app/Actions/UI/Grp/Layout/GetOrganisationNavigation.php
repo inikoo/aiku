@@ -389,17 +389,6 @@ class GetOrganisationNavigation
                             ]
                         ],
                         [
-                            'label' => __('Customer Balances'),
-                            'icon'  => ['fal', 'fa-user'],
-                            'root'  => 'grp.org.accounting.customer-balances.',
-                            'route' => [
-                                'name'       => 'grp.org.accounting.customer-balances.index',
-                                'parameters' => [$organisation->slug],
-
-                            ]
-                        ],
-
-                        [
                             'label' => __('Customers Balances'),
                             'icon'  => ['fal', 'fa-piggy-bank'],
                             'root'  => 'grp.org.accounting.balances.',
