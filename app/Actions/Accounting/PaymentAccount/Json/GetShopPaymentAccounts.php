@@ -68,7 +68,6 @@ class GetShopPaymentAccounts extends OrgAction
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($shop, $request);

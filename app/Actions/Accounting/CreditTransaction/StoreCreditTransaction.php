@@ -7,14 +7,12 @@
 
 namespace App\Actions\Accounting\CreditTransaction;
 
-use AlibabaCloud\SDK\Dm\V20151123\Models\GetIpfilterListResponseBody\data;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateCreditTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\CRM\Customer;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -31,9 +29,12 @@ class StoreCreditTransaction extends OrgAction
         data_set($modelData, 'currency_id', $customer->shop->currency_id);
         data_set($modelData, 'date', now(), overwrite:false);
 
-        $customer->creditTransactions()->create($modelData);
+        $creditTransaction=$customer->creditTransactions()->create($modelData);
 
         CustomerHydrateCreditTransactions::run($customer);
+
+        return $creditTransaction;
+
     }
 
     public function rules(): array
