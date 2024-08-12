@@ -15,12 +15,12 @@ trait HasOrderFields
     {
         $table->decimal('gross_amount', 16)->default(0)->comment('net amount before discounts');
         $table->decimal('net_amount', 16)->default(0);
-        $table->decimal('grp_net_amount', 16)->default(0);
-        $table->decimal('org_net_amount', 16)->default(0);
+        $table->decimal('grp_net_amount', 16)->nullable();
+        $table->decimal('org_net_amount', 16)->nullable();
         $table->unsignedSmallInteger('tax_category_id')->index();
         $table->foreign('tax_category_id')->references('id')->on('tax_categories');
-        $table->decimal('grp_exchange', 16, 4)->default(1);
-        $table->decimal('org_exchange', 16, 4)->default(1);
+        $table->decimal('grp_exchange', 16, 4)->nullable();
+        $table->decimal('org_exchange', 16, 4)->nullable();
         return $table;
     }
 }

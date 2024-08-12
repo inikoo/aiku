@@ -130,7 +130,7 @@
     <tr>
         <td>
             <h1>
-                Invoice {{ $invoice->number }}
+                Invoice {{ $invoice->reference }}
             </h1>
         </td>
         <td style="text-align: right">

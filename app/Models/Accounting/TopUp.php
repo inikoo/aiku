@@ -32,10 +32,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property TopUpStatusEnum $status
  * @property string $amount
  * @property int $currency_id
- * @property string $grp_exchange
- * @property string $org_exchange
- * @property string $grp_amount
- * @property string $org_amount
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
+ * @property string|null $grp_amount
+ * @property string|null $org_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

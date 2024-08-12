@@ -22,7 +22,7 @@ class InvoiceResource extends JsonResource
 
         return [
             'slug'             => $invoice->slug,
-            'number'           => $invoice->number,
+            'number'           => $invoice->reference,
             'total_amount'     => $invoice->total_amount,
             'net_amount'       => $invoice->net_amount,
             'date'             => $invoice->date,

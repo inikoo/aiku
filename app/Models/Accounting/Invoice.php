@@ -38,13 +38,13 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Accounting\Invoice
+ *
  *
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $number
+ * @property string $reference
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $order_id
@@ -53,8 +53,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $billing_country_id
  * @property InvoiceTypeEnum $type
  * @property int $currency_id
- * @property string $grp_exchange
- * @property string $org_exchange
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property string $gross_amount Total asserts amount (excluding charges and shipping) before discounts
  * @property string $goods_amount
  * @property string $services_amount
@@ -63,8 +63,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $shipping_amount
  * @property string|null $insurance_amount
  * @property string $net_amount
- * @property string $grp_net_amount
- * @property string $org_net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
  * @property int $tax_category_id
  * @property string $tax_amount
  * @property string $total_amount
@@ -132,7 +132,7 @@ class Invoice extends Model implements Auditable
     }
 
     protected array $auditInclude = [
-        'number',
+        'reference',
         'type',
         'state',
         'status',
@@ -148,7 +148,7 @@ class Invoice extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('number')
+            ->generateSlugsFrom('reference')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }

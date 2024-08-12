@@ -373,7 +373,7 @@ class ShowPallet extends OrgAction
             ],
 
             // 'grp.org.fulfilments.show.crm.customers.show.invoices.show'=> [
-            //     'label'=> $invoice->number,
+            //     'label'=> $invoice->reference,
             //     'route'=> [
             //         'name'      => $routeName,
             //         'parameters'=> [

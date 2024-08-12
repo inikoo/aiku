@@ -32,10 +32,10 @@ return new class () extends Migration {
             $table->decimal('running_amount', 16, 2)->nullable();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->decimal('grp_exchange', 16, 4)->default(1);
-            $table->decimal('org_exchange', 16, 4)->default(1);
-            $table->decimal('grp_amount', 16)->default(0);
-            $table->decimal('org_amount', 16)->default(0);
+            $table->decimal('grp_exchange', 16, 4)->nullable();
+            $table->decimal('org_exchange', 16, 4)->nullable();
+            $table->decimal('grp_amount', 16)->nullable();
+            $table->decimal('org_amount', 16)->nullable();
             $table->string('notes')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();

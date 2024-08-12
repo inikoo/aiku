@@ -55,11 +55,11 @@ use Illuminate\Support\Carbon;
  * @property string $quantity_cancelled
  * @property string $gross_amount net amount before discounts
  * @property string $net_amount
- * @property string $grp_net_amount
- * @property string $org_net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $org_net_amount
  * @property int $tax_category_id
- * @property string $grp_exchange
- * @property string $org_exchange
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
