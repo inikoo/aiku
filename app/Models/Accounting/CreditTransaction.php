@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $grp_amount
  * @property string $org_amount
  * @property string|null $notes
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
@@ -65,6 +66,8 @@ class CreditTransaction extends Model
         'data' => '{}',
     ];
 
+    protected $guarded = [];
+
     public function topUp(): BelongsTo
     {
         return $this->belongsTo(TopUp::class);
@@ -75,6 +78,10 @@ class CreditTransaction extends Model
         return $this->belongsTo(Currency::class);
     }
 
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
+    }
 
 
 }

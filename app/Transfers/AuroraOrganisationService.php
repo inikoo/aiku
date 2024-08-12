@@ -13,6 +13,7 @@ use App\Transfers\Aurora\FetchAuroraArtefact;
 use App\Transfers\Aurora\FetchAuroraBarcode;
 use App\Transfers\Aurora\FetchAuroraCharge;
 use App\Transfers\Aurora\FetchAuroraClockingMachine;
+use App\Transfers\Aurora\FetchAuroraCredit;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraCustomerClient;
 use App\Transfers\Aurora\FetchAuroraDeletedCustomer;
@@ -375,6 +376,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchCharge($id): ?array
     {
         return (new FetchAuroraCharge($this))->fetch($id);
+    }
+
+    public function fetchCredit($id): ?array
+    {
+        return (new FetchAuroraCredit($this))->fetch($id);
     }
 
 }

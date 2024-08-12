@@ -104,6 +104,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
+ * @property-read Collection<int, CreditTransaction> $creditTransactions
  * @property-read Address|null $deliveryAddress
  * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer

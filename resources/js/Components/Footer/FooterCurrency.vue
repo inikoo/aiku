@@ -57,7 +57,7 @@ const selectedCurrency = ref(currencyList[0])
 
 <template>
     <Popover v-slot="{ open }" class="relative h-full">
-        <PopoverButton :class="open ? 'bg-white/50 text-white' : 'hover:bg-white/25 text-gray-200'"
+        <PopoverButton :class="open ? 'bg-gray-800 text-white' : 'hover:bg-gray-800 text-gray-200'"
             class="group inline-flex items-center px-3 h-full font-medium gap-x-1">
             <FontAwesomeIcon icon='fal fa-money-bill-alt' class='' aria-hidden='true' />
             <div class="h-full font-extralight text-xs flex items-center leading-none">
@@ -68,7 +68,7 @@ const selectedCurrency = ref(currencyList[0])
 
         <transition name="headlessui">
             <PopoverPanel class="absolute bottom-full right-0 z-10 sm:px-0">
-                <FooterTab tabName="language">
+                <FooterTab tabName="language" :header="false">
                     <template #default>
                         <div v-if="true">
                             <div v-for="(currency, index) in currencyList"

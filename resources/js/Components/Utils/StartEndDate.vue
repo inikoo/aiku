@@ -18,7 +18,7 @@ library.add(faArrowRight, faExclamationTriangle, faPencil)
 const props = defineProps<{
     startDate: string
     endDate: string
-    updateRoute: routeType
+    updateRoute?: routeType
 }>()
 
 const isEndDateToday = isToday(new Date(props.endDate))
@@ -33,6 +33,8 @@ const getTomorrowDate = () => {
 }
 const isLoadingSetEstimatedDate = ref(false)
 const onChangeEstimateDate = async (newDate: Date, close: Function) => {
+    if(!props.updateRoute) return
+
     router.patch(route(props.updateRoute.name, props.updateRoute.parameters),
     {
         end_date : newDate

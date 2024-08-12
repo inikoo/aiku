@@ -75,6 +75,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
+ * @property int $number_credit_transactions
+ * @property int $number_top_ups
+ * @property int $number_top_ups_status_in_process
+ * @property int $number_top_ups_status_success
+ * @property int $number_top_ups_status_fail
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
