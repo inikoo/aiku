@@ -15,6 +15,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,9 +34,9 @@ class UpdatePalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
         /** @var PalletDelivery $palletDelivery */
-        $palletDelivery =$this->update($palletDelivery, $modelData);
+        $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        if($palletDelivery->wasChanged('state')) {
+        if ($palletDelivery->wasChanged('state')) {
             UpdatePalletDeliveryTimeline::run($palletDelivery, [
                 'state' => $palletDelivery->state
             ]);
@@ -48,7 +49,7 @@ class UpdatePalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action) {
+        if ($this->action) {
             return true;
         }
 
@@ -63,16 +64,21 @@ class UpdatePalletDelivery extends OrgAction
     {
         $rules = [];
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $rules = [
-                'public_notes'  => ['sometimes','nullable','string','max:4000'],
-                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+                'public_notes'   => ['sometimes', 'nullable', 'string', 'max:4000'],
+                'internal_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
             ];
         }
 
         return [
-            'customer_notes'          => ['sometimes','nullable','string','max:4000'],
-            'estimated_delivery_date' => ['sometimes', 'date'],
+            'customer_notes'            => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'estimated_delivery_date'   => ['sometimes', 'date'],
+            'current_recurring_bill_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('recurring_bills', 'id')->where('fulfilment_id', $this->fulfilment->id)
+            ],
             ...$rules
         ];
     }
@@ -84,6 +90,7 @@ class UpdatePalletDelivery extends OrgAction
         $this->fulfilment   = $fulfilmentCustomer->fulfilment;
 
         $this->initialisation($request->get('website')->organisation, $request);
+
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
@@ -91,6 +98,7 @@ class UpdatePalletDelivery extends OrgAction
     public function asController(Organisation $organisation, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
@@ -98,6 +106,7 @@ class UpdatePalletDelivery extends OrgAction
     {
         $this->action = true;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
+
         return $this->handle($palletDelivery, $this->validatedData);
     }
 

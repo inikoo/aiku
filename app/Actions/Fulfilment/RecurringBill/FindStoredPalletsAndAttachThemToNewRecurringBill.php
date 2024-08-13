@@ -19,7 +19,7 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
         foreach ($palletsInStoringState as $pallet) {
             $startDate = $pallet->storing_at;
-            if($previousRecurringBill){
+            if($previousRecurringBill) {
                 $startDate = $recurringBill->start_date;
             }
             StoreRecurringBillTransaction::make()->action(

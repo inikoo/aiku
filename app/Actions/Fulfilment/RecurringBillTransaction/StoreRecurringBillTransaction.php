@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
+use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RecurringBillTransaction;
@@ -16,7 +17,7 @@ use App\Models\Fulfilment\StoredItem;
 
 class StoreRecurringBillTransaction extends OrgAction
 {
-    public function handle(RecurringBill $recurringBill, Pallet|StoredItem $item, array $modelData): RecurringBillTransaction
+    public function handle(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
     {
         data_set($modelData, 'organisation_id', $recurringBill->organisation_id);
         data_set($modelData, 'group_id', $recurringBill->group_id);
@@ -26,31 +27,47 @@ class StoreRecurringBillTransaction extends OrgAction
 
 
         data_set($modelData, 'item_id', $item->id);
-        data_set($modelData, 'item_type', class_basename($item));
 
-        data_set($modelData, 'asset_id', $item->rental->asset_id);
-
-        data_set($modelData, 'historic_asset_id', $item->rental->asset->current_historic_asset_id);
-
-        if ($item instanceof StoredItem) {
-            $pallets       = $item->pallets;
-            $totalQuantity = 0;
-
-            foreach ($pallets as $pallet) {
-                $totalQuantity += $pallet->pivot->quantity;
-            }
+        if ($item instanceof FulfilmentTransaction) {
+            $type = $item->type;
+            $assetId = $item->asset->id;
+            $historicAssetId = $item->asset->current_historic_asset_id;
+            $grossAmount = $item->gross_amount;
+            $netAmount = $item->net_amount;
+            $totalQuantity = $item->quantity;
         } else {
-            $totalQuantity = 1;
+            $type = class_basename($item);
+            $assetId = $item->rental->asset_id;
+            $historicAssetId = $item->rental->asset->current_historic_asset_id;
+            
+            $totalQuantity = 0;
+            $grossAmount = $item->rental->price;
+        
+            if ($item instanceof StoredItem) {
+                foreach ($item->pallets as $pallet) {
+                    $totalQuantity += $pallet->pivot->quantity;
+                }
+            } else {
+                $totalQuantity = 1;
+            }
+        
+            $netAmount = $grossAmount * $totalQuantity;
         }
+
+        data_set($modelData, 'item_type', $type);
+        data_set($modelData, 'asset_id', $assetId);
+        data_set($modelData, 'historic_asset_id', $historicAssetId);
         data_set($modelData, 'quantity', $totalQuantity);
-        data_set($modelData, 'gross_amount', $item->rental->price);
-        data_set($modelData, 'net_amount', $item->rental->price * $totalQuantity);
+        data_set($modelData, 'gross_amount', $grossAmount);
+        data_set($modelData, 'net_amount', $netAmount);
 
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
         $recurringBillTransaction->refresh();
 
-        $item->update(['current_recurring_bill_id' => $recurringBill->id]);
+        if($item instanceof Pallet){
+            $item->update(['current_recurring_bill_id' => $recurringBill->id]);
+        }
 
         SetClausesInRecurringBillTransaction::run($recurringBillTransaction);
         RecurringBillHydrateTransactions::dispatch($recurringBill)->delay(now()->addSeconds(2));
@@ -66,7 +83,7 @@ class StoreRecurringBillTransaction extends OrgAction
         ];
     }
 
-    public function action(RecurringBill $recurringBill, Pallet|StoredItem $item, array $modelData): RecurringBillTransaction
+    public function action(RecurringBill $recurringBill,Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
     {
         $this->asAction = true;
 

@@ -64,7 +64,12 @@ class ConsolidateRecurringBill extends OrgAction
         ->exists();
 
         if ($hasStoringPallet) {
-            $newRecurringBill = StoreRecurringBill::make()->action($recurringBill->fulfilmentCustomer->rentalAgreement, ['start_date' => now()]);
+            $newRecurringBill = StoreRecurringBill::make()->action(
+                $recurringBill->fulfilmentCustomer->rentalAgreement, 
+                ['start_date' => now()],
+                $recurringBill
+            );
+
             $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
         } else {
             $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => null]);
