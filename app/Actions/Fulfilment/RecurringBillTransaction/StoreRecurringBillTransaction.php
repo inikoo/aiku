@@ -29,7 +29,7 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'item_type', class_basename($item));
 
         data_set($modelData, 'asset_id', $item->rental->asset_id);
-        data_set($modelData, 'net_amount', $item->rental->price);
+
         data_set($modelData, 'historic_asset_id', $item->rental->asset->current_historic_asset_id);
 
         if ($item instanceof StoredItem) {
@@ -43,6 +43,8 @@ class StoreRecurringBillTransaction extends OrgAction
             $totalQuantity = 1;
         }
         data_set($modelData, 'quantity', $totalQuantity);
+        data_set($modelData, 'gross_amount', $item->rental->price);
+        data_set($modelData, 'net_amount', $item->rental->price * $totalQuantity);
 
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
