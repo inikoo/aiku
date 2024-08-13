@@ -684,6 +684,7 @@
     "Pallet Delivery": "パレット配送",
     "Pallet Limit": "パレット制限",
     "Pallet Return": "パレット返却",
+    "Pallet Storage": "パレット保管",
     "Pallet Stored Items": "パレット保管品",
     "Pallet almost reached the limit: :palletLimitLeft left": "パレットが限界に近づきました: :palletLimitLeft 左",
     "Pallet almost reached the limit: :palletLimitLeft left.": "パレットが限界にほぼ達しました: :palletLimitLeft 残りました。",
