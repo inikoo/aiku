@@ -155,17 +155,7 @@ onMounted(() => {
                         aria-hidden='true' />
                 </dt>
 
-                <div v-if="dataPalletDelivery.state !== 'in-process'">
-                    <dd class=" text-gray-500">
-                        {{
-                            dataPalletDelivery.estimated_delivery_date
-                            ? useFormatTime(dataPalletDelivery?.estimated_delivery_date)
-                            : 'Not Set'
-                        }}
-                    </dd>
-                </div>
-
-                <Popover v-else position="">
+                <Popover v-if="dataPalletDelivery.state === 'in-process' || dataPalletDelivery.state === 'submitted'" position="">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
@@ -195,6 +185,17 @@ onMounted(() => {
                         </div>
                     </template>
                 </Popover>
+
+
+                <div v-else>
+                    <dd class=" text-gray-500">
+                        {{
+                            dataPalletDelivery.estimated_delivery_date
+                            ? useFormatTime(dataPalletDelivery?.estimated_delivery_date)
+                            : 'Not Set'
+                        }}
+                    </dd>
+                </div>
             </div>
 
             <!-- Stats: count Pallets, Services, Physical Goods -->
