@@ -131,6 +131,10 @@ const props = defineProps(
         isCheckBox: {
             type: Boolean
         },
+        checkboxKey : {
+            type: String,
+            default: 'id'
+        },
         useForm : {
             type: Boolean,
             default: false,
@@ -608,14 +612,14 @@ const selectRow: {[key: string]: boolean} = reactive({...props.selectedRow})
 // To preserve the object selectRow
 if (props.isCheckBox) {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = selectRow[props.resource.data[row].id] ? true : false
+        selectRow[props.resource.data[row][props.checkboxKey]] = selectRow[props.resource.data[row][props.checkboxKey]] ? true : false
     }
 }
 
 // On select select all
 const onClickSelectAll = (state: boolean) => {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row].id] = !state
+        selectRow[props.resource.data[row][props.checkboxKey]] = !state
     }
 }
 

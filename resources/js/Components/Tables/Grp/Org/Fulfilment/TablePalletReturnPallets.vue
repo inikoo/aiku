@@ -113,8 +113,6 @@ const SetSelected = () => {
             },
         }
     );
-
-    console.log(finalValue)
 };
 
 const onChangeCheked = (value) => {
@@ -127,7 +125,7 @@ const setUpChecked = () => {
     const set: Record<string, boolean> = {};
     if (props.data?.data) {
         props.data.data.forEach((item) => {
-            set[item.id] = item.is_checked || false;
+            set[item.pallet_id] = item.is_checked || false;
         });
         selectedRow.value = set;
     }
@@ -144,7 +142,7 @@ onBeforeMount(() => {
 <template>
     <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in-process'"
-     @onSelectRow="onChangeCheked" :selectedRow="selectedRow"
+     @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
     >
 
         <!-- Column: Type Icon -->

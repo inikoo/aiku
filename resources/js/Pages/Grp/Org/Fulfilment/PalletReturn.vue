@@ -394,7 +394,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     <BoxStatsPalletReturn :dataPalletReturn="data.data" :boxStats="box_stats" :updateRoute="updateRoute" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    {{  currentTab }}
     <component 
         :is="component" 
         :data="props[currentTab]" 
