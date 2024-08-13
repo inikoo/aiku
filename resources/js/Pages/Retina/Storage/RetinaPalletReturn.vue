@@ -51,7 +51,6 @@ import { trans } from 'laravel-vue-i18n'
 import { get } from 'lodash'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import Tag from "@/Components/Tag.vue"
 import UploadExcel from "@/Components/Upload/UploadExcel.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
@@ -96,8 +95,6 @@ const props = defineProps<{
     routeStorePallet : routeType
     route_check_stored_items : routeType
 }>()
-
-console.log('sss',props)
 
 // console.log('box stats', props.box_stats)
 // console.log('notes data', props.notes_data)
@@ -215,23 +212,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         }
     )
 }
-
-// Method: change data before submit Stored Items
-/* const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) => {
-    return selectedStoredItem.map(id => {
-        const dataItem = dataList.find(item => item.id === id);
-        if (dataItem) {
-        return {
-            pallet_stored_item: dataItem.id,
-            pallet: dataItem.pallet_id,
-            stored_item: dataItem.stored_item_id,
-            quantity: dataItem.quantity
-        };
-        } else {
-        return null;
-        }
-    }).filter(item => item !== null);
-} */
 
 watch(
 	props,
@@ -472,8 +452,6 @@ const isModalUploadOpen = ref(false)
         />
     </div>
 
-<!-- {{ updateRoute }} -->
-
     <!-- Box: Stats -->
     <RetinaBoxStatsReturn
         :data_pallet="data?.data"
@@ -483,7 +461,6 @@ const isModalUploadOpen = ref(false)
     />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"  />
-
     <component
         :is="component"
         :data="props[currentTab]"
@@ -492,48 +469,6 @@ const isModalUploadOpen = ref(false)
         :tab="currentTab"
         :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"
     />
-
-   <!--  <Modal :isOpen="openModal" @onClose="openModal = false">
-        <div class="">
-            <TablePalletReturn
-				:dataRoute="palletRoute.index"
-                :saveRoute="palletRoute.store"
-				@onClose="() => openModal = false"
-				:descriptor="palletReturnDescriptor"
-			>
-                <template #column-stored_items="{data}">
-                    <div class="flex gap-x-1 flex-wrap">
-                        <template v-if="data.columnData.stored_items.length">
-                            <Tag v-for="item of data.columnData.stored_items"
-                                :label="`${item.reference} (${item.quantity})`"
-                                :closeButton="false"
-                                :stringToColor="true">
-                                <template #label>
-                                    <div class="whitespace-nowrap text-xs">
-                                        {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
-                                    </div>
-                                </template>
-                            </Tag>
-                        </template>
-                        <span v-else class="text-xs text-gray-400 italic">Have no stored items.</span>
-                    </div>
-                </template>
-            </TablePalletReturn>
-        </div>
-    </Modal>
- -->
-<!--     <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false">
-        <div class="">
-            <TablePalletReturn
-                :dataRoute="stored_item_list_route"
-                :saveRoute="stored_items_add_route"
-				@onClose="() => isModalStoredItems = false"
-				:descriptor="StoredItemReturnDescriptor"
-                :beforeSubmit="(descriptor?: string, dataList: {}[], storedItem: number[]) => beforeSubmitStoredItem(dataList, storedItem)"
-			>
-            </TablePalletReturn>
-        </div>
-    </Modal> -->
 
     <UploadExcel
         v-model="isModalUploadOpen"
