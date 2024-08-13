@@ -96,6 +96,8 @@ const props = defineProps<{
     physical_good_list_route: routeType
     stored_item_list_route : routeType
     stored_items_add_route : routeType
+    routeStorePallet : routeType
+    route_check_stored_items : routeType
 }>()
 
 // console.log('box stats', props.box_stats)
@@ -192,6 +194,7 @@ const onOpenModalAddPGood = async () => {
     }
     isLoadingData.value = false
 }
+
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
     formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
@@ -215,7 +218,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
 }
 
 // Method: change data before submit Stored Items
-const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) => {
+/* const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) => {
     return selectedStoredItem.map(id => {
         const dataItem = dataList.find(item => item.id === id);
         if (dataItem) {
@@ -228,8 +231,8 @@ const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) =>
         } else {
         return null;
         }
-    }).filter(item => item !== null); // Filter out any null values if aaa contains ids not present in bbb
-}
+    }).filter(item => item !== null);
+} */
 
 watch(
 	props,
@@ -480,7 +483,7 @@ const isModalUploadOpen = ref(false)
         :notes_data
     />
 
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"   :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"/>
 
     <component
         :is="component"
@@ -490,7 +493,7 @@ const isModalUploadOpen = ref(false)
         :tab="currentTab"
     />
 
-    <Modal :isOpen="openModal" @onClose="openModal = false">
+   <!--  <Modal :isOpen="openModal" @onClose="openModal = false">
         <div class="">
             <TablePalletReturn
 				:dataRoute="palletRoute.index"
@@ -499,7 +502,6 @@ const isModalUploadOpen = ref(false)
 				:descriptor="palletReturnDescriptor"
 			>
                 <template #column-stored_items="{data}">
-                    <!-- {{ data.columnData.stored_items }} -->
                     <div class="flex gap-x-1 flex-wrap">
                         <template v-if="data.columnData.stored_items.length">
                             <Tag v-for="item of data.columnData.stored_items"
@@ -519,8 +521,8 @@ const isModalUploadOpen = ref(false)
             </TablePalletReturn>
         </div>
     </Modal>
-
-    <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false">
+ -->
+<!--     <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false">
         <div class="">
             <TablePalletReturn
                 :dataRoute="stored_item_list_route"
@@ -531,7 +533,7 @@ const isModalUploadOpen = ref(false)
 			>
             </TablePalletReturn>
         </div>
-    </Modal>
+    </Modal> -->
 
     <UploadExcel
         v-model="isModalUploadOpen"
