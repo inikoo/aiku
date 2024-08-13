@@ -17,6 +17,7 @@ import { inject, reactive, ref, onBeforeMount } from 'vue'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Popover from '@/Components/Popover.vue'
+import { isNull } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -94,12 +95,14 @@ const SetSelected = () => {
     const finalValue: Record<string, { quantity: number }> = [];
 
     for(const key in selectedRow.value){
-        if (selectedRow.value[key]) {
+        if (selectedRow.value[key] &&  !isNull(key)) {
            finalValue.push(key)
         }
     }
 
-    router.post(
+    console.log(finalValue)
+
+    /* router.post(
         route(props.route_checkmark.name, props.route_checkmark.parameters),
         { pallets : finalValue },
         {
@@ -113,7 +116,7 @@ const SetSelected = () => {
                 });
             },
         }
-    );
+    ); */
 };
 
 const onChangeCheked = (value) => {
@@ -134,7 +137,7 @@ const setUpChecked = () => {
 
 
 onBeforeMount(() => {
-    setUpChecked();
+  /*   setUpChecked(); */
 });
 
 
@@ -166,6 +169,7 @@ onBeforeMount(() => {
 
         <!-- Column: Pallet Reference -->
 		<template #cell(customer_reference)="{ item }">
+        {{ item.pallet_id}}
 			<div class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
