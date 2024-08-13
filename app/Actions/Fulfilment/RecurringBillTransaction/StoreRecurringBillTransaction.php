@@ -81,7 +81,7 @@ class StoreRecurringBillTransaction extends OrgAction
         ];
     }
 
-    public function action(RecurringBill $recurringBill, Pallet|StoredItem $item, array $modelData): RecurringBillTransaction
+    public function action(RecurringBill $recurringBill,Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
     {
         $this->asAction = true;
 

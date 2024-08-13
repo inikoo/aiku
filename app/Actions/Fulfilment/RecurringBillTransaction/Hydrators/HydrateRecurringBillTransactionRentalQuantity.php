@@ -35,8 +35,8 @@ class HydrateRecurringBillTransactionRentalQuantity
 
             $assetPrice = $transaction->asset->price;
             $transaction->update([
-                'quantity' => $daysDifference, 
-                'net_amount' => $daysDifference * $assetPrice,
+                'quantity'     => $daysDifference,
+                'net_amount'   => $daysDifference * $assetPrice,
                 'gross_amount' => $daysDifference * $assetPrice
             ]);
         }

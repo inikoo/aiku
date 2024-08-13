@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotifi
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
 use App\Actions\Fulfilment\RecurringBill\AttachRecurringBillToModel;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
+use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
@@ -58,7 +59,18 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
             $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
         }
 
-        AttachRecurringBillToModel::run($palletDelivery, $recurringBill);
+        foreach($palletDelivery->transactions as $transaction) {
+           StoreRecurringBillTransaction::make()->action(
+               $recurringBill,
+               $transaction,
+               [
+
+           ]);
+        }
+
+
+        $palletDelivery->recurringBills()->attach($recurringBill);
+
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);
