@@ -58,7 +58,10 @@ class GetReturnPallets extends OrgAction
         $query = QueryBuilder::for(Pallet::class);
 
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
-        $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
+
+        if($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
+            $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
+        }
 
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
         $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
@@ -72,6 +75,10 @@ class GetReturnPallets extends OrgAction
                     prefix: $prefix
                 );
             }
+        }
+
+        if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
+            $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
         }
 
         if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
