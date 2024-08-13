@@ -556,6 +556,7 @@ onMounted(() => {
 </script>
 
 <template>
+    {{fieldData.list_authorised}}
     <div class="relative">
         authorised fulfilment: {{ fulfilmentLength }} <br> authorised shop: {{ shopLength }} <br> authorised warehouse: {{ warehouseLength }} <br> authorised production: {{ productionLength }}
         <div class="flex flex-col text-xs divide-y-[1px]">

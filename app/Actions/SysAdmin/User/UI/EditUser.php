@@ -8,12 +8,15 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 
 use App\Models\Fulfilment\Fulfilment;
@@ -167,20 +170,25 @@ class EditUser extends InertiaAction
                                     "name"       => "grp.models.user.other-organisation.update",
                                     'parameters' => [
                                         'user' => $user->id
-                                    ]
-                                ],
-                                'list_authorised'        => Organisation::get()->flatMap(function (Organisation $organisation) {
-                                    return [
-                                        $organisation->slug         => [
-                                            'authorised_shops'       => '99999',
-                                            'authorised_fulfilments' => '99999',
-                                            'authorised_warehouses'  => '99999',
-                                            'authorised_productions' => '99999',
                                         ]
-                                    ];
-                                }),
-
-                                // "label"             => __("permissions"),
+                                    ],
+                                    
+                                    'list_authorised'           => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                        return [
+                                            $organisation->slug         => [
+                                                'authorised_shops'       => 
+                                                $organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
+                                                'authorised_fulfilments' =>
+                                                $organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
+                                                'authorised_warehouses' =>
+                                                $organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
+                                                'authorised_productions' =>
+                                                $organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
+                                            ]
+                                        ];
+                                    })->toArray(),
+                                    
+                                    // "label"             => __("permissions"),
                                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                                     return [
                                         $organisation->slug         => [

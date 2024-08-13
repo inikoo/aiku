@@ -8,8 +8,11 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
@@ -137,14 +140,14 @@ class EditEmployee extends OrgAction
                     'required'               => true,
                     'label'                  => __('position'),
                     'list_authorised'        => [
-                        'authorised_shops' =>
-                            $request->user()->authorisedShops()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                        'authorised_shops'       => 
+                                            $this->organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
                         'authorised_fulfilments' =>
-                            $request->user()->authorisedFulfilments()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                                            $this->organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
                         'authorised_warehouses' =>
-                            $request->user()->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count() ?? 0,
+                                            $this->organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
                         'authorised_productions' =>
-                            $request->user()->authorisedProductions()->where('organisation_id', $this->organisation->id)->count() ?? 0
+                                            $this->organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
                     ],
 
                     'options'  => [
