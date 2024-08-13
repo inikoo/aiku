@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
 
 class StoreRecurringBill extends OrgAction
 {
-    public function handle(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
+    public function handle(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null): RecurringBill
     {
 
         if (!Arr::exists($modelData, 'tax_category_id')) {
@@ -82,7 +82,7 @@ class StoreRecurringBill extends OrgAction
         $recurringBill->stats()->create();
         $recurringBill->refresh();
 
-        FindStoredPalletsAndAttachThemToNewRecurringBill::run($recurringBill);
+        FindStoredPalletsAndAttachThemToNewRecurringBill::make()->action($recurringBill, $previousRecurringBill);
 
 
         GroupHydrateRecurringBills::dispatch($recurringBill->group);
@@ -103,13 +103,13 @@ class StoreRecurringBill extends OrgAction
         ];
     }
 
-    public function action(RentalAgreement $rentalAgreement, array $modelData): RecurringBill
+    public function action(RentalAgreement $rentalAgreement, array $modelData, RecurringBill $previousRecurringBill = null): RecurringBill
     {
         $this->asAction = true;
 
         $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $modelData);
 
-        return $this->handle($rentalAgreement, $this->validatedData);
+        return $this->handle($rentalAgreement, $this->validatedData, $previousRecurringBill);
     }
 
     public string $commandSignature = 'recurring-bill:create {rental-agreement}';
