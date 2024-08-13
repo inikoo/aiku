@@ -319,7 +319,7 @@ class ShowPalletReturn extends RetinaAction
                 ],
 
                 'routeStorePallet' => [
-                    'name'       => 'grp.models.pallet-return.pallet.store',
+                    'name'       => 'retina.models.pallet-return.pallet.store',
                     'parameters' => [
                         'palletReturn'       => $palletReturn->id
                     ]
@@ -487,7 +487,7 @@ class ShowPalletReturn extends RetinaAction
 
                 'route_check_stored_items'   => [
                     'method'     => 'post',
-                    'name'       => 'grp.models.pallet-return.stored_item.store',
+                    'name'       => 'retina.models.pallet-return.stored_item.store',
                     'parameters' => [
                         $palletReturn->id
                     ]
