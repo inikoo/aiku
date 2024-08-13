@@ -76,7 +76,7 @@ const handleClick = (action: Action) => {
         <!-- Button: to download PDF (open in new tab) -->
         <a v-if="action.target" :href="route(action.route?.name, action.route?.parameters)" :target="action.target">
             <Button :style="action.style" :label="action.label"
-            :icon="action.icon" :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
+            :icon="action.icon" :iconRight="action.iconRight" :key="`ActionButton${action?.key}${action.style}`"
             :tooltip="action.tooltip" :loading="isLoading" />
         </a>
 
@@ -88,7 +88,7 @@ const handleClick = (action: Action) => {
             :size="action.size"
             :disabled="action.disabled"
             :iconRight="action.iconRight"
-            :key="`ActionButton${action.label}${action.style}`"
+            :key="`ActionButton${action?.key}${action.style}`"
             :tooltip="action.tooltip"
             :loading="isLoading"
         />
@@ -96,7 +96,7 @@ const handleClick = (action: Action) => {
 
     <Button v-else
         v-bind="action"
-        :key="`ActionButton${action.label}${action.style}`"
+        :key="`ActionButton${action?.key}${action.style}`"
         :loading="isLoading"
     />
 

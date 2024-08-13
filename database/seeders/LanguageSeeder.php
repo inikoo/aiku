@@ -16,7 +16,23 @@ class LanguageSeeder extends Seeder
 {
     public function run(): void
     {
-        $validLanguages=['en','es','sk','zh-Hans','id','ja','sk','fr','de'];
+        $validLanguages = [
+            'cs',
+            'de',
+            'en',
+            'es',
+            'fr',
+            'hr',
+            'hu',
+            'id',
+            'ja',
+            'nl',
+            'pl',
+            'pt',
+            'sk',
+            'sv',
+            'zh-Hans',
+        ];
 
 
         /*
@@ -37,15 +53,15 @@ class LanguageSeeder extends Seeder
         foreach ($languages as $language) {
             Language::upsert(
                 [
-                                     [
-                                         'code'  => $language->code,
-                                         'name'  => $language->name,
-                                         'status'=> in_array($language->code, $validLanguages),
-                                         'data'  => json_encode([])
-                                     ],
-                                 ],
+                    [
+                        'code'   => $language->code,
+                        'name'   => $language->name,
+                        'status' => in_array($language->code, $validLanguages),
+                        'data'   => json_encode([])
+                    ],
+                ],
                 ['code'],
-                ['name','status']
+                ['name', 'status']
             );
         }
     }

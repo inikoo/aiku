@@ -40,10 +40,11 @@ class StoreInvoice extends OrgAction
     ): Invoice {
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
+        } elseif (class_basename($parent) == 'RecurringBill') {
+            $modelData['customer_id'] = $parent->fulfilmentCustomer->customer_id;
         } else {
             $modelData['customer_id'] = $parent->customer_id;
         }
-
         if (!Arr::exists($modelData, 'tax_category_id')) {
             if ($parent instanceof Order || $parent instanceof RecurringBill) {
                 $modelData['tax_category_id'] = $parent->tax_category_id;
@@ -178,18 +179,22 @@ class StoreInvoice extends OrgAction
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->parent         = $parent;
 
 
 
-
-        if($parent instanceof RecurringBill){
+        if($parent instanceof RecurringBill) {
             $this->shop = $parent->fulfilment->shop;
             $this->initialisationFromFulfilment($parent->fulfilment, $modelData);
         } else {
-          
             $this->initialisationFromShop($parent->shop, $modelData);
         }
 
         return $this->handle($parent, $this->validatedData);
     }
+
+    // public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
 }

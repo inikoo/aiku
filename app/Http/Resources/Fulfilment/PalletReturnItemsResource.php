@@ -55,6 +55,7 @@ class PalletReturnItemsResource extends JsonResource
             'location'                         => $this->location_slug,
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
+            'is_checked'                       => (bool) $this->pallet_return_id,
             'stored_items'                     => $this->storedItems->map(fn ($storedItem) => [
                 'reference' => $storedItem->reference,
                 'quantity'  => (int)$storedItem->pivot->quantity,
