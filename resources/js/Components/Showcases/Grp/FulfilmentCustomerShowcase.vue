@@ -95,15 +95,15 @@ const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radi
 const optionRadio = [
     {
         value: 'pallets_storage',
-        label: 'Pallet Storage'
+        label: trans('Pallet Storage')
     },
     {
         value: 'items_storage',
-        label: 'Items Storage'
+        label: trans('Items Storage')
     },
     {
         value: 'dropshipping',
-        label: 'Dropshipping'
+        label: trans('Dropshipping')
     },
 ]
 

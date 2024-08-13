@@ -684,6 +684,7 @@
     "Pallet Delivery": "托盘运送",
     "Pallet Limit": "托盘限制",
     "Pallet Return": "托盘返回",
+    "Pallet Storage": "托盘存储",
     "Pallet Stored Items": "托盘存储物品",
     "Pallet almost reached the limit: :palletLimitLeft left": "托盘几乎已到达极限：:palletLimitLeft 左",
     "Pallet almost reached the limit: :palletLimitLeft left.": "托盘几乎已到达极限：:palletLimitLeft 剩余。",

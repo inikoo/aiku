@@ -684,6 +684,7 @@
     "Pallet Delivery": "Raklap szállítás",
     "Pallet Limit": "Raklap limit",
     "Pallet Return": "Raklap visszaküldése",
+    "Pallet Storage": "Raklap tárolás",
     "Pallet Stored Items": "Raklapon tárolt tárgyak",
     "Pallet almost reached the limit: :palletLimitLeft left": "A raklap majdnem elérte a határt: :palletLimitLeft balra",
     "Pallet almost reached the limit: :palletLimitLeft left.": "A raklap majdnem elérte a határt: :palletLimitLeft balra.",

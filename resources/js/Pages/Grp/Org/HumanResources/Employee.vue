@@ -106,22 +106,23 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #tabs-pin="{ data }">
-            <FontAwesomeIcon v-if="data.leftIcon" :title="data.leftIcon.tooltip" fixed-width aria-hidden="true"
-                :icon="data.leftIcon.icon" class="text-gray-400 pr-0.5" />
-                <Popover v-if="data.label" width="w-full" class="relative h-full">
-                <template #button>
-                    XXXXXX
-                </template>
-
-                <template #content="{ close: closed }">
-                    <div class="w-[100px]">
-                      <strong>Pin</strong> : {{ data.label }}
-                    </div>
-                </template>
-            </Popover>
-            <div v-else>Not Set</div>
+            <div class="flex items-center gap-x-1">
+                <FontAwesomeIcon v-if="data.leftIcon" v-tooltip="data.leftIcon.tooltip" fixed-width aria-hidden="true" :icon="data.leftIcon.icon" class="text-gray-400" />
+                <Popover v-if="data.label" class="relative h-full" position="left-0">
+                    <template #button>
+                        <div class="h-[22px] flex items-center">XXXXXX</div>
+                    </template>
+                    
+                    <template #content="{ close: closed }">
+                        <div class="w-full whitespace-nowrap">
+                            <strong>Pin</strong> : {{ data.label }}
+                        </div>
+                    </template>
+                </Popover>
+                <div v-else>Not Set</div>
+            </div>
         </template>
-       
+
     </PageHeading>
 
     <!--
