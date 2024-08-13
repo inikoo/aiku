@@ -100,7 +100,7 @@ const layout = inject('layout', layoutStructure)
             </div>
 
             <!-- Section: mini Tabs -->
-            <div v-if="data.meta?.length" class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5 text-gray-500 text-xs">
+            <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5 text-gray-500 text-xs">
                 <template v-for="item in data.meta">
                     <slot :name="`tabs-${item.key}`" :data="item">
                         <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"

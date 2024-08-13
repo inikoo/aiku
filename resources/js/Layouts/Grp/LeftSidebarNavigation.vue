@@ -131,7 +131,6 @@ const iconList: { [key: string]: string } = {
                             :navs="orgNav[Object.keys(orgNav)[0]]"
                             :scope="trans('production')"
                             root="grp.org.productions.show."
-
                         />
                     </template>
                 </template>

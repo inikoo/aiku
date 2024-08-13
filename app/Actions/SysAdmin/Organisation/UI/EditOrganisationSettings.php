@@ -50,7 +50,7 @@ class EditOrganisationSettings extends OrgAction
                     "blueprint" => [
 
                         [
-                            "title"  => __("branding"),
+                            "label"  => __("branding"),
                             "icon"   => "fa-light fa-copyright",
                             "fields" => [
                                 "name" => [
@@ -65,21 +65,21 @@ class EditOrganisationSettings extends OrgAction
                                 ],
                             ],
                         ],
-                        [
-                            "title"  => __("appearance"),
-                            "icon"   => "fa-light fa-paint-brush",
-                            "fields" => [
+                        // [
+                        //     "label"  => __("appearance"),
+                        //     "icon"   => "fa-light fa-paint-brush",
+                        //     "fields" => [
 
-                                "theme"     => [
-                                    "type"  => "theme",
-                                    "label" => __("choose your theme"),
-                                    "value" => "",
-                                ],
-                            ],
-                        ],
+                        //         "theme"     => [
+                        //             "type"  => "theme",
+                        //             "label" => __("choose your theme"),
+                        //             "value" => "",
+                        //         ],
+                        //     ],
+                        // ],
 
                         [
-                            "title"  => __("google drive"),
+                            "label"  => __("google drive"),
                             "icon"   => "fab fa-google",
                             "button" => [
                                 "title"   => !file_exists($this->getTokenPath()) ? "Authorize" : "Authorized",
