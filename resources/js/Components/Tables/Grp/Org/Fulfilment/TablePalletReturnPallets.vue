@@ -168,7 +168,8 @@ onBeforeMount(() => {
 
         <!-- Column: Pallet Reference -->
 
-		<template #cell(customer_reference)="{ item }"><pre>{{item['pallet_id']}}</pre>
+		<template #cell(customer_reference)="{ item }">
+        
 			<div class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
