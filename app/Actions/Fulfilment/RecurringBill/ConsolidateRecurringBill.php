@@ -32,8 +32,8 @@ class ConsolidateRecurringBill extends OrgAction
     {
         $modelData['status'] = RecurringBillStatusEnum::FORMER;
         $recurringBill       = $this->update($recurringBill, $modelData);
-        
-        $address = $recurringBill->fulfilmentCustomer->customer->address;
+
+        $address     = $recurringBill->fulfilmentCustomer->customer->address;
         $invoiceData = [
             'reference'        => $recurringBill->reference,
             'currency_id'      => $recurringBill->currency_id,

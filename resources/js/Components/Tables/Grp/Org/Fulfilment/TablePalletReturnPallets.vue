@@ -13,7 +13,7 @@ import '@/Composables/Icon/PalletReturnStateEnum'  // Import all icon for State
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { inject, reactive, ref } from 'vue'
+import { inject, reactive, ref, onBeforeMount } from 'vue'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Popover from '@/Components/Popover.vue'
@@ -35,7 +35,9 @@ const props = defineProps<{
     tab?: string
     state?: string
 }>()
-
+const isPickingLoading = ref(false)
+const isUndoLoading = ref(false)
+const selectedRow = ref({})
 // Not Picked
 const listStatusNotPicked = [
     {
@@ -60,6 +62,7 @@ const errorNotPicked = reactive({
     notes: null
 })
 const isSubmitNotPickedLoading = ref<boolean | number>(false)
+
 const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNotPicked: routeType) => {
     isSubmitNotPickedLoading.value = idPallet
     router[routeNotPicked.method || 'get'](route(routeNotPicked.name, routeNotPicked.parameters), {
@@ -82,15 +85,45 @@ const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNo
     })
 }
 
+const SetSelected = () => {
+    const finalValue: Record<string, { quantity: number }> = [];
 
-const isDeleteLoading = ref<boolean | string>(false)
-const isPickingLoading = ref(false)
-const isUndoLoading = ref(false)
+    for(const key in selectedRow.value){
+        if (selectedRow.value[key]) {
+           finalValue.push(key)
+        }
+    }
+};
+
+const onChangeCheked = (value) => {
+    selectedRow.value = value;
+    SetSelected();
+}
+
+
+const setUpChecked = () => {
+    const set: Record<string, boolean> = {};
+    if (props.data?.data) {
+        props.data.data.forEach((item) => {
+            set[item.id] = item.is_checked || false;
+        });
+        selectedRow.value = set;
+    }
+};
+
+
+onBeforeMount(() => {
+    setUpChecked();
+});
+
+
 </script>
 
 <template>
     <!-- <pre>{{data}}</pre> -->
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in-process'"
+     @onSelectRow="onChangeCheked" :selectedRow="selectedRow"
+    >
 
         <!-- Column: Type Icon -->
 		<template #cell(type_icon)="{ item: palletDelivery }">
@@ -125,7 +158,6 @@ const isUndoLoading = ref(false)
         <!-- Column: Rental -->
         <template #cell(rental)="{ item }">
                 {{ item.rental_name }}
-            
         </template>
 
         <!-- Column: State -->
@@ -158,23 +190,13 @@ const isUndoLoading = ref(false)
 
         <!-- Column: Location -->
 		<template #cell(location)="{ item: palletDelivery }">
+      <!--   <pre>{{ palletDelivery }}</pre> -->
             <Tag :label="palletDelivery.location_code" />
 		</template>
 
 
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
-            <!-- <pre>{{ pallet.state }}</pre> -->
-
-            <div v-if="props.state == 'in-process'">
-                <Link as="div" :href="route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)" v-tooltip="trans('Unselect this pallet')" method="delete"
-                    @start="() => isDeleteLoading = pallet.id"
-                    @finish="() => isDeleteLoading = false"
-                >
-                    <Button icon="fal fa-times" type="negative" :loading="pallet.id === isDeleteLoading" />
-                </Link>
-            </div>
-
             <!-- State: Pick or not-picked -->
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
                 <!-- {{ pallet.state }} -->
