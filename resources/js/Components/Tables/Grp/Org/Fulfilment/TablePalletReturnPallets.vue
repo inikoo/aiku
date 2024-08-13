@@ -17,6 +17,7 @@ import { inject, reactive, ref, onBeforeMount } from 'vue'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Popover from '@/Components/Popover.vue'
+import { isNull } from 'lodash'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -25,6 +26,7 @@ import { faSignOutAlt, faTimes, faShare, faCross, faUndo, faStickyNote } from "@
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { routeType } from "@/types/route"
+import { notify } from "@kyvg/vue3-notification";
 
 const layout = inject('layout', layoutStructure)
 
@@ -34,7 +36,11 @@ const props = defineProps<{
     data: {}
     tab?: string
     state?: string
+    route_checkmark : routeType
 }>()
+
+console.log(props)
+
 const isPickingLoading = ref(false)
 const isUndoLoading = ref(false)
 const selectedRow = ref({})
@@ -89,10 +95,27 @@ const SetSelected = () => {
     const finalValue: Record<string, { quantity: number }> = [];
 
     for(const key in selectedRow.value){
-        if (selectedRow.value[key]) {
+        if (selectedRow.value[key] &&  !isNull(key)) {
            finalValue.push(key)
         }
     }
+
+
+    router.post(
+        route(props.route_checkmark.name, props.route_checkmark.parameters),
+        { pallets : finalValue },
+        {
+            preserveScroll: true,
+            onSuccess: () => {},
+            onError: () => {
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to save',
+                    type: 'error',
+                });
+            },
+        }
+    );
 };
 
 const onChangeCheked = (value) => {
@@ -105,7 +128,7 @@ const setUpChecked = () => {
     const set: Record<string, boolean> = {};
     if (props.data?.data) {
         props.data.data.forEach((item) => {
-            set[item.id] = item.is_checked || false;
+            set[item.pallet_id] = item.is_checked || false;
         });
         selectedRow.value = set;
     }
@@ -122,7 +145,7 @@ onBeforeMount(() => {
 <template>
     <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in-process'"
-     @onSelectRow="onChangeCheked" :selectedRow="selectedRow"
+     @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
     >
 
         <!-- Column: Type Icon -->
@@ -144,7 +167,8 @@ onBeforeMount(() => {
 		</template>
 
         <!-- Column: Pallet Reference -->
-		<template #cell(customer_reference)="{ item }">
+
+		<template #cell(customer_reference)="{ item }"><pre>{{item['pallet_id']}}</pre>
 			<div class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
@@ -167,7 +191,7 @@ onBeforeMount(() => {
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 		</template> -->
-        
+
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">

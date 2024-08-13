@@ -39,9 +39,10 @@ class StoreRecurringBillTransaction extends OrgAction
             foreach ($pallets as $pallet) {
                 $totalQuantity += $pallet->pivot->quantity;
             }
-
-            data_set($modelData, 'quantity', $totalQuantity);
+        } else {
+            $totalQuantity = 1;
         }
+        data_set($modelData, 'quantity', $totalQuantity);
 
         /** @var RecurringBillTransaction $recurringBillTransaction */
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
