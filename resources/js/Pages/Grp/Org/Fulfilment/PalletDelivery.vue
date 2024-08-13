@@ -570,20 +570,20 @@ watch(() => props.data, (newValue) => {
                 'bg-red-200': pallet_limits?.status === 'exceeded',
             }"
         >
-            <div class="flex">
+            <div class="flex qwezxc" :class="{
+                'text-amber-500': pallet_limits?.status === 'almost',
+                'text-orange-600': pallet_limits?.status === 'limit',
+                'text-red-600': pallet_limits?.status === 'exceeded',
+            }">
                 <div class="flex-shrink-0">
-                    <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="h-5 w-5 text-amber-500"
+                    <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="text-lg"
                         aria-hidden="true"
-                        :class="{
-                            'text-yellow-50': pallet_limits?.status === 'almost',
-                            'text-orange-200': pallet_limits?.status === 'limit',
-                            'text-red-600': pallet_limits?.status === 'exceeded',
-                        }"
-            />
+                        
+                    />
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800">{{ trans('Attention needed') }}</h3>
-                    <div class="mt-2 text-sm text-yellow-700">
+                    <h3 class="text-sm font-medium">{{ trans('Attention needed') }}</h3>
+                    <div class="text-xs opacity-70 ">
                         <p>{{ pallet_limits?.message }}</p>
                     </div>
                 </div>

@@ -684,6 +684,7 @@
     "Pallet Delivery": "Entrega de paletes",
     "Pallet Limit": "Limite de paletes",
     "Pallet Return": "Devolução de paletes",
+    "Pallet Storage": "Armazenamento de paletes",
     "Pallet Stored Items": "Itens armazenados em paletes",
     "Pallet almost reached the limit: :palletLimitLeft left": "O palete quase atingiu o limite: :palletLimitLeft left",
     "Pallet almost reached the limit: :palletLimitLeft left.": "O palete quase atingiu o limite: :palletLimitLeft left.",

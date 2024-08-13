@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Invoice\UI;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
@@ -88,7 +89,6 @@ class ShowInvoice extends OrgAction
 
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
-
 
         if ($invoice->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
@@ -290,7 +290,7 @@ class ShowInvoice extends OrgAction
 
             'grp.org.fulfilments.show.crm.customers.show.invoices.show',
             => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $invoice,
                     [
