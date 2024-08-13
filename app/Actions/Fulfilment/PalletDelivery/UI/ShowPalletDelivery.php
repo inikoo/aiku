@@ -123,6 +123,7 @@ class ShowPalletDelivery extends OrgAction
                                 'style'   => 'secondary',
                                 'icon'    => ['fal', 'fa-upload'],
                                 'label'   => 'upload',
+                                'key'     => 'upload',
                                 'tooltip' => __('Upload pallets via spreadsheet'),
                             ],
                             [
@@ -130,6 +131,7 @@ class ShowPalletDelivery extends OrgAction
                                 'style' => 'secondary',
                                 'icon'  => ['far', 'fa-layer-plus'],
                                 'label' => 'multiple',
+                                'key'     => 'multiple',
                                 'route' => [
                                     'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                                     'parameters' => [
@@ -142,6 +144,7 @@ class ShowPalletDelivery extends OrgAction
                                 'style'   => 'secondary',
                                 'icon'    => 'fal fa-plus',
                                 'label'   => __('add pallet'),
+                                'key'     => 'add-pallet',
                                 'tooltip' => __('Add single pallet'),
                                 'route'   => [
                                     'name'       => 'grp.models.pallet-delivery.pallet.store',
@@ -154,6 +157,7 @@ class ShowPalletDelivery extends OrgAction
                                 'type'    => 'button',
                                 'style'   => 'secondary',
                                 'icon'    => 'fal fa-plus',
+                                'key'     => 'add-service',
                                 'label'   => __('add service'),
                                 'tooltip' => __('Add single service'),
                                 'route'   => [
@@ -167,6 +171,7 @@ class ShowPalletDelivery extends OrgAction
                                 'type'    => 'button',
                                 'style'   => 'secondary',
                                 'icon'    => 'fal fa-plus',
+                                'key'     => 'add_physical_good',
                                 'label'   => __('add physical good'),
                                 'tooltip' => __('Add physical good'),
                                 'route'   => [

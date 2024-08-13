@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import Table from '@/Components/Table/Table.vue';
-import Button from '@/Components/Elements/Buttons/Button.vue';
 import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
 import { ref, watch, onBeforeMount } from 'vue';
 import { router } from "@inertiajs/vue3";
 import { notify } from "@kyvg/vue3-notification";
-import { useLayoutStore } from "@/Stores/layout";
 import { debounce } from 'lodash';
 
 const props = defineProps<{
@@ -17,7 +15,6 @@ const props = defineProps<{
     route_check_stored_items: routeType;
 }>();
 
-const isLoading = ref<string | boolean>(false);
 const selectedRow = ref({});
 const _table = ref(null);
 
@@ -43,7 +40,6 @@ const SetSelected = () => {
             }
         }
     }
-    console.log(finalValue)
 
     router.post(
         route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),

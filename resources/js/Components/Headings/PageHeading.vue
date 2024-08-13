@@ -130,7 +130,7 @@ const layout = inject('layout', layoutStructure)
                 <template v-for="(action, actIndex) in data.actions">
                     <template v-if="action">
                         <!-- Button -->
-                        <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="action">
+                        <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.key ? action.key : action.label)}`" :action="action">
                             <slot :name="`button-index-${actIndex}`" :action="action">
                                 <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit" />
                             </slot>
@@ -145,7 +145,8 @@ const layout = inject('layout', layoutStructure)
                                     border: `1px solid ${layout?.app?.theme[4] + '88'}`
                                 }"
                             >
-                                <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="button">
+                        
+                                <slot v-for="(button, index) in action.button" :name="`button-group-${kebabCase(button.key ? button.key : button.label)}`" :action="button">
                                     <component :is="button.route?.name ? Link : 'div'"
                                         :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
                                         :method="button.route?.method || 'get'"

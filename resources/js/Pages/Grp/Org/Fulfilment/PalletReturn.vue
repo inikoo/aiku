@@ -18,7 +18,6 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TableStoredItem from "@/Components/StoredItemMovement/TableStoredItem.vue"
 import TablePalletReturnPallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
@@ -27,12 +26,8 @@ import Tag from "@/Components/Tag.vue"
 import { BoxStats, PDRNotes, PalletReturn, UploadPallet } from '@/types/Pallet'
 import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
-import StoredItemReturnDescriptor from  '@/Components/PalletReturn/Descriptor/StoredItemReturn.ts'
-import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 
 import { trans } from "laravel-vue-i18n"
-// import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
-// import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
 import { get } from "lodash"
 import PureInput from "@/Components/Pure/PureInput.vue"
@@ -55,7 +50,6 @@ const props = defineProps<{
     pallets?: {}
     stored_items?: {}
     services?: {}
-    // service_lists?: {}
     service_list_route: routeType
     physical_goods?: {}
     physical_good_list_route: routeType
@@ -73,20 +67,6 @@ const props = defineProps<{
     }
     
     upload_spreadsheet: UploadPallet
-
-    // upload: {
-    //     event  : string
-    //     channel: string
-    //     templates: {
-    //         label: string
-    //         route: routeType
-    //     }
-    // }
-    // uploadRoutes: {
-    //     upload: routeType
-    //     download: routeType
-    //     history: routeType
-    // }
 
     palletRoute: {
         index: routeType
@@ -106,9 +86,11 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
-const isModalStoredItems = ref(false)
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
+const isModalUploadOpen = ref(false)
+const dataPGoodList = ref([])
+const dataServiceList = ref([])
 
 const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1, historic_asset_id: null })
@@ -133,11 +115,8 @@ watch(
     { deep: true }
 )
 
-const storedItemDescriptor = StoredItemReturnDescriptor
-
 
 // Tabs: Services
-const dataServiceList = ref([])
 const onOpenModalAddService = async () => {
     isLoadingData.value = 'addService'
     try {
@@ -183,9 +162,7 @@ const onSubmitAddService = (data: Action, closedPopover: Function) => {
     )
 }
 
-
 // Tabs: Physical Goods
-const dataPGoodList = ref([])
 const onOpenModalAddPGood = async () => {
     isLoadingData.value = 'addPGood'
     try {
@@ -202,6 +179,7 @@ const onOpenModalAddPGood = async () => {
     }
     isLoadingData.value = false
 }
+
 const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataPGoodList.value.filter(pgood => pgood.id == formAddPhysicalGood.outer_id)[0].historic_asset_id
     formAddPhysicalGood.historic_asset_id = selectedHistoricAssetId
@@ -232,27 +210,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
 }
 
 
-// Method: change data before submit Stored Items
-const beforeSubmitStoredItem = (dataList: {}[], selectedStoredItem: number[]) => {
-    return selectedStoredItem.map(id => {
-        const dataItem = dataList.find(item => item.id === id);
-        if (dataItem) {
-        return {
-            pallet_stored_item: dataItem.id,
-            pallet: dataItem.pallet_id,
-            stored_item: dataItem.stored_item_id,
-            quantity: dataItem.quantity
-        };
-        } else {
-        return null;
-        }
-    }).filter(item => item !== null); // Filter out any null values if aaa contains ids not present in bbb
-}
-// console.log(props.box_stats.fulfilment_customer.addresses_list.other)
-
-
-// Method: open modal Upload
-const isModalUploadOpen = ref(false)
 </script>
 
 <template>
@@ -280,67 +237,6 @@ const isModalUploadOpen = ref(false)
             />
             <div v-else />
         </template>
-
-        <!-- Button: Add Stored Items -->
-      <!--   <template #button-group-add-stored-item="{ action }">
-            <Popover v-if="currentTab === 'stored_items'" >
-                <template #button="{ open }">
-                    <Button
-                        v-if="currentTab === 'stored_items'"
-                        :style="action.style"
-                        :label="action.label"
-                        :icon="action.icon"
-                        :iconRight="action.iconRight"
-                        :key="`ActionButton${action.label}${action.style}`"
-                        :tooltip="action.tooltip"
-                    />
-                </template>
-
-                <template #content="{ close: closed }">
-                    <div class="w-[350px]">
-                        <span class="text-xs px-1 my-2">{{ trans('Stored Items') }}: </span>
-                        <div class="">
-                            <PureMultiselect
-                                v-model="formAddService.service_id"
-                                autofocus
-                                caret
-                                required
-                                searchable
-                                placeholder="Services"
-                                :options="dataServiceList"
-                                label="name"
-                                valueProp="id"
-                            />
-                            <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
-                                {{ formAddService.errors.service_id }}
-                            </p>
-                        </div>
-                        <div class="mt-3">
-                            <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
-                            <PureInput
-                                v-model="formAddService.quantity"
-                                :placeholder="trans('Quantity')"
-                                @keydown.enter="() => onSubmitAddService(action, closed)"
-                            />
-                            <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
-                                {{ formAddService.errors.quantity }}
-                            </p>
-                        </div>
-                        <div class="flex justify-end mt-3">
-                            <Button
-                                :style="'save'"
-                                :loading="isLoadingButton == 'addService'"
-                                :label="'save'"
-                                :disabled="!formAddService.service_id || !(formAddService.quantity > 0)"
-                                full
-                            />
-                        </div>
-                    </div>
-                </template>
-            </Popover>
-
-            <div v-else />
-        </template> -->
 
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
@@ -509,7 +405,6 @@ const isModalUploadOpen = ref(false)
 				:descriptor="palletReturnDescriptor"
 			>
                 <template #column-stored_items="{data}">
-                    <!-- {{ data.columnData.stored_items }} -->
                     <div class="flex gap-x-1 flex-wrap">
                         <template v-if="data.columnData.stored_items.length">
                             <Tag v-for="item of data.columnData.stored_items"
@@ -530,35 +425,6 @@ const isModalUploadOpen = ref(false)
             </TablePalletReturn>
         </div>
     </Modal>
-
-
-    <!-- Modal: Add stored items -->
-   <!--  <Modal :isOpen="isModalStoredItems" @onClose="isModalStoredItems = false" width='w-[800px]'>
-        <div class="">
-            <TablePalletReturn
-                :dataRoute="storedItemRoute.index"
-                :saveRoute="storedItemRoute.store"
-				@onClose="() => isModalStoredItems = false"
-				:descriptor="storedItemDescriptor"
-                :beforeSubmit="(descriptor?: string, dataList: {}[], storedItem: number[]) => beforeSubmitStoredItem(dataList, storedItem)"
-			>
-
-            <template #head-quantity="{data}">
-                <div class="w-full text-end flex justify-end">
-                    <div class="w-32 text-end flex justify-start">
-                    Quantity
-                </div>
-                </div>
-                </template>
-
-                <template #column-quantity="{data}">
-                <div class="w-full text-end flex justify-end">
-                    <div class="w-32"><PureInputNumber v-model="data.columnData.quantity" :maxValue="{...data.columnData.quantity}" :minValue="1" /></div>
-                </div>
-                </template>
-            </TablePalletReturn>
-        </div>
-    </Modal> -->
 
 
     <UploadExcel
