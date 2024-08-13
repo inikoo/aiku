@@ -127,12 +127,12 @@ class ShowPalletDelivery extends OrgAction
                                 'tooltip' => __('Upload pallets via spreadsheet'),
                             ],
                             [
-                                'type'  => 'button',
-                                'style' => 'secondary',
-                                'icon'  => ['far', 'fa-layer-plus'],
-                                'label' => 'multiple',
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['far', 'fa-layer-plus'],
+                                'label'   => 'multiple',
                                 'key'     => 'multiple',
-                                'route' => [
+                                'route'   => [
                                     'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                                     'parameters' => [
                                         'palletDelivery' => $palletDelivery->id

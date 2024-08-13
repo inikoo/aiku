@@ -182,11 +182,11 @@ class StoreInvoice extends OrgAction
 
 
 
-        if($parent instanceof RecurringBill){
+        if($parent instanceof RecurringBill) {
             $this->shop = $parent->fulfilment->shop;
             $this->initialisationFromFulfilment($parent->fulfilment, $modelData);
         } else {
-          
+
             $this->initialisationFromShop($parent->shop, $modelData);
         }
 

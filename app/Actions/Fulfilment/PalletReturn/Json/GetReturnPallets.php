@@ -31,18 +31,40 @@ class GetReturnPallets extends OrgAction
             });
         });
 
-
         $query = QueryBuilder::for(Pallet::class);
 
         $query->where('fulfilment_customer_id', $fulfilmentCustomer->id);
-        $query->where('state', PalletStateEnum::STORING);
-        $query->where('status', '!=', PalletStatusEnum::RETURNED);
+        $query->where('pallets.state', PalletStateEnum::STORING);
+        $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
+
+        $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
+        $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
+
+        $query->defaultSort('pallets.id')
+            ->select(
+                'pallet_return_items.id',
+                'pallets.id as pallet_id',
+                'pallets.slug',
+                'pallets.reference',
+                'pallets.customer_reference',
+                'pallets.notes',
+                'pallets.state',
+                'pallets.status',
+                'pallets.rental_id',
+                'pallets.type',
+                'pallets.received_at',
+                'pallets.location_id',
+                'pallets.fulfilment_customer_id',
+                'pallets.warehouse_id',
+                'pallets.pallet_delivery_id',
+                'pallets.pallet_return_id',
+                'locations.slug as location_slug',
+                'locations.slug as location_code'
+            );
 
 
-
-        return $query->defaultSort('pallets.reference')
-            ->allowedSorts(['customer_reference', 'pallets.reference'])
-            ->allowedFilters([$globalSearch, 'customer_reference'])
+        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
+            ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator(null)
             ->withQueryString();
     }

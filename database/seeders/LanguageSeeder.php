@@ -54,10 +54,10 @@ class LanguageSeeder extends Seeder
             Language::upsert(
                 [
                     [
-                        'code' => $language->code,
-                        'name' => $language->name,
+                        'code'   => $language->code,
+                        'name'   => $language->name,
                         'status' => in_array($language->code, $validLanguages),
-                        'data' => json_encode([])
+                        'data'   => json_encode([])
                     ],
                 ],
                 ['code'],
