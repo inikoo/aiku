@@ -48,9 +48,9 @@ function invoiceRoute(invoice: Invoice) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(number)="{ item: invoice }">
+        <template #cell(reference)="{ item: invoice }">
             <Link :href="invoiceRoute(invoice)" class="primaryLink py-0.5">
-            {{ invoice.number }}
+            {{ invoice.reference }}
             </Link>
         </template>
 

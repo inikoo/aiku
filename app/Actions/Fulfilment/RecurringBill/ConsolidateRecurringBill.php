@@ -31,8 +31,8 @@ class ConsolidateRecurringBill extends OrgAction
     {
         $modelData['status'] = RecurringBillStatusEnum::FORMER;
         $recurringBill       = $this->update($recurringBill, $modelData);
-
-
+        
+        
         $invoiceData = [
             'number'           => $recurringBill->reference,
             'currency_id'      => $recurringBill->currency_id,
@@ -41,8 +41,9 @@ class ConsolidateRecurringBill extends OrgAction
             'net_amount'       => $recurringBill->net_amount,
             'total_amount'     => $recurringBill->total_amount
         ];
+        // dd('aa');
         $invoice = StoreInvoice::make()->action($recurringBill, $invoiceData);
-
+        // dd('xx');
         $transactions = $recurringBill->transactions;
 
         foreach ($transactions as $transaction) {
@@ -88,8 +89,8 @@ class ConsolidateRecurringBill extends OrgAction
 
     public function asController(RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
-        $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
 
+        $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
         return $this->handle($recurringBill, $this->validatedData);
     }
 

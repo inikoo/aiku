@@ -109,9 +109,11 @@ class ShowRecurringBill extends OrgAction
                     'end_date'   => $recurringBill->end_date
                 ],
                 'consolidateRoute'  => [
-                    'name'          => null,
-                    'parameters'    => null,
-                    'method'        => null
+                    'name'          => 'grp.models.recurring-bill.consolidate',
+                    'parameters'    => [
+                        'recurringBill' => $recurringBill->id
+                    ],
+                    'method'        => 'patch'
                 ],
                 'status_rb'        => $recurringBill->status,
                 'box_stats'        => [

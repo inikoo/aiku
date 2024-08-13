@@ -67,20 +67,20 @@ class StoreInvoice extends OrgAction
         data_forget($modelData, 'billing_address');
 
 
-        $modelData['shop_id']     = $parent->shop_id;
-        $modelData['currency_id'] = $parent->shop->currency_id;
+        $modelData['shop_id']     = $this->shop->id;
+        $modelData['currency_id'] = $this->shop->currency_id;
 
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        $modelData = $this->processExchanges($modelData, $parent->shop);
+        $modelData = $this->processExchanges($modelData, $this->shop);
 
 
         $date = now();
         data_set($modelData, 'date', $date, overwrite: false);
         data_set($modelData, 'tax_liability_at', $date, overwrite: false);
 
-
+        // dd($modelData);
         /** @var Invoice $invoice */
         $invoice = $parent->invoices()->create($modelData);
         $invoice->stats()->create();
@@ -174,10 +174,21 @@ class StoreInvoice extends OrgAction
 
     public function action(Customer|Order|RecurringBill $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
     {
+        // dd('bb');
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromShop($parent->shop, $modelData);
+
+
+
+
+        if($parent instanceof RecurringBill){
+            $this->shop = $parent->fulfilment->shop;
+            $this->initialisationFromFulfilment($parent->fulfilment, $modelData);
+        } else {
+          
+            $this->initialisationFromShop($parent->shop, $modelData);
+        }
 
         return $this->handle($parent, $this->validatedData);
     }
