@@ -131,9 +131,6 @@ class ShowInvoice extends OrgAction
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
 
-
-
-                'recurring_bill_route' => $recurringBillRoute,
                 'order_summary'        => [
                     [
                         [
@@ -199,11 +196,8 @@ class ShowInvoice extends OrgAction
                     ],
                     'information' => [
                         'recurring_bill'    => [
-                            'reference'     => '#urfjkd3',  // TODO: should dynamic
-                            'route'         => [
-                                'name'      => 'grp.org.shops.index',  // TODO: should correct route
-                                'parameters'=> ['aw'],  // TODO: should correct route
-                            ],
+                            'reference'     => $invoice->reference,
+                            'route'         => $recurringBillRoute
                         ],
                         'routes' => [
                             'payment_accounts' => [
