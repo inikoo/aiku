@@ -26,31 +26,35 @@ class IndexInvoiceTransactions extends OrgAction
                 $query->whereStartWith('invoice_transactions.number', $value);
             });
         });
-
+    
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-
-
+    
         $queryBuilder = QueryBuilder::for(InvoiceTransaction::class);
         $queryBuilder->where('invoice_transactions.invoice_id', $invoice->id);
         $queryBuilder->leftJoin('historic_assets', 'invoice_transactions.historic_asset_id', 'historic_assets.id');
         $queryBuilder->leftJoin('assets', 'invoice_transactions.asset_id', 'assets.id');
-
+    
         $queryBuilder->select(
             [
                 'historic_assets.code',
                 'historic_assets.name',
                 'assets.slug',
-                'invoice_transactions.quantity',
-                'invoice_transactions.net_amount',
-                DB::raw("'{$invoice->currency->code}'  AS currency_code")
-
+                DB::raw('SUM(invoice_transactions.quantity) as quantity'),
+                DB::raw('SUM(invoice_transactions.net_amount) as net_amount'),
+                DB::raw("'{$invoice->currency->code}' AS currency_code")
             ]
         );
-        $queryBuilder->defaultSort('-invoice_transactions.updated_at');
-
-
+        
+        $queryBuilder->groupBy(
+            'historic_assets.code',
+            'historic_assets.name',
+            'assets.slug'
+        );
+        
+        $queryBuilder->defaultSort('code');
+    
         return $queryBuilder->allowedSorts(['code', 'name', 'quantity', 'net_amount'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
