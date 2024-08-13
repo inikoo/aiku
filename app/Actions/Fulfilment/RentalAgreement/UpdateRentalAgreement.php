@@ -11,6 +11,7 @@ use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryFulfilmentTransactionClause;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnFulfilmentTransactionClause;
+use App\Actions\Fulfilment\RecurringBillTransaction\SetClausesInRecurringBillTransaction;
 use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\Fulfilment\RentalAgreementClause\RemoveRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
@@ -42,6 +43,8 @@ class UpdateRentalAgreement extends OrgAction
 
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
+        $updateTrigger = Arr::get($modelData, 'update_all');
+        data_forget($modelData, 'update_all');
         $oldData = [
             'billing_cycle' => $rentalAgreement->billing_cycle,
             'pallets_limit' => $rentalAgreement->pallets_limit,
@@ -148,13 +151,15 @@ class UpdateRentalAgreement extends OrgAction
                 UpdatePalletReturnFulfilmentTransactionClause::run($return);
             }
         }
-
-        if (Arr::get($modelData, 'update_all', false)) {
-            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDelivery as $delivery) {
+        if ($updateTrigger === true) {
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDeliveries as $delivery) {
                 UpdatePalletDeliveryFulfilmentTransactionClause::run($delivery);
             }
-            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletReturn as $return) {
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletReturns as $return) {
                 UpdatePalletReturnFulfilmentTransactionClause::run($return);
+            }
+            foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->transactions as $transaction) {
+                SetClausesInRecurringBillTransaction::make()->action($transaction);
             }
         }
 
@@ -164,6 +169,7 @@ class UpdateRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
+            'update_all'                              => ['required'],
             'billing_cycle'                           => ['sometimes', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                           => ['sometimes', 'integer', 'min:1', 'max:10000'],
             'clauses'                                 => ['sometimes', 'array'],
@@ -211,7 +217,6 @@ class UpdateRentalAgreement extends OrgAction
                         ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
                     ]
                 ),
-
             ],
         ];
     }

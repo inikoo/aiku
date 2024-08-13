@@ -138,7 +138,7 @@ class ShowRecurringBill extends OrgAction
                                 'label'         => __('Pallets'),
                                 'quantity'      => $recurringBill->stats->number_transactions_type_pallets ?? 0,
                                 'price_base'    => __('Multiple'),
-                                'price_total'   => $palletPriceTotal ?? 0
+                                'price_total'   => $recurringBill->rental_amount
                             ],
                             // [
                             //     'label'         => __('Stored Items'),
@@ -149,20 +149,15 @@ class ShowRecurringBill extends OrgAction
                         ],
                         [
                             [
-                                'label'         => __('Shipping'),
-                                'information'   => __('Shipping fee to your address using DHL service.'),
-                                'price_total'   => 1111
-                            ],
-                            [
                                 'label'         => __('Tax'),
                                 'information'   => __('Tax is based on 10% of total order.'),
-                                'price_total'   => 1111111
+                                'price_total'   => $recurringBill->tax_amount
                             ],
                         ],
                         [
                             [
                                 'label'         => __('Total'),
-                                'price_total'   => 222222222
+                                'price_total'   => $recurringBill->total_amount
                             ],
                         ],
                     ],
