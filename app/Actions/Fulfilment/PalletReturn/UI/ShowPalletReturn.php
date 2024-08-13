@@ -130,6 +130,7 @@ class ShowPalletReturn extends OrgAction
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-plus',
                             'label'   => __('add service'),
+                            'key'     => 'add service',
                             'tooltip' => __('Add single service'),
                             'route'   => [
                                 'name'       => 'grp.models.pallet-return.transaction.store',
@@ -142,6 +143,7 @@ class ShowPalletReturn extends OrgAction
                             'type'    => 'button',
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-plus',
+                            'key'     => 'add-physical-good',
                             'label'   => __('add physical good'),
                             'tooltip' => __('Add physical good'),
                             'route'   => [

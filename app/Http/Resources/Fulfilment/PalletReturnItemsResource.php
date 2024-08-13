@@ -37,6 +37,7 @@ class PalletReturnItemsResource extends JsonResource
     {
         return [
             'id'                               => $this->id,
+            'pallet_id'                        => $this->pallet_id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
             'customer_reference'               => (string)$this->customer_reference,

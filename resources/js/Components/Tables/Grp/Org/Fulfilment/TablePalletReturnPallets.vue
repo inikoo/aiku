@@ -39,6 +39,7 @@ const props = defineProps<{
 }>()
 
 console.log(props)
+
 const isPickingLoading = ref(false)
 const isUndoLoading = ref(false)
 const selectedRow = ref({})
@@ -113,8 +114,6 @@ const SetSelected = () => {
             },
         }
     );
-
-    console.log(finalValue)
 };
 
 const onChangeCheked = (value) => {
@@ -127,7 +126,7 @@ const setUpChecked = () => {
     const set: Record<string, boolean> = {};
     if (props.data?.data) {
         props.data.data.forEach((item) => {
-            set[item.id] = item.is_checked || false;
+            set[item.pallet_id] = item.is_checked || false;
         });
         selectedRow.value = set;
     }
@@ -144,7 +143,7 @@ onBeforeMount(() => {
 <template>
     <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in-process'"
-     @onSelectRow="onChangeCheked" :selectedRow="selectedRow"
+     @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
     >
 
         <!-- Column: Type Icon -->
@@ -166,7 +165,7 @@ onBeforeMount(() => {
 		</template>
 
         <!-- Column: Pallet Reference -->
-		<template #cell(customer_reference)="{ item }">
+		<template #cell(customer_reference)="{ item }"><pre>{{item['pallet_id']}}</pre>
 			<div class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
@@ -189,7 +188,7 @@ onBeforeMount(() => {
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 		</template> -->
-        
+
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">

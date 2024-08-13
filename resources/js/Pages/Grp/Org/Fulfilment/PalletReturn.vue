@@ -241,7 +241,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
 
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action }">
-            <Popover v-if="currentTab === 'services'" width="w-full">
+            <Popover v-if="currentTab === 'services'">
                 <template #button="{ open }">
                     <Button
                         @click="() => open ? false : onOpenModalAddService()"
@@ -394,7 +394,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
     <BoxStatsPalletReturn :dataPalletReturn="data.data" :boxStats="box_stats" :updateRoute="updateRoute" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    {{  currentTab }}
     <component 
         :is="component" 
         :data="props[currentTab]" 
