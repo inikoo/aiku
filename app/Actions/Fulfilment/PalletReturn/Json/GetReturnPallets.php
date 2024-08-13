@@ -60,7 +60,10 @@ class GetReturnPallets extends OrgAction
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
         if($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
+            $query->where('pallets.state', PalletStatusEnum::STORING);
             $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
+        } elseif($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
+            $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
         }
 
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
@@ -75,14 +78,6 @@ class GetReturnPallets extends OrgAction
                     prefix: $prefix
                 );
             }
-        }
-
-        if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
-        }
-
-        if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
         }
 
         $query->defaultSort('pallets.id')

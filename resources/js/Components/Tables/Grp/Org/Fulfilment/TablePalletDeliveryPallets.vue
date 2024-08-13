@@ -247,8 +247,8 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
                     @onSave="onSavedRental"
                     fieldType="select"
                     fieldName="rental_id"
-                    placeholder="Enter rental"
-                    label="name"
+                    placeholder="Select rental"
+                    label="code"
                     value-prop="id"
                 />
             </div>

@@ -38,6 +38,7 @@ interface TypeFulfilment {
 }
 
 interface optionsJob {
+    key: string
     department: string
     departmentRightIcons?: string[]
     icon?: string
@@ -96,7 +97,8 @@ const props = defineProps<{
 
 const optionsJob = reactive<{ [key: string]: optionsJob }>({
     group_admin: {
-        department: "group admin",
+        department: trans("group admin"),
+        key: 'group_admin',
         level: 'group_admin',
         icon: 'fas fa-helmet-battle',
         subDepartment: [
@@ -108,7 +110,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
     },
     system_admin: {
-        department: "Group sysadmin",
+        key: 'group_sysadmin',
+        department: trans("Group sysadmin"),
         level: 'group_sysadmin',
         icon: 'fas fa-computer-classic',
         subDepartment: [
@@ -120,9 +123,10 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
     },
     group_procurement: {
+        key: 'group_procurement',
+        department: trans("Group Procurement"),
         icon: "fal fa-box-usd",
         level: 'group_procurement',
-        department: "Group Procurement",
         subDepartment: [
             {
                 slug: "gp-sc",
@@ -140,7 +144,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         // value: null
     },
     org_admin: {
-        department: "Org admin",
+        key: 'org_admin',
+        department: trans("Org admin"),
         icon: 'fal fa-crown',
         subDepartment: [
             {
@@ -153,8 +158,9 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     hr: {
+        key: 'hr',
+        department: trans("Human Resources"),
         icon: "fal fa-user-hard-hat",
-        department: "Human Resources",
         subDepartment: [
             {
                 slug: "hr-m",
@@ -173,8 +179,9 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     acc: {
+        key: 'acc',
+        department: trans("Accounting"),
         icon: "fal fa-abacus",
-        department: "Accounting",
         subDepartment: [
             {
                 slug: "acc-m",
@@ -193,7 +200,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     shop_admin: {
-        department: "Shop admin",
+        key: 'shop_admin',
+        department: trans("Shop admin"),
         icon: 'fal fa-chess-queen',
         scope: 'shop',
         subDepartment: [
@@ -206,8 +214,9 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         // value: null
     },
     shk: {
+        key: 'shk',
+        department: trans("Shopkeeping"),
         icon: 'fal fa-cash-register',
-        department: "Shopkeeping",
         departmentRightIcons: ['fal fa-cube', 'fal fa-globe'],
         scope: 'shop',
         subDepartment: [
@@ -232,8 +241,9 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     mrk: {
+        key: 'mrk',
+        department: trans("Marketing"),
         icon: "fal fa-bullhorn",
-        department: "Marketing",
         scope: 'shop',
         subDepartment: [
             {
@@ -257,7 +267,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     cus: {
-        department: "Customer Service",
+        key: 'cus',
+        department: trans("Customer Service"),
         departmentRightIcons: ['fal fa-user', 'fal fa-route'],
         scope: 'shop',
         subDepartment: [
@@ -282,7 +293,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     buy: {
-        department: "Buyer",
+        key: 'buy',
+        department: trans("Buyer"),
         subDepartment: [
             {
                 slug: "buy",
@@ -295,7 +307,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     wah: {
-        department: "Warehouse",
+        key: 'wah',
+        department: trans("Warehouse"),
         subDepartment: [
             {
                 slug: "wah-m",
@@ -323,7 +336,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     dist: {
-        department: "Dispatching",
+        key: 'dist',
+        department: trans("Dispatching"),
         subDepartment: [
             {
                 slug: "dist-m",
@@ -351,7 +365,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     prod: {
-        department: "Manufacturing",
+        key: 'prod',
+        department: trans("Manufacturing"),
         subDepartment: [
             {
                 slug: "prod-m",
@@ -370,7 +385,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     ful: {
-        department: "Fulfilment",
+        key: 'ful',
+        department: trans("Fulfilment"),
         subDepartment: [
             {
                 slug: "ful-m",
@@ -599,7 +615,7 @@ onMounted(() => {
                                     </div>
                                     <!-- Button: Advanced selection -->
                                     <div v-if="jobGroup.subDepartment.some(subDep => subDep.optionsType?.some(option => optionsList[option]?.length > 1))" class="flex gap-x-2 px-3">
-                                        <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
+                                        <button @click.prevent="() => openFinetune = openFinetune === jobGroup.key ? '' : jobGroup.key"
                                             class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
                                         >
                                             {{ trans('Shops Fine tuning') }}
@@ -609,7 +625,7 @@ onMounted(() => {
 
                                 <!-- Section: Advanced selection -->
                                 <Transition mode="in-out">
-                                    <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 mb-3">
+                                    <div v-if="openFinetune === jobGroup.key" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 mb-3">
                                         <div class="flex gap-x-8 mb-3">
                                             <div class="flex flex-col gap-y-4 pt-4">
                                                 <template v-for="optionData, optionKey, optionIdx in optionsList" :key="optionKey + optionIdx">

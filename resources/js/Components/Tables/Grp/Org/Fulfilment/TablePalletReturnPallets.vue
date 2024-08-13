@@ -100,9 +100,8 @@ const SetSelected = () => {
         }
     }
 
-    console.log(finalValue)
 
-    /* router.post(
+    router.post(
         route(props.route_checkmark.name, props.route_checkmark.parameters),
         { pallets : finalValue },
         {
@@ -116,7 +115,7 @@ const SetSelected = () => {
                 });
             },
         }
-    ); */
+    );
 };
 
 const onChangeCheked = (value) => {
@@ -168,8 +167,12 @@ onBeforeMount(() => {
 		</template>
 
         <!-- Column: Pallet Reference -->
+<<<<<<< HEAD
 		<template #cell(customer_reference)="{ item }">
         {{ item.pallet_id}}
+=======
+		<template #cell(customer_reference)="{ item }"><pre>{{item['pallet_id']}}</pre>
+>>>>>>> 5f170af8964cda7a6f0363cc3ad27d0b13fe7392
 			<div class="space-x-1 space-y-2">
 				<span v-if="item.customer_reference" class="font-medium">{{ item.customer_reference }}</span>
 				<span v-if="item.notes" class="text-gray-400 text-xs">
@@ -192,7 +195,7 @@ onBeforeMount(() => {
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 		</template> -->
-        
+
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
