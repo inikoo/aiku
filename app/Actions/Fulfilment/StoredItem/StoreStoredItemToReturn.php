@@ -34,6 +34,12 @@ class StoreStoredItemToReturn extends OrgAction
         $storedItemModels = Arr::get($modelData, 'stored_items');
         $currentQuantity  = 0;
 
+        if(blank($storedItemModels)) {
+            PalletReturnItem::where('pallet_return_id', $palletReturn->id)->delete();
+
+            return $palletReturn;
+        }
+
         PalletReturnItem::where('pallet_return_id', $palletReturn->id)
             ->whereNotIn('stored_item_id', array_keys($storedItemModels))->delete();
 
