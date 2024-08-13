@@ -57,15 +57,37 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                 'status'     => 'active'
             ]);
             $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
-        }
-
-        foreach($palletDelivery->transactions as $transaction) {
-           StoreRecurringBillTransaction::make()->action(
-               $recurringBill,
-               $transaction,
-               [
-
-           ]);
+            foreach($palletDelivery->transactions as $transaction) 
+            {
+                StoreRecurringBillTransaction::make()->action(
+                    $recurringBill,
+                    $transaction,
+                    [
+                        'start_date' => now()  
+                    ]
+                    );
+            };
+        } else {
+            foreach($palletDelivery->transactions as $transaction) 
+            {
+                StoreRecurringBillTransaction::make()->action(
+                    $recurringBill,
+                    $transaction,
+                    [
+                        'start_date' => now()  
+                    ]
+                    );
+            };
+            foreach($palletDelivery->pallets as $pallet)
+            {
+                StoreRecurringBillTransaction::make()->action(
+                    $recurringBill,
+                    $pallet,
+                    [
+                        'start_date' => $pallet->storing_at
+                    ]
+                    );
+            }
         }
 
 

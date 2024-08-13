@@ -63,6 +63,7 @@ class ShowRecurringBill extends OrgAction
 
     public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
+        // dd($recurringBill->reference);
         $palletPriceTotal = 0;
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
             $palletPriceTotal += $transaction->item->rental->price;

@@ -65,7 +65,9 @@ class StoreRecurringBillTransaction extends OrgAction
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
         $recurringBillTransaction->refresh();
 
-        $item->update(['current_recurring_bill_id' => $recurringBill->id]);
+        if($item instanceof Pallet){
+            $item->update(['current_recurring_bill_id' => $recurringBill->id]);
+        }
 
         SetClausesInRecurringBillTransaction::run($recurringBillTransaction);
         RecurringBillHydrateTransactions::dispatch($recurringBill)->delay(now()->addSeconds(2));
