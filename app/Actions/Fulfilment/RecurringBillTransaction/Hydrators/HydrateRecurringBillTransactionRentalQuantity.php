@@ -23,10 +23,10 @@ class HydrateRecurringBillTransactionRentalQuantity
         $transactions = $recurringBill->transactions;
 
         $today = Carbon::now()->startOfDay();
-    
+
         foreach ($transactions as $transaction) {
             $startDate = Carbon::parse($transaction->start_date)->startOfDay();
-        
+
             if ($startDate->equalTo($today)) {
                 $daysDifference = 1;
             } else {
@@ -55,4 +55,3 @@ class HydrateRecurringBillTransactionRentalQuantity
         return 0;
     }
 }
-

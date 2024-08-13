@@ -612,7 +612,9 @@ const selectRow: {[key: string]: boolean} = reactive({...props.selectedRow})
 // To preserve the object selectRow
 if (props.isCheckBox) {
     for(const row in props.resource.data){
-        selectRow[props.resource.data[row][props.checkboxKey]] = selectRow[props.resource.data[row][props.checkboxKey]] ? true : false
+        if(props.resource.data[row][props.checkboxKey]) {
+            selectRow[props.resource.data[row][props.checkboxKey]] = selectRow[props.resource.data[row][props.checkboxKey]] ? true : false
+        }
     }
 }
 
@@ -850,14 +852,14 @@ defineExpose({
                                         ]">
                                             <!-- Column: Check box -->
                                             <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
-                                                <div v-if="selectRow[item.id]"
+                                                <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
-                                                <FontAwesomeIcon v-if="selectRow[item.id] === true"
-                                                    @click="selectRow[item.id] = !selectRow[item.id]"
+                                                <FontAwesomeIcon v-if="selectRow[item[checkboxKey]] === true"
+                                                    @click="selectRow[item[checkboxKey]] = !selectRow[item[checkboxKey]]"
                                                     icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                                 <FontAwesomeIcon v-else
-                                                    @click="selectRow[item.id] = !selectRow[item.id]"
+                                                    @click="selectRow[item[checkboxKey]] = !selectRow[item[checkboxKey]]"
                                                     icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                             </td>
@@ -871,7 +873,7 @@ defineExpose({
                                                         : typeof item[column.key] == 'number' || column.type === 'number'
                                                             ? 'text-right pl-3 pr-11 tabular-nums'  // if the value is number
                                                             : 'px-6',
-                                                    { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) },
+                                                    { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item[checkboxKey]) },
                                                     column.className
                                                 ]">
                                                 <slot :name="`cell(${column.key})`"
