@@ -63,7 +63,7 @@ class IndexInvoices extends OrgAction
 
         $queryBuilder->defaultSort('-invoices.date')
             ->select([
-                'invoices.number',
+                'invoices.reference',
                 'invoices.total_amount',
                 'invoices.net_amount',
                 'invoices.date',
@@ -110,10 +110,10 @@ class IndexInvoices extends OrgAction
                     ->pageName($prefix.'Page');
             }
             $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false, sortable: false, searchable: true)
-                ->defaultSort('number');
+                ->defaultSort('reference');
             $table
                 ->withGlobalSearch()
-                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
 
@@ -124,7 +124,7 @@ class IndexInvoices extends OrgAction
 
 
             $table->column(key: 'total_amount', label: __('total'), type: 'number', canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('number');
+                ->defaultSort('reference');
         };
     }
 
