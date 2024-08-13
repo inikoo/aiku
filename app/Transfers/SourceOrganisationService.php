@@ -85,8 +85,6 @@ interface SourceOrganisationService
 
     public function fetchTradeUnitImages($id);
 
-    public function fetchLocationStocks($id);
-
     public function fetchAgent($id);
 
     public function fetchSupplier($id);

@@ -35,7 +35,6 @@ use App\Transfers\Aurora\FetchAuroraHistoricService;
 use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
-use App\Transfers\Aurora\FetchAuroraLocationStocks;
 use App\Transfers\Aurora\FetchAuroraMailshot;
 use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
@@ -256,11 +255,6 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchTradeUnitImages($id): ?array
     {
         return (new FetchAuroraTradeUnitImages($this))->fetch($id);
-    }
-
-    public function fetchLocationStocks($id): ?array
-    {
-        return (new FetchAuroraLocationStocks($this))->fetch($id);
     }
 
     public function fetchAgent($id): ?array
