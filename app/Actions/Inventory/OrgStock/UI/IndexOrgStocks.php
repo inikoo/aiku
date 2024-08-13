@@ -193,7 +193,7 @@ class IndexOrgStocks extends OrgAction
                     ->pageName($prefix.'Page');
             }
             $table
-                ->defaultSort('slug')
+                ->defaultSort('code')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(

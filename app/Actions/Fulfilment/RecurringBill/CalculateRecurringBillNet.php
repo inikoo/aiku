@@ -17,38 +17,38 @@ class CalculateRecurringBillNet extends OrgAction
         $recurringBill->load('transactions', 'palletDeliveries', 'palletReturns', 'taxCategory');
 
         $transactions = $recurringBill->transactions;
-        $deliveries = $recurringBill->palletDeliveries;
-        $returns = $recurringBill->palletReturns;
-        $taxRate = $recurringBill->taxCategory->rate;
-    
-        $deliveryGross = 0;
-        $returnGross = 0;
-        $deliveryGoods = 0;
+        $deliveries   = $recurringBill->palletDeliveries;
+        $returns      = $recurringBill->palletReturns;
+        $taxRate      = $recurringBill->taxCategory->rate;
+
+        $deliveryGross    = 0;
+        $returnGross      = 0;
+        $deliveryGoods    = 0;
         $deliveryServices = 0;
-        $returnGoods = 0;
-        $returnServices = 0;
+        $returnGoods      = 0;
+        $returnServices   = 0;
 
         if ($deliveries->isNotEmpty()) {
-            $deliveryGross = $deliveries->sum('gross_amount');
-            $deliveryGoods = $deliveries->sum('goods_amount');
+            $deliveryGross    = $deliveries->sum('gross_amount');
+            $deliveryGoods    = $deliveries->sum('goods_amount');
             $deliveryServices = $deliveries->sum('services_amount');
         }
-    
+
         if ($returns->isNotEmpty()) {
-            $returnGross = $returns->sum('gross_amount');
-            $returnGoods = $returns->sum('goods_amount');
+            $returnGross    = $returns->sum('gross_amount');
+            $returnGoods    = $returns->sum('goods_amount');
             $returnServices = $returns->sum('services_amount');
         }
-    
-        $rentalNet = $transactions->sum('net_amount');
+
+        $rentalNet   = $transactions->sum('net_amount');
         $rentalGross = $transactions->sum('gross_amount');
-    
-        $totalGoodsAmount = $deliveryGoods + $returnGoods;
+
+        $totalGoodsAmount    = $deliveryGoods    + $returnGoods;
         $totalServicesAmount = $deliveryServices + $returnServices;
-    
-        $netAmount = $rentalNet + $totalGoodsAmount + $totalServicesAmount;
+
+        $netAmount   = $rentalNet   + $totalGoodsAmount + $totalServicesAmount;
         $grossAmount = $rentalGross + $deliveryGross + $returnGross;
-        $taxAmount = $netAmount * $taxRate;
+        $taxAmount   = $netAmount * $taxRate;
         $totalAmount = $netAmount + $taxAmount;
 
         data_set($modelData, 'rental_amount', $rentalNet);

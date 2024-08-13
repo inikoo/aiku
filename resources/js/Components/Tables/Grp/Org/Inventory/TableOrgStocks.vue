@@ -9,17 +9,27 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Stock} from "@/types/stock";
 
-const props = defineProps<{
+defineProps<{
     data: object
     tab?: string
 }>()
 
 
 function stockRoute(stock: Stock) {
+
+
+  console.log(route().current())
     switch (route().current()) {
+      case 'grp.org.inventory.org_stocks.current_org_stocks.index':
+        return route(
+          'grp.org.inventory.org_stocks.current_org_stocks.show',
+          [
+            route().params['organisation'],
+            stock.slug
+          ]);
         default:
             return route(
-                'grp.org.inventory.org-stocks.show',
+                'grp.org.inventory.org_stocks.show',
                 [
                     route().params['organisation'],
                     stock.slug
@@ -29,6 +39,9 @@ function stockRoute(stock: Stock) {
 
 function stockFamilyRoute(stock: Stock) {
     switch (route().current()) {
+
+
+
         default:
             return route(
                 'grp.org.inventory.org_stock_families.show',
@@ -45,15 +58,16 @@ function stockFamilyRoute(stock: Stock) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: stock }">
-            <Link :href="stockRoute(stock)">
-                {{ stock['slug'] }}
+
+   <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(code)="{ item: stock }">
+            <Link :href="stockRoute(stock)" class="primaryLink">
+                {{ stock['code'] }}
             </Link>
         </template>
         <template #cell(family_code)="{ item: stock }">
             <!--suppress TypeScriptUnresolvedReference -->
-            <Link v-if="stock.family_slug"  :href="stockFamilyRoute(stock)">
+            <Link v-if="stock.family_slug"  :href="stockFamilyRoute(stock)" class="secondaryLink">
                 {{ stock['family_code'] }}
             </Link>
         </template>

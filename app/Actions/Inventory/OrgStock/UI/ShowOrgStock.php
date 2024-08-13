@@ -7,118 +7,108 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
-use App\Actions\Goods\HasGoodsAuthorisation;
+use App\Actions\Goods\Stock\UI\GetStockShowcase;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
-use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
-use App\Enums\UI\SupplyChain\StockTabsEnum;
+use App\Actions\OrgAction;
+use App\Enums\UI\Procurement\OrgStockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
-use App\Models\SupplyChain\Stock;
+use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\StockFamily;
-use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOrgStock extends GrpAction
+class ShowOrgStock extends OrgAction
 {
-    use HasGoodsAuthorisation;
+    use HasInventoryAuthorisation;
 
 
-    private Group|StockFamily $parent;
+    private Organisation|StockFamily $parent;
 
-    public function handle(Stock $stock): Stock
+    public function handle(OrgStock $orgStock): OrgStock
     {
-        return $stock;
+        return $orgStock;
     }
 
 
-    public function asController(Stock $stock, ActionRequest $request): Stock
+    public function asController(Organisation $organisation, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
-        $this->parent=group();
-        $this->initialisation($this->parent, $request)->withTab(StockTabsEnum::values());
+        $this->parent = $organisation;
+        $this->initialisation($this->parent, $request)->withTab(OrgStockTabsEnum::values());
 
-        return $this->handle($stock);
+        return $this->handle($orgStock);
     }
 
-    public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
+    public function current(Organisation $organisation, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
-        $this->parent=$stockFamily;
-        $this->initialisation(group(), $request);
+        $this->parent = $organisation;
+        $this->initialisation($this->parent, $request)->withTab(OrgStockTabsEnum::values());
 
-        return $this->handle($stock);
+        return $this->handle($orgStock);
     }
 
-    public function htmlResponse(Stock $stock, ActionRequest $request): Response
+    public function inStockFamily(Organisation $organisation, StockFamily $orgStockFamily, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
+        $this->parent = $orgStockFamily;
+        $this->initialisation($organisation, $request);
 
+        return $this->handle($orgStock);
+    }
+
+    public function htmlResponse(OrgStock $orgStock, ActionRequest $request): Response
+    {
         return Inertia::render(
-            'Inventory/Stock',
+            'Org/Inventory/OrgStock',
             [
-                 'title'       => __('stock'),
-                 'breadcrumbs' => $this->getBreadcrumbs(
-                     $request->route()->getName(),
-                     $request->route()->originalParameters()
-                 ),
-                 'navigation'  => [
-                     'previous' => $this->getPrevious($stock, $request),
-                     'next'     => $this->getNext($stock, $request),
-                 ],
-                 'pageHead'    => [
-                     'icon'    => [
-                         'title' => __('skus'),
-                         'icon'  => 'fal fa-box'
-                     ],
-                     'title'   => $stock->slug,
-                     'actions' => [
-                         $this->canEdit ? [
-                             'type'  => 'button',
-                             'style' => 'edit',
-                             'route' => [
-                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ] : false,
-                         $this->canDelete ? [
-                             'type'  => 'button',
-                             'style' => 'delete',
-                             'route' => [
-                                 'name'       => 'grp.org.inventory.org_stock_families.show.stocks.remove',
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
+                'title'                        => __('stock'),
+                'breadcrumbsx'                  => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'navigationx'                   => [
+                    'previous' => $this->getPrevious($orgStock, $request),
+                    'next'     => $this->getNext($orgStock, $request),
+                ],
+                'pageHead'                     => [
+                    'icon'    => [
+                        'title' => __('sku'),
+                        'icon'  => 'fal fa-box'
+                    ],
+                    'title'   => $orgStock->slug,
 
-                         ] : false
-                     ]
-                 ],
-                 'tabs'=> [
-                     'current'    => $this->tab,
-                     'navigation' => StockTabsEnum::navigation()
+                ],
+                'tabs'                         => [
+                    'current'    => $this->tab,
+                    'navigation' => OrgStockTabsEnum::navigation()
 
-                 ],
-                 StockTabsEnum::SHOWCASE->value => $this->tab == StockTabsEnum::SHOWCASE->value ?
-                     fn () => GetStockShowcase::run($stock)
-                     : Inertia::lazy(fn () => GetStockShowcase::run($stock)),
+                ],
+                OrgStockTabsEnum::SHOWCASE->value => $this->tab == OrgStockTabsEnum::SHOWCASE->value ?
+                    fn () => GetOrgStockShowcase::run($orgStock)
+                    : Inertia::lazy(fn () => GetOrgStockShowcase::run($orgStock)),
 
-                 StockTabsEnum::HISTORY->value => $this->tab == StockTabsEnum::HISTORY->value ?
-                     fn () => HistoryResource::collection(IndexHistory::run($stock))
-                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($stock)))
+                OrgStockTabsEnum::HISTORY->value => $this->tab == OrgStockTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($orgStock))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgStock)))
 
 
-             ]
+            ]
         )->table();
     }
 
 
-    public function jsonResponse(Stock $stock): OrgStockResource
+    public function jsonResponse(OrgStock $orgStock): OrgStockResource
     {
-        return new OrgStockResource($stock);
+        return new OrgStockResource($orgStock);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Stock $stock, array $routeParameters, $suffix) {
+        $headCrumb = function (OrgStock $orgStock, array $routeParameters, $suffix) {
             return [
                 [
                     'type'           => 'modelWithIndex',
@@ -129,10 +119,10 @@ class ShowOrgStock extends GrpAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $stock->slug,
+                            'label' => $orgStock->slug,
                         ],
                     ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
 
                 ],
             ];
@@ -142,9 +132,9 @@ class ShowOrgStock extends GrpAction
         return match ($routeName) {
             'grp.goods.stocks.show' =>
             array_merge(
-                (new ShowInventoryDashboard())->getBreadcrumbs(),
+                (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['stock'],
+                    $routeParameters['orgStock'],
                     [
                         'index' => [
                             'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
@@ -153,7 +143,7 @@ class ShowOrgStock extends GrpAction
                         'model' => [
                             'name'       => 'grp.org.inventory.org-stocks.show',
                             'parameters' => [
-                                $routeParameters['stock']->slug
+                                $routeParameters['orgStock']->slug
                             ]
                         ]
                     ],
@@ -169,14 +159,14 @@ class ShowOrgStock extends GrpAction
                         'index' => [
                             'name'       => 'grp.org.inventory.org_stock_families.show.org_stocks.index',
                             'parameters' => [
-                                $routeParameters['stockFamily']->slug
+                                $routeParameters['orgStockFamily']->slug
                             ]
                         ],
                         'model' => [
                             'name'       => 'grp.org.inventory.org_stock_families.show.stocks.show',
                             'parameters' => [
-                                $routeParameters['stockFamily']->slug,
-                                $routeParameters['stock']->slug
+                                $routeParameters['orgStockFamily']->slug,
+                                $routeParameters['orgStock']->slug
                             ]
                         ]
                     ],
@@ -187,50 +177,52 @@ class ShowOrgStock extends GrpAction
         };
     }
 
-    public function getPrevious(Stock $stock, ActionRequest $request): ?array
+    public function getPrevious(OrgStock $orgStock, ActionRequest $request): ?array
     {
-        $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
+        $previous = OrgStock::where('code', '<', $orgStock->code)->when(true, function ($query) use ($orgStock, $request) {
             if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.show') {
-                $query->where('stock_family_id', $stock->stockFamily->id);
+                $query->where('org_stock_family_id', $orgStock->orgStockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
+
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
-    public function getNext(Stock $stock, ActionRequest $request): ?array
+    public function getNext(OrgStock $orgStock, ActionRequest $request): ?array
     {
-        $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
+        $next = OrgStock::where('code', '>', $orgStock->code)->when(true, function ($query) use ($orgStock, $request) {
             if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.show') {
-                $query->where('stock_family_id', $stock->stockFamily->id);
+                $query->where('org_stock_family_id', $orgStock->orgStockFamily->id);
             }
         })->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Stock $stock, string $routeName): ?array
+    private function getNavigation(?OrgStock $orgStock, string $routeName): ?array
     {
-        if (!$stock) {
+        if (!$orgStock) {
             return null;
         }
 
         return match ($routeName) {
+            'grp.org.inventory.org_stocks.current_org_stocks.show',
             'grp.org.inventory.org-stocks.show' => [
-                'label' => $stock->name,
+                'label' => $orgStock->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'stock' => $stock->slug
+                        'stock' => $orgStock->slug
                     ]
                 ]
             ],
             'grp.org.inventory.org_stock_families.show.stocks.show' => [
-                'label' => $stock->name,
+                'label' => $orgStock->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'stockFamily'   => $stock->stockFamily->slug,
-                        'stock'         => $stock->slug
+                        'stockFamily' => $orgStock->orgStockFamily->slug,
+                        'stock'       => $orgStock->slug
                     ]
 
                 ]

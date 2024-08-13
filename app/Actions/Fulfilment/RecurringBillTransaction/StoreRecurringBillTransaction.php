@@ -29,20 +29,20 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'item_id', $item->id);
 
         if ($item instanceof FulfilmentTransaction) {
-            $type = $item->type;
-            $assetId = $item->asset->id;
+            $type            = $item->type;
+            $assetId         = $item->asset->id;
             $historicAssetId = $item->asset->current_historic_asset_id;
-            $grossAmount = $item->gross_amount;
-            $netAmount = $item->net_amount;
-            $totalQuantity = $item->quantity;
+            $grossAmount     = $item->gross_amount;
+            $netAmount       = $item->net_amount;
+            $totalQuantity   = $item->quantity;
         } else {
-            $type = class_basename($item);
-            $assetId = $item->rental->asset_id;
+            $type            = class_basename($item);
+            $assetId         = $item->rental->asset_id;
             $historicAssetId = $item->rental->asset->current_historic_asset_id;
-            
+
             $totalQuantity = 0;
-            $grossAmount = $item->rental->price;
-        
+            $grossAmount   = $item->rental->price;
+
             if ($item instanceof StoredItem) {
                 foreach ($item->pallets as $pallet) {
                     $totalQuantity += $pallet->pivot->quantity;
@@ -50,7 +50,7 @@ class StoreRecurringBillTransaction extends OrgAction
             } else {
                 $totalQuantity = 1;
             }
-        
+
             $netAmount = $grossAmount * $totalQuantity;
         }
 
@@ -83,7 +83,7 @@ class StoreRecurringBillTransaction extends OrgAction
         ];
     }
 
-    public function action(RecurringBill $recurringBill,Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
+    public function action(RecurringBill $recurringBill, Pallet|StoredItem|FulfilmentTransaction $item, array $modelData): RecurringBillTransaction
     {
         $this->asAction = true;
 
