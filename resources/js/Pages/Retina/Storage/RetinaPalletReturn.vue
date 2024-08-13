@@ -100,6 +100,8 @@ const props = defineProps<{
     route_check_stored_items : routeType
 }>()
 
+console.log('sss',props)
+
 // console.log('box stats', props.box_stats)
 // console.log('notes data', props.notes_data)
 
@@ -483,7 +485,7 @@ const isModalUploadOpen = ref(false)
         :notes_data
     />
 
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"   :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"  />
 
     <component
         :is="component"
@@ -491,6 +493,7 @@ const isModalUploadOpen = ref(false)
         :key="timeline.state"
         :state="timeline.state"
         :tab="currentTab"
+        :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items"
     />
 
    <!--  <Modal :isOpen="openModal" @onClose="openModal = false">

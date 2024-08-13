@@ -38,6 +38,8 @@ const props = defineProps<{
     route_checkmark : routeType
 }>()
 
+console.log(props)
+
 const isPickingLoading = ref(false)
 const isUndoLoading = ref(false)
 const selectedRow = ref({})
