@@ -20,7 +20,7 @@ class ShowDashboard
     public function asController(ActionRequest $request): Response
     {
 
-        return Inertia::render('Dashboard/Dashboard');
+        return Inertia::render('Dashboard/RetinaDashboard');
     }
 
     public function getBreadcrumbs($label = null): array

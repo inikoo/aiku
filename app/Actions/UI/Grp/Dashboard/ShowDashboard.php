@@ -232,7 +232,7 @@ class ShowDashboard
             })
         ];
         return Inertia::render(
-            'Dashboard/Dashboard',
+            'Dashboard/GrpDashboard',
             [
                 'breadcrumbs'       => $this->getBreadcrumbs(__('Dashboard')),
                 'groupStats'        => $sales,

@@ -114,7 +114,7 @@ const locale = inject('locale', {})
             </TransitionGroup>
         </div>
 
-        <div>
+        <div class="flex">
             <TransitionGroup>
                 <template v-for="subNav, itemIdx in dataNavigation" :key="'subNav' + itemIdx">
                     <component
@@ -169,13 +169,13 @@ const locale = inject('locale', {})
 // }
 
 .tabSubNavActive {
-    @apply border-b-2 border-indigo-600;
+    @apply border-b border-indigo-600;
 
     color: v-bind('`${layout?.app?.theme[0]}`') !important;
 }
 
 .tabSubNav {
-    // @apply border-b-2 border-gray-300;
+    @apply border-b border-transparent;
 
     color: #9ca3af !important;
 
