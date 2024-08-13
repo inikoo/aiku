@@ -14,15 +14,19 @@ use App\Models\Fulfilment\RecurringBill;
 
 class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
 {
-    public function handle(RecurringBill $recurringBill): RecurringBill
+    public function handle(RecurringBill $recurringBill, RecurringBill $previousRecurringBill = null): RecurringBill
     {
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
         foreach ($palletsInStoringState as $pallet) {
+            $startDate = $pallet->storing_at;
+            if($previousRecurringBill){
+                $startDate = $recurringBill->start_date;
+            }
             StoreRecurringBillTransaction::make()->action(
                 $recurringBill,
                 $pallet,
                 [
-                    'start_date' => $pallet->storing_at
+                    'start_date' => $startDate
                 ]
             );
         }
@@ -31,13 +35,13 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
     }
 
 
-    public function action(RecurringBill $recurringBill): RecurringBill
+    public function action(RecurringBill $recurringBill, RecurringBill $previousRecurringBill = null): RecurringBill
     {
         $this->asAction = true;
 
         $this->initialisationFromFulfilment($recurringBill->fulfilment, []);
 
-        return $this->handle($recurringBill);
+        return $this->handle($recurringBill, $previousRecurringBill);
     }
 
 

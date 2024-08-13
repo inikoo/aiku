@@ -23,7 +23,7 @@ class InvoiceTransactionsResource extends JsonResource
         return [
             'code'          => $this->code,
             'name'          => $this->name,
-            'quantity'      => $this->quantity,
+            'quantity'      => (int) $this->quantity,
             'net_amount'    => $this->net_amount,
             'currency_code' => $this->currency_code
         ];

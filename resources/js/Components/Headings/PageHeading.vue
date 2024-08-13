@@ -147,7 +147,6 @@ const layout = inject('layout', layoutStructure)
                             >
                         
                                 <slot v-for="(button, index) in action.button" :name="`button-group-${kebabCase(button.key ? button.key : button.label)}`" :action="button">
-                                {{  `button-group-${kebabCase(button.key ? button.key : button.label)}`  }}
                                     <component :is="button.route?.name ? Link : 'div'"
                                         :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
                                         :method="button.route?.method || 'get'"
