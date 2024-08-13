@@ -16,17 +16,15 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
 {
     public function handle(RecurringBill $recurringBill): RecurringBill
     {
-        foreach ($recurringBill->fulfilmentCustomer->pallets as $pallet) {
-            if ($pallet->state == PalletStateEnum::STORING and $pallet->storing_at  and !$pallet->current_recurring_bill_id
-            ) {
-                StoreRecurringBillTransaction::make()->action(
-                    $recurringBill,
-                    $pallet,
-                    [
-                        'start_date' => $pallet->storing_at
-                    ]
-                );
-            }
+        $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
+        foreach ($palletsInStoringState as $pallet) {
+            StoreRecurringBillTransaction::make()->action(
+                $recurringBill,
+                $pallet,
+                [
+                    'start_date' => $pallet->storing_at
+                ]
+            );
         }
 
         return $recurringBill;
