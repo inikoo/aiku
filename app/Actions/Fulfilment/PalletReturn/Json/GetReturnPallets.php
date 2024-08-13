@@ -75,12 +75,13 @@ class GetReturnPallets extends OrgAction
         }
 
         if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallets.pallet_return_id', $palletReturn->id);
+            $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
         }
 
         $query->defaultSort('pallets.id')
             ->select(
-                'pallets.id',
+                'pallet_return_items.id',
+                'pallets.id as pallet_id',
                 'pallets.slug',
                 'pallets.reference',
                 'pallets.customer_reference',
