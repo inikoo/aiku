@@ -12,7 +12,7 @@ const props = defineProps<{
     tab?: string;
     state: any;
     key: any;
-    route_check_stored_items: routeType;
+    route_checkmark: routeType;
 }>();
 
 const selectedRow = ref({});
@@ -42,7 +42,7 @@ const SetSelected = () => {
     }
 
     router.post(
-        route(props.route_check_stored_items.name, props.route_check_stored_items.parameters),
+        route(props.route_checkmark.name, props.route_checkmark.parameters),
         { stored_items: finalValue },
         {
             preserveScroll: true,
