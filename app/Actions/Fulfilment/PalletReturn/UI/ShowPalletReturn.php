@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -639,8 +638,8 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn->fulfilmentCustomer))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn->fulfilmentCustomer))),
+                    fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(GetReturnPallets::run($palletReturn, PalletReturnTabsEnum::PALLETS->value))),
 
                 PalletReturnTabsEnum::STORED_ITEMS->value => $this->tab == PalletReturnTabsEnum::STORED_ITEMS->value ?
                     fn () => PalletReturnStoredItemsResource::collection(IndexStoredItemsInReturn::run($palletReturn, PalletReturnTabsEnum::STORED_ITEMS->value)) //todo idk if this is right
@@ -655,7 +654,7 @@ class ShowPalletReturn extends OrgAction
                     : Inertia::lazy(fn () => FulfilmentTransactionsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
             ]
         )->table(
-            IndexPalletsInReturn::make()->tableStructure(
+            GetReturnPallets::make()->tableStructure(
                 $palletReturn,
                 request: $request,
                 prefix: PalletReturnTabsEnum::PALLETS->value
