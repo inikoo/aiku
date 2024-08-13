@@ -112,18 +112,6 @@ class ShowPalletReturn extends OrgAction
                     'type'   => 'buttonGroup',
                     'key'    => 'upload-add',
                     'button' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'secondary',
-                            'icon'  => 'fal fa-plus',
-                            'label' => __('add pallet'),
-                            'route' => [
-                                'name'       => 'grp.models.pallet-return.pallet.store',
-                                'parameters' => [
-                                    'palletReturn'       => $palletReturn->id
-                                ]
-                            ]
-                        ],
                        /*  [
                             'type'    => 'button',
                             'style'   => 'secondary',
@@ -383,6 +371,13 @@ class ShowPalletReturn extends OrgAction
                     'name'       => 'org.models.pallet-return.physical_good.delete',
                     'parameters' => [
                         'palletReturn' => $palletReturn->id
+                    ]
+                ],
+
+                'routeStorePallet' => [
+                    'name'       => 'grp.models.pallet-return.pallet.store',
+                    'parameters' => [
+                        'palletReturn'       => $palletReturn->id
                     ]
                 ],
 
