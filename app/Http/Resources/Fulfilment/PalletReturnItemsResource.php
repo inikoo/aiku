@@ -35,6 +35,7 @@ class PalletReturnItemsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        //        dd($this);
         return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,

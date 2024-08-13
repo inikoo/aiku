@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\PalletReturn\Json;
 
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
@@ -59,7 +58,6 @@ class GetReturnPallets extends OrgAction
         $query = QueryBuilder::for(Pallet::class);
 
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
-        $query->where('pallets.state', PalletStateEnum::STORING);
         $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
 
         $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
@@ -74,6 +72,10 @@ class GetReturnPallets extends OrgAction
                     prefix: $prefix
                 );
             }
+        }
+
+        if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
+            $query->where('pallets.pallet_return_id', $palletReturn->id);
         }
 
         $query->defaultSort('pallets.id')
