@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Invoice\UI;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\Accounting\InvoiceTabsEnum;
@@ -89,7 +90,6 @@ class ShowInvoice extends OrgAction
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
 
-
         if ($invoice->recurringBill()->exists()) {
             if ($this->parent instanceof Fulfilment) {
                 $recurringBillRoute = [
@@ -131,9 +131,6 @@ class ShowInvoice extends OrgAction
                     'navigation' => InvoiceTabsEnum::navigation()
                 ],
 
-
-
-                'recurring_bill_route' => $recurringBillRoute,
                 'order_summary'        => [
                     [
                         [
@@ -199,11 +196,8 @@ class ShowInvoice extends OrgAction
                     ],
                     'information' => [
                         'recurring_bill'    => [
-                            'reference'     => '#urfjkd3',  // TODO: should dynamic
-                            'route'         => [
-                                'name'      => 'grp.org.shops.index',  // TODO: should correct route
-                                'parameters'=> ['aw'],  // TODO: should correct route
-                            ],
+                            'reference'     => $invoice->reference,
+                            'route'         => $recurringBillRoute
                         ],
                         'routes' => [
                             'payment_accounts' => [
@@ -290,7 +284,7 @@ class ShowInvoice extends OrgAction
 
             'grp.org.fulfilments.show.crm.customers.show.invoices.show',
             => array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $invoice,
                     [

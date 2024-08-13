@@ -25,6 +25,7 @@ import { faSignOutAlt, faTimes, faShare, faCross, faUndo, faStickyNote } from "@
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { routeType } from "@/types/route"
+import { notify } from "@kyvg/vue3-notification";
 
 const layout = inject('layout', layoutStructure)
 
@@ -34,7 +35,10 @@ const props = defineProps<{
     data: {}
     tab?: string
     state?: string
+    route_checkmark : routeType
 }>()
+
+console.log(props)
 const isPickingLoading = ref(false)
 const isUndoLoading = ref(false)
 const selectedRow = ref({})
@@ -93,6 +97,22 @@ const SetSelected = () => {
            finalValue.push(key)
         }
     }
+
+    router.post(
+        route(props.route_checkmark.name, props.route_checkmark.parameters),
+        { pallets : finalValue },
+        {
+            preserveScroll: true,
+            onSuccess: () => {},
+            onError: () => {
+                notify({
+                    title: 'Something went wrong.',
+                    text: 'Failed to save',
+                    type: 'error',
+                });
+            },
+        }
+    );
 };
 
 const onChangeCheked = (value) => {
@@ -105,7 +125,7 @@ const setUpChecked = () => {
     const set: Record<string, boolean> = {};
     if (props.data?.data) {
         props.data.data.forEach((item) => {
-            set[item.id] = item.is_checked || false;
+            set[item.pallet_id] = item.is_checked || false;
         });
         selectedRow.value = set;
     }
@@ -122,7 +142,7 @@ onBeforeMount(() => {
 <template>
     <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5" :isCheckBox="state == 'in-process'"
-     @onSelectRow="onChangeCheked" :selectedRow="selectedRow"
+     @onSelectRow="onChangeCheked" :selectedRow="selectedRow" checkboxKey='pallet_id'
     >
 
         <!-- Column: Type Icon -->
