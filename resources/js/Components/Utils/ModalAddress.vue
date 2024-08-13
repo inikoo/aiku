@@ -242,7 +242,7 @@ const onDeleteAddress = (addressID: number) => {
                                     {{ [...addresses.address_list.data].find(xxx => xxx.id === selectedAddress?.id)?.label }}
                                 </div>
                                 <div v-else class="text-xs italic whitespace-nowrap text-gray-400">
-                                    (No label)
+                                    ({{ trans('No label') }})
                                 </div>
                                 <div class="relative">
                                     <Transition name="slide-to-left">
@@ -349,7 +349,7 @@ const onDeleteAddress = (addressID: number) => {
                                                 {{ useTruncate(address.label, 14) }}
                                             </div>
                                             <div v-else class="text-xs italic whitespace-nowrap text-gray-400">
-                                                (No label)
+                                                ({{ trans('No label') }})
                                             </div>
                                             <div class="relative">
                                                 <Transition name="slide-to-left">

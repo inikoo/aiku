@@ -124,7 +124,6 @@ const isModalAddress = ref(false)
                         <!-- Field: Address -->
                         <div v-if="data.customer?.address" class="relative flex items w-full flex-none gap-x-4 px-6">
                             <dt v-tooltip="'Address'" class="flex-none">
-                                <span class="sr-only">Address</span>
                                 <FontAwesomeIcon icon='fal fa-map-marker-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
                             <dd class="w-full text-gray-500">
@@ -134,7 +133,7 @@ const isModalAddress = ref(false)
                                     <div @click="() => isModalAddress = true"
                                         class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                                         <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
-                                        <span>Edit</span>
+                                        <span>{{ trans('Edit') }}</span>
                                     </div>
                                 </div>
                             </dd>
