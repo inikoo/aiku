@@ -400,7 +400,8 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
         :state="timeline.state" 
         :key="timeline.state" 
         :tab="currentTab" 
-        :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" />
+        :route_checkmark="currentTab == 'pallets' ? routeStorePallet : route_check_stored_items" 
+    />
 
     <!-- Modal: Add Pallet -->
     <Modal :isOpen="openModal" @onClose="openModal = false">
@@ -432,7 +433,6 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
             </TablePalletReturn>
         </div>
     </Modal>
-
 
     <UploadExcel
         v-model="isModalUploadOpen"

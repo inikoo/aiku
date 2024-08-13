@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletReturn\Json;
 
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
@@ -37,9 +38,10 @@ class GetReturnPallets extends OrgAction
                 ),
                 'engine' => function ($query, $elements) use ($palletReturn) {
                     if (in_array(StoredItemInReturnOptionEnum::SELECTED->value, $elements)) {
-                        $query->where('pallets.pallet_return_id', $palletReturn->id);
+                        $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
                     } elseif (in_array(StoredItemInReturnOptionEnum::UNSELECTED->value, $elements)) {
-                        $query->whereNull('pallets.pallet_return_id');
+                        $query->whereNull('pallets.pallet_return_id')
+                            ->where('pallets.state', PalletStateEnum::STORING);
                     }
                 }
             ],
@@ -59,15 +61,19 @@ class GetReturnPallets extends OrgAction
 
         $query->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id);
 
-        if($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
-            $query->where('pallets.state', PalletStatusEnum::STORING);
+        $query->where(function ($query) use ($palletReturn) {
+            $query->where('pallets.pallet_return_id', $palletReturn->id)
+                ->orWhereNull('pallets.pallet_return_id');
+        });
+
+        if ($palletReturn->state !== PalletReturnStateEnum::DISPATCHED) {
             $query->where('pallets.status', '!=', PalletStatusEnum::RETURNED);
-        } elseif($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
-            $query->where('pallet_return_items.pallet_return_id', $palletReturn->id);
+        } elseif ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
+            $query->where('pallets.state', PalletStatusEnum::STORING);
         }
 
-        $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
         $query->leftJoin('pallet_return_items', 'pallet_return_items.pallet_id', 'pallets.id');
+        $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
 
         if ($palletReturn->state === PalletReturnStateEnum::IN_PROCESS) {
             foreach ($this->getElementGroups($palletReturn) as $key => $elementGroup) {
@@ -148,7 +154,7 @@ class GetReturnPallets extends OrgAction
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix.'Page');
+                    ->pageName($prefix . 'Page');
             }
 
             $emptyStateData = [
