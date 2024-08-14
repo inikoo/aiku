@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 May 2024 23:17:08 British Summer Time, Sheffield, UK
+ * Created: Wed, 14 Aug 2024 15:53:34 Central Indonesia Time, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI\SupplyChain;
+namespace App\Enums\UI\Procurement;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum SupplierProductTabsEnum: string
+enum OrgSupplierProductTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -31,47 +31,47 @@ enum SupplierProductTabsEnum: string
     {
         return match ($this) {
 
-            SupplierProductTabsEnum::SHOWCASE => [
+            OrgSupplierProductTabsEnum::SHOWCASE => [
                 'title' => __('supplier product'),
                 'icon'  => 'fas fa-info-circle',
             ],
-            SupplierProductTabsEnum::PURCHASE_SALES => [
+            OrgSupplierProductTabsEnum::PURCHASE_SALES => [
                 'title' => __('purchases/sales'),
                 'icon'  => 'fal fa-money-bill',
             ],
-            SupplierProductTabsEnum::SUPPLIER_PRODUCTS => [
+            OrgSupplierProductTabsEnum::SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-box-usd',
             ],
 
-            SupplierProductTabsEnum::PURCHASE_ORDERS => [
+            OrgSupplierProductTabsEnum::PURCHASE_ORDERS => [
                 'title' => __('purchase orders'),
                 'icon'  => 'fal fa-clipboard',
             ],
-            SupplierProductTabsEnum::DELIVERIES => [
+            OrgSupplierProductTabsEnum::DELIVERIES => [
                 'title' => __('deliveries'),
                 'icon'  => 'fal fa-truck',
             ],
 
-            SupplierProductTabsEnum::ISSUES => [
+            OrgSupplierProductTabsEnum::ISSUES => [
                 'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            SupplierProductTabsEnum::IMAGES => [
+            OrgSupplierProductTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            SupplierProductTabsEnum::ATTACHMENTS => [
+            OrgSupplierProductTabsEnum::ATTACHMENTS => [
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            SupplierProductTabsEnum::HISTORY => [
+            OrgSupplierProductTabsEnum::HISTORY => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
