@@ -26,6 +26,7 @@ class OrgStockResource extends JsonResource
             'quantity_locations' => $orgStock->quantity_in_locations,
             'family_slug'        => $orgStock->orgStockFamily->slug,
             'family_code'        => $orgStock->orgStockFamily->stockFamily->code,
+            'photo'              => $orgStock->stock->imageSources()
         ];
     }
 }
