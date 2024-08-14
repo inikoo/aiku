@@ -19,10 +19,10 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
     {
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
         foreach ($palletsInStoringState as $pallet) {
-            if(!$pallet->storing_at){
+            if(!$pallet->storing_at) {
                 UpdatePallet::make()->action($pallet, [
-                    'storing_at' => now(),
-                    'notes'       => $pallet->notes == ''?'':' ' . 'Warning: Storing At date added because it was missing'
+                    'storing_at'  => now(),
+                    'notes'       => $pallet->notes == '' ? '' : ' ' . 'Warning: Storing At date added because it was missing'
                 ]);
             }
             $startDate = $pallet->storing_at;

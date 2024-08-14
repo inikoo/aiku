@@ -12,6 +12,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Fulfilment\Rental;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPallet extends FetchAurora
@@ -55,6 +56,11 @@ class FetchAuroraPallet extends FetchAurora
             $location_id = $location?->id;
         }
 
+        $startDate = null;
+        if ($this->auroraModelData->{'Fulfilment Asset To'}) {
+            $startDate = $this->auroraModelData->{'Fulfilment Asset To'};
+        }
+
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
             'Received'  => PalletStateEnum::RECEIVED,
@@ -76,10 +82,17 @@ class FetchAuroraPallet extends FetchAurora
         };
 
 
-        $received_at = null;
-        if ($this->auroraModelData->{'Fulfilment Asset To'}) {
-            $received_at = $this->auroraModelData->{'Fulfilment Asset To'};
+        $receivedAt = $startDate;
+        $bookedInAt = $startDate;
+
+        if ($status == PalletStatusEnum::IN_PROCESS) {
+            $receivedAt = null;
+            $bookedInAt = null;
         }
+        if ($status == PalletStatusEnum::RECEIVING) {
+            $bookedInAt = null;
+        }
+
 
         $reference = $this->auroraModelData->{'Fulfilment Asset Reference'};
 
@@ -97,6 +110,7 @@ class FetchAuroraPallet extends FetchAurora
         $notes = trim($notes);
 
 
+        /** @var Rental $rental */
         $rental = $customer->shop->rentals()
             ->where('auto_assign_asset', 'Pallet')
             ->where('auto_assign_asset_type', $type->value)->firstOrFail();
@@ -110,7 +124,9 @@ class FetchAuroraPallet extends FetchAurora
             'customer_reference' => $reference,
             'notes'              => $notes,
             'created_at'         => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
-            'received_at'        => $received_at,
+            'received_at'        => $receivedAt,
+            'booked_in_at'       => $bookedInAt,
+            'storing_at'         => $bookedInAt,
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
             'rental_id'          => $rental->id
         ];

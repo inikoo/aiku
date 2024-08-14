@@ -30,7 +30,6 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
-
         $customer   = $this->parseCustomer($organisationSource->getOrganisation()->id.':'.$organisationSourceId);
         $sourceData = explode(':', $customer->source_id);
 
@@ -63,15 +62,11 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
             }
 
 
-            $rentalAgreement=StoreRentalAgreement::make()->action(
+            StoreRentalAgreement::make()->action(
                 $customer->fulfilmentCustomer,
                 $rentalAgreementData
             );
-            //
-            // dd($rentalAgreement);
         }
-
-        //  exit('xxx');
 
         $storingPalletsCount = DB::connection('aurora')
             ->table('Fulfilment Asset Dimension')
@@ -117,8 +112,6 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
                     ->where('Fulfilment Asset Customer Key', $sourceData[1])
                     ->get() as $palletData
             ) {
-
-
                 $pallet = $this->parsePallet($organisationSource->getOrganisation()->id.':'.$palletData->{'Fulfilment Asset Key'});
 
                 if ($palletData->{'Fulfilment Asset Last Rent Order Date'}) {
@@ -140,7 +133,6 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
 
         return $customer;
     }
-
 
 
     public function getModelsQuery(): Builder

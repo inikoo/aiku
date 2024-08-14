@@ -116,7 +116,8 @@ class UpdatePallet extends OrgAction
             'rental_id'          => ['nullable', 'exists:rentals,id'],
             'notes'              => ['nullable', 'string', 'max:1024'],
             'received_at'        => ['nullable', 'nullable', 'date'],
-            'storing_at'         => ['sometimes', 'date']
+            'booked_in_at'       => ['sometimes', 'nullable', 'date'],
+            'storing_at'         => ['sometimes', 'nullable', 'date'],
         ];
     }
 
