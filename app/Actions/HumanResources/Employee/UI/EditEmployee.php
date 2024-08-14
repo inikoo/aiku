@@ -140,14 +140,16 @@ class EditEmployee extends OrgAction
                     'required'               => true,
                     'label'                  => __('position'),
                     'list_authorised'        => [
-                        'authorised_shops'       =>
-                                            $this->organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
-                        'authorised_fulfilments' =>
-                                            $this->organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
-                        'authorised_warehouses' =>
-                                            $this->organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
-                        'authorised_productions' =>
-                                            $this->organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
+                        'positions'         => [
+                            'authorised_shops'       =>
+                                                $this->organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
+                            'authorised_fulfilments' =>
+                                                $this->organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
+                            'authorised_warehouses' =>
+                                                $this->organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
+                            'authorised_productions' =>
+                                                $this->organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
+                        ]
                     ],
 
                     'options'  => [
