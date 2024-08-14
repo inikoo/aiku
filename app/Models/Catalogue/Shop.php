@@ -179,7 +179,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @method static Builder|Shop withoutTrashed()
  * @mixin Eloquent
  */
-class Shop extends Authenticatable implements HasMedia, Auditable, IShopModel
+class Shop extends Authenticatable implements HasMedia, Auditable
 {
     use HasAddress;
     use HasAddresses;
@@ -190,7 +190,6 @@ class Shop extends Authenticatable implements HasMedia, Auditable, IShopModel
     use InOrganisation;
     use HasHistory;
     use HasImage;
-    use ShopModel;
 
     protected $casts = [
         'data'     => 'array',
