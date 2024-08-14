@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -75,6 +76,7 @@ use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
@@ -2211,6 +2213,20 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
 
     expect($recurringBillTransaction->clause)->not->toBeNull();
 
-
-    return $rentalAgreement;
+    return $fulfilmentCustomer;
 })->depends('consolidate recurring bill');
+
+test('check invoice transactions length' , function ($fulfilmentCustomer)
+{
+    $oldRecurringBill = $fulfilmentCustomer->recurringBills->first();
+    $invoice = $oldRecurringBill->invoices;
+
+    $query = IndexInvoiceTransactions::run($invoice)->toArray();
+    $queryData = $query['data'];
+
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->invoiceTransactions()->count())->toBe(4);
+
+    expect(count($queryData))->tobe(2);
+
+})->depends('update third rental agreement cause');
