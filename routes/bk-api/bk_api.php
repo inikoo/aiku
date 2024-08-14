@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('bk_api.')->group(function () {
     Route::middleware(['auth:sanctum', 'ability:aurora'])->group(function () {
-        Route::prefix('{organisation}')->group(function () {
-            Route::post('invoice', FetchAuroraInvoices::class)->name('invoice.fetch');
-            Route::post('customer', FetchAuroraCustomers::class)->name('invoice.fetch');
+        Route::name('fetch.')->prefix('{organisation}')->group(function () {
+            Route::post('invoice', FetchAuroraInvoices::class)->name('invoice');
+            Route::post('customer', FetchAuroraCustomers::class)->name('customer');
         });
     });
 });
