@@ -173,7 +173,7 @@ Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
 
 Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
-Route::patch('/user/{user:id}/organisation/{organisation:id}', UpdateEmployeeOtherOrganisationJobPositions::class)->name('user.other-organisation.update');
+Route::patch('/user/{user:id}/organisation/{organisation:id}', UpdateEmployeeOtherOrganisationJobPositions::class)->name('user.other-organisation.update')->withoutScopedBindings();
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
 

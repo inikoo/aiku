@@ -18,9 +18,14 @@ trait HasEmployeePositionGenerator
         $jobPositions = [];
         foreach (Arr::get($modelData, 'positions', []) as $positionData) {
             /** @var JobPosition $jobPosition */
-            $jobPosition                    = $organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
-            $jobPositions[$jobPosition->id] = [];
+            // if(in_array($positionData, [
+            //     'group_admin',
+            //     'group_sysadmin',
+            //     'group_procurement'
+            // ]))
+            $jobPosition                    = $organisation->jobPositions()->firstWhere('code', $positionData['slug']);
 
+            $jobPositions[$jobPosition->id] = [];
             foreach (Arr::get($positionData, 'scopes', []) as $key => $scopes) {
                 $scopeData = match ($key) {
                     'shops' => [

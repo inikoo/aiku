@@ -111,8 +111,12 @@ const props = defineProps<{
 
 const newForm = props.saveButton ? useForm({[props.fieldName]: props.form[props.fieldName]} || {}) : reactive(props.form)
 const onSubmitNewForm = () => {
-    newForm.submit(
-        props.fieldData.updateRoute.method || 'post',
+    newForm
+    .transform((data) => ({
+        positions: data[props.fieldName]
+    }))
+    .submit(
+        props.fieldData.updateRoute.method || 'patch',
         route(props.fieldData.updateRoute.name, {...props.fieldData.updateRoute.parameters, organisation: props.organisationId}),
         {
             preserveScroll: true,
