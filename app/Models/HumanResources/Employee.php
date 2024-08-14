@@ -195,13 +195,13 @@ class Employee extends Model implements HasMedia, Auditable
     public function jobPositions(): BelongsToMany
     {
         return $this->belongsToMany(JobPosition::class, 'employee_has_job_positions')
-            ->using(EmployeeHasJobPositions::class);
+            ->using(EmployeeHasJobPositions::class)->withTimestamps()->withPivot(['share','scopes']);
     }
 
     public function otherOrganisationJobPositions(): BelongsToMany
     {
         return $this->belongsToMany(JobPosition::class, 'employee_has_other_organisation_job_positions')
-            ->using(EmployeeHasOtherOrganisationJobPosition::class);
+            ->using(EmployeeHasOtherOrganisationJobPosition::class)->withTimestamps()->withPivot(['share','scopes']);
     }
 
 
