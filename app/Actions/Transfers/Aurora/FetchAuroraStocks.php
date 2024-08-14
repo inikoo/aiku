@@ -152,7 +152,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
-        $query->orderBy('source_id');
+        $query->orderBy('Part Valid From');
 
         return $query;
     }

@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  *
@@ -124,6 +125,12 @@ class RecurringBill extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
+    public function discountAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->gross_amount - $this->net_amount
+        );
+    }
 
     public function currency(): BelongsTo
     {

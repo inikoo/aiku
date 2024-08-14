@@ -88,11 +88,8 @@ class FetchAuroraProduct extends FetchAurora
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
 
-        $isMain=true;
-
-
         $this->parsedData['product'] = [
-            'is_main'                => $isMain,
+            'is_main'                => true,
             'type'                   => AssetTypeEnum::PRODUCT,
             'owner_type'             => $owner_type,
             'owner_id'               => $owner_id,
