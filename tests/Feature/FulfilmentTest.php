@@ -75,6 +75,7 @@ use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -2164,8 +2165,12 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
         ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
         ->and($newRecurringBill->transactions()->count())->toBe(2);
 
-    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER);
+    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($recurringBill->invoices)->not->toBeNull()
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
 
     expect($fulfilmentCustomer->recurringBills()->count())->toBe(2);
+
+    return $fulfilmentCustomer;
 
 })->depends('check current recurring bill');
