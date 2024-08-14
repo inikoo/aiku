@@ -434,7 +434,7 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
     // ('mrk', 'mrk-c', ['shops', 'fulfilment'])
 
     // If click on the active subDepartment, then unselect it
-    if (props.form[props.fieldName][subDepartmentSlug]) {
+    if (props.form?.[props.fieldName]?.[subDepartmentSlug]) {
         delete props.form[props.fieldName][subDepartmentSlug]
     } else {
         for (const key in props.form[props.fieldName]) {
@@ -602,7 +602,7 @@ onMounted(() => {
                                                             <FontAwesomeIcon v-else-if="subDepartment.optionsType?.some((optionType: string) => get(form[fieldName], [subDepartment.slug, optionType], []).some((optionValue: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).includes(optionValue)))" icon='fal fa-check-circle' class="text-green-600" fixed-width aria-hidden='true' />
                                                             <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                         </template>
-                                                        <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
+                                                        <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
                                                     </div>
                 
                                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
