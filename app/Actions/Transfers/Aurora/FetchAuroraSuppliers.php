@@ -32,7 +32,7 @@ class FetchAuroraSuppliers extends FetchAuroraAction
             ->leftJoin('Agent Supplier Bridge', 'Agent Supplier Supplier Key', 'Supplier Key')
             ->select('Supplier Key as source_id')
             ->where('aiku_ignore', 'No')
-            ->orderBy('source_id');
+            ->orderBy('Supplier Valid From');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');

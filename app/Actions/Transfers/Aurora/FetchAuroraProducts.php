@@ -119,9 +119,8 @@ class FetchAuroraProducts extends FetchAuroraAction
             ->table('Product Dimension')
             ->where('Product Type', 'Product')
             ->whereNull('Product Customer Key')
-         //   ->where('is_variant', 'No')
             ->select('Product ID as source_id')
-            ->orderBy('Product ID');
+            ->orderBy('Product Valid From');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
