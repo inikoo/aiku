@@ -26,16 +26,16 @@ class IndexInvoiceTransactions extends OrgAction
                 $query->whereStartWith('invoice_transactions.number', $value);
             });
         });
-    
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-    
+
         $queryBuilder = QueryBuilder::for(InvoiceTransaction::class);
         $queryBuilder->where('invoice_transactions.invoice_id', $invoice->id);
         $queryBuilder->leftJoin('historic_assets', 'invoice_transactions.historic_asset_id', 'historic_assets.id');
         $queryBuilder->leftJoin('assets', 'invoice_transactions.asset_id', 'assets.id');
-    
+
         $queryBuilder->select(
             [
                 'historic_assets.code',
@@ -46,15 +46,15 @@ class IndexInvoiceTransactions extends OrgAction
                 DB::raw("'{$invoice->currency->code}' AS currency_code")
             ]
         );
-        
+
         $queryBuilder->groupBy(
             'historic_assets.code',
             'historic_assets.name',
             'assets.slug'
         );
-        
+
         $queryBuilder->defaultSort('code');
-    
+
         return $queryBuilder->allowedSorts(['code', 'name', 'quantity', 'net_amount'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

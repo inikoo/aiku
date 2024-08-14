@@ -34,7 +34,7 @@ class SetClausesInRecurringBillTransaction extends OrgAction
         }
 
         $net = $recurringBillTransaction->asset->price * $recurringBillTransaction->quantity;
-        $net -= $net * $percentageOff;
+        $net -= $net                                   * $percentageOff;
 
         data_set($modelData, 'net_amount', $net);
 
