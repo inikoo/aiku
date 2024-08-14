@@ -49,29 +49,30 @@ class FetchAuroraPallet extends FetchAurora
         $location_id = null;
         if ($this->auroraModelData->{'Fulfilment Asset Location Key'}) {
             $location    = $this->parseLocation(
-                $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'}
+                $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'},
+                $this->organisationSource
             );
             $location_id = $location?->id;
         }
 
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
-            'Received'  => PalletStateEnum::RECEIVED,
-            'BookedIn'  => PalletStateEnum::STORING,
-            default     => PalletStateEnum::DISPATCHED
+            'Received' => PalletStateEnum::RECEIVED,
+            'BookedIn' => PalletStateEnum::STORING,
+            default => PalletStateEnum::DISPATCHED
         };
         $status = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStatusEnum::IN_PROCESS,
-            'Received'  => PalletStatusEnum::RECEIVING,
-            'BookedIn'  => PalletStatusEnum::STORING,
+            'Received' => PalletStatusEnum::RECEIVING,
+            'BookedIn' => PalletStatusEnum::STORING,
             'BookedOut', 'Invoiced' => PalletStatusEnum::RETURNED,
             'Lost' => PalletStatusEnum::INCIDENT,
         };
 
         $type = match ($this->auroraModelData->{'Fulfilment Asset Type'}) {
-            'Box'      => PalletTypeEnum::BOX,
+            'Box' => PalletTypeEnum::BOX,
             'Oversize' => PalletTypeEnum::OVERSIZE,
-            default    => PalletTypeEnum::PALLET
+            default => PalletTypeEnum::PALLET
         };
 
 

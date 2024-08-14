@@ -47,6 +47,10 @@ return [
             'driver'   => 'session',
             'provider' => 'web-users',
         ],
+        'shop'     => [
+            'driver'   => 'session',
+            'provider' => 'shops',
+        ],
         'broadcasting' => [
             'driver' => 'websockets-auth',
         ],
@@ -78,6 +82,10 @@ return [
         'web-users'   => [
             'driver' => 'eloquent',
             'model'  => WebUser::class,
+        ],
+        'shops'   => [
+            'driver' => 'eloquent',
+            'model'  => \App\Models\Catalogue\Shop::class,
         ],
 
     ],

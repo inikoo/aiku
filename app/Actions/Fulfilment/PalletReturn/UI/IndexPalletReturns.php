@@ -122,6 +122,10 @@ class IndexPalletReturns extends OrgAction
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
+        if($type = request()->get('type')) {
+            $queryBuilder->where('type', $type);
+        }
+
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
