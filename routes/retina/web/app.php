@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-Route::get('/shopify/connect', function () {
+Route::get('shopify/connect', function () {
     return view('shopify.index');
 })->middleware(['verify.shopify'])->name('shopify.home');
 

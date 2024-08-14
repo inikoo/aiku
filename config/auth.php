@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\CRM\WebUser;
+use App\Models\ShopifyUser;
 use App\Models\SysAdmin\User;
 
 return [
@@ -47,9 +48,9 @@ return [
             'driver'   => 'session',
             'provider' => 'web-users',
         ],
-        'shop'     => [
+        'shopify'     => [
             'driver'   => 'session',
-            'provider' => 'shops',
+            'provider' => 'shopify',
         ],
         'broadcasting' => [
             'driver' => 'websockets-auth',
@@ -83,11 +84,10 @@ return [
             'driver' => 'eloquent',
             'model'  => WebUser::class,
         ],
-        'shops'   => [
+        'shopify'   => [
             'driver' => 'eloquent',
-            'model'  => \App\Models\Catalogue\Shop::class,
-        ],
-
+            'model'  => ShopifyUser::class,
+        ]
     ],
 
     /*

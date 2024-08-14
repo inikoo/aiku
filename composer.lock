@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4fa6e7d9af1da58e212956478458fc38",
+    "content-hash": "9db1de42a18f39249ba03234c4de0445",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -793,6 +793,73 @@
             "time": "2024-03-18T17:43:45+00:00"
         },
         {
+            "name": "beberlei/assert",
+            "version": "v3.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/beberlei/assert.git",
+                "reference": "cb70015c04be1baee6f5f5c953703347c0ac1655"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/cb70015c04be1baee6f5f5c953703347c0ac1655",
+                "reference": "cb70015c04be1baee6f5f5c953703347c0ac1655",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-simplexml": "*",
+                "php": "^7.0 || ^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "*",
+                "phpstan/phpstan": "*",
+                "phpunit/phpunit": ">=6.0.0",
+                "yoast/phpunit-polyfills": "^0.1.0"
+            },
+            "suggest": {
+                "ext-intl": "Needed to allow Assertion::count(), Assertion::isCountable(), Assertion::minCount(), and Assertion::maxCount() to operate on ResourceBundles"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/Assert/functions.php"
+                ],
+                "psr-4": {
+                    "Assert\\": "lib/Assert"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Eberlei",
+                    "email": "kontakt@beberlei.de",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Richard Quadling",
+                    "email": "rquadling@gmail.com",
+                    "role": "Collaborator"
+                }
+            ],
+            "description": "Thin assertion library for input validation in business models.",
+            "keywords": [
+                "assert",
+                "assertion",
+                "validation"
+            ],
+            "support": {
+                "issues": "https://github.com/beberlei/assert/issues",
+                "source": "https://github.com/beberlei/assert/tree/v3.3.2"
+            },
+            "time": "2021-12-16T21:41:27+00:00"
+        },
+        {
             "name": "beste/clock",
             "version": "3.0.0",
             "source": {
@@ -1176,6 +1243,79 @@
             "time": "2023-09-01T15:09:05+00:00"
         },
         {
+            "name": "caseyamcl/guzzle_retry_middleware",
+            "version": "v2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/caseyamcl/guzzle_retry_middleware.git",
+                "reference": "e2ddb58a3d88ed120eb9c4739d72680ed6b3d55c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/caseyamcl/guzzle_retry_middleware/zipball/e2ddb58a3d88ed120eb9c4739d72680ed6b3d55c",
+                "reference": "e2ddb58a3d88ed120eb9c4739d72680ed6b3d55c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3|^7.0",
+                "php": "^7.1|^8.0"
+            },
+            "require-dev": {
+                "jaschilz/php-coverage-badger": "^2.0",
+                "nesbot/carbon": "^2.0|^3.0",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^1.0",
+                "phpunit/phpunit": "^7.5|^8.0|^9.0",
+                "squizlabs/php_codesniffer": "^3.5",
+                "symfony/var-dumper": "^5.0|^6.0|^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "GuzzleRetry\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Casey McLaughlin",
+                    "email": "caseyamcl@gmail.com",
+                    "homepage": "https://caseymclaughlin.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Guzzle v6+ retry middleware that handles 429/503 status codes and connection timeouts",
+            "homepage": "https://github.com/caseyamcl/guzzle_retry_middleware",
+            "keywords": [
+                "Guzzle",
+                "back-off",
+                "caseyamcl",
+                "guzzle_retry_middleware",
+                "middleware",
+                "retry",
+                "retry-after"
+            ],
+            "support": {
+                "issues": "https://github.com/caseyamcl/guzzle_retry_middleware/issues",
+                "source": "https://github.com/caseyamcl/guzzle_retry_middleware/tree/v2.10.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/caseyamcl",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-06-19T23:03:14+00:00"
+        },
+        {
             "name": "checkout/checkout-sdk-php",
             "version": "3.1.0",
             "source": {
@@ -1242,6 +1382,50 @@
                 "source": "https://github.com/checkout/checkout-sdk-php/tree/3.1.0"
             },
             "time": "2024-03-26T12:27:04+00:00"
+        },
+        {
+            "name": "chrisharrison/php-array-of",
+            "version": "1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chrisharrison/php-array-of.git",
+                "reference": "61220e3b65cc0e0874784c96206c2b5241782418"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chrisharrison/php-array-of/zipball/61220e3b65cc0e0874784c96206c2b5241782418",
+                "reference": "61220e3b65cc0e0874784c96206c2b5241782418",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.3 || ^9.3",
+                "squizlabs/php_codesniffer": "^3.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ChrisHarrison\\ArrayOf\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Harrison",
+                    "email": "c.harrison1988@gmail.com"
+                }
+            ],
+            "description": "Implement an array of a defined type. Generics replacement for PHP.",
+            "support": {
+                "issues": "https://github.com/chrisharrison/php-array-of/issues",
+                "source": "https://github.com/chrisharrison/php-array-of/tree/1.1"
+            },
+            "time": "2020-12-18T15:43:46+00:00"
         },
         {
             "name": "commerceguys/addressing",
@@ -2739,6 +2923,53 @@
             "time": "2023-10-12T05:21:21+00:00"
         },
         {
+            "name": "funeralzone/valueobjects",
+            "version": "0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/funeralzone/valueobjects.git",
+                "reference": "8b00d83ca7438ca97757b761285ee99a52745d97"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/funeralzone/valueobjects/zipball/8b00d83ca7438ca97757b761285ee99a52745d97",
+                "reference": "8b00d83ca7438ca97757b761285ee99a52745d97",
+                "shasum": ""
+            },
+            "require": {
+                "beberlei/assert": "^2.7 || ^3.1",
+                "chrisharrison/php-array-of": "^1.0",
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^6.2 || ^9.3",
+                "squizlabs/php_codesniffer": "^3.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Funeralzone\\ValueObjects\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chris Harrison",
+                    "email": "c.harrison1988@gmail.com"
+                }
+            ],
+            "description": "A PHP 7.1 value objects helper library.",
+            "support": {
+                "issues": "https://github.com/funeralzone/valueobjects/issues",
+                "source": "https://github.com/funeralzone/valueobjects/tree/0.5"
+            },
+            "time": "2020-12-18T17:34:13+00:00"
+        },
+        {
             "name": "geoip2/geoip2",
             "version": "v2.13.0",
             "source": {
@@ -2878,6 +3109,62 @@
                 "source": "https://github.com/giggsey/libphonenumber-for-php-lite"
             },
             "time": "2024-08-13T12:15:00+00:00"
+        },
+        {
+            "name": "gnikyt/basic-shopify-api",
+            "version": "v11.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gnikyt/Basic-Shopify-API.git",
+                "reference": "acbdcab0a962313acccbefd97615270d784822c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gnikyt/Basic-Shopify-API/zipball/acbdcab0a962313acccbefd97615270d784822c5",
+                "reference": "acbdcab0a962313acccbefd97615270d784822c5",
+                "shasum": ""
+            },
+            "require": {
+                "caseyamcl/guzzle_retry_middleware": "^2.3",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^6.5 || ^7.0",
+                "php": ">=7.3.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.8",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^6.2 || ^9.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Gnikyt\\BasicShopifyAPI\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tyler King",
+                    "email": "tyler.n.king@gmail.com"
+                }
+            ],
+            "description": "A basic Shopify API wrapper with REST and GraphQL support, powered by Guzzle.",
+            "keywords": [
+                "api",
+                "graphql",
+                "rest",
+                "shopify",
+                "wrapper"
+            ],
+            "support": {
+                "issues": "https://github.com/gnikyt/basic-shopify-api/issues",
+                "source": "https://github.com/gnikyt/basic-shopify-api"
+            },
+            "time": "2022-11-30T20:09:04+00:00"
         },
         {
             "name": "google/apiclient",
@@ -4321,6 +4608,89 @@
             "time": "2024-03-08T09:58:59+00:00"
         },
         {
+            "name": "jenssegers/agent",
+            "version": "v2.6.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jenssegers/agent.git",
+                "reference": "daa11c43729510b3700bc34d414664966b03bffe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jenssegers/agent/zipball/daa11c43729510b3700bc34d414664966b03bffe",
+                "reference": "daa11c43729510b3700bc34d414664966b03bffe",
+                "shasum": ""
+            },
+            "require": {
+                "jaybizzle/crawler-detect": "^1.2",
+                "mobiledetect/mobiledetectlib": "^2.7.6",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^2.1",
+                "phpunit/phpunit": "^5.0|^6.0|^7.0"
+            },
+            "suggest": {
+                "illuminate/support": "Required for laravel service providers"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Jenssegers\\Agent\\AgentServiceProvider"
+                    ],
+                    "aliases": {
+                        "Agent": "Jenssegers\\Agent\\Facades\\Agent"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jenssegers\\Agent\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jens Segers",
+                    "homepage": "https://jenssegers.com"
+                }
+            ],
+            "description": "Desktop/mobile user agent parser with support for Laravel, based on Mobiledetect",
+            "homepage": "https://github.com/jenssegers/agent",
+            "keywords": [
+                "Agent",
+                "browser",
+                "desktop",
+                "laravel",
+                "mobile",
+                "platform",
+                "user agent",
+                "useragent"
+            ],
+            "support": {
+                "issues": "https://github.com/jenssegers/agent/issues",
+                "source": "https://github.com/jenssegers/agent/tree/v2.6.4"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/jenssegers",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/jenssegers/agent",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-06-13T08:05:20+00:00"
+        },
+        {
             "name": "jetbrains/phpstorm-stubs",
             "version": "v2024.1",
             "source": {
@@ -4672,6 +5042,99 @@
                 }
             ],
             "time": "2024-06-23T20:49:35+00:00"
+        },
+        {
+            "name": "kyon147/laravel-shopify",
+            "version": "v21.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Kyon147/laravel-shopify.git",
+                "reference": "0ba57b5895d318905ce88da650a690c42175092e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Kyon147/laravel-shopify/zipball/0ba57b5895d318905ce88da650a690c42175092e",
+                "reference": "0ba57b5895d318905ce88da650a690c42175092e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "funeralzone/valueobjects": "^0.5",
+                "gnikyt/basic-shopify-api": "^9.0 || ^10.0 || ^11.0",
+                "jenssegers/agent": "^2.6",
+                "laravel/framework": "^8.0 || ^9.0 || ^10.0 || ^11.0",
+                "php": "^8.0 || 8.1"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.8",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "laravel/legacy-factories": "^v1.3.0",
+                "mockery/mockery": "^1.0",
+                "orchestra/database": "~3.8 || ~4.0 || ~5.0 || ~6.0 || ~7.0",
+                "orchestra/testbench": "~3.8 || ~4.0 || ~5.0 || ~6.0 || ~7.0 || ~8.0",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "~8.0 || ^9.0 || ^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Osiset\\ShopifyApp\\ShopifyAppProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Osiset\\ShopifyApp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luke (Kyon147)",
+                    "email": "support@appydesign.co.uk"
+                }
+            ],
+            "description": "Shopify package for Laravel to aide in app development",
+            "keywords": [
+                "api",
+                "callback-url",
+                "driver",
+                "facade",
+                "laravel",
+                "laravel-package",
+                "laravel-shopify",
+                "scripttags",
+                "sdk",
+                "shopify",
+                "shopify-api",
+                "shopify-app",
+                "webhook"
+            ],
+            "support": {
+                "forum": "https://github.com/Kyon147/laravel-shopify/discussions",
+                "issues": "https://github.com/Kyon147/laravel-shopify/issues",
+                "source": "https://github.com/Kyon147/laravel-shopify",
+                "wiki": "https://github.com/Kyon147/laravel-shopify/wiki"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/kyon147",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/kyon147",
+                    "type": "github"
+                },
+                {
+                    "url": "https://opencollective.com/laravel-shopify",
+                    "type": "open_collective"
+                }
+            ],
+            "time": "2024-05-16T13:49:51+00:00"
         },
         {
             "name": "laravel-notification-channels/fcm",
@@ -19183,5 +19646,5 @@
         "ext-zlib": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
