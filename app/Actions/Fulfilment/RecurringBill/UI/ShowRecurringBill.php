@@ -68,6 +68,7 @@ class ShowRecurringBill extends OrgAction
         foreach ($recurringBill->transactions()->where('item_type', 'Pallet') as $transaction) {
             $palletPriceTotal += $transaction->item->rental->price;
         }
+        $showGrossAndDiscount = $recurringBill->gross_amount !== $recurringBill->net_amount;
         // dd(RecurringBillTransactionsResource::collection(IndexRecurringBillTransactions::run($recurringBill, RecurringBillTabsEnum::TRANSACTIONS->value)));
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
@@ -122,7 +123,6 @@ class ShowRecurringBill extends OrgAction
                     'stats'         => [
                         'number_pallets'         => $recurringBill->stats->number_transactions_type_pallets,
                         'number_stored_items'    => $recurringBill->stats->number_transactions_type_stored_items,
-
                     ],
                     'order_summary' => [
                         // [
@@ -137,9 +137,18 @@ class ShowRecurringBill extends OrgAction
                         [
                             [
                                 'label'         => __('Pallets'),
-                                'quantity'      => $recurringBill->stats->number_transactions_type_pallets ?? 0,
                                 'price_base'    => __('Multiple'),
                                 'price_total'   => $recurringBill->rental_amount
+                            ],
+                            [
+                                'label'       => __('Services'),
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $recurringBill->services_amount
+                            ],
+                            [
+                                'label'       => __('Products'),
+                                'price_base'  => __('Multiple'),
+                                'price_total' => $recurringBill->goods_amount
                             ],
                             // [
                             //     'label'         => __('Stored Items'),
@@ -148,10 +157,38 @@ class ShowRecurringBill extends OrgAction
                             //     'price_total'   => 1111111
                             // ],
                         ],
-                        [
+                        $showGrossAndDiscount ? [
                             [
-                                'label'         => __('Tax'),
-                                'information'   => __('Tax is based on 10% of total order.'),
+                                'label'         => __('Gross'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->gross_amount
+                            ],
+                            [
+                                'label'         => __('Discounts'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->discount_amount
+                            ],
+                        ] : [],
+                        $showGrossAndDiscount ? [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
+                                'information'   => '',
+                                'price_total'   => $recurringBill->tax_amount
+                            ],
+                        ] : [
+                            [
+                                'label'         => __('Net'),
+                                'information'   => '',
+                                'price_total'   => $recurringBill->net_amount
+                            ],
+                            [
+                                'label'         => __('Tax').' '.$recurringBill->taxCategory->rate * 100 . '%',
+                                'information'   => '',
                                 'price_total'   => $recurringBill->tax_amount
                             ],
                         ],
