@@ -10,9 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Osiset\ShopifyApp\Util;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up(): void
     {
         Schema::table(Util::getShopsTable(), function (Blueprint $table) {

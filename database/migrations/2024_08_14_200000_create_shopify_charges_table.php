@@ -11,9 +11,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Osiset\ShopifyApp\Util;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up(): void
     {
         Schema::create(Util::getShopifyConfig('table_names.charges', 'charges'), function (Blueprint $table) {

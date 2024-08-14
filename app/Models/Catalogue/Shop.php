@@ -58,6 +58,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -71,9 +72,6 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
-use Osiset\ShopifyApp\Traits\ShopModel;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * App\Models\Catalogue\Shop
@@ -179,7 +177,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @method static Builder|Shop withoutTrashed()
  * @mixin Eloquent
  */
-class Shop extends Authenticatable implements HasMedia, Auditable
+class Shop extends Model implements HasMedia, Auditable
 {
     use HasAddress;
     use HasAddresses;

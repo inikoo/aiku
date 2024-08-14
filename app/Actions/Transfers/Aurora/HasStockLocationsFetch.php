@@ -29,7 +29,7 @@ trait HasStockLocationsFetch
 
 
         foreach ($auroraModelData as $modelData) {
-            $location = $this->parseLocation($sourceData[0].':'.$modelData->{'Location Key'},$organisationSource);
+            $location = $this->parseLocation($sourceData[0].':'.$modelData->{'Location Key'}, $organisationSource);
 
             if (!$location) {
                 $this->recordFetchError(

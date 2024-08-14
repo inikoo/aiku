@@ -57,22 +57,22 @@ class FetchAuroraPallet extends FetchAurora
 
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
-            'Received' => PalletStateEnum::RECEIVED,
-            'BookedIn' => PalletStateEnum::STORING,
-            default => PalletStateEnum::DISPATCHED
+            'Received'  => PalletStateEnum::RECEIVED,
+            'BookedIn'  => PalletStateEnum::STORING,
+            default     => PalletStateEnum::DISPATCHED
         };
         $status = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStatusEnum::IN_PROCESS,
-            'Received' => PalletStatusEnum::RECEIVING,
-            'BookedIn' => PalletStatusEnum::STORING,
+            'Received'  => PalletStatusEnum::RECEIVING,
+            'BookedIn'  => PalletStatusEnum::STORING,
             'BookedOut', 'Invoiced' => PalletStatusEnum::RETURNED,
             'Lost' => PalletStatusEnum::INCIDENT,
         };
 
         $type = match ($this->auroraModelData->{'Fulfilment Asset Type'}) {
-            'Box' => PalletTypeEnum::BOX,
+            'Box'      => PalletTypeEnum::BOX,
             'Oversize' => PalletTypeEnum::OVERSIZE,
-            default => PalletTypeEnum::PALLET
+            default    => PalletTypeEnum::PALLET
         };
 
 
