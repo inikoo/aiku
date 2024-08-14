@@ -85,10 +85,12 @@ const props = defineProps<{
     }
     fieldData: {
         list_authorised: {
-            authorised_shops: number
-            authorised_fulfilments: number
-            authorised_warehouses: number
-            authorised_productions: number
+            [key: string]: {
+                authorised_shops: number
+                authorised_fulfilments: number
+                authorised_warehouses: number
+                authorised_productions: number
+            }
         }
     }
 }>()
@@ -530,10 +532,10 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
     }
 }
 
-const shopLength = props.fieldData.list_authorised.authorised_shops
-const fulfilmentLength = props.fieldData.list_authorised.authorised_fulfilments
-const warehouseLength = props.fieldData.list_authorised.authorised_warehouses
-const productionLength = props.fieldData.list_authorised.authorised_productions
+const shopLength = props.fieldData.list_authorised?.[props.fieldName].authorised_shops
+const fulfilmentLength = props.fieldData.list_authorised?.[props.fieldName].authorised_fulfilments
+const warehouseLength = props.fieldData.list_authorised?.[props.fieldName].authorised_warehouses
+const productionLength = props.fieldData.list_authorised?.[props.fieldName].authorised_productions
 
 const isLevelGroupAdmin = (jobGroupLevel?: string) => {
     if(!jobGroupLevel) {
@@ -556,13 +558,12 @@ onMounted(() => {
 </script>
 
 <template>
-    {{fieldData.list_authorised}}
     <div class="relative">
-        authorised fulfilment: {{ fulfilmentLength }} <br> authorised shop: {{ shopLength }} <br> authorised warehouse: {{ warehouseLength }} <br> authorised production: {{ productionLength }}
+        <!-- authorised fulfilment: {{ fulfilmentLength }} <br> authorised shop: {{ shopLength }} <br> authorised warehouse: {{ warehouseLength }} <br> authorised production: {{ productionLength }} -->
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-if="isMounted">
                 <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
-                    <Teleport to="#scopeShop" :disabled="jobGroup.scope !== 'shop'">
+                    <Teleport :to="'#scopeShop' + fieldName" :disabled="jobGroup.scope !== 'shop'">
                         <div v-if="jobGroup.scope !== 'shop' && (departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
                             <!-- Section: Department label -->
                             <div class="flex items-center capitalize gap-x-1.5">
@@ -708,7 +709,7 @@ onMounted(() => {
                 </template>
             </template>
 
-            <div id="scopeShop" class="ring-1 ring-gray-300 rounded-md px-1">
+            <div :id="'scopeShop' + fieldName" class="ring-1 ring-gray-300 rounded-md px-1">
             
             </div>
         </div>
