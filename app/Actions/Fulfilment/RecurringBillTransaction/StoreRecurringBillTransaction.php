@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\RecurringBillTransaction;
 
 use App\Actions\Fulfilment\RecurringBill\Hydrators\RecurringBillHydrateTransactions;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Models\Fulfilment\FulfilmentTransaction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\RecurringBill;
@@ -29,7 +30,12 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'item_id', $item->id);
 
         if ($item instanceof FulfilmentTransaction) {
-            $type            = $item->type;
+            if ($item->type == FulfilmentTransactionTypeEnum::SERVICE)
+            {
+                $type = 'Service';
+            } else {
+                $type = 'Product';
+            }
             $assetId         = $item->asset->id;
             $historicAssetId = $item->asset->current_historic_asset_id;
             $grossAmount     = $item->gross_amount;
