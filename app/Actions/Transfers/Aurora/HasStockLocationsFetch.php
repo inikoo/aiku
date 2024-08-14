@@ -25,8 +25,11 @@ trait HasStockLocationsFetch
             ->table('Part Location Dimension')
             ->where('Part SKU', $sourceData[1])->get();
 
+
+
+
         foreach ($auroraModelData as $modelData) {
-            $location = $this->parseLocation($sourceData[0].':'.$modelData->{'Location Key'});
+            $location = $this->parseLocation($sourceData[0].':'.$modelData->{'Location Key'},$organisationSource);
 
             if (!$location) {
                 $this->recordFetchError(
