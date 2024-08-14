@@ -48,6 +48,7 @@ use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
+use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\Fulfilment\Rental\StoreRental;
@@ -69,6 +70,7 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
@@ -566,8 +568,8 @@ test('update second rental agreement cause', function (RentalAgreement $rentalAg
     $rentalAgreement = UpdateRentalAgreement::make()->action(
         $rentalAgreement,
         [
-            'update_all'=>false,
-            'clauses' => [
+            'update_all'=> false,
+            'clauses'   => [
                 'rentals' => [
                     [
                         'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
@@ -1094,7 +1096,7 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-    expect($recurringBill->stats->number_transactions)->toBe(1)
+    expect($recurringBill->stats->number_transactions)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
@@ -1142,7 +1144,7 @@ test('set second pallet delivery as booked in', function (PalletDelivery $pallet
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-    expect($recurringBill->stats->number_transactions)->toBe(1)
+    expect($recurringBill->stats->number_transactions)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
@@ -1961,3 +1963,209 @@ test('recurring bill universal search', function () {
     ReindexRecurringBillSearch::run($recurringBill);
     $this->artisan('recurring-bill:search  '.$this->organisation->slug)->assertExitCode(0);
 });
+
+test('create sixth pallet delivery (consolidation test)', function ($fulfilmentCustomer) {
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS);
+
+    return $palletDelivery;
+})->depends('create third fulfilment customer');
+
+test('add pallet to sixth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = StorePalletFromDelivery::make()->action(
+        $palletDelivery,
+        [
+            'customer_reference' => 'GAGAGAG',
+            'type'               => PalletTypeEnum::PALLET->value,
+        ]
+    );
+
+    $palletDelivery->refresh();
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($palletDelivery->stats->number_services)->toBe(1)
+        ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
+        ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
+        ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(2)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(1);
+
+
+    return $pallet;
+})->depends('create sixth pallet delivery (consolidation test)');
+
+test('create 2 stored item and attach to pallet (6th delivery)', function (Pallet $pallet) {
+    $storedItem = StoreStoredItem::make()->action(
+        $pallet->fulfilmentCustomer,
+        [
+            'reference' => 'Bao',
+        ]
+    );
+    $secondStoredItem = StoreStoredItem::make()->action(
+        $pallet->fulfilmentCustomer,
+        [
+            'reference' => 'Boa',
+        ]
+    );
+
+    SyncStoredItemToPallet::make()->action(
+        $pallet,
+        [
+            'stored_item_ids' => [
+                $storedItem->id => [
+                    'quantity' => 8
+                ],
+                $secondStoredItem->id => [
+                    'quantity' => 10
+                ]
+            ]
+        ]
+    );
+
+    $pallet->refresh();
+
+    expect($storedItem)->toBeInstanceOf(StoredItem::class)
+    ->and($pallet)->toBeInstanceOf(Pallet::class)
+    ->and($pallet->storedItems()->count())->toBe(2);
+
+    return $pallet;
+})->depends('add pallet to sixth pallet delivery');
+
+test('submit and confirm sixth pallet delivery', function (Pallet $pallet) {
+
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($pallet->palletDelivery);
+
+    $pallet = $palletDelivery->pallets->first();
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
+        ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($pallet->storedItems()->count())->toBe(2)
+        ->and($pallet->state)->toBe(PalletStateEnum::CONFIRMED)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $palletDelivery;
+})->depends('create 2 stored item and attach to pallet (6th delivery)');
+
+test('receive sixth pallet delivery', function (PalletDelivery $palletDelivery) {
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
+        ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class);
+
+    return $palletDelivery;
+})->depends('submit and confirm sixth pallet delivery');
+
+test('start booking-in sixth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $palletDelivery = StartBookingPalletDelivery::make()->action($palletDelivery);
+
+    $palletDelivery->refresh();
+
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN)
+        ->and($palletDelivery->booking_in_at)->toBeInstanceOf(Carbon::class);
+
+    return $palletDelivery;
+})->depends('receive sixth pallet delivery');
+
+test('set location of only pallet in the sixth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    /** @var Location $location */
+    $location = $this->warehouse->locations()->first();
+
+    BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id)
+        ->and($pallet->received_at)->toBeInstanceOf(Carbon::class)
+        ->and($pallet->booked_in_at)->toBeInstanceOf(Carbon::class)
+        ->and($pallet->set_as_not_received_at)->toBeNull()
+        ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $palletDelivery;
+})->depends('start booking-in sixth pallet delivery');
+
+test('set rental to only pallet in the sixth pallet delivery', function (PalletDelivery $palletDelivery) {
+    $pallet = $palletDelivery->pallets->first();
+    $rental = $palletDelivery->fulfilment->rentals->last();
+    expect($rental)->toBeInstanceOf(Rental::class);
+
+    SetPalletRental::make()->action($pallet, ['rental_id' => $rental->id]);
+    $pallet->refresh();
+    $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
+
+    expect($pallet->rental)->toBeInstanceOf(Rental::class)
+        ->and($palletNotInRentalCount)->toBe(0);
+
+
+    return $palletDelivery;
+})->depends('set location of only pallet in the sixth pallet delivery');
+
+test('set sixth pallet delivery as booked in', function (PalletDelivery $palletDelivery) {
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
+
+    $palletDelivery = SetPalletDeliveryAsBookedIn::make()->action($palletDelivery);
+    $palletDelivery->refresh();
+    $fulfilmentCustomer->refresh();
+
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
+        ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class);
+
+    $firstPallet = $palletDelivery->pallets->first();
+
+    expect($firstPallet->state)->toBe(PalletStateEnum::STORING);
+
+    return $palletDelivery->fulfilmentCustomer;
+})->depends('set rental to only pallet in the sixth pallet delivery');
+
+test('check current recurring bill', function ($fulfilmentCustomer) {
+    $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+    expect($recurringBill)->toBeInstanceOf(RecurringBill::class)
+        ->and($recurringBill->transactions()->count())->toBe(4);
+
+    return $fulfilmentCustomer;
+})->depends('set sixth pallet delivery as booked in');
+
+test('consolidate recurring bill', function ($fulfilmentCustomer) {
+    $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    ConsolidateRecurringBill::make()->action($recurringBill);
+
+    $recurringBill->refresh();
+    $fulfilmentCustomer->refresh();
+
+    $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    expect($newRecurringBill)->not->toBe($recurringBill)
+        ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
+        ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
+        ->and($newRecurringBill->transactions()->count())->toBe(2);
+
+    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER);
+
+    expect($fulfilmentCustomer->recurringBills()->count())->toBe(2);
+
+})->depends('check current recurring bill');
