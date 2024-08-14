@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
-use App\Actions\Goods\Stock\UI\GetStockShowcase;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\HasInventoryAuthorisation;
@@ -65,7 +64,7 @@ class ShowOrgStock extends OrgAction
         return Inertia::render(
             'Org/Inventory/OrgStock',
             [
-                'title'                        => __('stock'),
+                'title'                         => __('stock'),
                 'breadcrumbsx'                  => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()

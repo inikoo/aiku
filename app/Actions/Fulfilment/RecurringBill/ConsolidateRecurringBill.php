@@ -65,7 +65,7 @@ class ConsolidateRecurringBill extends OrgAction
 
         if ($hasStoringPallet) {
             $newRecurringBill = StoreRecurringBill::make()->action(
-                $recurringBill->fulfilmentCustomer->rentalAgreement, 
+                $recurringBill->fulfilmentCustomer->rentalAgreement,
                 ['start_date' => now()],
                 $recurringBill
             );

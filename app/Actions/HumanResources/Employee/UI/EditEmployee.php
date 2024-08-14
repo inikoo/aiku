@@ -140,7 +140,7 @@ class EditEmployee extends OrgAction
                     'required'               => true,
                     'label'                  => __('position'),
                     'list_authorised'        => [
-                        'authorised_shops'       => 
+                        'authorised_shops'       =>
                                             $this->organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
                         'authorised_fulfilments' =>
                                             $this->organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
