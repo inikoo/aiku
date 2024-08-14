@@ -482,7 +482,8 @@ test('update rental agreement', function (RentalAgreement $rentalAgreement) {
         [
             'billing_cycle' => RentalAgreementBillingCycleEnum::WEEKLY,
             'pallets_limit' => 10,
-            'state'         => RentalAgreementStateEnum::ACTIVE
+            'state'         => RentalAgreementStateEnum::ACTIVE,
+            'update_all'    => false,
         ]
     );
     $rentalAgreement->refresh();
@@ -499,7 +500,8 @@ test('update rental agreement cause', function (RentalAgreement $rentalAgreement
     $rentalAgreement = UpdateRentalAgreement::make()->action(
         $rentalAgreement,
         [
-            'clauses' => [
+            'update_all' => false,
+            'clauses'    => [
                 'rentals' => [
                     [
                         'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
@@ -564,6 +566,7 @@ test('update second rental agreement cause', function (RentalAgreement $rentalAg
     $rentalAgreement = UpdateRentalAgreement::make()->action(
         $rentalAgreement,
         [
+            'update_all'=>false,
             'clauses' => [
                 'rentals' => [
                     [
@@ -700,8 +703,6 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
         ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
         ->and($palletDelivery->stats->number_pallets)->toBe(1)
         ->and($palletDelivery->stats->number_pallets_type_box)->toBe(1);
-
-
 
 
     return $pallet;
@@ -1269,7 +1270,6 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 
-
 test('submit pallet return', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
         ->andReturn();
@@ -1563,18 +1563,18 @@ test('create stored item and attach to pallet', function (Pallet $pallet) {
     SyncStoredItemToPallet::make()->action(
         $pallet,
         [
-           'stored_item_ids' => [
-            $storedItem->id => [
-                'quantity' => 1
-            ]
+            'stored_item_ids' => [
+                $storedItem->id => [
+                    'quantity' => 1
+                ]
             ]
         ]
     );
 
     $pallet->refresh();
     expect($storedItem)->toBeInstanceOf(StoredItem::class)
-    ->and($pallet)->toBeInstanceOf(Pallet::class)
-    ->and($pallet->storedItems()->count())->toBe(1);
+        ->and($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->storedItems()->count())->toBe(1);
 
     return $storedItem;
 })->depends('add pallet to third pallet delivery');
@@ -1590,10 +1590,10 @@ test('create stored item, attach to pallet and delete', function (Pallet $pallet
     SyncStoredItemToPallet::make()->action(
         $pallet,
         [
-           'stored_item_ids' => [
-            $storedItem->id => [
-                'quantity' => 1
-            ]
+            'stored_item_ids' => [
+                $storedItem->id => [
+                    'quantity' => 1
+                ]
             ]
         ]
     );
@@ -1602,8 +1602,8 @@ test('create stored item, attach to pallet and delete', function (Pallet $pallet
 
     $pallet->refresh();
     expect($pallet)->toBeInstanceOf(Pallet::class)
-    ->and($pallet->storedItems()->count())->toBe(0)
-    ->and(StoredItem::find($storedItem->id))->toBeNull();
+        ->and($pallet->storedItems()->count())->toBe(0)
+        ->and(StoredItem::find($storedItem->id))->toBeNull();
 
     return $pallet;
 })->depends('add pallet to third pallet delivery');
@@ -1629,7 +1629,6 @@ test('create fourth pallet delivery (pallet import test)', function ($fulfilment
 })->depends('create second fulfilment customer');
 
 test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
-
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
@@ -1680,6 +1679,7 @@ test('create third fulfilment customer', function (Fulfilment $fulfilment) {
         ->and($fulfilmentCustomer->pallets_storage)->toBeTrue()
         ->and($fulfilmentCustomer->items_storage)->toBeTrue()
         ->and($fulfilmentCustomer->dropshipping)->toBeTrue();
+
     return $fulfilmentCustomer;
 })->depends('create fulfilment shop');
 
@@ -1760,7 +1760,7 @@ test('add pallet to fifth pallet delivery', function (PalletDelivery $palletDeli
 })->depends('create fifth pallet delivery (stored item import test)');
 
 test('create 2 stored item and attach to pallet (5th delivery)', function (Pallet $pallet) {
-    $storedItem = StoreStoredItem::make()->action(
+    $storedItem       = StoreStoredItem::make()->action(
         $pallet->fulfilmentCustomer,
         [
             'reference' => 'Blab',
@@ -1776,8 +1776,8 @@ test('create 2 stored item and attach to pallet (5th delivery)', function (Palle
     SyncStoredItemToPallet::make()->action(
         $pallet,
         [
-           'stored_item_ids' => [
-                $storedItem->id => [
+            'stored_item_ids' => [
+                $storedItem->id       => [
                     'quantity' => 8
                 ],
                 $secondStoredItem->id => [
@@ -1790,14 +1790,13 @@ test('create 2 stored item and attach to pallet (5th delivery)', function (Palle
     $pallet->refresh();
 
     expect($storedItem)->toBeInstanceOf(StoredItem::class)
-    ->and($pallet)->toBeInstanceOf(Pallet::class)
-    ->and($pallet->storedItems()->count())->toBe(2);
+        ->and($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->storedItems()->count())->toBe(2);
 
     return $pallet;
 })->depends('add pallet to fifth pallet delivery');
 
 test('submit and confirm fifth pallet delivery', function (Pallet $pallet) {
-
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
     $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($pallet->palletDelivery);
@@ -1922,7 +1921,6 @@ test('create second pallet return', function (PalletDelivery $palletDelivery) {
 })->depends('set fifth pallet delivery as booked in');
 
 test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
-
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
@@ -1959,7 +1957,7 @@ test('hydrate rental agreements command', function () {
 });
 
 test('recurring bill universal search', function () {
-    $recurringBill=RecurringBill::first();
+    $recurringBill = RecurringBill::first();
     ReindexRecurringBillSearch::run($recurringBill);
     $this->artisan('recurring-bill:search  '.$this->organisation->slug)->assertExitCode(0);
 });
