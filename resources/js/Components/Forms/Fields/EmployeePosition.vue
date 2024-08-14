@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBullhorn,faCashRegister,faChessQueen,faCube,faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faBoxUsd,faHelmetBattle,faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { get } from 'lodash'
+import { get, set } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { trans } from 'laravel-vue-i18n'
 import subDepartment from "@/Pages/Grp/Org/Catalogue/SubDepartment.vue";
@@ -458,7 +458,7 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
             }
         } else {
             // If department is simple department (have no shops/warehouses)
-            props.form[props.fieldName][subDepartmentSlug] = []
+            set(props.form, [props.fieldName, subDepartmentSlug], [])
         }
     }
 
