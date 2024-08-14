@@ -15,6 +15,7 @@ use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -35,10 +36,12 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
     public function handle(User $user, Organisation $otherOrganisation, array $modelData): User
     {
         $employee     = $user->parent;
-        $jobPositions = $this->generatePositions($otherOrganisation, $modelData);
-
-        SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
-
+        if (Arr::exists($modelData, 'positions')) {
+            $jobPositions = $this->generatePositions($employee->organisation, $modelData);
+            SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
+            Arr::forget($modelData, 'positions');
+        }
+        
 
         return $user;
     }
@@ -78,6 +81,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $this->preparePositionsForValidation();
         if (!$this->user->parent instanceof Employee) {
             abort(419);
         }
@@ -89,7 +93,6 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
         $this->otherOrganisation = $organisation;
 
         $this->initialisation(app('group'), $request);
-
         return $this->handle($user, $organisation, $this->validatedData);
     }
 
