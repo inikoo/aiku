@@ -62,7 +62,6 @@ class UpdatePallet extends OrgAction
             AutoAssignServicesToPalletDelivery::make()->handle($pallet->palletDelivery, $pallet, $originalType);
         }
         PalletRecordSearch::dispatch($pallet);
-
         return $pallet;
     }
 

@@ -447,6 +447,7 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
+            'state'         => RentalAgreementStateEnum::ACTIVE,
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test',
@@ -468,7 +469,7 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     $rentalAgreement->refresh();
     expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
         ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
-        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::ACTIVE)
         ->and($rentalAgreement->stats)->toBeInstanceOf(RentalAgreementStats::class)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
@@ -492,7 +493,7 @@ test('update rental agreement', function (RentalAgreement $rentalAgreement) {
     $rentalAgreement->refresh();
     expect($rentalAgreement->billing_cycle)->toBe(RentalAgreementBillingCycleEnum::WEEKLY)
         ->and($rentalAgreement->pallets_limit)->toBe(10)
-        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::ACTIVE)
         ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2);
 
 
@@ -533,6 +534,7 @@ test('create second rental agreement', function (FulfilmentCustomer $fulfilmentC
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
+            'state'         => RentalAgreementStateEnum::DRAFT,
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test-a',
@@ -1690,6 +1692,7 @@ test('create third rental agreement', function (FulfilmentCustomer $fulfilmentCu
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
+            'state'         => RentalAgreementStateEnum::ACTIVE,
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test-b',
@@ -1711,7 +1714,7 @@ test('create third rental agreement', function (FulfilmentCustomer $fulfilmentCu
     $rentalAgreement->refresh();
     expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
         ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
-        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::ACTIVE)
         ->and($rentalAgreement->stats)->toBeInstanceOf(RentalAgreementStats::class)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
@@ -2174,3 +2177,40 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
     return $fulfilmentCustomer;
 
 })->depends('check current recurring bill');
+
+test('update third rental agreement cause', function ($fulfilmentCustomer) {
+    $recurringBillTransaction = $fulfilmentCustomer->currentRecurringBill->transactions->first();
+
+    $rentalAgreement = UpdateRentalAgreement::make()->action(
+        $fulfilmentCustomer->rentalAgreement,
+        [
+            'update_all'=> true,
+            'clauses'   => [
+                'rentals' => [
+                    [
+                        'asset_id'       => $recurringBillTransaction->asset_id,
+                        'percentage_off' => 30,
+                    ],
+                    [
+                        'asset_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->asset_id,
+                        'percentage_off' => 50,
+                    ],
+                ]
+            ]
+        ]
+    );
+    $rentalAgreement->refresh();
+    $fulfilmentCustomer->refresh();
+    $fulfilmentCustomer->currentRecurringBill->refresh();
+    $recurringBillTransaction->refresh();
+    expect($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
+        ->and($rentalAgreement->clauses->first()->percentage_off)->toEqualWithDelta(30, .001)
+        ->and($rentalAgreement->clauses->last()->percentage_off)->toEqualWithDelta(50, .001)
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2);
+
+    expect($recurringBillTransaction->clause)->not->toBeNull();
+
+
+    return $rentalAgreement;
+})->depends('consolidate recurring bill');
