@@ -6,15 +6,15 @@
  */
 
 
+use App\Actions\Transfers\Aurora\FetchAuroraCustomers;
 use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
-use App\Transfers\Aurora\FetchAuroraCustomer;
 use Illuminate\Support\Facades\Route;
 
 Route::name('bk_api.')->group(function () {
     Route::middleware(['auth:sanctum', 'ability:aurora'])->group(function () {
         Route::prefix('{organisation}')->group(function () {
             Route::post('invoice', FetchAuroraInvoices::class)->name('invoice.fetch');
-            Route::post('customer', FetchAuroraCustomer::class)->name('invoice.fetch');
+            Route::post('customer', FetchAuroraCustomers::class)->name('invoice.fetch');
         });
     });
 });
