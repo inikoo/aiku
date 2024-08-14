@@ -4,6 +4,7 @@ import { Collapse } from 'vue-collapsed'
 import CardPermissions from './Components/Permissions/Card.vue'
 import { get } from 'lodash'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
+import { trans } from 'laravel-vue-i18n'
 
 const props = defineProps<{
     form: {
@@ -85,7 +86,7 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                     :class="review.slug === selectedOrganisation?.slug ? 'rounded bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
                 >
                     <div class="">{{ review.name }}</div>
-                    <div class="pl-3 pr-2">{{ review.number_job_positions }}</div>
+                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2">{{ review.number_job_positions }}</div>
                 </div>
                 <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
                     <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">

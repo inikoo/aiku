@@ -7,7 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { get, set } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { trans } from 'laravel-vue-i18n'
-import subDepartment from "@/Pages/Grp/Org/Catalogue/SubDepartment.vue";
+// import subDepartment from "@/Pages/Grp/Org/Catalogue/SubDepartment.vue";
 
 
 library.add(faBoxUsd,faHelmetBattle,faChessQueen,faCube,faStore,faCashRegister,  faBullhorn,faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle,fasCrown)
@@ -38,24 +38,28 @@ interface TypeFulfilment {
 }
 
 interface optionsJob {
-    key: string
-    department: string
-    departmentRightIcons?: string[]
-    icon?: string
-    level?: string  // group_admin || group_sysadmin || etc..
-    scope?: string,  // shop
-    subDepartment: {
-        slug: string
-        label: string
-        grade?: string
-        optionsType?: string[]
-        number_employees: number
-    }[]
-    options?: TypeShop[] | TypeWarehouse[]
-    optionsSlug?: string[]
-    optionsClosed?: TypeShop[] | TypeWarehouse[]
-    optionsType?: string
-    value?: any
+    [key: string]: {
+        key: string
+        department: string
+        departmentRightIcons?: string[]
+        icon?: string
+        level?: string  // group_admin || group_sysadmin || etc..
+        scope?: string,  // shop
+        isHide?: boolean
+        subDepartment: {
+            slug: string
+            label: string
+            grade?: string
+            optionsType?: string[]
+            number_employees: number
+            isHide?: boolean
+        }[]
+        options?: TypeShop[] | TypeWarehouse[]
+        optionsSlug?: string[]
+        optionsClosed?: TypeShop[] | TypeWarehouse[]
+        optionsType?: string
+        value?: any
+    }
 }
 
 const layout = inject('layout', layoutStructure)
@@ -72,10 +76,13 @@ const props = defineProps<{
                 number_employees: number
             }[]
         }
-        fulfilments: {
-            data: TypeFulfilment
-        }
         organisations: {}
+        fulfilments: {
+            data: TypeFulfilment[]
+        }
+        productions: {
+            data: TypeFulfilment[]
+        }
         shops: {
             data: TypeShop[]
         }
@@ -97,7 +104,22 @@ const props = defineProps<{
 
 // console.log(props.options)
 
-const optionsJob = reactive<{ [key: string]: optionsJob }>({
+
+
+const optionsList = {
+    shops: props.options.shops.data?.filter(shop => shop.state == 'open'),
+    fulfilments: props.options.fulfilments?.data || [],
+    warehouses: props.options.warehouses?.data || [],
+    positions: props.options.positions?.data || [],
+    productions: props.options.productions?.data || []
+}
+
+const shopsLength = optionsList.shops?.length
+const fulfilmentsLength = optionsList.fulfilments?.length
+const warehousesLength = optionsList.warehouses?.length
+const productionsLength = optionsList.productions?.length
+
+const optionsJob = reactive<optionsJob>({
     group_admin: {
         department: trans("group admin"),
         key: 'group_admin',
@@ -213,6 +235,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'shop_admin')?.number_employees || 0,
             }
         ],
+        isHide: shopsLength < 1,
         // value: null
     },
     shk: {
@@ -239,6 +262,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+        isHide: shopsLength < 1,
         // value: null
     },
 
@@ -265,6 +289,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+        isHide: shopsLength < 1,
         // value: null
     },
 
@@ -291,6 +316,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+        isHide: shopsLength < 1,
         // value: null
     },
 
@@ -334,6 +360,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees || 0,
             }
         ],
+        isHide: warehousesLength < 1,
         // value: null
     },
 
@@ -363,6 +390,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees || 0,
             }
         ],
+        isHide: warehousesLength < 1,
         // value: null
     },
 
@@ -383,6 +411,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'prod-w')?.number_employees || 0,
             }
         ],
+        isHide: productionsLength < 1,
         // value: null
     },
 
@@ -395,6 +424,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "manager",
                 label: trans("Supervisor"),
                 optionsType: ['fulfilments', 'warehouses'],
+                isHide: (warehousesLength < 1 || fulfilmentsLength < 1),
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
             },
             {
@@ -402,6 +432,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "clerk",
                 label: trans("Warehouse Clerk"),
                 optionsType: ['warehouses'],
+                isHide: warehousesLength < 1,
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-wc')?.number_employees || 0,
             },
             {
@@ -409,20 +440,15 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "clerk",
                 label: trans("Office Clerk"),
                 optionsType: ['fulfilments'],
+                isHide: fulfilmentsLength < 1,
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
             }
         ],
         optionsSlug: props.options.warehouses.data.map(job => job.slug),
+        isHide: (warehousesLength < 1 || fulfilmentsLength < 1),
         // value: null
     },
 })
-
-const optionsList = {
-    shops: props.options.shops.data?.filter(shop => shop.state == 'open'),
-    fulfilments: props.options.fulfilments.data,
-    warehouses: props.options.warehouses.data,
-    positions: props.options.positions.data
-}
 
 
 // console.log('options Job', props.options.warehouses.data)
@@ -532,11 +558,6 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
     }
 }
 
-const shopLength = props.fieldData.list_authorised?.[props.fieldName].authorised_shops
-const fulfilmentLength = props.fieldData.list_authorised?.[props.fieldName].authorised_fulfilments
-const warehouseLength = props.fieldData.list_authorised?.[props.fieldName].authorised_warehouses
-const productionLength = props.fieldData.list_authorised?.[props.fieldName].authorised_productions
-
 const isLevelGroupAdmin = (jobGroupLevel?: string) => {
     if(!jobGroupLevel) {
         return false
@@ -559,12 +580,12 @@ onMounted(() => {
 
 <template>
     <div class="relative">
-        <!-- authorised fulfilment: {{ fulfilmentLength }} <br> authorised shop: {{ shopLength }} <br> authorised warehouse: {{ warehouseLength }} <br> authorised production: {{ productionLength }} -->
+        authorised fulfilment: {{ fulfilmentsLength }} <br> authorised shop: {{ shopsLength }} <br> authorised warehouse: {{ warehousesLength }} <br> authorised production: {{ productionsLength }}
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-if="isMounted">
                 <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
-                    <Teleport :to="'#scopeShop' + fieldName" :disabled="jobGroup.scope !== 'shop'">
-                        <div v-if="jobGroup.scope !== 'shop' && (departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
+                    <Teleport v-if="!jobGroup.isHide" :to="'#scopeShop' + fieldName" :disabled="jobGroup.scope !== 'shop'">
+                        <div v-if="jobGroup.scope !== 'shop' && (departmentName === 'prod'  && productionsLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
                             <!-- Section: Department label -->
                             <div class="flex items-center capitalize gap-x-1.5">
                                 <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
@@ -578,7 +599,7 @@ onMounted(() => {
                                         <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
                                             <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
                                             <button
-                                                v-if="(subDepartment.optionsType?.includes('fulfilments') && fulfilmentLength > 0) || (subDepartment.optionsType?.includes('shops') && shopLength > 0) || (subDepartment.optionsType?.includes('warehouses') && warehouseLength > 0) || (subDepartment.optionsType?.includes('productions') && productionLength > 0) || !subDepartment.optionsType"
+                                                v-if="!subDepartment.isHide"
                                                 @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, subDepartment.optionsType)"
                                                 class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                                                 :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
@@ -606,7 +627,7 @@ onMounted(() => {
                                                     </div>
                 
                                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                        isRadioChecked('org-admin') && departmentName != 'org-admin' && !isLevelGroupAdmin(jobGroup.level) ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
+                                                        (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin') ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
                                                     ]">
                                                         {{ subDepartment.label }}
                                                         <!-- {{ subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug))) }} -->
@@ -654,11 +675,11 @@ onMounted(() => {
                                                                             v-if="subDep.optionsType?.includes(optionKey)"
                                                                             @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                             class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                                                            :disabled="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')"
+                                                                            :disabled="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDep.slug !== 'shop-admin')"
                                                                             v-tooltip="subDep.label"
                                                                         >
                                                                             <div class="relative text-left">
-                                                                                <template v-if="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
+                                                                                <template v-if="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDep.slug !== 'shop-admin')">
                                                                                     <FontAwesomeIcon v-if="idxGrade === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                                                     <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                                                 </template>
@@ -709,7 +730,7 @@ onMounted(() => {
                 </template>
             </template>
 
-            <div :id="'scopeShop' + fieldName" class="ring-1 ring-gray-300 rounded-md px-1">
+            <div :id="'scopeShop' + fieldName" class="overflow-hidden mt-1 ring-1 ring-gray-300 rounded-md ">
             
             </div>
         </div>
@@ -726,5 +747,5 @@ onMounted(() => {
 
     </div>
 
-    <!-- <pre>{{ props.form[props.fieldName] }}</pre> -->
+    <pre>{{ props.form[props.fieldName] }}</pre>
 </template>
