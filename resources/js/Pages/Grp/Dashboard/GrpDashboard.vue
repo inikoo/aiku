@@ -116,6 +116,7 @@ const abcdef = computed(() => {
     return props.groupStats.organisations.filter(org => org.type != 'agent').map((org) => {
         return {
             name: org.name,
+            code: org.code,
             refunds: org.refunds.number_refunds || 0,
             refunds_diff: 0,
             invoices: org.invoices.number_invoices || 0,
@@ -327,19 +328,19 @@ const abcdef = computed(() => {
 
         <div class="mt-6">
             <DataTable :value="abcdef" stripedRows showGridlines removableSort tableStyle="min-width: 50rem">
-                <Column field="name" sortable header="Name">
+                <Column field="code" sortable class="overflow-hidden transition-all" header="Code">
                     <template #body="{ data }">
                         <div class="relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.name">
-                                    {{ useTruncate(data.name, 20) }}
+                                <div :key="data.code">
+                                    {{ data.code }}
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
 
-                <Column field="refunds" sortable header="Refunds" headerStyle="width: 250px">
+                <Column field="refunds" sortable class="overflow-hidden transition-all" header="Refunds" headerStyle="width: 250px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -351,7 +352,7 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="refunds_diff" sortable header="&Delta; 1y" headerStyle="width: 130px">
+                <Column field="refunds_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 130px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -363,7 +364,7 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="invoices" sortable header="Invoices" headerStyle="text-align: right; width: 200px">
+                <Column field="invoices" sortable class="overflow-hidden transition-all" header="Invoices" headerStyle="text-align: right; width: 200px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -376,11 +377,11 @@ const abcdef = computed(() => {
 
                 </Column>
 
-                <Column field="invoices_diff" sortable header="&Delta; 1y" headerStyle="width: 130px">
+                <Column field="invoices_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 130px">
                     <!-- Todo -->
                 </Column>
 
-                <Column field="sales" sortable header="Sales" headerStyle="width: 250px">
+                <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="width: 250px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -397,7 +398,7 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="sales_diff" sortable header="&Delta; 1y" headerStyle="width: 270px">
+                <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 270px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">

@@ -4,10 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faBullhorn,faCashRegister,faChessQueen,faCube,faStore, faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faBoxUsd,faHelmetBattle,faExclamationCircle, faCheckCircle as fasCheckCircle, faCrown as fasCrown } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { get } from 'lodash'
+import { get, set } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { trans } from 'laravel-vue-i18n'
-import subDepartment from "@/Pages/Grp/Org/Catalogue/SubDepartment.vue";
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { useForm } from '@inertiajs/vue3'
+import { routeType } from '@/types/route'
+import { notify } from '@kyvg/vue3-notification'
+// import subDepartment from "@/Pages/Grp/Org/Catalogue/SubDepartment.vue";
 
 
 library.add(faBoxUsd,faHelmetBattle,faChessQueen,faCube,faStore,faCashRegister,  faBullhorn,faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle,fasCrown)
@@ -38,24 +42,28 @@ interface TypeFulfilment {
 }
 
 interface optionsJob {
-    key: string
-    department: string
-    departmentRightIcons?: string[]
-    icon?: string
-    level?: string  // group_admin || group_sysadmin || etc..
-    scope?: string,  // shop
-    subDepartment: {
-        slug: string
-        label: string
-        grade?: string
-        optionsType?: string[]
-        number_employees: number
-    }[]
-    options?: TypeShop[] | TypeWarehouse[]
-    optionsSlug?: string[]
-    optionsClosed?: TypeShop[] | TypeWarehouse[]
-    optionsType?: string
-    value?: any
+    [key: string]: {
+        key: string
+        department: string
+        departmentRightIcons?: string[]
+        icon?: string
+        level?: string  // group_admin || group_sysadmin || etc..
+        scope?: string,  // shop
+        isHide?: boolean
+        subDepartment: {
+            slug: string
+            label: string
+            grade?: string
+            optionsType?: string[]
+            number_employees: number
+            isHide?: boolean
+        }[]
+        options?: TypeShop[] | TypeWarehouse[]
+        optionsSlug?: string[]
+        optionsClosed?: TypeShop[] | TypeWarehouse[]
+        optionsType?: string
+        value?: any
+    }
 }
 
 const layout = inject('layout', layoutStructure)
@@ -72,10 +80,13 @@ const props = defineProps<{
                 number_employees: number
             }[]
         }
-        fulfilments: {
-            data: TypeFulfilment
-        }
         organisations: {}
+        fulfilments: {
+            data: TypeFulfilment[]
+        }
+        productions: {
+            data: TypeFulfilment[]
+        }
         shops: {
             data: TypeShop[]
         }
@@ -92,12 +103,49 @@ const props = defineProps<{
                 authorised_productions: number
             }
         }
+        updateRoute: routeType
     }
+    saveButton?: boolean
+    organisationId?: number
 }>()
 
-// console.log(props.options)
+const newForm = props.saveButton ? useForm({[props.fieldName]: props.form[props.fieldName]} || {}) : reactive(props.form)
+const onSubmitNewForm = () => {
+    newForm.submit(
+        props.fieldData.updateRoute.method || 'post',
+        route(props.fieldData.updateRoute.name, {...props.fieldData.updateRoute.parameters, organisation: props.organisationId}),
+        {
+            preserveScroll: true,
+            onSuccess: () => notify({
+                title: 'Success',
+                text: trans('Successfully update the permissions'),
+                type: 'success',
+            }),
+            onError: () => notify({
+                title: 'Something went wrong',
+                text: trans('Failed to update the permissions'),
+                type: 'error',
+            })
+        }
+    )
+}
 
-const optionsJob = reactive<{ [key: string]: optionsJob }>({
+
+
+const optionsList = {
+    shops: props.options.shops.data?.filter(shop => shop.state == 'open'),
+    fulfilments: props.options.fulfilments?.data || [],
+    warehouses: props.options.warehouses?.data || [],
+    positions: props.options.positions?.data || [],
+    productions: props.options.productions?.data || []
+}
+
+const shopsLength = optionsList.shops?.length
+const fulfilmentsLength = optionsList.fulfilments?.length
+const warehousesLength = optionsList.warehouses?.length
+const productionsLength = optionsList.productions?.length
+
+const optionsJob = reactive<optionsJob>({
     group_admin: {
         department: trans("group admin"),
         key: 'group_admin',
@@ -213,6 +261,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'shop_admin')?.number_employees || 0,
             }
         ],
+        isHide: shopsLength < 1,
         // value: null
     },
     shk: {
@@ -239,6 +288,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+        isHide: shopsLength < 1,
         // value: null
     },
 
@@ -265,6 +315,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+        isHide: shopsLength < 1,
         // value: null
     },
 
@@ -291,6 +342,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
         ],
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
+        isHide: shopsLength < 1,
         // value: null
     },
 
@@ -334,6 +386,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees || 0,
             }
         ],
+        isHide: warehousesLength < 1,
         // value: null
     },
 
@@ -363,6 +416,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees || 0,
             }
         ],
+        isHide: warehousesLength < 1,
         // value: null
     },
 
@@ -383,6 +437,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'prod-w')?.number_employees || 0,
             }
         ],
+        isHide: productionsLength < 1,
         // value: null
     },
 
@@ -395,6 +450,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "manager",
                 label: trans("Supervisor"),
                 optionsType: ['fulfilments', 'warehouses'],
+                isHide: (warehousesLength < 1 || fulfilmentsLength < 1),
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
             },
             {
@@ -402,6 +458,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "clerk",
                 label: trans("Warehouse Clerk"),
                 optionsType: ['warehouses'],
+                isHide: warehousesLength < 1,
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-wc')?.number_employees || 0,
             },
             {
@@ -409,20 +466,15 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "clerk",
                 label: trans("Office Clerk"),
                 optionsType: ['fulfilments'],
+                isHide: fulfilmentsLength < 1,
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
             }
         ],
         optionsSlug: props.options.warehouses.data.map(job => job.slug),
+        isHide: (warehousesLength < 1 || fulfilmentsLength < 1),
         // value: null
     },
 })
-
-const optionsList = {
-    shops: props.options.shops.data?.filter(shop => shop.state == 'open'),
-    fulfilments: props.options.fulfilments.data,
-    warehouses: props.options.warehouses.data,
-    positions: props.options.positions.data
-}
 
 
 // console.log('options Job', props.options.warehouses.data)
@@ -434,36 +486,36 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
     // ('mrk', 'mrk-c', ['shops', 'fulfilment'])
 
     // If click on the active subDepartment, then unselect it
-    if (props.form?.[props.fieldName]?.[subDepartmentSlug]) {
-        delete props.form[props.fieldName][subDepartmentSlug]
+    if (newForm?.[props.fieldName]?.[subDepartmentSlug]) {
+        delete newForm[props.fieldName][subDepartmentSlug]
     } else {
-        for (const key in props.form[props.fieldName]) {
+        for (const key in newForm[props.fieldName]) {
             // key == wah-m || mrk-c || hr-c
             // Check if the 'wah-m' contain the substring 'wah'
             if (key.includes(department)) {
                 // If the selected radio is not same group ('manager' group or 'clerk' group)
                 if (optionsJob[department].subDepartment.find(sub => sub.slug == key)?.grade != optionsJob[department].subDepartment.find(sub => sub.slug == subDepartmentSlug)?.grade) {
                     // Delete mrk-c
-                    delete props.form[props.fieldName][key]
+                    delete newForm[props.fieldName][key]
                 }
             }
         }
 
         // If department have 'options' (i.e. web, wah, cus)
         if(optionType?.some(option => optionsList[option])){
-            props.form[props.fieldName][subDepartmentSlug] = {}  // declare empty object so able to put new key
+            newForm[props.fieldName][subDepartmentSlug] = {}  // declare empty object so able to put new key
             for (const type in optionType) {
                 // type == 'fulfilment' | 'warehouse' | 'shop'
-                props.form[props.fieldName][subDepartmentSlug][optionType[type]] = optionsList[optionType[type]].map(xxx => xxx.slug)
+                newForm[props.fieldName][subDepartmentSlug][optionType[type]] = optionsList[optionType[type]].map(xxx => xxx.slug)
             }
         } else {
             // If department is simple department (have no shops/warehouses)
-            props.form[props.fieldName][subDepartmentSlug] = []
+            set(newForm, [props.fieldName, subDepartmentSlug], [])
         }
     }
 
-    if(props.form?.errors?.[props.fieldName]) {
-        props.form.errors[props.fieldName] = ''
+    if(newForm?.errors?.[props.fieldName]) {
+        newForm.errors[props.fieldName] = ''
     }
 }
 
@@ -472,24 +524,24 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
     // ('mrk', 'mrk-c', ['shops', 'fulfilment'])
 
     // If 'uk' is exist in mrk-m then delete it
-    if (get(props.form[props.fieldName], [subDepartmentSlug, optionType], []).includes(shopSlug)) {
-        if (props.form[props.fieldName][subDepartmentSlug][optionType].length === 1) {
+    if (get(newForm[props.fieldName], [subDepartmentSlug, optionType], []).includes(shopSlug)) {
+        if (newForm[props.fieldName][subDepartmentSlug][optionType].length === 1) {
             // if mrk-m.shops: ['uk'] (only 1 length), then delete mrk-m
-            delete props.form[props.fieldName][subDepartmentSlug][optionType]
+            delete newForm[props.fieldName][subDepartmentSlug][optionType]
 
-            if(!Object.keys(props.form[props.fieldName][subDepartmentSlug] || {}).length) {
+            if(!Object.keys(newForm[props.fieldName][subDepartmentSlug] || {}).length) {
                 // if mrk-o: {}, then delete mrk-o
-                delete props.form[props.fieldName][subDepartmentSlug]
+                delete newForm[props.fieldName][subDepartmentSlug]
             }
         } else {
             // if mrk-m.shops: ['uk', 'ed'] (more than 1 length), then delete
-            const indexShopName = get(props.form[props.fieldName], [subDepartmentSlug, optionType], []).indexOf(shopSlug)
+            const indexShopName = get(newForm[props.fieldName], [subDepartmentSlug, optionType], []).indexOf(shopSlug)
             if (indexShopName !== -1) {
-                props.form[props.fieldName][subDepartmentSlug][optionType].splice(indexShopName, 1)
+                newForm[props.fieldName][subDepartmentSlug][optionType].splice(indexShopName, 1)
             }
         }
     } else {
-        for (const key in props.form[props.fieldName]) {
+        for (const key in newForm[props.fieldName]) {
             // // key == wah-m || mrk-c || hr-c
             // if wah-m include wah
             if (key.includes(departmentName)) {
@@ -498,14 +550,14 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
                 if (optionsJob[departmentName].subDepartment.find(sub => sub.slug == key)?.grade != optionsJob[departmentName].subDepartment.find(sub => sub.slug == subDepartmentSlug)?.grade) {
 
                     // Check if wah-c include 'uk'
-                    const indexShopName = get(props.form[props.fieldName], [key, optionType], []).indexOf(shopSlug)
+                    const indexShopName = get(newForm[props.fieldName], [key, optionType], []).indexOf(shopSlug)
                     if (indexShopName !== -1) {
                         // if wah-c: ['uk'] then delete 'uk'
-                        props.form[props.fieldName][key][optionType].splice(indexShopName, 1)
+                        newForm[props.fieldName][key][optionType].splice(indexShopName, 1)
     
                         // if wah-c: [] then delete wah-c
-                        if (!props.form[props.fieldName][key][optionType].length) {
-                            delete props.form[props.fieldName][key]
+                        if (!newForm[props.fieldName][key][optionType].length) {
+                            delete newForm[props.fieldName][key]
                         }
                     }
                 } else {
@@ -514,28 +566,23 @@ const onClickJobFinetune = (departmentName: string, shopSlug: string, subDepartm
         }
 
         // if mrk-m already exist, then push 'ed'
-        if (get(props.form[props.fieldName], [subDepartmentSlug, optionType], false)) {
-            props.form[props.fieldName][subDepartmentSlug][optionType].push(shopSlug)
+        if (get(newForm[props.fieldName], [subDepartmentSlug, optionType], false)) {
+            newForm[props.fieldName][subDepartmentSlug][optionType].push(shopSlug)
         }
 
         // if mrk-m not exist then create array ['uk']
         else {
-            props.form[props.fieldName][subDepartmentSlug] = {
-                ...props.form[props.fieldName][subDepartmentSlug],
+            newForm[props.fieldName][subDepartmentSlug] = {
+                ...newForm[props.fieldName][subDepartmentSlug],
                 [optionType]: [shopSlug]
             }
         }
     }
 
-    if(props.form?.errors?.[props.fieldName]) {
-        props.form.errors[props.fieldName] = ''
+    if(newForm?.errors?.[props.fieldName]) {
+        newForm.errors[props.fieldName] = ''
     }
 }
-
-const shopLength = props.fieldData.list_authorised?.[props.fieldName].authorised_shops
-const fulfilmentLength = props.fieldData.list_authorised?.[props.fieldName].authorised_fulfilments
-const warehouseLength = props.fieldData.list_authorised?.[props.fieldName].authorised_warehouses
-const productionLength = props.fieldData.list_authorised?.[props.fieldName].authorised_productions
 
 const isLevelGroupAdmin = (jobGroupLevel?: string) => {
     if(!jobGroupLevel) {
@@ -545,7 +592,7 @@ const isLevelGroupAdmin = (jobGroupLevel?: string) => {
 }
 
 const isRadioChecked = (subDepartmentSlug: string) => {
-    return Object.keys(props.form[props.fieldName] || {}).includes(subDepartmentSlug)
+    return Object.keys(newForm[props.fieldName] || {}).includes(subDepartmentSlug)
 }
 
 const isMounted = ref(false)
@@ -559,12 +606,12 @@ onMounted(() => {
 
 <template>
     <div class="relative">
-        <!-- authorised fulfilment: {{ fulfilmentLength }} <br> authorised shop: {{ shopLength }} <br> authorised warehouse: {{ warehouseLength }} <br> authorised production: {{ productionLength }} -->
-        <div class="flex flex-col text-xs divide-y-[1px]">
+        <!-- authorised fulfilment: {{ fulfilmentsLength }} <br> authorised shop: {{ shopsLength }} <br> authorised warehouse: {{ warehousesLength }} <br> authorised production: {{ productionsLength }} -->
+        <div class="relative flex flex-col text-xs divide-y-[1px]">
             <template v-if="isMounted">
                 <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
-                    <Teleport :to="'#scopeShop' + fieldName" :disabled="jobGroup.scope !== 'shop'">
-                        <div v-if="jobGroup.scope !== 'shop' && (departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
+                    <Teleport v-if="!jobGroup.isHide" :to="'#scopeShop' + fieldName" :disabled="jobGroup.scope !== 'shop'">
+                        <div v-if="jobGroup.scope !== 'shop' && (departmentName === 'prod'  && productionsLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
                             <!-- Section: Department label -->
                             <div class="flex items-center capitalize gap-x-1.5">
                                 <FontAwesomeIcon v-if="jobGroup.icon" :icon="jobGroup.icon" class='text-gray-400 fixed-width' aria-hidden='true' />
@@ -578,7 +625,7 @@ onMounted(() => {
                                         <template v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment">
                                             <!-- If subDepartment is have atleast 1 Fulfilment, or have atleast 1 Shop, or have atleast 1 Warehouse, or have atleast 1 Production, or is a simple sub department (i.e buyer, administrator, etc) -->
                                             <button
-                                                v-if="(subDepartment.optionsType?.includes('fulfilments') && fulfilmentLength > 0) || (subDepartment.optionsType?.includes('shops') && shopLength > 0) || (subDepartment.optionsType?.includes('warehouses') && warehouseLength > 0) || (subDepartment.optionsType?.includes('productions') && productionLength > 0) || !subDepartment.optionsType"
+                                                v-if="!subDepartment.isHide"
                                                 @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, subDepartment.optionsType)"
                                                 class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                                                 :class="(isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') ? 'text-green-500' : ''"
@@ -597,19 +644,19 @@ onMounted(() => {
                                                             <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                             <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                         </template>
-                                                        <template v-else-if="Object.keys(form[fieldName] || {}).includes(subDepartment.slug)">
-                                                            <FontAwesomeIcon v-if="subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug)))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
-                                                            <FontAwesomeIcon v-else-if="subDepartment.optionsType?.some((optionType: string) => get(form[fieldName], [subDepartment.slug, optionType], []).some((optionValue: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).includes(optionValue)))" icon='fal fa-check-circle' class="text-green-600" fixed-width aria-hidden='true' />
+                                                        <template v-else-if="Object.keys(newForm[fieldName] || {}).includes(subDepartment.slug)">
+                                                            <FontAwesomeIcon v-if="subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(newForm[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug)))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                                            <FontAwesomeIcon v-else-if="subDepartment.optionsType?.some((optionType: string) => get(newForm[fieldName], [subDepartment.slug, optionType], []).some((optionValue: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).includes(optionValue)))" icon='fal fa-check-circle' class="text-green-600" fixed-width aria-hidden='true' />
                                                             <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                         </template>
                                                         <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' class="text-gray-400 hover:text-gray-700" />
                                                     </div>
                 
                                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                        isRadioChecked('org-admin') && departmentName != 'org-admin' && !isLevelGroupAdmin(jobGroup.level) ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
+                                                        (isRadioChecked('org-admin') && subDepartment.slug != 'org-admin' && !isLevelGroupAdmin(jobGroup.level)) || (isRadioChecked('group-admin') && subDepartment.slug != 'group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin') ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
                                                     ]">
                                                         {{ subDepartment.label }}
-                                                        <!-- {{ subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug))) }} -->
+                                                        <!-- {{ subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(newForm[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug))) }} -->
                                                     </span>
                                                 </div>
                                             </button>
@@ -654,17 +701,17 @@ onMounted(() => {
                                                                             v-if="subDep.optionsType?.includes(optionKey)"
                                                                             @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                             class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                                                            :disabled="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')"
+                                                                            :disabled="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDep.slug !== 'shop-admin')"
                                                                             v-tooltip="subDep.label"
                                                                         >
                                                                             <div class="relative text-left">
-                                                                                <template v-if="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDepartment.slug !== 'shop-admin')">
+                                                                                <template v-if="isRadioChecked('org-admin') || isRadioChecked('group-admin') || (isRadioChecked('shop-admin') && jobGroup.scope === 'shop' && subDep.slug !== 'shop-admin')">
                                                                                     <FontAwesomeIcon v-if="idxGrade === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                                                     <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                                                 </template>
                 
-                                                                                <template v-else-if="get(form[fieldName], [subDep.slug, optionKey], []).includes(shop.slug)">
-                                                                                    <FontAwesomeIcon v-if="Object.keys(get(form[fieldName], [subDep.slug, subDep.optionsType], {})).includes('org-admin')" icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
+                                                                                <template v-else-if="get(newForm[fieldName], [subDep.slug, optionKey], []).includes(shop.slug)">
+                                                                                    <FontAwesomeIcon v-if="Object.keys(get(newForm[fieldName], [subDep.slug, subDep.optionsType], {})).includes('org-admin')" icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
                                                                                     <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                                                 </template>
                 
@@ -709,22 +756,26 @@ onMounted(() => {
                 </template>
             </template>
 
-            <div :id="'scopeShop' + fieldName" class="ring-1 ring-gray-300 rounded-md px-1">
+            <div v-if="shopsLength" :id="'scopeShop' + fieldName" class="overflow-hidden mt-2 ring-1 ring-gray-300 rounded-md ">
             
+            </div>
+
+            <div v-if="saveButton" class="flex justify-end p-1">
+                <Button v-tooltip="newForm.isDirty ? undefined : trans('Disabled') + ', ' + trans('nothing to save')" @click="() => onSubmitNewForm()" label="Save" :disabled="!newForm.isDirty" :loading="newForm.processing" icon="fad fa-save" />
             </div>
         </div>
 
         <!-- State: error icon & error description -->
         <Transition name="spin-to-down">
-            <FontAwesomeIcon v-if="form.errors?.[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
-            <FontAwesomeIcon v-else-if="form.recentlySuccessful" icon="fas fa-check-circle" class="absolute top-0 right-5 h-6 w-6 text-green-500" aria-hidden="true"/>
+            <FontAwesomeIcon v-if="newForm.errors?.[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon v-else-if="newForm.recentlySuccessful" icon="fas fa-check-circle" class="absolute top-0 right-5 h-6 w-6 text-green-500" aria-hidden="true"/>
         </Transition>
 
-        <div v-if="form.errors?.[fieldName]" class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
-            <p class="text-sm text-red-500 italic">*{{ form.errors[fieldName] }}</p>
+        <div v-if="newForm.errors?.[fieldName]" class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
+            <p class="text-sm text-red-500 italic">*{{ newForm.errors[fieldName] }}</p>
         </div>
 
     </div>
 
-    <!-- <pre>{{ props.form[props.fieldName] }}</pre> -->
+    <pre>{{ newForm }}</pre>
 </template>

@@ -102,7 +102,6 @@ const onSaveError = (errorValue: any) => {
                             :icon="['fas', 'save']"
                             tooltip="Save location"
                             :key="pallet.index"
-                            :size="'xs'"
                             full
                             :disabled="!location.location_id"
                             @onError="onSaveError"

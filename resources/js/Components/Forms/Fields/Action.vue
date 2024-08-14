@@ -31,8 +31,14 @@ const handleClick = (action: Action) => {
             onSuccess: () => {
                 null
             },
-            onError: (error: {} | string) => {
+            onFinish: () => {
+                if(action.fullLoading) return
                 isLoading.value = false
+            },
+            onError: (error: {} | string) => {
+                if(action.fullLoading) {
+                    isLoading.value = false
+                }
                 notify({
                     title: 'Something went wrong.',
                     text: typeof error === 'string' ? error : Object.values(error || {}).join(', '),
@@ -75,9 +81,15 @@ const handleClick = (action: Action) => {
     <template v-else-if="action.route">
         <!-- Button: to download PDF (open in new tab) -->
         <a v-if="action.target" :href="route(action.route?.name, action.route?.parameters)" :target="action.target">
-            <Button :style="action.style" :label="action.label"
-            :icon="action.icon" :iconRight="action.iconRight" :key="`ActionButton${action?.key}${action.style}`"
-            :tooltip="action.tooltip" :loading="isLoading" />
+            <Button
+                :style="action.style"
+                :label="action.label"
+                :icon="action.icon"
+                :iconRight="action.iconRight"
+                :key="`ActionButton${action?.key}${action.style}`"
+                :tooltip="action.tooltip"
+                :loading="isLoading"
+            />
         </a>
 
         <Button v-else
