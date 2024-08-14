@@ -113,7 +113,7 @@ class StoreGuest extends GrpAction
             'code'        => [
                 'required',
                 'string',
-                'max:12',
+                'max:32',
                 Rule::notIn(['export', 'create']),
                 new IUnique(table: 'guests'),
 

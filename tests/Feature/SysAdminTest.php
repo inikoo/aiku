@@ -304,7 +304,7 @@ test('create guest from command', function (Group $group) {
     )->assertSuccessful();
 
     /** @var Guest $guest */
-    $guest = $group->guests()->where('alias', 'pika')->firstOrFail();
+    $guest = $group->guests()->where('code', 'pika')->firstOrFail();
     $group->refresh();
     expect($guest->user->username)->toBe('pika')
         ->and($group->sysadminStats->number_guests)->toBe(2)
@@ -599,7 +599,7 @@ test('employee job position in another organisation', function () {
         [
             'positions' => [
                 [
-                    'slug'   => $jobPosition1->slug,
+                    'slug'   => $jobPosition1->code,
                     'scopes' => []
                 ]
             ]
