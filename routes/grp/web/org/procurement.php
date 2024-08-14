@@ -55,6 +55,12 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
 
 });
 
+Route::prefix('partners')->as('org_partners.')->group(function () {
+    Route::get('', IndexOrgSuppliers::class)->name('index');
+    Route::get('{orgPartner}', ShowOrgSupplier::class)->name('show');
+
+});
+
 Route::prefix('supplier-products')->as('org_supplier_products.')->group(function () {
     Route::get('', IndexOrgSupplierProducts::class)->name('index');
     //todo  Route::get('export', ExportOrgSupplierProducts::class)->name('export');

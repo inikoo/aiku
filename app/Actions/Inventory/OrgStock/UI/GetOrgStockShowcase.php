@@ -7,6 +7,8 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
+use App\Http\Resources\Inventory\OrgStockResource;
+use App\Http\Resources\SupplyChain\AgentResource;
 use App\Models\Inventory\OrgStock;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -17,7 +19,9 @@ class GetOrgStockShowcase
     public function handle(OrgStock $orgStock): array
     {
         return [
-            []
+            [
+                'contactCard'              => OrgStockResource::make($orgStock)->getArray(),
+            ]
         ];
     }
 }
