@@ -22,7 +22,7 @@
         "@vitejs/plugin-vue": "^4.2.3",
         "@vue/server-renderer": "^3.2.31",
         "autoprefixer": "^10.4.2",
-        "axios": "^1.6",
+        "axios": "^1.7",
         "cypress": "^13.6.2",
         "laravel-vite-plugin": "^0.7.7",
         "lodash": "^4.17.19",
