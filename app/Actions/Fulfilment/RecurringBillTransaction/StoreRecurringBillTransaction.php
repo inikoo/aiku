@@ -65,7 +65,7 @@ class StoreRecurringBillTransaction extends OrgAction
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
         $recurringBillTransaction->refresh();
 
-        if($item instanceof Pallet){
+        if($item instanceof Pallet) {
             $item->update(['current_recurring_bill_id' => $recurringBill->id]);
         }
 

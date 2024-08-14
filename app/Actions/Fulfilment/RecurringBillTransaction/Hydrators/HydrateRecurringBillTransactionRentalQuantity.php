@@ -22,11 +22,11 @@ class HydrateRecurringBillTransactionRentalQuantity
     {
         $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
 
-        $today = Carbon::now()->startOfDay();
-        $todayString = $today->toDateString(); 
+        $today       = Carbon::now()->startOfDay();
+        $todayString = $today->toDateString();
 
         foreach ($transactions as $transaction) {
-            $startDate = Carbon::parse($transaction->start_date)->startOfDay();
+            $startDate       = Carbon::parse($transaction->start_date)->startOfDay();
             $startDateString = $startDate->toDateString();
 
             $daysDifference = $startDate->diffInDays($today);
@@ -43,9 +43,9 @@ class HydrateRecurringBillTransactionRentalQuantity
                 'net_amount'   => $daysDifference * $assetPrice,
                 'gross_amount' => $daysDifference * $assetPrice
             ]);
-    }
+        }
 
-    return $recurringBill;
+        return $recurringBill;
     }
 
     public function asCommand(Command $command): int
