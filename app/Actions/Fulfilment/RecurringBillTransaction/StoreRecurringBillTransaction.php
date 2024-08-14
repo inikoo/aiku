@@ -30,8 +30,7 @@ class StoreRecurringBillTransaction extends OrgAction
         data_set($modelData, 'item_id', $item->id);
 
         if ($item instanceof FulfilmentTransaction) {
-            if ($item->type == FulfilmentTransactionTypeEnum::SERVICE)
-            {
+            if ($item->type == FulfilmentTransactionTypeEnum::SERVICE) {
                 $type = 'Service';
             } else {
                 $type = 'Product';
@@ -71,7 +70,7 @@ class StoreRecurringBillTransaction extends OrgAction
         $recurringBillTransaction = $recurringBill->transactions()->create($modelData);
         $recurringBillTransaction->refresh();
 
-        if($item instanceof Pallet){
+        if($item instanceof Pallet) {
             $item->update(['current_recurring_bill_id' => $recurringBill->id]);
         }
 

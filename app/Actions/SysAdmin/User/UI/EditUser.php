@@ -172,11 +172,11 @@ class EditUser extends InertiaAction
                                         'user' => $user->id
                                         ]
                                     ],
-                                    
+
                                     'list_authorised'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                                         return [
                                             $organisation->slug         => [
-                                                'authorised_shops'       => 
+                                                'authorised_shops'       =>
                                                 $organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
                                                 'authorised_fulfilments' =>
                                                 $organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
@@ -187,7 +187,7 @@ class EditUser extends InertiaAction
                                             ]
                                         ];
                                     })->toArray(),
-                                    
+
                                     // "label"             => __("permissions"),
                                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
                                     return [
