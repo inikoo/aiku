@@ -65,7 +65,7 @@ class UpdateSupplierProduct extends GrpAction
                 );
                 GroupHydrateSupplierProducts::dispatch($supplierProduct->group)->delay($this->hydratorsDelay);
                 SupplierHydrateSupplierProducts::dispatch($supplierProduct->supplier)->delay($this->hydratorsDelay);
-                AgentHydrateSupplierProducts::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
+                AgentHydrateSupplierProducts::dispatchIf((bool)$supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
             }
         }
 
