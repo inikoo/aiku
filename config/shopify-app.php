@@ -23,7 +23,7 @@ return [
     |
     */
 
-    'manual_migrations' => (bool) env('SHOPIFY_MANUAL_MIGRATIONS', false),
+    'manual_migrations' => (bool) env('SHOPIFY_MANUAL_MIGRATIONS', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -522,7 +522,7 @@ return [
         /*
          * The table name for the Shop.
          */
-        'shops' => 'shopify_shops',
+        'shops' => 'customer_shopify_shops',
     ],
 
     /*
