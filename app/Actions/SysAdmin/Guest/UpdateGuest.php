@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
+use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
@@ -15,11 +16,11 @@ use App\Rules\Phone;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateGuest
+class UpdateGuest extends GrpAction
 {
     use WithActionUpdate;
 
-    private bool $asAction      = false;
+
     private bool $validatePhone = false;
 
     private Guest $guest;
@@ -49,7 +50,7 @@ class UpdateGuest
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->hasPermissionTo('sysadmin.edit');
     }
 
     public function rules(): array
@@ -62,7 +63,7 @@ class UpdateGuest
 
 
         return [
-            'alias'                    => [
+            'code'                    => [
                 'sometimes',
                 'string',
                 'max:12',
@@ -93,10 +94,9 @@ class UpdateGuest
     {
         $this->guest = $guest;
 
-        $this->fillFromRequest($request);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation(group(), $request);
 
-        return $this->handle($guest, $validatedData);
+        return $this->handle($guest, $this->validatedData);
     }
 
     public function action(Guest $guest, $modelData): Guest

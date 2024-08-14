@@ -17,21 +17,12 @@ enum GuestTabsEnum: string
 
     case SHOWCASE                       = 'showcase';
     case HISTORY                        = 'history';
-    case DATA                           = 'data';
 
 
     public function blueprint(): array
     {
         return match ($this) {
 
-
-
-            GuestTabsEnum::DATA => [
-                'title' => __('database'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             GuestTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',

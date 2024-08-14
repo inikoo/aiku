@@ -42,7 +42,6 @@ class UpdateEmployee extends OrgAction
     {
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = $this->generatePositions($employee->organisation, $modelData);
-
             SyncEmployeeJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');
         }

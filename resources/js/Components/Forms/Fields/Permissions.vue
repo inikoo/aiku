@@ -4,6 +4,7 @@ import { Collapse } from 'vue-collapsed'
 import CardPermissions from './Components/Permissions/Card.vue'
 import { get } from 'lodash'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
+import { trans } from 'laravel-vue-i18n'
 
 const props = defineProps<{
     form: {
@@ -21,10 +22,12 @@ const props = defineProps<{
     options?: any
     fieldData: {
         list_authorised: {
-            authorised_shops: number
-            authorised_fulfilments: number
-            authorised_warehouses: number
-            authorised_productions: number
+            [key: string]: {
+                authorised_shops: number
+                authorised_fulfilments: number
+                authorised_warehouses: number
+                authorised_productions: number
+            }
         }
     }
 }>()
@@ -68,7 +71,8 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
 <template>
     <div class="flex flex-col gap-y-6">
         <div class="grid">
-            <div class="flex justify-between px-2 border-b border-gray-300 bg-gray-100 py-2 mb-2">
+            <!-- Header -->
+            <div class="flex justify-between px-2 border-b border-gray-300 py-2 mb-2">
                 <div>
                     Organisations
                 </div>
@@ -76,17 +80,19 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                     Number positions
                 </div>
             </div>
+            
             <div v-for="(review, slugReview) in props.fieldData.organisation_list.data"
-                class="flex flex-col mb-1 gap-y-1"
+                class="border-l-2 border-indigo-500 pl-2 flex flex-col mb-1 gap-y-1"
             >
                 <div
                     @click="selectedOrganisation?.slug == review.slug ? selectedOrganisation = null : selectedOrganisation = review"
-                    class="cursor-pointer py-1 px-2 flex justify-between"
-                    :class="review.slug === selectedOrganisation?.slug ? 'rounded bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
+                    class="rounded cursor-pointer py-1 px-2 flex justify-between"
+                    :class="review.slug === selectedOrganisation?.slug ? 'bg-indigo-100 text-indigo-500' : 'hover:bg-gray-200/70 '"
                 >
                     <div class="">{{ review.name }}</div>
-                    <div class="pl-3 pr-2">{{ review.number_job_positions }}</div>
+                    <div v-tooltip="trans('Number job positions')" class="pl-3 pr-2">{{ review.number_job_positions }}</div>
                 </div>
+                
                 <Collapse as="section" :when="review.slug == selectedOrganisation?.slug">
                     <div v-if="options?.[review.slug]" class="border border-gray-300 rounded-md mb-2">
                         <EmployeePosition
@@ -94,7 +100,10 @@ const selectedOrganisation = ref<typeof organisation[number] | null>(organisatio
                             :form="form[fieldName]"
                             :fieldData
                             :fieldName="review.slug"
-                            :options="options?.[review.slug]" />
+                            :options="options?.[review.slug]"
+                            saveButton
+                            :organisationId="review.id"
+                        />
                     </div>
                     <div v-else class="text-center border border-gray-300 rounded-md mb-2">
                         No data positions

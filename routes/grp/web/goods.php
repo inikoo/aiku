@@ -70,11 +70,6 @@ Route::prefix('stocks')->as('stocks.')->group(function () {
 });
 
 
-
-
-
-
-
 Route::prefix('families')->as('stock-families.')->group(function () {
     Route::get('', IndexStockFamilies::class)->name('index');
     Route::get('/export', ExportStockFamilies::class)->name('export');

@@ -48,18 +48,21 @@ const props = defineProps<{
             interval_percentages?: {
                 sales?: {
                     [key: string]: {
+                        amount: string
                         percentage: number
                         difference: number
                     }
                 }
                 invoices?: {
                     [key: string]: {
+                        amount: string
                         percentage: number
                         difference: number
                     }
                 }
                 refunds?: {
                     [key: string]: {
+                        amount: string
                         percentage: number
                         difference: number
                     }
@@ -80,7 +83,7 @@ const locale = inject('locale', {})
 
 
 // Decriptor: Date interval
-const selectedDateOption = ref<string | null>('all')
+const selectedDateOption = ref<string>('all')
 
 const currencyValue = ref('group')
 
@@ -106,8 +109,10 @@ const options = {
 }
 
 
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Row from 'primevue/row'
+import ColumnGroup from 'primevue/columngroup'
 import { computed } from 'vue'
 import { useTruncate } from '@/Composables/useTruncate'
 
@@ -116,6 +121,8 @@ const abcdef = computed(() => {
     return props.groupStats.organisations.filter(org => org.type != 'agent').map((org) => {
         return {
             name: org.name,
+            code: org.code,
+            interval_percentages: org.interval_percentages,
             refunds: org.refunds.number_refunds || 0,
             refunds_diff: 0,
             invoices: org.invoices.number_invoices || 0,
@@ -133,213 +140,38 @@ const abcdef = computed(() => {
     <div class="px-4 sm:px-6 lg:px-8">
         <!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 
-        <!-- Section: Table -->
-        <div v-if="true" class="mt-4">
-
-            <div class="">
-                <!-- Section: Date options -->
-                <div class="block">
-                    <nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
-                        <div v-for="(interval, idxInterval) in interval_options" :key="idxInterval"
-                            @click="() => selectedDateOption = interval.value" :class="[
-                                interval.value === selectedDateOption ? '' : 'text-gray-500 hover:text-gray-700',
-                            ]"
-                            class='relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10'>
-                            <span>{{ interval.value }}</span>
-                            <span aria-hidden="true"
-                                :class="[interval.value === selectedDateOption ? 'bg-indigo-500' : 'bg-transparent', 'absolute inset-x-0 bottom-0 h-0.5']" />
-                        </div>
-                    </nav>
-                </div>
-
-                <!-- <pre>{{ abcdef }}</pre> -->
-
-                <div v-if="false" class="mt-2  rounded-t-sm rounded-b-md border border-gray-300 overflow-hidden ">
-                    <table class="min-w-full divide-y divide-gray-400">
-                        <thead class="">
-                            <tr class="text-sm bg-gray-100 relative divide-x divide-gray-200 text-gray-400" :style="{
-                                backgroundColor: layout.app.theme[4],
-                                color: layout.app.theme[5]
-                            }">
-                                <!-- Column: Organisations -->
-                                <th scope="col" class="w-full pl-4 pr-3 text-left font-normal">
-                                    Organisation
-                                </th>
-
-                                <!-- Column: Refunds -->
-                                <th scope="col" class="px-3 text-left table-cell font-normal w-40 ">
-                                    Refunds
-                                </th>
-
-                                <!-- Column: Refunds LY -->
-                                <Transition>
-                                    <th scope="col" class="px-3 text-left sm:table-cell font-normal w-40">
-                                        &Delta;{{ trans('1y') }}
-                                    </th>
-                                </Transition>
-
-                                <!-- Column: Invoices -->
-                                <th scope="col" class="px-3 text-left table-cell font-normal w-40 ">
-                                    Invoices
-                                </th>
-
-                                <!-- Column: Invoices LY -->
-                                <Transition>
-                                    <th scope="col" class="px-3 text-left sm:table-cell font-normal w-40 ">
-
-                                        &Delta;{{ trans('1y') }}
-                                    </th>
-                                </Transition>
-
-                                <!-- Column: Sales -->
-                                <th scope="col" class="px-3 text-left font-normal w-96 ">
-                                    Sales
-                                </th>
-
-                                <!-- Column: Sales LY -->
-                                <Transition>
-                                    <th scope="col" class="px-3 text-left sm:table-cell font-normal w-40 ">
-                                        &Delta;{{ trans('1y') }}
-                                    </th>
-                                </Transition>
-                            </tr>
-                        </thead>
-
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            <template v-for="(org, orgIdx) in groupStats.organisations" :key="org.name + orgIdx">
-                                <tr v-if="org.type !== 'agent'" class="relative">
-                                    <!-- Column: Organisations -->
-                                    <td class="w-full max-w-0 pl-4 py-1.5 pr-3 text-sm sm:w-auto sm:max-w-none">
-                                        <span v-tooltip="org.name" class="md:hidden">{{ org.code }}</span>
-                                        <span class="hidden md:block">{{ org.name }}</span>
-                                    </td>
-
-                                    <!-- Column: Refunds -->
-                                    <td class="text-sm text-gray-500 table-cell text-right">
-                                        <div class="w-24 ">
-                                            {{ locale.number(org.refunds.number_refunds || 0) }}
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Refunds LY -->
-                                    <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined"
-                                            class="w-12 text-right pl-1 pr-3">
-                                            {{ org.interval_percentages?.refunds?.[selectedDateOption ||
-                                            'all'].percentage || 0 }}
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Invoices -->
-                                    <td class="text-sm text-gray-500 table-cell text-right">
-                                        <div class="w-32 ">
-                                            {{ locale.number(org.invoices.number_invoices || 0) }}
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Invoices LY -->
-                                    <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined"
-                                            class="w-12 text-right pl-1 pr-3">
-                                            {{ org.interval_percentages?.invoices?.[selectedDateOption ||
-                                            'all'].percentage || 0 }}
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Sales -->
-                                    <td class="overflow-hidden text-sm text-gray-500 table-cell text-right">
-                                        <div class="w-32">
-                                            <!-- {{ locale.number(org.interval_percentages?.sales?.amount || 0) }} -->
-                                            {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
-                                            org.currency.code : groupStats.currency.code , get(org, ['sales',
-                                            `org_amount_${selectedDateOption}`], 0)) }}
-                                        </div>
-
-                                        <!-- <Transition name="spin-to-down" mode="out-in">
-                                            <div
-                                                class="flex items-center gap-x-1"
-                                                :class="
-                                                isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
-                                                    ? ''
-                                                    : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
-                                                        ? 'text-red-500'
-                                                        : ''
-                                            " :key="get(org, ['sales', `org_amount_${selectedDateOption}`], 0)">
-                                                <Tag v-if="calcPercentage(org, selectedDateOption) && isShowLastYear"
-                                                        :theme="
-                                                            isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
-                                                                ? 3
-                                                                : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
-                                                                    ? 7
-                                                                    : 99
-                                                        "
-                                                        size="xxs"
-                                                >
-                                                    <template #label>
-                                                        <FontAwesomeIcon v-if="isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear" icon='fas fa-triangle' size="xs" class='' fixed-width aria-hidden='true' />
-                                                        <FontAwesomeIcon v-else-if="isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear" icon='fas fa-triangle' size="xs" class='rotate-180' fixed-width aria-hidden='true' />
-                                                        {{ calcPercentage(org, selectedDateOption) }}%
-                                                    </template>
-                                                </Tag>
-                                            </div>
-                                        </Transition> -->
-                                    </td>
-
-                                    <!-- Column: Sales LY -->
-                                    <td class="overflow-hidden text-sm text-gray-500 lg:table-cell">
-                                        <div v-tooltip="org.interval_percentages?.sales?.[selectedDateOption || 'all'].difference || undefined"
-                                            class="w-12 text-right pl-1 pr-3">
-                                            {{ org.interval_percentages?.sales?.[selectedDateOption || 'all'].percentage
-                                            || 0 }}
-                                        </div>
-                                    </td>
-
-                                    <!-- Column: Sales Revenue -->
-                                    <!-- <td class="text-sm text-gray-500 lg:table-cell tabular-nums"
-                                        :class="
-                                            isUpOrDown(org, selectedDateOption) == 'increased'
-                                                ? 'text-green-500'
-                                                : isUpOrDown(org, selectedDateOption) == 'decreased'
-                                                    ? 'text-red-500'
-                                                    : 'text-gray-500'
-                                        "
-                                    >
-                                        <FontAwesomeIcon v-if="isUpOrDown(org, selectedDateOption) == 'increased'" icon='fas fa-triangle' size="xs" class='' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else-if="isUpOrDown(org, selectedDateOption) == 'decreased'" icon='fas fa-triangle' size="xs" class='rotate-180' fixed-width aria-hidden='true' />
-                                        {{ calcPercentage(org, selectedDateOption) }}%
-                                    </td> -->
-
-                                </tr>
-                            </template>
-                            <tr>
-                                <td>Total</td>
-                                <td>Xxxx</td>
-                                <td>FFF</td>
-                                <td>GGG</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
 
+            <!-- Section: Date options -->
+            <div class="mt-4 block">
+                <nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
+                    <div v-for="(interval, idxInterval) in interval_options" :key="idxInterval"
+                        @click="() => selectedDateOption = interval.value" :class="[
+                            interval.value === selectedDateOption ? '' : 'text-gray-500 hover:text-gray-700',
+                        ]"
+                        class='relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10'>
+                        <span>{{ interval.value }}</span>
+                        <span aria-hidden="true"
+                            :class="[interval.value === selectedDateOption ? 'bg-indigo-500' : 'bg-transparent', 'absolute inset-x-0 bottom-0 h-0.5']" />
+                    </div>
+                </nav>
         </div>
 
         <div class="mt-6">
             <DataTable :value="abcdef" stripedRows showGridlines removableSort tableStyle="min-width: 50rem">
-                <Column field="name" sortable header="Name">
+                <Column field="code" sortable class="overflow-hidden transition-all" header="Code">
                     <template #body="{ data }">
                         <div class="relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.name">
-                                    {{ useTruncate(data.name, 20) }}
+                                <div :key="data.code">
+                                    {{ data.code }}
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
 
-                <Column field="refunds" sortable header="Refunds" headerStyle="width: 250px">
+                <Column field="refunds" sortable class="overflow-hidden transition-all" header="Refunds" headerStyle="width: 250px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -351,19 +183,21 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="refunds_diff" sortable header="&Delta; 1y" headerStyle="width: 130px">
+                <Column field="refunds_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 130px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
+                            <!-- {{ data.interval_percentages?.refunds[selectedDateOption].amount }} -->
+                            
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.refunds_diff">
-                                    {{ locale.number(data.refunds_diff || 0) }}
+                                <div :key="data.interval_percentages?.refunds[selectedDateOption].amount">
+                                    {{ locale.number(data.interval_percentages?.refunds[selectedDateOption].difference || 0) }} ({{ data.interval_percentages?.refunds[selectedDateOption].percentage || 0 }}%)
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
 
-                <Column field="invoices" sortable header="Invoices" headerStyle="text-align: right; width: 200px">
+                <Column field="invoices" sortable class="overflow-hidden transition-all" header="Invoices" headerStyle="text-align: right; width: 200px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -376,11 +210,20 @@ const abcdef = computed(() => {
 
                 </Column>
 
-                <Column field="invoices_diff" sortable header="&Delta; 1y" headerStyle="width: 130px">
-                    <!-- Todo -->
+                <Column field="invoices_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 200px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.interval_percentages?.invoices[selectedDateOption].amount">
+                                    {{ data.interval_percentages?.invoices[selectedDateOption].difference || 0 }}
+                                    ({{ data.interval_percentages?.invoices[selectedDateOption].percentage || 0 }}%)
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
                 </Column>
 
-                <Column field="sales" sortable header="Sales" headerStyle="width: 250px">
+                <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="width: 250px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -397,21 +240,30 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="sales_diff" sortable header="&Delta; 1y" headerStyle="width: 270px">
+                <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 270px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.sales_diff">
-                                    {{
-                                        useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
-                                            org.currency.code : groupStats.currency.code,
-                                            data.sales_diff)
-                                    }}
+                                <div :key="data.interval_percentages?.refunds[selectedDateOption].amount">
+                                    {{ useLocaleStore().currencyFormat( groupStats.currency.code, data.interval_percentages?.refunds[selectedDateOption].difference || 0) }}
+                                    ({{ data.interval_percentages?.refunds[selectedDateOption].percentage || 0 }}%)
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
+
+                <ColumnGroup type="footer">
+                    <Row>
+                        <Column footer="" footerStyle="text-align:right"/>
+                        <Column footer="Total refunds" />
+                        <Column footer="Total refunds 1y" />
+                        <Column footer="Total invoices" />
+                        <Column footer="44444" />
+                        <Column footer="9999" />
+                        <Column footer="44444" />
+                    </Row>
+                </ColumnGroup>
 
             </DataTable>
         </div>

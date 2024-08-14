@@ -42,7 +42,7 @@ const layout = inject('layout', layoutStructure)
                         'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
                     ]">
                         <FontAwesomeIcon icon="fal fa-city" class="" ariaa-hidden="true" />
-                        <div class="space-x-1">
+                        <div class="space-x-1 whitespace-nowrap">
                             <span class="font-semibold">{{ layout.group?.label }}</span>
                             <span class="text-[9px] leading-none text-gray-400">({{ trans("Group") }})</span>
                         </div>

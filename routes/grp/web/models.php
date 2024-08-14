@@ -138,6 +138,9 @@ use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
+use App\Actions\SysAdmin\Guest\DeleteGuest;
+use App\Actions\SysAdmin\Guest\StoreGuest;
+use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisationSettings;
 use App\Actions\SysAdmin\User\UpdateUser;
@@ -170,7 +173,7 @@ Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
 
 Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
-Route::patch('/user/{user:id}/organisation/{organisation:id}', UpdateEmployeeOtherOrganisationJobPositions::class)->name('user.other-organisation.update');
+Route::patch('/user/{user:id}/organisation/{organisation:id}', UpdateEmployeeOtherOrganisationJobPositions::class)->name('user.other-organisation.update')->withoutScopedBindings();
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
 
@@ -528,6 +531,11 @@ Route::patch('/group-settings', UpdateGroupSettings::class)->name('group-setting
 
 Route::patch('/{mailshot:id}/mailshot', UpdateMailshot::class)->name('shop.mailshot.update');
 Route::post('/shop/{shop:id}/mailshot', StoreMailshot::class)->name('shop.mailshot.store');
+
+Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
+Route::post('/guest/', StoreGuest::class)->name('guest.store');
+Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
+
 /*
 
 
@@ -620,9 +628,7 @@ Route::patch('/payment/{payment:id}', UpdatePayment::class)->name('payment.updat
 
 
 
-Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
-Route::post('/guest/', StoreGuest::class)->name('guest.store');
-Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
+
 
 Route::patch('/outbox/{outbox:id}', UpdateOutbox::class)->name('outbox.update');
 

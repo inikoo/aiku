@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -75,6 +76,7 @@ use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -446,6 +448,7 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
+            'state'         => RentalAgreementStateEnum::ACTIVE,
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test',
@@ -467,7 +470,7 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     $rentalAgreement->refresh();
     expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
         ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
-        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::ACTIVE)
         ->and($rentalAgreement->stats)->toBeInstanceOf(RentalAgreementStats::class)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
@@ -491,7 +494,7 @@ test('update rental agreement', function (RentalAgreement $rentalAgreement) {
     $rentalAgreement->refresh();
     expect($rentalAgreement->billing_cycle)->toBe(RentalAgreementBillingCycleEnum::WEEKLY)
         ->and($rentalAgreement->pallets_limit)->toBe(10)
-        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::ACTIVE)
         ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2);
 
 
@@ -532,6 +535,7 @@ test('create second rental agreement', function (FulfilmentCustomer $fulfilmentC
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
+            'state'         => RentalAgreementStateEnum::DRAFT,
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test-a',
@@ -1689,6 +1693,7 @@ test('create third rental agreement', function (FulfilmentCustomer $fulfilmentCu
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
+            'state'         => RentalAgreementStateEnum::ACTIVE,
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'username'      => 'test-b',
@@ -1710,7 +1715,7 @@ test('create third rental agreement', function (FulfilmentCustomer $fulfilmentCu
     $rentalAgreement->refresh();
     expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
         ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
-        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::ACTIVE)
         ->and($rentalAgreement->stats)->toBeInstanceOf(RentalAgreementStats::class)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
@@ -2164,8 +2169,62 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
         ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
         ->and($newRecurringBill->transactions()->count())->toBe(2);
 
-    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER);
+    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($recurringBill->invoices)->not->toBeNull()
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
 
     expect($fulfilmentCustomer->recurringBills()->count())->toBe(2);
 
+    return $fulfilmentCustomer;
+
 })->depends('check current recurring bill');
+
+test('update third rental agreement cause', function ($fulfilmentCustomer) {
+    $recurringBillTransaction = $fulfilmentCustomer->currentRecurringBill->transactions->first();
+
+    $rentalAgreement = UpdateRentalAgreement::make()->action(
+        $fulfilmentCustomer->rentalAgreement,
+        [
+            'update_all'=> true,
+            'clauses'   => [
+                'rentals' => [
+                    [
+                        'asset_id'       => $recurringBillTransaction->asset_id,
+                        'percentage_off' => 30,
+                    ],
+                    [
+                        'asset_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->asset_id,
+                        'percentage_off' => 50,
+                    ],
+                ]
+            ]
+        ]
+    );
+    $rentalAgreement->refresh();
+    $fulfilmentCustomer->refresh();
+    $fulfilmentCustomer->currentRecurringBill->refresh();
+    $recurringBillTransaction->refresh();
+    expect($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
+        ->and($rentalAgreement->clauses->first()->percentage_off)->toEqualWithDelta(30, .001)
+        ->and($rentalAgreement->clauses->last()->percentage_off)->toEqualWithDelta(50, .001)
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2);
+
+    expect($recurringBillTransaction->clause)->not->toBeNull();
+
+    return $fulfilmentCustomer;
+})->depends('consolidate recurring bill');
+
+test('check invoice transactions length', function ($fulfilmentCustomer) {
+    $oldRecurringBill = $fulfilmentCustomer->recurringBills->first();
+    $invoice          = $oldRecurringBill->invoices;
+
+    $query     = IndexInvoiceTransactions::run($invoice)->toArray();
+    $queryData = $query['data'];
+
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->invoiceTransactions()->count())->toBe(4);
+
+    expect(count($queryData))->tobe(2);
+
+})->depends('update third rental agreement cause');

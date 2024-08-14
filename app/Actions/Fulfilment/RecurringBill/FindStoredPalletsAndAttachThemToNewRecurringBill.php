@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -18,6 +19,12 @@ class FindStoredPalletsAndAttachThemToNewRecurringBill extends OrgAction
     {
         $palletsInStoringState = $recurringBill->fulfilmentCustomer->pallets->where('state', PalletStateEnum::STORING);
         foreach ($palletsInStoringState as $pallet) {
+            if(!$pallet->storing_at) {
+                UpdatePallet::make()->action($pallet, [
+                    'storing_at'  => now(),
+                    'notes'       => $pallet->notes == '' ? '' : ' ' . 'Warning: Storing At date added because it was missing'
+                ]);
+            }
             $startDate = $pallet->storing_at;
             if($previousRecurringBill) {
                 $startDate = $recurringBill->start_date;

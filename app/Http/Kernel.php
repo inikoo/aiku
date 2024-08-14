@@ -71,7 +71,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'ds-api' => [
+        'bk-api' => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,

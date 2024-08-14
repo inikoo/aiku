@@ -150,4 +150,8 @@ class FetchAuroraInvoices extends FetchAuroraAction
     {
         DB::connection('aurora')->table('Invoice Dimension')->update(['aiku_id' => null]);
     }
+
+
+
+
 }

@@ -162,6 +162,7 @@ class EditUser extends InertiaAction
                         "fields"  => [
                             "permissions" => [
                                 "full"              => true,
+                                "noSaveButton"      => true,
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
                                 'organisation_list' => $organisationList,
@@ -173,20 +174,20 @@ class EditUser extends InertiaAction
                                         ]
                                     ],
 
-                                    'list_authorised'           => Organisation::get()->flatMap(function (Organisation $organisation) {
-                                        return [
-                                            $organisation->slug         => [
-                                                'authorised_shops'       =>
-                                                $organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
-                                                'authorised_fulfilments' =>
-                                                $organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
-                                                'authorised_warehouses' =>
-                                                $organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
-                                                'authorised_productions' =>
-                                                $organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
-                                            ]
-                                        ];
-                                    })->toArray(),
+                                    // 'list_authorised'           => Organisation::get()->flatMap(function (Organisation $organisation) {
+                                    //     return [
+                                    //         $organisation->slug         => [
+                                    //             'authorised_shops'       =>
+                                    //             $organisation->shops()->where('state', '!=', ShopStateEnum::CLOSED)->count(),
+                                    //             'authorised_fulfilments' =>
+                                    //             $organisation->shops()->where('type', ShopTypeEnum::FULFILMENT)->whereIn('state', [ShopStateEnum::IN_PROCESS, ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN])->count(),
+                                    //             'authorised_warehouses' =>
+                                    //             $organisation->warehouses()->where('state', '!=', WarehouseStateEnum::CLOSED)->count(),
+                                    //             'authorised_productions' =>
+                                    //             $organisation->productions()->where('state', '!=', ProductionStateEnum::CLOSED)->count(),
+                                    //         ]
+                                    //     ];
+                                    // })->toArray(),
 
                                     // "label"             => __("permissions"),
                                 'options'           => Organisation::get()->flatMap(function (Organisation $organisation) {
