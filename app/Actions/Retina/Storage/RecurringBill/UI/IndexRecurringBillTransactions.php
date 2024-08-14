@@ -31,7 +31,7 @@ class IndexRecurringBillTransactions extends OrgAction
         $queryBuilder->join('historic_assets', 'recurring_bill_transactions.historic_asset_id', '=', 'historic_assets.id');
 
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
-
+        $queryBuilder->leftjoin('rental_agreement_clauses', 'recurring_bill_transactions.rental_agreement_clause_id', '=', 'rental_agreement_clauses.id');
 
         $queryBuilder
             ->defaultSort('recurring_bill_transactions.id')
@@ -52,6 +52,7 @@ class IndexRecurringBillTransactions extends OrgAction
 
                 'recurring_bill_transactions.quantity',
                 'currencies.code as currency_code',
+                'rental_agreement_clauses.percentage_off as discount'
             ]);
 
 

@@ -78,20 +78,11 @@ const props = defineProps<{
 const layout = inject('layout', layoutStructure)
 const locale = inject('locale', {})
 
-const isShowLastYear = ref(true)
 
 // Decriptor: Date interval
 const selectedDateOption = ref<string | null>('all')
 
 const currencyValue = ref('group')
-
-const selectedTabGraph = ref(0)
-const tabs = [
-    { name: 'My Account', href: '#', current: true },
-    { name: 'Company', href: '#', current: false },
-    { name: 'Team Members', href: '#', current: false },
-    { name: 'Billing', href: '#', current: false },
-]
 
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
@@ -113,58 +104,37 @@ const options = {
         },
     }
 }
+
+
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import { computed } from 'vue'
+import { useTruncate } from '@/Composables/useTruncate'
+
+
+const abcdef = computed(() => {
+    return props.groupStats.organisations.filter(org => org.type != 'agent').map((org) => {
+        return {
+            name: org.name,
+            refunds: org.refunds.number_refunds || 0,
+            refunds_diff: 0,
+            invoices: org.invoices.number_invoices || 0,
+            invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
+            sales: org.sales?.org_amount_all || 0,
+            sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
+        }
+    })
+})
 </script>
 
 <template>
 
     <Head :title="trans('Dashboard')" />
-
     <div class="px-4 sm:px-6 lg:px-8">
-        <!-- <pre>{{ layout.organisations.data }}</pre> -->
+        <!-- <pre>{{ props.groupStats.organisations }}</pre> -->
 
         <!-- Section: Table -->
-        <div class="mt-4">
-
-            <div v-if="false" class="grid grid-cols-2">
-                <!-- Sections: Tabs -->
-                <nav v-if="true" class="rounded-md overflow-hidden isolate flex divide-x divide-gray-200 w-fit"
-                    aria-label="Tabs">
-                    <div v-for="(tab, tabIdx) in tabs" :key="tab.name" @click="selectedTabGraph = tabIdx"
-                        class="group relative flex-1 py-2 px-4 text-center text-sm font-medium focus:z-10 cursor-pointer transition-all"
-                        :class="[
-                            selectedTabGraph == tabIdx? 'bg-indigo-500 text-white' : 'hover:bg-indigo-50 text-gray-500 hover:text-gray-600',
-                        ]">
-                        <span class="whitespace-nowrap select-none">{{ tab.name }}</span>
-                        <!-- <span aria-hidden="true"
-                            :class="[selectedTabGraph == tabIdx ? 'bottomNavigationActive' : 'bottomNavigation', 'h-0.5']" /> -->
-                    </div>
-                </nav>
-
-                <div class="flex flex-col gap-y-8 gap-x-4 justify-between w-full">
-
-                    <!-- <div class="w-44">
-                        <PureMultiselect v-model="dateValue" required :options="interval_options" caret object />
-                    </div> -->
-
-                </div>
-
-                <div class="justify-self-end flex divide-x divide-gray-300 gap-x-4">
-                    <!-- Radio: Show Last Year -->
-                    <div v-if="true" class="justify-self-end flex items-center gap-x-2 text-sm">
-                        <!-- <div :class="!isShowLastYear ? '' : 'text-gray-400'">Don't show Last year</div> -->
-                        <Switch v-model="isShowLastYear" :class="isShowLastYear ? 'bg-indigo-500' : 'bg-indigo-100'"
-                            class="relative inline-flex h-[25px] w-[61px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                            <span aria-hidden="true" :class="isShowLastYear ? 'translate-x-9' : 'translate-x-0'"
-                                class="pointer-events-none inline-block h-[21px] aspect-square transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out" />
-                        </Switch>
-                        <div @click="isShowLastYear = !isShowLastYear"
-                            class="select-none cursor-pointer whitespace-nowrap"
-                            :class="isShowLastYear ? '' : 'text-gray-400'">Show Last Year</div>
-                    </div>
-
-                </div>
-            </div>
-
+        <div v-if="true" class="mt-4">
 
             <div class="">
                 <!-- Section: Date options -->
@@ -182,8 +152,9 @@ const options = {
                     </nav>
                 </div>
 
+                <!-- <pre>{{ abcdef }}</pre> -->
 
-                <div class="mt-2  rounded-t-sm rounded-b-md border border-gray-300 overflow-hidden ">
+                <div v-if="false" class="mt-2  rounded-t-sm rounded-b-md border border-gray-300 overflow-hidden ">
                     <table class="min-w-full divide-y divide-gray-400">
                         <thead class="">
                             <tr class="text-sm bg-gray-100 relative divide-x divide-gray-200 text-gray-400" :style="{
@@ -252,8 +223,10 @@ const options = {
 
                                     <!-- Column: Refunds LY -->
                                     <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
-                                            {{ org.interval_percentages?.refunds?.[selectedDateOption || 'all'].percentage || 0 }}
+                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined"
+                                            class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.refunds?.[selectedDateOption ||
+                                            'all'].percentage || 0 }}
                                         </div>
                                     </td>
 
@@ -266,8 +239,10 @@ const options = {
 
                                     <!-- Column: Invoices LY -->
                                     <td class="text-sm text-gray-500 table-cell tabular-nums text-right">
-                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
-                                            {{ org.interval_percentages?.invoices?.[selectedDateOption || 'all'].percentage || 0 }}
+                                        <div v-tooltip="org.interval_percentages?.invoices?.[selectedDateOption || 'all'].difference || undefined"
+                                            class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.invoices?.[selectedDateOption ||
+                                            'all'].percentage || 0 }}
                                         </div>
                                     </td>
 
@@ -312,8 +287,10 @@ const options = {
 
                                     <!-- Column: Sales LY -->
                                     <td class="overflow-hidden text-sm text-gray-500 lg:table-cell">
-                                        <div v-tooltip="org.interval_percentages?.sales?.[selectedDateOption || 'all'].difference || undefined" class="w-12 text-right pl-1 pr-3">
-                                            {{ org.interval_percentages?.sales?.[selectedDateOption || 'all'].percentage || 0 }}
+                                        <div v-tooltip="org.interval_percentages?.sales?.[selectedDateOption || 'all'].difference || undefined"
+                                            class="w-12 text-right pl-1 pr-3">
+                                            {{ org.interval_percentages?.sales?.[selectedDateOption || 'all'].percentage
+                                            || 0 }}
                                         </div>
                                     </td>
 
@@ -344,71 +321,161 @@ const options = {
                     </table>
                 </div>
             </div>
-            <!--  <pre>{{ groupStats.organisations[1] }}</pre> -->
 
 
+        </div>
 
-            <div class="mt-10 w-1/2 flex gap-x-4">
-                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
-                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
-                    <div class="w-24">
-                        <Pie :data="{
-                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
-                            datasets: [{
-                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
-                                hoverOffset: 4
-                            }]
-                        }" :options="options" />
-                    </div>
-                    <!-- <div class="flex flex-col justify-between ">
-                        <template v-for="org in groupStats.organisations">
-                            <div v-if="org.type !== 'agent'" class="space-x-2">
-                                <span class="text-lg">{{ org.code }}:</span>
-                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
-                            </div>
-                        </template>
-                    </div> -->
+        <div class="mt-6">
+            <DataTable :value="abcdef" stripedRows showGridlines removableSort tableStyle="min-width: 50rem">
+                <Column field="name" sortable header="Name">
+                    <template #body="{ data }">
+                        <div class="relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.name">
+                                    {{ useTruncate(data.name, 20) }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="refunds" sortable header="Refunds" headerStyle="width: 250px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.refunds">
+                                    {{ locale.number(data.refunds || 0) }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="refunds_diff" sortable header="&Delta; 1y" headerStyle="width: 130px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.refunds_diff">
+                                    {{ locale.number(data.refunds_diff || 0) }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="invoices" sortable header="Invoices" headerStyle="text-align: right; width: 200px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.invoices">
+                                    {{ locale.number(data.invoices || 0) }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+
+                </Column>
+
+                <Column field="invoices_diff" sortable header="&Delta; 1y" headerStyle="width: 130px">
+                    <!-- Todo -->
+                </Column>
+
+                <Column field="sales" sortable header="Sales" headerStyle="width: 250px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.sales">
+                                    {{
+                                        useLocaleStore().currencyFormat(currencyValue === 'organisation'
+                                            ? data.currency.code
+                                            : groupStats.currency.code,
+                                            data.sales)
+                                    }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+                <Column field="sales_diff" sortable header="&Delta; 1y" headerStyle="width: 270px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.sales_diff">
+                                    {{
+                                        useLocaleStore().currencyFormat(currencyValue === 'organisation' ?
+                                            org.currency.code : groupStats.currency.code,
+                                            data.sales_diff)
+                                    }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+            </DataTable>
+        </div>
+
+        <div class="mt-10 w-1/2 flex gap-x-4">
+            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
+                <div class="w-24">
+                    <Pie :data="{
+                        labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                        datasets: [{
+                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                            hoverOffset: 4
+                        }]
+                    }" :options="options" />
                 </div>
-                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
-                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
-                    <div class="w-24">
-                        <Pie :data="{
-                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
-                            datasets: [{
-                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
-                                hoverOffset: 4
-                            }]
-                        }" :options="options" />
-                    </div>
-                    <!-- <div class="flex flex-col justify-between ">
-                        <template v-for="org in groupStats.organisations">
-                            <div v-if="org.type !== 'agent'" class="space-x-2">
-                                <span class="text-lg">{{ org.code }}:</span>
-                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
-                            </div>
-                        </template>
-                    </div> -->
+                <!-- <div class="flex flex-col justify-between ">
+                    <template v-for="org in groupStats.organisations">
+                        <div v-if="org.type !== 'agent'" class="space-x-2">
+                            <span class="text-lg">{{ org.code }}:</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                        </div>
+                    </template>
+                </div> -->
+            </div>
+            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
+                <div class="w-24">
+                    <Pie :data="{
+                        labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                        datasets: [{
+                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                            hoverOffset: 4
+                        }]
+                    }" :options="options" />
                 </div>
-                <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
-                    <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
-                    <div class="w-24">
-                        <Pie :data="{
-                            labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
-                            datasets: [{
-                                data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
-                                hoverOffset: 4
-                            }]
-                        }" :options="options" />
-                    </div>
-                    <!-- <div class="flex flex-col justify-between ">
-                        <template v-for="org in groupStats.organisations">
-                            <div v-if="org.type !== 'agent'" class="space-x-2">
-                                <span class="text-lg">{{ org.code }}:</span>
-                                <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
-                            </div>
-                        </template>
-                    </div> -->
+                <!-- <div class="flex flex-col justify-between ">
+                    <template v-for="org in groupStats.organisations">
+                        <div v-if="org.type !== 'agent'" class="space-x-2">
+                            <span class="text-lg">{{ org.code }}:</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                        </div>
+                    </template>
+                </div> -->
+            </div>
+            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+                <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
+                <div class="w-24">
+                    <Pie :data="{
+                        labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
+                        datasets: [{
+                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                            hoverOffset: 4
+                        }]
+                    }" :options="options" />
                 </div>
+                <!-- <div class="flex flex-col justify-between ">
+                    <template v-for="org in groupStats.organisations">
+                        <div v-if="org.type !== 'agent'" class="space-x-2">
+                            <span class="text-lg">{{ org.code }}:</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                        </div>
+                    </template>
+                </div> -->
             </div>
         </div>
     </div>

@@ -12,6 +12,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\TaxCategory;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  *
@@ -123,6 +125,12 @@ class RecurringBill extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
+    public function discountAmount(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->gross_amount - $this->net_amount
+        );
+    }
 
     public function currency(): BelongsTo
     {
@@ -144,12 +152,12 @@ class RecurringBill extends Model implements Auditable
         return $this->hasOne(RecurringBillStats::class);
     }
 
-    public function palletDelivery(): MorphToMany
+    public function palletDeliveries(): MorphToMany
     {
         return $this->morphedByMany(PalletDelivery::class, 'model', 'model_has_recurring_bills')->withTimestamps();
     }
 
-    public function palletReturn(): MorphToMany
+    public function palletReturns(): MorphToMany
     {
         return $this->morphedByMany(PalletReturn::class, 'model', 'model_has_recurring_bills')->withTimestamps();
     }
@@ -157,6 +165,10 @@ class RecurringBill extends Model implements Auditable
     public function invoices(): HasOne
     {
         return $this->hasOne(Invoice::class);
+    }
 
+    public function taxCategory(): BelongsTo
+    {
+        return $this->belongsTo(TaxCategory::class);
     }
 }

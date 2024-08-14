@@ -4,24 +4,24 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableStocks from "@/Components/Tables/Grp/Goods/TableStocks.vue";
-import { capitalize } from "@/Composables/capitalize"
+import { Head } from "@inertiajs/vue3";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
+import TableOrgStocks from "@/Components/Tables/Grp/Org/Inventory/TableOrgStocks.vue";
+import { capitalize } from "@/Composables/capitalize";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps<{
-    data: object
-    title: string
-    pageHead: object
-}>()
+defineProps<{
+  data: object
+  title: string
+  pageHead: PageHeadingTypes
+}>();
 
 
 </script>
 
-
 <template>
-    <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
-    <TableStocks :data="data"/>
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead"></PageHeading>
+  <TableOrgStocks :data="data" />
 </template>
 

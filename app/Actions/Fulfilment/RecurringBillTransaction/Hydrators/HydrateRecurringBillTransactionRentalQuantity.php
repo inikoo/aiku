@@ -20,17 +20,21 @@ class HydrateRecurringBillTransactionRentalQuantity
 
     public function handle(RecurringBill $recurringBill)
     {
-        $transactions = $recurringBill->transactions;
+        $transactions = $recurringBill->transactions()->where('item_type', 'Pallet')->get();
 
-        $today = Carbon::now()->startOfDay();
+        $today       = Carbon::now()->startOfDay();
+        $todayString = $today->toDateString();
 
         foreach ($transactions as $transaction) {
-            $startDate = Carbon::parse($transaction->start_date)->startOfDay();
+            $startDate       = Carbon::parse($transaction->start_date)->startOfDay();
+            $startDateString = $startDate->toDateString();
 
-            if ($startDate->equalTo($today)) {
+            $daysDifference = $startDate->diffInDays($today);
+
+            if ($startDateString === $todayString) {
                 $daysDifference = 1;
-            } else {
-                $daysDifference = abs($today->diffInDays($startDate));
+            } elseif ($startDateString === $today->copy()->subDay()->toDateString()) {
+                $daysDifference = 2;
             }
 
             $assetPrice = $transaction->asset->price;

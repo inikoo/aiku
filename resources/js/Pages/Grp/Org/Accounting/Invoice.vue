@@ -251,13 +251,17 @@ const onSubmitPayment = () => {
         <BoxStatPallet class="py-2 px-3">
             <div class="mt-1">
                 <div v-tooltip="'Recurring bill'"
-                    class="flex items-center w-full flex-none gap-x-2">
+                    class="w-fit flex items-center flex-none gap-x-2">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-receipt' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
-                    <Link as="dd" :href="route(box_stats.information.recurring_bill.route.name, box_stats.information.recurring_bill.route.parameters)" class="primaryLink cursor-pointer text-xs text-gray-500" :class='"ff"'>
-                        {{ box_stats.information.recurring_bill.reference }}
-                    </Link>
+                    <component :is="box_stats.information.recurring_bill?.route?.name ? Link : 'div'"
+                        as="dd"
+                        :href="box_stats.information.recurring_bill?.route?.name ? route(box_stats.information.recurring_bill?.route?.name, box_stats.information.recurring_bill.route.parameters) : ''"
+                        class="text-xs text-gray-500"
+                        :class="box_stats.information.recurring_bill?.route?.name ? 'cursor-pointer primaryLink' : ''">
+                        {{ box_stats.information.recurring_bill?.reference || '-' }} 
+                    </component>
                 </div>
                 <div v-tooltip="'Invoice created'"
                     class="flex items-center w-full flex-none gap-x-2">

@@ -40,8 +40,9 @@ trait HasOrderAmountTotals
         $table->decimal('tax_amount', 16)->default(0);
         $table->decimal('total_amount', 16)->default(0);
 
-        $table->decimal('payment_amount', 16)->default(0);
-
+        if(!$table->getTable()=='recurring_bills') {
+            $table->decimal('payment_amount', 16)->default(0);
+        }
 
         return $table;
     }

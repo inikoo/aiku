@@ -207,11 +207,6 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchLocationStocks($id): ?array
-    {
-        return null;
-    }
-
     public function fetchAgent($id): ?array
     {
         return null;

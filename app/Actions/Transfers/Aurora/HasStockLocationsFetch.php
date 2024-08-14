@@ -1,25 +1,50 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 09 Jun 2024 12:55:10 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Tue, 13 Aug 2024 10:09:41 Central Indonesia Time, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Transfers\Aurora;
+namespace App\Actions\Transfers\Aurora;
 
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use App\Transfers\Aurora\WithAuroraParsers;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraLocationStocks extends FetchAurora
+trait HasStockLocationsFetch
 {
-    protected function parseModel(): void
+    use WithAuroraParsers;
+
+    public function getStockLocationData($organisationSource, $sourceId): array
     {
+        $sourceData = explode(':', $sourceId);
+
+
+        $stockLocations  = [];
+        $auroraModelData = DB::connection('aurora')
+            ->table('Part Location Dimension')
+            ->where('Part SKU', $sourceData[1])->get();
 
 
 
-        $stockLocations = [];
-        foreach ($this->auroraModelData as $modelData) {
-            $location = $this->parseLocation($this->organisation->id.':'.$modelData->{'Location Key'});
+
+        foreach ($auroraModelData as $modelData) {
+            $location = $this->parseLocation($sourceData[0].':'.$modelData->{'Location Key'},$organisationSource);
+
+            if (!$location) {
+                $this->recordFetchError(
+                    $organisationSource,
+                    $auroraModelData,
+                    'Stock Location',
+                    'fetching',
+                    [
+                        'msg'=> 'Location not found',
+                    ]
+                );
+                continue;
+            }
+
+
             $settings = [];
             if ($modelData->{'Minimum Quantity'}) {
                 $settings['min_stock'] = $modelData->{'Minimum Quantity'};
@@ -50,17 +75,8 @@ class FetchAuroraLocationStocks extends FetchAurora
                 'type'               => $type,
             ];
         }
-        $this->parsedData['stock_locations'] = $stockLocations;
+
+        return $stockLocations;
     }
 
-
-    protected function fetchData($id): object|null
-    {
-
-
-
-        return DB::connection('aurora')
-            ->table('Part Location Dimension')
-            ->where('Part SKU', $id)->get();
-    }
 }

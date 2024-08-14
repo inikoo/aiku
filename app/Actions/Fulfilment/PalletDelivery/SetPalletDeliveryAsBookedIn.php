@@ -12,8 +12,8 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Search\PalletDeliveryRecordSearch;
-use App\Actions\Fulfilment\RecurringBill\AttachRecurringBillToModel;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
+use App\Actions\Fulfilment\RecurringBillTransaction\StoreRecurringBillTransaction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletDeliveries;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
@@ -56,9 +56,39 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                 'status'     => 'active'
             ]);
             $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
+            foreach($palletDelivery->transactions as $transaction) {
+                StoreRecurringBillTransaction::make()->action(
+                    $recurringBill,
+                    $transaction,
+                    [
+                        'start_date' => now()
+                    ]
+                );
+            };
+        } else {
+            foreach($palletDelivery->transactions as $transaction) {
+                StoreRecurringBillTransaction::make()->action(
+                    $recurringBill,
+                    $transaction,
+                    [
+                        'start_date' => now()
+                    ]
+                );
+            };
+            foreach($palletDelivery->pallets as $pallet) {
+                StoreRecurringBillTransaction::make()->action(
+                    $recurringBill,
+                    $pallet,
+                    [
+                        'start_date' => $pallet->storing_at
+                    ]
+                );
+            }
         }
 
-        AttachRecurringBillToModel::run($palletDelivery, $recurringBill);
+
+        $palletDelivery->recurringBills()->attach($recurringBill);
+
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);

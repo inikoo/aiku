@@ -416,12 +416,12 @@ trait WithAuroraParsers
         return $stock;
     }
 
-    public function parseLocation($sourceId): ?Location
+    public function parseLocation($sourceId,$organisationSource): ?Location
     {
         $location = Location::where('source_id', $sourceId)->first();
         if (!$location) {
             $sourceData = explode(':', $sourceId);
-            $location   = FetchAuroraLocations::run($this->organisationSource, $sourceData[1]);
+            $location   = FetchAuroraLocations::run($organisationSource, $sourceData[1]);
         }
 
         return $location;

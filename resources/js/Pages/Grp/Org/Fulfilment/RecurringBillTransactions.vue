@@ -1,9 +1,15 @@
 <script setup lang='ts'>
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import { FieldOrderSummary } from '@/types/Pallet'
+import { library } from "@fortawesome/fontawesome-svg-core"
 import { Links, Meta } from '@/types/Table'
+import { faRobot, faBadgePercent, faTag } from '@fal'
 import Table from "@/Components/Table/Table.vue"
 import { inject } from 'vue'
+import Tag from '@/Components/Tag.vue'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+
+library.add(faTag)
 
 const props = defineProps<{
     data: {
@@ -39,6 +45,12 @@ const locale = inject('locale', {})
     <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
         <template #cell(asset_price)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.asset_price || 0) }}/{{ item.unit_label }}
+            <Tag v-if="item['discount'] > 0" :theme="17">
+                <template #label>
+                    <font-awesome-icon icon="fal fa-tag" class="text-xs text-emerald-700"/>
+                    {{ item['discount'] }}%
+                </template>
+            </Tag>
         </template>
 
         <template #cell(total)="{ item }">

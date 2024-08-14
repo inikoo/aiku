@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 class FetchAuroraStocks extends FetchAuroraAction
 {
     use WithAuroraAttachments;
+    use HasStockLocationsFetch;
 
     public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--w|with=* : Accepted values: attachments}';
 
@@ -103,11 +104,8 @@ class FetchAuroraStocks extends FetchAuroraAction
                     );
                 }
 
-                $sourceData    = explode(':', $stockData['stock']['source_id']);
-                $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
-
-
-                SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
+                $locationsData=$this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
+                SyncOrgStockLocations::run($orgStock, $locationsData);
             }
         }
 
@@ -154,7 +152,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
-        $query->orderBy('source_id');
+        $query->orderBy('Part Valid From');
 
         return $query;
     }

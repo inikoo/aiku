@@ -62,7 +62,7 @@ class StoreSupplierProduct extends GrpAction
 
         GroupHydrateSupplierProducts::dispatch($supplier->group)->delay($this->hydratorsDelay);
         SupplierHydrateSupplierProducts::dispatch($supplier)->delay($this->hydratorsDelay);
-        AgentHydrateSupplierProducts::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
+        AgentHydrateSupplierProducts::dispatchIf((bool)$supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
         SupplierProductRecordSearch::dispatch($supplierProduct);
 
 

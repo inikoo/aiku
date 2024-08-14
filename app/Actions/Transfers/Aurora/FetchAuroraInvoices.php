@@ -127,7 +127,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
             $query->whereNull('aiku_id');
         }
 
-        $query->orderBy('Invoice Date', 'desc');
+        $query->orderBy('Invoice Date');
 
         return $query;
     }

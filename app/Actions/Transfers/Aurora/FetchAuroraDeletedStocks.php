@@ -10,7 +10,6 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
-use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
@@ -92,12 +91,6 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
                     );
                 }
 
-                $sourceData    = explode(':', $stockData['stock']['source_id']);
-                $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
-
-
-
-                SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
             }
         }
 

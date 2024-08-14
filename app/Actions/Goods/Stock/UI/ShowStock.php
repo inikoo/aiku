@@ -11,7 +11,6 @@ use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Inventory\OrgStock\UI\GetStockShowcase;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Http\Resources\History\HistoryResource;

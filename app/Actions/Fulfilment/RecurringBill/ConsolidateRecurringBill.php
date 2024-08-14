@@ -42,7 +42,12 @@ class ConsolidateRecurringBill extends OrgAction
             // 'billing_country_id' => $recurringBill->fulfilmentCustomer->customer->address->country_id,
             'type'             => InvoiceTypeEnum::INVOICE,
             'net_amount'       => $recurringBill->net_amount,
-            'total_amount'     => $recurringBill->total_amount
+            'total_amount'     => $recurringBill->total_amount,
+            'gross_amount'     => $recurringBill->gross_amount,
+            'rental_amount'    => $recurringBill->rental_amount,
+            'goods_amount'     => $recurringBill->goods_amount,
+            'services_amount'  => $recurringBill->services_amount,
+            'tax_amount'       => $recurringBill->tax_amount
         ];
         // dd('aa');
         $invoice = StoreInvoice::make()->action($recurringBill, $invoiceData);
@@ -64,7 +69,12 @@ class ConsolidateRecurringBill extends OrgAction
         ->exists();
 
         if ($hasStoringPallet) {
-            $newRecurringBill = StoreRecurringBill::make()->action($recurringBill->fulfilmentCustomer->rentalAgreement, ['start_date' => now()]);
+            $newRecurringBill = StoreRecurringBill::make()->action(
+                $recurringBill->fulfilmentCustomer->rentalAgreement,
+                ['start_date' => now()],
+                $recurringBill
+            );
+
             $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => $newRecurringBill->id]);
         } else {
             $this->update($recurringBill->fulfilmentCustomer, ['current_recurring_bill_id' => null]);

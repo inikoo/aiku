@@ -53,6 +53,7 @@ class RecurringBillTransactionsResource extends JsonResource
             'unit_label'         => $unitLabel,
             'quantity'           => (int) $this->quantity,
             'total'              => $this->net_amount,
+            'discount'           => (int) $this->discount
             // 'historic_assets_id'=> $this->historic_assets_id
 
 

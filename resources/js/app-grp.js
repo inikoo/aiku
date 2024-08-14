@@ -12,7 +12,8 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import Layout from '@/Layouts/Grp.vue'
 import { capitalize } from '@/Composables/capitalize.ts'
-
+import PrimeVue from 'primevue/config';
+import Aura from '@primevue/themes/aura';
 
 const appName = capitalize(window.document.getElementsByTagName('title')[0]?.innerText) ||
     'Aiku';
@@ -46,7 +47,14 @@ createInertiaApp(
             .use(createPinia())
             .use(ZiggyVue, Ziggy)
             .use(Notifications)
-            .use(FloatingVue)
+            .use(FloatingVue).use(PrimeVue, {
+              theme: {
+                preset: Aura,
+                options: {
+                  darkModeSelector: '.my-app-dark',  // dark mode of Primevue depends .my-add-dark in <html>
+                }
+              }
+            })
             .use(i18nVue, {
               resolve: async (lang) => {
                 const languages = import.meta.glob(
