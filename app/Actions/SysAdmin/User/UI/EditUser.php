@@ -162,6 +162,7 @@ class EditUser extends InertiaAction
                         "fields"  => [
                             "permissions" => [
                                 "full"              => true,
+                                "noSaveButton"      => true,
                                 "type"              => "permissions",
                                 "review"            => $reviewData,
                                 'organisation_list' => $organisationList,

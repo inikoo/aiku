@@ -86,11 +86,12 @@ class ShowFulfilmentCustomer extends OrgAction
 
         if ($fulfilmentCustomer->rentalAgreement()->exists()) {
             $additionalActions[] = [
-                'type'    => 'button',
-                'style'   => 'create',
-                'tooltip' => __('Create a pallet Delivery'),
-                'label'   => __('Delivery'),
-                'route'   => [
+                'type'          => 'button',
+                'style'         => 'create',
+                'tooltip'       => __('Create a pallet Delivery'),
+                'fullLoading'   => true,
+                'label'         => __('Delivery'),
+                'route'         => [
                     'method'     => 'post',
                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                     'parameters' => [
