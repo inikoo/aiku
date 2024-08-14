@@ -245,7 +245,7 @@ console.log("environment:", usePage().props.environment);
                 <transition>
                   <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <!-- Shops -->
-                    <div class="px-1 py-1">
+                    <div v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops?.length" class="px-1 py-1">
                       <!-- Show All -->
                       <div
                         @click="() => (router.visit(route(layoutStore.navigation.org[layoutStore.currentParams.organisation].shops_index?.route?.name, layoutStore.navigation.org[layoutStore.currentParams.organisation].shops_index?.route?.parameters)), closeMenu())"
@@ -270,7 +270,7 @@ console.log("environment:", usePage().props.environment);
                     </div>
 
                     <!-- Fulfilments -->
-                    <div class="px-1 py-1">
+                    <div v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments?.length" class="px-1 py-1">
                       <!-- Show All -->
                       <div
                         @click="() => (router.visit(route(layoutStore.navigation.org[layoutStore.currentParams.organisation].fulfilments_index?.route?.name, layoutStore.navigation.org[layoutStore.currentParams.organisation].fulfilments_index?.route?.parameters)), closeMenu())"
