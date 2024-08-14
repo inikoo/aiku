@@ -41,7 +41,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
             SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
             Arr::forget($modelData, 'positions');
         }
-        
+
 
         return $user;
     }

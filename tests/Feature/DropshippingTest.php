@@ -260,17 +260,17 @@ test('update customer portfolio', function (Portfolio $dropshippingCustomerPortf
 
 
 test('get dropshipping access token', function () {
-    $token = CreateAccessToken::make()->action($this->group, ['name' => 'test_token', 'abilities' => ['ds-api']]);
+    $token = CreateAccessToken::make()->action($this->group, ['name' => 'test_token', 'abilities' => ['bk-api']]);
     expect($token)->toBeString();
     $this->token = $token;
 });
 
 test('api get dropshipping shops', function () {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
 
     $response = getJson(
         route(
-            'ds_api.shops.index'
+            'bk_api.shops.index'
         )
     );
 
@@ -283,12 +283,12 @@ test('api get dropshipping shops', function () {
 });
 
 test('api show shop', function ($shopId) {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
 
 
     $response = getJson(
         route(
-            'ds_api.shops.show',
+            'bk_api.shops.show',
             [$shopId]
         )
     );
@@ -298,11 +298,11 @@ test('api show shop', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api index customers', function ($shopId) {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
 
     $response = getJson(
         route(
-            'ds_api.shops.show.customers.index',
+            'bk_api.shops.show.customers.index',
             [$shopId]
         )
     );
@@ -312,12 +312,12 @@ test('api index customers', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api show customer', function () {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
 
 
     $response = getJson(
         route(
-            'ds_api.customers.show',
+            'bk_api.customers.show',
             [$this->customer->id]
         )
     );
@@ -327,10 +327,10 @@ test('api show customer', function () {
 });
 
 test('api index products in shop', function ($shopId) {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
     $response = getJson(
         route(
-            'ds_api.shops.show.products.index',
+            'bk_api.shops.show.products.index',
             [$shopId]
         )
     );
@@ -340,10 +340,10 @@ test('api index products in shop', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api show product', function () {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
     $response = getJson(
         route(
-            'ds_api.products.show',
+            'bk_api.products.show',
             [$this->product->id]
         )
     );
@@ -353,10 +353,10 @@ test('api show product', function () {
 });
 
 test('api index products in customer (portfolio) ', function ($shopId) {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
     $response = getJson(
         route(
-            'ds_api.customers.show.products.index',
+            'bk_api.customers.show.products.index',
             [$shopId]
         )
     );
@@ -366,10 +366,10 @@ test('api index products in customer (portfolio) ', function ($shopId) {
 })->depends('api get dropshipping shops');
 
 test('api index customers in product', function () {
-    Sanctum::actingAs($this->group, ['ds-api']);
+    Sanctum::actingAs($this->group, ['bk-api']);
     $response = getJson(
         route(
-            'ds_api.products.show.customers.index',
+            'bk_api.products.show.customers.index',
             [$this->product->id]
         )
     );

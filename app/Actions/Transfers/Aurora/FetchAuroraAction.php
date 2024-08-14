@@ -114,18 +114,7 @@ class FetchAuroraAction extends FetchAction
         return    $command->option('db_suffix') ?? '';
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($request->user()->userable_type == 'Organisation') {
-            $organisation = $request->user()->organisation;
 
-            if ($organisation->id and $request->user()->tokenCan('aurora')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     public function rules(): array
     {
@@ -140,12 +129,11 @@ class FetchAuroraAction extends FetchAction
      */
     public function asController(Organisation $organisation, ActionRequest $request): ?Model
     {
-        $validatedData = $request->validated();
 
+        $validatedData = $request->validated();
 
         $this->organisationSource = $this->getOrganisationSource($organisation);
         $this->organisationSource->initialisation($organisation);
-
         return $this->handle($this->organisationSource, Arr::get($validatedData, 'id'));
     }
 

@@ -76,7 +76,6 @@ use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
-use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
@@ -2216,12 +2215,11 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
     return $fulfilmentCustomer;
 })->depends('consolidate recurring bill');
 
-test('check invoice transactions length' , function ($fulfilmentCustomer)
-{
+test('check invoice transactions length', function ($fulfilmentCustomer) {
     $oldRecurringBill = $fulfilmentCustomer->recurringBills->first();
-    $invoice = $oldRecurringBill->invoices;
+    $invoice          = $oldRecurringBill->invoices;
 
-    $query = IndexInvoiceTransactions::run($invoice)->toArray();
+    $query     = IndexInvoiceTransactions::run($invoice)->toArray();
     $queryData = $query['data'];
 
     expect($invoice)->toBeInstanceOf(Invoice::class)

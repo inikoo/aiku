@@ -42,10 +42,10 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('maya')
             ->group(base_path('routes/maya/maya-app.php'));
 
-        Route::middleware('ds-api')
+        Route::middleware('bk-api')
             ->domain(config('app.domain'))
-            ->prefix('ds-api')
-            ->group(base_path('routes/ds-api/ds_api.php'));
+            ->prefix('bk-api')
+            ->group(base_path('routes/bk-api/bk_api.php'));
 
         Route::middleware('aiku-public')
             ->domain(config('app.domain'))
