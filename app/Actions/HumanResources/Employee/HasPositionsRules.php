@@ -13,13 +13,11 @@ trait HasPositionsRules
 {
     public function preparePositionsForValidation(): void
     {
-        // todo make this in the front end
         if ($this->get('positions') and !$this->asAction) {
-
             $newData = [];
             foreach ($this->get('positions') as $key => $position) {
                 $newData[] = match (Arr::get(explode('-', $key), 0)) {
-                    'wah', 'dist', 'ful' => [
+                    'wah', 'dist', 'ful', 'web', 'mrk', 'cus', 'shk' => [
                         'slug'   => $key,
                         'scopes' => array_map(function ($scope) {
                             return [
@@ -27,14 +25,7 @@ trait HasPositionsRules
                             ];
                         }, $position)
                     ],
-                    'web', 'mrk', 'cus' => [
-                        'slug'   => $key,
-                        'scopes' => array_map(function ($scope) {
-                            return [
-                                'slug' => $scope
-                            ];
-                        }, $position)
-                    ],
+
                     default => [
                         'slug'   => $key,
                         'scopes' => []
@@ -48,9 +39,6 @@ trait HasPositionsRules
 
             $this->fill($positions);
         }
-
-
-
     }
 
 }

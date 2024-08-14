@@ -106,7 +106,7 @@ test('show dashboard', function () {
     actingAs($this->webUser, 'retina');
     $response = $this->get(route('retina.dashboard.show'));
     $response->assertInertia(function (AssertableInertia $page) {
-        $page->component('Dashboard/Dashboard');
+        $page->component('Dashboard/RetinaDashboard');
     });
 });
 

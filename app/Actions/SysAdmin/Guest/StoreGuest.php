@@ -12,17 +12,9 @@ use App\Actions\HumanResources\JobPosition\SyncGuestJobPositions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
-use App\Actions\SysAdmin\User\UserAddRoles;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\HumanResources\JobPosition;
-use App\Models\Inventory\Warehouse;
-use App\Models\Catalogue\Shop;
-use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
-use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\Role;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -76,53 +68,7 @@ class StoreGuest extends GrpAction
             $jobPositions[$jobPosition->id] = $positionData['scopes'];
         }
 
-
         SyncGuestJobPositions::run($guest, $jobPositions);
-
-
-        /*
-
-        $roles = [];
-        foreach ($rolesNames as $roleName) {
-            $role    = Role::where('name', $roleName)->where('group_id', $group->id)->first();
-            $roles[] = $role->name;
-
-            if ($role->name === RolesEnum::GROUP_ADMIN->value) {
-                foreach (Organisation::all() as $organisation) {
-                    UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
-                    ]);
-                }
-                foreach (Shop::all() as $shop) {
-                    if ($shop->type == ShopTypeEnum::FULFILMENT) {
-                        UserAddRoles::run($user, [
-                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()
-                        ]);
-                        UserAddRoles::run($user, [
-                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $shop->fulfilment))->first()
-                        ]);
-                    } else {
-                        UserAddRoles::run($user, [
-                            Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
-                        ]);
-                    }
-                }
-                foreach (Warehouse::all() as $warehouse) {
-                    UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
-                    ]);
-                }
-
-                foreach (Production::all() as $production) {
-                    UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
-                    ]);
-                }
-            }
-        }
-        UserAddRoles::run($user, $roles);
-        */
-
         GroupHydrateGuests::dispatch($group);
 
         return $guest;
@@ -139,8 +85,8 @@ class StoreGuest extends GrpAction
 
     public function prepareForValidation(): void
     {
-        if (!$this->has('alias')) {
-            $this->set('alias', $this->get('username'));
+        if (!$this->has('code')) {
+            $this->set('code', $this->get('username'));
         }
         if ($this->get('phone')) {
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
@@ -149,8 +95,8 @@ class StoreGuest extends GrpAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if ($validator->errors()->has('alias')) {
-            $validator->errors()->add('username', $validator->errors()->first('alias'));
+        if ($validator->errors()->has('code')) {
+            $validator->errors()->add('username', $validator->errors()->first('code'));
         }
     }
 
@@ -164,7 +110,7 @@ class StoreGuest extends GrpAction
 
 
         return [
-            'alias'        => [
+            'code'        => [
                 'required',
                 'string',
                 'max:12',

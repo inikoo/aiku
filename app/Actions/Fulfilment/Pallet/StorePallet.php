@@ -69,7 +69,6 @@ class StorePallet extends OrgAction
         $pallet->refresh();
 
 
-
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
         FulfilmentHydratePallets::dispatch($fulfilmentCustomer->fulfilment);
         OrganisationHydratePallets::dispatch($fulfilmentCustomer->organisation);
@@ -125,19 +124,29 @@ class StorePallet extends OrgAction
             'notes'              => ['sometimes', 'nullable', 'string', 'max:1024'],
             'created_at'         => ['sometimes', 'date'],
             'received_at'        => ['sometimes', 'nullable', 'date'],
+            'booked_in_at'       => ['sometimes', 'nullable', 'date'],
+            'storing_at'         => ['sometimes', 'nullable', 'date'],
             'source_id'          => ['sometimes', 'nullable', 'string'],
-            'warehouse_id'       => ['required', 'integer',
-                                     Rule::exists('warehouses', 'id')
-                                         ->where('organisation_id', $this->organisation->id),
-                ],
-            'location_id'        => ['sometimes', 'nullable', 'integer',
-                                     Rule::exists('locations', 'id')
-                                         ->where('organisation_id', $this->organisation->id),
-                ],
-            'pallet_delivery_id' => ['sometimes', 'nullable', 'integer',
-                                     Rule::exists('pallet_deliveries', 'id')
-                                         ->where('fulfilment_id', $this->fulfilment->id),
-                ],
+            'warehouse_id'       => [
+                'required',
+                'integer',
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
+            'location_id'        => [
+                'sometimes',
+                'nullable',
+                'integer',
+                Rule::exists('locations', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
+            'pallet_delivery_id' => [
+                'sometimes',
+                'nullable',
+                'integer',
+                Rule::exists('pallet_deliveries', 'id')
+                    ->where('fulfilment_id', $this->fulfilment->id),
+            ],
             'rental_id'          => [
                 'sometimes',
                 'required',

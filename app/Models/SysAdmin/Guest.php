@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property string $slug
- * @property string $alias
+ * @property string $code
  * @property bool $status
  * @property string|null $contact_name
  * @property string|null $company_name
@@ -104,7 +104,7 @@ class Guest extends Model implements HasMedia, Auditable
     }
 
     protected array $auditInclude = [
-        'alias',
+        'code',
         'status',
         'contact_name',
         'company_name',
@@ -119,7 +119,7 @@ class Guest extends Model implements HasMedia, Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('alias')
+            ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->slugsShouldBeNoLongerThan(16)
             ->doNotGenerateSlugsOnUpdate();

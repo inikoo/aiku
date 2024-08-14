@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\Guest\UI;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
-use App\Http\Resources\SysAdmin\GuestResource;
+use App\Http\Resources\SysAdmin\GuestsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -30,7 +30,7 @@ class IndexGuests extends GrpAction
 
     protected function getElementGroups(): array
     {
-        return   [
+        return [
             'status' => [
                 'label'    => __('Status'),
                 'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
@@ -49,7 +49,7 @@ class IndexGuests extends GrpAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('guests.contact_name', $value)
-                    ->orWhereStartWith('guests.alias', $value);
+                    ->orWhereStartWith('guests.code', $value);
             });
         });
 
@@ -76,9 +76,9 @@ class IndexGuests extends GrpAction
         }
 
         return $queryBuilder
-            ->defaultSort('guests.slug')
-            ->select(['guests.id', 'guests.slug', 'guests.contact_name', 'guests.email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
-            ->allowedSorts(['slug', 'contact_name', 'email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
+            ->defaultSort('guests.code')
+            ->select(['guests.id', 'guests.slug', 'guests.code', 'guests.contact_name', 'guests.email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
+            ->allowedSorts(['code', 'contact_name', 'email', 'number_logins', 'last_login_at', 'number_failed_logins', 'last_failed_login_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -111,7 +111,7 @@ class IndexGuests extends GrpAction
                         ] : null
                     ]
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
@@ -119,10 +119,9 @@ class IndexGuests extends GrpAction
     }
 
 
-
     public function jsonResponse(LengthAwarePaginator $guests): AnonymousResourceCollection
     {
-        return GuestResource::collection($guests);
+        return GuestsResource::collection($guests);
     }
 
 
@@ -149,7 +148,7 @@ class IndexGuests extends GrpAction
                         ] : false
                     ]
                 ],
-                'data'        => GuestResource::collection($guests),
+                'data'        => GuestsResource::collection($guests),
             ]
         )->table($this->tableStructure($this->group));
     }
@@ -173,7 +172,7 @@ class IndexGuests extends GrpAction
                         'route' => [
                             'name' => 'grp.sysadmin.guests.index',
                         ],
-                        'label' => __('guests'),
+                        'label' => __('Guests'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

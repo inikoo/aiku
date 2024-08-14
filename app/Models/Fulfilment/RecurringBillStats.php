@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_transactions
  * @property int $number_transactions_type_pallets
  * @property int $number_transactions_type_stored_items
+ * @property int $number_transactions_type_services
+ * @property int $number_transactions_type_products
  * @property int $number_pallets
  * @property int $number_stored_items
  * @property int $number_pallet_deliveries

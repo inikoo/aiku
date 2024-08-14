@@ -107,12 +107,12 @@ class ConsolidateRecurringBill extends OrgAction
         return $this->handle($recurringBill, $this->validatedData);
     }
 
-    public function action(RecurringBill $recurringBill, array $modelData): RecurringBill
+    public function action(RecurringBill $recurringBill): RecurringBill
     {
         $this->asAction = true;
-        $this->initialisationFromFulfilment($recurringBill->fulfilment, $modelData);
+        $this->initialisationFromFulfilment($recurringBill->fulfilment, []);
 
-        return $this->handle($recurringBill, $this->validatedData);
+        return $this->handle($recurringBill);
     }
 
 

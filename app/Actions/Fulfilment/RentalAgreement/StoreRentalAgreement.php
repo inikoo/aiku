@@ -121,7 +121,7 @@ class StoreRentalAgreement extends OrgAction
                     ->where('shop_id', $this->fulfilment->shop_id)
             ],
             'clauses.physical_goods.*.percentage_off' => ['sometimes', 'numeric', 'gt:0'],
-            'state'                                   => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
+            'state'                                   => ['required', Rule::enum(RentalAgreementStateEnum::class)],
             'created_at'                              => ['sometimes', 'date'],
 
         ];
