@@ -62,6 +62,7 @@ class UpdatePallet extends OrgAction
             AutoAssignServicesToPalletDelivery::make()->handle($pallet->palletDelivery, $pallet, $originalType);
         }
         PalletRecordSearch::dispatch($pallet);
+
         return $pallet;
     }
 
@@ -116,6 +117,8 @@ class UpdatePallet extends OrgAction
             'rental_id'          => ['nullable', 'exists:rentals,id'],
             'notes'              => ['nullable', 'string', 'max:1024'],
             'received_at'        => ['nullable', 'nullable', 'date'],
+            'booked_in_at'       => ['sometimes', 'nullable', 'date'],
+            'storing_at'         => ['sometimes', 'nullable', 'date'],
         ];
     }
 
