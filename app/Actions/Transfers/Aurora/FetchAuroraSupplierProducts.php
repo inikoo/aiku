@@ -169,7 +169,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             ->where('Part Status', '!=', 'Not In Use')
             ->where('spp.aiku_ignore', 'No')
             ->where('sd.aiku_ignore', 'No')
-            ->orderBy('source_id');
+            ->orderBy('Supplier Part From');
     }
 
     public function count(): ?int

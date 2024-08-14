@@ -175,7 +175,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
         $query = DB::connection('aurora')
             ->table('Customer Dimension')
             ->select('Customer Key as source_id')
-            ->orderBy('source_id');
+            ->orderBy('Customer First Contacted Date');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
