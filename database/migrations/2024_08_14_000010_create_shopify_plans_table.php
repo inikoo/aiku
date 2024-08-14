@@ -1,20 +1,20 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 14 Aug 2024 11:07:18 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Osiset\ShopifyApp\Util;
 
-class CreatePlansTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+
+    public function up(): void
     {
-        Schema::create(Util::getShopifyConfig('table_names.plans', 'plans'), function (Blueprint $table) {
+        Schema::create('shopify_plans', function (Blueprint $table) {
             $table->increments('id');
 
             // The type of plan, either PlanType::RECURRING (0) or PlanType::ONETIME (1)
@@ -24,10 +24,10 @@ class CreatePlansTable extends Migration
             $table->string('name');
 
             // Price of the plan
-            $table->decimal('price', 8, 2);
+            $table->decimal('price');
 
             // Store the amount of the charge, this helps if you are experimenting with pricing
-            $table->decimal('capped_amount', 8, 2)->nullable();
+            $table->decimal('capped_amount')->nullable();
 
             // Terms for the usage charges
             $table->string('terms')->nullable();
@@ -46,13 +46,9 @@ class CreatePlansTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+
+    public function down(): void
     {
-        Schema::drop(Util::getShopifyConfig('table_names.plans', 'plans'));
+        Schema::drop('shopify_plans');
     }
-}
+};

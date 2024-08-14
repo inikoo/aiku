@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 14 Aug 2024 11:07:40 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -6,16 +11,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Schema;
 use Osiset\ShopifyApp\Util;
 
-class CreateChargesTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+
+    public function up(): void
     {
-        // Thanks to @ncpope of Github.com
         Schema::create(Util::getShopifyConfig('table_names.charges', 'charges'), function (Blueprint $table) {
             $table->increments('id');
 
@@ -40,10 +40,10 @@ class CreateChargesTable extends Migration
             $table->string('type');
 
             // Store the amount of the charge, this helps if you are experimenting with pricing
-            $table->decimal('price', 8, 2);
+            $table->decimal('price');
 
             // Store the amount of the charge, this helps if you are experimenting with pricing
-            $table->decimal('capped_amount', 8, 2)->nullable();
+            $table->decimal('capped_amount')->nullable();
 
             // Nullable in case of 0 trial days
             $table->integer('trial_days')->nullable();
@@ -90,25 +90,17 @@ class CreateChargesTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+
+    public function down(): void
     {
         Schema::drop(Util::getShopifyConfig('table_names.charges', 'charges'));
     }
 
-    /**
-     * Get Laravel version.
-     *
-     * @return float
-     */
-    private function getLaravelVersion()
+
+    private function getLaravelVersion(): float
     {
         $version = Application::VERSION;
 
         return (float) substr($version, 0, strrpos($version, '.'));
     }
-}
+};

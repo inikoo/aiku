@@ -1,33 +1,30 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 14 Aug 2024 11:07:14 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Osiset\ShopifyApp\Util;
 
-class AddThemeSupportLevelToUsersTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+
+
+    public function up(): void
     {
         Schema::table(Util::getShopsTable(), function (Blueprint $table) {
             $table->integer('theme_support_level')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::table(Util::getShopsTable(), function (Blueprint $table) {
             $table->dropColumn('theme_support_level');
         });
     }
-}
+};

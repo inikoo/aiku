@@ -1,11 +1,16 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 14 Aug 2024 11:07:27 Central Indonesia Time, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Osiset\ShopifyApp\Util;
 
-class CreateShopsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,7 +21,7 @@ class CreateShopsTable extends Migration
     {
         Schema::table(Util::getShopsTable(), function (Blueprint $table) {
             $table->boolean('shopify_grandfathered')->default(false);
-            $table->string('shopify_namespace')->nullable(true)->default(null);
+            $table->string('shopify_namespace')->nullable()->default(null);
             $table->boolean('shopify_freemium')->default(false);
             $table->integer('plan_id')->unsigned()->nullable();
 
@@ -62,4 +67,4 @@ class CreateShopsTable extends Migration
             $table->dropSoftDeletes();
         });
     }
-}
+};
