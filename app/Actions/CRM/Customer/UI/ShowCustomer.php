@@ -154,6 +154,19 @@ class ShowCustomer extends OrgAction
                                     'customer' => $customer->id
                                 ]
                             ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('store shopify product'),
+                            'label'   => __('store shopify product'),
+                            'route'   => [
+                                'name'       => 'grp.models.customer.shopify_user.product.store',
+                                'parameters' => [
+                                    'customer'    => $customer->id,
+                                    'shopifyUser' => $customer->shopifyUser?->id
+                                ]
+                            ]
                         ]
                     ],
                     'subNavigation' => $subNavigation,

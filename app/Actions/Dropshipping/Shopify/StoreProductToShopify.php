@@ -7,35 +7,35 @@
 
 namespace App\Actions\Dropshipping\Shopify;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\CRM\Customer;
+use App\Models\Dropshipping\ShopifyUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Shopify\Clients\Rest;
 
-class StoreProduct
+class StoreProductToShopify extends OrgAction
 {
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
 
     /**
-     * @throws \Shopify\Exception\UninitializedContextException
-     * @throws \Psr\Http\Client\ClientExceptionInterface
-     * @throws \JsonException
+     * @throws \Exception
      */
-    public function handle(): array|string|null
+    public function handle(ShopifyUser $shopifyUser): \GuzzleHttp\Promise\PromiseInterface
     {
-        /** @var Rest $client */
-        $client = ConnectToShopify::run();
-
         $body = [
             "product" => [
                 "title" => "product title"
             ]
         ];
 
-        $product = $client->post('products', $body);
+        return $shopifyUser->api()->getRestClient()->request('POST', '/admin/api/2024-04/products.json', $body);
+    }
 
-        return $product->getDecodedBody();
+    public function asController(Customer $customer, ShopifyUser $shopifyUser): \GuzzleHttp\Promise\PromiseInterface
+    {
+        return $this->handle($shopifyUser);
     }
 }

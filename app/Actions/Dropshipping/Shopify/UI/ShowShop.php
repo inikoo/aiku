@@ -7,7 +7,6 @@
 
 namespace App\Actions\Dropshipping\Shopify\UI;
 
-use App\Actions\Dropshipping\Shopify\ConnectToShopify;
 use App\Actions\Traits\WithActionUpdate;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -27,8 +26,6 @@ class ShowShop
     public function handle(): array|string|null
     {
         /** @var Rest $client */
-        $client = ConnectToShopify::run();
-
         $shop = $client->get('shop');
 
         return $shop->getDecodedBody();

@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Dropshipping\Shopify\GetProductForShopify;
 use Osiset\ShopifyApp\Http\Controllers\AuthController;
 use App\Actions\UI\Shopify\Dashboard\ShowDashboard;
 
@@ -19,6 +20,8 @@ Route::middleware(['verify.shopify'])->group(function () {
 
 
 Route::get('/shopifytest', ShowDashboard::class)->name('home');
+
+Route::get('/products', GetProductForShopify::class)->name('products');
 
 Route::match(
     ['GET', 'POST'],

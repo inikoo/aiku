@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Dropshipping\Shopify\ConnectToShopify;
 use App\Actions\UI\Notification\IndexNotification;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +82,3 @@ Route::middleware(["auth"])->group(function () {
 
 });
 require __DIR__."/auth.php";
-
-
-Route::get('/shopify/callback', [ConnectToShopify::class, 'asCallback'])->name('shopify');
