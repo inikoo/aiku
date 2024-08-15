@@ -9,9 +9,15 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import Rating from 'primevue/rating'
 import { FilterMatchMode } from '@primevue/core/api';
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useLocaleStore } from '@/Stores/locale'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { routeType } from '@/types/route'
+import axios from 'axios'
+
+const props = defineProps<{
+    productsRoute: routeType 
+}>()
 
 const locale = useLocaleStore()
 
@@ -182,6 +188,17 @@ const getStatusLabel = (status) => {
             return null;
     }
 }
+
+const realProducts = ref([])
+onMounted(async () => {
+    try {
+        const {data} = await axios.get(route(props.productsRoute.name, props.productsRoute.parameters))
+        realProducts.value = data.data
+        console.log('aaa', realProducts.value)
+    } catch (error) {
+        console.log('error', error)
+    }
+})
 </script>
 
 <template>
@@ -224,10 +241,10 @@ const getStatusLabel = (status) => {
                 </Column>
             </DataTable> -->
 
-            <DataTable ref="dt" v-model:selection="selectedProducts" :value="dummyProduct" dataKey="id" :paginator="true"
-                :rows="10" :filters="filters"
+            <DataTable ref="dt" v-model:selection="selectedProducts" :value="realProducts" dataKey="id" :paginator="true"
+                :rows="20" :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                :rowsPerPageOptions="[5, 10, 25]"
+                :rowsPerPageOptions="[5, 10, 20]"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
@@ -243,13 +260,15 @@ const getStatusLabel = (status) => {
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
 
-                <Column field="code" header="Code" sortable style="min-width: 12rem"></Column>
+                <Column field="code" header="Code" sortable style="min-width: 12rem">
+                
+                </Column>
 
                 <Column field="name" header="Name" sortable style="min-width: 16rem"></Column>
 
                 <Column header="Image">
                     <template #body="slotProps">
-                        <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`"
+                        <img :src="`https://primefaces.org/cdn/primevue/images/product/bracelet.jpg`"
                             :alt="slotProps.data.image" class="rounded" style="width: 64px" />
                     </template>
                 </Column>
@@ -260,7 +279,7 @@ const getStatusLabel = (status) => {
                     </template>
                 </Column>
 
-                <Column field="category" header="Category" sortable style="min-width: 10rem"></Column>
+                <!-- <Column field="category" header="Category" sortable style="min-width: 10rem"></Column> -->
 
                 <Column field="rating" header="Reviews" sortable style="min-width: 12rem">
                     <template #body="slotProps">
@@ -268,9 +287,9 @@ const getStatusLabel = (status) => {
                     </template>
                 </Column>
 
-                <Column field="inventoryStatus" header="Status" style="min-width: 12rem">
+                <Column field="state" header="State" style="min-width: 8rem">
                     <template #body="slotProps">
-                        <Tag :value="slotProps.data.inventoryStatus"
+                        <Tag :value="slotProps.data.state"
                             :severity="getStatusLabel(slotProps.data.inventoryStatus)" />
                     </template>
                 </Column>

@@ -21,8 +21,14 @@ class ShowDashboard
 
     public function asController(ActionRequest $request): Response
     {
-
-        return Inertia::render('Dashboard/ShopifyDashboard');
+        return Inertia::render('Dashboard/ShopifyDashboard', [
+            'productsRoute' => [
+                'name'       => 'shopify.products',
+                'parameters' => [
+                    'shop' => 'aikuu.myshopify.com'
+                ]
+            ]
+        ]);
     }
 
     // public function getBreadcrumbs($label = null): array

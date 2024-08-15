@@ -37,7 +37,6 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
-use App\Actions\Dropshipping\Shopify\ConnectToShopify;
 use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
@@ -180,8 +179,6 @@ Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name
 Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
 
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
-
-Route::post('shop/{shop}/platform/shopify/connect', ConnectToShopify::class)->name('shopify.connect');
 
 Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::patch('', UpdateEmployee::class)->name('update');
@@ -506,6 +503,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
     Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
+    Route::get('shopify-user/{shopifyUser:id}/product', \App\Actions\Dropshipping\Shopify\StoreProductToShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
     Route::post('payment/{paymentAccount:id}/{invoice:id}', StorePayment::class)->name('payment.store')->withoutScopedBindings();
 });
 
