@@ -43,6 +43,17 @@ class IndexOrgStocks extends OrgAction
         return $this->handle(parent: $organisation);
     }
 
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'all';
+        $this->maya   = true;
+        $this->initialisation($organisation, $request);
+        $this->parent = $organisation;
+
+        return $this->handle(parent: $organisation);
+    }
+
+
     public function current(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'current';
@@ -296,10 +307,10 @@ class IndexOrgStocks extends OrgAction
         $subNavigation = $this->getOrgStocksSubNavigation();
 
 
-        $title=__("SKUs");
+        $title = __("SKUs");
 
-        if($this->bucket=='current') {
-            $title=__('Current SKUs');
+        if ($this->bucket == 'current') {
+            $title = __('Current SKUs');
         }
 
 

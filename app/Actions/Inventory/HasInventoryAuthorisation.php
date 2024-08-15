@@ -13,6 +13,7 @@ trait HasInventoryAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {
+
         $this->canEdit=$request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
         return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
     }
