@@ -151,7 +151,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            HandleShopifyInertiaRequests::class,
+            // HandleShopifyInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class
         ],
 
