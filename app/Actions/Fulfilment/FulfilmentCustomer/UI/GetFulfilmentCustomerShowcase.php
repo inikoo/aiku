@@ -136,6 +136,10 @@ class GetFulfilmentCustomerShowcase
                     ]
                 ]
             ],
+            'balance'       => [
+                'current'               => $fulfilmentCustomer->customer->balance,
+                'credit_transactions'   => $fulfilmentCustomer->customer->stats->number_credit_transactions
+            ],
             'recurring_bill'               => $recurringBillData,
             'updateRoute'                  => [
                 'name'       => 'grp.models.fulfilment-customer.update',
