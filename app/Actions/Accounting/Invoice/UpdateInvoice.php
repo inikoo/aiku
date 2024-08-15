@@ -66,6 +66,7 @@ class UpdateInvoice extends OrgAction
             'currency_id'      => ['sometimes', 'required', 'exists:currencies,id'],
             'net_amount'       => ['sometimes', 'required', 'numeric'],
             'total_amount'     => ['sometimes', 'required', 'numeric'],
+            'payment_amount'   => ['sometimes', 'numeric'],
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
