@@ -11,7 +11,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
-use App\Models\Ordering\Platform;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,7 +29,6 @@ class StoreShopifyUser extends OrgAction
         data_set($modelData, 'username', Str::random(4));
         data_set($modelData, 'password', Str::random(8));
 
-        /** @var \App\Models\ShopifyUser $shopifyUser */
         $customer->shopifyUser()->create($modelData);
         // $shopifyUser->api()->getRestClient()->request('GET', '/admin/products', []);
         /*$webUser->customer->platforms()->attach([
