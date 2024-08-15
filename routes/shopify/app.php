@@ -16,6 +16,10 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('/', ShowDashboard::class)->name('home');
 });
 
+
+
+Route::get('/shopifytest', ShowDashboard::class)->name('home');
+
 Route::match(
     ['GET', 'POST'],
     '/authenticate',
