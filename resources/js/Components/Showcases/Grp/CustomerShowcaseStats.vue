@@ -85,7 +85,8 @@ const props = defineProps<{
         <!-- Box: Pallet Deliveries -->
         <div class="flex  justify-between px-4 py-5 sm:p-6 rounded-lg bg-white border border-gray-300 tabular-nums">
             <div class="">
-                <dt class="text-base font-medium text-gray-400 capitalize">{{ stats.pallet_deliveries.label }}
+                <dt class="text-base font-medium text-gray-400 capitalize">
+                    {{ stats.pallet_deliveries.label }}
                 </dt>
                 <dd class="mt-2 flex justify-between gap-x-2">
                     <div

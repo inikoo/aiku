@@ -2,7 +2,7 @@
 
 @section('content')
     <!-- You are: (shop domain name) -->
-    <p>You are: {{ $shopDomain ?? Auth::user()->name }}</p>
+    <p>You are: Blade {{ $shopDomain ?? Auth::user()->name }}</p>
 @endsection
 
 @section('scripts')

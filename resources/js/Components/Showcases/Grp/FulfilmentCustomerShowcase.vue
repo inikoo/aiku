@@ -23,16 +23,23 @@ import Tag from '@/Components/Tag.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink, faLongArrowRight } from '@far'
+import { faWallet } from '@fal'
 import { faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard } from '@fal'
 import Modal from '@/Components/Utils/Modal.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
+import CountUp from 'vue-countup-v3'
+library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
     data: {
         addresses: AddressManagement
         address_update_route: routeType
+        balance: {
+            current: number
+            credit_transactions: number
+        }
+        currency_code: string
         // customer: PalletCustomer
         fulfilment_customer: {
             radioTabs: {
@@ -186,7 +193,7 @@ const isModalAddress = ref(false)
                                                     <div @click="() => isModalAddress = true"
                                                         class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                                                         <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
-                                                        <span>Edit</span>
+                                                        <span>{{ trans('Edit') }}</span>
                                                     </div>
                                                 </div>
                                             </dd>
@@ -211,6 +218,36 @@ const isModalAddress = ref(false)
 
         <!-- Section: -->
         <div class="w-full space-y-4">
+            <div class="bg-gradient-to-tr from-blue-500 to-sky-300 text-white flex flex-col justify-between px-4 py-5 sm:p-6 rounded-lg tabular-nums">
+                <div class="w-full flex justify-between items-center">
+                    <div class="">
+                        <div class="text-base capitalize">
+                            Current balance
+                        </div>
+                        <div class="text-xs text-white/60">
+                            {{ useFormatTime(new Date()) }}
+                        </div>
+                    </div>
+
+                    <div class="rounded-md text-white/70 flex items-center justify-center">
+                        <FontAwesomeIcon icon='fal fa-wallet' class='text-4xl' fixed-width aria-hidden='true' />
+                    </div>
+                </div>
+
+                <div class="mt-8 fflex flex-col gap-x-2 gap-y-3 leading-none items-baseline text-2xl font-semibold text-org-500">
+                    <!-- In Total -->
+                    <div class="flex flex-col gap-y-1">
+                        <CountUp :endVal="data.balance.current" :duration="1.5" :scrollSpyOnce="true"
+                            :options="{
+                                formattingFn: (value: number) => locale.currencyFormat(data.currency_code, value)
+                            }" />
+                        <div class="text-white/60 text-sm leading-4">
+                            {{data.balance.credit_transactions}} credit transactions
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
             
             <div class="border-t border-gray-200 pt-4 w-full max-w-full">

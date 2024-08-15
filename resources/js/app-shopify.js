@@ -17,6 +17,8 @@ import * as Sentry from '@sentry/vue';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import Layout from '@/Layouts/Shopify.vue'
+import PrimeVue from 'primevue/config';
+import Aura from '@primevue/themes/aura';
 
 const appName = trans('Shopify') || window.document.getElementsByTagName('title')[0]?.innerText;
 
@@ -51,6 +53,14 @@ createInertiaApp(
             .use(ZiggyVue, Ziggy)
             .use(Notifications)
             .use(FloatingVue)
+            .use(PrimeVue, {
+              theme: {
+                preset: Aura,
+                options: {
+                  darkModeSelector: '.my-primevue-dark',  // dark mode of Primevue depends .my-add-dark in <html>
+                }
+              }
+            })
             .use(i18nVue, {
               resolve: async (lang) => {
                 const languages = import.meta.glob(
