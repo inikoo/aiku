@@ -165,6 +165,11 @@ const onSubmitPayment = () => {
                         text: 'Successfully add payment invoice',
                         type: 'success',
                     })
+                },
+                onSuccess: () => {
+                    paymentData.value.payment_method = null,
+                    paymentData.value.payment_amount = 0,
+                    paymentData.value.payment_reference = ''
                 }
             }
         )
