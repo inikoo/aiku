@@ -130,8 +130,9 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
+            ->generateSlugsFrom('name')
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+            ->saveSlugsTo('slug');
     }
 
     public function webUser(): BelongsTo

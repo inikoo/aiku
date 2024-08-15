@@ -37,6 +37,7 @@ use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Dropshipping\Shopify\ConnectToShopify;
+use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
@@ -503,6 +504,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('address', AddDeliveryAddressToCustomer::class)->name('address.store');
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
+    Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

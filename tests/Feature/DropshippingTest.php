@@ -31,10 +31,8 @@ use App\Models\Ordering\Platform;
 use App\Models\PlatformStats;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\getJson;
 
 beforeAll(function () {
     loadDB();

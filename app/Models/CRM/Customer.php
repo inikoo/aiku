@@ -29,6 +29,7 @@ use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Platform;
 use App\Models\Ordering\Transaction;
+use App\Models\ShopifyUser;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -373,5 +374,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function topUps(): HasMany
     {
         return $this->hasMany(TopUp::class);
+    }
+
+    public function shopifyUser(): HasOne
+    {
+        return $this->hasOne(ShopifyUser::class);
     }
 }

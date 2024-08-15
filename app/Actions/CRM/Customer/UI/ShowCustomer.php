@@ -142,6 +142,19 @@ class ShowCustomer extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('Create shopify user'),
+                            'label'   => __('Create shopify user'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.customer.shopify_user.store',
+                                'parameters' => [
+                                    'customer' => $customer->id
+                                ]
+                            ]
+                        ]
                     ],
                     'subNavigation' => $subNavigation,
                 ],

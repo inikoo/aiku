@@ -14,10 +14,9 @@ return new class () extends Migration {
         Schema::create('shopify_users', function (Blueprint $table) {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
-            $table->unsignedSmallInteger('web_user_id')->index();
-            $table->foreign('web_user_id')->references('id')->on('web_users');
+            $table->unsignedSmallInteger('customer_id')->index();
+            $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('type')->index();
             $table->boolean('status')->default(true)->index();
             $table->string('name')->index();
             $table->boolean('shopify_grandfathered')->default(false);

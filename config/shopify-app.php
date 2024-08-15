@@ -44,7 +44,7 @@ return [
     |
     */
 
-    'manual_routes' => env('SHOPIFY_MANUAL_ROUTES', false),
+    'manual_routes' => env('SHOPIFY_MANUAL_ROUTES', 'home,authenticate,authenticate.token'),
 
     /*
     |--------------------------------------------------------------------------
@@ -57,9 +57,9 @@ return [
     */
 
     'route_names' => [
-        'home'                 => env('SHOPIFY_ROUTE_NAME_HOME', 'retina.shopify.home'),
-        'authenticate'         => env('SHOPIFY_ROUTE_NAME_AUTHENTICATE', 'authenticate'),
-        'authenticate.token'   => env('SHOPIFY_ROUTE_NAME_AUTHENTICATE_TOKEN', 'authenticate.token'),
+        'home'                 => env('SHOPIFY_ROUTE_NAME_HOME', 'shopify.home'),
+        'authenticate'         => env('SHOPIFY_ROUTE_NAME_AUTHENTICATE', 'shopify.authenticate'),
+        'authenticate.token'   => env('SHOPIFY_ROUTE_NAME_AUTHENTICATE_TOKEN', 'shopify.authenticate.token'),
         'billing'              => env('SHOPIFY_ROUTE_NAME_BILLING', 'billing'),
         'billing.process'      => env('SHOPIFY_ROUTE_NAME_BILLING_PROCESS', 'billing.process'),
         'billing.usage_charge' => env('SHOPIFY_ROUTE_NAME_BILLING_USAGE_CHARGE', 'billing.usage_charge'),

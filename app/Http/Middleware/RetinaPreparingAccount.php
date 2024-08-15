@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,7 +11,7 @@ class RetinaPreparingAccount
 {
     public function handle(Request $request, Closure $next)
     {
-        if($request->user() && is_null($request->user()?->customer?->fulfilmentCustomer?->rentalAgreement)) {
+        if($request->get('website')->type === WebsiteTypeEnum::FULFILMENT->value && $request->user() && is_null($request->user()?->customer?->fulfilmentCustomer?->rentalAgreement)) {
             return Inertia::render('Errors/ErrorInApp', [
                 'error' => [
                     'code'        => 403,

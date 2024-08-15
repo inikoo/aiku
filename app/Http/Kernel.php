@@ -143,7 +143,15 @@ class Kernel extends HttpKernel
             HandleRetinaInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class
         ],
-
+        'shopify'      => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            AddLinkHeadersForPreloadedAssets::class
+        ],
 
         //==== Other Middleware Groups
         'horizon'     => [
