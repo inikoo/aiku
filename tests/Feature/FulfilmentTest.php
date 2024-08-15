@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
+use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -61,6 +62,8 @@ use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Enums\Accounting\Payment\PaymentStateEnum;
+use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -77,6 +80,7 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -1928,12 +1932,13 @@ test('create second pallet return', function (PalletDelivery $palletDelivery) {
 })->depends('set fifth pallet delivery as booked in');
 
 test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
+
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/storeditemtest.xlsx');
-    $file     = new UploadedFile($filePath, 'storeditemtest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/storedItemSpreadsheet.xlsx');
+    $file     = new UploadedFile($filePath, 'storedItemSpreadsheet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
@@ -1944,7 +1949,7 @@ test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
     expect($palletReturn->storedItems()->count())->toBe(2);
 
     return $palletReturn;
-})->depends('create second pallet return')->todo()->comment('please fix this ASAP');
+})->depends('create second pallet return');
 
 
 test('hydrate fulfilment command', function () {
@@ -2204,6 +2209,7 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
     $fulfilmentCustomer->refresh();
     $fulfilmentCustomer->currentRecurringBill->refresh();
     $recurringBillTransaction->refresh();
+    
     expect($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
         ->and($rentalAgreement->clauses->first()->percentage_off)->toEqualWithDelta(30, .001)
@@ -2227,4 +2233,148 @@ test('check invoice transactions length', function ($fulfilmentCustomer) {
 
     expect(count($queryData))->tobe(2);
 
+    return $invoice;
+
 })->depends('update third rental agreement cause');
+
+test('pay invoice (full)', function ($invoice) {
+    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
+    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+        'amount' => 382,
+        'status' => PaymentStatusEnum::SUCCESS->value,
+        'state'  => PaymentStateEnum::COMPLETED->value
+    ]);
+    $invoice->refresh();
+
+    expect($invoice->total_amount)->tobe($invoice->payment_amount);
+
+    expect($payment)->toBeInstanceOf(Payment::class)
+        ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
+        ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
+
+    return $fulfilmentCustomer;
+
+})->depends('check invoice transactions length');
+
+test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
+    $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    ConsolidateRecurringBill::make()->action($recurringBill);
+
+    $recurringBill->refresh();
+    $fulfilmentCustomer->refresh();
+
+    $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    expect($newRecurringBill)->not->toBe($recurringBill)
+        ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
+        ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
+        ->and($newRecurringBill->transactions()->count())->toBe(2);
+
+    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($recurringBill->invoices)->not->toBeNull()
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
+
+    expect($fulfilmentCustomer->recurringBills()->count())->toBe(3);
+
+    $invoice = $recurringBill->invoices;
+
+    return $invoice;
+
+})->depends('pay invoice (full)');
+
+test('pay invoice (half)', function ($invoice) {
+    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
+    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+        'amount' => 70,
+        'status' => PaymentStatusEnum::SUCCESS->value,
+        'state'  => PaymentStateEnum::COMPLETED->value
+    ]);
+    $invoice->refresh();
+
+    expect($invoice->total_amount)->not->tobe($invoice->payment_amount);
+
+    expect($payment)->toBeInstanceOf(Payment::class)
+        ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
+        ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
+
+    return $invoice;
+
+})->depends('consolidate 2nd recurring bill');
+
+test('pay invoice (other half)', function ($invoice) {
+    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
+    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+        'amount' => 70,
+        'status' => PaymentStatusEnum::SUCCESS->value,
+        'state'  => PaymentStateEnum::COMPLETED->value
+    ]);
+    $invoice->refresh();
+
+    expect($invoice->total_amount)->toBe($invoice->payment_amount);
+
+    expect($payment)->toBeInstanceOf(Payment::class)
+        ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
+        ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
+
+    return $fulfilmentCustomer;
+
+})->depends('pay invoice (half)');
+
+test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
+    $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    ConsolidateRecurringBill::make()->action($recurringBill);
+
+    $recurringBill->refresh();
+    $fulfilmentCustomer->refresh();
+
+    $newRecurringBill = $fulfilmentCustomer->currentRecurringBill;
+
+    expect($newRecurringBill)->not->toBe($recurringBill)
+        ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
+        ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
+        ->and($newRecurringBill->transactions()->count())->toBe(2);
+
+    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($recurringBill->invoices)->not->toBeNull()
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
+
+    expect($fulfilmentCustomer->recurringBills()->count())->toBe(4);
+
+    $invoice = $recurringBill->invoices;
+
+    return $invoice;
+
+})->depends('pay invoice (other half)');
+
+test('pay invoice (exceed)', function ($invoice) {
+    $customer = $invoice->customer;
+    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
+    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+        'amount' => 200,
+        'status' => PaymentStatusEnum::SUCCESS->value,
+        'state'  => PaymentStateEnum::COMPLETED->value
+    ]);
+    $invoice->refresh();
+    $customer->refresh();
+
+    expect($invoice->total_amount)->toBe($invoice->payment_amount);
+
+    expect($payment)->toBeInstanceOf(Payment::class)
+        ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
+        ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
+
+    expect($customer->creditTransactions)->not->toBeNull()
+        ->and($customer->balance)->toBe("60.00")
+        ->and($customer->creditTransactions->first()->amount)->toBe("60.00");
+
+    return $fulfilmentCustomer;
+
+})->depends('consolidate 3rd recurring bill');
+
+

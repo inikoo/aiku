@@ -36,15 +36,27 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
 
     public function storeModel($row, $uploadRecord): void
     {
-        $fields =
-            array_merge(
-                array_keys(
-                    $this->rules()
-                )
-            );
+        $fields = array_keys($this->rules());
+        $rowData = $row->only($fields)->toArray();
 
-        $modelData = [$row->only($fields)->all()];
+        $storedItemsArray = explode(',', trim($rowData['stored_items'], '[]'));
+        $quantitiesArray = explode(',', trim($rowData['quantity'], '[]'));
 
+        $storedItemsData = [];
+
+        foreach ($storedItemsArray as $index => $itemId) {
+            $itemId = (int) $itemId;
+            $quantity = isset($quantitiesArray[$index]) ? (int) $quantitiesArray[$index] : 0;
+
+            $storedItemsData[$itemId] = [
+                'quantity' => $quantity
+            ];
+        }
+
+        $modelData = [
+            'stored_items' => $storedItemsData
+        ];
+        
         if(!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
         }
@@ -87,10 +99,8 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
     public function rules(): array
     {
         return [
-            'pallet'             => ['required'],
-            'stored_item'        => ['required'],
-            'pallet_stored_item' => ['required'],
-            'quantity'           => ['required']
+            'stored_items' => ['required'],
+            'quantity'     => ['required']
         ];
     }
 }
