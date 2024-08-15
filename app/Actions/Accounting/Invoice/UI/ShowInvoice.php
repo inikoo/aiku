@@ -188,6 +188,14 @@ class ShowInvoice extends OrgAction
                     'customer' => [
                         'slug'         => $invoice->customer->slug,
                         'reference'    => $invoice->customer->reference,
+                        'route'        => [
+                            'name'         => 'grp.org.fulfilments.show.crm.customers.show',
+                            'parameters'   => [
+                                'organisation'      => $invoice->organisation->slug,
+                                'fulfilment'        => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                                'fulfilmentCustomer'=> $invoice->customer->fulfilmentCustomer->slug,
+                            ]
+                        ],
                         'contact_name' => $invoice->customer->contact_name,
                         'company_name' => $invoice->customer->company_name,
                         'location'     => $invoice->customer->location,

@@ -31,7 +31,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faIdCardAlt, faMapMarkedAlt, faPhone, faChartLine, faCreditCard, faCube, faFolder, faPercent, faCalendarAlt, faDollarSign, faMapMarkerAlt, faPencil } from '@fal'
 import { faClock, faFileInvoice, faFilePdf } from '@fas'
-library.add(faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
+import { faCheck } from '@far'
+library.add(faCheck, faIdCardAlt, faMapMarkedAlt, faPhone, faFolder, faCube, faChartLine, faCreditCard, faClock, faFileInvoice, faPercent, faCalendarAlt, faDollarSign, faFilePdf, faMapMarkerAlt, faPencil)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -67,6 +68,7 @@ const props = defineProps<{
         customer: {
             company_name: string
             contact_name: string
+            route: routeType
             location: string[]
             phone: string
             reference: string
@@ -205,14 +207,14 @@ watch(paymentData, () => {
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
 
             <!-- Field: Registration Number -->
-            <Link as="a" v-if="box_stats?.customer.reference" :href="'#'"
+            <Link as="a" v-if="box_stats?.customer.reference" :href="route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)"
                 class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
-            <dt v-tooltip="'Company name'" class="flex-none">
-                <span class="sr-only">Registration number</span>
-                <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
-                    aria-hidden='true' />
-            </dt>
-            <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Registration number</span>
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -304,6 +306,7 @@ watch(paymentData, () => {
                         {{ box_stats.information.recurring_bill?.reference || '-' }} 
                     </component>
                 </div>
+
                 <div v-tooltip="'Invoice created'"
                     class="flex items-center w-full flex-none gap-x-2">
                     <dt class="flex-none">
@@ -314,13 +317,27 @@ watch(paymentData, () => {
                     </dd>
                 </div>
 
-                <div class="flex items-start w-full flex-none gap-x-2">
+                <div class="relative flex items-start w-full flex-none gap-x-2">
                     <dt class="flex-none pt-1">
                         <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
-                    <dd @click="() => (isOpenModalPayment = true, fetchPaymentMethod())"
-                        class="cursor-pointer hover:bg-gray-100 w-full flex flex-col border px-2.5 py-1 rounded-md border-gray-300">
-                        <div v-tooltip="'Amount need to pay by customer'" class="text-sm">
+                    <dd @click="() => Number(box_stats.information.pay_amount) > 0 ? (isOpenModalPayment = true, fetchPaymentMethod()) : false"
+                        class="relative w-full flex flex-col border px-2.5 py-1 rounded-md border-gray-300 overflow-hidden"
+                        :class="Number(box_stats.information.pay_amount) > 0 ? 'cursor-pointer hover:bg-gray-100' : ''"    
+                    >
+                        <!-- Block: Corner label (fully paid) -->
+                        <Transition>
+                            <div v-if="Number(box_stats.information.pay_amount) <= 0"
+                                v-tooltip="trans('Fully paid')"
+                                class="absolute top-0 right-0 text-green-500 p-1 text-xxs"
+                            >
+                                <div class="absolute top-0 right-0 w-0 h-0 border-b-[25px] border-r-[25px] border-transparent border-r-green-500">
+                                </div>
+                                <FontAwesomeIcon icon='far fa-check' class='absolute top-1/2 right-1/2 text-white text-[8px]' fixed-width aria-hidden='true' />
+                            </div>
+                        </Transition>
+
+                        <div v-tooltip="'Amount need to pay by customer'" class="text-sm w-fit">
                             {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(props.invoice.total_amount)) }}
                         </div>
                         <div class="text-xs text-gray-500 font-light">Paid: {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(box_stats.information.paid_amount)) }}</div>
