@@ -16,12 +16,12 @@ return new class () extends Migration {
             $table->unsignedInteger('payment_id');
             $table->foreign('payment_id')->references('id')->on('payments');
             $table->string('model_type');
-            $table->unsignedInteger('model_type_id');
+            $table->unsignedInteger('model_id');
             $table->decimal('amount', 12);
             $table->float('share')->default(1);
             $table->timestampsTz();
-            $table->index(['model_type','model_type_id']);
-            $table->unique(['payment_id','model_type','model_type_id']);
+            $table->index(['model_type','model_id']);
+            $table->unique(['payment_id','model_type','model_id']);
         });
     }
 
