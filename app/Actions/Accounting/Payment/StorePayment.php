@@ -94,7 +94,7 @@ class StorePayment extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("accounting.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
