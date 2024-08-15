@@ -11,11 +11,9 @@ import { usePage } from "@inertiajs/vue3"
 
 <template>
     <div class="fixed inset-0 bg-slate-100" />
-    <div>Hello From Layout Shopify</div>
+    <!-- <div>Hello From Layout Shopify</div> -->
 
     <div class="isolate relative min-h-full transition-all">
-
-
 
         <!-- Main Content -->
         <main class="h-screen pb-10 transition-all pl-2 md:pl-0 pr-2 ">

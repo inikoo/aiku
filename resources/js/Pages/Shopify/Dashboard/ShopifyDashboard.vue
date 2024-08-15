@@ -203,43 +203,10 @@ onMounted(async () => {
 
 <template>
     <div class="p-8">
-        <h1>Hello from Vue Dashboard!</h1>
+        <!-- <h1>Hello from Vue Dashboard!</h1> -->
 
+        <h4 class="font-bold text-2xl mb-3">Select products</h4>
         <div class="overflow-hidden rounded-2xl border border-gray-300">
-            <!-- <DataTable :value="products" stripedRows showGridlines removableSort tableStyle="min-width: 50rem">
-                <Column field="image" class="overflow-hidden transition-all w-32" header="Image">
-                    <template #body="{ data }">
-                        <div class="relative flex justify-center">
-                            <img :src="data.imageSrc" class="h-24 w-auto" />
-                        </div>
-                    </template>
-                </Column>
-
-                <Column field="name" sortable class="overflow-hidden transition-all" header="Name"
-                    headerStyle="text-align: green; width: 250px" headerClass="bg-red-500">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.name">
-                                    {{ data.name }}
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
-                <Column field="price" sortable class="overflow-hidden transition-all" header="Price"
-                    headerStyle="text-align: green; width: 250px" headerClass="bg-red-500">
-                    <template #body="{ data }">
-                        <div class="flex justify-end relative">
-                            <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.price">
-                                    {{ data.price }}
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                </Column>
-            </DataTable> -->
 
             <DataTable ref="dt" v-model:selection="selectedProducts" :value="realProducts" dataKey="id" :paginator="true"
                 :rows="20" :filters="filters"
@@ -248,7 +215,6 @@ onMounted(async () => {
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Manage Products</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
