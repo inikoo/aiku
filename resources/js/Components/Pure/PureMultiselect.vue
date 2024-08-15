@@ -50,7 +50,7 @@ const onInput = (keyOption : any) => {
             :canDeselect="!required"
             :hideSelected="false"
             :clearOnBlur
-            :object="object"
+            :object
             :searchable="!!searchable"
             :caret="isLoading ? false : caret ?? true"
             :label="label"

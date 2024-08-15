@@ -10,7 +10,7 @@ import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { Link } from '@inertiajs/vue3'
 
-import { computed, defineAsyncComponent, inject, ref } from "vue"
+import { computed, defineAsyncComponent, inject, ref, watch } from "vue"
 import type { Component } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import AddressSelector from "@/Components/DataDisplay/AddressSelector.vue"
@@ -49,6 +49,8 @@ import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import { InvoiceResource } from '@/types/invoice'
+import axios from 'axios'
+import { notify } from '@kyvg/vue3-notification'
 // const locale = useLocaleStore()
 const locale = inject('locale', {})
 
@@ -76,7 +78,8 @@ const props = defineProps<{
                 route: routeType
             }
             routes: {
-                payment_accounts: routeType
+                fetch_payment_accounts: routeType
+                submit_payment: routeType
             }
             paid_amount: number | null
             pay_amount: number | null
@@ -92,6 +95,7 @@ const props = defineProps<{
     history: {}
 }>()
 
+console.log('qwe', props.box_stats)
 
 const currentTab = ref<string>(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -107,42 +111,72 @@ const component = computed(() => {
     return components[currentTab.value]
 })
 
-const boxFieldDetail = [
-    {
-        icon: 'fal fa-receipt',
-        label: 'xxxdd',
-        tooltip: 'Recurring bill'
-    },
-    {
-        icon: 'fal fa-calendar-alt',
-        label: useFormatTime(props.invoice.date),
-        tooltip: 'Invoice created'
-    },
-]
+
 
 // Section: Payment invoice
+const listPaymentMethod = ref([])
+const isLoadingFetch = ref(false)
+const fetchPaymentMethod = async () => {
+    try {
+        isLoadingFetch.value = true
+        const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
+        listPaymentMethod.value = data.data
+        console.log('opop', listPaymentMethod.value)
+    } catch (error) {
+        notify({
+            title: trans('Something went wrong'),
+            text: trans('Failed to fetch payment method list'),
+            type: 'error',
+        })
+    }
+    finally {
+        isLoadingFetch.value = false
+    }
+}
+
 const paymentData = ref({
-    payment_method: '',
+    payment_method: null as number | null,
     payment_amount: 0 as number | null,
     payment_reference: ''
 })
 const isOpenModalPayment = ref(false)
 const isLoadingPayment = ref(false)
+const errorPaymentMethod = ref<null | unknown>(null)
 const onSubmitPayment = () => {
     try {
-        router.post('xxxx',
+        router[props.box_stats.information.routes.submit_payment.method || 'post'](
+            route(props.box_stats.information.routes.submit_payment.name, {
+                ...props.box_stats.information.routes.submit_payment.parameters,
+                paymentAccount: paymentData.value.payment_method
+            }),
             {
-
+                amount: paymentData.value.payment_amount,
+                reference: paymentData.value.payment_reference
             },
             {
                 onStart: () => isLoadingPayment.value = true,
-                onFinish: () => isLoadingPayment.value = false
+                onFinish: () => {
+                    isLoadingPayment.value = false,
+                    isOpenModalPayment.value = false,
+                    notify({
+                        title: trans('Success'),
+                        text: 'Successfully add payment invoice',
+                        type: 'success',
+                    })
+                }
             }
         )
-    } catch (error) {
         
+    } catch (error: unknown) {
+        errorPaymentMethod.value = error
     }
 }
+
+watch(paymentData, () => {
+    if (errorPaymentMethod.value) {
+        errorPaymentMethod.value = null
+    }
+})
 </script>
 
 
@@ -277,7 +311,7 @@ const onSubmitPayment = () => {
                     <dt class="flex-none pt-1">
                         <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
-                    <dd @click="() => isOpenModalPayment = true"
+                    <dd @click="() => (isOpenModalPayment = true, fetchPaymentMethod())"
                         class="cursor-pointer hover:bg-gray-100 w-full flex flex-col border px-2.5 py-1 rounded-md border-gray-300">
                         <div v-tooltip="'Amount need to pay by customer'" class="text-sm">
                             {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(props.invoice.total_amount)) }}
@@ -326,11 +360,16 @@ const onSubmitPayment = () => {
 
             <div class="mt-7 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
                 <div class="col-span-2">
-                    <label for="first-name" class="block text-sm font-medium leading-6">{{ trans('Select payment method') }}</label>
+                    <label for="first-name" class="block text-sm font-medium leading-6">
+                        <span class="text-red-500">*</span> {{ trans('Select payment method') }}
+                    </label>
                     <div class="mt-1">
                         <PureMultiselect
                             v-model="paymentData.payment_method"
-                            :options="['Paypal', 'Mastercard', 'CC']"
+                            :options="listPaymentMethod"
+                            :isLoading="isLoadingFetch"
+                            label="name"
+                            valueProp="id"
                             required
                             caret
                         />
@@ -367,8 +406,11 @@ const onSubmitPayment = () => {
                 </div> -->
             </div>
 
-            <div class="mt-6">
-                <Button @click="() => onSubmitPayment()" label="Submit" :loading="isLoadingPayment" full />
+            <div class="mt-6 mb-4 relative">
+                <Button @click="() => onSubmitPayment()" label="Submit" :disabled="!(!!paymentData.payment_method)" :loading="isLoadingPayment" full />
+                <Transition name="spin-to-down">
+                    <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{ errorPaymentMethod }}</p>
+                </Transition>
             </div>
         </div>
     </Modal>
