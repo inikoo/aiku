@@ -151,7 +151,9 @@ const onSubmitPayment = () => {
             }),
             {
                 amount: paymentData.value.payment_amount,
-                reference: paymentData.value.payment_reference
+                reference: paymentData.value.payment_reference,
+                status: 'success',
+                state: 'completed',
             },
             {
                 onStart: () => isLoadingPayment.value = true,
