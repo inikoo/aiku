@@ -200,12 +200,20 @@ class ShowInvoice extends OrgAction
                             'route'         => $recurringBillRoute
                         ],
                         'routes' => [
-                            'payment_accounts' => [
+                            'fetch_payment_accounts' => [
                                 'name'       => 'grp.json.shop.payment-accounts',
                                 'parameters' => [
                                     'shop' => $invoice->shop->slug
                                 ]
+                            ],
+                            'submit_payment' => [
+                                'name'       => 'grp.models.customer.payment.store',
+                                'parameters' => [
+                                    'customer' => $invoice->customer_id,
+                                    'invoice'  => $invoice->id
+                                ]
                             ]
+
                         ],
                         'paid_amount' => $invoice->payment_amount,
                         'pay_amount'  => $invoice->total_amount - $invoice->payment_amount

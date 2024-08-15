@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\Payment;
 
+use App\Actions\Accounting\Invoice\AttachPaymentToInvoice;
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentGateway\Checkout\Channels\MakePaymentUsingCheckout;
@@ -21,6 +22,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
@@ -34,9 +36,9 @@ class StorePayment extends OrgAction
 {
     use AsCommand;
 
-    public string $commandSignature = 'payment:create {customer} {paymentAccount}';
+    public string $commandSignature = 'payment:create {customer} {paymentAccount} {invoice}';
 
-    public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    public function handle(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, array $modelData): Payment
     {
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
 
@@ -65,6 +67,14 @@ class StorePayment extends OrgAction
             default                                         => null
         };
         */
+
+        if($invoice)
+        {
+            AttachPaymentToInvoice::make()->action($invoice, $payment, [
+                'amount' => Arr::get($modelData, 'amount'),
+                'reference' => Arr::get($modelData, 'reference')
+            ]);
+        }
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
@@ -106,19 +116,20 @@ class StorePayment extends OrgAction
         ];
     }
 
-    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0): Payment
+    public function action(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, array $modelData, int $hydratorsDelay = 0): Payment
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($customer, $paymentAccount, $this->validatedData);
+        return $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
     }
 
     public function asCommand(Command $command): int
     {
         $customer       = Customer::where('slug', $command->argument('customer'))->first();
         $paymentAccount = PaymentAccount::where('slug', $command->argument('paymentAccount'))->first();
+        $invoice        = Invoice::where('slug', $command->argument('invoice'))->first() ?? null;
 
         $modelData = [
             'reference'   => rand(),
@@ -133,7 +144,7 @@ class StorePayment extends OrgAction
             ]
         ];
 
-        $this->handle($customer, $paymentAccount, $modelData);
+        $this->handle($customer, $paymentAccount, $invoice, $modelData);
 
         return 0;
     }
