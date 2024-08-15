@@ -8,7 +8,7 @@
 namespace App\Imports\CRM;
 
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Imports\WithImport;
@@ -36,7 +36,7 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
 
     public function storeModel($row, $uploadRecord): void
     {
-        $fields = array_keys($this->rules());
+        $fields  = array_keys($this->rules());
         $rowData = $row->only($fields)->toArray();
 
         dd($rowData);
@@ -69,7 +69,7 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
             }
         } else {
             try {
-                StoreStoredItemToReturn::run(
+                StoreStoredItemsToReturn::run(
                     $this->scope,
                     $modelData
                 );

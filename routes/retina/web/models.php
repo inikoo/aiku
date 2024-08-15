@@ -30,7 +30,7 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +47,7 @@ Route::post('pallet-return', [StorePalletReturn::class, 'fromRetina'])->name('pa
 Route::post('pallet-return/stored-items', [StorePalletReturn::class, 'fromRetinaWithStoredItems'])->name('pallet-return-stored-items.store');
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
     Route::post('stored-item-upload', [ImportStoredItem::class, 'fromRetina'])->name('stored-item.upload');
-    Route::post('stored-item', [StoreStoredItemToReturn::class, 'fromRetina'])->name('stored_item.store');
+    Route::post('stored-item', [StoreStoredItemsToReturn::class, 'fromRetina'])->name('stored_item.store');
     Route::post('pallet', [AttachPalletsToReturn::class, 'fromRetina'])->name('pallet.store');
     Route::patch('update', [UpdatePalletReturn::class, 'fromRetina'])->name('update');
     Route::post('submit', [SubmitPalletReturn::class, 'fromRetina'])->name('submit');

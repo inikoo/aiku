@@ -2209,7 +2209,7 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
     $fulfilmentCustomer->refresh();
     $fulfilmentCustomer->currentRecurringBill->refresh();
     $recurringBillTransaction->refresh();
-    
+
     expect($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
         ->and($rentalAgreement->clauses->first()->percentage_off)->toEqualWithDelta(30, .001)
@@ -2238,9 +2238,9 @@ test('check invoice transactions length', function ($fulfilmentCustomer) {
 })->depends('update third rental agreement cause');
 
 test('pay invoice (full)', function ($invoice) {
-    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
         'amount' => 382,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2285,9 +2285,9 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
 })->depends('pay invoice (full)');
 
 test('pay invoice (half)', function ($invoice) {
-    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2305,9 +2305,9 @@ test('pay invoice (half)', function ($invoice) {
 })->depends('consolidate 2nd recurring bill');
 
 test('pay invoice (other half)', function ($invoice) {
-    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2352,10 +2352,10 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
 })->depends('pay invoice (other half)');
 
 test('pay invoice (exceed)', function ($invoice) {
-    $customer = $invoice->customer;
-    $paymentAccount = $invoice->shop->paymentAccounts()->first();
+    $customer           = $invoice->customer;
+    $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
         'amount' => 200,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2376,5 +2376,3 @@ test('pay invoice (exceed)', function ($invoice) {
     return $fulfilmentCustomer;
 
 })->depends('consolidate 3rd recurring bill');
-
-

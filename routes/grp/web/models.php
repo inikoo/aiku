@@ -95,7 +95,7 @@ use App\Actions\Fulfilment\StoredItem\DeleteStoredItemFromReturn;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\ResetAuditStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
@@ -326,7 +326,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
     Route::post('transaction', [StoreFulfilmentTransaction::class,'inPalletReturn'])->name('transaction.store');
     Route::post('pallet', AttachPalletsToReturn::class)->name('pallet.store');
     //todo this new action
-    Route::post('stored-item', StoreStoredItemToReturn::class)->name('stored_item.store');
+    Route::post('stored-item', StoreStoredItemsToReturn::class)->name('stored_item.store');
     Route::post('stored-item-upload', [ImportStoredItem::class, 'fromGrp'])->name('stored-item.upload');
     Route::post('pallet-upload', [ImportPallet::class, 'fromGrp'])->name('pallet.upload');
     Route::patch('/', UpdatePalletReturn::class)->name('update');
