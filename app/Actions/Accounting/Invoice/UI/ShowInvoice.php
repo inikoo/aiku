@@ -105,6 +105,8 @@ class ShowInvoice extends OrgAction
         } else {
             $recurringBillRoute = null;
         }
+        $payAmount = $invoice->total_amount - $invoice->payment_amount;
+        $roundedDiff = round($payAmount, 2);
 
         return Inertia::render(
             'Org/Accounting/Invoice',
@@ -216,7 +218,7 @@ class ShowInvoice extends OrgAction
 
                         ],
                         'paid_amount' => $invoice->payment_amount,
-                        'pay_amount'  => $invoice->total_amount - $invoice->payment_amount
+                        'pay_amount'  => $roundedDiff
                     ]
                 ],
 
