@@ -17,7 +17,7 @@ class AttachPaymentToInvoice extends OrgAction
 {
     public function handle(Invoice $invoice, Payment $payment, array $modelData): void
     {
-        $paymentAmount = $modelData['amount'];
+        $paymentAmount = $invoice->payment_amount + $modelData['amount'];
         $invoice->payments()->attach($payment, [
             'amount' => $paymentAmount,
         ]);
