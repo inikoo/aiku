@@ -136,6 +136,7 @@ class GetFulfilmentCustomerShowcase
                     ]
                 ]
             ],
+            'currency_code' => $fulfilmentCustomer->customer->shop->currency->code,
             'balance'       => [
                 'current'               => $fulfilmentCustomer->customer->balance,
                 'credit_transactions'   => $fulfilmentCustomer->customer->stats->number_credit_transactions

@@ -39,6 +39,7 @@ const props = defineProps<{
             current: number
             credit_transactions: number
         }
+        currency_code: string
         // customer: PalletCustomer
         fulfilment_customer: {
             radioTabs: {
@@ -238,7 +239,7 @@ const isModalAddress = ref(false)
                     <div class="flex flex-col gap-y-1">
                         <CountUp :endVal="data.balance.current" :duration="1.5" :scrollSpyOnce="true"
                             :options="{
-                                formattingFn: (value: number) => locale.currencyFormat('eur', value)
+                                formattingFn: (value: number) => locale.currencyFormat(data.currency_code, value)
                             }" />
                         <div class="text-white/60 text-sm leading-4">
                             {{data.balance.credit_transactions}} credit transactions
