@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
+use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Catalogue\Collection\StoreCollection;
@@ -505,6 +506,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
     Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
+    Route::post('payment/{paymentAccount:id}/{invoice:id}', StorePayment::class)->name('payment.store')->withoutScopedBindings();
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

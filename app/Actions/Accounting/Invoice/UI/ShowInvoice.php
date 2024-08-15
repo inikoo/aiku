@@ -105,6 +105,8 @@ class ShowInvoice extends OrgAction
         } else {
             $recurringBillRoute = null;
         }
+        $payAmount   = $invoice->total_amount - $invoice->payment_amount;
+        $roundedDiff = round($payAmount, 2);
 
         return Inertia::render(
             'Org/Accounting/Invoice',
@@ -188,6 +190,14 @@ class ShowInvoice extends OrgAction
                     'customer' => [
                         'slug'         => $invoice->customer->slug,
                         'reference'    => $invoice->customer->reference,
+                        'route'        => [
+                            'name'         => 'grp.org.fulfilments.show.crm.customers.show',
+                            'parameters'   => [
+                                'organisation'      => $invoice->organisation->slug,
+                                'fulfilment'        => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                                'fulfilmentCustomer'=> $invoice->customer->fulfilmentCustomer->slug,
+                            ]
+                        ],
                         'contact_name' => $invoice->customer->contact_name,
                         'company_name' => $invoice->customer->company_name,
                         'location'     => $invoice->customer->location,
@@ -200,15 +210,23 @@ class ShowInvoice extends OrgAction
                             'route'         => $recurringBillRoute
                         ],
                         'routes' => [
-                            'payment_accounts' => [
+                            'fetch_payment_accounts' => [
                                 'name'       => 'grp.json.shop.payment-accounts',
                                 'parameters' => [
                                     'shop' => $invoice->shop->slug
                                 ]
+                            ],
+                            'submit_payment' => [
+                                'name'       => 'grp.models.customer.payment.store',
+                                'parameters' => [
+                                    'customer' => $invoice->customer_id,
+                                    'invoice'  => $invoice->id
+                                ]
                             ]
+
                         ],
                         'paid_amount' => $invoice->payment_amount,
-                        'pay_amount'  => $invoice->total_amount - $invoice->payment_amount
+                        'pay_amount'  => $roundedDiff
                     ]
                 ],
 

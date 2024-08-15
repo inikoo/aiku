@@ -7,6 +7,15 @@ import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 
+
+
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Row from 'primevue/row'
+import ColumnGroup from 'primevue/columngroup'
+import { computed } from 'vue'
+import { useTruncate } from '@/Composables/useTruncate'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
 import { faTriangle } from '@fas'
@@ -24,6 +33,11 @@ const props = defineProps<{
     groupStats: {
         currency: {
             code: string
+        }
+        total: {
+            total_invoices: number
+            total_refunds: number
+            total_sales: string
         }
         organisations: {
             name: string
@@ -77,7 +91,7 @@ const props = defineProps<{
     }[]
 }>()
 
-// console.log('asdsadsa', props.groupStats.organisations)
+console.log('asdsadsa', props.groupStats.total)
 const layout = inject('layout', layoutStructure)
 const locale = inject('locale', {})
 
@@ -85,7 +99,7 @@ const locale = inject('locale', {})
 // Decriptor: Date interval
 const selectedDateOption = ref<string>('all')
 
-const currencyValue = ref('group')
+// const currencyValue = ref('group')
 
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
@@ -108,13 +122,6 @@ const options = {
     }
 }
 
-
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Row from 'primevue/row'
-import ColumnGroup from 'primevue/columngroup'
-import { computed } from 'vue'
-import { useTruncate } from '@/Composables/useTruncate'
 
 
 const abcdef = computed(() => {
@@ -171,7 +178,7 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="refunds" sortable class="overflow-hidden transition-all" header="Refunds" headerStyle="width: 250px">
+                <Column field="refunds" sortable class="overflow-hidden transition-all" header="Refunds" headerStyle="text-align: green; width: 250px" headerClass="bg-red-500">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -183,7 +190,7 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="refunds_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 130px">
+                <Column field="refunds_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 130px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <!-- {{ data.interval_percentages?.refunds[selectedDateOption].amount }} -->
@@ -210,7 +217,7 @@ const abcdef = computed(() => {
 
                 </Column>
 
-                <Column field="invoices_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 200px">
+                <Column field="invoices_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 200px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -223,16 +230,13 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="width: 250px">
+                <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="text-align: green; width: 250px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
                                 <div :key="data.sales">
                                     {{
-                                        useLocaleStore().currencyFormat(currencyValue === 'organisation'
-                                            ? data.currency.code
-                                            : groupStats.currency.code,
-                                            data.sales)
+                                        useLocaleStore().currencyFormat(groupStats.currency.code, data.sales)
                                     }}
                                 </div>
                             </Transition>
@@ -240,7 +244,7 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="width: 270px">
+                <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 270px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
@@ -255,13 +259,13 @@ const abcdef = computed(() => {
 
                 <ColumnGroup type="footer">
                     <Row>
-                        <Column footer="" footerStyle="text-align:right"/>
-                        <Column footer="Total refunds" />
-                        <Column footer="Total refunds 1y" />
-                        <Column footer="Total invoices" />
-                        <Column footer="44444" />
-                        <Column footer="9999" />
-                        <Column footer="44444" />
+                        <Column footer="" footerStyle="text-align:right" />
+                        <Column :footer="groupStats.total.total_refunds" footerStyle="text-align:right" />
+                        <Column footer="xxx" footerStyle="text-align:right" />
+                        <Column :footer="groupStats.total.total_invoices" footerStyle="text-align:right" />
+                        <Column footer="xxx" footerStyle="text-align:right" />
+                        <Column :footer="useLocaleStore().currencyFormat(groupStats.currency.code, Number(groupStats.total.total_sales))" footerStyle="text-align:right" />
+                        <Column footer="xxx" footerStyle="text-align:right" />
                     </Row>
                 </ColumnGroup>
 

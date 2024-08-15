@@ -17,12 +17,24 @@ class AttachPaymentToInvoice extends OrgAction
 {
     public function handle(Invoice $invoice, Payment $payment, array $modelData): void
     {
-        $invoice->payments()->attach($payment);
+        $paymentAmount = $invoice->payment_amount + $modelData['amount'];
+        $invoice->payments()->attach($payment, [
+            'amount' => $paymentAmount,
+        ]);
 
-        $paymentAmount = $modelData['amount'];
+        if($paymentAmount > $invoice->total_amount || $paymentAmount == $invoice->total_amount) {
+            UpdateInvoice::make()->action($invoice, [
+                'payment_amount' => $invoice->total_amount
+            ]);
+        } else {
+            UpdateInvoice::make()->action($invoice, [
+                'payment_amount' => $paymentAmount
+            ]);
+        };
+
         data_forget($modelData, 'reference');
-        if ($paymentAmount > $invoice->amount) {
-            $excessAmount = $paymentAmount - $invoice->amount;
+        if ($paymentAmount > $invoice->total_amount) {
+            $excessAmount = $paymentAmount - $invoice->total_amount;
             data_set($modelData, 'amount', $excessAmount);
             data_set($modelData, 'type', CreditTransactionTypeEnum::TRANSFER_IN);
             data_set($modelData, 'payment_id', $payment->id);
