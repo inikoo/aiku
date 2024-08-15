@@ -125,12 +125,12 @@ class StorePayment extends OrgAction
         return $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
     }
 
-    public function asController(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, ActionRequest $request, int $hydratorsDelay = 0): Payment
+    public function asController(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, ActionRequest $request, int $hydratorsDelay = 0)
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $request);
 
-        return $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
+        $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
     }
 
     public function asCommand(Command $command): int
