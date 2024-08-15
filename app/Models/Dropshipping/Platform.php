@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 26 Jun 2024 14:00:09 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 15 Aug 2024 11:54:18 Central Indonesia Time, Bali Office, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Ordering;
+namespace App\Models\Dropshipping;
 
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
-use App\Models\PlatformStats;
+use App\Models\Ordering\Order;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -29,9 +29,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ordering\Order> $orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
- * @property-read PlatformStats|null $stats
+ * @property-read \App\Models\Dropshipping\PlatformStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|Platform newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Platform newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Platform query()

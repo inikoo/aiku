@@ -12,7 +12,7 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Http\Resources\Web\WebpageResource;
-use App\Models\ModelHasWebBlocks;
+use App\Models\Dropshipping\ModelHasWebBlocks;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateModelHasWebBlocks extends OrgAction

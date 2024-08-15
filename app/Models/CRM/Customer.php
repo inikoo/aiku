@@ -18,6 +18,7 @@ use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
@@ -27,7 +28,6 @@ use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
-use App\Models\Ordering\Platform;
 use App\Models\Ordering\Transaction;
 use App\Models\ShopifyUser;
 use App\Models\SupplyChain\Stock;
@@ -93,6 +93,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $warehouse_notes
  * @property int|null $prospects_sender_email_id
  * @property int|null $image_id
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

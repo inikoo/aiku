@@ -31,8 +31,8 @@ class FetchAuroraDeletedEmployee extends FetchAurora
                 'type'                     => Str::snake($auDeletedModel->data->{'Staff Type'}, '-'),
 
 
-                'source_id'  => $this->organisation->id.':'.$auDeletedModel->data->{'Staff Key'},
-                'state'      => match ($auDeletedModel->data->{'Staff Currently Working'}) {
+                'source_id'       => $this->organisation->id.':'.$auDeletedModel->data->{'Staff Key'},
+                'state'           => match ($auDeletedModel->data->{'Staff Currently Working'}) {
                     'No'    => 'left',
                     default => 'working'
                 },

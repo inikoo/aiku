@@ -53,14 +53,16 @@ class CreditTransaction extends Model
     use InCustomer;
 
     protected $casts = [
-        'data'           => 'array',
-        'date'           => 'datetime',
-        'amount'         => 'decimal:2',
-        'running_amount' => 'decimal:2',
-        'grp_exchange'   => 'decimal:4',
-        'org_exchange'   => 'decimal:4',
-        'grp_amount'     => 'decimal:2',
-        'org_amount'     => 'decimal:2',
+        'data'                        => 'array',
+        'date'                        => 'datetime',
+        'amount'                      => 'decimal:2',
+        'running_amount'              => 'decimal:2',
+        'grp_exchange'                => 'decimal:4',
+        'org_exchange'                => 'decimal:4',
+        'grp_amount'                  => 'decimal:2',
+        'org_amount'                  => 'decimal:2',
+        'fetched_at'                  => 'datetime',
+        'last_fetched_at'             => 'datetime',
     ];
 
     protected $attributes = [

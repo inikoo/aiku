@@ -15,6 +15,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\Platform;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -91,6 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $tax_category_id
  * @property string $tax_amount
  * @property string $total_amount
+ * @property string $payment_amount
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -111,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
- * @property-read Collection<int, \App\Models\Ordering\Platform> $platforms
+ * @property-read Collection<int, Platform> $platforms
  * @property-read Shop $shop
  * @property-read \App\Models\Ordering\OrderStats|null $stats
  * @property-read Collection<int, \App\Models\Ordering\Transaction> $transactions

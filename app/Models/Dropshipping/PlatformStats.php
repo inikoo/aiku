@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 15 Aug 2024 11:53:53 Central Indonesia Time, Bali Office, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models;
+namespace App\Models\Dropshipping;
 
 use Illuminate\Database\Eloquent\Model;
 

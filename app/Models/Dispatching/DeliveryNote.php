@@ -118,16 +118,17 @@ class DeliveryNote extends Model implements Auditable
         'type'   => DeliveryNoteTypeEnum::class,
         'status' => DeliveryNoteStatusEnum::class,
 
-        'date'               => 'datetime',
-        'order_submitted_at' => 'datetime',
-        'assigned_at'        => 'datetime',
-        'picking_at'         => 'datetime',
-        'picked_at'          => 'datetime',
-        'packing_at'         => 'datetime',
-        'packed_at'          => 'datetime',
-        'dispatched_at'      => 'datetime',
-        'cancelled_at'       => 'datetime',
-
+        'date'                        => 'datetime',
+        'order_submitted_at'          => 'datetime',
+        'assigned_at'                 => 'datetime',
+        'picking_at'                  => 'datetime',
+        'picked_at'                   => 'datetime',
+        'packing_at'                  => 'datetime',
+        'packed_at'                   => 'datetime',
+        'dispatched_at'               => 'datetime',
+        'cancelled_at'                => 'datetime',
+        'fetched_at'                  => 'datetime',
+        'last_fetched_at'             => 'datetime',
     ];
 
     protected $attributes = [

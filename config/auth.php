@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\CRM\WebUser;
-use App\Models\ShopifyUser;
+use App\Models\Dropshipping\ShopifyUser;
 use App\Models\SysAdmin\User;
 
 return [

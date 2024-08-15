@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 25 Jun 2024 12:48:52 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 15 Aug 2024 11:53:38 Central Indonesia Time, Bali Office, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Dropshipping;
 
 use App\Models\Traits\InShop;
 use App\Models\Web\WebBlock;

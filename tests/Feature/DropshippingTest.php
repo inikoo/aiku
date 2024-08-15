@@ -25,10 +25,10 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\Platform;
+use App\Models\Dropshipping\PlatformStats;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Helpers\Media;
-use App\Models\Ordering\Platform;
-use App\Models\PlatformStats;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 

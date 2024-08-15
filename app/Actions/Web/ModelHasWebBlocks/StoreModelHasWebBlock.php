@@ -13,7 +13,7 @@ use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Web\WebpageResource;
-use App\Models\ModelHasWebBlocks;
+use App\Models\Dropshipping\ModelHasWebBlocks;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use Illuminate\Validation\Rule;

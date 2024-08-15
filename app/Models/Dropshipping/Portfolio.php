@@ -9,7 +9,6 @@ namespace App\Models\Dropshipping;
 
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
-use App\Models\Ordering\Platform;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Platform> $platforms
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dropshipping\Platform> $platforms
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Dropshipping\PortfolioStats|null $stats

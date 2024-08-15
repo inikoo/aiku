@@ -75,8 +75,10 @@ class ClockingMachine extends Authenticatable implements Auditable
     use HasApiTokens;
 
     protected $casts = [
-        'data'        => 'array',
-        'status'      => ClockingMachineStatusEnum::class,
+        'data'                        => 'array',
+        'status'                      => ClockingMachineStatusEnum::class,
+        'fetched_at'                  => 'datetime',
+        'last_fetched_at'             => 'datetime',
     ];
 
     protected $attributes = [

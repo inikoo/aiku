@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\WithUploadWebImage;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\ModelHasWebBlocks;
+use App\Models\Dropshipping\ModelHasWebBlocks;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
 

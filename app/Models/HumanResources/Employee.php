@@ -72,6 +72,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $errors
  * @property string|null $pin
  * @property int|null $image_id
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

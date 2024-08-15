@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Http\Resources\Web\WebpageResource;
-use App\Models\ModelHasWebBlocks;
+use App\Models\Dropshipping\ModelHasWebBlocks;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeleteModelHasWebBlocks extends GrpAction

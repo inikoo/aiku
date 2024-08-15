@@ -11,16 +11,19 @@
 /public/iris.hot
 /public/retina.hot
 /public/aiku-public.hot
+/public/shopify.hot
 
 /public/grp/assets/
 /public/iris/assets/
 /public/retina/assets/
 /public/aiku-public/assets/
+/public/shopify/assets/
 
 /public/grp/manifest.json
 /public/iris/manifest.json
 /public/retina/manifest.json
 /public/aiku-public/manifest.json
+/public/shopify/manifest.json
 
 /storage/*.key
 /vendor

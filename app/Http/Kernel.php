@@ -8,6 +8,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiBindGroupInstance;
+use App\Http\Middleware\HandleShopifyInertiaRequests;
 use App\Http\Middleware\RetinaPreparingAccount;
 use App\Http\Middleware\SetHanAsAppScope;
 use App\Http\Middleware\Authenticate;
@@ -150,6 +151,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
+            HandleShopifyInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class
         ],
 

@@ -59,7 +59,9 @@ class Barcode extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'data' => 'array',
+        'data'                        => 'array',
+        'fetched_at'                  => 'datetime',
+        'last_fetched_at'             => 'datetime',
     ];
 
     protected $attributes = [

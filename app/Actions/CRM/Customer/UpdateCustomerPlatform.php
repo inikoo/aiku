@@ -10,7 +10,7 @@ namespace App\Actions\CRM\Customer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
-use App\Models\Ordering\Platform;
+use App\Models\Dropshipping\Platform;
 
 class UpdateCustomerPlatform extends OrgAction
 {

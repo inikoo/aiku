@@ -74,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $tax_category_id
  * @property string $tax_amount
  * @property string $total_amount
+ * @property string $payment_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

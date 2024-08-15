@@ -9,7 +9,7 @@ namespace App\Actions\Ordering\Platform;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Ordering\Platform;
+use App\Models\Dropshipping\Platform;
 use App\Models\SysAdmin\Group;
 use Illuminate\Validation\Rule;
 

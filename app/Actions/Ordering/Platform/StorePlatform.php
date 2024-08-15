@@ -9,7 +9,7 @@ namespace App\Actions\Ordering\Platform;
 
 use App\Actions\GrpAction;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
-use App\Models\Ordering\Platform;
+use App\Models\Dropshipping\Platform;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;

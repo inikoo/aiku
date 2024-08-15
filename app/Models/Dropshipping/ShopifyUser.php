@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 15 Feb 2024 17:55:39 Malaysia Time, Mexico City, Mexico
+ * Created: Thu, 15 Aug 2024 11:53:46 Central Indonesia Time, Bali Office, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Dropshipping;
 
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
@@ -17,19 +17,18 @@ use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
-use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
+use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
+use Osiset\ShopifyApp\Traits\ShopModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Sluggable\SlugOptions;
-use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
-use Osiset\ShopifyApp\Traits\ShopModel;
 
 /**
  * App\Models\CRM\WebUser
@@ -37,13 +36,14 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property int|null $shop_id
- * @property int $website_id
  * @property int $customer_id
  * @property string $slug
- * @property bool $is_root
- * @property string $type
  * @property bool $status
+ * @property string $name
+ * @property bool $shopify_grandfathered
+ * @property string|null $shopify_namespace
+ * @property bool $shopify_freemium
+ * @property int|null $plan_id
  * @property string $username
  * @property string|null $email
  * @property string|null $email_verified_at
@@ -61,8 +61,11 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property string|null $password_updated_at
+ * @property int|null $theme_support_level
  * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, \Osiset\ShopifyApp\Storage\Models\Charge> $charges
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -72,19 +75,19 @@ use Osiset\ShopifyApp\Traits\ShopModel;
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read Organisation $organisation
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read \Osiset\ShopifyApp\Storage\Models\Plan|null $plan
  * @property-read Shop|null $shop
- * @property-read \App\Models\CRM\WebUserStats|null $stats
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @property-read Website $website
- * @method static Builder|WebUser newModelQuery()
- * @method static Builder|WebUser newQuery()
- * @method static Builder|WebUser onlyTrashed()
- * @method static Builder|WebUser permission($permissions, $without = false)
- * @method static Builder|WebUser query()
- * @method static Builder|WebUser withTrashed()
- * @method static Builder|WebUser withoutPermission($permissions)
- * @method static Builder|WebUser withoutTrashed()
+ * @property-read WebUser|null $webUser
+ * @method static Builder|ShopifyUser newModelQuery()
+ * @method static Builder|ShopifyUser newQuery()
+ * @method static Builder|ShopifyUser onlyTrashed()
+ * @method static Builder|ShopifyUser permission($permissions, $without = false)
+ * @method static Builder|ShopifyUser query()
+ * @method static Builder|ShopifyUser withTrashed()
+ * @method static Builder|ShopifyUser withoutPermission($permissions)
+ * @method static Builder|ShopifyUser withoutTrashed()
  * @mixin Eloquent
  */
 class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopModel
