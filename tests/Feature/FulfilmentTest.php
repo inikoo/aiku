@@ -1937,8 +1937,8 @@ test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/storedItemSpreadsheet.xlsx');
-    $file     = new UploadedFile($filePath, 'storedItemSpreadsheet.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/Spreadsheett.xlsx');
+    $file     = new UploadedFile($filePath, 'Spreadsheett.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 

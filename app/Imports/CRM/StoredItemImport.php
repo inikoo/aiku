@@ -39,24 +39,12 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
         $fields = array_keys($this->rules());
         $rowData = $row->only($fields)->toArray();
 
-        $storedItemsArray = explode(',', trim($rowData['stored_items'], '[]'));
-        $quantitiesArray = explode(',', trim($rowData['quantity'], '[]'));
-
-        $storedItemsData = [];
-
-        foreach ($storedItemsArray as $index => $itemId) {
-            $itemId = (int) $itemId;
-            $quantity = isset($quantitiesArray[$index]) ? (int) $quantitiesArray[$index] : 0;
-
-            $storedItemsData[$itemId] = [
-                'quantity' => $quantity
-            ];
-        }
+        dd($rowData);
 
         $modelData = [
             'stored_items' => $storedItemsData
         ];
-        
+
         if(!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
         }
