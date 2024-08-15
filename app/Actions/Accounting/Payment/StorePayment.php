@@ -49,7 +49,7 @@ class StorePayment extends OrgAction
         data_set($modelData, 'payment_service_provider_id', $paymentAccount->payment_service_provider_id);
         data_set($modelData, 'customer_id', $customer->id);
         data_set($modelData, 'shop_id', $customer->shop_id);
-        data_fill($modelData, 'currency_id', $customer->shop->currency_id);
+        data_set($modelData, 'currency_id', $customer->shop->currency_id);
 
 
         data_set($modelData, 'org_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency), overwrite: false);
@@ -105,7 +105,7 @@ class StorePayment extends OrgAction
             'org_amount'   => ['sometimes', 'numeric'],
             'group_amount' => ['sometimes', 'numeric'],
             'data'         => ['sometimes', 'array'],
-            'currency_id'  => ['required', 'exists:currencies,id'],
+            // 'currency_id'  => ['required', 'exists:currencies,id'],
             'date'         => ['sometimes', 'date'],
             'created_at'   => ['sometimes', 'date'],
             'completed_at' => ['sometimes', 'nullable', 'date'],
@@ -156,4 +156,9 @@ class StorePayment extends OrgAction
 
         return 0;
     }
+
+    // public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
 }
