@@ -8,7 +8,7 @@
 namespace App\Imports\CRM;
 
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Imports\WithImport;
@@ -36,27 +36,15 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
 
     public function storeModel($row, $uploadRecord): void
     {
-        $fields = array_keys($this->rules());
+        $fields  = array_keys($this->rules());
         $rowData = $row->only($fields)->toArray();
 
-        $storedItemsArray = explode(',', trim($rowData['stored_items'], '[]'));
-        $quantitiesArray = explode(',', trim($rowData['quantity'], '[]'));
-
-        $storedItemsData = [];
-
-        foreach ($storedItemsArray as $index => $itemId) {
-            $itemId = (int) $itemId;
-            $quantity = isset($quantitiesArray[$index]) ? (int) $quantitiesArray[$index] : 0;
-
-            $storedItemsData[$itemId] = [
-                'quantity' => $quantity
-            ];
-        }
+        dd($rowData);
 
         $modelData = [
             'stored_items' => $storedItemsData
         ];
-        
+
         if(!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
         }
@@ -81,7 +69,7 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
             }
         } else {
             try {
-                StoreStoredItemToReturn::run(
+                StoreStoredItemsToReturn::run(
                     $this->scope,
                     $modelData
                 );
