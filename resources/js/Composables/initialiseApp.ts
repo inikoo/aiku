@@ -28,7 +28,7 @@ export const initialiseApp = () => {
         echoPersonal.subscribe(usePage().props.auth.user.id)
 
         router.on('navigate', (event) => {
-            console.log('layout env', layout.app.environment)
+            // console.log('layout env', layout.app.environment)
             layout.currentParams = route().v().params  // current params
             layout.currentRoute = route().current()  // current route
 
