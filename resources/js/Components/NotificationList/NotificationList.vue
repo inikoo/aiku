@@ -4,12 +4,13 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { Link } from "@inertiajs/vue3"
-import { inject, onMounted, onBeforeUnmount } from "vue"
+import { inject, onMounted, onBeforeUnmount, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Profile from "@/Pages/Grp/Profile.vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from 'laravel-vue-i18n'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 library.add(faEnvelope, faEnvelopeOpenText)
 
@@ -22,7 +23,9 @@ const layout = inject('layout', layoutStructure)
 
 
 // Method: set all notifications to read = true
+const isLoading = ref(false)
 const setAllToRead = async () => {
+    isLoading.value = true
     try {
         const response = await axios.patch(
             route('grp.models.notifications.all.read')
@@ -36,6 +39,8 @@ const setAllToRead = async () => {
             text: error,
             type: 'error'
         })
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -81,6 +86,7 @@ onBeforeUnmount(() => {
             class="place-self-end  text-sm select-none"
             :class="layout.user.notifications.every(notif => notif.read) ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-500 hover:text-indigo-500 cursor-pointer'"    
         >
+            <LoadingIcon v-if="isLoading" />
             {{ trans('Marks all as read') }}
         </div>
         
