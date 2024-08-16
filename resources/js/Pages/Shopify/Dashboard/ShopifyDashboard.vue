@@ -8,7 +8,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import Rating from 'primevue/rating'
-import { FilterMatchMode } from '@primevue/core/api';
+import { FilterMatchMode } from '@primevue/core/api'
 import { onMounted, ref } from 'vue'
 import { useLocaleStore } from '@/Stores/locale'
 import Button from '@/Components/Elements/Buttons/Button.vue'
