@@ -13,10 +13,13 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InShop;
+use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -123,6 +126,12 @@ class Fulfilment extends Model
     {
         return $this->hasMany(PalletDelivery::class);
     }
+
+    public function website(): HasOneThrough
+    {
+        return $this->HasOneThrough(Shop::class, Website::class);
+    }
+
 
 
 }

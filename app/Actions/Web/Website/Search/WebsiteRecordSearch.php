@@ -28,6 +28,7 @@ class WebsiteRecordSearch
             return;
         }
 
+
         $website->universalSearch()->updateOrCreate(
             [],
             [

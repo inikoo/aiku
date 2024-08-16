@@ -440,7 +440,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
     Route::post('website', [StoreWebsite::class, 'inFulfilment'])->name('website.store');
     Route::post('fulfilment-customer', StoreFulfilmentCustomer::class)->name('fulfilment_customer.store');
-    Route::patch('website', [UpdateWebsite::class, 'inFulfilment'])->name('website.update');
+    Route::patch('website/{website:id}', [UpdateWebsite::class, 'inFulfilment'])->name('website.update')->withoutScopedBindings();
 
 
 });
