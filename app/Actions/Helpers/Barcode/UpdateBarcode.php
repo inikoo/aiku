@@ -38,11 +38,11 @@ class UpdateBarcode extends GrpAction
     public function rules(): array
     {
         return [
-            'number' => ['sometimes', 'required', 'numeric'],
-            'note'   => ['sometimes', 'nullable', 'string', 'max:1000'],
-            'data'   => ['sometimes', 'nullable', 'array'],
-            'status' => ['sometimes', 'required', Rule::enum(BarcodeStatusEnum::class)],
-
+            'number'          => ['sometimes', 'required', 'numeric'],
+            'note'            => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'data'            => ['sometimes', 'nullable', 'array'],
+            'status'          => ['sometimes', 'required', Rule::enum(BarcodeStatusEnum::class)],
+            'last_fetched_at' => ['sometimes', 'date'],
 
         ];
     }
@@ -54,8 +54,11 @@ class UpdateBarcode extends GrpAction
         return $this->handle($barcode, $request->validated());
     }
 
-    public function action(Barcode $barcode, array $modelData): Barcode
+    public function action(Barcode $barcode, array $modelData, bool $audit=true): Barcode
     {
+        if(!$audit) {
+            Barcode::disableAuditing();
+        }
         $this->asAction = true;
         $this->barcode  = $barcode;
         $this->initialisation($barcode->group, $modelData);

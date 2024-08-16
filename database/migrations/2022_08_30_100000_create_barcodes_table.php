@@ -26,6 +26,8 @@ return new class () extends Migration {
             $table->dateTimeTz('assigned_at')->nullable();
             $table->jsonb('data');
             $table->string('source_id')->nullable()->unique();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->unique(['group_id', 'number']);

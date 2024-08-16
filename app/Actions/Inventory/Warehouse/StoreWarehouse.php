@@ -95,12 +95,14 @@ class StoreWarehouse extends OrgAction
                     ]
                 ),
             ],
-            'name'       => ['required', 'max:250', 'string'],
-            'state'      => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
-            'source_id'  => ['sometimes', 'string'],
-            'created_at' => ['sometimes', 'date'],
-            'address'    => ['sometimes', 'required', new ValidAddress()],
-            'settings'   => ['sometimes', 'array'],
+            'name'             => ['required', 'max:250', 'string'],
+            'state'            => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
+            'source_id'        => ['sometimes', 'string'],
+            'created_at'       => ['sometimes', 'date'],
+            'address'          => ['sometimes', 'required', new ValidAddress()],
+            'settings'         => ['sometimes', 'array'],
+            'fetched_at'       => ['sometimes', 'date'],
+
         ];
     }
 

@@ -47,13 +47,14 @@ class FetchAuroraCredit extends FetchAurora
 
         $this->parsedData['credit'] =
             [
-                'date'         => $date,
-                'type'         => $type,
-                'amount'       => $this->auroraModelData->{'Credit Transaction Amount'},
-                'org_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['customer']->shop->currency, $this->parsedData['customer']->organisation->currency, $date),
-                'grp_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['customer']->shop->currency, $this->parsedData['customer']->group->currency, $date),
-
-                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Credit Transaction Key'},
+                'date'            => $date,
+                'type'            => $type,
+                'amount'          => $this->auroraModelData->{'Credit Transaction Amount'},
+                'org_exchange'    => GetHistoricCurrencyExchange::run($this->parsedData['customer']->shop->currency, $this->parsedData['customer']->organisation->currency, $date),
+                'grp_exchange'    => GetHistoricCurrencyExchange::run($this->parsedData['customer']->shop->currency, $this->parsedData['customer']->group->currency, $date),
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Credit Transaction Key'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now()
             ];
 
         if ($payment) {

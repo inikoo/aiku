@@ -91,7 +91,9 @@ class FetchAuroraCustomer extends FetchAurora
                 'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
                 'created_at'      => $this->auroraModelData->{'Customer First Contacted Date'},
                 'contact_address' => $billingAddress,
-                'tax_number'      => $taxNumber
+                'tax_number'      => $taxNumber,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now()
             ];
 
         if ($contactName != '') {
@@ -117,7 +119,7 @@ class FetchAuroraCustomer extends FetchAurora
         }
 
         $identityDocumentNumber = $this->cleanCompanyNumber(Str::limit($this->auroraModelData->{'Customer Registration Number'}));
-        if ($identityDocumentNumber != '' and $company!=$identityDocumentNumber) {
+        if ($identityDocumentNumber != '' and $company != $identityDocumentNumber) {
             $this->parsedData['customer']['identity_document_number'] = $identityDocumentNumber;
         }
 
@@ -147,7 +149,7 @@ class FetchAuroraCustomer extends FetchAurora
             $name = '';
         }
 
-        if (in_array($name, ['none','0n-line Amazon retail','-', 'Unknown', '- None -', '- Not yet started trading -', '- Select -', '--Please Select--'])) {
+        if (in_array($name, ['none', '0n-line Amazon retail', '-', 'Unknown', '- None -', '- Not yet started trading -', '- Select -', '--Please Select--'])) {
             $name = '';
         }
 
@@ -168,49 +170,105 @@ class FetchAuroraCustomer extends FetchAurora
 
     protected function cleanCompanyNumber($string): string
     {
-        $string=$this->cleanName($string);
-        $string=$this->cleanCompanyName($string);
+        $string = $this->cleanName($string);
+        $string = $this->cleanCompanyName($string);
 
-        $string=preg_replace('/^([:;])\s*/', '', $string);
+        $string = preg_replace('/^([:;])\s*/', '', $string);
 
 
-        if(preg_match('/(No tengo|Don.?t have|Dont have|I don.t have|not Applicable|Not available|Not yet|Sheffield|independente em nome próprio|Sole Trader|carmen|carlos|En proceso|entrepreneur|unknown|test|to follow|Under construction)/i', $string)) {
-            $string='';
+        if (preg_match('/(No tengo|Don.?t have|Dont have|I don.t have|not Applicable|Not available|Not yet|Sheffield|independente em nome próprio|Sole Trader|carmen|carlos|En proceso|entrepreneur|unknown|test|to follow|Under construction)/i', $string)) {
+            $string = '';
         }
 
-        if(in_array($string, [
-            'Zürich','universes','sra.','Noch nicht vorhanden','No hay número de registro',
-            'Slovenská Republika','slovensko','Slovensko/Slovakia','recargo de equivalencia','nose',
-            'No Selection','No lo se','Empresa en nombre individual','new business','En projet',
-            '99999999999999999999999999999','Bratislavský','Česká Republika','Miss',
-            '65 avenue de la Chaumière','autonomo','Autónoma','Autonomo','Aún no tengo','Slovensko',
-            'autoentrepreneur','Slovensko (SK)','Wien','N /a','N.A.','N/A Local Authority','n/a partnershiop',
-            'Na sole trader','Não tenho','Česká republika','Sra.','Sra','Sra.','Sra','Sra.','Sra','Sra.','Sra',
-            '///','1100 Tatra banka, a.s.','21% IVA (NO RECARGO)','5,2%','5,20','Barcelona',
-            "Ali'ne baba et ses 4500 produits",'SK','GB','EL','na','NA','n/a','N/A','N/a','en cour','en cours','MT',
-            '-SR','000 000 000 000 00','Slovenská republika','En cours pas recu encore','Slowakei','Slovakia'])) {
-            $string='';
+        if (in_array($string, [
+            'Zürich',
+            'universes',
+            'sra.',
+            'Noch nicht vorhanden',
+            'No hay número de registro',
+            'Slovenská Republika',
+            'slovensko',
+            'Slovensko/Slovakia',
+            'recargo de equivalencia',
+            'nose',
+            'No Selection',
+            'No lo se',
+            'Empresa en nombre individual',
+            'new business',
+            'En projet',
+            '99999999999999999999999999999',
+            'Bratislavský',
+            'Česká Republika',
+            'Miss',
+            '65 avenue de la Chaumière',
+            'autonomo',
+            'Autónoma',
+            'Autonomo',
+            'Aún no tengo',
+            'Slovensko',
+            'autoentrepreneur',
+            'Slovensko (SK)',
+            'Wien',
+            'N /a',
+            'N.A.',
+            'N/A Local Authority',
+            'n/a partnershiop',
+            'Na sole trader',
+            'Não tenho',
+            'Česká republika',
+            'Sra.',
+            'Sra',
+            'Sra.',
+            'Sra',
+            'Sra.',
+            'Sra',
+            'Sra.',
+            'Sra',
+            '///',
+            '1100 Tatra banka, a.s.',
+            '21% IVA (NO RECARGO)',
+            '5,2%',
+            '5,20',
+            'Barcelona',
+            "Ali'ne baba et ses 4500 produits",
+            'SK',
+            'GB',
+            'EL',
+            'na',
+            'NA',
+            'n/a',
+            'N/A',
+            'N/a',
+            'en cour',
+            'en cours',
+            'MT',
+            '-SR',
+            '000 000 000 000 00',
+            'Slovenská republika',
+            'En cours pas recu encore',
+            'Slowakei',
+            'Slovakia'
+        ])) {
+            $string = '';
         }
 
-        if(strlen($string)<4) {
-            $string='';
+        if (strlen($string) < 4) {
+            $string = '';
         }
 
         return $string;
     }
 
 
-
     protected function cleanUrl($url): string
     {
-        $url=$this->cleanName($url);
-        if(in_array($url, ['www.'])) {
-            $url='';
+        $url = $this->cleanName($url);
+        if (in_array($url, ['www.'])) {
+            $url = '';
         }
 
         return $url;
     }
-
 
 
     protected function cleanPhone($phone): string

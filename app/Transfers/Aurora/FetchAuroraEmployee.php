@@ -143,7 +143,8 @@ class FetchAuroraEmployee extends FetchAurora
             'data'                     => $data,
             'errors'                   => $errors,
             'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
-
+            'fetched_at'               => now(),
+            'last_fetched_at'          => now()
 
         ];
     }
@@ -185,11 +186,9 @@ class FetchAuroraEmployee extends FetchAurora
     }
 
 
-
-
     private function parsePhoto(): void
     {
-        $profileImages            = $this->getModelImagesCollection(
+        $profileImages             = $this->getModelImagesCollection(
             'Staff',
             $this->auroraModelData->{'Staff Key'}
         )->map(function ($auroraImage) {
@@ -200,9 +199,7 @@ class FetchAuroraEmployee extends FetchAurora
 
     private function parseJobPositions(): array
     {
-
-
-        $jobPositions =  $this->organisation->jobPositions()->pluck('id', 'slug')->all();
+        $jobPositions = $this->organisation->jobPositions()->pluck('id', 'slug')->all();
 
         $jobPositionCodes = [];
         foreach (explode(',', $this->auroraModelData->staff_positions) as $sourceStaffPosition) {

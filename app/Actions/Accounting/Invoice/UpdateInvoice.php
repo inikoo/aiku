@@ -27,7 +27,7 @@ class UpdateInvoice extends OrgAction
 
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
-        $billingAddressData =  Arr::get($modelData, 'billing_address');
+        $billingAddressData = Arr::get($modelData, 'billing_address');
         data_forget($modelData, 'billing_address');
 
         $invoice = $this->update($invoice, $modelData, ['data']);
@@ -51,7 +51,7 @@ class UpdateInvoice extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'           => [
+            'reference'        => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -70,6 +70,7 @@ class UpdateInvoice extends OrgAction
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
+            'last_fetched_at'  => ['sometimes', 'date'],
 
         ];
 

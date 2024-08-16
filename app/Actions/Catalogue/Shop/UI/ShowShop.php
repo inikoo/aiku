@@ -7,11 +7,13 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\Catalogue\ShopTabsEnum;
 use App\Http\Resources\Catalogue\ShopResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -175,11 +177,15 @@ class ShowShop extends OrgAction
                     fn () => ShopResource::make($shop)
                     : Inertia::lazy(fn () => ShopResource::make($shop)),
 
+                ShopTabsEnum::HISTORY->value => $this->tab == ShopTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($shop))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($shop)))
 
 
 
             ]
-        );
+        )->table(IndexHistory::make()->tableStructure(prefix: ShopTabsEnum::HISTORY->value));
+
     }
 
 

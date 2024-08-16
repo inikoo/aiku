@@ -26,13 +26,20 @@ class FetchAuroraWarehouses extends FetchAuroraAction
                 ->first()) {
                 $warehouse = UpdateWarehouse::run(
                     warehouse: $warehouse,
-                    modelData: $warehouseData['warehouse']
+                    modelData: $warehouseData['warehouse'],
+                    audit:false
                 );
             } else {
                 $warehouse = StoreWarehouse::run(
                     organisation: $organisationSource->getOrganisation(),
                     modelData:    $warehouseData['warehouse'],
                 );
+
+                $audit = $warehouse->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
+
             }
 
 

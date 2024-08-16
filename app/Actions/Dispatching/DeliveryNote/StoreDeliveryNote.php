@@ -110,6 +110,7 @@ class StoreDeliveryNote extends OrgAction
                     ->where('organisation_id', $this->organisation->id),
             ],
             'delivery_locked'  => ['sometimes', 'boolean'],
+            'fetched_at'       => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {

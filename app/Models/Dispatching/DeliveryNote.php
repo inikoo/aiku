@@ -75,6 +75,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $dispatched_at
  * @property Carbon|null $cancelled_at
  * @property array $data
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -118,17 +120,17 @@ class DeliveryNote extends Model implements Auditable
         'type'   => DeliveryNoteTypeEnum::class,
         'status' => DeliveryNoteStatusEnum::class,
 
-        'date'                        => 'datetime',
-        'order_submitted_at'          => 'datetime',
-        'assigned_at'                 => 'datetime',
-        'picking_at'                  => 'datetime',
-        'picked_at'                   => 'datetime',
-        'packing_at'                  => 'datetime',
-        'packed_at'                   => 'datetime',
-        'dispatched_at'               => 'datetime',
-        'cancelled_at'                => 'datetime',
-        'fetched_at'                  => 'datetime',
-        'last_fetched_at'             => 'datetime',
+        'date'               => 'datetime',
+        'order_submitted_at' => 'datetime',
+        'assigned_at'        => 'datetime',
+        'picking_at'         => 'datetime',
+        'picked_at'          => 'datetime',
+        'packing_at'         => 'datetime',
+        'packed_at'          => 'datetime',
+        'dispatched_at'      => 'datetime',
+        'cancelled_at'       => 'datetime',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [
@@ -204,7 +206,6 @@ class DeliveryNote extends Model implements Auditable
     {
         return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
     }
-
 
 
 }

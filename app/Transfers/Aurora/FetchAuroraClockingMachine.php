@@ -23,10 +23,12 @@ class FetchAuroraClockingMachine extends FetchAurora
         };
 
         $this->parsedData['clocking-machine'] = [
-            'name'       => $this->auroraModelData->{'Clocking Machine Code'},
-            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Clocking Machine Key'},
-            'type'       => $type,
-            'created_at' => $this->parseDatetime($this->auroraModelData->{'Clocking Machine Creation Date'})
+            'name'            => $this->auroraModelData->{'Clocking Machine Code'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Clocking Machine Key'},
+            'type'            => $type,
+            'created_at'      => $this->parseDatetime($this->auroraModelData->{'Clocking Machine Creation Date'}),
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
         ];
 
         $createdBy = $this->auroraModelData->{'Clocking Machine Creation Date'};

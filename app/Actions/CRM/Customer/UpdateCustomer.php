@@ -141,7 +141,8 @@ class UpdateCustomer extends OrgAction
             'delivery_address'         => ['sometimes', 'nullable', new ValidAddress()],
             'timezone_id'              => ['sometimes', 'nullable', 'exists:timezones,id'],
             'language_id'              => ['sometimes', 'nullable', 'exists:languages,id'],
-            'balance'                  => ['sometimes', 'nullable']
+            'balance'                  => ['sometimes', 'nullable'],
+            'last_fetched_at'          => ['sometimes', 'date'],
         ];
 
         if ($this->strict) {

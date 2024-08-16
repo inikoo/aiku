@@ -18,6 +18,7 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
@@ -132,12 +133,16 @@ class UpdateShop extends OrgAction
             'shopify_shop_name'        => ['sometimes', 'string'],
             'shopify_api_key'          => ['sometimes', 'string'],
             'shopify_api_secret'       => ['sometimes', 'string'],
-            'shopify_access_token'     => ['sometimes', 'string']
+            'shopify_access_token'     => ['sometimes', 'string'],
+            'last_fetched_at'          => ['sometimes', 'date'],
         ];
     }
 
-    public function action(Shop $shop, $modelData): Shop
+    public function action(Shop $shop, array $modelData, bool $audit = true): Shop
     {
+        if (!$audit) {
+            Warehouse::disableAuditing();
+        }
         $this->asAction = true;
         $this->shop     = $shop;
 

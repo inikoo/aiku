@@ -70,6 +70,8 @@ return new class () extends Migration {
 
 
             $table->jsonb('data');
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();

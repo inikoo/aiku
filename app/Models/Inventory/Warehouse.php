@@ -57,6 +57,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $allow_stocks
  * @property bool $allow_fulfilment
  * @property bool $allow_dropshipping
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -99,10 +101,12 @@ class Warehouse extends Model implements Auditable
     use HasAddresses;
 
     protected $casts = [
-        'state'    => WarehouseStateEnum::class,
-        'data'     => 'array',
-        'settings' => 'array',
-        'location' => 'array',
+        'state'              => WarehouseStateEnum::class,
+        'data'               => 'array',
+        'settings'           => 'array',
+        'location'           => 'array',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [

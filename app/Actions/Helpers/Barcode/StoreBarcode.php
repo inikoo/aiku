@@ -44,12 +44,14 @@ class StoreBarcode extends GrpAction
             'type'        => ['required', Rule::enum(BarcodeTypeEnum::class)],
             'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
             'assigned_at' => ['sometimes', 'nullable', 'date'],
+            'fetched_at'  => ['sometimes', 'date'],
 
         ];
     }
 
     public function action(Group $group, array $modelData): Barcode
     {
+
         $this->asAction = true;
         $this->initialisation($group, $modelData);
 

@@ -126,6 +126,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Portfolio> $portfolios
  * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
+ * @property-read ShopifyUser|null $shopifyUser
  * @property-read \App\Models\CRM\CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
@@ -168,6 +169,8 @@ class Customer extends Model implements HasMedia, Auditable
         'last_submitted_order_at'     => 'datetime',
         'last_dispatched_delivery_at' => 'datetime',
         'last_invoiced_at'            => 'datetime',
+        'fetched_at'                  => 'datetime',
+        'last_fetched_at'             => 'datetime',
     ];
 
 
@@ -186,6 +189,7 @@ class Customer extends Model implements HasMedia, Auditable
         if ($this->is_fulfilment) {
             $tags[] = 'fulfilment';
         }
+
         return $tags;
     }
 

@@ -32,7 +32,8 @@ class FetchAuroraShops extends FetchAuroraAction
                 ->first()) {
                 $shop = UpdateShop::make()->action(
                     shop: $shop,
-                    modelData: $shopData['shop']
+                    modelData: $shopData['shop'],
+                    audit: false
                 );
 
 
@@ -59,6 +60,11 @@ class FetchAuroraShops extends FetchAuroraAction
                     organisation: $organisationSource->getOrganisation(),
                     modelData: $shopData['shop']
                 );
+                $audit = $shop->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
+
 
                 if ($shopData['tax_number']) {
                     StoreTaxNumber::run(

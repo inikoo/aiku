@@ -53,8 +53,8 @@ return new class () extends Migration {
             $table->foreign('sender_email_id')->references('id')->on('sender_emails');
             $table->unsignedSmallInteger('prospects_sender_email_id')->nullable();
             $table->foreign('prospects_sender_email_id')->references('id')->on('sender_emails');
-
-
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

@@ -44,6 +44,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $device_uuid
  * @property string|null $qr_code
  * @property array $data
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

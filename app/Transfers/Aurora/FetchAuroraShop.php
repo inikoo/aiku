@@ -89,15 +89,17 @@ class FetchAuroraShop extends FetchAurora
 
             'type' => $type,
 
-            'country_id'  => $this->parseCountryID($this->auroraModelData->{'Store Home Country Code 2 Alpha'}),
-            'language_id' => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
-            'currency_id' => $this->parseCurrencyID($this->auroraModelData->{'Store Currency Code'}),
-            'timezone_id' => $this->parseTimezoneID($this->auroraModelData->{'Store Timezone'}),
-            'open_at'     => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
-            'closed_at'   => $this->parseDate($this->auroraModelData->{'Store Valid To'}),
-            'created_at'  => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
-            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
-            'settings'    => $settings
+            'country_id'      => $this->parseCountryID($this->auroraModelData->{'Store Home Country Code 2 Alpha'}),
+            'language_id'     => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
+            'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Store Currency Code'}),
+            'timezone_id'     => $this->parseTimezoneID($this->auroraModelData->{'Store Timezone'}),
+            'open_at'         => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
+            'closed_at'       => $this->parseDate($this->auroraModelData->{'Store Valid To'}),
+            'created_at'      => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
+            'settings'        => $settings,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
 
         ];
 

@@ -30,10 +30,13 @@ return new class () extends Migration {
             $table->boolean('allow_stocks')->default(true);
             $table->boolean('allow_fulfilment')->default(true);
             $table->boolean('allow_dropshipping')->default(true);
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->unique(['group_id','code']);
+
         });
     }
 

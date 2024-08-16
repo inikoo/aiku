@@ -86,7 +86,7 @@ class StoreCustomer extends OrgAction
 
         $customer->stats()->create();
 
-        if($customer->is_dropshipping) {
+        if ($customer->is_dropshipping) {
             $customer->dropshippingStats()->create();
         }
 
@@ -102,7 +102,7 @@ class StoreCustomer extends OrgAction
         );
         $customer->refresh();
 
-        if($deliveryAddressData) {
+        if ($deliveryAddressData) {
             $customer = $this->addAddressToModel(
                 model: $customer,
                 addressData: $deliveryAddressData,
@@ -112,9 +112,7 @@ class StoreCustomer extends OrgAction
             );
         } else {
             $customer->updateQuietly(['delivery_address_id' => $customer->address_id]);
-
         }
-
 
 
         if ($taxNumberData) {
@@ -186,6 +184,7 @@ class StoreCustomer extends OrgAction
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'created_at'  => ['sometimes', 'nullable', 'date'],
             'deleted_at'  => ['sometimes', 'nullable', 'date'],
+            'fetched_at'  => ['sometimes', 'date'],
             'password'    =>
                 [
                     'sometimes',

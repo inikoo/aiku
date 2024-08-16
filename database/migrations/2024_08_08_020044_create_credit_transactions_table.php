@@ -38,6 +38,8 @@ return new class () extends Migration {
             $table->decimal('org_amount', 16)->nullable();
             $table->string('notes')->nullable();
             $table->jsonb('data');
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
         });

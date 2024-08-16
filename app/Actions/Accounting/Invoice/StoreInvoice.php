@@ -125,7 +125,7 @@ class StoreInvoice extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'           => [
+            'reference'        => [
                 'required',
                 'max:64',
                 'string',
@@ -147,6 +147,7 @@ class StoreInvoice extends OrgAction
             'data'             => ['sometimes', 'array'],
             'source_id'        => ['sometimes', 'string'],
             'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'fetched_at'       => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
@@ -182,8 +183,7 @@ class StoreInvoice extends OrgAction
         $this->parent         = $parent;
 
 
-
-        if($parent instanceof RecurringBill) {
+        if ($parent instanceof RecurringBill) {
             $this->shop = $parent->fulfilment->shop;
             $this->initialisationFromFulfilment($parent->fulfilment, $modelData);
         } else {

@@ -38,7 +38,7 @@ class UpdateDeliveryNote extends OrgAction
 
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
 
-        if($deliveryAddressData) {
+        if ($deliveryAddressData) {
             if ($deliveryNote->delivery_locked) {
                 if ($deliveryNote->deliveryAddress->is_fixed) {
                     $deliveryNote = $this->updateFixedAddress(
@@ -72,7 +72,7 @@ class UpdateDeliveryNote extends OrgAction
     public function rules(): array
     {
         return [
-            'reference'           => [
+            'reference'        => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -90,6 +90,7 @@ class UpdateDeliveryNote extends OrgAction
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['sometimes', 'date'],
             'delivery_address' => ['sometimes', 'required', new ValidAddress()],
+            'last_fetched_at'  => ['sometimes', 'date'],
         ];
     }
 

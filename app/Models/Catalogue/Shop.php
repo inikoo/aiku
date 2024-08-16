@@ -104,6 +104,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property int|null $sender_email_id
  * @property int|null $prospects_sender_email_id
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -190,11 +192,13 @@ class Shop extends Model implements HasMedia, Auditable
     use HasImage;
 
     protected $casts = [
-        'data'     => 'array',
-        'settings' => 'array',
-        'location' => 'array',
-        'type'     => ShopTypeEnum::class,
-        'state'    => ShopStateEnum::class
+        'data'            => 'array',
+        'settings'        => 'array',
+        'location'        => 'array',
+        'type'            => ShopTypeEnum::class,
+        'state'           => ShopStateEnum::class,
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -231,7 +235,6 @@ class Shop extends Model implements HasMedia, Auditable
         'contact_name',
         'identity_document_number'
     ];
-
 
 
     public function getSlugOptions(): SlugOptions
@@ -363,7 +366,8 @@ class Shop extends Model implements HasMedia, Auditable
     public function accounts(): PaymentAccount
     {
         /** @var PaymentAccount $paymentAccount */
-        $paymentAccount= $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+        $paymentAccount = $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+
         return $paymentAccount;
     }
 

@@ -36,10 +36,12 @@ class FetchAuroraDeletedEmployee extends FetchAurora
                     'No'    => 'left',
                     default => 'working'
                 },
-                'data'       => [
+                'data'            => [
                     'address' => $auDeletedModel->data->{'Staff Address'},
                 ],
-                'deleted_at' => $this->auroraModelData->{'Staff Deleted Date'}
+                'deleted_at'      => $this->auroraModelData->{'Staff Deleted Date'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
     }
 

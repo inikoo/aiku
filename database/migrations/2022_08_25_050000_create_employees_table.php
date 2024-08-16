@@ -42,6 +42,8 @@ return new class () extends Migration {
             $table->jsonb('errors');
             $table->string('pin')->nullable()->unique();
             $table->unsignedInteger('image_id')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

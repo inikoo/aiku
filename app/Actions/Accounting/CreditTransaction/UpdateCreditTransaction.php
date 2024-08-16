@@ -38,7 +38,8 @@ class UpdateCreditTransaction extends OrgAction
             'top_up_id'           => ['sometimes',
                                     Rule::exists('top_ups', 'id')
                                             ->where('shop_id', $this->shop->id)
-                                ]
+                                ],
+            'last_fetched_at'                       => ['sometimes', 'date'],
             ];
     }
 

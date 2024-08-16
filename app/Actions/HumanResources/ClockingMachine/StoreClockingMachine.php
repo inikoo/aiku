@@ -88,10 +88,11 @@ class StoreClockingMachine extends OrgAction
                             ]
                         ),
                 ],
-            'type'       => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
-            'nfc_tag'    => ['sometimes', 'string'],
-            'source_id'  => 'sometimes|string|max:255',
-            'created_at' => 'sometimes|date',
+            'type'        => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
+            'nfc_tag'     => ['sometimes', 'string'],
+            'source_id'   => 'sometimes|string|max:255',
+            'created_at'  => 'sometimes|date',
+            'fetched_at'  => ['sometimes', 'date'],
         ];
 
         if($this->parent instanceof Organisation) {

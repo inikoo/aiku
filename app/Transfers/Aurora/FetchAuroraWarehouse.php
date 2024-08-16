@@ -25,9 +25,10 @@ class FetchAuroraWarehouse extends FetchAurora
             'settings'   => [
                 'address_link' => 'Organisation:default'
             ],
-            "source_id"  => $this->organisation->id.':'.$this->auroraModelData->{'Warehouse Key'},
-            "created_at" =>
-                $this->auroraModelData->{'Warehouse Valid From'} ?? null,
+            "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Warehouse Key'},
+            "created_at"      => $this->auroraModelData->{'Warehouse Valid From'} ?? null,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
         ];
     }
 

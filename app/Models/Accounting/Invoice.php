@@ -119,7 +119,9 @@ class Invoice extends Model implements Auditable
         'type'             => InvoiceTypeEnum::class,
         'data'             => 'array',
         'paid_at'          => 'datetime',
-        'tax_liability_at' => 'datetime'
+        'tax_liability_at' => 'datetime',
+        'fetched_at'       => 'datetime',
+        'last_fetched_at'  => 'datetime',
     ];
 
     protected $attributes = [

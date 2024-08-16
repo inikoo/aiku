@@ -173,6 +173,7 @@ class StoreEmployee extends OrgAction
             'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'source_id'                               => ['sometimes', 'string', 'max:64'],
             'deleted_at'                              => ['sometimes', 'nullable', 'date'],
+            'fetched_at'                              => ['sometimes', 'date'],
         ];
     }
 

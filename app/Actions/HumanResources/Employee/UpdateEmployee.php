@@ -150,10 +150,11 @@ class UpdateEmployee extends OrgAction
             'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
             'source_id'                             => ['sometimes', 'string', 'max:64'],
+            'last_fetched_at'                       => ['sometimes', 'date'],
         ];
 
         if ($this->employee->user) {
-            $rules['username']  = [
+            $rules['username'] = [
                 'sometimes',
                 'required',
                 'lowercase',
@@ -174,8 +175,7 @@ class UpdateEmployee extends OrgAction
 
 
             ];
-            $rules['password']  = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
-
+            $rules['password'] = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
         }
 
 

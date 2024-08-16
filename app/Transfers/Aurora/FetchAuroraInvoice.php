@@ -88,6 +88,8 @@ class FetchAuroraInvoice extends FetchAurora
             'billing_address' => new Address($billingAddressData),
             'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
             'tax_category_id' => $taxCategory->id,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
 
         ];
     }

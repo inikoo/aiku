@@ -69,7 +69,8 @@ class StoreCreditTransaction extends OrgAction
                 'nullable',
                 Rule::exists('top_ups', 'id')
                     ->where('shop_id', $this->shop->id)
-            ]
+            ],
+            'fetched_at'  => ['sometimes', 'date'],
         ];
         if (!$this->strict) {
             $rules['grp_exchange'] = ['sometimes', 'numeric'];

@@ -25,13 +25,18 @@ class FetchAuroraBarcodes extends FetchAuroraAction
             if ($barcode = Barcode::where('source_id', $barcodeData['barcode']['source_id'])->first()) {
                 $barcode = UpdateBarcode::make()->action(
                     barcode: $barcode,
-                    modelData: $barcodeData['barcode']
+                    modelData: $barcodeData['barcode'],
+                    audit: false
                 );
             } else {
                 $barcode = StoreBarcode::make()->action(
                     group: $organisationSource->getOrganisation()->group,
                     modelData: $barcodeData['barcode'],
                 );
+                $audit = $barcode->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
             }
 
             return $barcode;

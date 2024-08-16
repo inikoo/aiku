@@ -22,14 +22,15 @@ class FetchAuroraBarcode extends FetchAurora
         };
 
         $this->parsedData['barcode'] = [
-            'number'      => $this->auroraModelData->{'Barcode Number'},
-            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Barcode Key'},
-            'type'        => BarcodeTypeEnum::EAN,
-            'status'      => $status,
-            'note'        => $this->auroraModelData->{'Barcode Sticky Note'},
-            'assigned_at' => $this->auroraModelData->{'Barcode Used From'} ? $this->parseDatetime($this->auroraModelData->{'Barcode Used From'}) : null
+            'number'          => $this->auroraModelData->{'Barcode Number'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Barcode Key'},
+            'type'            => BarcodeTypeEnum::EAN,
+            'status'          => $status,
+            'note'            => $this->auroraModelData->{'Barcode Sticky Note'},
+            'assigned_at'     => $this->auroraModelData->{'Barcode Used From'} ? $this->parseDatetime($this->auroraModelData->{'Barcode Used From'}) : null,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
         ];
-
     }
 
 

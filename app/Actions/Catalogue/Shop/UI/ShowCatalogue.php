@@ -24,7 +24,6 @@ class ShowCatalogue extends OrgAction
     use WithInertia;
 
 
-
     public function handle(Shop $shop): Shop
     {
         return $shop;
@@ -41,6 +40,7 @@ class ShowCatalogue extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
         $this->initialisationFromShop($shop, $request)->withTab(CatalogueTabsEnum::values());
+
         return $this->handle($shop);
     }
 
@@ -49,149 +49,30 @@ class ShowCatalogue extends OrgAction
         return Inertia::render(
             'Org/Catalogue/Shop',
             [
-                'title'        => __('shop'),
-                'breadcrumbs'  => $this->getBreadcrumbs(
+                'title'       => __('shop'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation'   => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($shop, $request),
                     'next'     => $this->getNext($shop, $request),
                 ],
-                'pageHead'     => [
-                    'title'   => $shop->name,
-                    'icon'    => [
+                'pageHead'    => [
+                    'title' => $shop->name,
+                    'icon'  => [
                         'title' => __('Shop'),
                         'icon'  => 'fal fa-store-alt'
                     ],
 
                 ],
-                'tabs'         => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
 
-
-                /*
-
-                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value
-                    ?
-                    fn () => DepartmentsResource::collection(
-                        IndexDepartments::run(
-                            parent: $shop,
-                            prefix: 'departments'
-                        )
-                    )
-                    : Inertia::lazy(fn () => DepartmentsResource::collection(
-                        IndexDepartments::run(
-                            parent: $shop,
-                            prefix: 'departments'
-                        )
-                    )),
-
-                CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value
-                    ?
-                    fn () => FamiliesResource::collection(
-                        IndexFamilies::run(
-                            parent: $shop,
-                            prefix: 'families'
-                        )
-                    )
-                    : Inertia::lazy(fn () => FamiliesResource::collection(
-                        IndexFamilies::run(
-                            parent: $shop,
-                            prefix: 'families'
-                        )
-                    )),
-
-                CatalogueTabsEnum::PRODUCTS->value => $this->tab == CatalogueTabsEnum::PRODUCTS->value
-                    ?
-                    fn () => ProductsResource::collection(
-                        IndexProducts::run(
-                            parent: $shop,
-                            prefix: 'products'
-                        )
-                    )
-                    : Inertia::lazy(fn () => ProductsResource::collection(
-                        IndexProducts::run(
-                            parent: $shop,
-                            prefix: 'products'
-                        )
-                    )),
-
-                    CatalogueTabsEnum::COLLECTIONS->value => $this->tab == CatalogueTabsEnum::COLLECTIONS->value
-                    ?
-                    fn () => CollectionResource::collection(
-                        IndexCollection::run(
-                            parent: $shop,
-                            prefix: 'collections'
-                        )
-                    )
-                    : Inertia::lazy(fn () => CollectionResource::collection(
-                        IndexCollection::run(
-                            parent: $shop,
-                            prefix: 'collections'
-                        )
-                    )),
-
-                */
-
             ]
         );
-        /*
-        ->table(
-        IndexDepartments::make()->tableStructure(
-            parent: $shop,
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'shops.show.departments.create',
-                        'parameters' => array_values([$shop->slug])
-                    ],
-                    'label' => __('department'),
-                    'style' => 'create'
-                ] : false
-            ],
-            prefix: 'departments'
-        )
-        )->table(
-        IndexFamilies::make()->tableStructure(
-            parent: $shop,
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'shops.show.families.create',
-                        'parameters' => array_values([$shop->slug])
-                    ],
-                    'label' => __('family'),
-                    'style' => 'create'
-                ] : false
-            ],
-            prefix: 'families'
-        )
-        )->table(
-        IndexProducts::make()->tableStructure(
-            parent: $shop,
-            modelOperations: [
-                'createLink' => $this->canEdit ? [
-                    'route' => [
-                        'name'       => 'shops.show.products.create',
-                        'parameters' => array_values([$shop->slug])
-                    ],
-                    'label' => __('product'),
-                    'style' => 'create'
-                ] : false
-            ],
-            prefix: 'products'
-        )
-        )->table(
-        IndexCollection::make()->tableStructure(
-            parent: $shop,
-            prefix: 'collections'
-        )
-        );
-        */
     }
-
 
 
     public function jsonResponse(Shop $shop): ShopResource
@@ -226,8 +107,8 @@ class ShowCatalogue extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'=> $this->organisation->slug,
-                        'shop'        => $shop->slug
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $shop->slug
                     ]
 
                 ]
@@ -237,8 +118,6 @@ class ShowCatalogue extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-
-
         return
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
@@ -255,7 +134,5 @@ class ShowCatalogue extends OrgAction
                     ]
                 ]
             );
-
-
     }
 }

@@ -35,7 +35,7 @@ class UpdateWarehouse extends OrgAction
 
         $warehouse = $this->update($warehouse, $modelData, ['data', 'settings']);
 
-        $warehouse=$this->updateModelAddress($warehouse, $addressData);
+        $warehouse = $this->updateModelAddress($warehouse, $addressData);
 
         if ($warehouse->wasChanged('state')) {
             GroupHydrateWarehouses::run($warehouse->group);
@@ -76,7 +76,9 @@ class UpdateWarehouse extends OrgAction
             'allow_stock'        => ['sometimes', 'required', 'boolean'],
             'allow_fulfilment'   => ['sometimes', 'required', 'boolean'],
             'allow_dropshipping' => ['sometimes', 'required', 'boolean'],
-            'address'            => ['sometimes', 'required', new ValidAddress()]
+            'address'            => ['sometimes', 'required', new ValidAddress()],
+            'last_fetched_at'    => ['sometimes', 'date'],
+
         ];
     }
 
@@ -93,8 +95,11 @@ class UpdateWarehouse extends OrgAction
         );
     }
 
-    public function action(Warehouse $warehouse, $modelData): Warehouse
+    public function action(Warehouse $warehouse, $modelData, bool $audit=true): Warehouse
     {
+        if(!$audit) {
+            Warehouse::disableAuditing();
+        }
         $this->asAction  = true;
         $this->warehouse = $warehouse;
         $this->initialisation($warehouse->organisation, $modelData);
