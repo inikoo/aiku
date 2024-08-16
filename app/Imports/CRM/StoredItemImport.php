@@ -9,6 +9,7 @@ namespace App\Imports\CRM;
 
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemsToReturn;
+use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Imports\WithImport;
@@ -38,12 +39,8 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
     {
         $fields  = array_keys($this->rules());
         $rowData = $row->only($fields)->toArray();
-
-        dd($rowData);
-
-        $modelData = [
-            'stored_items' => $storedItemsData
-        ];
+        
+        $modelData = $rowData;
 
         if(!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
@@ -69,7 +66,7 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
             }
         } else {
             try {
-                StoreStoredItemsToReturn::run(
+                StoreStoredItemToReturn::run(
                     $this->scope,
                     $modelData
                 );
@@ -87,7 +84,7 @@ class StoredItemImport implements ToCollection, WithHeadingRow, SkipsOnFailure, 
     public function rules(): array
     {
         return [
-            'stored_items' => ['required'],
+            'reference' => ['required'],
             'quantity'     => ['required']
         ];
     }
