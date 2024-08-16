@@ -47,9 +47,12 @@ return new class () extends Migration {
             $table->boolean('footer_is_dirty')->index()->default(false);
             $table->unsignedSmallInteger('current_layout_id')->index()->nullable();
             $table->unsignedInteger('logo_id')->nullable();
-            $table->timestampsTz();
+
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->timestampsTz();
             $table=$this->softDeletes($table);
             $table->string('cloudflare_id')->index()->nullable();
             $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);

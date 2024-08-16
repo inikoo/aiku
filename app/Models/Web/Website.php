@@ -116,19 +116,20 @@ class Website extends Model implements Auditable, HasMedia
     use InteractsWithMedia;
 
     protected $casts = [
-        'type'               => WebsiteTypeEnum::class,
-        'data'               => 'array',
-        'settings'           => 'array',
-        'structure'          => 'array',
-        'layout'             => 'array',
-        'published_layout'   => 'array',
-        'state'              => WebsiteStateEnum::class,
-        'status'             => 'boolean',
-        'engine'             => WebsiteEngineEnum::class,
-        'cloudflare_status'  => WebsiteCloudflareStatusEnum::class,
-        'launched_at'        => 'datetime',
-        'closed_at'          => 'datetime',
-
+        'type'              => WebsiteTypeEnum::class,
+        'data'              => 'array',
+        'settings'          => 'array',
+        'structure'         => 'array',
+        'layout'            => 'array',
+        'published_layout'  => 'array',
+        'state'             => WebsiteStateEnum::class,
+        'status'            => 'boolean',
+        'engine'            => WebsiteEngineEnum::class,
+        'cloudflare_status' => WebsiteCloudflareStatusEnum::class,
+        'launched_at'       => 'datetime',
+        'closed_at'         => 'datetime',
+        'fetched_at'        => 'datetime',
+        'last_fetched_at'   => 'datetime',
     ];
 
     protected $attributes = [

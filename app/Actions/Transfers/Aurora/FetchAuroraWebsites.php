@@ -28,13 +28,18 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 ->first()) {
                 $website = UpdateWebsite::run(
                     website: $website,
-                    modelData: $websiteData['website']
+                    modelData: $websiteData['website'],
+                    audit:false
                 );
             } else {
                 $website = StoreWebsite::make()->action(
                     shop: $websiteData['shop'],
                     modelData: $websiteData['website'],
                 );
+                $audit = $website->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
 
                 if($websiteData['launch']) {
                     LaunchWebsite::run(website: $website);

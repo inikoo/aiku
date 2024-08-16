@@ -43,7 +43,7 @@ class FetchAuroraWebsite extends FetchAurora
         $state = match ($this->auroraModelData->{'Website Status'}) {
             'Active' => WebsiteStateEnum::LIVE,
             'Closed' => WebsiteStateEnum::CLOSED,
-            default  => WebsiteStateEnum::IN_PROCESS,
+            default => WebsiteStateEnum::IN_PROCESS,
         };
 
 
@@ -58,11 +58,13 @@ class FetchAuroraWebsite extends FetchAurora
 
         $this->parsedData['website'] =
             [
-                'engine'    => $engine,
-                'name'      => $this->auroraModelData->{'Website Name'},
-                'code'      => $this->auroraModelData->code,
-                'domain'    => $domain,
-                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
+                'engine'          => $engine,
+                'name'            => $this->auroraModelData->{'Website Name'},
+                'code'            => $this->auroraModelData->code,
+                'domain'          => $domain,
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now()
             ];
 
         $this->parsedData['website']['state']  = $state;

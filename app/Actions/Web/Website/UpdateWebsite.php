@@ -8,11 +8,14 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Website\Search\WebsiteRecordSearch;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Inventory\Warehouse;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -21,6 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateWebsite extends OrgAction
 {
     use WithActionUpdate;
+    use HasWebAuthorisation;
 
     private Website $website;
 
@@ -34,21 +38,16 @@ class UpdateWebsite extends OrgAction
     }
 
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
-        return $request->user()->hasPermissionTo("websites.edit");
-    }
-
-
     public function rules(): array
     {
         return [
-            'domain'      => [
+            'domain'          => [
                 'sometimes',
-                'required','ascii','lowercase','max:255','domain',
+                'required',
+                'ascii',
+                'lowercase',
+                'max:255',
+                'domain',
                 new IUnique(
                     table: 'websites',
                     extraConditions: [
@@ -69,9 +68,13 @@ class UpdateWebsite extends OrgAction
                     ]
                 ),
             ],
-            'code'   => [
+            'code'            => [
                 'sometimes',
-                'required','ascii','lowercase','max:64','alpha_dash',
+                'required',
+                'ascii',
+                'lowercase',
+                'max:64',
+                'alpha_dash',
                 new IUnique(
                     table: 'shops',
                     extraConditions: [
@@ -86,16 +89,20 @@ class UpdateWebsite extends OrgAction
                 ),
 
             ],
-            'name'       => ['sometimes', 'required','string','max:255'],
-            'launched_at'=> ['sometimes', 'date'],
-            'state'      => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
-            'status'     => ['sometimes', 'boolean'],
-            'engine'     => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'name'            => ['sometimes', 'required', 'string', 'max:255'],
+            'launched_at'     => ['sometimes', 'date'],
+            'state'           => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'status'          => ['sometimes', 'boolean'],
+            'engine'          => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'last_fetched_at' => ['sometimes', 'date'],
         ];
     }
 
-    public function action(Website $website, $modelData): Website
+    public function action(Website $website, array $modelData, bool $audit = true): Website
     {
+        if (!$audit) {
+            Website::disableAuditing();
+        }
         $this->asAction = true;
         $this->website  = $website;
 
@@ -106,16 +113,20 @@ class UpdateWebsite extends OrgAction
 
     public function asController(Website $website, ActionRequest $request): Website
     {
-        $this->website  = $website;
-        $this->initialisation($website->organisation, $request);
+        $this->scope   = $website->shop;
+        $this->website = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
         return $this->handle($website, $this->validatedData);
     }
 
 
-    public function inShop(Shop $shop, Website $website, ActionRequest $request): Website
+    public function inFulfilment(Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
-        $this->website  = $website;
-        $this->initialisation($shop->organisation, $request);
+        $this->scope   = $fulfilment;
+        $this->website = $website;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
         return $this->handle($website, $this->validatedData);
     }
 

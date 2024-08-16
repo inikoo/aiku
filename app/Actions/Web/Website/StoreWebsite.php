@@ -42,10 +42,10 @@ class StoreWebsite extends OrgAction
             $modelData,
             'type',
             match ($shop->type) {
-                ShopTypeEnum::FULFILMENT   => WebsiteTypeEnum::FULFILMENT,
+                ShopTypeEnum::FULFILMENT => WebsiteTypeEnum::FULFILMENT,
                 ShopTypeEnum::DROPSHIPPING => WebsiteTypeEnum::DROPSHIPPING,
-                ShopTypeEnum::B2B          => WebsiteTypeEnum::B2B,
-                ShopTypeEnum::B2C          => WebsiteTypeEnum::B2C,
+                ShopTypeEnum::B2B => WebsiteTypeEnum::B2B,
+                ShopTypeEnum::B2C => WebsiteTypeEnum::B2C,
             }
         );
         /** @var Website $website */
@@ -78,9 +78,9 @@ class StoreWebsite extends OrgAction
         );
         $website->update(
             [
-                'unpublished_header_snapshot_id'  => $headerSnapshot->id,
-                'unpublished_footer_snapshot_id'  => $footerSnapshot->id,
-                'published_layout'                => [
+                'unpublished_header_snapshot_id' => $headerSnapshot->id,
+                'unpublished_footer_snapshot_id' => $footerSnapshot->id,
+                'published_layout'               => [
                     'header' => $headerSnapshot->layout,
                     'footer' => $footerSnapshot->layout
                 ]
@@ -160,6 +160,7 @@ class StoreWebsite extends OrgAction
             'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'      => ['sometimes', 'boolean'],
             'engine'      => ['sometimes', Rule::enum(WebsiteEngineEnum::class)],
+            'fetched_at'  => ['sometimes', 'date'],
         ];
     }
 

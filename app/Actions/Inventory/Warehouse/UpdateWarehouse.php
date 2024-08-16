@@ -67,7 +67,11 @@ class UpdateWarehouse extends OrgAction
                     table: 'warehouses',
                     extraConditions: [
                         ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                        ['column' => 'id', 'value' => $this->warehouse->id, 'operation' => '!=']
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->warehouse->id
+                        ],
                     ]
                 ),
             ],
@@ -95,9 +99,9 @@ class UpdateWarehouse extends OrgAction
         );
     }
 
-    public function action(Warehouse $warehouse, $modelData, bool $audit=true): Warehouse
+    public function action(Warehouse $warehouse, array $modelData, bool $audit = true): Warehouse
     {
-        if(!$audit) {
+        if (!$audit) {
             Warehouse::disableAuditing();
         }
         $this->asAction  = true;

@@ -147,6 +147,7 @@ function connectToPlatform(routeName, parameters) {
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead" />
 
+  {{formData.args}}
 
     <!-- If overflow-hidden, affect to Multiselect on Address -->
     <div class="rounded-lg shadow">

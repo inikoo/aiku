@@ -19,7 +19,6 @@ enum WebsiteTabsEnum: string
     case ANALYTICS = 'analytics';
     case WEB_USERS = 'web_users';
     case CHANGELOG = 'changelog';
-    case DATA      = 'data';
 
     public function blueprint(): array
     {
@@ -36,12 +35,7 @@ enum WebsiteTabsEnum: string
                 'title' => __('website users'),
                 'icon'  => 'fal fa-terminal',
             ],
-            WebsiteTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+
             WebsiteTabsEnum::CHANGELOG => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',

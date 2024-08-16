@@ -31,7 +31,6 @@ class EditWebsite extends OrgAction
     }
 
 
-
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
         $this->scope  = $shop;
@@ -57,6 +56,31 @@ class EditWebsite extends OrgAction
      */
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
+        if ($this->scope instanceof Fulfilment) {
+            $args = [
+                'updateRoute' => [
+                    'name'       => 'grp.models.fulfilment.website.update',
+                    'parameters' => [
+                       $this->scope->id,
+                       $website->id,
+                    ]
+                ],
+            ];
+        } else {
+            $args = [
+                'updateRoute' => [
+                    'name'       => 'grp.models.website.update',
+                    'parameters' => [
+                        [
+
+                            $website->id,
+                        ]
+                    ]
+                ],
+            ];
+        }
+
+
         return Inertia::render(
             'EditModel',
             [
@@ -268,12 +292,10 @@ class EditWebsite extends OrgAction
                             ]
                         ],
                     ],
-                    'args'      => [
-                        'updateRoute' => [
-                            'name'       => 'grp.models.website.update',
-                            'parameters' => $website->id
-                        ],
-                    ]
+
+                    'args' => $args
+
+
                 ],
 
             ]

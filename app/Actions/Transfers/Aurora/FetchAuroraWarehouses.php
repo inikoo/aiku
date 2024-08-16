@@ -24,13 +24,13 @@ class FetchAuroraWarehouses extends FetchAuroraAction
         if ($warehouseData = $organisationSource->fetchWarehouse($organisationSourceId)) {
             if ($warehouse = Warehouse::where('source_id', $warehouseData['warehouse']['source_id'])
                 ->first()) {
-                $warehouse = UpdateWarehouse::run(
+                $warehouse = UpdateWarehouse::make()->action(
                     warehouse: $warehouse,
                     modelData: $warehouseData['warehouse'],
-                    audit:false
+                    audit: false
                 );
             } else {
-                $warehouse = StoreWarehouse::run(
+                $warehouse = StoreWarehouse::make()->action(
                     organisation: $organisationSource->getOrganisation(),
                     modelData:    $warehouseData['warehouse'],
                 );
