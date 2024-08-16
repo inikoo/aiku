@@ -105,11 +105,12 @@ class ShowFulfilmentCustomer extends OrgAction
         if ($fulfilmentCustomer->number_pallets_status_storing > 0) {
             $additionalActions[] =
                 [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'tooltip' => __('Create Return'),
-                    'label'   => __('Return'),
-                    'route'   => [
+                    'type'          => 'button',
+                    'style'         => 'create',
+                    'tooltip'       => __('Create Return'),
+                    'label'         => __('Return'),
+                    'fullLoading'   => true,
+                    'route'         => [
                         'method'     => 'post',
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                         'parameters' => [
