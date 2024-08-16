@@ -142,10 +142,9 @@ const layout = inject('layout', layoutStructure)
                                 (action.button?.length || 0) > 1 ? 'shadow' : '',
                                 ]"
                                 :style="{
-                                    border: `1px solid ${layout?.app?.theme[4] + '88'}`
+                                    // border: `1px solid ${action?.button?.length > 1 ? layout?.app?.theme[4] + '88' : 'transparent'}`
                                 }"
                             >
-                        
                                 <slot v-for="(button, index) in action.button" :name="`button-group-${kebabCase(button.key ? button.key : button.label)}`" :action="button">
                                     <component
                                         :key="'buttonPH' + index + button.label"

@@ -14,10 +14,11 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue"
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
-import TableNotifications from "@/Components/Profile/TableNotifications.vue"
+// import TableNotifications from "@/Components/Profile/TableNotifications.vue"
 import ProfileKPIs from "@/Components/Profile/ProfileKPIs.vue"
 import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
-import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
+import ProfileNotifications from "@/Components/Profile/ProfileNotifications.vue"
+// import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
 // import EditProfile from "@/Pages/Grp/EditProfile.vue"
 
 import axios from 'axios'
@@ -75,7 +76,7 @@ const currentTab = ref('')
 const component = computed(() => {
     const components: Component = {
         todo: ProfileTodo,
-        notifications: TableNotifications,
+        notifications: ProfileNotifications,
         kpi: ProfileKPIs,
         visit_logs: TableUserRequestLogs,
         timesheets: TableTimesheets,

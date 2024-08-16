@@ -319,6 +319,7 @@ const onSubmitAddPhysicalGood = (data: Action, closedPopover: Function) => {
                             :tooltip="action.tooltip"
                         />
                     </template>
+                    
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>

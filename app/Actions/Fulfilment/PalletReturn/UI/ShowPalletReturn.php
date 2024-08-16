@@ -130,7 +130,7 @@ class ShowPalletReturn extends OrgAction
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-plus',
                             'label'   => __('add service'),
-                            'key'     => 'add service',
+                            'key'     => 'add-service',
                             'tooltip' => __('Add single service'),
                             'route'   => [
                                 'name'       => 'grp.models.pallet-return.transaction.store',
@@ -160,7 +160,7 @@ class ShowPalletReturn extends OrgAction
                     'style'   => 'save',
                     'tooltip' => __('submit'),
                     'label'   => __('submit'),
-                    'key'     => 'action',
+                    'key'     => 'submit',
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.submit_and_confirm',
@@ -177,7 +177,7 @@ class ShowPalletReturn extends OrgAction
                     'style'   => 'save',
                     'tooltip' => __('confirm'),
                     'label'   => __('confirm'),
-                    'key'     => 'action',
+                    'key'     => 'confirm',
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
@@ -194,7 +194,7 @@ class ShowPalletReturn extends OrgAction
                     'style'   => 'save',
                     'tooltip' => __('start picking'),
                     'label'   => __('start picking'),
-                    'key'     => 'action',
+                    'key'     => 'start picking',
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.picking',
@@ -211,7 +211,7 @@ class ShowPalletReturn extends OrgAction
                     'style'   => 'save',
                     'tooltip' => __('set all pending as picked'),
                     'label'   => __('pick all'),
-                    'key'     => 'action',
+                    'key'     => 'pick all',
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
@@ -228,7 +228,7 @@ class ShowPalletReturn extends OrgAction
                     'style'   => 'save',
                     'tooltip' => __('set as dispatched'),
                     'label'   => __('Dispatching'),
-                    'key'     => 'action',
+                    'key'     => 'Dispatching',
                     'route'   => [
                         'method'     => 'post',
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
@@ -252,7 +252,7 @@ class ShowPalletReturn extends OrgAction
                     'icon'          => 'fal fa-file-export',
                     'id'            => 'pdf-export',
                     'label'         => 'PDF',
-                    'key'           => 'action',
+                    'key'           => 'PDF',
                     'target'        => '_blank',
                     'route'         => [
                         'name'       => 'grp.models.pallet-return.pdf',

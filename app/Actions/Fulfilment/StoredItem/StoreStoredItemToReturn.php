@@ -20,9 +20,62 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
+        $reference = Arr::get($modelData, 'reference');
+        $storedItem = StoredItem::where('reference', $reference)
+                    ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
+                    ->first();
+        $currentQuantity  = 0;
+        $pallets           = $storedItem->pallets;
+        $requiredQuantity  = Arr::get($modelData, 'quantity');
+
+        foreach ($pallets as $pallet) {
+            $remainingQuantity   = $requiredQuantity - $currentQuantity;
+            $palletStoredItemQty = $pallet->storedItems->sum('pivot.quantity');
+
+            if ($palletStoredItemQty <= $remainingQuantity) {
+                $currentQuantity += $palletStoredItemQty;
+            } else {
+                $partialPallet           = clone $pallet;
+                $partialPallet->quantity = $remainingQuantity;
+                $currentQuantity += $remainingQuantity;
+            }
+
+            $this->attach($palletReturn, $pallet, $storedItem, $currentQuantity);
+
+            if ($currentQuantity == $requiredQuantity) {
+                break;
+            }
+        }
+
+        $palletReturn->refresh();
+
+        PalletReturnHydratePallets::run($palletReturn);
+
         return $palletReturn;
     }
 
+    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $value, $currentQuantity): void
+    {
+        $exists = $value->palletReturns()
+            ->wherePivot('pallet_return_id', $palletReturn->id)
+            ->wherePivot('stored_item_id', $value->id)
+            ->exists();
+
+        if (!$exists) {
+            $value->palletReturns()->attach($palletReturn->id, [
+                'stored_item_id'       => $value->id,
+                'pallet_id'            => $pallet->id,
+                'pallet_stored_item_id'=> $pallet->pivot->id,
+                'quantity_ordered'     => $currentQuantity,
+                'type'                 => 'StoredItem'
+            ]);
+        } else {
+            $value->palletReturns()->updateExistingPivot($palletReturn->id, [
+                'quantity_ordered'     => $currentQuantity,
+                'type'                 => 'StoredItem'
+            ]);
+        }
+    }
 
     public function rules(): array
     {
