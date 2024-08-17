@@ -42,10 +42,10 @@ class StoreWebsite extends OrgAction
             $modelData,
             'type',
             match ($shop->type) {
-                ShopTypeEnum::FULFILMENT => WebsiteTypeEnum::FULFILMENT,
+                ShopTypeEnum::FULFILMENT   => WebsiteTypeEnum::FULFILMENT,
                 ShopTypeEnum::DROPSHIPPING => WebsiteTypeEnum::DROPSHIPPING,
-                ShopTypeEnum::B2B => WebsiteTypeEnum::B2B,
-                ShopTypeEnum::B2C => WebsiteTypeEnum::B2C,
+                ShopTypeEnum::B2B          => WebsiteTypeEnum::B2B,
+                ShopTypeEnum::B2C          => WebsiteTypeEnum::B2C,
             }
         );
         /** @var Website $website */

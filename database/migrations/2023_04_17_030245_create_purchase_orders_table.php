@@ -57,7 +57,8 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('partner_id')->nullable();
             $table->foreign('partner_id')->references('id')->on('organisations');
-
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();

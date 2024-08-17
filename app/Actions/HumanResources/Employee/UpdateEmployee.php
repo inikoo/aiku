@@ -182,8 +182,11 @@ class UpdateEmployee extends OrgAction
         return $rules;
     }
 
-    public function action(Employee $employee, $modelData): Employee
+    public function action(Employee $employee, array $modelData, bool $audit =true): Employee
     {
+        if(!$audit) {
+            Employee::disableAuditing();
+        }
         $this->asAction = true;
         $this->employee = $employee;
 

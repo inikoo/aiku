@@ -104,6 +104,7 @@ class StoreSupplier extends GrpAction
             'status'       => ['sometimes', 'required', 'boolean'],
             'archived_at'  => ['sometimes', 'nullable', 'date'],
             'created_at'   => ['sometimes', 'nullable', 'date'],
+            'fetched_at'   => ['sometimes', 'date'],
 
         ];
 

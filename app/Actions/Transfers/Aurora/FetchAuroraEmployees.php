@@ -40,7 +40,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::make()->action(
                     employee: $employee,
-                    modelData: $employeeData['employee']
+                    modelData: $employeeData['employee'],
+                    audit: false
                 );
             } else {
 
@@ -51,6 +52,10 @@ class FetchAuroraEmployees extends FetchAuroraAction
                     parent: $workplace,
                     modelData: $employeeData['employee'],
                 );
+                $audit = $employee->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);

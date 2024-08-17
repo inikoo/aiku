@@ -34,7 +34,8 @@ class FetchAuroraInvoices extends FetchAuroraAction
                         invoice: $invoice,
                         modelData: $invoiceData['invoice'],
                         hydratorsDelay: 60,
-                        strict: false
+                        strict: false,
+                        audit:false
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
@@ -62,6 +63,10 @@ class FetchAuroraInvoices extends FetchAuroraAction
                             hydratorsDelay: $this->hydrateDelay,
                             strict: false
                         );
+                        $audit = $invoice->audits()->first();
+                        $audit->update([
+                            'event' => 'migration'
+                        ]);
                     } catch (Exception $e) {
                         //dd($e->getMessage());
                         $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');

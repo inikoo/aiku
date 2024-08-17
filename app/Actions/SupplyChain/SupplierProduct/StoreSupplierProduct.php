@@ -95,6 +95,7 @@ class StoreSupplierProduct extends GrpAction
             'source_slug'            => ['sometimes', 'nullable', 'string'],
             'source_slug_inter_org'  => ['sometimes', 'nullable', 'string'],
             'source_organisation_id' => ['sometimes', 'nullable'],
+            'fetched_at'             => ['sometimes', 'date'],
         ];
     }
 

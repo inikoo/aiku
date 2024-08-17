@@ -42,7 +42,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         customer: $customer,
                         modelData: $customerData['customer'],
                         hydratorsDelay: 60,
-                        strict: false
+                        strict: false,
+                        audit:false
                     );
                     $this->recordChange($organisationSource, $customer->wasChanged());
                 } catch (Exception $e) {
@@ -58,6 +59,11 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay,
                         strict: false
                     );
+
+                    $audit = $customer->audits()->first();
+                    $audit->update([
+                        'event' => 'migration'
+                    ]);
 
 
                     $this->recordNew($organisationSource);

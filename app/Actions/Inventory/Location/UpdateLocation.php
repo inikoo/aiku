@@ -68,12 +68,16 @@ class UpdateLocation extends OrgAction
             ],
             'allow_stocks'           => ['sometimes', 'required', 'boolean'],
             'allow_fulfilment'       => ['sometimes', 'required', 'boolean'],
-            'allow_dropshipping'     => ['sometimes', 'required', 'boolean']
+            'allow_dropshipping'     => ['sometimes', 'required', 'boolean'],
+            'last_fetched_at'        => ['sometimes', 'date'],
         ];
     }
 
-    public function action(Location $location, array $modelData): Location
+    public function action(Location $location, array $modelData,bool $audit=true): Location
     {
+        if(!$audit) {
+            Location::disableAuditing();
+        }
         $this->asAction = true;
         $this->location = $location;
         $this->initialisation($location->organisation, $modelData);

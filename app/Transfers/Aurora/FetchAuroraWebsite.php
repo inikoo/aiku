@@ -43,7 +43,7 @@ class FetchAuroraWebsite extends FetchAurora
         $state = match ($this->auroraModelData->{'Website Status'}) {
             'Active' => WebsiteStateEnum::LIVE,
             'Closed' => WebsiteStateEnum::CLOSED,
-            default => WebsiteStateEnum::IN_PROCESS,
+            default  => WebsiteStateEnum::IN_PROCESS,
         };
 
 

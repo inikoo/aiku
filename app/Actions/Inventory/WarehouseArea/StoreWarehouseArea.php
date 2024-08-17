@@ -62,8 +62,9 @@ class StoreWarehouseArea extends OrgAction
                     ]
                 ),
             ],
-            'name'      => ['required', 'max:250', 'string'],
-            'source_id' => ['sometimes', 'string'],
+            'name'        => ['required', 'max:250', 'string'],
+            'source_id'   => ['sometimes', 'string'],
+            'fetched_at'  => ['sometimes', 'date'],
         ];
     }
 

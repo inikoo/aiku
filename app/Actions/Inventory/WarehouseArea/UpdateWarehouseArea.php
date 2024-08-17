@@ -59,12 +59,16 @@ class UpdateWarehouseArea extends OrgAction
                     ]
                 ),
             ],
-            'name' => ['sometimes', 'required', 'max:250', 'string'],
+            'name'                     => ['sometimes', 'required', 'max:250', 'string'],
+            'last_fetched_at'          => ['sometimes', 'date'],
         ];
     }
 
-    public function action(WarehouseArea $warehouseArea, $modelData): WarehouseArea
+    public function action(WarehouseArea $warehouseArea, array $modelData, bool $audit =true): WarehouseArea
     {
+        if(!$audit) {
+            WarehouseArea::disableAuditing();
+        }
         $this->asAction      = true;
         $this->warehouseArea = $warehouseArea;
         $this->initialisation($warehouseArea->organisation, $modelData);

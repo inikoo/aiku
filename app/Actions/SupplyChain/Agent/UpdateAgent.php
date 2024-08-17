@@ -80,21 +80,25 @@ class UpdateAgent extends GrpAction
                     ]
                 ),
             ],
-            'name'         => ['sometimes', 'required', 'string', 'max:255'],
-            'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'        => ['nullable', 'email'],
-            'phone'        => ['nullable', new Phone()],
-            'address'      => ['sometimes', 'required', new ValidAddress()],
-            'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
-            'country_id'   => ['sometimes', 'required', 'exists:countries,id'],
-            'timezone_id'  => ['sometimes', 'required', 'exists:timezones,id'],
-            'language_id'  => ['sometimes', 'required', 'exists:languages,id'],
-            'status'       => ['sometimes', 'required', 'boolean'],
+            'name'            => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name'    => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'           => ['nullable', 'email'],
+            'phone'           => ['nullable', new Phone()],
+            'address'         => ['sometimes', 'required', new ValidAddress()],
+            'currency_id'     => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'      => ['sometimes', 'required', 'exists:countries,id'],
+            'timezone_id'     => ['sometimes', 'required', 'exists:timezones,id'],
+            'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
+            'status'          => ['sometimes', 'required', 'boolean'],
+            'last_fetched_at' => ['sometimes', 'date'],
         ];
     }
 
-    public function action(Agent $agent, $modelData): Agent
+    public function action(Agent $agent, array $modelData, bool $audit=true): Agent
     {
+        if(!$audit) {
+            Agent::disableAuditing();
+        }
         $this->agent  = $agent;
         $this->action = true;
         $this->initialisation($agent->group, $modelData);

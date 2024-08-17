@@ -69,7 +69,7 @@ class UpdateSupplier extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'code'         => [
+            'code'            => [
                 'sometimes',
                 'required',
                 'max:32',
@@ -86,13 +86,14 @@ class UpdateSupplier extends GrpAction
                     ]
                 ),
             ],
-            'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'company_name' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'        => ['sometimes', 'nullable', 'email'],
-            'phone'        => ['sometimes', 'nullable', new Phone()],
-            'address'      => ['sometimes', 'required', new ValidAddress()],
-            'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
-            'archived_at'  => ['sometimes', 'nullable', 'date'],
+            'contact_name'    => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'    => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'           => ['sometimes', 'nullable', 'email'],
+            'phone'           => ['sometimes', 'nullable', new Phone()],
+            'address'         => ['sometimes', 'required', new ValidAddress()],
+            'currency_id'     => ['sometimes', 'required', 'exists:currencies,id'],
+            'archived_at'     => ['sometimes', 'nullable', 'date'],
+            'last_fetched_at' => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
@@ -102,9 +103,11 @@ class UpdateSupplier extends GrpAction
         return $rules;
     }
 
-    public function action(Supplier $supplier, $modelData, $strict = true): Supplier
+    public function action(Supplier $supplier, array $modelData, $strict = true, bool $audit = true): Supplier
     {
-
+        if (!$audit) {
+            Supplier::disableAuditing();
+        }
         $this->supplier = $supplier;
         $this->action   = true;
         $this->strict   = $strict;

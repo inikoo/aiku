@@ -7,8 +7,12 @@
 
 namespace App\Actions\Fulfilment\StoredItem;
 
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\StoredItem;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
@@ -20,11 +24,11 @@ class StoreStoredItemToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $reference = Arr::get($modelData, 'reference');
+        $reference  = Arr::get($modelData, 'reference');
         $storedItem = StoredItem::where('reference', $reference)
                     ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
                     ->first();
-        $currentQuantity  = 0;
+        $currentQuantity   = 0;
         $pallets           = $storedItem->pallets;
         $requiredQuantity  = Arr::get($modelData, 'quantity');
 

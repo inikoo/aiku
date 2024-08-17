@@ -134,7 +134,9 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'created_at'            => $created_at,
                 'source_slug'           => $sourceSlug,
                 'source_slug_inter_org' => $sourceSlugInterOrg,
-                'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'}
+                'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'},
+                'fetched_at'            => now(),
+                'last_fetched_at'       => now()
             ];
     }
 

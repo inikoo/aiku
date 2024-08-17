@@ -71,6 +71,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -107,18 +109,22 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
 
 
     protected $casts = [
-        'data'            => 'array',
-        'state'           => PurchaseOrderStateEnum::class,
-        'status'          => PurchaseOrderStatusEnum::class,
-        'date'            => 'datetime',
-        'submitted_at'    => 'datetime',
-        'confirmed_at'    => 'datetime',
-        'manufactured_at' => 'datetime',
-        'dispatched_at'   => 'datetime',
-        'received_at'     => 'datetime',
-        'checked_at'      => 'datetime',
-        'settled_at'      => 'datetime',
-        'cancelled_at'    => 'datetime'];
+        'data'               => 'array',
+        'state'              => PurchaseOrderStateEnum::class,
+        'status'             => PurchaseOrderStatusEnum::class,
+        'date'               => 'datetime',
+        'submitted_at'       => 'datetime',
+        'confirmed_at'       => 'datetime',
+        'manufactured_at'    => 'datetime',
+        'dispatched_at'      => 'datetime',
+        'received_at'        => 'datetime',
+        'checked_at'         => 'datetime',
+        'settled_at'         => 'datetime',
+        'cancelled_at'       => 'datetime',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
+    ];
+
 
     protected $attributes = [
         'data' => '{}',

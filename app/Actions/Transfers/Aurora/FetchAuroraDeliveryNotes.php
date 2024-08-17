@@ -28,7 +28,11 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
         if ($deliveryNoteData = $organisationSource->fetchDeliveryNote($organisationSourceId)) {
 
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])->first()) {
-                UpdateDeliveryNote::make()->action($deliveryNote, $deliveryNoteData['delivery_note']);
+                UpdateDeliveryNote::make()->action(
+                    $deliveryNote,
+                    $deliveryNoteData['delivery_note'],
+                    audit:false
+                );
 
                 if (in_array('transactions', $this->with) or $forceWithTransactions) {
                     $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
@@ -45,6 +49,12 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                             $deliveryNoteData['order'],
                             $deliveryNoteData['delivery_note'],
                         );
+
+                        $audit = $deliveryNote->audits()->first();
+                        $audit->update([
+                            'event' => 'migration'
+                        ]);
+
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $deliveryNoteData['delivery_note'], 'DeliveryNote', 'store');
 

@@ -38,7 +38,6 @@ class StorePurchaseOrder extends OrgAction
             data_set($modelData, 'supplier_id', $parent->supplier_id);
             data_set($modelData, 'parent_code', $parent->supplier->code, false);
             data_set($modelData, 'parent_name', $parent->supplier->name, false);
-
         } elseif (class_basename($parent) == 'OrgAgent') {
             data_set($modelData, 'agent_id', $parent->agent_id);
             data_set($modelData, 'parent_code', $parent->agent->code, false);
@@ -78,7 +77,7 @@ class StorePurchaseOrder extends OrgAction
     public function rules(): array
     {
         return [
-            'reference'          => [
+            'reference'       => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
@@ -109,6 +108,7 @@ class StorePurchaseOrder extends OrgAction
             'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
             'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
             'source_id'       => ['sometimes', 'required', 'string', 'max:64'],
+            'fetched_at'      => ['sometimes', 'date'],
 
         ];
     }

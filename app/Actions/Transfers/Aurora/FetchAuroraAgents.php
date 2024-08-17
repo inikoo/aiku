@@ -36,7 +36,7 @@ class FetchAuroraAgents extends FetchAuroraAction
                 $agent = $agentData['foundAgent'];
             } elseif ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
-                    $agent = UpdateAgent::make()->action($agent, $agentData['agent']);
+                    $agent = UpdateAgent::make()->action($agent, $agentData['agent'], audit: false);
                 }
             } else {
                 $agent = StoreAgent::make()->action(
@@ -44,6 +44,12 @@ class FetchAuroraAgents extends FetchAuroraAction
                     modelData: $agentData['agent'],
                 );
                 $agent->refresh();
+
+                $audit = $agent->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
+
                 foreach (Arr::get($agentData, 'photo', []) as $photoData) {
                     if (isset($photoData['image_path']) and isset($photoData['filename'])) {
                         SaveModelImage::run(

@@ -27,7 +27,8 @@ class FetchAuroraLocations extends FetchAuroraAction
                 try {
                     $location = UpdateLocation::make()->action(
                         location: $location,
-                        modelData: $locationData['location']
+                        modelData: $locationData['location'],
+                        audit: false
                     );
                     $this->recordChange($organisationSource, $location->wasChanged());
                 } catch (Exception $e) {
@@ -41,6 +42,10 @@ class FetchAuroraLocations extends FetchAuroraAction
                         parent: $locationData['parent'],
                         modelData: $locationData['location'],
                     );
+                    $audit = $location->audits()->first();
+                    $audit->update([
+                        'event' => 'migration'
+                    ]);
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'update');

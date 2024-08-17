@@ -24,6 +24,8 @@ return new class () extends Migration {
             $table->string('name')->index();
             $table->decimal('unit_quantity')->default(0);
             $table->decimal('value')->default(0);
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();

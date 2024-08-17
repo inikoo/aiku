@@ -17,7 +17,6 @@ use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -50,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
+ * @property-read Shop|null $website
  * @method static \Illuminate\Database\Eloquent\Builder|Fulfilment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fulfilment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Fulfilment onlyTrashed()

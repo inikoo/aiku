@@ -81,6 +81,7 @@ class StoreLocation extends OrgAction
             'max_volume'   => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
             'source_id'    => ['sometimes', 'string'],
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
+            'fetched_at'   => ['sometimes', 'date'],
         ];
     }
 

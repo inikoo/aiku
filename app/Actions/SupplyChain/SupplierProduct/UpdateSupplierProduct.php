@@ -98,15 +98,20 @@ class UpdateSupplierProduct extends GrpAction
                     ]
                 ),
             ],
-            'name'         => ['sometimes', 'required', 'string', 'max:255'],
-            'cost'         => ['sometimes', 'required'],
-            'state'        => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
-            'is_available' => ['sometimes', 'required', 'boolean'],
+            'name'            => ['sometimes', 'required', 'string', 'max:255'],
+            'cost'            => ['sometimes', 'required'],
+            'state'           => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
+            'is_available'    => ['sometimes', 'required', 'boolean'],
+            'last_fetched_at' => ['sometimes', 'date'],
+
         ];
     }
 
-    public function action(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0): SupplierProduct
+    public function action(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $audit=true): SupplierProduct
     {
+        if(!$audit) {
+            SupplierProduct::disableAuditing();
+        }
         $this->asAction        = true;
         $this->hydratorsDelay  = $hydratorsDelay;
         $this->skipHistoric    = $skipHistoric;

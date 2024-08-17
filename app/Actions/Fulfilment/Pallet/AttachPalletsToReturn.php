@@ -22,8 +22,6 @@ use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
-use function PHPUnit\Framework\isEmpty;
-
 class AttachPalletsToReturn extends OrgAction
 {
     use AsCommand;
@@ -40,41 +38,41 @@ class AttachPalletsToReturn extends OrgAction
             $this->unselectPallets($palletReturn, $allAttachedPalletIds);
             return $palletReturn;
         }
-    
+
         $palletReturnPalletIds = $palletReturn->pallets()->pluck('pallets.id')->toArray();
-    
-        $palletsToSelect = array_diff($selectedPalletIds, $palletReturnPalletIds);  // Pallets not yet attached
+
+        $palletsToSelect   = array_diff($selectedPalletIds, $palletReturnPalletIds);  // Pallets not yet attached
         $palletsToUnselect = array_diff($palletReturnPalletIds, $selectedPalletIds); // Pallets to be unselected
-    
+
         if (!empty($palletsToSelect)) {
             $palletsData = [];
             foreach ($palletsToSelect as $palletId) {
                 $palletsData[$palletId] = ['quantity_ordered' => 1];
             }
-    
+
             $palletReturn->pallets()->syncWithoutDetaching($palletsData);
-    
+
             Pallet::whereIn('id', $palletsToSelect)->update([
                 'pallet_return_id' => $palletReturn->id,
                 'status'           => PalletStatusEnum::STORING,
                 'state'            => PalletStateEnum::IN_PROCESS
             ]);
-    
+
             $pallets = Pallet::findOrFail($palletsToSelect);
             foreach ($pallets as $pallet) {
                 AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
             }
         }
-    
+
         if (!empty($palletsToUnselect)) {
             $this->unselectPallets($palletReturn, $palletsToUnselect);
         }
-    
+
         // Refresh the pallet return after any changes
         $palletReturn->refresh();
-    
+
         PalletReturnHydratePallets::run($palletReturn);
-    
+
         return $palletReturn;
     }
 

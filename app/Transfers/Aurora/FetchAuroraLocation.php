@@ -24,24 +24,26 @@ class FetchAuroraLocation extends FetchAurora
             $parent = FetchAuroraWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Key'});
         }
 
-        $code=$this->auroraModelData->{'Location Code'};
-        $code=str_replace(' ', '-', $code);
-        $code=str_replace('A&C', 'AC', $code);
-        $code=str_replace('.', '-', $code);
-        $code=str_replace('+', '-', $code);
-        $code=str_replace('*', '', $code);
-        $code=str_replace('/', '', $code);
-        if($code=='Papier.-Lep.-Pás') {
-            $code='Papier-Lep-Pas';
+        $code = $this->auroraModelData->{'Location Code'};
+        $code = str_replace(' ', '-', $code);
+        $code = str_replace('A&C', 'AC', $code);
+        $code = str_replace('.', '-', $code);
+        $code = str_replace('+', '-', $code);
+        $code = str_replace('*', '', $code);
+        $code = str_replace('/', '', $code);
+        if ($code == 'Papier.-Lep.-Pás') {
+            $code = 'Papier-Lep-Pas';
         }
-        if($code=='Affinity-(Goods-') {
-            $code='Affinity-Goods2';
+        if ($code == 'Affinity-(Goods-') {
+            $code = 'Affinity-Goods2';
         }
 
         $this->parsedData['parent']   = $parent;
         $this->parsedData['location'] = [
-            'code'                     => $code,
-            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Location Key'},
+            'code'            => $code,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Location Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
         ];
     }
 

@@ -62,6 +62,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property array $data
  * @property Carbon|null $archived_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -108,11 +110,13 @@ class Supplier extends Model implements HasMedia, Auditable
     use InGroup;
 
     protected $casts = [
-        'data'        => 'array',
-        'settings'    => 'array',
-        'location'    => 'array',
-        'status'      => 'boolean',
-        'archived_at' => 'datetime'
+        'data'               => 'array',
+        'settings'           => 'array',
+        'location'           => 'array',
+        'status'             => 'boolean',
+        'archived_at'        => 'datetime',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [

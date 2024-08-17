@@ -81,8 +81,11 @@ class UpdateInvoice extends OrgAction
         return $rules;
     }
 
-    public function action(Invoice $invoice, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
+    public function action(Invoice $invoice, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit =true): Invoice
     {
+        if(!$audit) {
+            Invoice::disableAuditing();
+        }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->invoice        = $invoice;

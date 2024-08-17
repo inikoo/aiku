@@ -38,7 +38,8 @@ trait FetchSuppliersTrait
                 $supplier = UpdateSupplier::make()->action(
                     $supplier,
                     $supplierData['supplier'],
-                    strict: false
+                    strict: false,
+                    audit: false
                 );
             }
             $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
@@ -49,6 +50,10 @@ trait FetchSuppliersTrait
                 strict: false
             );
             $supplier->refresh();
+            $audit = $supplier->audits()->first();
+            $audit->update([
+                'event' => 'migration'
+            ]);
 
             foreach (Arr::get($supplierData, 'photo', []) as $photoData) {
                 if (isset($photoData['image_path']) and isset($photoData['filename'])) {

@@ -178,8 +178,12 @@ class UpdateCustomer extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Customer
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit =true): Customer
     {
+        if(!$audit) {
+            Customer::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->customer       = $customer;
         $this->hydratorsDelay = $hydratorsDelay;

@@ -22,15 +22,13 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
-
-
-
         if (in_array($this->auroraModelData->{'Purchase Order Parent'}, ['Parcel', 'Container'])) {
             print_r($this->auroraModelData);
+
             return;
         }
 
-        if($this->auroraModelData->{'Purchase Order State'}=='Cancelled' and !$this->auroraModelData->{'Purchase Order Public ID'}) {
+        if ($this->auroraModelData->{'Purchase Order State'} == 'Cancelled' and !$this->auroraModelData->{'Purchase Order Public ID'}) {
             return;
         }
 
@@ -48,7 +46,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
             $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
                 ->where('agent_id', $parent->id)->first();
-
         } else {
             $supplierData = DB::connection("aurora")
                 ->table("Supplier Dimension")
@@ -56,35 +53,28 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 ->first();
 
 
-
-
             if ($supplierData) {
-
-
-                if($supplierData->aiku_ignore=='Yes') {
+                if ($supplierData->aiku_ignore == 'Yes') {
                     return;
                 }
 
                 $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
 
 
-                $parent             = $this->parseSupplier(
+                $parent = $this->parseSupplier(
                     $supplierSourceSlug,
                     $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
                 );
-
-
             } else {
                 $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
             }
 
-            if(!$parent) {
+            if (!$parent) {
                 return;
             }
 
             $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)
                 ->where('supplier_id', $parent->id)->first();
-
         }
 
 
@@ -138,10 +128,10 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'checked_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Checked Date'}),
             'settled_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Consolidated Date'}),
 
-            'parent_code'=> $this->auroraModelData->{'Purchase Order Parent Code'},
-            'parent_name'=> $this->auroraModelData->{'Purchase Order Parent Name'},
+            'parent_code' => $this->auroraModelData->{'Purchase Order Parent Code'},
+            'parent_name' => $this->auroraModelData->{'Purchase Order Parent Name'},
 
-            "reference" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
+            "reference" => (string)$this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
             "state"     => $state,
             "status"    => $status,
 
@@ -150,16 +140,16 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
             "cost_total" => $this->auroraModelData->{'Purchase Order Total Amount'},
 
-            "source_id"      => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Key'},
-            "org_exchange"   => $org_exchange,
-            "grp_exchange"   => $grp_exchange,
-            "currency_id"    => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
-            "created_at"     => $this->auroraModelData->{'Purchase Order Creation Date'},
-            "cancelled_at"   => $cancelled_at,
-            "data"           => $data
+            "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Key'},
+            "org_exchange"    => $org_exchange,
+            "grp_exchange"    => $grp_exchange,
+            "currency_id"     => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
+            "created_at"      => $this->auroraModelData->{'Purchase Order Creation Date'},
+            "cancelled_at"    => $cancelled_at,
+            "data"            => $data,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
         ];
-
-
     }
 
     protected function fetchData($id): object|null

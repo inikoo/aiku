@@ -45,6 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $status
  * @property string $slug
  * @property int|null $image_id
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -85,7 +87,9 @@ class Agent extends Model implements HasMedia, Auditable
     use InGroup;
 
     protected $casts = [
-        'status'      => 'boolean',
+        'status'             => 'boolean',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
 

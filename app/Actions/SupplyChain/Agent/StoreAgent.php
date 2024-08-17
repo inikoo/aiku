@@ -49,7 +49,8 @@ class StoreAgent extends GrpAction
             'group_id'     => Arr::get($modelData, 'group_id', $group->id),
             'country_id'   => Arr::get($modelData, 'country_id', $group->country_id),
             'timezone_id'  => Arr::get($modelData, 'timezone_id', $group->timezone_id),
-            'language_id'  => Arr::get($modelData, 'language_id', $group->language_id)
+            'language_id'  => Arr::get($modelData, 'language_id', $group->language_id),
+            'fetched_at'   => ['sometimes', 'date'],
         ];
 
         if (Arr::exists($modelData, 'created_at')) {

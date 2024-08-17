@@ -62,27 +62,29 @@ class FetchAuroraSupplier extends FetchAurora
 
         $sourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
 
-        $code=preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'});
-        $code=preg_replace('/&/', 'and', $code);
-        $code=preg_replace('/\s|\?|\.|\'/', '', $code);
-        $code=preg_replace('/-?\(.+\)/', '', $code);
+        $code = preg_replace('/\s/', '-', $this->auroraModelData->{'Supplier Code'});
+        $code = preg_replace('/&/', 'and', $code);
+        $code = preg_replace('/\s|\?|\.|\'/', '', $code);
+        $code = preg_replace('/-?\(.+\)/', '', $code);
 
         $this->parsedData['supplier'] =
             [
-                'name'         => $name,
-                'code'         => $code,
-                'company_name' => $this->auroraModelData->{'Supplier Company Name'},
-                'contact_name' => $this->auroraModelData->{'Supplier Main Contact Name'},
-                'email'        => $this->auroraModelData->{'Supplier Main Plain Email'},
-                'phone'        => $phone,
-                'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Supplier Default Currency Code'}),
-                'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
-                'source_slug'  => $sourceSlug,
-                'created_at'   => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
-                'deleted_at'   => $archivedAt,
-                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData),
-                'archived_at'  => $archivedAt,
-                'status'       => $status
+                'name'            => $name,
+                'code'            => $code,
+                'company_name'    => $this->auroraModelData->{'Supplier Company Name'},
+                'contact_name'    => $this->auroraModelData->{'Supplier Main Contact Name'},
+                'email'           => $this->auroraModelData->{'Supplier Main Plain Email'},
+                'phone'           => $phone,
+                'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Supplier Default Currency Code'}),
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
+                'source_slug'     => $sourceSlug,
+                'created_at'      => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
+                'deleted_at'      => $archivedAt,
+                'address'         => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData),
+                'archived_at'     => $archivedAt,
+                'status'          => $status,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now()
             ];
 
         $this->parsePhoto();

@@ -25,6 +25,8 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();

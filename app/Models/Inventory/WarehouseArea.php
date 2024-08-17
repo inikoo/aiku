@@ -38,6 +38,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property string $unit_quantity
  * @property string $value
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -66,6 +68,13 @@ class WarehouseArea extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InWarehouse;
+
+    protected $casts = [
+        'unit_quantity'   => 'decimal:2',
+        'value'           => 'decimal:2',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
+    ];
 
     protected $guarded = [];
 

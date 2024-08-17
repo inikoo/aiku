@@ -54,6 +54,8 @@ use Spatie\Tags\HasTags;
  * @property bool $has_fulfilment
  * @property array $data
  * @property Carbon|null $audited_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -97,12 +99,14 @@ class Location extends Model implements Auditable
     use InWarehouse;
 
     protected $casts = [
-        'data'        => 'array',
-        'audited_at'  => 'datetime',
-        'status'      => LocationStatusEnum::class,
-        'stock_value' => 'decimal:2',
-        'max_weight'  => 'decimal:3',
-        'max_volume'  => 'decimal:4',
+        'data'               => 'array',
+        'audited_at'         => 'datetime',
+        'status'             => LocationStatusEnum::class,
+        'stock_value'        => 'decimal:2',
+        'max_weight'         => 'decimal:3',
+        'max_volume'         => 'decimal:4',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [

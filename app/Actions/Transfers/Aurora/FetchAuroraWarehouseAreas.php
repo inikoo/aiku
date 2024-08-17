@@ -26,13 +26,19 @@ class FetchAuroraWarehouseAreas extends FetchAuroraAction
                 ->first()) {
                 $warehouseArea = UpdateWarehouseArea::make()->action(
                     warehouseArea: $warehouseArea,
-                    modelData:     $warehouseAreaData['warehouse_area']
+                    modelData:     $warehouseAreaData['warehouse_area'],
+                    audit:         false
                 );
             } else {
                 $warehouseArea = StoreWarehouseArea::make()->action(
                     warehouse: $warehouseAreaData['warehouse'],
                     modelData: $warehouseAreaData['warehouse_area'],
                 );
+
+                $audit = $warehouseArea->audits()->first();
+                $audit->update([
+                    'event' => 'migration'
+                ]);
             }
 
 

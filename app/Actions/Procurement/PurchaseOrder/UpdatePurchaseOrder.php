@@ -63,11 +63,15 @@ class UpdatePurchaseOrder extends OrgAction
             'date'            => ['sometimes', 'date'],
             'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
             'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
+            'last_fetched_at' => ['sometimes', 'date'],
         ];
     }
 
-    public function action(PurchaseOrder $purchaseOrder, array $modelData, bool $strict = true): PurchaseOrder
+    public function action(PurchaseOrder $purchaseOrder, array $modelData, bool $strict = true, bool $audit=true): PurchaseOrder
     {
+        if(!$audit) {
+            PurchaseOrder::disableAuditing();
+        }
         $this->asAction      = true;
         $this->strict        = $strict;
         $this->purchaseOrder = $purchaseOrder;
