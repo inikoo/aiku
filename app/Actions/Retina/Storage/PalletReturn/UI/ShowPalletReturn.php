@@ -118,6 +118,11 @@ class ShowPalletReturn extends RetinaAction
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
+        if($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            $downloadRoute = 'retina.storage.pallet-returns.pallets.uploads.templates';
+        } else {
+            $downloadRoute = 'retina.storage.pallet-returns.stored-items.uploads.templates';
+        };
         return Inertia::render(
             'Storage/RetinaPalletReturn',
             [
@@ -309,7 +314,7 @@ class ShowPalletReturn extends RetinaAction
                             ]
                         ],
                         'download' => [
-                            'name'       => 'retina.storage.pallet-returns.stored-items.uploads.templates',
+                            'name'       => $downloadRoute,
                             'parameters' => [
                                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
                                 'type'                   => 'xlsx'
