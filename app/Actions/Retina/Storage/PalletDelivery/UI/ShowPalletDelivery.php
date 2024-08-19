@@ -285,9 +285,10 @@ class ShowPalletDelivery extends RetinaAction
                     ]
                 ],
                 'physical_good_list_route'   => [
-                    'name'       => 'retina.json.fulfilment.physical-goods.index',
+                    'name'       => 'retina.json.fulfilment.delivery.physical-goods.index',
                     'parameters' => [
                         'fulfilment'     => $palletDelivery->fulfilment->slug,
+                        'scope'          => $palletDelivery->slug
                     ]
                 ],
 
