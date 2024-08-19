@@ -67,6 +67,7 @@ else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-whit
 else if (props.style == 'red' || props.type == 'red') styleClass = 'bg-red-500 hover:bg-red-600 border border-red-500 hover:border-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'green' || props.type == 'green') styleClass = 'bg-lime-400 hover:bg-lime-500 border border-lime-400 hover:border-lime-500 text-white focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2'
 else if (props.style == 'gray' || props.type == 'gray') styleClass = 'bg-gray-200 hover:bg-gray-300 border border-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
+else if (props.style == 'black' || props.type == 'black') styleClass = 'bg-gray-800 hover:bg-gray-700 border border-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-offset-2'
 else if (props.style == 'indigo' || props.type == 'indigo') styleClass = 'bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 border border-indigo-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
 
 // else if (props.style == 'negative' || props.style == 'cancel') styleClass = 'border border-red-400 text-red-600 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'

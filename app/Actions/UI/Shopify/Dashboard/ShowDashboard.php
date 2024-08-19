@@ -21,11 +21,23 @@ class ShowDashboard
 
     public function asController(ActionRequest $request): Response
     {
+        $shopifyUser = $request->user('shopify');
+
         return Inertia::render('Dashboard/ShopifyDashboard', [
-            'productsRoute' => [
-                'name'       => 'shopify.products',
-                'parameters' => [
-                    'shop' => 'aikuu.myshopify.com'
+            'shop'          => $shopifyUser,
+            'routes'        => [
+                'products' => [
+                    'name'       => 'shopify.products',
+                    'parameters' => [
+                        'shop' => $shopifyUser->name
+                    ]
+                ],
+                'store_product' => [
+                    'name'       => 'grp.models.customer.shopify_user.product.store',
+                    'parameters' => [
+                        'customer'    => $shopifyUser->customer_id,
+                        'shopifyUser' => $shopifyUser->id
+                    ]
                 ]
             ]
         ]);
