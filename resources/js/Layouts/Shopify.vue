@@ -16,8 +16,8 @@ import { usePage } from "@inertiajs/vue3"
     <div class="isolate relative min-h-full transition-all">
 
         <!-- Main Content -->
-        <main class="h-screen pb-10 transition-all pl-2 md:pl-0 pr-2 ">
-            <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col pb-6 text-gray-700">
+        <main class="h-screen pl-2 md:pl-0 pr-2 ">
+            <div class="bg-white shadow-lg rounded h-full overflow-y-auto relative flex flex-col text-gray-700">
 
                 <slot />
 

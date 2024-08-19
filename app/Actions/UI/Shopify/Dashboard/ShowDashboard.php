@@ -25,17 +25,19 @@ class ShowDashboard
 
         return Inertia::render('Dashboard/ShopifyDashboard', [
             'shop'          => $shopifyUser,
-            'productsRoute' => [
-                'name'       => 'shopify.products',
-                'parameters' => [
-                    'shop' => $shopifyUser->name
-                ]
-            ],
-            'storeProductRoute' => [
-                'name'       => 'grp.models.customer.shopify_user.product.store',
-                'parameters' => [
-                    'customer'    => $shopifyUser->customer_id,
-                    'shopifyUser' => $shopifyUser->id
+            'routes'        => [
+                'products' => [
+                    'name'       => 'shopify.products',
+                    'parameters' => [
+                        'shop' => $shopifyUser->name
+                    ]
+                ],
+                'store_product' => [
+                    'name'       => 'grp.models.customer.shopify_user.product.store',
+                    'parameters' => [
+                        'customer'    => $shopifyUser->customer_id,
+                        'shopifyUser' => $shopifyUser->id
+                    ]
                 ]
             ]
         ]);
