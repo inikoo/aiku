@@ -7,7 +7,9 @@
 
 namespace App\Exports\StoredItem;
 
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletStoredItem;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -15,7 +17,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, ShouldAutoSize, WithMapping
+class PalletReturnPalletExport implements FromQuery, WithHeadings, ShouldAutoSize, WithMapping
 {
     use Exportable;
 
@@ -28,19 +30,16 @@ class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, Sho
     
     public function query()
     {
-        return PalletStoredItem::query()
-        ->whereHas('storedItem', function ($query) {
-            $query->where('fulfilment_customer_id', $this->fulfilmentCustomer->id);
-        });
+        return Pallet::query()
+            ->where('state', PalletStateEnum::STORING)
+            ->where('fulfilment_customer_id', $this->fulfilmentCustomer->id);
     }
-
     public function map($row): array
     {
         /** @var PalletStoredItem $row */
-        $palletStoredItem = $row;
+        $pallet = $row;
         return [
-            $palletStoredItem->storedItem->reference,
-            $palletStoredItem->quantity
+            $pallet->reference,
         ];
     }
 
@@ -48,7 +47,6 @@ class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, Sho
     {
         return [
             'Reference',
-            'Quantity',
         ];
     }
 }
