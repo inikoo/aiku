@@ -73,7 +73,7 @@ class UpdateLocation extends OrgAction
         ];
     }
 
-    public function action(Location $location, array $modelData,bool $audit=true): Location
+    public function action(Location $location, array $modelData, bool $audit=true): Location
     {
         if(!$audit) {
             Location::disableAuditing();

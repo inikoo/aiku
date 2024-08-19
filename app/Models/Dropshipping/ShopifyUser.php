@@ -9,8 +9,10 @@ namespace App\Models\Dropshipping;
 
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\WebUser;
+use App\Models\ShopifyUserHasProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
@@ -20,7 +22,7 @@ use App\Models\Traits\IsUserable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 use Osiset\ShopifyApp\Contracts\ShopModel as IShopModel;
@@ -138,8 +140,9 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
             ->saveSlugsTo('slug');
     }
 
-    public function webUser(): BelongsTo
+    public function products(): BelongsToMany
     {
-        return $this->belongsTo(WebUser::class);
+        return $this->belongsToMany(Asset::class)->using(ShopifyUserHasProduct::class)
+            ->withTimestamps();
     }
 }

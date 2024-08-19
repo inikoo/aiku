@@ -11,15 +11,13 @@ use Osiset\ShopifyApp\Http\Controllers\AuthController;
 use App\Actions\UI\Shopify\Dashboard\ShowDashboard;
 
 Route::middleware(['verify.shopify'])->group(function () {
-    // Route::get('', function () {
-    //     return view('shopify.index');
-    // })->name('home');
+    //     Route::get('', function () {
+    //         return view('shopify.index');
+    //     })->name('home');
     Route::get('/', ShowDashboard::class)->name('home');
-});
+})->name('home');
 
-
-
-Route::get('/shopifytest', ShowDashboard::class)->name('home');
+Route::get('/shopifytest', ShowDashboard::class);
 
 Route::get('/products', GetProductForShopify::class)->name('products');
 
