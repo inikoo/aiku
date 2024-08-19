@@ -317,7 +317,7 @@ class ShowPalletReturn extends OrgAction
         }
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
-        if($palletReturn->type == PalletReturnTypeEnum::PALLET){
+        if($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.export';
         } else {
             $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export';

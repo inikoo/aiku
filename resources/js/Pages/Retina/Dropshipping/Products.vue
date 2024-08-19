@@ -10,6 +10,7 @@ import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
+import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
@@ -17,22 +18,22 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-
-
+    products: object
 }>()
 
-// const currentTab = ref(props.tabs.current)
-// const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
-// const component = computed(() => {
+const component = computed(() => {
 
-//     const components: Component = {
-//         // showcase: FileShowcase
-//     }
+    const components: Component = {
+        // showcase: FileShowcase
+        // products: TableProducts
+    }
 
-//     return components[currentTab.value]
+    return components[currentTab.value]
 
-// })
+})
 
 </script>
 
@@ -41,7 +42,7 @@ const props = defineProps<{
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <!-- <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" /> -->
-
-    <!-- <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" /> -->
+<!--     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />-->
+<!--     <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />-->
+    <TableProducts :data="props.products" :tab="'products'" />
 </template>

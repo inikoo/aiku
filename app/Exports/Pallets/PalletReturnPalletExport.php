@@ -27,7 +27,7 @@ class PalletReturnPalletExport implements FromQuery, WithHeadings, ShouldAutoSiz
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
     }
-    
+
     public function query()
     {
         return Pallet::query()

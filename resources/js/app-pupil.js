@@ -20,7 +20,7 @@ import Layout from '@/Layouts/Pupil.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 
-const appName = 'Pupil' || window.document.getElementsByTagName('title')[0]?.innerText;
+const appName = trans('Pupil') || window.document.getElementsByTagName('title')[0]?.innerText;
 
 createInertiaApp(
     {

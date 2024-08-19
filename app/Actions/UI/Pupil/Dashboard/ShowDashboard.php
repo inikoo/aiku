@@ -23,7 +23,7 @@ class ShowDashboard
     {
         $shopifyUser = $request->user('pupil');
 
-        return Inertia::render('Dashboard/ShopifyDashboard', [
+        return Inertia::render('Dashboard/PupilDashboard', [
             'shop'          => $shopifyUser,
             'routes'        => [
                 'products' => [
