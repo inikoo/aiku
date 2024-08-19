@@ -50,7 +50,7 @@ class GetProductForShopify
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request)
     {
-        $shop =  $shopifyUser->shop;
+        $shop =  $shopifyUser->customer->shop;
 
         return $this->handle($shop);
     }
