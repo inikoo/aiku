@@ -150,6 +150,7 @@ class GetRetinaFulfilmentNavigation
             $groupNavigation['sysadmin'] = [
                 'label'   => __('manage account'),
                 'icon'    => ['fal', 'fa-users-cog'],
+                'root'    => 'retina.sysadmin.dashboard',
                 'route'   => [
                     'name' => 'retina.sysadmin.dashboard'
                 ],
@@ -176,6 +177,28 @@ class GetRetinaFulfilmentNavigation
                         ],
                     ]
                 ]
+            ];
+
+            $groupNavigation['dropshipping'] = [
+                'label'   => __('Dropshipping'),
+                'icon'    => ['fal', 'fa-parachute-box'],
+                'root'    => 'retina.dropshipping.dashboard',
+                'route'   => [
+                    'name' => 'retina.dropshipping.dashboard'
+                ],
+                // 'topMenu' => [
+                //     'subSections' => [
+                //         [
+                //             'label' => __('Products'),
+                //             'icon'  => ['fal', 'fa-cube'],
+                //             'root'  => 'retina.dropshipping.products.',
+                //             'route' => [
+                //                 'name' => 'retina.dropshipping.products.index',
+
+                //             ]
+                //         ],
+                //     ]
+                // ]
             ];
 
         }

@@ -16,7 +16,7 @@ import { initialiseRetinaApp } from "@/Composables/initialiseRetinaApp"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import Notification from '@/Components/Utils/Notification.vue'
 
-import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage } from '@fal'
+import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faParachuteBox } from '@fal'
 import { faSearch, faBell } from '@far'
 import { ref, provide } from 'vue'
 import { useLocaleStore } from "@/Stores/locale"
@@ -26,7 +26,7 @@ import { useLocaleStore } from "@/Stores/locale"
 provide('layout', useLayoutStore())
 provide('locale', useLocaleStore())
 
-library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faSearch, faBell )
+library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faParachuteBox, faSearch, faBell )
 
 initialiseRetinaApp()
 
