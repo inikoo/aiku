@@ -14,6 +14,7 @@ use App\Actions\UI\Pupil\Dashboard\ShowDashboard;
 
 Route::middleware(['verify.shopify'])->group(function () {
     Route::get('/', ShowDashboard::class)->name('home');
+    Route::get('/pupiltest', ShowDashboard::class)->name('pupiltest');
     Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
     Route::post('shopify-user/{shopifyUser:id}/products', StoreProductToShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
 });

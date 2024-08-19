@@ -22,9 +22,11 @@ class ShowDashboard
     public function asController(ActionRequest $request): Response
     {
         $shopifyUser = $request->user('pupil');
+        // dd(session('_token'));
 
         return Inertia::render('Dashboard/PupilDashboard', [
             'shop'          => $shopifyUser,
+            'token'         => session()->all(),
             'routes'        => [
                 'products' => [
                     'name'       => 'pupil.products',

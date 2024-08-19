@@ -24,8 +24,11 @@ const props = defineProps<{
         products: routeType 
         store_product: routeType
     }
+    token: string
 }>()
 
+// console.log('token', Object.keys(props.token)[1])
+const xxToken = Object.keys(props.token)[1].match(/login_pupil_([a-f0-9]+)/)?.[1]
 const locale = useLocaleStore()
 
 const productDialog = ref(false)
@@ -63,13 +66,46 @@ const getStatusLabel = (status) => {
 // Fetch: product
 const realProducts = ref([])
 onMounted(async () => {
+    const token_token = props.token['_token']
+    const tokenLoginPupil = Object.keys(props.token).filter(tok => tok.includes('login_pupil'))?.[0]?.match(/login_pupil_([a-f0-9]+)/)?.[1]
+    
+    console.log('token:', props.token)
+    console.log('props token (CSRF):', token_token)
+    console.log('token login pupil:', tokenLoginPupil)
+    
+    // Get window.sessionToken
     try {
-        const {data} = await axios.get(route(props.routes.products.name, props.routes.products.parameters))
-        realProducts.value = data.data
-        console.log('aaa', realProducts.value)
+        const dataxx = await axios.get('authenticate/token')
+        console.log('============= success hit authenticate/token', dataxx)
+
     } catch (error) {
-        console.log('error', error)
+        console.error('-------------------', error)
     }
+
+    setTimeout(async () => {
+        console.log('window session:', window.sessionToken)
+
+        try {
+            const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
+                {
+                    headers: {
+                        Authorization: `Bearer ${token_token}`,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }
+            )
+
+            console.log('fetch product:', data)
+
+            realProducts.value = data.data
+            console.log('aaa', realProducts.value)
+        } catch (error) {
+            console.log('error', error)
+        }
+
+    }, 3000)
+
+
 })
 
 
