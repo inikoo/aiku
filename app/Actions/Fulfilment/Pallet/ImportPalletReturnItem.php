@@ -11,6 +11,7 @@ use App\Actions\Helpers\Uploads\ImportUpload;
 use App\Actions\Helpers\Uploads\StoreUploads;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
+use App\Imports\CRM\PalletReturnItemImport;
 use App\Imports\CRM\StoredItemImport;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
@@ -19,7 +20,7 @@ use App\Models\Helpers\Upload;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
-class ImportStoredItem
+class ImportPalletReturnItem
 {
     use WithImportModel;
 
@@ -32,13 +33,13 @@ class ImportStoredItem
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
-                new StoredItemImport($palletReturn, $upload)
+                new PalletReturnItemImport($palletReturn, $upload)
             );
             $upload->refresh();
         } else {
             ImportUpload::dispatch(
                 $this->tmpPath.$upload->filename,
-                new StoredItemImport($palletReturn, $upload)
+                new PalletReturnItemImport($palletReturn, $upload)
             );
         }
 

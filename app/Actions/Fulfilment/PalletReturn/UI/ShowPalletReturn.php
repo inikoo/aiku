@@ -317,7 +317,11 @@ class ShowPalletReturn extends OrgAction
         }
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
-
+        if($palletReturn->type == PalletReturnTypeEnum::PALLET){
+            $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.export';
+        } else {
+            $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export';
+        };
         // dd($palletReturn->deliveryAddress);
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
@@ -407,7 +411,7 @@ class ShowPalletReturn extends OrgAction
                             ]
                         ],
                         'download' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export',
+                            'name'       => $downloadRoute,
                             'parameters' => [
                                 'organisation'       => $palletReturn->organisation->slug,
                                 'fulfilment'         => $palletReturn->fulfilment->slug,
