@@ -5,13 +5,12 @@
   -->
 
 <script setup lang="ts">
-import { usePage } from "@inertiajs/vue3"
 
 </script>
 
 <template>
     <div class="fixed inset-0 bg-slate-100" />
-    <!-- <div>Hello From Layout Shopify</div> -->
+    <!-- <div>Hello From Layout Pupil</div> -->
 
     <div class="isolate relative min-h-full transition-all">
 

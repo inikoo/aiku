@@ -184,7 +184,11 @@ class ShowShop extends OrgAction
 
 
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: ShopTabsEnum::HISTORY->value));
+        )->table(
+            IndexHistory::make()->tableStructure(
+                prefix: ShopTabsEnum::HISTORY->value
+            )
+        );
 
     }
 

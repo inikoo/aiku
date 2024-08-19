@@ -48,9 +48,9 @@ return [
             'driver'   => 'session',
             'provider' => 'web-users',
         ],
-        'shopify'     => [
+        'pupil'     => [
             'driver'   => 'session',
-            'provider' => 'shopify',
+            'provider' => 'pupil',
         ],
         'broadcasting' => [
             'driver' => 'websockets-auth',
@@ -84,7 +84,7 @@ return [
             'driver' => 'eloquent',
             'model'  => WebUser::class,
         ],
-        'shopify'   => [
+        'pupil'   => [
             'driver' => 'eloquent',
             'model'  => ShopifyUser::class,
         ]

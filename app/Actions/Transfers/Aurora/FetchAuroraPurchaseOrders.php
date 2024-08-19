@@ -49,10 +49,6 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                             modelData: $purchaseOrderData['purchase_order'],
                             strict: false
                         );
-                        $audit = $purchaseOrder->audits()->first();
-                        $audit->update([
-                            'event' => 'migration'
-                        ]);
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
 
@@ -65,7 +61,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
                     return $purchaseOrder;
                 }
-                print "Warning purchase order ".$purchaseOrderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
+                print "Warning purchase order ".$purchaseOrderData['purchase_order']['reference']."  Id:$organisationSourceId do not have parent\n";
                 dd($purchaseOrderData);
             }
         }

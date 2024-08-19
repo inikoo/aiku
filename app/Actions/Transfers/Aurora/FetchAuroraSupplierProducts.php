@@ -117,10 +117,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay,
                         strict: false
                     );
-                    $audit = $supplierProduct->audits()->first();
-                    $audit->update([
-                        'event' => 'migration'
-                    ]);
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');

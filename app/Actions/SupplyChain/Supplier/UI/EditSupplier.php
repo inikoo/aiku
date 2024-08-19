@@ -296,7 +296,7 @@ class EditSupplier extends InertiaAction
     public function getNext(Supplier $supplier, ActionRequest $request): ?array
     {
         $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
-            if ($request->route()->getName() == 'grp.procurement.agents.show.suppliers.show') {
+            if ($request->route()->getName() == 'grp.supply-chain.agents.show.suppliers.show') {
                 $query->where('suppliers.agent_id', $supplier->agent_id);
             }
         })->orderBy('code')->first();
@@ -311,7 +311,7 @@ class EditSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.procurement.suppliers.edit'=> [
+            'grp.supply-chain.suppliers.edit'=> [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -321,7 +321,7 @@ class EditSupplier extends InertiaAction
 
                 ]
             ],
-            'grp.procurement.agents.show.suppliers.edit' => [
+            'grp.supply-chain.agents.show.suppliers.edit' => [
                 'label'=> $supplier->name,
                 'route'=> [
                     'name'      => $routeName,

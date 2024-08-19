@@ -49,11 +49,9 @@ trait FetchSuppliersTrait
                 modelData: $supplierData['supplier'],
                 strict: false
             );
+
             $supplier->refresh();
-            $audit = $supplier->audits()->first();
-            $audit->update([
-                'event' => 'migration'
-            ]);
+
 
             foreach (Arr::get($supplierData, 'photo', []) as $photoData) {
                 if (isset($photoData['image_path']) and isset($photoData['filename'])) {

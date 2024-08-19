@@ -147,7 +147,7 @@ class ShowWarehouseArea extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('warehouse areas')
+                            'label' => __('Warehouse areas')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

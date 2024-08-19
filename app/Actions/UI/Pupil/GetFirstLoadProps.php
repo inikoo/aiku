@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Shopify;
+namespace App\Actions\UI\Pupil;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Retina\Layout\GetLayout;

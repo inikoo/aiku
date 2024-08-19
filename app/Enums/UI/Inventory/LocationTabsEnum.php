@@ -20,7 +20,6 @@ enum LocationTabsEnum: string
     case PALLETS              = 'pallets';
     case STOCK_MOVEMENTS      = 'stock_movements';
     case HISTORY              = 'history';
-    case DATA                 = 'data';
 
 
 
@@ -44,12 +43,6 @@ enum LocationTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],
-            LocationTabsEnum::DATA => [
-                'type'  => 'icon',
-                'align' => 'right',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
             ],
             LocationTabsEnum::SHOWCASE => [
                 'title' => __('location'),

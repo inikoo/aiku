@@ -28,6 +28,7 @@ use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
+use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
 use App\Actions\Fulfilment\Pallet\ImportStoredItem;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
@@ -1214,6 +1215,7 @@ test('create pallet return', function (PalletDelivery $palletDelivery) {
             'warehouse_id' => $this->warehouse->id,
         ]
     );
+
     $fulfilmentCustomer->refresh();
     expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
         ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
@@ -1279,6 +1281,25 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
     return $palletReturn;
 })->depends('create pallet return');
 
+test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
+
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/returnpalletimporttest.xlsx');
+    $file     = new UploadedFile($filePath, 'returnpalletimporttest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    ImportPalletReturnItem::run($palletReturn, $file);
+
+    $palletReturn->refresh();
+
+    expect($palletReturn->pallets()->count())->toBe(2);
+
+    return $palletReturn;
+})->depends('store pallet to return');
 
 test('submit pallet return', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
@@ -1942,7 +1963,7 @@ test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
 
     Storage::fake('local')->put($tmpPath, $file);
 
-    ImportStoredItem::run($palletReturn, $file);
+    ImportPalletReturnItem::run($palletReturn, $file);
 
     $palletReturn->refresh();
 

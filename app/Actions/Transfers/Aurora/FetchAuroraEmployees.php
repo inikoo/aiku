@@ -52,10 +52,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
                     parent: $workplace,
                     modelData: $employeeData['employee'],
                 );
-                $audit = $employee->audits()->first();
-                $audit->update([
-                    'event' => 'migration'
-                ]);
+
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);

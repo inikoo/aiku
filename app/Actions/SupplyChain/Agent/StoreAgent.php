@@ -50,7 +50,6 @@ class StoreAgent extends GrpAction
             'country_id'   => Arr::get($modelData, 'country_id', $group->country_id),
             'timezone_id'  => Arr::get($modelData, 'timezone_id', $group->timezone_id),
             'language_id'  => Arr::get($modelData, 'language_id', $group->language_id),
-            'fetched_at'   => ['sometimes', 'date'],
         ];
 
         if (Arr::exists($modelData, 'created_at')) {
@@ -105,7 +104,7 @@ class StoreAgent extends GrpAction
             'language_id'  => ['required', 'exists:languages,id'],
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
             'created_at'   => ['sometimes', 'nullable', 'date'],
-
+            'fetched_at'   => ['sometimes', 'date'],
         ];
     }
 

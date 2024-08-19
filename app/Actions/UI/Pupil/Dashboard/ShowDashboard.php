@@ -7,7 +7,7 @@
  *
 */
 
-namespace App\Actions\UI\Shopify\Dashboard;
+namespace App\Actions\UI\Pupil\Dashboard;
 
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,19 +21,19 @@ class ShowDashboard
 
     public function asController(ActionRequest $request): Response
     {
-        $shopifyUser = $request->user('shopify');
+        $shopifyUser = $request->user('pupil');
 
         return Inertia::render('Dashboard/PupilDashboard', [
             'shop'          => $shopifyUser,
             'routes'        => [
                 'products' => [
-                    'name'       => 'shopify.products',
+                    'name'       => 'pupil.products',
                     'parameters' => [
                         'shopifyUser' => $shopifyUser->id
                     ]
                 ],
                 'store_product' => [
-                    'name'       => 'shopify.shopify_user.product.store',
+                    'name'       => 'pupil.shopify_user.product.store',
                     'parameters' => [
                         'shopifyUser' => $shopifyUser->id
                     ]

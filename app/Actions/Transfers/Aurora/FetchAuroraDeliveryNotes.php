@@ -50,10 +50,6 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                             $deliveryNoteData['delivery_note'],
                         );
 
-                        $audit = $deliveryNote->audits()->first();
-                        $audit->update([
-                            'event' => 'migration'
-                        ]);
 
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $deliveryNoteData['delivery_note'], 'DeliveryNote', 'store');
