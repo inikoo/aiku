@@ -26,7 +26,8 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
                 ->first()) {
                 $location = UpdateLocation::run(
                     location:  $location,
-                    modelData: $deletedLocationData['location']
+                    modelData: $deletedLocationData['location'],
+                    audit: false
                 );
             } else {
                 $location = StoreLocation::run(

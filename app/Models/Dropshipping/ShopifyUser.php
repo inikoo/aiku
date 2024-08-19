@@ -11,7 +11,6 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
-use App\Models\CRM\WebUser;
 use App\Models\ShopifyUserHasProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -78,10 +77,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Osiset\ShopifyApp\Storage\Models\Plan|null $plan
+ * @property-read ShopifyUserHasProduct $pivot
+ * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @property-read WebUser|null $webUser
  * @method static Builder|ShopifyUser newModelQuery()
  * @method static Builder|ShopifyUser newQuery()
  * @method static Builder|ShopifyUser onlyTrashed()

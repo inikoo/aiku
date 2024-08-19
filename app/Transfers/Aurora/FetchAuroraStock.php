@@ -22,8 +22,7 @@ class FetchAuroraStock extends FetchAurora
 
     protected function parseModel(): void
     {
-
-        if($this->auroraModelData->{'Part Customer Key'}) {
+        if ($this->auroraModelData->{'Part Customer Key'}) {
             return;
         }
 
@@ -50,7 +49,7 @@ class FetchAuroraStock extends FetchAurora
         }
 
 
-        $this->parsedData['stock_family'] =$this->parseStockFamily($this->auroraModelData->{'Part SKU'});
+        $this->parsedData['stock_family'] = $this->parseStockFamily($this->auroraModelData->{'Part SKU'});
 
         $this->parsedData['stock'] = [
             'name'            => $name,
@@ -71,8 +70,10 @@ class FetchAuroraStock extends FetchAurora
             },
 
 
-            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
-            'source_slug' => $sourceSlug
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug'     => $sourceSlug,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
 
         $this->parsedData['org_stock'] = [
@@ -92,9 +93,9 @@ class FetchAuroraStock extends FetchAurora
                 'Out_Of_Stock' => 'out-of-stock',
                 'Error'        => 'error',
             },
-            'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
-            'source_slug'            => $sourceSlug,
-            'images'                 => $this->parseImages()
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug'     => $sourceSlug,
+            'images'          => $this->parseImages()
         ];
     }
 
@@ -121,7 +122,7 @@ class FetchAuroraStock extends FetchAurora
             ->where('Category Branch Type', 'Head')
             ->where('Subject Key', $sourceID)
             ->where('Subject', 'Part')->first()) {
-            $stockFamily   = FetchAuroraStockFamilies::run($this->organisationSource, $row->{'Category Key'});
+            $stockFamily = FetchAuroraStockFamilies::run($this->organisationSource, $row->{'Category Key'});
         }
 
         return $stockFamily;

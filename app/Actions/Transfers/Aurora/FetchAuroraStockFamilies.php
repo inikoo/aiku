@@ -28,6 +28,7 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
                     $stockFamily = UpdateStockFamily::make()->action(
                         stockFamily: $stockFamily,
                         modelData: $stockFamilyData['stock_family'],
+                        audit: false
                     );
                 }
             } else {
