@@ -47,10 +47,8 @@ class GetProductForShopify
             ->withQueryString();
     }
 
-    public function asController(ActionRequest $request)
+    public function asController(ShopifyUser $shopifyUser, ActionRequest $request)
     {
-        $shopifyUser = ShopifyUser::where('name', $request->get('shop'))->first();
-
         return $this->handle($shopifyUser);
     }
 }
