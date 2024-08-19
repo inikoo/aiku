@@ -89,7 +89,7 @@ onMounted(async () => {
             const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
                 {
                     headers: {
-                        Authorization: `Bearer ${tokenLoginPupil}`,
+                        Authorization: `Bearer ${token_token}`,
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }
