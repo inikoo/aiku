@@ -24,21 +24,21 @@ class StoreProductToShopify extends OrgAction
     /**
      * @throws \Exception
      */
-    public function handle(ShopifyUser $shopifyUser, array $modelData): \GuzzleHttp\Promise\PromiseInterface
+    public function handle(ShopifyUser $shopifyUser, array $modelData): array
     {
         $products = $shopifyUser->organisation->products()->whereIn('id', Arr::get($modelData, 'products'))->get();
-
-        $body = [];
+        $body     = [];
         foreach ($products as $product) {
-            $body[$product->id] = [
+            $body[] = [
                 "product" => [
-                    "title" => $product->title,
+                    "title" => $product->name,
                     "price" => $product->price
                 ]
             ];
         }
 
-        $shopifyUser->products()->sync(array_keys($body));
+        // $shopifyUser->products()->sync(array_keys($body));
+        // dd($body);
 
         return $shopifyUser->api()->getRestClient()->request('POST', '/admin/api/2024-04/products.json', $body);
     }
@@ -50,7 +50,7 @@ class StoreProductToShopify extends OrgAction
         ];
     }
 
-    public function asController(ShopifyUser $shopifyUser, ActionRequest $request): \GuzzleHttp\Promise\PromiseInterface
+    public function asController(ShopifyUser $shopifyUser, ActionRequest $request): array
     {
         $this->initialisationFromShop($shopifyUser->customer->shop, $request);
 

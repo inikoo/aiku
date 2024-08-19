@@ -25,6 +25,7 @@ const props = defineProps<{
         store_product: routeType
     }
     token: string
+    token_request: string
 }>()
 
 // console.log('token', Object.keys(props.token)[1])
@@ -82,14 +83,14 @@ onMounted(async () => {
         console.error('-------------------', error)
     }
 
-    setTimeout(async () => {
-        console.log('window session:', window.sessionToken)
+    // setTimeout(async () => {
+    //     console.log('window session:', window.sessionToken)
 
         try {
             const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
                 {
                     headers: {
-                        Authorization: `Bearer ${token_token}`,
+                        Authorization: `Bearer ${props.token_request}`,
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 }
@@ -103,7 +104,7 @@ onMounted(async () => {
             console.log('error', error)
         }
 
-    }, 3000)
+    // }, 3000)
 
 
 })
@@ -113,14 +114,20 @@ onMounted(async () => {
 const isLoadingSubmit = ref(false)
 const selectedProducts = ref([])
 const onSubmitProduct = () => {
+    isLoadingSubmit.value = true
     router.post(
         route(props.routes.store_product.name, props.routes.store_product.parameters),
-        selectedProducts.value,
         {
-            onStart: () => isLoadingSubmit.value = true,
-            onFinish: () => isLoadingSubmit.value = false
+            products: selectedProducts.value.map(sel => sel.id)
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${props.token_request}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         }
     )
+    isLoadingSubmit.value = false
 }
 
 </script>
