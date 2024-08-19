@@ -23,6 +23,10 @@ Route::middleware(["retina-auth:retina", 'retina-prepare-account'])->group(funct
         ->name("storage.")
         ->group(__DIR__."/storage.php");
 
+    Route::prefix("dropshipping")
+        ->name("dropshipping.")
+        ->group(__DIR__."/dropshipping.php");
+
     Route::prefix("models")
         ->name("models.")
         ->group(__DIR__."/models.php");

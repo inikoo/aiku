@@ -9,7 +9,6 @@ namespace App\Actions\Dropshipping\Shopify;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -51,7 +50,7 @@ class StoreProductToShopify extends OrgAction
         ];
     }
 
-    public function asController(Customer $customer, ShopifyUser $shopifyUser, ActionRequest $request): \GuzzleHttp\Promise\PromiseInterface
+    public function asController(ShopifyUser $shopifyUser, ActionRequest $request): \GuzzleHttp\Promise\PromiseInterface
     {
         $this->initialisationFromShop($shopifyUser->shop, $request);
 
