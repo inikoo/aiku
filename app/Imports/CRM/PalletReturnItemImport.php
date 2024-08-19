@@ -7,7 +7,6 @@
 
 namespace App\Imports\CRM;
 
-use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
@@ -87,7 +86,7 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
             'reference'    => ['required'],
             'quantity'     => ['sometimes']
         ];
-    
+
         return $rules;
     }
 }

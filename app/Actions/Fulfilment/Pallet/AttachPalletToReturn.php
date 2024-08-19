@@ -12,15 +12,10 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
 class AttachPalletToReturn extends OrgAction
@@ -32,7 +27,7 @@ class AttachPalletToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $reference  = Arr::get($modelData, 'reference');
-        $pallet = Pallet::where('reference', $reference)
+        $pallet     = Pallet::where('reference', $reference)
                     ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
                     ->first();
 

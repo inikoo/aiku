@@ -7,6 +7,7 @@
 
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
@@ -32,6 +33,7 @@ Route::prefix('pallet-returns')->as('pallet-returns.')->group(function () {
     Route::get('{palletReturn}', ShowPalletReturn::class)->name('show');
     Route::get('{palletReturn}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
     Route::get('{fulfilmentCustomer}/stored-items-templates', [ExportPalletReturnStoredItem::class, 'fromRetina'])->name('stored-items.uploads.templates');
+    Route::get('{fulfilmentCustomer}/pallets-templates', [ExportPalletReturnPallet::class, 'fromRetina'])->name('pallets.uploads.templates');
     Route::get('{palletReturn}/upload-histories', [HistoryUploads::class, 'inPalletReturnRetina'])->name('uploads.history');
 });
 

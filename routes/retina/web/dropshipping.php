@@ -14,11 +14,11 @@ use App\Actions\SysAdmin\User\UI\EditUser;
 use App\Actions\SysAdmin\User\UI\IndexUsers;
 use App\Actions\SysAdmin\User\UI\ShowUser;
 use App\Actions\UI\Retina\Dropshipping\ShowDropshipping;
-use App\Actions\UI\Retina\Dropshipping\ShowProducts;
+use App\Actions\UI\Retina\Dropshipping\IndexProducts;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowDropshipping::class)->name('dashboard');
-Route::get('/products', ShowProducts::class)->name('products.index');
+Route::get('/products', IndexProducts::class)->name('products.index');
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');
 // Route::get('/users/create', CreateUser::class)->name('web-users.create');
