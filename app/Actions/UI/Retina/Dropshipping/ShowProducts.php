@@ -15,7 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowDropshipping extends RetinaAction
+class ShowProducts extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -30,13 +30,13 @@ class ShowDropshipping extends RetinaAction
     public function htmlResponse(): Response
     {
         return Inertia::render(
-            'Dropshipping/DropshippingDashboard',
+            'Dropshipping/Products',
             [
                 // 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('Dropshipping'),
+                'title'       => __('Products'),
                 'pageHead'    => [
-                    'title' => __('Dropshipping'),
-                    'icon'  => 'fal fa-parachute-box'
+                    'title' => __('Products'),
+                    'icon'  => 'fal fa-cube'
                 ],
 
             ]
