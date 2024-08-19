@@ -7,7 +7,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\UI\Shopify\GetFirstLoadProps;
+use App\Actions\UI\Pupil\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedShopifyUserResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Request;
@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
-class HandleShopifyInertiaRequests extends Middleware
+class HandlePupilInertiaRequests extends Middleware
 {
-    protected $rootView = 'app-shopify';
+    protected $rootView = 'app-pupil';
 
 
     public function share(Request $request): array

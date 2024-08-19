@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         @env(['staging', 'production'])
-        @include('new-relic', ['appID' => Config::get('new-relic.application_id.shopify')])
+        @include('new-relic', ['appID' => Config::get('new-relic.application_id.pupil')])
         @endenv
-        <title inertia>{{ config('app.name', 'Aiku-Shopify') }}</title>
+        <title inertia>{{ config('app.name', 'Pupil') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -21,7 +21,7 @@
 
         <!-- Scripts -->
         @routes('shopify')
-        {{Vite::useHotFile('shopify.hot')->useBuildDirectory('shopify')->withEntryPoints(['resources/js/app-shopify.js'])}}
+        {{Vite::useHotFile('pupil.hot')->useBuildDirectory('pupil')->withEntryPoints(['resources/js/app-pupil.js'])}}
         @inertiaHead
     </head>
     <body class="font-sans antialiased h-full text-slate-700">

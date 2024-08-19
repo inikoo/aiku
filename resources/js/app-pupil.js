@@ -16,19 +16,19 @@ import {createPinia} from 'pinia';
 import * as Sentry from '@sentry/vue';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
-import Layout from '@/Layouts/Shopify.vue'
+import Layout from '@/Layouts/Pupil.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 
-const appName = trans('Shopify') || window.document.getElementsByTagName('title')[0]?.innerText;
+const appName = 'Pupil' || window.document.getElementsByTagName('title')[0]?.innerText;
 
 createInertiaApp(
     {
       title  : (title) => `${title} - ${appName}`,
         resolve: name => {
-            const pages = import.meta.glob('./Pages/Shopify/**/*.vue', { eager: true })
-            let page = pages[`./Pages/Shopify/${name}.vue`]
-            if(!page) console.error(`File './Pages/Shopify/${name}.vue' is not exist`)
+            const pages = import.meta.glob('./Pages/Pupil/**/*.vue', { eager: true })
+            let page = pages[`./Pages/Pupil/${name}.vue`]
+            if(!page) console.error(`File './Pages/Pupil/${name}.vue' is not exist`)
 
             page.default.layout = page.default.layout || Layout
             return page

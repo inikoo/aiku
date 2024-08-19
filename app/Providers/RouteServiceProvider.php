@@ -22,10 +22,10 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        Route::middleware('shopify')
+        Route::middleware('pupil')
             ->domain('shopify.'.config('app.domain'))
-            ->name('shopify.')
-            ->group(base_path('routes/shopify/app.php'));
+            ->name('pupil.')
+            ->group(base_path('routes/pupil/app.php'));
 
         Route::middleware('grp')
             ->domain('app.'.config('app.domain'))

@@ -1,4 +1,4 @@
-@extends('shopify-app::layouts.default')
+@extends('pupil-app::layouts.default')
 
 @section('content')
     <!-- You are: (shop domain name) -->

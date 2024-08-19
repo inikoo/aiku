@@ -18,7 +18,7 @@ import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import Layout from '@/Layouts/Retina.vue'
 
-const appName = trans('Retina') || window.document.getElementsByTagName('title')[0]?.innerText;
+const appName = 'Retina' || window.document.getElementsByTagName('title')[0]?.innerText;
 
 createInertiaApp(
     {

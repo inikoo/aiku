@@ -15,10 +15,10 @@ export default defineConfig(
     {
         plugins: [
             laravel({
-                        hotFile       : "public/shopify.hot",
-                        buildDirectory: "shopify",
-                        input         : "resources/js/app-shopify.js",
-                        ssr           : "resources/js/ssr-shopify.js",
+                        hotFile       : "public/pupil.hot",
+                        buildDirectory: "pupil",
+                        input         : "resources/js/app-pupil.js",
+                        ssr           : "resources/js/ssr-pupil.js",
                         refresh       : true
                     }),
             vue({
@@ -32,7 +32,7 @@ export default defineConfig(
             i18n(),
             codecovVitePlugin({
                 enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
-                bundleName: "shopify",
+                bundleName: "pupil",
                 uploadToken: process.env.CODECOV_TOKEN,
             })
         ],

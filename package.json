@@ -11,8 +11,8 @@
         "build.iris": "vite build --config vite.iris.config.js && vite build --config vite.iris.config.js --ssr",
         "dev.retina": "vite --config vite.retina.config.js",
         "build.retina": "vite build --config vite.retina.config.js && vite build --config vite.retina.config.js --ssr",
-        "dev.shopify": "vite --config vite.shopify.config.js",
-        "build.shopify": "vite build --config vite.shopify.config.js && vite build --config vite.shopify.config.js --ssr"
+        "dev.pupil": "vite --config vite.pupil.config.js",
+        "build.pupil": "vite build --config vite.pupil.config.js && vite build --config vite.pupil.config.js --ssr"
     },
     "devDependencies": {
         "@codecov/vite-plugin": "^0.0.1-beta.6",

@@ -11,7 +11,7 @@ import createServer from "@inertiajs/vue3/server";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
 import Layout from "@/Layouts/AikuPublic.vue";
 
-const appName = "diffaiku";
+const appName = "aiku";
 
 createServer(
   (page) =>
