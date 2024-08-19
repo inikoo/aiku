@@ -60,12 +60,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         strict: false
                     );
 
-                    $audit = $customer->audits()->first();
-                    $audit->update([
-                        'event' => 'migration'
-                    ]);
-
-
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');

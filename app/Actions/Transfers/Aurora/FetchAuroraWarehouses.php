@@ -35,10 +35,6 @@ class FetchAuroraWarehouses extends FetchAuroraAction
                     modelData:    $warehouseData['warehouse'],
                 );
 
-                $audit = $warehouse->audits()->first();
-                $audit->update([
-                    'event' => 'migration'
-                ]);
 
             }
 

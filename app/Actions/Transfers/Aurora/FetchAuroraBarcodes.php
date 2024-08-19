@@ -33,10 +33,7 @@ class FetchAuroraBarcodes extends FetchAuroraAction
                     group: $organisationSource->getOrganisation()->group,
                     modelData: $barcodeData['barcode'],
                 );
-                $audit = $barcode->audits()->first();
-                $audit->update([
-                    'event' => 'migration'
-                ]);
+
             }
 
             return $barcode;

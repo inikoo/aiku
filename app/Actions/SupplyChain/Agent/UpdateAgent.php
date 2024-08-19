@@ -32,7 +32,7 @@ class UpdateAgent extends GrpAction
 
     public function handle(Agent $agent, array $modelData): Agent
     {
-        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id', 'source_slug', 'status']));
+        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id', 'source_slug', 'status','last_fetched_at']));
 
         $agent = $this->update($agent, Arr::only($modelData, ['status', 'code', 'name']));
         if ($agent->wasChanged('status')) {

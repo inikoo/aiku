@@ -63,6 +63,7 @@ class IndexSuppliers extends GrpAction
 
         $queryBuilder = QueryBuilder::for(Supplier::class);
 
+
         if (class_basename($parent) == 'Agent') {
             $queryBuilder->where('suppliers.agent_id', $parent->id);
         } else {

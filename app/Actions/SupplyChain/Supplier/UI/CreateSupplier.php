@@ -33,7 +33,7 @@ class CreateSupplier extends GrpAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.procurement.suppliers.index',
+                                'name'       => 'grp.supply-chain.suppliers.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]

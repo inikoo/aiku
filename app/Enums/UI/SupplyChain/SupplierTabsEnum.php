@@ -19,17 +19,16 @@ enum SupplierTabsEnum: string
     case SHOWCASE           = 'showcase';
     case PURCHASES_SALES    = 'purchase_sales';
     case SUPPLIER_PRODUCTS  = 'supplier_products';
-    case ISSUES             = 'issues';
     case PURCHASE_ORDERS    = 'purchase_orders';
     case DELIVERIES         = 'deliveries';
     case HISTORY            = 'history';
 
-    case DATA               = 'data';
 
     case SYSTEM_USERS       = 'system_users';
 
     case ATTACHMENTS        = 'attachments';
     case IMAGES             = 'images';
+    case ISSUES             = 'issues';
 
 
 
@@ -61,12 +60,6 @@ enum SupplierTabsEnum: string
                 'icon'  => 'fas fa-info-circle',
             ],
 
-            SupplierTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
 
             SupplierTabsEnum::ISSUES => [
                 'title' => __('issues'),

@@ -16,26 +16,14 @@ enum PurchaseOrderTabsEnum: string
     use HasTabs;
 
     case SHOWCASE            = 'showcase';
-
     case ITEMS               = 'items';
-
     case HISTORY             = 'history';
-
-    case DATA                = 'data';
-
-
-
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            PurchaseOrderTabsEnum::DATA     => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+
             PurchaseOrderTabsEnum::ITEMS  => [
                 'title' => __('items'),
                 'icon'  => 'fal fa-bars',

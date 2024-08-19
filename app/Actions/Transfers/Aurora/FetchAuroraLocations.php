@@ -42,10 +42,7 @@ class FetchAuroraLocations extends FetchAuroraAction
                         parent: $locationData['parent'],
                         modelData: $locationData['location'],
                     );
-                    $audit = $location->audits()->first();
-                    $audit->update([
-                        'event' => 'migration'
-                    ]);
+
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'update');

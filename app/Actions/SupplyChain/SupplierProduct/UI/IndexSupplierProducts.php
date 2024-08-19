@@ -171,24 +171,24 @@ class IndexSupplierProducts extends GrpAction
         };
 
         return match ($routeName) {
-            'grp.procurement.supplier_products.index' =>
+            'grp.supply-chain.supplier_products.index' =>
             array_merge(
                 ShowProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.procurement.supplier_products.index',
+                        'name' => 'grp.supply-chain.supplier_products.index',
                         null
                     ]
                 ),
             ),
 
 
-            'grp.procurement.agents.show.supplier_products.index' =>
+            'grp.supply-chain.agents.show.supplier_products.index' =>
             array_merge(
                 (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
-                        'name'       => 'grp.procurement.agents.show.supplier_products.index',
+                        'name'       => 'grp.supply-chain.agents.show.supplier_products.index',
                         'parameters' =>
                             [
                                 $routeParameters['supplierProduct']->slug

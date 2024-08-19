@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
@@ -16,51 +16,53 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property PurchaseOrder $purchaseOrder
- * @property ActionRequest $request
- */
-class ShowPurchaseOrder extends InertiaAction
+
+class ShowPurchaseOrder extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
-    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): void
+    public function asController(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
     {
-        $this->initialisation($request)->withTab(PurchaseOrderTabsEnum::values());
-        $this->request       = $request;
-        $this->purchaseOrder = $purchaseOrder;
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
 
+        return $purchaseOrder;
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(PurchaseOrder $purchaseOrder, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
         return Inertia::render(
             'Procurement/PurchaseOrder',
             [
-                'title'                                 => __('purchase order'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($this->purchaseOrder),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($this->purchaseOrder, $this->request),
-                    'next'     => $this->getNext($this->purchaseOrder, $this->request),
+                'title'       => __('purchase order'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $purchaseOrder,
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'navigation'  => [
+                    'previous' => $this->getPrevious($purchaseOrder, $request),
+                    'next'     => $this->getNext($purchaseOrder, $request),
                 ],
                 'pageHead'    => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'people-arrows'],
-                            'title' => __('warehouse')
+                            'icon'  => ['fal', 'clipboard-list'],
+                            'title' => __('purchase order')
                         ],
-                    'title' => $this->purchaseOrder->reference,
+                    'title' => $purchaseOrder->reference,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -69,55 +71,56 @@ class ShowPurchaseOrder extends InertiaAction
                     ] : false,
 
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => PurchaseOrderTabsEnum::navigation()
                 ],
 
                 PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
-                    fn () => new PurchaseOrderResource(($this->purchaseOrder))
-                    : Inertia::lazy(fn () => new PurchaseOrderResource(($this->purchaseOrder))),
+                    fn() => new PurchaseOrderResource(($purchaseOrder))
+                    : Inertia::lazy(fn() => new PurchaseOrderResource(($purchaseOrder))),
 
                 PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
-                    fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))
-                    : Inertia::lazy(fn () =>  PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($this->purchaseOrder))),
+                    fn() => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))
+                    : Inertia::lazy(fn() => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))),
 
                 PurchaseOrderTabsEnum::HISTORY->value => $this->tab == PurchaseOrderTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($this->purchaseOrder))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->purchaseOrder)))
+                    fn() => HistoryResource::collection(IndexHistory::run($purchaseOrder))
+                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($purchaseOrder)))
             ]
         )->table(IndexPurchaseOrderItems::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
     }
 
-    public function jsonResponse(): PurchaseOrderResource
+    public function jsonResponse(PurchaseOrder $purchaseOrder): PurchaseOrderResource
     {
-        return new PurchaseOrderResource($this->purchaseOrder);
+        return new PurchaseOrderResource($purchaseOrder);
     }
 
-    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, $suffix = null): array
+    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, string $routeName, array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs(),
+            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.purchase_orders.index',
+                                'name'       => 'grp.org.procurement.purchase_orders.index',
+                                'parameters' => $routeParameters['organisation']
                             ],
-                            'label' => __('purchaseOrder')
+                            'label' => __('Purchase order')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.purchase_orders.show',
-                                'parameters' => [$purchaseOrder->slug]
+                                'parameters' => $routeParameters
                             ],
                             'label' => $purchaseOrder->reference,
                         ],
                     ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
 
                 ],
             ]
@@ -126,30 +129,32 @@ class ShowPurchaseOrder extends InertiaAction
 
     public function getPrevious(PurchaseOrder $purchaseOrder, ActionRequest $request): ?array
     {
-        $previous = PurchaseOrder::where('number', '<', $purchaseOrder->number)->orderBy('number', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
+        $previous = PurchaseOrder::where('reference', '<', $purchaseOrder->reference)->orderBy('reference', 'desc')->first();
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(PurchaseOrder $purchaseOrder, ActionRequest $request): ?array
     {
-        $next = PurchaseOrder::where('number', '>', $purchaseOrder->number)->orderBy('number')->first();
+        $next = PurchaseOrder::where('reference', '>', $purchaseOrder->reference)->orderBy('reference')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?PurchaseOrder $purchaseOrder, string $routeName): ?array
     {
-        if(!$purchaseOrder) {
+        if (!$purchaseOrder) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.procurement.purchase_orders.show'=> [
-                'label'=> $purchaseOrder->reference,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'purchaseOrder'=> $purchaseOrder->number
+            'grp.org.procurement.purchase_orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation,
+                        'purchaseOrder' => $purchaseOrder->slug
                     ]
 
                 ]
