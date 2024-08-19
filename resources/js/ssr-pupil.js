@@ -9,9 +9,9 @@ import { renderToString } from '@vue/server-renderer';
 import { createInertiaApp } from '@inertiajs/vue3';
 import createServer from '@inertiajs/vue3/server';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
-import Layout from '@/Layouts/Shopify.vue'
+import Layout from '@/Layouts/Pupil.vue'
 
-const appName = 'shopify';
+const appName = 'pupil';
 
 createServer((page) =>
     createInertiaApp({
@@ -19,8 +19,8 @@ createServer((page) =>
         render: renderToString,
         title: (title) => `${title} - ${appName}`,
                          resolve: name => {
-                             const pages = import.meta.glob('./Pages/Shopify/**/*.vue', { eager: true })
-                             let page = pages[`./Pages/Shopify/${name}.vue`]
+                             const pages = import.meta.glob('./Pages/Pupil/**/*.vue', { eager: true })
+                             let page = pages[`./Pages/Pupil/${name}.vue`]
                              page.default.layout = page.default.layout || Layout
                              return page
                          },        setup({ App, props, plugin }) {
