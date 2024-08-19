@@ -29,13 +29,12 @@ class ShowDashboard
                 'products' => [
                     'name'       => 'shopify.products',
                     'parameters' => [
-                        'shop' => $shopifyUser->name
+                        'shopifyUser' => $shopifyUser->id
                     ]
                 ],
                 'store_product' => [
-                    'name'       => 'grp.models.customer.shopify_user.product.store',
+                    'name'       => 'shopify.shopify_user.product.store',
                     'parameters' => [
-                        'customer'    => $shopifyUser->customer_id,
                         'shopifyUser' => $shopifyUser->id
                     ]
                 ]
