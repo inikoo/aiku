@@ -13,15 +13,12 @@ use Osiset\ShopifyApp\Http\Controllers\AuthController;
 use App\Actions\UI\Pupil\Dashboard\ShowDashboard;
 
 Route::middleware(['verify.shopify'])->group(function () {
-
     Route::get('/', ShowDashboard::class)->name('home');
     Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
-    Route::get('shopify-user/{shopifyUser:id}/products', GetProductForShopify::class)->name('products');
     Route::post('shopify-user/{shopifyUser:id}/products', StoreProductToShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
-
-
 });
 
+Route::get('shopify-user/{shopifyUser:id}/products', GetProductForShopify::class)->name('products');
 
 Route::match(
     ['GET', 'POST'],

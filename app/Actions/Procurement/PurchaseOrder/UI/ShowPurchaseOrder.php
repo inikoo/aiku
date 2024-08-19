@@ -21,7 +21,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-
 class ShowPurchaseOrder extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
@@ -77,16 +76,16 @@ class ShowPurchaseOrder extends OrgAction
                 ],
 
                 PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
-                    fn() => new PurchaseOrderResource(($purchaseOrder))
-                    : Inertia::lazy(fn() => new PurchaseOrderResource(($purchaseOrder))),
+                    fn () => new PurchaseOrderResource(($purchaseOrder))
+                    : Inertia::lazy(fn () => new PurchaseOrderResource(($purchaseOrder))),
 
                 PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
-                    fn() => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))
-                    : Inertia::lazy(fn() => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))),
+                    fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))
+                    : Inertia::lazy(fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))),
 
                 PurchaseOrderTabsEnum::HISTORY->value => $this->tab == PurchaseOrderTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($purchaseOrder))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($purchaseOrder)))
+                    fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder)))
             ]
         )->table(IndexPurchaseOrderItems::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));

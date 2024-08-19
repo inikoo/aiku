@@ -25,7 +25,7 @@ class PalletReturnPalletStoredItemExport implements FromQuery, WithHeadings, Sho
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
     }
-    
+
     public function query()
     {
         return PalletStoredItem::query()

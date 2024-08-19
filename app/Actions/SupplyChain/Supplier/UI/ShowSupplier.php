@@ -100,7 +100,7 @@ class ShowSupplier extends GrpAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        $this->canEdit && !$supplier->agent_id  ? [
+                        $this->canEdit && !$supplier->agent_id ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
@@ -144,33 +144,33 @@ class ShowSupplier extends GrpAction
                 ],
 
                 SupplierTabsEnum::SHOWCASE->value => $this->tab == SupplierTabsEnum::SHOWCASE->value ?
-                    fn() => GetSupplierShowcase::run($supplier)
-                    : Inertia::lazy(fn() => GetSupplierShowcase::run($supplier)),
+                    fn () => GetSupplierShowcase::run($supplier)
+                    : Inertia::lazy(fn () => GetSupplierShowcase::run($supplier)),
 
                 SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
-                    fn() => SupplierProductResource::collection(
+                    fn () => SupplierProductResource::collection(
                         IndexSupplierProducts::run(
                             parent: $supplier,
                             prefix: 'supplier_products'
                         )
                     )
-                    : Inertia::lazy(fn() => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
 
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn() => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
-                    : Inertia::lazy(fn() => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
 
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
-                    fn() => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))
-                    : Inertia::lazy(fn() => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))),
+                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))),
 
                 SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
-                    fn() => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))
-                    : Inertia::lazy(fn() => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))),
+                    fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))
+                    : Inertia::lazy(fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))),
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($supplier))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($supplier)))
+                    fn () => HistoryResource::collection(IndexHistory::run($supplier))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplier)))
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexSupplierProducts::make()->tableStructure())
@@ -180,7 +180,7 @@ class ShowSupplier extends GrpAction
     }
 
 
-    public function getBreadcrumbs(Supplier $supplier,string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(Supplier $supplier, string $routeName, array $routeParameters, string $suffix = ''): array
     {
 
         $headCrumb = function (Supplier $supplier, array $routeParameters, string $suffix) {
@@ -234,7 +234,7 @@ class ShowSupplier extends GrpAction
                     [
                         'index' => [
                             'name'       => 'grp.supply-chain.agents.show.suppliers.index',
-                            'parameters' => Arr::only($routeParameters,'agent')
+                            'parameters' => Arr::only($routeParameters, 'agent')
 
                         ],
                         'model' => [

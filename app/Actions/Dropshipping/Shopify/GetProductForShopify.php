@@ -9,6 +9,7 @@ namespace App\Actions\Dropshipping\Shopify;
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Services\QueryBuilder;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,7 +25,7 @@ class GetProductForShopify
     /**
      * @throws \Exception
      */
-    public function handle(ShopifyUser $shopifyUser)
+    public function handle(Shop $shop)
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,7 +36,7 @@ class GetProductForShopify
 
         $queryBuilder = QueryBuilder::for(Product::class);
 
-        $queryBuilder->where('shop_id', $shopifyUser->customer->shop_id);
+        $queryBuilder->where('shop_id', $shop->id);
         $queryBuilder->where('state', ProductStateEnum::ACTIVE->value);
 
         $queryBuilder
@@ -49,6 +50,8 @@ class GetProductForShopify
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request)
     {
-        return $this->handle($shopifyUser);
+        $shop =  $shopifyUser->shop;
+
+        return $this->handle($shop);
     }
 }

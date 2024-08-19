@@ -10,25 +10,31 @@
 namespace App\Actions\UI\Retina\Dropshipping;
 
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Dashboard\ShowDashboard;
+use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
+use App\Enums\UI\Catalogue\ProductTabsEnum;
+use App\Http\Resources\Catalogue\ProductsResource;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProducts extends RetinaAction
+class IndexProducts extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->is_root;
     }
 
-    public function asController(ActionRequest $request): void
+    public function asController(ActionRequest $request): ActionRequest
     {
         $this->initialisation($request);
+
+        return $request;
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
+        $shop = $request->get('website')->shop;
+
         return Inertia::render(
             'Dropshipping/Products',
             [
@@ -38,9 +44,14 @@ class ShowProducts extends RetinaAction
                     'title' => __('Products'),
                     'icon'  => 'fal fa-cube'
                 ],
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => ProductTabsEnum::navigation()
+                ],
 
+                'products' => ProductsResource::collection(IndexUIProducts::run($shop, 'products'))
             ]
-        );
+        )->table(IndexUIProducts::make()->tableStructure($shop, prefix: 'products'));
     }
 
     // public function getBreadcrumbs(): array
