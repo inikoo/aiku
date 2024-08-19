@@ -1677,6 +1677,28 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
     return $palletDelivery;
 })->depends('create fourth pallet delivery (pallet import test)');
 
+test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDelivery) {
+    Storage::fake('local');
+
+    $tmpPath = 'tmp/uploads/';
+
+    $filePath = base_path('tests/fixtures/palletwithstoreditem.xlsx');
+    $file     = new UploadedFile($filePath, 'palletwithstoreditem.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+
+    $includeStoredItem = true;
+
+    ImportPallet::run($palletDelivery, $file, $includeStoredItem);
+
+    $palletDelivery->refresh();
+    $pallet = $palletDelivery->pallets->skip(1)->first();
+
+    expect($pallet->storedItems()->count())->toBe(1);
+
+    return $palletDelivery;
+})->depends('create fourth pallet delivery (pallet import test)');
+
 test('create third fulfilment customer', function (Fulfilment $fulfilment) {
     $fulfilmentCustomer = StoreFulfilmentCustomer::make()->action(
         $fulfilment,
