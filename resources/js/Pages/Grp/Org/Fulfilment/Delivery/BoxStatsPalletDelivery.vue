@@ -132,7 +132,7 @@ onMounted(() => {
             <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
                 <svg id="palletDeliveryBarcode" class="w-full h-full" />
                 <div class="text-xxs text-gray-500">
-                    pad-{{ route().params.palletDelivery }}
+                    {{ route().params.palletDelivery }}
                 </div>
             </div>
             
@@ -155,7 +155,7 @@ onMounted(() => {
                         aria-hidden='true' />
                 </dt>
 
-                <Popover v-if="dataPalletDelivery.state === 'in-process' || dataPalletDelivery.state === 'submitted'" position="">
+                <Popover v-if="dataPalletDelivery.state == 'in-process' || dataPalletDelivery.state == 'submitted' || dataPalletDelivery.state == 'confirmed'" position="">
                     <template #button>
                         <div v-if="dataPalletDelivery.estimated_delivery_date"
                             v-tooltip="useDaysLeftFromToday(dataPalletDelivery.estimated_delivery_date)"
