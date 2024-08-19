@@ -10,7 +10,7 @@ import '../css/app.css';
 import {createApp, h} from 'vue';
 import {createInertiaApp} from '@inertiajs/vue3';
 import {ZiggyVue} from '../../vendor/tightenco/ziggy/dist/vue.m';
-import {i18nVue, trans} from 'laravel-vue-i18n';
+import {i18nVue} from 'laravel-vue-i18n';
 import Notifications from '@kyvg/vue3-notification';
 import {createPinia} from 'pinia';
 import * as Sentry from '@sentry/vue';

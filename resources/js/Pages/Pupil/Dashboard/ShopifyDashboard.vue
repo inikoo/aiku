@@ -1,13 +1,10 @@
 <script setup lang='ts'>
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Row from 'primevue/row'
-import ColumnGroup from 'primevue/columngroup'
 import Tag from 'primevue/tag'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
-import ButtonPV from 'primevue/button'
 import Rating from 'primevue/rating'
 import { FilterMatchMode } from '@primevue/core/api'
 import { onMounted, ref } from 'vue'
