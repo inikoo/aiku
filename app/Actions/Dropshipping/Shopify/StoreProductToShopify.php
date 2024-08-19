@@ -26,7 +26,7 @@ class StoreProductToShopify extends OrgAction
      */
     public function handle(ShopifyUser $shopifyUser, array $modelData): \GuzzleHttp\Promise\PromiseInterface
     {
-        $products = $shopifyUser->organisation->products()->whereNotIn('id', Arr::get($modelData, 'products'))->get();
+        $products = $shopifyUser->organisation->products()->whereIn('id', Arr::get($modelData, 'products'))->get();
 
         $body = [];
         foreach ($products as $product) {
@@ -52,7 +52,7 @@ class StoreProductToShopify extends OrgAction
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): \GuzzleHttp\Promise\PromiseInterface
     {
-        $this->initialisationFromShop($shopifyUser->shop, $request);
+        $this->initialisationFromShop($shopifyUser->customer->shop, $request);
 
         return $this->handle($shopifyUser, $this->validatedData);
     }

@@ -145,10 +145,11 @@ test(
 
         $modelData=Payment::factory()->definition();
         $payment  = StorePayment::make()->action(
-            customer: $customer, 
-            paymentAccount: $paymentAccount, 
+            customer: $customer,
+            paymentAccount: $paymentAccount,
             invoice: null,
-            modelData: $modelData);
+            modelData: $modelData
+        );
 
         $this->organisation->refresh();
 
