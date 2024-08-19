@@ -37,7 +37,6 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
 
     public function storeModel($row, $uploadRecord): void
     {
-        dd($row);
         $fields  = array_keys($this->rules());
         $rowData = $row->only($fields)->toArray();
 
