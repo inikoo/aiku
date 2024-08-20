@@ -13,6 +13,10 @@ use App\Actions\Inventory\OrgStockFamily\UI\IndexOrgStockFamilies;
 use App\Actions\Inventory\OrgStockFamily\UI\ShowOrgStockFamily;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
+use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('agents')->as('org_agents.')->group(function () {
@@ -23,11 +27,24 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
             Route::get('', [ShowOrgAgent::class,'maya'])->name('show')->withoutScopedBindings();
         });
     });
-    // Route::prefix('families')->as('org_stock_families.')->group(function () {
-    //     Route::get('/', [IndexOrgStockFamilies::class, 'maya'])->name('index');
+});
 
-    //     Route::prefix('{orgStockFamily:id}')->group(function () {
-    //         Route::get('', [ShowOrgStockFamily::class,'maya'])->name('show')->withoutScopedBindings();
-    //     });
-    // });
+Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
+    Route::prefix('all')->as('all_org_suppliers.')->group(function () {
+        Route::get('/', [IndexOrgSuppliers::class, 'maya'])->name('index');
+
+        Route::prefix('{orgSupplier:id}')->group(function () {
+            Route::get('', [ShowOrgSupplier::class,'maya'])->name('show')->withoutScopedBindings();
+        });
+    });
+});
+
+Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
+    Route::prefix('all')->as('all_purchase_orders.')->group(function () {
+        Route::get('/', [IndexPurchaseOrders::class, 'maya'])->name('index');
+
+        Route::prefix('{purchaseOrder:id}')->group(function () {
+            Route::get('', [ShowPurchaseOrder::class,'maya'])->name('show')->withoutScopedBindings();
+        });
+    });
 });
