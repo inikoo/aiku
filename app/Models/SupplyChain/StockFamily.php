@@ -45,6 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $activated_at
  * @property string|null $discontinuing_at
  * @property string|null $discontinued_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
@@ -77,9 +79,10 @@ class StockFamily extends Model implements HasMedia, Auditable
     use HasFactory;
 
     protected $casts = [
-        'data'  => 'array',
-        'state' => StockFamilyStateEnum::class,
-
+        'data'                        => 'array',
+        'state'                       => StockFamilyStateEnum::class,
+        'fetched_at'                  => 'datetime',
+        'last_fetched_at'             => 'datetime',
     ];
 
     protected $attributes = [

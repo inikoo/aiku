@@ -53,6 +53,7 @@ use Illuminate\Support\Carbon;
  * @property string $quantity_dispatched
  * @property string $quantity_fail
  * @property string $quantity_cancelled
+ * @property string|null $fail_status
  * @property string $gross_amount net amount before discounts
  * @property string $net_amount
  * @property string|null $grp_net_amount
@@ -61,6 +62,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property array $data
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

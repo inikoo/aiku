@@ -60,6 +60,7 @@ class StoreStock extends GrpAction
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],
             'state'       => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
+            'fetched_at'  => ['sometimes', 'date'],
         ];
     }
 

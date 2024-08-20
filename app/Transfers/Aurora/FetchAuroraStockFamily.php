@@ -16,30 +16,31 @@ class FetchAuroraStockFamily extends FetchAurora
 
     protected function parseModel(): void
     {
-
-        $code=$this->auroraModelData->{'Category Code'};
-        if($code=='' || $code=='GloveSupply') {
+        $code = $this->auroraModelData->{'Category Code'};
+        if ($code == '' || $code == 'GloveSupply') {
             return;
         }
 
 
-        $code=preg_replace('/\(BOX\)$/', '-BOX', $code);
-        $code=preg_replace('/\s+/', '-', $code);
+        $code = preg_replace('/\(BOX\)$/', '-BOX', $code);
+        $code = preg_replace('/\s+/', '-', $code);
 
         $sourceSlug = Str::kebab(strtolower($code));
 
         $this->parsedData['stock_family'] = [
-            'code'        => $code,
-            'name'        => $this->auroraModelData->{'Category Label'},
-            'state'       => match ($this->auroraModelData->{'Part Category Status'}) {
+            'code'            => $code,
+            'name'            => $this->auroraModelData->{'Category Label'},
+            'state'           => match ($this->auroraModelData->{'Part Category Status'}) {
                 'InUse'         => 'active',
                 'Discontinuing' => 'discontinuing',
                 'NotInUse'      => 'discontinued',
                 default         => 'in-process',
             },
-            'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
-            'source_slug'            => $sourceSlug,
-            'images'                 => $this->parseImages()
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'source_slug'     => $sourceSlug,
+            'images'          => $this->parseImages(),
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
     }
 

@@ -49,11 +49,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $image_id
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
  * @property string|null $activated_at
  * @property string|null $discontinuing_at
  * @property string|null $discontinued_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_department_id

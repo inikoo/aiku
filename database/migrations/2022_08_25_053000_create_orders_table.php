@@ -6,8 +6,6 @@
  */
 
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
-use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasOrderAmountTotals;
 use Illuminate\Database\Migrations\Migration;
@@ -36,8 +34,8 @@ return new class () extends Migration {
             $table->string('customer_reference')->index()->nullable()->comment('Customers own order reference');
 
 
-            $table->string('state')->default(OrderStateEnum::CREATING->value)->index();
-            $table->string('status')->default(OrderStatusEnum::PROCESSING->value)->index();
+            $table->string('state')->default()->index();
+            $table->string('status')->default()->index();
             $table->string('handing_type')->default(OrderHandingTypeEnum::SHIPPING->value)->index();
 
             $table->boolean('customer_locked')->default(false);
@@ -80,8 +78,9 @@ return new class () extends Migration {
             $table=$this->orderTotalAmounts($table);
 
             $table->jsonb('data');
-
-            $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->timestampstz();
             $table->softDeletesTz();
 
 

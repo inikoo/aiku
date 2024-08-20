@@ -59,11 +59,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property array $settings
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
  * @property Carbon|null $activated_at
  * @property Carbon|null $discontinuing_at
  * @property Carbon|null $discontinued_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
@@ -108,6 +110,8 @@ class Stock extends Model implements HasMedia, Auditable
         'discontinued_at'        => 'datetime',
         'state'                  => StockStateEnum::class,
         'trade_unit_composition' => StockTradeUnitCompositionEnum::class,
+        'fetched_at'             => 'datetime',
+        'last_fetched_at'        => 'datetime',
     ];
 
     protected $attributes = [
@@ -159,7 +163,7 @@ class Stock extends Model implements HasMedia, Auditable
         return $this->belongsToMany(
             TradeUnit::class,
             'stock_trade_unit',
-        )->withPivot(['quantity','notes'])->withTimestamps();
+        )->withPivot(['quantity', 'notes'])->withTimestamps();
     }
 
     public function orgStocks(): HasMany
@@ -175,12 +179,10 @@ class Stock extends Model implements HasMedia, Auditable
     }
 
 
-
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
     }
-
 
 
     public function stats(): HasOne
@@ -197,7 +199,7 @@ class Stock extends Model implements HasMedia, Auditable
     public function images(): BelongsToMany
     {
         return $this->belongsToMany(Media::class, 'media_stock')->withTimestamps()
-            ->withPivot(['public','owner_type','owner_id'])
+            ->withPivot(['public', 'owner_type', 'owner_id'])
             ->wherePivot('type', 'image');
     }
 

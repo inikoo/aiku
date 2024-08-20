@@ -89,7 +89,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             try {
-                $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
+                $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false, audit: false);
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
                 $this->errorReported=true;

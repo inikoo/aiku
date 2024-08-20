@@ -28,6 +28,7 @@ class StoreStockFamily extends GrpAction
         GroupHydrateStockFamilies::dispatch($this->group);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
         $stockFamily->refresh();
+
         return $stockFamily;
     }
 
@@ -58,7 +59,7 @@ class StoreStockFamily extends GrpAction
             'name'        => ['required', 'required', 'string', 'max:255'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],
-
+            'fetched_at'  => ['sometimes', 'date'],
         ];
     }
 

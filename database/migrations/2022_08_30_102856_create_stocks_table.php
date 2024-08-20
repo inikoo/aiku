@@ -27,8 +27,6 @@ return new class () extends Migration {
             $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
 
-
-
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
@@ -37,10 +35,12 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('settings');
             $table->jsonb('data');
-            $table->timestampsTz();
             $table->dateTimeTz('activated_at')->nullable();
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable()->unique();
