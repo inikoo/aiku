@@ -83,9 +83,17 @@ class AttachPalletsToReturn extends OrgAction
             'status'           => PalletStatusEnum::STORING,
             'state'            => PalletStateEnum::STORING,
         ]);
-
+    
         $palletReturn->pallets()->detach($palletIds);
-
+    
+        foreach ($palletIds as $palletId) {
+            $pallet = Pallet::find($palletId);
+            
+            if ($pallet) {
+                AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
+            }
+        }
+    
         $palletReturn->refresh();
     }
 
