@@ -7,10 +7,15 @@
 
 namespace App\Actions\Ordering\Transaction;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Transaction;
+use Illuminate\Validation\Rule;
 
-class UpdateTransaction
+class UpdateTransaction extends OrgAction
 {
     use WithActionUpdate;
 
@@ -22,9 +27,26 @@ class UpdateTransaction
     public function rules(): array
     {
         return [
-            'type'             => ['required'],
-            'quantity_bonus'   => ['required', 'numeric'],
-            'quantity_ordered' => ['required', 'numeric'],
+            'quantity_ordered'         => ['sometimes','required', 'numeric', 'min:0'],
+            'quantity_bonus'           => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_dispatched'      => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_fail'            => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_cancelled'       => ['sometimes', 'sometimes', 'numeric', 'min:0'],
+            'source_id'                => ['sometimes', 'string'],
+            'state'                    => ['sometimes', Rule::enum(TransactionStateEnum::class)],
+            'status'                   => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
+            'fail_status'              => ['sometimes', 'nullable',Rule::enum(TransactionFailStatusEnum::class)],
+            'gross_amount'             => ['sometimes','required', 'numeric'],
+            'net_amount'               => ['sometimes','required', 'numeric'],
+            'org_exchange'             => ['sometimes', 'numeric'],
+            'grp_exchange'             => ['sometimes', 'numeric'],
+            'org_net_amount'           => ['sometimes', 'numeric'],
+            'grp_net_amount'           => ['sometimes', 'numeric'],
+            'created_at'               => ['sometimes', 'required', 'date'],
+            'tax_category_id'          => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'date'                     => ['sometimes', 'required', 'date'],
+            'submitted_at'             => ['sometimes', 'required', 'date'],
+            'last_fetched_at'          => ['sometimes', 'date'],
         ];
     }
 

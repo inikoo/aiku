@@ -30,8 +30,7 @@ class ShowWarehouseArea extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->maya)
-        {
+        if($this->maya) {
             return true; //Auth pls
         }
         $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");

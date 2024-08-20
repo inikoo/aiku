@@ -26,7 +26,7 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
             if ($website = Website::where('source_id', $websiteData['website']['source_id'])
                 ->first()) {
-                $website = UpdateWebsite::run(
+                $website = UpdateWebsite::make()->action(
                     website: $website,
                     modelData: $websiteData['website'],
                     audit:false

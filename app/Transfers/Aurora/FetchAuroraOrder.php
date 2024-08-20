@@ -66,13 +66,14 @@ class FetchAuroraOrder extends FetchAurora
             "PackedDone" => OrderStateEnum::PACKED,
             "Approved"   => OrderStateEnum::FINALISED,
             "Dispatched" => OrderStateEnum::DISPATCHED,
-            default      => OrderStateEnum::SUBMITTED,
+            "InBasket"   => OrderStateEnum::IN_BASKET,
+            default      => OrderStateEnum::IN_PROCESS,
         };
 
 
         $status = match ($this->auroraModelData->{'Order State'}) {
-            "Cancelled"  => OrderStatusEnum::CANCELLED,
-            "Dispatched" => OrderStatusEnum::DISPATCHED,
+            "Cancelled","Dispatched"  => OrderStatusEnum::SETTLED,
+            "InBasket"   => OrderStatusEnum::IN_BASKET,
             default      => OrderStatusEnum::PROCESSING,
         };
 
@@ -103,7 +104,7 @@ class FetchAuroraOrder extends FetchAurora
             ) {
                 $stateWhenCancelled = OrderStateEnum::HANDLING;
             } else {
-                $stateWhenCancelled = OrderStateEnum::SUBMITTED;
+                $stateWhenCancelled = OrderStateEnum::IN_PROCESS;
             }
 
 
@@ -165,10 +166,11 @@ class FetchAuroraOrder extends FetchAurora
             'insurance_amount'   => $this->auroraModelData->{'Order Insurance Net Amount'},
 
 
-            'net_amount'     => $this->auroraModelData->{'Order Total Net Amount'},
-            'tax_amount'     => $this->auroraModelData->{'Order Total Tax Amount'},
-            'total_amount'   => $this->auroraModelData->{'Order Total Amount'},
-
+            'net_amount'      => $this->auroraModelData->{'Order Total Net Amount'},
+            'tax_amount'      => $this->auroraModelData->{'Order Total Tax Amount'},
+            'total_amount'    => $this->auroraModelData->{'Order Total Amount'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
 
         ];
 

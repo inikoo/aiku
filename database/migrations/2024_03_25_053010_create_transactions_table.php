@@ -5,8 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
-use App\Enums\Ordering\Transaction\TransactionStateEnum;
-use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasOrderFields;
 use App\Stubs\Migrations\HasSalesTransactionParents;
@@ -34,8 +32,8 @@ return new class () extends Migration {
 
             $table->dateTimeTz('settled_at')->nullable();
 
-            $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
-            $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
+            $table->string('state')->default()->index();
+            $table->string('status')->default()->index();
 
             $table->string('asset_type')->index();
             $table->unsignedInteger('asset_id')->index();
@@ -48,6 +46,8 @@ return new class () extends Migration {
             $table->decimal('quantity_dispatched', 16, 3)->default(0);
             $table->decimal('quantity_fail', 16, 3)->default(0);
             $table->decimal('quantity_cancelled', 16, 3)->default(0);
+
+            $table->string('fail_status')->nullable()->index();
 
             $table= $this->orderMoneyFields($table);
 

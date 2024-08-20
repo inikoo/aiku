@@ -54,6 +54,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at
  * @property string|null $cancelled_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

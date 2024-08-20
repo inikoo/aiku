@@ -84,7 +84,7 @@ class UpdateOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'           => [
+            'reference'        => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -101,6 +101,7 @@ class UpdateOrder extends OrgAction
             'delivery_address' => ['sometimes', 'required', new ValidAddress()],
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean'],
+            'last_fetched_at'  => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
@@ -110,8 +111,11 @@ class UpdateOrder extends OrgAction
         return $rules;
     }
 
-    public function action(Order $order, array $modelData, bool $strict = true, int $hydratorsDelay = 0): Order
+    public function action(Order $order, array $modelData, bool $strict = true, int $hydratorsDelay = 0, bool $audit = true): Order
     {
+        if (!$audit) {
+            Order::disableAuditing();
+        }
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
