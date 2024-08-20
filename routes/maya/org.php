@@ -21,4 +21,7 @@ Route::prefix("org/{organisation:id}")
         Route::prefix("locations")
             ->name("locations.")
             ->group(__DIR__."/org/locations.php");
+        Route::prefix("procurement")
+            ->name("procurement.")
+            ->group(__DIR__."/org/procurement.php");
     });

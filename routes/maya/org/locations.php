@@ -20,7 +20,7 @@ Route::prefix('all')->as('all_locations.')->group(function () {
 });
 
 Route::prefix('show/{location:id}')->group(function () {
-    Route::get('', [ShowLocation::class,'maya'])->name('showx')->withoutScopedBindings();
+    Route::get('', [ShowLocation::class,'maya'])->name('show')->withoutScopedBindings();
 });
 
 Route::prefix('warehouse/areas')->group(function () {
@@ -28,6 +28,6 @@ Route::prefix('warehouse/areas')->group(function () {
         Route::get('', [IndexWarehouseAreas::class,'maya'])->name('index')->withoutScopedBindings();
     });
     Route::prefix('{warehouseArea:id}')->group(function () {
-        Route::get('', [ShowWarehouseArea::class,'maya'])->name('showxx')->withoutScopedBindings();
+        Route::get('', [ShowWarehouseArea::class,'maya'])->name('show')->withoutScopedBindings();
     });
 });
