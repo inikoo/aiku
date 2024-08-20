@@ -93,7 +93,7 @@ class AttachPalletsToReturn extends OrgAction
                 AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
             }
         }
-    
+        PalletReturnHydratePallets::run($palletReturn);
         $palletReturn->refresh();
     }
 
