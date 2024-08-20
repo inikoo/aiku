@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\InertiaTable\InertiaTable;
@@ -80,6 +81,14 @@ class IndexStockDeliveries extends InertiaAction
         return $this->handle($organisation);
     }
 
+
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->maya   = true;
+        $this->initialisation($request);
+
+        return $this->handle($organisation);
+    }
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {

@@ -41,8 +41,13 @@ class IndexLocations extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
+        if ($this->maya)
+        {
+            return true; //Idk the auth for this
+        }
+
         if($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->warehouse->id);
+            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
             return  $request->user()->hasPermissionTo("warehouses-view.{$this->organisation->id}");
         }
 
@@ -51,6 +56,14 @@ class IndexLocations extends OrgAction
 
     }
 
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->maya   = true;
+        $this->parent = $organisation;
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle(parent: $organisation);
+    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator

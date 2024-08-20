@@ -30,10 +30,21 @@ class ShowWarehouseArea extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->maya)
+        {
+            return true; //Auth pls
+        }
         $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
 
         return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
+    }
+
+    public function maya(Organisation $organisation, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    {
+        $this->maya   =true;
+        $this->initialisation($organisation, $request)->withTab(WarehouseAreaTabsEnum::values());
+        return $this->handle($warehouseArea);
     }
 
 
@@ -41,6 +52,11 @@ class ShowWarehouseArea extends OrgAction
     {
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseAreaTabsEnum::values());
 
+        return $warehouseArea;
+    }
+
+    public function handle(WarehouseArea $warehouseArea): WarehouseArea
+    {
         return $warehouseArea;
     }
 

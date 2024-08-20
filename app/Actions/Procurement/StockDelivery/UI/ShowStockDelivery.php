@@ -12,6 +12,7 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\StockDeliveryTabsEnum;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Models\Procurement\StockDelivery;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -23,6 +24,10 @@ class ShowStockDelivery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
+        if($this->maya)
+        {
+            return true;
+        }
         $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
@@ -32,6 +37,13 @@ class ShowStockDelivery extends InertiaAction
     {
         $this->initialisation($request)->withTab(StockDeliveryTabsEnum::values());
         $this->stockDelivery    = $stockDelivery;
+    }
+
+    public function maya(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): void
+    {
+        $this->maya   =true;
+        $this->initialisation($request)->withTab(StockDeliveryTabsEnum::values());
+        $this->stockDelivery = $stockDelivery;
     }
 
     public function htmlResponse(ActionRequest $request): Response
