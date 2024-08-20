@@ -146,6 +146,15 @@ class IndexOrgSuppliers extends OrgAction
         return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->maya   = true;
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle(parent: $organisation);
+    }
+
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
