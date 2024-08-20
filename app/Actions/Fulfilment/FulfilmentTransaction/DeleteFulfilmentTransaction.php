@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentTransaction;
 
 use App\Actions\Fulfilment\PalletDelivery\CalculatePalletDeliveryNet;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateTransactions;
+use App\Actions\Fulfilment\PalletReturn\CalculatePalletReturnNet;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -32,6 +33,7 @@ class DeleteFulfilmentTransaction extends OrgAction
             CalculatePalletDeliveryNet::run($palletDeliveryTransaction->parent);
         } else {
             PalletReturnHydrateTransactions::run($palletDeliveryTransaction->parent);
+            CalculatePalletReturnNet::run($palletDeliveryTransaction->parent);
         }
     }
 
