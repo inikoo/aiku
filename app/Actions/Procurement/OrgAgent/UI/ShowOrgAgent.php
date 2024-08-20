@@ -15,6 +15,7 @@ use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgAgentResource;
 use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -46,6 +47,13 @@ class ShowOrgAgent extends OrgAction
     {
         $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
 
+        return $this->handle($orgAgent);
+    }
+
+    public function maya(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): OrgAgent
+    {
+        $this->maya   =true;
+        $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
         return $this->handle($orgAgent);
     }
 
@@ -208,9 +216,9 @@ class ShowOrgAgent extends OrgAction
     }
 
 
-    public function jsonResponse(Agent $orgAgent): AgentsResource
+    public function jsonResponse(OrgAgent $orgAgent): OrgAgentResource
     {
-        return new AgentsResource($orgAgent);
+        return new OrgAgentResource($orgAgent);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
