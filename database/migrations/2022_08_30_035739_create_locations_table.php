@@ -36,6 +36,7 @@ return new class () extends Migration {
             $table->boolean('has_stock_slots')->default(false);
             $table->boolean('has_dropshipping_slots')->default(false);
             $table->boolean('has_fulfilment')->default(false);
+            $table->string('barcode')->nullable()->index();
             $table->jsonb('data');
             $table->dateTimeTz('audited_at')->nullable();
             $table->datetimeTz('fetched_at')->nullable();
