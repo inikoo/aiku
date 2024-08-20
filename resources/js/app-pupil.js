@@ -19,8 +19,27 @@ import 'floating-vue/dist/style.css'
 import Layout from '@/Layouts/Pupil.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
+import { definePreset } from '@primevue/themes';
 
 const appName = trans('Pupil') || window.document.getElementsByTagName('title')[0]?.innerText;
+
+const MyPreset = definePreset(Aura, {
+  semantic: {
+      primary: {
+          50: '{stone.50}',
+          100: '{stone.100}',
+          200: '{stone.200}',
+          300: '{stone.300}',
+          400: '{stone.400}',
+          500: '{stone.500}',
+          600: '{stone.600}',
+          700: '{stone.700}',
+          800: '{stone.800}',
+          900: '{stone.900}',
+          950: '{stone.950}'
+      }
+  }
+});
 
 createInertiaApp(
     {
@@ -55,7 +74,7 @@ createInertiaApp(
             .use(FloatingVue)
             .use(PrimeVue, {
               theme: {
-                preset: Aura,
+                preset: MyPreset,
                 options: {
                   darkModeSelector: '.my-primevue-dark',  // dark mode of Primevue depends .my-add-dark in <html>
                 }

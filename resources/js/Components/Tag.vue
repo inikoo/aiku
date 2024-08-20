@@ -41,7 +41,7 @@ const listTheme: any = {
     15: 'bg-fuchsia-100 hover:bg-fuchsia-200 border border-fuchsia-200 text-fuchsia-500',
     16: 'bg-cyan-100 hover:bg-cyan-200 border border-cyan-200 text-cyan-500',
     17: 'bg-sky-100 hover:bg-sky-200 border border-sky-200 text-sky-500',
-    18: 'bg-emerald-700 hover:bg-emerald-200 border border-emerald-200 text-emerald-500',
+    18: 'bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 text-emerald-500',
     99: 'bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-500',
 }
 

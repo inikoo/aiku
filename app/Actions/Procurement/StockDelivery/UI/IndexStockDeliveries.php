@@ -81,6 +81,14 @@ class IndexStockDeliveries extends InertiaAction
     }
 
 
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->maya   = true;
+        $this->initialisation($request);
+
+        return $this->handle($organisation);
+    }
+
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {
         return StockDeliveryResource::collection($suppliers);

@@ -9,6 +9,7 @@ namespace App\Actions\Dropshipping\Shopify;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Events\UploadProductToShopifyProgressEvent;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,23 +25,51 @@ class StoreProductToShopify extends OrgAction
     /**
      * @throws \Exception
      */
-    public function handle(ShopifyUser $shopifyUser, array $modelData): array
+    public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $products = $shopifyUser->organisation->products()->whereIn('id', Arr::get($modelData, 'products'))->get();
-        $body     = [];
-        foreach ($products as $product) {
-            $body[] = [
-                "product" => [
-                    "title" => $product->name,
-                    "price" => $product->price
-                ]
-            ];
+        $products = $shopifyUser
+            ->customer
+            ->shop
+            ->products()
+            ->whereIn('id', Arr::get($modelData, 'products'))
+            ->get();
+
+        $totalProducts = $products->count();
+        $uploaded      = 0;
+        foreach ($products->chunk(2) as $productChunk) {
+
+            $variants = [];
+            foreach ($productChunk as $product) {
+
+                foreach ($product->productVariants as $variant) {
+                    $variants[] = [
+                        "product_id" => $variant->id,
+                        "title"      => $variant->name,
+                        "price"      => $variant->price
+                    ];
+                }
+
+                $body = [
+                    "product" => [
+                        "id"           => $product->id,
+                        "title"        => $product->name,
+                        "body_html"    => $product->description,
+                        "vendor"       => $product->shop->name,
+                        "product_type" => $product->family->name,
+                        "variants"     => $variants
+                    ]
+                ];
+
+                $shopifyUser->products()->attach([$product->id]);
+                $shopifyUser->api()->getRestClient()->request('POST', '/admin/api/2024-04/products.json', $body);
+
+                $uploaded++;
+
+                UploadProductToShopifyProgressEvent::dispatch($shopifyUser, $totalProducts, $uploaded);
+            }
+
+            sleep(2);
         }
-
-        // $shopifyUser->products()->sync(array_keys($body));
-        // dd($body);
-
-        return $shopifyUser->api()->getRestClient()->request('POST', '/admin/api/2024-04/products.json', $body);
     }
 
     public function rules(): array
@@ -50,10 +79,10 @@ class StoreProductToShopify extends OrgAction
         ];
     }
 
-    public function asController(ShopifyUser $shopifyUser, ActionRequest $request): array
+    public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
     {
         $this->initialisationFromShop($shopifyUser->customer->shop, $request);
 
-        return $this->handle($shopifyUser, $this->validatedData);
+        $this->handle($shopifyUser, $this->validatedData);
     }
 }
