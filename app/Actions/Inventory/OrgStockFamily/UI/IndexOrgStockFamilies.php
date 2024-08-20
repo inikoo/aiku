@@ -35,6 +35,15 @@ class IndexOrgStockFamilies extends OrgAction
         return $this->handle($organisation);
     }
 
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->maya   = true;
+        $this->initialisation($organisation, $request);
+        $this->parent = $organisation;
+
+        return $this->handle($organisation);
+    }
+
 
     protected function getElementGroups(Organisation $organisation): array
     {

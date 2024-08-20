@@ -20,8 +20,10 @@ const props = withDefaults(defineProps<{
     suffix?: boolean
     step?: string
     prefix?: boolean
+    pattern?: string
 }>(), {
-    step: "any" // Default step to allow any decimal value
+    step: "any",
+    pattern : "[0-9]*"
 })
 
 const emits = defineEmits<{
@@ -33,14 +35,30 @@ const emits = defineEmits<{
 
 const value = ref(props.modelValue)
 
-const onChange = (event: any) => {
-    if (props.maxValue != null && value.value > props.maxValue) {
-        value.value = props.maxValue
-    }
-    emits('update:modelValue', value.value)
-    emits('input', value.value)
-}
+const onChange = (event: Event) => {
+    const inputValue = (event.target as HTMLInputElement).value;
 
+    // Check if the input matches the pattern
+    const patternRegex = new RegExp(props.pattern || "[0-9]*");
+    console.log(patternRegex.test(inputValue))
+    if (!patternRegex.test(inputValue)) {
+        return; // If not, do not proceed further
+    }
+
+    let numericValue = parseFloat(inputValue);
+
+    // Ensure the value is within min and max constraints
+    if (props.minValue != null && numericValue < parseFloat(props.minValue.toString())) {
+        numericValue = parseFloat(props.minValue.toString());
+    }
+    if (props.maxValue != null && numericValue > parseFloat(props.maxValue.toString())) {
+        numericValue = parseFloat(props.maxValue.toString());
+    }
+
+    value.value = numericValue;
+    emits('update:modelValue', numericValue);
+    emits('input', numericValue);
+}
 const _inputRef = ref<HTMLInputElement | null>(null)
 
 watch(() => props.modelValue, (newValue) => {
