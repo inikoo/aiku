@@ -61,7 +61,7 @@ const compareObjects = (objA, objB) => {
                     <RadioGroup v-model="form[fieldName]">
                         <RadioGroupLabel class="text-base font-semibold leading-6 text-gray-700 sr-only">Select the radio</RadioGroupLabel>
                         <div class="flex gap-x-4 justify-around">
-                        <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value" :value="option" v-slot="{ active, checked }">
+                        <RadioGroupOption as="template" v-for="(option, index) in fieldData.options" :key="option.value" :value="fieldData.valueProp || option" v-slot="{ active, checked }">
                             <div :class="[
                                 'relative flex cursor-pointer rounded-lg border bg-white py-2 px-3 shadow-sm focus:outline-none',
                                 active ? 'border-indigo-600 ring-2 ring-indigo-600' : 'border-gray-300'
