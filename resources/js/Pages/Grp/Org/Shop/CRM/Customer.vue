@@ -178,6 +178,5 @@ const webUserForm = useForm({
         </Dialog>
     </TransitionRoot>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <a target="_blank" href="http://pupil.aiku.test/authenticate?shop=aikuu">connecrt shopify</a>
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
