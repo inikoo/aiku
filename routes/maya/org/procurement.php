@@ -17,6 +17,8 @@ use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
+use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
+use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('agents')->as('org_agents.')->group(function () {
@@ -45,6 +47,16 @@ Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
 
         Route::prefix('{purchaseOrder:id}')->group(function () {
             Route::get('', [ShowPurchaseOrder::class,'maya'])->name('show')->withoutScopedBindings();
+        });
+    });
+});
+
+Route::prefix('stock-deliveries')->as('stock_deliveries.')->group(function () {
+    Route::prefix('all')->as('all_stock_deliveries.')->group(function () {
+        Route::get('/', [IndexStockDeliveries::class, 'maya'])->name('index');
+
+        Route::prefix('{stockDelivery:id}')->group(function () {
+            Route::get('', [ShowStockDelivery::class,'maya'])->name('showx')->withoutScopedBindings();
         });
     });
 });
