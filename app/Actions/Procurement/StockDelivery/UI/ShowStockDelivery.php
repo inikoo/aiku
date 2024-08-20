@@ -24,8 +24,7 @@ class ShowStockDelivery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        if($this->maya)
-        {
+        if($this->maya) {
             return true;
         }
         $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');

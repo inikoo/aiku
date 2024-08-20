@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Google\Service\AnalyticsData\Pivot;
 
 /**
  *
@@ -15,6 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct query()
  * @mixin \Eloquent
  */
-class ShopifyUserHasProduct extends Model
+class ShopifyUserHasProduct extends Pivot
 {
 }

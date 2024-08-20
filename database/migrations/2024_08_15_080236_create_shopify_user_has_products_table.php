@@ -9,6 +9,13 @@ return new class () extends Migration {
     {
         Schema::create('shopify_user_has_products', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedSmallInteger('shopify_user_id');
+            $table->foreign('shopify_user_id')->references('id')->on('shopify_users')->onDelete('cascade');
+
+            $table->unsignedSmallInteger('product_id');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
             $table->timestampsTz();
         });
     }

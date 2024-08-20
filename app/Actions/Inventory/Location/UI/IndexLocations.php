@@ -41,8 +41,7 @@ class IndexLocations extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if ($this->maya)
-        {
+        if ($this->maya) {
             return true; //Idk the auth for this
         }
 

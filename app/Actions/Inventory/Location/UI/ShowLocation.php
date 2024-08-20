@@ -41,8 +41,7 @@ class ShowLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->maya)
-        {
+        if ($this->maya) {
             return true; //Idk for the auth, might come back here later
         }
 
