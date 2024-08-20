@@ -5,27 +5,23 @@
   -->
 
 <script setup lang="ts">
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
+import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import { useLocaleStore } from '@/Stores/locale'
 import { faCircle, faTrash } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { notify } from '@kyvg/vue3-notification'
-import Image from "@/Components/Image.vue";
-import {
-    Tab,
-    TabGroup,
-    TabList,
-    TabPanel,
-    TabPanels,
-} from '@headlessui/vue'
+import Image from "@/Components/Image.vue"
+import { Tab, TabGroup, TabList, TabPanel, TabPanels, } from '@headlessui/vue'
 import { ref } from 'vue'
-import EmptyState from "@/Components/Utils/EmptyState.vue";
-import axios from "axios";
+import EmptyState from "@/Components/Utils/EmptyState.vue"
+
+import axios from "axios"
+import { router } from '@inertiajs/vue3'
 library.add(faCircle, faTrash)
 
 const props = defineProps<{
-    data: Object
+    data: {}
 }>()
 
 
@@ -57,17 +53,18 @@ const OnPickImages = (e) => {
     openGallery.value = false
 }
 
-const deleteImage = async (data,index) => {
+const deleteImage = async (data, index) => {
     console.log(data)
 
-     try {
-        const response = await axios.delete(route(props.data.deleteImageRoute.name, {
-            ...props.data.deleteImageRoute.parameters, media: data.id
-        }));
-        if(selectedImage.value == index) selectedImage.value = 0
-        product.value.images.splice(index,1)
+    try {
+        // router.delete(route(props.data.deleteImageRoute.name, {
+        //     ...props.data.deleteImageRoute.parameters, media: data.id
+        // }))
+
+        if (selectedImage.value == index) selectedImage.value = 0
+        product.value.images.splice(index, 1)
     } catch (error: any) {
-        console.log('error', error);
+        console.log('error', error)
         notify({
             title: 'Failed',
             text: 'cannot show stock images',
@@ -90,10 +87,11 @@ function changeSelectedImage(index) {
         <div class="p-5 space-y-5">
             <div class="relative">
                 <div class=" h-full aspect-square rounded-lg shadow">
-                    <TabGroup as="div" class="flex flex-col-reverse p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
+                    <TabGroup as="div" class="flex flex-col-reverse p-2.5" :selectedIndex="selectedImage"
+                        @change="changeSelectedImage">
                         <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                             <TabList class="grid grid-cols-3 gap-6">
-                                <Tab v-for="(image,index) in product.images" :key="image.id"
+                                <Tab v-for="(image, index) in product.images" :key="image.id"
                                     class="relative flex h-24 w-full cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                                     v-slot="{ selected }">
                                     <span class="sr-only">{{ image.name }}</span>
@@ -106,8 +104,8 @@ function changeSelectedImage(index) {
 
                                     </div>
                                     <font-awesome-icon :icon="['fas', 'trash']"
-                                            class="absolute top-2 right-2 text-red-400 cursor-pointer"
-                                            @click.stop="deleteImage(image,index)" />
+                                        class="absolute top-2 right-2 text-red-400 cursor-pointer"
+                                        @click.stop="deleteImage(image, index)" />
                                 </Tab>
                             </TabList>
 
@@ -130,9 +128,7 @@ function changeSelectedImage(index) {
                                 <TabPanel>
                                     <EmptyState
                                         :data="{ title: 'You don\'t have any images', description: 'Click to upload' }"
-                                        @click="openGallery = true"
-                                        class="cursor-pointer hover:bg-gray-50"    
-                                    />
+                                        @click="openGallery = true" class="cursor-pointer hover:bg-gray-50" />
                                 </TabPanel>
                             </template>
                         </TabPanels>
@@ -208,7 +204,7 @@ function changeSelectedImage(index) {
 
 
     <Gallery :open="openGallery" @on-close="openGallery = false"
-        :uploadRoutes="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)" @on-upload="OnUploadImages"
+        :uploadRoutes="'route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)'" @on-upload="OnUploadImages"
         @on-pick="OnPickImages">
     </Gallery>
 </template>
