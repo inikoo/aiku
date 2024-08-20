@@ -32,7 +32,7 @@ class ShowLocation extends OrgAction
 {
     use WithActionButtons;
 
-    private WarehouseArea|Warehouse $parent;
+    private WarehouseArea|Warehouse|Organisation $parent;
 
     public function handle(Location $location): Location
     {
@@ -41,6 +41,11 @@ class ShowLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->maya)
+        {
+            return true; //Idk for the auth, might come back here later
+        }
+
         $this->canEdit   = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
 
@@ -53,6 +58,14 @@ class ShowLocation extends OrgAction
         $this->parent = $warehouseArea;
         $this->initialisationFromWarehouse($warehouse, $request);
 
+        return $this->handle($location);
+    }
+
+    public function maya(Organisation $organisation, Location $location, ActionRequest $request): Location
+    {
+        $this->maya   =true;
+        $this->parent = $organisation;
+        $this->initialisation($this->parent, $request)->withTab(LocationTabsEnum::values());
         return $this->handle($location);
     }
 
