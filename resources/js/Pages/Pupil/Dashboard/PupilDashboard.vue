@@ -14,13 +14,15 @@ import { useLocaleStore } from '@/Stores/locale'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { routeType } from '@/types/route'
 import axios from 'axios'
-
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSearch, faThLarge, faListUl } from '@fal'
-import { library } from '@fortawesome/fontawesome-svg-core'
 import { router } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
-library.add(faSearch, faThLarge, faListUl)
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSearch, faThLarge, faListUl, faStar as falStar } from '@fal'
+import { faStar } from '@fas'
+import Select from 'primevue/select'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faSearch, faThLarge, faListUl, faStar, falStar)
 
 const props = defineProps<{
     shop: string
@@ -38,9 +40,9 @@ const locale = useLocaleStore()
 
 const productDialog = ref(false)
 const deleteProductDialog = ref(false)
-const filters = {
+const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-}
+})
 
 const confirmDeleteProduct = (product) => {
     product.value = product
@@ -71,21 +73,6 @@ const getStatusLabel = (status) => {
 // Fetch: product
 const realProducts = ref([])
 onMounted(async () => {
-    // const token_token = props.token['_token']
-    // const tokenLoginPupil = Object.keys(props.token).filter(tok => tok.includes('login_pupil'))?.[0]?.match(/login_pupil_([a-f0-9]+)/)?.[1]
-    
-    // console.log('token:', props.token)
-    // console.log('props token (CSRF):', token_token)
-    // console.log('token login pupil:', tokenLoginPupil)
-    
-    // Get window.sessionToken
-    // try {
-    //     const dataxx = await axios.get('authenticate/token')
-    //     console.log('============= success hit authenticate/token', dataxx)
-
-    // } catch (error) {
-    //     console.error('-------------------', error)
-    // }
 
     try {
         const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
@@ -109,9 +96,9 @@ onMounted(async () => {
 // Selected product
 const isLoadingSubmit = ref(false)
 const selectedProducts = ref([])
-const isSelected = (id) => {
+const isSelected = (id: number) => {
     return selectedProducts.value.some(item => item.id === id);
-};
+}
 const onSubmitProduct = () => {
     isLoadingSubmit.value = true
     router.post(
@@ -146,11 +133,6 @@ const optionsView = [
     }
 ]
 
-import { faStar } from '@fas'
-import Checkbox from '@/Components/Checkbox.vue'
-import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
-import Select from 'primevue/select'
-library.add(faStar)
 
 const toggleItem = (id) => {
     const index = selectedProducts.value.findIndex(item => item.id === id);
@@ -211,7 +193,7 @@ const onSortChange = (event) => {
                 </template>
             </SelectButton>
 
-            <Button @click="() => onSubmitProduct()" :loading="isLoadingSubmit" label="Submit" :disabled="!selectedProducts.length" type="black" />
+            <Button @click="() => onSubmitProduct()" :key="'buttonSubmit' + isLoadingSubmit" :loading="isLoadingSubmit" label="Add product" icon="fal fa-plus" :disabled="!selectedProducts.length" type="black" />
         </div>
 
         <div class="bg-stone-100 overflow-hidden rounded-2xl border border-stone-300">
@@ -219,6 +201,7 @@ const onSortChange = (event) => {
                 v-model:selection="selectedProducts"
                 :value="realProducts"
                 dataKey="id"
+                selectionMode="multiple"
                 :paginator="true"
                 :rows="20"
                 :filters="filters"
@@ -236,34 +219,41 @@ const onSortChange = (event) => {
                         </IconField>
                     </div>
                 </template>
+
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false" frozen ></Column>
+
                 <Column field="name" header="Name" sortable style="min-width: 16rem" frozen ></Column>
-                <Column field="code" header="Code" sortable style="min-width: 12rem">
-        
-                </Column>
+
+                <Column field="code" header="Code" sortable style="min-width: 12rem"></Column>
+
                 <Column header="Image">
                     <template #body="slotProps">
                         <img :src="`https://primefaces.org/cdn/primevue/images/product/bracelet.jpg`"
                             :alt="slotProps.data.image" class="rounded" style="width: 64px" />
                     </template>
                 </Column>
+
                 <Column field="price" header="Price" sortable style="min-width: 8rem">
                     <template #body="{ data }">
                         {{ locale.currencyFormat('usd', data.price) }}
                     </template>
                 </Column>
-                <!-- <Column field="category" header="Category" sortable style="min-width: 10rem"></Column> -->
+                
                 <Column field="rating" header="Reviews" sortable style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Rating :modelValue="slotProps.data.rating" :readonly="true" />
+                        <div class="isolate relative">
+                            <Rating :modelValue="slotProps.data.rating" :readonly="true" />
+                        </div>
                     </template>
                 </Column>
+
                 <Column field="`sta`te" header="State" style="min-width: 8rem">
                     <template #body="slotProps">
                         <Tag :value="slotProps.data.state"
                             :severity="getStatusLabel(slotProps.data.inventoryStatus)" />
                     </template>
                 </Column>
+                
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <div class="flex gap-x-1">
@@ -277,7 +267,6 @@ const onSortChange = (event) => {
             <!-- View: Grid -->
             <DataView v-else :value="realProducts" paginator :rows="12" :sortOrder :sortField>
                 <template #header>
-                {{ sortField }} == {{ sortKey }}
                     <Select v-model="sortKey" :options="gridSortOptions" optionLabel="label" placeholder="Sort By Price" @change="onSortChange($event)" />
                 </template>
 
@@ -316,7 +305,8 @@ const onSortChange = (event) => {
                                         <div class="flex items-center gap-2 justify-center py-1 px-2" style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
                                             <span class="font-medium text-sm">{{ item.rating || 0 }}</span>
                                             <!-- <i class="pi pi-star-fill "></i> -->
-                                            <FontAwesomeIcon icon='fas fa-star' class='text-yellow-500' fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-if="item.rating > 0" icon='fas fa-star' class='text-yellow-500' fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-else icon='fal fa-star' class='text-gray-500' fixed-width aria-hidden='true' />
                                         </div>
                                     </div>
                                     <!-- <div class="flex gap-2">
@@ -334,10 +324,3 @@ const onSortChange = (event) => {
         
     </div>
 </template>
-
-<style scoped lang="scss">
-:root {
-    --primary-color: #ff0000
-}
-
-</style>
