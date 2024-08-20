@@ -48,6 +48,15 @@ class IndexWarehouseAreas extends OrgAction
         return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
     }
 
+    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $organisation;
+        $this->maya   = true;
+        $this->initialisation($this->parent, $request);
+
+        return $this->handle(parent: $organisation);
+    }
+
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
