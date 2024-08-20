@@ -97,7 +97,7 @@ onMounted(async () => {
             }
         )
 
-        realProducts.value = data.data.slice(0, 5)
+        realProducts.value = data.data
         console.log('aaa', realProducts.value)
     } catch (error) {
         console.log('error', error)
@@ -176,6 +176,8 @@ const sortField = ref()
 const gridSortOptions = ref([
     {label: 'Price High to Low', value: '!price'},
     {label: 'Price Low to High', value: 'price'},
+    {label: 'Alphabetically a-z', value: 'name'},
+    {label: 'Alphabetically z-a', value: '!name'},
 ])
 const onSortChange = (event) => {
     const value = event.value.value;
@@ -192,6 +194,7 @@ const onSortChange = (event) => {
         sortKey.value = sortValue;
     }
 }
+
 </script>
 
 <template>
@@ -272,8 +275,9 @@ const onSortChange = (event) => {
             </DataTable>
 
             <!-- View: Grid -->
-            <DataView v-else :value="realProducts" paginator :rows="12">
+            <DataView v-else :value="realProducts" paginator :rows="12" :sortOrder :sortField>
                 <template #header>
+                {{ sortField }} == {{ sortKey }}
                     <Select v-model="sortKey" :options="gridSortOptions" optionLabel="label" placeholder="Sort By Price" @change="onSortChange($event)" />
                 </template>
 
