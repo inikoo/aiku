@@ -232,13 +232,26 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
             'auto_assign_subject_type' => 'pallet'
         ]
     );
+    $service3 = StoreService::make()->action(
+        $fulfilment->shop,
+        [
+            'price'                    => 111,
+            'unit'                     => 'job',
+            'code'                     => 'Ser-03',
+            'name'                     => 'Service 3',
+            'is_auto_assign'           => true,
+            'auto_assign_trigger'      => 'PalletReturn',
+            'auto_assign_subject'      => 'Pallet',
+            'auto_assign_subject_type' => 'pallet'
+        ]
+    );
 
 
     expect($service1)->toBeInstanceOf(Service::class)
         ->and($service1->asset)->toBeInstanceOf(Asset::class)
-        ->and($service2->organisation->catalogueStats->number_assets_type_service)->toBe(2)
-        ->and($service2->organisation->catalogueStats->number_assets)->toBe(4)
-        ->and($service2->shop->stats->number_assets)->toBe(4)
+        ->and($service2->organisation->catalogueStats->number_assets_type_service)->toBe(3)
+        ->and($service2->organisation->catalogueStats->number_assets)->toBe(5)
+        ->and($service2->shop->stats->number_assets)->toBe(5)
         ->and($service2->stats->number_historic_assets)->toBe(1);
 
     return $service1;
@@ -261,9 +274,9 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
 
     expect($rental)->toBeInstanceOf(Rental::class)
         ->and($rental->asset)->toBeInstanceOf(Asset::class)
-        ->and($rental->organisation->catalogueStats->number_assets)->toBe(5)
+        ->and($rental->organisation->catalogueStats->number_assets)->toBe(6)
         ->and($rental->organisation->catalogueStats->number_assets_type_rental)->toBe(1)
-        ->and($rental->shop->stats->number_assets)->toBe(5)
+        ->and($rental->shop->stats->number_assets)->toBe(6)
         ->and($rental->stats->number_historic_assets)->toBe(1);
 
     return $rental;
@@ -1296,9 +1309,46 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     $palletReturn->refresh();
 
     expect($palletReturn->pallets()->count())->toBe(2);
-
     return $palletReturn;
 })->depends('store pallet to return');
+
+test('update rental agreement clause again', function (PalletReturn $palletReturn) {
+    $rentalAgreement = $palletReturn->fulfilmentCustomer->rentalAgreement;
+    $service = $palletReturn->services()->first();
+    $updatedRentalAgreement = UpdateRentalAgreement::make()->action(
+        $rentalAgreement,
+        [
+            'update_all' => true,
+            'clauses'    => [
+                'rentals' => [
+                    [
+                        'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
+                        'percentage_off' => 30,
+                    ],
+                    [
+                        'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->last()->asset_id,
+                        'percentage_off' => 50,
+                    ],
+                ],
+                'services' => [
+                    [
+                        'asset_id'       => $service->asset_id,
+                        'percentage_off' => 10,
+                    ],
+                ]
+            ]
+        ]
+    );
+    $updatedRentalAgreement->refresh();
+    $palletReturn->refresh();
+    expect($updatedRentalAgreement->stats->number_rental_agreement_clauses)->toBe(3)
+        ->and($updatedRentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
+        ->and($updatedRentalAgreement->stats->number_rental_agreement_clauses_type_service)->toBe(1);
+
+    expect($palletReturn->gross_amount)->not->tobe($palletReturn->net_amount);
+
+    return $rentalAgreement;
+})->depends('import pallets in return (xlsx)');
 
 test('submit pallet return', function (PalletReturn $palletReturn) {
     SendPalletReturnNotification::shouldRun()
