@@ -29,6 +29,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import CountUp from 'vue-countup-v3'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faWallet, faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faChevronRight, faExternalLink, faMapMarkerAlt, faAddressCard, faLongArrowRight)
 
 const props = defineProps<{
@@ -94,6 +95,7 @@ const props = defineProps<{
 }>()
 
 const locale = inject('locale', {})
+const layout = inject('layout', layoutStructure)
 
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
@@ -254,7 +256,11 @@ const isModalAddress = ref(false)
                 <!-- Section: Recurring Bills -->
                 <div v-if="data.recurring_bill" class="block group relative w-full gap-x-2 border border-gray-300 px-4 py-4 rounded-lg mb-4">
                     <!-- <FontAwesomeIcon icon='fal fa-receipt' class='text-3xl text-gray-400' fixed-width aria-hidden='true' /> -->
-                    <div class="border-l-4 border-indigo-500 pl-2 leading-none text-lg">
+                    <div class="pl-2 leading-none text-lg"
+                        :style="{
+                            borderLeft: `4px solid ${layout.app.theme[0]}`
+                        }"
+                    >
                         <div class="block text-lg font-semibold">Recurring Bills</div>
                         <div class="text-sm flex items-center gap-x-1">
                             {{ locale.currencyFormat(data.recurring_bill.currency_code, data.recurring_bill.total || 0) }}

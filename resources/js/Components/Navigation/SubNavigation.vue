@@ -169,8 +169,7 @@ const locale = inject('locale', {})
 // }
 
 .tabSubNavActive {
-    @apply border-b border-indigo-600;
-
+    border-bottom: v-bind('`1px solid ${layout.app.theme[0]}`');
     color: v-bind('`${layout?.app?.theme[0]}`') !important;
 }
 
