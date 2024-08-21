@@ -29,7 +29,9 @@ return new class () extends Migration {
             $table->boolean('is_accounts')->default(false);
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
-            $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->timestampstz();
             $table->softDeletesTz();
             $table->string('source_id')->index()->nullable();
             $table->unique(['organisation_id', 'code']);
