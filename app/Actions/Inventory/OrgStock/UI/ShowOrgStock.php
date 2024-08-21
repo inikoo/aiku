@@ -16,6 +16,7 @@ use App\Enums\UI\Procurement\OrgStockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\Warehouse;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -35,34 +36,34 @@ class ShowOrgStock extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, OrgStock $orgStock, ActionRequest $request): OrgStock
+    public function asController(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
         $this->parent = $organisation;
-        $this->initialisation($this->parent, $request)->withTab(OrgStockTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStockTabsEnum::values());
 
         return $this->handle($orgStock);
     }
 
-    public function maya(Organisation $organisation, OrgStock $orgStock, ActionRequest $request): OrgStock
+    public function maya(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
         $this->maya   =true;
         $this->parent = $organisation;
-        $this->initialisation($this->parent, $request)->withTab(OrgStockTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStockTabsEnum::values());
         return $this->handle($orgStock);
     }
 
-    public function current(Organisation $organisation, OrgStock $orgStock, ActionRequest $request): OrgStock
+    public function current(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
         $this->parent = $organisation;
-        $this->initialisation($this->parent, $request)->withTab(OrgStockTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStockTabsEnum::values());
 
         return $this->handle($orgStock);
     }
 
-    public function inStockFamily(Organisation $organisation, StockFamily $orgStockFamily, OrgStock $orgStock, ActionRequest $request): OrgStock
+    public function inStockFamily(Organisation $organisation, Warehouse $warehouse, StockFamily $orgStockFamily, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
         $this->parent = $orgStockFamily;
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($orgStock);
     }
@@ -144,11 +145,11 @@ class ShowOrgStock extends OrgAction
                     $routeParameters['orgStock'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.org.inventory.org-stocks.show',
+                            'name'       => 'grp.org.warehouses.show.inventory.org-stocks.show',
                             'parameters' => [
                                 $routeParameters['orgStock']->slug
                             ]
@@ -157,20 +158,20 @@ class ShowOrgStock extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.inventory.org_stock_families.show.stocks.show' =>
+            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show' =>
             array_merge(
                 (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
                     $routeParameters['stock'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.inventory.org_stock_families.show.org_stocks.index',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
                             'parameters' => [
                                 $routeParameters['orgStockFamily']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.inventory.org_stock_families.show.stocks.show',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show',
                             'parameters' => [
                                 $routeParameters['orgStockFamily']->slug,
                                 $routeParameters['orgStock']->slug
@@ -187,7 +188,7 @@ class ShowOrgStock extends OrgAction
     public function getPrevious(OrgStock $orgStock, ActionRequest $request): ?array
     {
         $previous = OrgStock::where('code', '<', $orgStock->code)->when(true, function ($query) use ($orgStock, $request) {
-            if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.show') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show') {
                 $query->where('org_stock_family_id', $orgStock->orgStockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
@@ -198,7 +199,7 @@ class ShowOrgStock extends OrgAction
     public function getNext(OrgStock $orgStock, ActionRequest $request): ?array
     {
         $next = OrgStock::where('code', '>', $orgStock->code)->when(true, function ($query) use ($orgStock, $request) {
-            if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.show') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show') {
                 $query->where('org_stock_family_id', $orgStock->orgStockFamily->id);
             }
         })->orderBy('code')->first();
@@ -213,8 +214,8 @@ class ShowOrgStock extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.inventory.org_stocks.current_org_stocks.show',
-            'grp.org.inventory.org-stocks.show' => [
+            'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.show',
+            'grp.org.warehouses.show.inventory.org-stocks.show' => [
                 'label' => $orgStock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -223,7 +224,7 @@ class ShowOrgStock extends OrgAction
                     ]
                 ]
             ],
-            'grp.org.inventory.org_stock_families.show.stocks.show' => [
+            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show' => [
                 'label' => $orgStock->name,
                 'route' => [
                     'name'       => $routeName,

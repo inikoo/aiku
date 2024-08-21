@@ -121,7 +121,7 @@ class EditStock extends InertiaAction
     public function getPrevious(Stock $stock, ActionRequest $request): ?array
     {
         $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.edit') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.edit') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
@@ -131,7 +131,7 @@ class EditStock extends InertiaAction
     public function getNext(Stock $stock, ActionRequest $request): ?array
     {
         $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.edit') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.edit') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code')->first();
@@ -146,7 +146,7 @@ class EditStock extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.inventory.org-stocks.edit' => [
+            'grp.org.warehouses.show.inventory.org-stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -155,7 +155,7 @@ class EditStock extends InertiaAction
                     ]
                 ]
             ],
-            'grp.org.inventory.org_stock_families.show.stocks.edit' => [
+            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,

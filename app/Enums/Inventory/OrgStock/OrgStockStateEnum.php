@@ -8,6 +8,7 @@
 namespace App\Enums\Inventory\OrgStock;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Organisation;
 
 enum OrgStockStateEnum: string
@@ -56,9 +57,14 @@ enum OrgStockStateEnum: string
         ];
     }
 
-    public static function count(Organisation $parent): array
+    public static function count(Organisation|OrgStockFamily $parent): array
     {
-        $stats = $parent->inventoryStats;
+
+        if($parent instanceof OrgStockFamily) {
+            $stats = $parent->stats;
+        } else {
+            $stats = $parent->inventoryStats;
+        }
 
         return [
             'active'            => $stats->number_org_stocks_state_active,

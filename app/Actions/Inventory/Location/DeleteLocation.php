@@ -79,13 +79,13 @@ class DeleteLocation
 
         } elseif (class_basename($parent::class) == 'Warehouse') {
             return Redirect::route(
-                route: 'grp.org.inventory.warehouse-areas.show.locations.index',
+                route: 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.index',
                 parameters: [
                     'warehouse' => $parent->slug
                 ]
             );
         } else {
-            return Redirect::route('grp.org.inventory.locations.index');
+            return Redirect::route('grp.org.warehouses.show.inventory.locations.index');
         }
     }
 

@@ -17,6 +17,7 @@ use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -34,36 +35,36 @@ class IndexOrgStocks extends OrgAction
     private OrgStockFamily|Organisation $parent;
     private string $bucket;
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
         $this->parent = $organisation;
 
         return $this->handle(parent: $organisation);
     }
 
-    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function maya(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
         $this->maya   = true;
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
         $this->parent = $organisation;
 
         return $this->handle(parent: $organisation);
     }
 
 
-    public function current(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function current(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'current';
         $this->parent = $organisation;
-        $this->initialisation($this->parent, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($this->parent);
     }
 
-    public function active(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function active(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'active';
         $this->parent = $organisation;
@@ -72,16 +73,16 @@ class IndexOrgStocks extends OrgAction
         return $this->handle($this->parent);
     }
 
-    public function inProcess(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function inProcess(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'in_process';
         $this->parent = $organisation;
-        $this->initialisation($this->parent, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($this->parent);
     }
 
-    public function discontinuing(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function discontinuing(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'discontinuing';
         $this->parent = $organisation;
@@ -91,20 +92,20 @@ class IndexOrgStocks extends OrgAction
         return $this->handle($this->parent);
     }
 
-    public function discontinued(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function discontinued(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'discontinued';
         $this->parent = $organisation;
 
-        $this->initialisation($this->parent, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($this->parent);
     }
 
-    public function inStockFamily(Organisation $organisation, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
+    public function inStockFamily(Organisation $organisation, Warehouse $warehouse, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
         $this->parent = $orgStockFamily;
 
         return $this->handle(parent: $orgStockFamily);
@@ -129,8 +130,12 @@ class IndexOrgStocks extends OrgAction
     }
 
 
-    public function handle(OrgStockFamily|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(OrgStockFamily|Organisation $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
+        if ($bucket) {
+            $this->bucket = $bucket;
+        }
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('org_stocks.code', $value)
@@ -146,7 +151,7 @@ class IndexOrgStocks extends OrgAction
 
         if ($parent instanceof OrgStockFamily) {
             $queryBuilder->where('org_stock_family_id', $parent->id);
-            $queryBuilder->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stock.org_stock_family_id');
+            $queryBuilder->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stocks.org_stock_family_id');
             $queryBuilder->addSelect([
                 'org_stock_families.slug as family_slug',
                 'org_stock_families.code as family_code',
@@ -188,7 +193,6 @@ class IndexOrgStocks extends OrgAction
                 'quantity_in_locations'
             ])
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
-            ->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stocks.org_stock_family_id')
             ->allowedSorts(['code', 'family_code', 'unit_value'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -207,26 +211,13 @@ class IndexOrgStocks extends OrgAction
                 ->defaultSort('code')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->withEmptyState(
-                    match (class_basename($parent)) {
-                        'Organisation' => [
-                            'title'       => __("No SKUs found"),
-                            'description' => $this->canEdit && $parent->inventoryStats->number_org_stock_families == 0 ? __('Get started by creating a shop. ✨')
-                                : __("In fact, is no even create a SKUs family yet 🤷🏽‍♂️"),
-                            'count'       => $parent->stats->number_org_stocks,
-                        ],
-                        'StockFamily' => [
-                            'title'       => __("No SKUs found"),
-                            'description' => $this->canEdit ? __('Get started by creating a new SKU. ✨')
-                                : null,
-                            'count'       => $parent->stats->number_org_stocks,
-                        ],
-                        default => null
-                    }
-                )
-                ->column(key: 'code', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+            if($parent instanceof Organisation) {
+                $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'stock', label: __('stock'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -250,11 +241,12 @@ class IndexOrgStocks extends OrgAction
 
             [
                 'label'  => __('Current'),
-                'root'   => 'grp.org.inventory.org_stocks.current_org_stocks.',
+                'root'   => 'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.',
                 'href'   => [
-                    'name'       => 'grp.org.inventory.org_stocks.current_org_stocks.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.index',
                     'parameters' => [
-                        $this->organisation->slug
+                        $this->organisation->slug,
+                        $this->warehouse->slug
                     ]
                 ],
                 'number' => $stats->number_current_org_stocks
@@ -263,9 +255,9 @@ class IndexOrgStocks extends OrgAction
             /*
             [
                 'label'  => __('Discounting'),
-                'root'   => 'grp.org.inventory.org_stocks.discontinuing_org_stocks.',
+                'root'   => 'grp.org.warehouses.show.inventory.org_stocks.discontinuing_org_stocks.',
                 'href'   => [
-                    'name'       => 'grp.org.inventory.org_stocks.discontinuing_org_stocks.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.org_stocks.discontinuing_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug
                     ]
@@ -275,24 +267,26 @@ class IndexOrgStocks extends OrgAction
             */
             [
                 'label'  => __('Discontinued'),
-                'root'   => 'grp.org.inventory.org_stocks.discontinued_org_stocks.',
+                'root'   => 'grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.',
                 'href'   => [
-                    'name'       => 'grp.org.inventory.org_stocks.discontinued_org_stocks.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.index',
                     'parameters' => [
-                        $this->organisation->slug
+                        $this->organisation->slug,
+                        $this->warehouse->slug
                     ]
                 ],
                 'align'  => 'right',
                 'number' => $stats->number_org_stocks_state_discontinued
             ],
             [
-                'label'  => __('All SKUs'),
+                'label'  => __('All'),
                 'icon'   => 'fal fa-bars',
-                'root'   => 'grp.org.inventory.org_stocks.all_org_stocks.',
+                'root'   => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.',
                 'href'   => [
-                    'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
                     'parameters' => [
-                        $this->organisation->slug
+                        $this->organisation->slug,
+                        $this->warehouse->slug
                     ]
                 ],
                 'number' => $stats->number_org_stocks,
@@ -335,7 +329,7 @@ class IndexOrgStocks extends OrgAction
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
                             'route'   => match ($request->route()->getName()) {
-                                'grp.org.inventory.org_stock_families.show.org_stocks.index' => [
+                                'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index' => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
@@ -373,7 +367,7 @@ class IndexOrgStocks extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.inventory.org_stocks.all_org_stocks.index' =>
+            'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index' =>
             array_merge(
                 ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

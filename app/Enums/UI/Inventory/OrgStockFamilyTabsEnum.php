@@ -16,65 +16,27 @@ enum OrgStockFamilyTabsEnum: string
     use HasTabs;
 
 
-    case SHOWCASE           = 'showcase';
-
-    case STOCKS              = 'stocks';
-    //    case SALES              = 'sales';
-    //    case ISSUES             = 'issues';
-    //
-    //
-    //
-
-    //    case PRODUCT_FAMILIES   = 'product_families';
-    //    case PRODUCTS           = 'products';
-
-
-
-    case HISTORY            = 'history';
-    case DATA               = 'data';
-    case IMAGES             = 'images';
-
-
-
+    case SHOWCASE   = 'showcase';
+    case ORG_STOCKS = 'org_stocks';
+    case HISTORY    = 'history';
+    case IMAGES     = 'images';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-
-            OrgStockFamilyTabsEnum::DATA => [
-                'type'  => 'icon',
-                'align' => 'right',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-            ],
-            OrgStockFamilyTabsEnum::STOCKS => [
+            OrgStockFamilyTabsEnum::ORG_STOCKS => [
                 'title' => __('stocks'),
                 'icon'  => 'fal fa-box',
             ],
-            //            StockFamilyTabsEnum::SALES => [
-            //                'title' => __('sales'),
-            //                'icon'  => 'fal fa-dollar-sign',
-            //            ],
-            //            StockFamilyTabsEnum::ISSUES => [
-            //                'title' => __('issues'),
-            //                'icon'  => 'fal fa-poop',
-            //            ],
 
-
-            //            ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
-            //                'title' => __('product families'),
-            //                'icon'  => 'fal fa-cubes',
-            //            ],StockFamilyTabsEnum::PRODUCTS => [
-            //                'title' => __('products'),
-            //                'icon'  => 'fal fa-cube',
-            //            ],
             OrgStockFamilyTabsEnum::HISTORY => [
                 'align' => 'right',
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
-            ],OrgStockFamilyTabsEnum::IMAGES => [
+            ],
+            OrgStockFamilyTabsEnum::IMAGES => [
                 'align' => 'right',
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',

@@ -112,49 +112,7 @@ class GetOrganisationNavigation
         }
 
 
-        if ($user->hasPermissionTo("inventory.$organisation->id.view")) {
-            $navigation["inventory"] = [
-                "root"    => "grp.org.inventory.",
-                "label"   => __("inventory"),
-                "icon"    => ["fal", "fa-pallet-alt"],
-                "route"   => [
-                    "name"       => "grp.org.inventory.dashboard",
-                    "parameters" => [$organisation->slug],
-                ],
-                "topMenu" => [
-                    "subSections" => [
-                        [
-                            "icon"  => ["fal", "fa-chart-network"],
-                            'root'  => 'grp.org.inventory.dashboard',
-                            "route" => [
-                                "name"       => "grp.org.inventory.dashboard",
-                                "parameters" => [$organisation->slug],
-                            ],
-                        ],
-                        [
-                            "label"   => __("SKUs Families"),
-                            "tooltip" => __("SKUs families"),
-                            "icon"    => ["fal", "fa-boxes-alt"],
-                            'root'    => 'grp.org.inventory.org_stock_families.',
-                            "route"   => [
-                                "name"       => "grp.org.inventory.org_stock_families.index",
-                                "parameters" => [$organisation->slug],
-                            ],
-                        ],
-                        [
-                            "label" => __("SKUs"),
-                            "icon"  => ["fal", "fa-box"],
-                            'root'  => 'grp.org.inventory.org_stocks.current_org_stocks.',
-                            "route" => [
-                                "name"       => "grp.org.inventory.org_stocks.current_org_stocks.index",
-                                "parameters" => [$organisation->slug],
-                            ],
-                        ],
 
-                    ],
-                ],
-            ];
-        }
 
 
         if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'warehouses-view.'.$organisation->id])) {
@@ -190,77 +148,8 @@ class GetOrganisationNavigation
         }
 
 
-        if ($user->hasPermissionTo('fulfilment.view')) {
-            $navigation['fulfilment'] = [
-                'label'   => __('fulfilment'),
-                'icon'    => ['fal', 'fa-dolly-flatbed-alt'],
-                'route'   => 'grp.fulfilment.dashboard',
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'icon'  => ['fal', 'fa-chart-network'],
-                            'root'  => 'grp.fulfilment.dashboard',
-                            'route' => [
-                                'name' => 'grp.fulfilment.dashboard',
-                            ]
-                        ],
-
-                        [
-                            'label' => __('customers'),
-                            'icon'  => ['fal', 'fa-user-tie'],
-                            'root'  => 'grp.fulfilment.customers.',
-                            'route' => [
-                                'name' => 'grp.fulfilment.customers.index',
-                            ]
-                        ],
-                        [
-                            'label'   => __('stored items'),
-                            'tooltip' => __('stored items'),
-                            'icon'    => ['fal', 'fa-narwhal'],
-                            'root'    => 'grp.fulfilment.stored-items.',
-                            'route'   => [
-                                'name' => 'grp.fulfilment.stored-items.index',
-                            ]
-                        ],
-                        [
-                            'label'   => __('orders'),
-                            'tooltip' => __('orders'),
-                            'icon'    => ['fal', 'fa-business-time'],
-                            'root'    => 'grp.fulfilment.orders.',
-                            'route'   => [
-                                'name' => 'grp.fulfilment.orders.index',
-                            ]
-                        ],
-
-                    ],
 
 
-                ]
-            ];
-        }
-
-        /*
-                if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'productions-view.'.$organisation->id])) {
-                    $navigation['productions_index'] = [
-                        'label'   => __('Productions'),
-                        'scope'   => 'productions',
-                        'icon'    => ['fal', 'fa-industry'],
-                        'root'    => 'grp.org.productions.index',
-                        'route'   => [
-                            'name'       => 'grp.org.productions.index',
-                            'parameters' => [$organisation->slug],
-                        ],
-                        'topMenu' => [
-                            'links' => [
-                                [
-                                    'label'   => __('dashboard'),
-                                    'tooltip' => __('Dashboard'),
-                                ]
-                            ]
-                        ]
-                    ];
-                }
-        */
 
 
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
