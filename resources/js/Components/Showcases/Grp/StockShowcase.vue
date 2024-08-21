@@ -12,16 +12,18 @@ const props = defineProps<{
 }>();
 const product = props.data.data;
 
+// Inventory/OrgStock/UI/ShowOrgStock.php
 
 </script>
 
 
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-4 ">
+        <pre>{{ props.data }}</pre>
         <div class="m-auto">
-            <img :src="route('grp.media.show',product.image_id)" alt="product main image"
+            <!-- <img :src="route('grp.media.show',product.image_id)" alt="product main image"
                  class=" sm:max-w-xs  md:max-w lg:h-64 "
-            />
+            /> -->
         </div>
         <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
             <tr>
