@@ -151,8 +151,7 @@ onBeforeMount(() => {
             </div>
         </template>
 
-        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
-            <!-- State: Pick or not-picked -->
+        <!-- <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
                 <Link v-if="pallet.state === 'picking'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
@@ -165,7 +164,6 @@ onBeforeMount(() => {
                     <Button icon="fal fa-check" type="positive" :loading="isPickingLoading === pallet.id" class="py-0" />
                 </Link>
 
-                <!-- Button: Undo picking -->
                 <Link v-if="pallet.state === 'picked'" as="div"
                     :href="route(pallet.undoPickingRoute.name, pallet.undoPickingRoute.parameters)"
                     :data="{ state: 'picked' }"
@@ -177,7 +175,6 @@ onBeforeMount(() => {
                     <Button icon="fal fa-undo" label="Undo picking" type="tertiary" size="xs" :loading="isUndoLoading === pallet.id" class="py-0" />
                 </Link>
 
-                <!-- Button: Set as not picked -->
                 <Popover v-if="pallet.state === 'picking'">
                     <template #button="{ open }">
                         <Button icon="fal fa-times"
@@ -190,21 +187,21 @@ onBeforeMount(() => {
 
                     <template #content="{ close }">
                         <div class="w-[250px]">
-                            <!-- Field: Status -->
+                    
                             <div class="mb-3">
                                 <div class="text-xs px-1 mb-1"><span class="text-red-500 text-sm mr-0.5">*</span>Select status: </div>
                                 <PureMultiselect v-model="selectedStatusNotPicked.status" @update:modelValue="() => errorNotPicked.status = null" :options="listStatusNotPicked" required caret :class="errorNotPicked.status ? 'errorShake' : ''" />
                                 <div v-if="errorNotPicked.status" class="mt-1 text-red-500 italic text-xxs">{{ errorNotPicked.status }}</div>
                             </div>
 
-                            <!-- Field: Description -->
+                           
                             <div class="mb-4 ">
                                 <div class="text-xs px-1 mb-1"><span class="text-red-500 text-sm mr-0.5">*</span>Description:</div>
                                 <PureTextarea v-model="selectedStatusNotPicked.notes" @update:modelValue="() => errorNotPicked.notes = null" placeholder="Enter reason why the pallet is not picked" :class="errorNotPicked.notes ? 'errorShake' : ''" />
                                 <div v-if="errorNotPicked.notes" class="mt-1 text-red-500 italic text-xxs">{{ errorNotPicked.notes }}</div>
                             </div>
 
-                            <!-- Button: Save -->
+                            
                             <div class="flex justify-end mt-2">
                                 <Button @click="async () => onSubmitNotPicked(pallet.id, close, pallet.notPickedRoute)"
                                     full
@@ -217,7 +214,7 @@ onBeforeMount(() => {
                     </template>
                 </Popover>
             </div>
-        </template>
+        </template> -->
 
         
     </Table>
