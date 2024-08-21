@@ -2,10 +2,14 @@
 import Table from '@/Components/Table/Table.vue';
 import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
-import { ref, watch, onBeforeMount } from 'vue';
-import { router } from "@inertiajs/vue3";
+import { ref, watch, onBeforeMount,reactive } from 'vue';
 import { notify } from "@kyvg/vue3-notification";
 import { debounce } from 'lodash';
+import { Link, router } from "@inertiajs/vue3"
+import Popover from '@/Components/Popover.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { trans } from "laravel-vue-i18n"
+import { routeType } from "@/types/route"
 
 const props = defineProps<{
     data?: { data: any[] };
@@ -17,6 +21,53 @@ const props = defineProps<{
 
 const selectedRow = ref({});
 const _table = ref(null);
+const isPickingLoading = ref(false)
+const isUndoLoading = ref(false)
+const listStatusNotPicked = [
+    {
+        label: trans('Damaged'),
+        value: 'damaged'
+    },
+    {
+        label: trans('Lost'),
+        value: 'lost'
+    },
+    {
+        label: trans('Other incident'),
+        value: 'other-incident'
+    }
+]
+const selectedStatusNotPicked = reactive({
+    status: 'other-incident',
+    notes: ''
+})
+const errorNotPicked = reactive({
+    status: null,
+    notes: null
+})
+const isSubmitNotPickedLoading = ref<boolean | number>(false)
+
+const onSubmitNotPicked = async (idPallet: number, closePopup: Function, routeNotPicked: routeType) => {
+    isSubmitNotPickedLoading.value = idPallet
+    router[routeNotPicked.method || 'get'](route(routeNotPicked.name, routeNotPicked.parameters), {
+        state: selectedStatusNotPicked.status,
+        notes: selectedStatusNotPicked.notes
+    }, {
+        onSuccess: () => {
+            selectedStatusNotPicked.status = 'other'
+            selectedStatusNotPicked.notes = ''
+            errorNotPicked.status = null
+            errorNotPicked.notes = null
+            closePopup()
+        },
+        onError: (error: {}) => {
+            console.error('hehehe', error)
+        },
+        onFinish: () => {
+            isSubmitNotPickedLoading.value = false
+        }
+    })
+}
 
 const setUpChecked = () => {
     const set: Record<string, boolean> = {};
@@ -99,6 +150,75 @@ onBeforeMount(() => {
                 </div>
             </div>
         </template>
+
+        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
+            <!-- State: Pick or not-picked -->
+            <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
+                <Link v-if="pallet.state === 'picking'" as="div"
+                    :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
+                    :data="{ state: 'picked' }"
+                    @start="() => isPickingLoading = pallet.id"
+                    @finish="() => isPickingLoading = false"
+                    method="patch"
+                    v-tooltip="`Set as picked`"
+                >
+                    <Button icon="fal fa-check" type="positive" :loading="isPickingLoading === pallet.id" class="py-0" />
+                </Link>
+
+                <!-- Button: Undo picking -->
+                <Link v-if="pallet.state === 'picked'" as="div"
+                    :href="route(pallet.undoPickingRoute.name, pallet.undoPickingRoute.parameters)"
+                    :data="{ state: 'picked' }"
+                    @start="() => isUndoLoading = pallet.id"
+                    @finish="() => isUndoLoading = false"
+                    method="patch"
+                    v-tooltip="`Undo`"
+                >
+                    <Button icon="fal fa-undo" label="Undo picking" type="tertiary" size="xs" :loading="isUndoLoading === pallet.id" class="py-0" />
+                </Link>
+
+                <!-- Button: Set as not picked -->
+                <Popover v-if="pallet.state === 'picking'">
+                    <template #button="{ open }">
+                        <Button icon="fal fa-times"
+                            v-tooltip="trans('Set as not picked')"
+                            :type="'negative'"
+                            :key="pallet.id + open"
+                            :loading="isSubmitNotPickedLoading == pallet.id"
+                        />
+                    </template>
+
+                    <template #content="{ close }">
+                        <div class="w-[250px]">
+                            <!-- Field: Status -->
+                            <div class="mb-3">
+                                <div class="text-xs px-1 mb-1"><span class="text-red-500 text-sm mr-0.5">*</span>Select status: </div>
+                                <PureMultiselect v-model="selectedStatusNotPicked.status" @update:modelValue="() => errorNotPicked.status = null" :options="listStatusNotPicked" required caret :class="errorNotPicked.status ? 'errorShake' : ''" />
+                                <div v-if="errorNotPicked.status" class="mt-1 text-red-500 italic text-xxs">{{ errorNotPicked.status }}</div>
+                            </div>
+
+                            <!-- Field: Description -->
+                            <div class="mb-4 ">
+                                <div class="text-xs px-1 mb-1"><span class="text-red-500 text-sm mr-0.5">*</span>Description:</div>
+                                <PureTextarea v-model="selectedStatusNotPicked.notes" @update:modelValue="() => errorNotPicked.notes = null" placeholder="Enter reason why the pallet is not picked" :class="errorNotPicked.notes ? 'errorShake' : ''" />
+                                <div v-if="errorNotPicked.notes" class="mt-1 text-red-500 italic text-xxs">{{ errorNotPicked.notes }}</div>
+                            </div>
+
+                            <!-- Button: Save -->
+                            <div class="flex justify-end mt-2">
+                                <Button @click="async () => onSubmitNotPicked(pallet.id, close, pallet.notPickedRoute)"
+                                    full
+                                    label="Submit"
+                                    :disabled="!selectedStatusNotPicked.status || !selectedStatusNotPicked.notes"
+                                    :loading="isSubmitNotPickedLoading == pallet.id"
+                                />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
+            </div>
+        </template>
+
         
     </Table>
 </template>
