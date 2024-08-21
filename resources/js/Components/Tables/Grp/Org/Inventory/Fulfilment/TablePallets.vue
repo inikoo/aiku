@@ -197,7 +197,7 @@ const onUpdateStatus=(routes,data)=>{
           <template #button>
             <Button
               @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = { [item.reference]: item.location_id })"
-              type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index"
+              type="secondary" tooltip="Move pallet to another location" label="Move" :key="item.index"
               :size="'xs'" />
           </template>
           <template #content="{ close }">
