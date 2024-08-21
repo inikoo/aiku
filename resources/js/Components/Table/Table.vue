@@ -627,13 +627,13 @@ const onClickSelectAll = (state: boolean) => {
 }
 
 const onSelectCheckbox = (item : Any) => {
-    emits('onSelectRow', item , !selectRow[item[props.checkboxKey]])
+    emits('onCheked', item , !selectRow[item[props.checkboxKey]])
     selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
    
 }
 
 watch(selectRow, () => {
-    emits('onCheked', selectRow)
+    emits('onSelectRow', selectRow)
 }, {deep: true})
 
 defineExpose({
