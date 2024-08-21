@@ -10,9 +10,6 @@ use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\UI\Incoming\ShowIncomingHub;
-use App\Stubs\UIDummies\IndexDummies;
-use App\Stubs\UIDummies\ShowDummy;
-use App\Stubs\UIDummies\ShowDummyDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowIncomingHub::class)->name('backlog');

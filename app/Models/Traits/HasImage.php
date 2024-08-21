@@ -34,5 +34,4 @@ trait HasImage
         }
         return null;
     }
-
 }
