@@ -56,7 +56,7 @@ class SetPalletInReturnAsPicked extends OrgAction
         } else {
             $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
             foreach ($storedItems as $storedItem) {
-                UpdatePallet::run($storedItem->pallet, $modelData);
+                $pallet = UpdatePallet::run($storedItem->pallet, $modelData);
             }
         }
 
