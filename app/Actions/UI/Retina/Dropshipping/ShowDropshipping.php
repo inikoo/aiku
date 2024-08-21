@@ -22,13 +22,18 @@ class ShowDropshipping extends RetinaAction
         return $request->user()->is_root;
     }
 
-    public function asController(ActionRequest $request): void
+    public function asController(ActionRequest $request)
     {
         $this->initialisation($request);
+
+        return $request;
     }
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
+        /** @var \App\Models\CRM\Customer $customer */
+        $customer = $request->user()->customer;
+
         return Inertia::render(
             'Dropshipping/DropshippingDashboard',
             [
@@ -38,7 +43,16 @@ class ShowDropshipping extends RetinaAction
                     'title' => __('Dropshipping'),
                     'icon'  => 'fal fa-parachute-box'
                 ],
-
+                'createRoute' => [
+                    'name'       => 'retina.dropshipping.shopify_user.store',
+                    'parameters' => []
+                ],
+                'connectRoute' => $customer->shopifyUser ? [
+                    'name'       => 'pupil.authenticate',
+                    'parameters' => [
+                        'shop' => $customer->shopifyUser?->name
+                    ]
+                ] : false
             ]
         );
     }

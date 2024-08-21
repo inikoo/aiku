@@ -1313,8 +1313,8 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
 })->depends('store pallet to return');
 
 test('update rental agreement clause again', function (PalletReturn $palletReturn) {
-    $rentalAgreement = $palletReturn->fulfilmentCustomer->rentalAgreement;
-    $service = $palletReturn->services()->first();
+    $rentalAgreement        = $palletReturn->fulfilmentCustomer->rentalAgreement;
+    $service                = $palletReturn->services()->first();
     $updatedRentalAgreement = UpdateRentalAgreement::make()->action(
         $rentalAgreement,
         [
