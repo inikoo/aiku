@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', ShowIncomingHub::class)->name('backlog');
 
 Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inWarehouse'])->name('stock_deliveries.index');
-Route::get('stock-deliveries/{palletDelivery}', [ShowStockDelivery::class, 'inWarehouse'])->name('stock_deliveries.show');
+Route::get('stock-deliveries/{stockDelivery}', [ShowStockDelivery::class, 'inWarehouse'])->name('stock_deliveries.show');
 
 
 Route::get('fulfilment-deliveries', [IndexPalletDeliveries::class, 'inWarehouse'])->name('pallet_deliveries.index');

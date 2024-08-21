@@ -7,7 +7,6 @@
 
 namespace App\Actions\Procurement\StockDelivery\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
@@ -88,7 +87,7 @@ class IndexStockDeliveries extends OrgAction
     public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->maya = true;
-        $this->initialisation($organisation,$request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
     }
