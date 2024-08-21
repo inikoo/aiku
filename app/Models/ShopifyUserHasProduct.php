@@ -1,15 +1,17 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 19 Aug 2024 17:27:59 Central Indonesia Time, Bali Office, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Models;
 
-use Google\Service\AnalyticsData\Pivot;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  *
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct query()

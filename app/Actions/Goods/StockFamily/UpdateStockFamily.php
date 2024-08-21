@@ -81,13 +81,17 @@ class UpdateStockFamily extends GrpAction
                     ]
                 ),
             ],
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'state'=> ['sometimes', 'required', Rule::enum(StockFamilyStateEnum::class)],
+            'name'                     => ['sometimes', 'required', 'string', 'max:255'],
+            'state'                    => ['sometimes', 'required', Rule::enum(StockFamilyStateEnum::class)],
+            'last_fetched_at'          => ['sometimes', 'date'],
         ];
     }
 
-    public function action(StockFamily $stockFamily, array $modelData): StockFamily
+    public function action(StockFamily $stockFamily, array $modelData, bool $audit =true): StockFamily
     {
+        if(!$audit) {
+            StockFamily::disableAuditing();
+        }
         $this->asAction    = true;
         $this->stockFamily = $stockFamily;
         $this->initialisation($stockFamily->group, $modelData);

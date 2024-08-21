@@ -41,8 +41,6 @@ class StoreOrder extends OrgAction
 
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
-
-
         $billingAddress = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
         /** @var Address $deliveryAddress */
@@ -64,10 +62,9 @@ class StoreOrder extends OrgAction
         }
 
         if (!Arr::exists($modelData, 'tax_category_id')) {
-
-            if($parent instanceof Shop) {
-                $taxNumber =null;
-            } elseif($parent instanceof Customer) {
+            if ($parent instanceof Shop) {
+                $taxNumber = null;
+            } elseif ($parent instanceof Customer) {
                 $taxNumber = $parent->taxNumber;
             } else {
                 $taxNumber = $parent->customer->taxNumber;
@@ -82,7 +79,6 @@ class StoreOrder extends OrgAction
                     deliveryAddress: $deliveryAddress
                 )->id
             );
-
         }
 
 
@@ -183,7 +179,7 @@ class StoreOrder extends OrgAction
 
             'source_id'       => ['sometimes', 'string', 'max:64'],
             'tax_category_id' => ['sometimes', 'required', 'exists:tax_categories,id'],
-
+            'fetched_at'      => ['sometimes', 'required', 'date'],
 
         ];
 

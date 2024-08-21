@@ -100,7 +100,7 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
-const timeline = ref({ ...props.data?.data })
+// const timeline = ref({ ...props.data?.data })
 
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formAddService = useForm({ service_id: '', quantity: 1, historic_asset_id: null })
@@ -271,9 +271,9 @@ const changePalletType=(form,fieldName,value)=>{
     form[fieldName] = value
 }
 
-watch(() => props.data, (newValue) => {
-    timeline.value = newValue.data
-}, { deep: true })
+// watch(() => props.data, (newValue) => {
+//     timeline.value = newValue.data
+// }, { deep: true })
 
 
 // console.log(currentTab.value)
@@ -599,8 +599,8 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <!-- Section: Timeline -->
-    <div v-if="timeline.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
+    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+        <Timeline :options="props.data?.data?.timeline" :state="props.data?.data?.state" :slidesPerView="6" />
     </div>
 
     <!-- Box -->
@@ -611,9 +611,9 @@ watch(() => props.data, (newValue) => {
     <div class="pb-12">
         <component
             :is="component"
-            :key="timeline.state"
+            :key="props.data?.data?.state"
             :data="props[currentTab as keyof typeof props]"
-            :state="timeline.state"
+            :state="props.data?.data?.state"
             :tab="currentTab"
             :tableKey="tableKey"
             @renderTableKey="changeTableKey"

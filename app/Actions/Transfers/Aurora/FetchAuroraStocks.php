@@ -40,6 +40,7 @@ class FetchAuroraStocks extends FetchAuroraAction
                     $stock = UpdateStock::make()->action(
                         stock: $stock,
                         modelData: $stockData['stock'],
+                        audit:false
                     );
                 }
             } else {

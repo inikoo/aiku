@@ -94,6 +94,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $total_amount
  * @property string $payment_amount
  * @property array $data
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

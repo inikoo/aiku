@@ -11,6 +11,7 @@ use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
@@ -69,6 +70,7 @@ class StoreTransaction extends OrgAction
             'source_id'           => ['sometimes', 'string'],
             'state'               => ['sometimes', Rule::enum(TransactionStateEnum::class)],
             'status'              => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
+            'fail_status'         => ['sometimes', 'nullable', Rule::enum(TransactionFailStatusEnum::class)],
             'gross_amount'        => ['required', 'numeric'],
             'net_amount'          => ['required', 'numeric'],
             'org_exchange'        => ['sometimes', 'numeric'],
@@ -77,9 +79,9 @@ class StoreTransaction extends OrgAction
             'grp_net_amount'      => ['sometimes', 'numeric'],
             'created_at'          => ['sometimes', 'required', 'date'],
             'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
-
-            'date'         => ['sometimes', 'required', 'date'],
-            'submitted_at' => ['sometimes', 'required', 'date'],
+            'date'                => ['sometimes', 'required', 'date'],
+            'submitted_at'        => ['sometimes', 'required', 'date'],
+            'fetched_at'          => ['sometimes', 'required', 'date'],
         ];
 
         // when importing from other system

@@ -45,6 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_accounts
  * @property array $data
  * @property string|null $last_used_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

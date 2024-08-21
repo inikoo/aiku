@@ -61,6 +61,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_dirty
  * @property array $data
  * @property array $settings
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

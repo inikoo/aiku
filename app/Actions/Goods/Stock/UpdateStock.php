@@ -122,12 +122,16 @@ class UpdateStock extends GrpAction
             'name'            => ['sometimes', 'required', 'string', 'max:255'],
             'stock_family_id' => ['sometimes', 'nullable', 'exists:stock_families,id'],
             'state'           => ['sometimes', 'required', Rule::enum(StockStateEnum::class)],
+            'last_fetched_at' => ['sometimes', 'date'],
         ];
     }
 
 
-    public function action(Stock $stock, array $modelData): Stock
+    public function action(Stock $stock, array $modelData, bool $audit = true): Stock
     {
+        if (!$audit) {
+            Stock::disableAuditing();
+        }
         $this->asAction = true;
         $this->stock    = $stock;
         $this->initialisation($stock->group, $modelData);

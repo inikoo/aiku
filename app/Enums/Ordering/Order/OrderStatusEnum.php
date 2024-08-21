@@ -13,7 +13,7 @@ enum OrderStatusEnum: string
 {
     use EnumHelperTrait;
 
+    case IN_BASKET  = 'in-basket';
     case PROCESSING = 'processing';
-    case DISPATCHED = 'settled-dispatched';
-    case CANCELLED  = 'settled-cancelled';
+    case SETTLED    = 'settled';
 }
