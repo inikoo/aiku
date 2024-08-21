@@ -118,7 +118,7 @@ class ShowPallet extends OrgAction
 
         $routeName = null;
         if ($this->parent instanceof Warehouse) {
-            $routeName = 'grp.org.warehouses.show.fulfilment.pallets.edit';
+            $routeName = 'grp.org.warehouses.show.inventory.pallets.current.edit';
         } elseif ($this->parent instanceof Fulfilment) {
             $routeName = 'grp.org.fulfilments.show.operations.pallets.edit';
         } elseif ($this->parent instanceof FulfilmentCustomer) {
@@ -234,14 +234,14 @@ class ShowPallet extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.pallets.current.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('Pallet')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
+                                'name'       => 'grp.org.warehouses.show.inventory.pallets.current.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $pallet->reference,
@@ -347,7 +347,7 @@ class ShowPallet extends OrgAction
                     ]
                 ]
             ],
-            'grp.org.warehouses.show.fulfilment.pallets.show'=> [
+            'grp.org.warehouses.show.inventory.pallets.current.show'=> [
                 'label'=> $pallet->slug,
                 'route'=> [
                     'name'      => $routeName,

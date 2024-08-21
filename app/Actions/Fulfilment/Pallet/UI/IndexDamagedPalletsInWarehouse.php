@@ -186,7 +186,7 @@ class IndexDamagedPalletsInWarehouse extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.warehouses.show.fulfilment.damaged_pallets.index', 'grp.org.warehouses.show.fulfilment.returned_pallets.show' =>
+            'grp.org.warehouses.show.inventory.pallets.damaged.index', 'grp.org.warehouses.show.inventory.pallets.returned.show' =>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 [
@@ -194,7 +194,7 @@ class IndexDamagedPalletsInWarehouse extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.pallets.current.index',
                                 'parameters' => [
                                     'organisation' => $routeParameters['organisation'],
                                     'warehouse'    => $routeParameters['warehouse'],

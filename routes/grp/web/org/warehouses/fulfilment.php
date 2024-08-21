@@ -20,15 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowFulfilmentDashboard::class)->name('dashboard');
 
-Route::get('returned-pallets', IndexReturnedPalletsInWarehouse::class)->name('returned_pallets.index');
-Route::get('damaged-pallets', IndexDamagedPalletsInWarehouse::class)->name('damaged_pallets.index');
-Route::get('lost-pallets', IndexLostPalletsInWarehouse::class)->name('lost_pallets.index');
 
-Route::prefix('pallets')->as('pallets.')->group(function () {
-    Route::get('', IndexPalletsInWarehouse::class)->name('index');
-    Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
-    Route::get('{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('edit');
-});
 
 Route::prefix('locations')->as('locations.')->group(function () {
     Route::get('', IndexFulfilmentLocations::class)->name('index');

@@ -32,9 +32,9 @@ const props = defineProps<{
 //                     route().params['fulfilment'],
 //                     pallet['slug']
 //                 ])
-//         case 'grp.org.warehouses.show.fulfilment.pallets.index':
+//         case 'grp.org.warehouses.show.inventory.pallets.current.index':
 //             return route(
-//                 'grp.org.warehouses.show.fulfilment.pallets.show',
+//                 'grp.org.warehouses.show.inventory.pallets.current.show',
 //                 [
 //                     route().params['organisation'],
 //                     route().params['warehouse'],

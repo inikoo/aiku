@@ -23,41 +23,44 @@ trait WithPalletsInWarehouseSubNavigation
                     $parent->stats->number_pallets_status_storing             +
                     $parent->stats->number_pallets_status_returning,
                 'href'     => [
-                    'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.pallets.current.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
                 'leftIcon' => [
                     'icon'=> 'fal fa-warehouse-alt',
                 ]
             ],
+
             [
-                'label'    => __('Returned pallets'),
-                'number'   => $parent->stats->number_pallets_state_dispatched,
-                'href'     => [
-                    'name'       => 'grp.org.warehouses.show.fulfilment.returned_pallets.index',
-                    'parameters' => $request->route()->originalParameters()
-                ],
-                'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DISPATCHED->value]
-            ],
-            [
-                'label'    => __('Damaged pallets'),
+                'label'    => __('Damaged'),
+                'align'=>'right',
                 'number'   => $parent->stats->number_pallets_state_damaged,
                 'href'     => [
-                    'name'       => 'grp.org.warehouses.show.fulfilment.damaged_pallets.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.pallets.damaged.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
                 'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DAMAGED->value]
             ],
             [
-                'label'    => __('Lost pallets'),
+                'label'    => __('Lost'),
+                'align'=>'right',
                 'number'   => $parent->stats->number_pallets_state_lost,
                 'href'     => [
-                    'name'       => 'grp.org.warehouses.show.fulfilment.lost_pallets.index',
+                    'name'       => 'grp.org.warehouses.show.inventory.pallets.lost.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
                 'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::LOST->value]
             ],
-
+            [
+                'label'    => __('Returned'),
+                'align'=>'right',
+                'number'   => $parent->stats->number_pallets_state_dispatched,
+                'href'     => [
+                    'name'       => 'grp.org.warehouses.show.inventory.pallets.returned.index',
+                    'parameters' => $request->route()->originalParameters()
+                ],
+                'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DISPATCHED->value]
+            ],
         ];
     }
 }

@@ -5,6 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Fulfilment\Pallet\UI\EditPallet;
+use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPalletsInWarehouse;
+use App\Actions\Fulfilment\Pallet\UI\IndexLostPalletsInWarehouse;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
+use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPalletsInWarehouse;
+use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Goods\Stock\UI\CreateStock;
 use App\Actions\Goods\Stock\UI\EditStock;
 use App\Actions\Goods\Stock\UI\ShowStock;
@@ -82,7 +88,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
 
 });
 
-
 Route::prefix('families')->as('org_stock_families.')->group(function () {
     Route::get('', IndexOrgStockFamilies::class)->name('index');
     Route::get('/export', ExportStockFamilies::class)->name('export');
@@ -106,4 +111,32 @@ Route::prefix('families')->as('org_stock_families.')->group(function () {
             });
         });
     });
+});
+
+
+Route::prefix('pallets')->as('pallets.')->group(function () {
+
+    Route::prefix('current')->as('current.')->group(function () {
+        Route::get('', IndexPalletsInWarehouse::class)->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
+        Route::get('{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('edit');
+    });
+
+    Route::prefix('returned')->as('returned.')->group(function () {
+        Route::get('', IndexReturnedPalletsInWarehouse::class)->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
+    });
+
+    Route::prefix('damaged')->as('damaged.')->group(function () {
+        Route::get('', IndexDamagedPalletsInWarehouse::class)->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
+    });
+
+    Route::prefix('lost')->as('lost.')->group(function () {
+        Route::get('', IndexLostPalletsInWarehouse::class)->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
+    });
+
+
+
 });

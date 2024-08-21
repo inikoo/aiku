@@ -77,9 +77,9 @@ class GetWarehouseNavigation
                                 "label"   => __("Fulfilment pallets"),
                                 "tooltip" => __("pallets"),
                                 "icon"    => ["fal", "fa-pallet"],
-                                "root"    => "grp.org.warehouses.show.fulfilment.pallets.",
+                                "root"    => "grp.org.warehouses.show.inventory.pallets.",
                                 "route"   => [
-                                    "name"       => "grp.org.warehouses.show.fulfilment.pallets.index",
+                                    "name"       => "grp.org.warehouses.show.inventory.pallets.current.index",
                                     "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
                                 ],
                             ] : null,
