@@ -35,11 +35,11 @@ class IndexPallets extends OrgAction
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    private Fulfilment|Location $parent;
+    private Fulfilment|Warehouse|Location $parent;
 
     private bool $selectStoredPallets = false;
 
-    protected function getElementGroups(Fulfilment|Location $parent): array
+    protected function getElementGroups(Fulfilment|Warehouse|Location $parent): array
     {
         return [
             'status' => [
@@ -58,7 +58,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(Fulfilment|Location $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|Warehouse|Location $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -139,7 +139,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Fulfilment|Location $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Fulfilment|Warehouse|Location $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
@@ -268,12 +268,12 @@ class IndexPallets extends OrgAction
         )->table($this->tableStructure($this->parent, 'pallets'));
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($fulfilment, 'pallets');
+        return $this->handle($warehouse, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
