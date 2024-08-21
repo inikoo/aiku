@@ -10,7 +10,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, faConveyorBeltAlt,
     faChevronDown, faPalletAlt, faAbacus,faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck,
     faFlaskPotion,faFillDrip,faBullhorn,faBadgePercent,faChargingStation, faBallot, faSlidersH, faChartLineDown,
-  faArrowFromLeft,faArrowToBottom
+  faArrowFromLeft,faArrowToBottom, faWarehouse
 } from "@fal"
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 import '@/Composables/Icon/ProductionsStateIcon'
@@ -25,7 +25,7 @@ import { trans } from "laravel-vue-i18n"
 
 library.add(faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt,
 faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck, faFlaskPotion, faFillDrip, faBullhorn,faBadgePercent,faChargingStation,
-faBallot, faSlidersH, faChartLineDown,faArrowFromLeft,faArrowToBottom
+faBallot, faSlidersH, faChartLineDown,faArrowFromLeft,faArrowToBottom, faWarehouse
 )
 
 const layout = inject('layout', layoutStructure)
@@ -109,10 +109,18 @@ const iconList: { [key: string]: string } = {
                                 :icon="iconList[generateNavigationName(itemKey)] || ''"
                             /> -->
 
-                            <NavigationSimple v-for="(nav, navKey) in Object.values(orgNav)[0]"
+                            <NavigationScope
+                                :key="itemKey"
+                                icon="fal fa-warehouse"
+                                :navs="orgNav[Object.keys(orgNav)[0]]"
+                                :scope="trans('Warehouse')"
+                                root="grp.org.warehouses.show"
+                            />
+
+                            <!-- <NavigationSimple v-for="(nav, navKey) in Object.values(orgNav)[0]"
                                 :nav="nav"
                                 :navKey="navKey"
-                            />
+                            /> -->
                         </template>
 
                         <!-- Else: Warehouses length more than 1 -->

@@ -152,6 +152,11 @@ class IndexStoredItemsInReturn extends OrgAction
 
             $table->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true);
 
+            if ($palletReturn->state === PalletReturnStateEnum::PICKING)
+            {
+
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+            }
             //            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 
 

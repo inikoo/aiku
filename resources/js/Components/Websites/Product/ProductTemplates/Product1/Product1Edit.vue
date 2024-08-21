@@ -4,6 +4,7 @@ import InlineInput from '@/Components/Websites/Fields/InlineInput.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import { ref } from "vue"
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 import { faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare } from "@fortawesome/free-solid-svg-icons"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -13,7 +14,7 @@ library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faCh
 
 const props = defineProps<{
     modelValue: any
-    previewMode : boolean
+    previewMode: boolean
     isEditing?: boolean
     colorThemed?: Object
 }>()
@@ -39,7 +40,7 @@ const dataProduct = ref({
                 <div class="grid grid-cols-5 gap-x-10 mb-12">
                     <div class="col-span-3">
                         <div class="font-bold text-lg">
-                            <InlineInput  v-model="modelValue.data.name"></InlineInput>
+                            <InlineInput v-model="modelValue.data.name"></InlineInput>
                         </div>
 
 
@@ -95,13 +96,14 @@ const dataProduct = ref({
                         </div>
 
                         <div v-else class="mb-10 gap-x-2">
-                            <UploadImage  v-model="selectedProduct" :uploadRoutes="{name : '', parameters : ''}"/>
+                            <UploadImage v-model="selectedProduct" :uploadRoutes="{ name: '', parameters: '' }" />
                         </div>
 
                         <!-- Section: Description -->
                         <div class="space-y-4 mb-6">
                             <div class="text-xs text-gray-500">
-                                <Editor  :editable="!previewMode" v-model="modelValue.data.description" placeholder="write something ...." />
+                                <Editor :editable="!previewMode" v-model="modelValue.data.description"
+                                    placeholder="write something ...." />
                             </div>
                             <div class="font-bold text-xs underline">Read More</div>
                         </div>
@@ -149,22 +151,22 @@ const dataProduct = ref({
                     <!-- Column: Right -->
                     <div class="col-span-2">
                         <div class="mb-2">
-                          <!--   <Selector v-model="data.price_non_member">
+                            <!--   <Selector v-model="data.price_non_member">
                                 <template #content-area>
                                     <div :style="data.price_non_member">£9.60 (£1.20/Piece)</div>
                                 </template>
-                            </Selector> -->
+</Selector> -->
                         </div>
                         <div class="mb-2">
-                          <!--   <Selector v-model="data.price_member">
+                            <!--   <Selector v-model="data.price_member">
                                 <template #content-area>
                                     <div :style="data.price_member">£8.00 (£1.00/Piece)</div>
                                 </template>
                             </Selector> -->
                         </div>
 
-                        <div>  
-                           <!--  <Selector v-model="data.member_price">
+                        <div>
+                            <!--  <Selector v-model="data.member_price">
                                 <template #content-area>
                                     <div class="mb-2 space-x-2">
                                         <FontAwesomeIcon icon="fas fa-medal" :style="{ color : data.member_price.backgroundColor}"></FontAwesomeIcon>
@@ -173,7 +175,7 @@ const dataProduct = ref({
                                     </div>
                                 </template>
                             </Selector> -->
-                         </div>
+                        </div>
 
 
                         <div class="mb-8">
@@ -196,31 +198,71 @@ const dataProduct = ref({
                             <div class="bg-gray-600 text-white rounded px-3 py-1 h-fit w-fit">Order Now</div>
                         </div>
 
-                        <!-- Section: Buy now pay leter, delivery info, return policy -->
+
                         <div class="mb-4">
-                            <div
-                                class="flex items-center gap-x-4 border-t border-gray-300 pl-3 font-bold text-gray-600 py-1">
-                                Buy Now Pay Later
-                                <img src="https://pastpay.com/wp-content/uploads/2023/07/PastPay-logo-dark-edge.png"
-                                    class="h-3" alt="">
-                                <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
-                                </FontAwesomeIcon>
-                            </div>
-                            <div
-                                class="flex items-center gap-x-4 border-t border-gray-400 pl-3 font-bold text-gray-600 py-1">
-                                Delivery Info
-                                <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
-                                </FontAwesomeIcon>
-                            </div>
-                            <div
-                                class="flex items-center gap-x-4 border-t border-gray-400 pl-3 font-bold text-gray-600 py-1">
-                                Return Policy
-                                <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
-                                </FontAwesomeIcon>
-                            </div>
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton
+                                    class="flex items-center w-full gap-x-4 border-t border-gray-300 pl-3 font-bold text-gray-600 py-1">
+
+                                    Buy Now Pay Later
+                                    <img src="https://pastpay.com/wp-content/uploads/2023/07/PastPay-logo-dark-edge.png"
+                                        class="h-3" alt="">
+                                    <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                    </FontAwesomeIcon>
+
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
+
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton
+                                    class="flex items-center w-full gap-x-4 border-t border-gray-300 pl-3 font-bold text-gray-600 py-1">
+
+                                    Delivery Info
+                                    <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                    </FontAwesomeIcon>
+
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
+
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton
+                                    class="flex items-center gap-x-4 border-t w-full border-gray-300 pl-3 font-bold text-gray-600 py-1">
+
+                                    Return Policy
+                                    <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                    </FontAwesomeIcon>
+
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
+
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton
+                                    class="flex items-center gap-x-4 border-t w-full border-gray-300 pl-3 font-bold text-gray-600 py-1">
+
+                                    Return Policy
+                                    <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                    </FontAwesomeIcon>
+
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
                         </div>
 
-                        <!-- Secure Payments: Paypalm, Visa, Mastercard -->
                         <div>
                             <div class="pl-3 font-semibold flex items-center gap-x-2">
                                 <div class="text-xs">Secure Payments:</div>
@@ -237,39 +279,56 @@ const dataProduct = ref({
                             </div>
                         </div>
 
-                        <!-- Section: FAQ -->
                         <div class="mt-4">
                             <h2 class="mb-4 text">Frequently Asked Questions (FAQs):</h2>
-                            <details class="cursor-pointer border-b-2 border-gray-300 py-2 pl-1.5 ">
-                                <summary class="flex justify-between font-bold text-sm">
-                                    <span>How do they come packaged?</span>
-                                    <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500">
-                                    </FontAwesomeIcon>
-                                </summary>
-                                <p class="mt-1 text-sm">Details about packaging.</p>
-                            </details>
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton class="cursor-pointer border-b-2 w-full border-gray-300 py-2 pl-1.5 ">
 
-                            <details class="cursor-pointer mt-1 border-b-2 border-gray-300 py-2 pl-1.5 ">
-                                <summary class="flex justify-between font-bold text-sm">
-                                    <span>Do the bath bombs Fizz or Foam?</span>
-                                    <FontAwesomeIcon icon="fas fa-chevron-down " class="text-sm text-gray-500">
-                                    </FontAwesomeIcon>
-                                </summary>
-                                <p class="mt-1 text-sm">Details about Fizz or Foam.</p>
-                            </details>
+                                    <summary class="flex justify-between font-bold text-sm">
+                                        <span>How do they come packaged?</span>
+                                        <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500" />
+                                    </summary>
 
-                            <details class="cursor-pointer mt-1 py-2 pl-1.5 ">
-                                <summary class="flex justify-between font-bold text-sm">
-                                    <span>Are they safe for children?</span>
-                                    <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500">
-                                    </FontAwesomeIcon>
-                                </summary>+
-                                <p class="mt-1 text-sm">Details about safety for children.</p>
-                            </details>
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
+
+
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton class="cursor-pointer border-b-2 w-full border-gray-300 py-2 pl-1.5 ">
+
+                                    <summary class="flex justify-between font-bold text-sm">
+                                        <span>Do the bath bombs Fizz or Foam?</span>
+                                        <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500" />
+                                    </summary>
+
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
+
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton class="cursor-pointer border-b-2 w-full border-gray-300 py-2 pl-1.5 ">
+
+                                    <summary class="flex justify-between font-bold text-sm">
+                                        <span>Are they safe for children?</span>
+                                        <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500" />
+                                    </summary>
+
+                                </DisclosureButton>
+                                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                                    If you're unhappy with your purchase for any reason, email us within
+                                    90 days and we'll refund you in full, no questions asked.
+                                </DisclosurePanel>
+                            </Disclosure>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
