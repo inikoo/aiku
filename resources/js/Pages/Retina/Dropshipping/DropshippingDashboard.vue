@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { Head, Link, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 
@@ -11,29 +11,42 @@ import type { Component } from 'vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { routeType } from '@/types/route'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
+import { trans } from 'laravel-vue-i18n'
+import Modal from '@/Components/Utils/Modal.vue'
+import PureInputWithAddOn from '@/Components/Pure/PureInputWithAddOn.vue'
+
+import { faGlobe } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faGlobe)
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-
+    connectRoute: routeType
+    createRoute: routeType
 
 }>()
 
-// const currentTab = ref(props.tabs.current)
-// const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+const isModalOpen = ref<string | boolean>(false)
+const websiteInput = ref<string | null>(null)
 
-// const component = computed(() => {
-
-//     const components: Component = {
-//         // showcase: FileShowcase
-//     }
-
-//     return components[currentTab.value]
-
-// })
+const isLoading = ref<string | boolean>(false)
+const onCreateStore = () => {
+    router[props.createRoute.method || 'post'](
+        route(props.createRoute.name, props.createRoute.parameters),
+        {
+            name: websiteInput.value
+        },
+        {
+            onStart: () => isLoading.value = true,
+            onFinish: () => isLoading.value = false
+        }
+    )
+}
 
 </script>
 
@@ -56,16 +69,55 @@ const props = defineProps<{
                         <div class="text-xs text-gray-500">(Manage product)</div>
                     </div>
                 </div>
-                <div class="flex justify-end">
-                    <a target="_blank" href="http://pupil.aiku.test/authenticate?shop=aikuu">
-                        <Button label="Connect" type="black" />
-                    </a>
+                
+                <!-- Button: Connect -->
+                <div class="relative w-full">
+                    <Transition name="spin-to-down">
+                        <div v-if="connectRoute?.name" class="w-full flex justify-end">
+                            <Link as="a" target="_blank"
+                                href="http://pupil.aiku.test/authenticate?shop=aikuu"
+                                class="w-full"
+                            >
+                                <Button label="Connect" type="tertiary" full />
+                            </Link>
+                        </div>
+                    
+                        <!-- Button: Create -->
+                        <div v-else class="w-full flex justify-end">
+                            <Button @click="() => isModalOpen = 'shopify'" label="Create" type="primary" full />
+                        </div>
+                    </Transition>
                 </div>
             </div>
             
             <div class="border border-dashed  border-gray-300 rounded-md w-72 p-4 flex items-center justify-center text-gray-400 italic">
-                Coming soon
+                {{ trans('Coming soon') }}
             </div>
         </div>
     </div>
+
+    <Modal :isOpen="!!isModalOpen" @onClose="isModalOpen = false" width="w-[500px]">
+        <div class="h-40">
+            <div class="mb-4">
+                <div class="text-center font-semibold text-xl">
+                    {{ trans('Select your store name') }}
+                </div>
+                
+                <div class="text-center text-xs text-gray-500">
+                    {{ trans('This is the url that your store can be accessed') }}
+                </div>
+            </div>
+
+            <PureInputWithAddOn v-model="websiteInput"
+                :leftAddOn="{
+                    icon: 'fal fa-globe'
+                }" 
+                :rightAddOn="{
+                    label: '.shopify.com'
+                }"
+            />
+
+            <Button @click="() => onCreateStore()" full label="Create" :loading="!!isLoading" class="mt-6" />
+        </div>
+    </Modal>
 </template>

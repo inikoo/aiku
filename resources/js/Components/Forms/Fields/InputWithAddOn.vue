@@ -40,10 +40,7 @@ const props = defineProps<{
         <PureInputWithAddOn
             v-model="form[fieldName]"
             :inputName="fieldName"
-            :readonly="fieldData?.readonly"
-            :placeholder="fieldData?.placeholder"
-            :leftAddOn="fieldData?.leftAddOn"
-            :rightAddOn="fieldData?.rightAddOn"
+            v-bind="fieldData"
         >
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <FontAwesomeIcon

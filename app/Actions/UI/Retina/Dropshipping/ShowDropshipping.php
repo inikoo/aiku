@@ -45,7 +45,8 @@ class ShowDropshipping extends RetinaAction
                 ],
                 'createRoute' => [
                     'name'       => 'retina.dropshipping.shopify_user.store',
-                    'parameters' => []
+                    'parameters' => [],
+                    'method'     => 'post'
                 ],
                 'connectRoute' => $customer->shopifyUser ? [
                     'name'       => 'pupil.authenticate',
