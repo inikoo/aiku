@@ -125,6 +125,7 @@ class UpdateShop extends OrgAction
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
             'type'                     => ['sometimes', 'required', Rule::enum(ShopTypeEnum::class)],
             'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'               => ['sometimes', 'required', 'exists:countries,id'],
             'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
             'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
             'address'                  => ['sometimes', 'required', new ValidAddress()],
