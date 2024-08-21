@@ -45,7 +45,6 @@ class UpdateWebsite extends OrgAction
                 'ascii',
                 'lowercase',
                 'max:255',
-                'domain',
                 new IUnique(
                     table: 'websites',
                     extraConditions: [

@@ -8,9 +8,11 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Inventory\Warehouse;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -22,9 +24,9 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexStockDeliveries extends InertiaAction
+class IndexStockDeliveries extends OrgAction
 {
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -45,7 +47,7 @@ class IndexStockDeliveries extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
@@ -63,19 +65,21 @@ class IndexStockDeliveries extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('incoming.'.$this->warehouse->id.'.edit');
+        return $request->user()->hasPermissionTo('incoming.'.$this->warehouse->id.'.view');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
-            );
     }
 
-    public function asController(Organisation  $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->initialisation($organisation, $request);
 
-        $this->initialisation($request);
+        return $this->handle($organisation);
+    }
+
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($organisation);
     }
@@ -83,8 +87,8 @@ class IndexStockDeliveries extends InertiaAction
 
     public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->maya   = true;
-        $this->initialisation($request);
+        $this->maya = true;
+        $this->initialisation($organisation,$request);
 
         return $this->handle($organisation);
     }

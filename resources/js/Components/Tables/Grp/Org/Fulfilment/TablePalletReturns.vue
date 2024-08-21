@@ -28,9 +28,9 @@ const layout = inject('layout', layoutStructure)
 
 function palletReturnRoute(palletReturn: PalletDelivery) {
     switch (route().current()) {
-        case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
             return route(
-                'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                'grp.org.warehouses.show.dispatching.pallet-returns.show',
                 [
                     route().params['organisation'],
                     route().params['warehouse'],

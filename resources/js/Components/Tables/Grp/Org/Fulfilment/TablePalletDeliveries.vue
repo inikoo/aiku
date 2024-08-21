@@ -32,9 +32,9 @@ const loading = ref(false)
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {
     switch (route().current()) {
-        case 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index':
+        case 'grp.org.warehouses.show.incoming.pallet_deliveries.index':
             return route(
-                'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
+                'grp.org.warehouses.show.incoming.pallet_deliveries.show',
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
@@ -48,9 +48,9 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     route().params['fulfilment'],
                     palletDelivery.slug
                 ])
-        case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
+        case 'grp.org.warehouses.show.dispatching.pallet-returns.index':
             return route(
-                'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                'grp.org.warehouses.show.dispatching.pallet-returns.show',
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
