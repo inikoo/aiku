@@ -259,13 +259,15 @@ const abcdef = computed(() => {
 
                 <ColumnGroup type="footer">
                     <Row>
-                        <Column footer="" footerStyle="text-align:right" />
+                        <Column footer="Total" footerStyle="text-align:right">
+                            Total
+                        </Column>
                         <Column :footer="groupStats.total.total_refunds" footerStyle="text-align:right" />
-                        <Column footer="xxx" footerStyle="text-align:right" />
+                        <Column footer="-------------" footerStyle="text-align:right" />
                         <Column :footer="groupStats.total.total_invoices" footerStyle="text-align:right" />
-                        <Column footer="xxx" footerStyle="text-align:right" />
+                        <Column footer="-------------" footerStyle="text-align:right" />
                         <Column :footer="useLocaleStore().currencyFormat(groupStats.currency.code, Number(groupStats.total.total_sales))" footerStyle="text-align:right" />
-                        <Column footer="xxx" footerStyle="text-align:right" />
+                        <Column footer="-------------" footerStyle="text-align:right" />
                     </Row>
                 </ColumnGroup>
 

@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
+use App\Actions\Fulfilment\Pallet\SetPalletInReturnAsPicked;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\Search\PalletReturnRecordSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePalletReturns;
@@ -17,9 +18,11 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePalletReturns;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,15 +39,27 @@ class PickedPalletReturn extends OrgAction
 
         $palletReturn = $this->update($palletReturn, $modelData);
 
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+            foreach ($palletReturn->pallets as $pallet) {
+                $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
+                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
+            }
+        } else {
+            foreach($palletReturn->storedItems as $storedItem) {
+                $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
+                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
+            }
+        }
+
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
         WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
         FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
-
         SendPalletReturnNotification::run($palletReturn);
         PalletReturnRecordSearch::dispatch($palletReturn);
+
         return $palletReturn;
     }
 

@@ -181,7 +181,7 @@ const routeLabelHorizontal = () => {
 </script>
 
 <template>
-    <div v-if="isShowHorizontal()" class="relative isolate ring-1 ring-white/20 rounded transition-all mb-1"
+    <div v-if="isShowHorizontal()" class="relative isolate ring-1 ring-white/20 rounded transition-all"
         :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
         :style="{ 'box-shadow': `0 0 0 1px ${layout.app.theme[1]}55` }">
         <span v-if="false" class="text-white">

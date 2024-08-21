@@ -32,40 +32,36 @@ class StoreStoredItemsToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $storedItemModels = Arr::get($modelData, 'stored_items');
-        $currentQuantity  = 0;
 
-        if(blank($storedItemModels)) {
+        if (blank($storedItemModels)) {
             PalletReturnItem::where('pallet_return_id', $palletReturn->id)->delete();
-
             return $palletReturn;
         }
 
         PalletReturnItem::where('pallet_return_id', $palletReturn->id)
             ->whereNotIn('stored_item_id', array_keys($storedItemModels))->delete();
 
-        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()->whereIn('stored_items.id', array_keys($storedItemModels))->get();
-        foreach ($storedItems as $value) {
-            /** @var StoredItem $storedItem */
-            $storedItem = $value;
+        $storedItems = $palletReturn->fulfilmentCustomer->storedItems()
+            ->whereIn('stored_items.id', array_keys($storedItemModels))
+            ->get();
 
+        foreach ($storedItems as $storedItem) {
             $pallets           = $storedItem->pallets;
-            $requiredQuantity  = Arr::get($storedItemModels, $value->id)['quantity'];
+            $requiredQuantity  = Arr::get($storedItemModels, $storedItem->id)['quantity'];
 
             foreach ($pallets as $pallet) {
-                $remainingQuantity   = $requiredQuantity - $currentQuantity;
-                $palletStoredItemQty = $pallet->storedItems->sum('pivot.quantity');
+                $palletStoredItemQty = $pallet->storedItems
+                    ->where('pivot.stored_item_id', $storedItem->id)
+                    ->sum('pivot.quantity');
 
-                if ($palletStoredItemQty <= $remainingQuantity) {
-                    $currentQuantity += $palletStoredItemQty;
-                } else {
-                    $partialPallet           = clone $pallet;
-                    $partialPallet->quantity = $remainingQuantity;
-                    $currentQuantity += $remainingQuantity;
+                if ($palletStoredItemQty > 0) {
+                    $this->attach($palletReturn, $pallet, $storedItem, $requiredQuantity);
                 }
 
-                $this->attach($palletReturn, $pallet, $value, $currentQuantity);
-
-                if ($currentQuantity == $requiredQuantity) {
+                if ($palletStoredItemQty >= $requiredQuantity) {
+                    PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+                        ->where('stored_item_id', $storedItem->id)
+                        ->whereNot('pallet_id', $pallet->id)->delete();
                     break;
                 }
             }
@@ -78,27 +74,22 @@ class StoreStoredItemsToReturn extends OrgAction
         return $palletReturn;
     }
 
-    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $value, $currentQuantity): void
+    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
     {
-        // Check if the pivot table already has an entry with the same pallet_return_id and stored_item_id
-        $exists = $value->palletReturns()
+        $existingPivot = $storedItem->palletReturns()
             ->wherePivot('pallet_return_id', $palletReturn->id)
-            ->wherePivot('stored_item_id', $value->id)
-            ->exists();
+            ->wherePivot('stored_item_id', $storedItem->id)
+            ->wherePivot('pallet_id', $pallet->id)
+            ->first();
 
-        // If it doesn't exist, attach the new entry
-        if (!$exists) {
-            $value->palletReturns()->attach($palletReturn->id, [
-                'stored_item_id'       => $value->id,
+        if ($existingPivot) {
+            $existingPivot->pivot->update(['quantity_ordered' => $quantityToUse]);
+        } else {
+            $storedItem->palletReturns()->attach($palletReturn->id, [
+                'stored_item_id'       => $storedItem->id,
                 'pallet_id'            => $pallet->id,
                 'pallet_stored_item_id'=> $pallet->pivot->id,
-                'quantity_ordered'     => $currentQuantity,
-                'type'                 => 'StoredItem'
-            ]);
-        } else {
-            // Optionally, update the existing pivot entry instead of attaching a new one
-            $value->palletReturns()->updateExistingPivot($palletReturn->id, [
-                'quantity_ordered'     => $currentQuantity,
+                'quantity_ordered'     => $quantityToUse,
                 'type'                 => 'StoredItem'
             ]);
         }
