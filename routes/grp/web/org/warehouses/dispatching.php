@@ -7,8 +7,14 @@
 
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
+use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
+use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowDispatchHub::class)->name('backlog');
 Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes');
 Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('delivery-notes.show');
+
+Route::get('returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-returns.index');
+Route::get('returns/{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show');

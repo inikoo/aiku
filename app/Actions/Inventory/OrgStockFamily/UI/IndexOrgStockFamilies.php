@@ -14,6 +14,7 @@ use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Http\Resources\Inventory\OrgStockFamiliesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStockFamily;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -28,9 +29,9 @@ class IndexOrgStockFamilies extends OrgAction
 {
     use HasInventoryAuthorisation;
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($organisation);
     }
@@ -121,23 +122,6 @@ class IndexOrgStockFamilies extends OrgAction
 
             $table
                 ->withGlobalSearch()
-                ->withEmptyState(
-                    [
-                        'title'       => __('no stock families'),
-                        'description' => $this->canEdit ? __('Get started by creating a new stock family.') : null,
-                        'count'       => $organisation->inventoryStats->number_current_org_stocks,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new stock family'),
-                            'label'   => __('stock family'),
-                            'route'   => [
-                                'name'       => 'grp.org.inventory.org_stock_families.create',
-                                'parameters' => [$organisation->slug]
-                            ]
-                        ] : null
-                    ]
-                )
                 ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_current_org_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
@@ -165,18 +149,6 @@ class IndexOrgStockFamilies extends OrgAction
                         'title' => __("SKUs families"),
                         'icon'  => 'fal fa-boxes-alt'
                     ],
-                    'actions' => [
-                        $this->canEdit && $request->route()->getName() == 'grp.goods.stock-families.index' ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new SKU family'),
-                            'label'   => __('SKU family'),
-                            'route'   => [
-                                'name'       => 'grp.org.inventory.stock-families.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
-                    ]
                 ],
                 'data'        => OrgStockFamiliesResource::collection($stockFamily),
             ]
@@ -192,7 +164,7 @@ class IndexOrgStockFamilies extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.inventory.org_stock_families.index',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __("SKUs families"),

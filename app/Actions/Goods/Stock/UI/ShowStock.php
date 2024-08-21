@@ -85,7 +85,7 @@ class ShowStock extends GrpAction
                              'type'  => 'button',
                              'style' => 'delete',
                              'route' => [
-                                 'name'       => 'grp.org.inventory.org_stock_families.show.stocks.remove',
+                                 'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.remove',
                                  'parameters' => array_values($request->route()->originalParameters())
                              ]
 
@@ -147,11 +147,11 @@ class ShowStock extends GrpAction
                     $routeParameters['stock'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.org.inventory.org-stocks.show',
+                            'name'       => 'grp.org.warehouses.show.inventory.org-stocks.show',
                             'parameters' => [
                                 $routeParameters['stock']->slug
                             ]
@@ -160,20 +160,20 @@ class ShowStock extends GrpAction
                     $suffix
                 )
             ),
-            'grp.org.inventory.org_stock_families.show.stocks.show' =>
+            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show' =>
             array_merge(
                 (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
                     $routeParameters['stock'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.inventory.org_stock_families.show.org_stocks.index',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
                             'parameters' => [
                                 $routeParameters['stockFamily']->slug
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.inventory.org_stock_families.show.stocks.show',
+                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show',
                             'parameters' => [
                                 $routeParameters['stockFamily']->slug,
                                 $routeParameters['stock']->slug
@@ -190,7 +190,7 @@ class ShowStock extends GrpAction
     public function getPrevious(Stock $stock, ActionRequest $request): ?array
     {
         $previous = Stock::where('code', '<', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.show') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code', 'desc')->first();
@@ -200,7 +200,7 @@ class ShowStock extends GrpAction
     public function getNext(Stock $stock, ActionRequest $request): ?array
     {
         $next = Stock::where('code', '>', $stock->code)->when(true, function ($query) use ($stock, $request) {
-            if ($request->route()->getName() == 'grp.org.inventory.org_stock_families.show.stocks.show') {
+            if ($request->route()->getName() == 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show') {
                 $query->where('stock_family_id', $stock->stockFamily->id);
             }
         })->orderBy('code')->first();
@@ -215,7 +215,7 @@ class ShowStock extends GrpAction
         }
 
         return match ($routeName) {
-            'grp.org.inventory.org-stocks.show' => [
+            'grp.org.warehouses.show.inventory.org-stocks.show' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -224,7 +224,7 @@ class ShowStock extends GrpAction
                     ]
                 ]
             ],
-            'grp.org.inventory.org_stock_families.show.stocks.show' => [
+            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,

@@ -17,10 +17,10 @@ const props = defineProps<{
 function stockFamilyRoute(stockFamily: StockFamily) {
     switch (route().current()) {
 
-      case 'grp.org.inventory.org_stock_families.index':
+      case 'grp.org.warehouses.show.inventory.org_stock_families.index':
             return route(
-                'grp.org.inventory.org_stock_families.show',
-                [route().params['organisation'], stockFamily.slug]);
+                'grp.org.warehouses.show.inventory.org_stock_families.show',
+                [route().params['organisation'], route().params['warehouse'], stockFamily.slug]);
     }
 
 }
@@ -28,10 +28,10 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 function orgStockFamilyOrgStocksRoute(stockFamily: StockFamily) {
   switch (route().current()) {
 
-    case 'grp.org.inventory.org_stock_families.index':
+    case 'grp.org.warehouses.show.inventory.org_stock_families.index':
       return route(
-        'grp.org.inventory.org_stock_families.show.org_stocks.index',
-        [route().params['organisation'], stockFamily.slug]);
+        'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
+        [route().params['organisation'],route().params['warehouse'],  stockFamily.slug]);
   }
 
 }

@@ -14,9 +14,10 @@ use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
 use App\Enums\UI\Inventory\OrgStockFamilyTabsEnum;
 use App\Http\Resources\Goods\StockFamilyResource;
-use App\Http\Resources\Goods\StocksResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Inventory\OrgStocksResource;
 use App\Models\Inventory\OrgStockFamily;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,17 +33,18 @@ class ShowOrgStockFamily extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, OrgStockFamily $orgStockFamily, ActionRequest $request): OrgStockFamily
+    public function asController(Organisation $organisation, Warehouse $warehouse, OrgStockFamily $orgStockFamily, ActionRequest $request): OrgStockFamily
     {
-        $this->initialisation($organisation, $request)->withTab(OrgStockFamilyTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStockFamilyTabsEnum::values());
 
         return $this->handle($orgStockFamily);
     }
 
     public function maya(Organisation $organisation, OrgStockFamily $orgStockFamily, ActionRequest $request): OrgStockFamily
     {
-        $this->maya   =true;
+        $this->maya = true;
         $this->initialisation($organisation, $request)->withTab(OrgStockFamilyTabsEnum::values());
+
         return $this->handle($orgStockFamily);
     }
 
@@ -78,7 +80,7 @@ class ShowOrgStockFamily extends OrgAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.org.inventory.org_stock_families',
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
@@ -88,7 +90,7 @@ class ShowOrgStockFamily extends OrgAction
                             'name'     => trans_choice('stock | stocks', $orgStockFamily->stats->number_org_stocks),
                             'number'   => $orgStockFamily->stats->number_org_stocks,
                             'href'     => [
-                                'name'       => 'grp.org.inventory.org_stock_families.show.org_stocks.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                             'leftIcon' => [
@@ -107,32 +109,32 @@ class ShowOrgStockFamily extends OrgAction
                 OrgStockFamilyTabsEnum::SHOWCASE->value => $this->tab == OrgStockFamilyTabsEnum::SHOWCASE->value ?
                     fn () => GetOrgStockFamilyShowcase::run($orgStockFamily)
                     : Inertia::lazy(fn () => GetOrgStockFamilyShowcase::run($orgStockFamily)),
-                OrgStockFamilyTabsEnum::STOCKS->value    => $this->tab == OrgStockFamilyTabsEnum::STOCKS->value
+                OrgStockFamilyTabsEnum::ORG_STOCKS->value   => $this->tab == OrgStockFamilyTabsEnum::ORG_STOCKS->value
                     ?
-                    fn () => StocksResource::collection(
+                    fn () => OrgStocksResource::collection(
                         IndexOrgStocks::run(
                             parent: $orgStockFamily,
-                            prefix: OrgStockFamilyTabsEnum::STOCKS->value,
+                            prefix: OrgStockFamilyTabsEnum::ORG_STOCKS->value,
                             bucket: 'all'
                         )
                     )
-                    : Inertia::lazy(fn () => StocksResource::collection(
+                    : Inertia::lazy(fn () => OrgStocksResource::collection(
                         IndexOrgStocks::run(
                             parent: $orgStockFamily,
-                            prefix: OrgStockFamilyTabsEnum::STOCKS->value,
+                            prefix: OrgStockFamilyTabsEnum::ORG_STOCKS->value,
                             bucket: 'all'
                         )
                     )),
                 OrgStockFamilyTabsEnum::HISTORY->value  => $this->tab == OrgStockFamilyTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($orgStockFamily))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgStockFamily)))
+                    fn () => HistoryResource::collection(IndexHistory::run($orgStockFamily->stockFamily))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgStockFamily->stockFamily)))
             ]
-        ) ->table(
+        )->table(
             IndexOrgStocks::make()->tableStructure(
                 parent: $orgStockFamily,
-                prefix: OrgStockFamilyTabsEnum::STOCKS->value,
+                prefix: OrgStockFamilyTabsEnum::ORG_STOCKS->value,
             )
-        );
+        )->table(IndexHistory::make()->tableStructure(prefix: OrgStockFamilyTabsEnum::HISTORY->value));
     }
 
 
@@ -154,16 +156,16 @@ class ShowOrgStockFamily extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'      => 'grp.org.inventory.org_stock_families.index',
-                                'parameters'=> [$this->organisation->slug]
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.index',
+                                'parameters' => [$this->organisation->slug, $this->warehouse->slug]
                             ],
                             'label' => __('SKUs families'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.inventory.org_stock_families.show',
-                                'parameters' => [$this->organisation->slug,$orgStockFamily->slug]
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show',
+                                'parameters' => [$this->organisation->slug, $this->warehouse->slug, $orgStockFamily->slug]
                             ],
                             'label' => $orgStockFamily->code,
                             'icon'  => 'fal fa-bars'
@@ -197,12 +199,13 @@ class ShowOrgStockFamily extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.inventory.org_stock_families.show' => [
+            'grp.org.warehouses.show.inventory.org_stock_families.show' => [
                 'label' => $orgStockFamily->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'   => $this->organisation->slug,
+                        'warehouse'      => $this->warehouse->slug,
                         'orgStockFamily' => $orgStockFamily->slug
                     ]
 

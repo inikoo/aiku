@@ -81,6 +81,6 @@ class StoreStockFamily extends GrpAction
 
     public function htmlResponse(StockFamily $stockFamily): RedirectResponse
     {
-        return Redirect::route('grp.org.inventory.org_stock_families.index');
+        return Redirect::route('grp.org.warehouses.show.inventory.org_stock_families.index');
     }
 }

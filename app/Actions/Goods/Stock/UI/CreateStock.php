@@ -51,7 +51,7 @@ class CreateStock extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.inventory.org_stock_families.show.org_stocks.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
@@ -76,7 +76,7 @@ class CreateStock extends InertiaAction
                         ]
                     ],
                     'route' => match ($request->route()->getName()) {
-                        'grp.org.inventory.org_stock_families.show.stocks.create' => [
+                        'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.create' => [
                             'name'      => 'grp.models.stock-family.stock.store',
                             'arguments' => $parent->id
                         ],

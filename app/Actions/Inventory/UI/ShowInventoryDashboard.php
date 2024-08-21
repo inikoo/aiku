@@ -56,7 +56,7 @@ class ShowInventoryDashboard extends OrgAction
                             'name'  => __('SKUs families'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
                             'href'  => [
-                                'name'       => 'grp.org.inventory.org_stock_families.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.index',
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
@@ -69,7 +69,7 @@ class ShowInventoryDashboard extends OrgAction
                             'icon'          => ['fal', 'fa-box'],
                             'description'   => __('current'),
                             'href'          => [
-                                'name'       => 'grp.org.inventory.org_stocks.all_org_stocks.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
@@ -125,7 +125,7 @@ class ShowInventoryDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.inventory.dashboard',
+                                'name'       => 'grp.org.warehouses.show.inventory.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Inventory'),

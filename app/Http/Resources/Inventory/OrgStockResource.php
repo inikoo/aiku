@@ -7,11 +7,14 @@
 
 namespace App\Http\Resources\Inventory;
 
+use App\Http\Resources\HasSelfCall;
 use App\Models\Inventory\OrgStock;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrgStockResource extends JsonResource
 {
+    use HasSelfCall;
+
     public function toArray($request): array
     {
         /** @var OrgStock $orgStock */

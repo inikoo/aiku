@@ -24,13 +24,12 @@ import {
 } from '@fal';
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
-import ModelDetails from "@/Components/ModelDetails.vue";
+
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue";
-import TableFamilies from "@/Components/Tables/Grp/Org/Catalogue/TableFamilies.vue";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { capitalize } from "@/Composables/capitalize"
+import TableOrgStocks from "@/Components/Tables/Grp/Org/Inventory/TableOrgStocks.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 
 library.add(
     faInventory,
@@ -54,9 +53,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    products: object
-    locations: object
-    families: object
+    showcase?: object
+    org_stocks?: object
+    history?: object
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -65,11 +64,8 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        families: TableFamilies,
-        products: TableProducts,
-        locations: TableLocations,
-        details: ModelDetails,
-        history: ModelChangelog,
+        org_stocks: TableOrgStocks,
+        history: TableHistories
     };
     return components[currentTab.value];
 
