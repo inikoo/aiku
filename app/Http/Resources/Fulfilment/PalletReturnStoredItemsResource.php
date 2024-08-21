@@ -53,21 +53,21 @@ class PalletReturnStoredItemsResource extends JsonResource
             'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return-item.update',
-                    'parameters' => $this->id
+                    'parameters' => $palletReturnItemQuery?->id
                 ],
                 default => [
                     'name'       => 'grp.models.pallet-return-item.update',
-                    'parameters' => $this->id
+                    'parameters' => $palletReturnItemQuery?->id
                 ]
             },
             'undoPickingRoute' => [
                 'name'       => 'grp.models.pallet-return-item.undo-picking',
-                'parameters' => [$this->id]
+                'parameters' => [$palletReturnItemQuery?->id]
             ],
             'notPickedRoute' => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.pallet-return-item.not-picked',
-                'parameters' => [$this->id]
+                'parameters' => [$palletReturnItemQuery?->id]
             ],
         ];
     }
