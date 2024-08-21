@@ -2,7 +2,7 @@
 import Table from '@/Components/Table/Table.vue';
 import Icon from "@/Components/Icon.vue";
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue';
-import { ref, watch, onBeforeMount,reactive } from 'vue';
+import { ref, watch, onBeforeMount,reactive, inject} from 'vue';
 import { notify } from "@kyvg/vue3-notification";
 import { debounce } from 'lodash';
 import { Link, router } from "@inertiajs/vue3"
@@ -10,6 +10,7 @@ import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from "@/types/route"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 const props = defineProps<{
     data?: { data: any[] };
@@ -19,6 +20,7 @@ const props = defineProps<{
     route_checkmark: routeType;
 }>();
 
+const layout = inject('layout', layoutStructure)
 const selectedRow = ref({});
 const _table = ref(null);
 const isPickingLoading = ref(false)
@@ -151,7 +153,7 @@ onBeforeMount(() => {
             </div>
         </template>
 
-        <!-- <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
+        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
                 <Link v-if="pallet.state === 'picking'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
@@ -214,7 +216,7 @@ onBeforeMount(() => {
                     </template>
                 </Popover>
             </div>
-        </template> -->
+        </template>
 
         
     </Table>
