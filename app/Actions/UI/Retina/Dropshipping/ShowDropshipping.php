@@ -50,10 +50,9 @@ class ShowDropshipping extends RetinaAction
                     'method'     => 'post'
                 ],
                 'connectRoute' => $customer->shopifyUser ? [
-                    'name'       => 'pupil.authenticate',
-                    'parameters' => [
+                    'url'       => route('pupil.authenticate', [
                         'shop' => $customer->shopifyUser?->name
-                    ]
+                    ])
                 ] : false
             ]
         );
