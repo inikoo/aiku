@@ -15,7 +15,7 @@ Route::name('bk_api.')->group(function () {
         Route::name('fetch.')->prefix('{organisation}')->group(function () {
             Route::post('invoice', FetchAuroraInvoices::class)->name('invoice');
             Route::post('customer', FetchAuroraCustomers::class)->name('customer');
-            Route::post('employee', FetchAuroraCustomers::class)->name('customer');
+            Route::post('employee', FetchAuroraCustomers::class)->name('employee');
         });
     });
 });

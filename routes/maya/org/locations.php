@@ -11,6 +11,8 @@ use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use Illuminate\Support\Facades\Route;
 
+
+/*
 Route::prefix('all')->as('all_locations.')->group(function () {
     Route::get('/', [IndexLocations::class, 'maya'])->name('index');
 });
@@ -27,3 +29,4 @@ Route::prefix('warehouse/areas')->group(function () {
         Route::get('', [ShowWarehouseArea::class,'maya'])->name('show')->withoutScopedBindings();
     });
 });
+*/
