@@ -20,7 +20,6 @@ use App\Actions\Fulfilment\UniversalScan\IndexUniversalScan;
 use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
-use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use Illuminate\Support\Facades\Route;

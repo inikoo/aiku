@@ -6,10 +6,7 @@
  */
 
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
-use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPalletsInWarehouse;
-use App\Actions\Fulfilment\Pallet\UI\IndexLostPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
-use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;

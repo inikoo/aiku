@@ -24,9 +24,9 @@ const props = defineProps<{
 
 // function palletRoute(pallet: Pallet) {
 //     switch (route().current()) {
-//         case 'grp.org.fulfilments.show.operations.pallets.index':
+//         case 'grp.org.fulfilments.show.operations.pallets.current.index':
 //             return route(
-//                 'grp.org.fulfilments.show.operations.pallets.show',
+//                 'grp.org.fulfilments.show.operations.pallets.current.show',
 //                 [
 //                     route().params['organisation'],
 //                     route().params['fulfilment'],

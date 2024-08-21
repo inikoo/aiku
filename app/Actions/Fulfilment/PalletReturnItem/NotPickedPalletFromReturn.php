@@ -30,12 +30,11 @@ class NotPickedPalletFromReturn extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem, $modelData): PalletReturnItem
     {
-        if($palletReturnItem->type == 'Pallet')
-        {
+        if($palletReturnItem->type == 'Pallet') {
             $palletReturnItem = $this->update($palletReturnItem, [
                 'state' => PalletReturnItemStateEnum::NOT_PICKED
             ], ['data']);
-    
+
             UpdatePallet::run($palletReturnItem->pallet, [
                 'state'              => Arr::get($modelData, 'state'),
                 'status'             => PalletStatusEnum::INCIDENT,
@@ -46,12 +45,11 @@ class NotPickedPalletFromReturn extends OrgAction
             ]);
         } else {
             $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
-            foreach ($storedItems as $storedItem)
-            {
+            foreach ($storedItems as $storedItem) {
                 $palletReturnItem = $this->update($storedItem, [
                     'state' => PalletReturnItemStateEnum::NOT_PICKED
                 ], ['data']);
-        
+
                 UpdatePallet::run($storedItem->pallet, [
                     'state'              => Arr::get($modelData, 'state'),
                     'status'             => PalletStatusEnum::INCIDENT,

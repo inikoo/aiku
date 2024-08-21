@@ -74,9 +74,21 @@ class GetWarehouseNavigation
 
                         $user->hasPermissionTo("fulfilment.{$warehouse->id}.view", ) ?
                             [
-                                "label"   => __("Fulfilment pallets"),
-                                "tooltip" => __("pallets"),
+                                "label"   => __("Stored pallets"),
+                                "tooltip" => __("Fulfillment: Stored pallets"),
                                 "icon"    => ["fal", "fa-pallet"],
+                                "root"    => "grp.org.warehouses.show.inventory.pallets.",
+                                "route"   => [
+                                    "name"       => "grp.org.warehouses.show.inventory.pallets.current.index",
+                                    "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
+                                ],
+                            ] : null,
+
+                        $user->hasPermissionTo("fulfilment.{$warehouse->id}.view", ) ?
+                            [
+                                "label"   => __("Stored items"),
+                                "tooltip" => __("Fulfillment: Stored items"),
+                                "icon"    => ["fal", "fa-narwhal"],
                                 "root"    => "grp.org.warehouses.show.inventory.pallets.",
                                 "route"   => [
                                     "name"       => "grp.org.warehouses.show.inventory.pallets.current.index",

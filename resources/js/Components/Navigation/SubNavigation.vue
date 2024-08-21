@@ -117,6 +117,7 @@ const locale = inject('locale', {})
         <div class="flex">
             <TransitionGroup>
                 <template v-for="subNav, itemIdx in dataNavigation" :key="'subNav' + itemIdx">
+
                     <component
                         v-if="subNav.align === 'right'"
                         :is="subNav.href?.name ? Link : 'div'"
@@ -142,6 +143,7 @@ const locale = inject('locale', {})
                             </div>
                         </div>
                     </component>
+
                 </template>
             </TransitionGroup>
         </div>

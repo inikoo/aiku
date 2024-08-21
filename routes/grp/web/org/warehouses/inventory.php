@@ -6,10 +6,10 @@
  */
 
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
-use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPalletsInWarehouse;
-use App\Actions\Fulfilment\Pallet\UI\IndexLostPalletsInWarehouse;
+use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexLostPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
-use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPalletsInWarehouse;
+use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Goods\Stock\UI\CreateStock;
 use App\Actions\Goods\Stock\UI\EditStock;
@@ -123,20 +123,17 @@ Route::prefix('pallets')->as('pallets.')->group(function () {
     });
 
     Route::prefix('returned')->as('returned.')->group(function () {
-        Route::get('', IndexReturnedPalletsInWarehouse::class)->name('index');
+        Route::get('', IndexReturnedPallets::class)->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
     });
 
     Route::prefix('damaged')->as('damaged.')->group(function () {
-        Route::get('', IndexDamagedPalletsInWarehouse::class)->name('index');
+        Route::get('', IndexDamagedPallets::class)->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
     });
 
     Route::prefix('lost')->as('lost.')->group(function () {
-        Route::get('', IndexLostPalletsInWarehouse::class)->name('index');
+        Route::get('', IndexLostPallets::class)->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
     });
-
-
-
 });

@@ -8,9 +8,11 @@
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Fulfilment\Pallet\UI\CreatePallet;
 use App\Actions\Fulfilment\Pallet\UI\EditPallet;
+use App\Actions\Fulfilment\Pallet\UI\IndexDamagedPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexLostPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
@@ -21,12 +23,33 @@ use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RecurringBill\UI\ShowRecurringBill;
 use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
+use Illuminate\Support\Facades\Route;
 
 Route::get('', ShowFulfilment::class)->name('dashboard');
 
+Route::prefix('pallets')->as('pallets.')->group(function () {
 
-Route::get('/pallets', IndexPallets::class)->name('pallets.index');
-Route::get('/returned-pallets', IndexPallets::class)->name('returned_pallets.index');
+    Route::prefix('current')->as('current.')->group(function () {
+        Route::get('', IndexPallets::class)->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inFulfilment'])->name('show');
+        Route::get('{pallet}/edit', [EditPallet::class, 'inFulfilment'])->name('edit');
+    });
+
+    Route::prefix('returned')->as('returned.')->group(function () {
+        Route::get('', [IndexReturnedPallets::class,'inFulfillment'])->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inFulfilment'])->name('show');
+    });
+
+    Route::prefix('damaged')->as('damaged.')->group(function () {
+        Route::get('', [IndexDamagedPallets::class,'inFulfilment'])->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inFulfilment'])->name('show');
+    });
+
+    Route::prefix('lost')->as('lost.')->group(function () {
+        Route::get('', [IndexLostPallets::class,'inFulfilment'])->name('index');
+        Route::get('{pallet}', [ShowPallet::class, 'inFulfilment'])->name('show');
+    });
+});
 
 Route::get('/stored-item-audits', IndexStoredItemAudits::class)->name('stored-item-audits.index');
 Route::get('/stored-item-audits/create', [CreateStoredItemAudit::class, 'inFulfilment'])->name('stored-item-audits.create');

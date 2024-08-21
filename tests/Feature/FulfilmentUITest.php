@@ -429,7 +429,7 @@ test('UI edit fulfilment customer', function () {
 // Pallets
 
 test('UI Index pallets', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.operations.pallets.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallets.current.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -450,7 +450,7 @@ test('UI Index pallets', function () {
 });
 
 test('UI show pallet', function () {
-    $response = get(route('grp.org.fulfilments.show.operations.pallets.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.current.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Pallet')
@@ -486,7 +486,7 @@ test('UI show pallet (Stored Items Tab)', function () {
 });
 
 test('UI edit pallet', function () {
-    $response = get(route('grp.org.fulfilments.show.operations.pallets.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.current.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')

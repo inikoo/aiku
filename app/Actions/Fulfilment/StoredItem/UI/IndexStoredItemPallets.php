@@ -249,7 +249,7 @@ class IndexStoredItemPallets extends OrgAction
                 ]
             ),
 
-            'grp.org.fulfilments.show.operations.pallets.index' =>
+            'grp.org.fulfilments.show.operations.pallets.current.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [
@@ -257,7 +257,7 @@ class IndexStoredItemPallets extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
                                 'parameters' => [
                                     'organisation' => $routeParameters['organisation'],
                                     'fulfilment'   => $routeParameters['fulfilment'],
