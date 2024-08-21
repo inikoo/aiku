@@ -33,11 +33,10 @@ class StoreShopifyUser extends OrgAction
 
         $customer->shopifyUser()->create($modelData);
 
-        $customer->platforms()->attach([
-            Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first() => [
-                'group_id'        => $customer->group_id,
-                'organisation_id' => $customer->organisation_id
-            ]
+        $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), [
+            'group_id'        => $customer->group_id,
+            'organisation_id' => $customer->organisation_id,
+            'shop_id'         => $customer->shop_id
         ]);
     }
 

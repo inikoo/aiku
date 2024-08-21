@@ -43,6 +43,7 @@ class ShowDropshipping extends RetinaAction
                     'title' => __('Dropshipping'),
                     'icon'  => 'fal fa-parachute-box'
                 ],
+                'shopify_url' => '.' . config('shopify-app.myshopify_domain'),
                 'createRoute' => [
                     'name'       => 'retina.dropshipping.shopify_user.store',
                     'parameters' => [],
