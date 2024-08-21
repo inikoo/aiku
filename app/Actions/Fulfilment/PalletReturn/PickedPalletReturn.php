@@ -36,25 +36,25 @@ class PickedPalletReturn extends OrgAction
     {
         $modelData[PalletReturnStateEnum::PICKED->value.'_at']   = now();
         $modelData['state']                                      = PalletReturnStateEnum::PICKED;
-    
+
         $palletReturn = $this->update($palletReturn, $modelData);
-        
+
         if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             foreach ($palletReturn->pallets as $pallet) {
                 $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
                 SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
             }
         }
-    
+
         GroupHydratePalletReturns::dispatch($palletReturn->group);
         OrganisationHydratePalletReturns::dispatch($palletReturn->organisation);
         WarehouseHydratePalletReturns::dispatch($palletReturn->warehouse);
         FulfilmentCustomerHydratePalletReturns::dispatch($palletReturn->fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
-    
+
         SendPalletReturnNotification::run($palletReturn);
         PalletReturnRecordSearch::dispatch($palletReturn);
-        
+
         return $palletReturn;
     }
 

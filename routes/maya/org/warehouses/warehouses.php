@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 03 Jan 2024 15:20:36 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 21 Aug 2024 15:53:33 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -20,12 +20,36 @@ use App\Actions\Fulfilment\UniversalScan\IndexUniversalScan;
 use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
+use App\Actions\Inventory\Warehouse\UI\EditWarehouse;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexWarehouses::class)->name('index');
-Route::get('areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('areas.index');
+
+Route::prefix('{warehouse}')
+    ->group(function () {
+        Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
+        Route::name('show')
+            ->group(function () {
+
+
+                Route::prefix('inventory')->name('.inventory.')
+                    ->group(__DIR__."/inventory.php");
+
+                Route::prefix('incoming')->name('.incoming.')
+                    ->group(__DIR__."/incoming.php");
+
+                Route::prefix('dispatching')->name('.dispatching.')
+                    ->group(__DIR__."/dispatching.php");
+
+                Route::name('.infrastructure.')
+                    ->group(__DIR__."/infrastructure.php");
+
+
+            });
+    });
+
 
 //Route::prefix("{warehouse:id}")->name("warehouses.")
 //    ->group(function () {

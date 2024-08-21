@@ -32,34 +32,33 @@ class StoreStoredItemsToReturn extends OrgAction
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $storedItemModels = Arr::get($modelData, 'stored_items');
-    
+
         if (blank($storedItemModels)) {
             PalletReturnItem::where('pallet_return_id', $palletReturn->id)->delete();
             return $palletReturn;
         }
-    
+
         PalletReturnItem::where('pallet_return_id', $palletReturn->id)
             ->whereNotIn('stored_item_id', array_keys($storedItemModels))->delete();
-    
+
         $storedItems = $palletReturn->fulfilmentCustomer->storedItems()
             ->whereIn('stored_items.id', array_keys($storedItemModels))
             ->get();
-    
+
         foreach ($storedItems as $storedItem) {
             $pallets           = $storedItem->pallets;
             $requiredQuantity  = Arr::get($storedItemModels, $storedItem->id)['quantity'];
-    
+
             foreach ($pallets as $pallet) {
                 $palletStoredItemQty = $pallet->storedItems
                     ->where('pivot.stored_item_id', $storedItem->id)
                     ->sum('pivot.quantity');
-    
+
                 if ($palletStoredItemQty > 0) {
                     $this->attach($palletReturn, $pallet, $storedItem, $requiredQuantity);
                 }
 
-                if ($palletStoredItemQty >= $requiredQuantity)
-                {
+                if ($palletStoredItemQty >= $requiredQuantity) {
                     PalletReturnItem::where('pallet_return_id', $palletReturn->id)
                         ->where('stored_item_id', $storedItem->id)
                         ->whereNot('pallet_id', $pallet->id)->delete();
@@ -67,11 +66,11 @@ class StoreStoredItemsToReturn extends OrgAction
                 }
             }
         }
-    
+
         $palletReturn->refresh();
-    
+
         PalletReturnHydratePallets::run($palletReturn);
-    
+
         return $palletReturn;
     }
 
@@ -82,7 +81,7 @@ class StoreStoredItemsToReturn extends OrgAction
             ->wherePivot('stored_item_id', $storedItem->id)
             ->wherePivot('pallet_id', $pallet->id)
             ->first();
-    
+
         if ($existingPivot) {
             $existingPivot->pivot->update(['quantity_ordered' => $quantityToUse]);
         } else {
