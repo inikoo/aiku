@@ -14,6 +14,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\Platform;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -52,7 +53,7 @@ class StoreShopifyUser extends OrgAction
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'ends_with:.' . config('shopify-app.myshopify_domain')]
+            'name' => ['required', 'string', 'max:255', 'ends_with:.' . config('shopify-app.myshopify_domain'), Rule::unique('shopify_users', 'name')]
         ];
     }
 
