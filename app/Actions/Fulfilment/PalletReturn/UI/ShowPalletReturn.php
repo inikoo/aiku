@@ -744,7 +744,7 @@ class ShowPalletReturn extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.fulfilment.pallet-returns.show' => array_merge(
+            'grp.org.warehouses.show.dispatching.pallet-returns.show' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse'])
                 ),
@@ -752,11 +752,11 @@ class ShowPalletReturn extends OrgAction
                     $palletReturn,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.index',
+                            'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                            'name'       => 'grp.org.warehouses.show.dispatching.pallet-returns.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletReturn'])
                         ]
                     ],

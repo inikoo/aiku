@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:44:12 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 21 Aug 2024 12:57:59 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Dispatch;
+namespace App\Actions\UI\Incoming;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
@@ -17,7 +17,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowDispatchHub extends OrgAction
+class ShowIncomingHub extends OrgAction
 {
     use AsAction;
     use WithInertia;
@@ -29,7 +29,7 @@ class ShowDispatchHub extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("dispatching.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("incoming.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation): Organisation
@@ -38,27 +38,22 @@ class ShowDispatchHub extends OrgAction
     }
 
 
-
-
     public function htmlResponse(Organisation|Shop $scope, ActionRequest $request): Response
     {
-
-
-
         return Inertia::render(
-            'Org/Dispatching/DispatchHub',
+            'Org/Incoming/IncomingHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'       => 'dispatch',
+                'title'       => 'incoming',
                 'pageHead'    => [
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-conveyor-belt-alt'],
-                        'title' => __('locations')
+                    'icon'  => [
+                        'icon'  => ['fal', 'fa-arrow-to-bottom'],
+                        'title' => __('incoming')
                     ],
-                    'title'     => __('Dispatching backlog'),
-                            ],
+                    'title' => __('Goods in backlog'),
+                ],
 
 
             ]
@@ -74,10 +69,10 @@ class ShowDispatchHub extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.warehouses.show.dispatching.backlog',
+                            'name'       => 'grp.org.warehouses.show.incoming.backlog',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('Dispatching'),
+                        'label' => __('Goods in'),
                     ]
                 ]
             ]

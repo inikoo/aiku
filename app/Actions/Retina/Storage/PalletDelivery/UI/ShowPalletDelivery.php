@@ -483,7 +483,7 @@ class ShowPalletDelivery extends RetinaAction
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.show' => array_merge(
+            'grp.org.warehouses.show.incoming.pallet_deliveries.show' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse'])
                 ),
@@ -491,11 +491,11 @@ class ShowPalletDelivery extends RetinaAction
                     $palletDelivery,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                            'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
+                            'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'palletDelivery'])
                         ]
                     ],

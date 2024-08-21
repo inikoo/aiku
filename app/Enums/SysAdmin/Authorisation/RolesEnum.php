@@ -44,6 +44,9 @@ enum RolesEnum: string
     case DISPATCH_SUPERVISOR = 'dispatch-supervisor';
 
 
+    case GOODS_IN_CLERK      = 'goods-in-clerk';
+    case GOODS_IN_SUPERVISOR = 'goods-in-supervisor';
+
     case ACCOUNTING_CLERK      = 'accounting-clerk';
     case ACCOUNTING_SUPERVISOR = 'accounting-supervisor';
 
@@ -140,6 +143,8 @@ enum RolesEnum: string
             RolesEnum::MANUFACTURING_LINE_MANAGER      => __('Manufacturing line manager'),
             RolesEnum::MANUFACTURING_OPERATOR          => __('Manufacturing operator'),
             RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER => __('Manufacturing product developer'),
+            RolesEnum::GOODS_IN_SUPERVISOR             => __('Goods in supervisor'),
+            RolesEnum::GOODS_IN_CLERK                  => __('Goods in clerk'),
         };
     }
 
@@ -185,17 +190,32 @@ enum RolesEnum: string
 
             RolesEnum::PROCUREMENT_CLERK => [
                 OrganisationPermissionsEnum::PROCUREMENT,
-                OrganisationPermissionsEnum::INVENTORY
+                OrganisationPermissionsEnum::INVENTORY,
+                WarehousePermissionsEnum::INCOMING,
             ],
             RolesEnum::DISPATCH_CLERK => [
+                WarehousePermissionsEnum::LOCATIONS_VIEW,
                 WarehousePermissionsEnum::DISPATCHING,
                 OrganisationPermissionsEnum::INVENTORY_VIEW
             ],
             RolesEnum::DISPATCH_SUPERVISOR => [
+                WarehousePermissionsEnum::LOCATIONS_VIEW,
                 WarehousePermissionsEnum::DISPATCHING,
                 WarehousePermissionsEnum::SUPERVISOR_DISPATCHING,
                 OrganisationPermissionsEnum::INVENTORY_VIEW
             ],
+            RolesEnum::GOODS_IN_CLERK => [
+                WarehousePermissionsEnum::LOCATIONS_VIEW,
+                WarehousePermissionsEnum::INCOMING,
+                OrganisationPermissionsEnum::INVENTORY_VIEW
+            ],
+            RolesEnum::GOODS_IN_SUPERVISOR => [
+                WarehousePermissionsEnum::LOCATIONS_VIEW,
+                WarehousePermissionsEnum::INCOMING,
+                WarehousePermissionsEnum::SUPERVISOR_INCOMING,
+                OrganisationPermissionsEnum::INVENTORY_VIEW
+            ],
+
             RolesEnum::HUMAN_RESOURCES_CLERK => [
                 OrganisationPermissionsEnum::HUMAN_RESOURCES
             ],
@@ -212,7 +232,8 @@ enum RolesEnum: string
             ],
             RolesEnum::PROCUREMENT_SUPERVISOR => [
                 OrganisationPermissionsEnum::PROCUREMENT,
-                OrganisationPermissionsEnum::SUPERVISOR_PROCUREMENT
+                OrganisationPermissionsEnum::SUPERVISOR_PROCUREMENT,
+                WarehousePermissionsEnum::INCOMING,
             ],
             RolesEnum::SHOP_ADMIN => [
                 ShopPermissionsEnum::SHOP_ADMIN,
@@ -249,14 +270,16 @@ enum RolesEnum: string
                 WarehousePermissionsEnum::LOCATIONS,
                 WarehousePermissionsEnum::STOCKS,
                 WarehousePermissionsEnum::DISPATCHING,
+                WarehousePermissionsEnum::INCOMING,
                 WarehousePermissionsEnum::SUPERVISOR_LOCATIONS,
                 WarehousePermissionsEnum::SUPERVISOR_STOCKS,
                 WarehousePermissionsEnum::SUPERVISOR_DISPATCHING,
+                WarehousePermissionsEnum::SUPERVISOR_INCOMING
 
             ],
             RolesEnum::STOCK_CONTROLLER => [
                 WarehousePermissionsEnum::STOCKS,
-                WarehousePermissionsEnum::DISPATCHING,
+                WarehousePermissionsEnum::LOCATIONS_VIEW,
             ],
             RolesEnum::SEO_SUPERVISOR => [
                 OrganisationPermissionsEnum::SEO,
@@ -399,6 +422,8 @@ enum RolesEnum: string
             RolesEnum::WAREHOUSE_ADMIN,
             RolesEnum::DISPATCH_CLERK,
             RolesEnum::DISPATCH_SUPERVISOR,
+            RolesEnum::GOODS_IN_CLERK,
+            RolesEnum::GOODS_IN_SUPERVISOR,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
 
             RolesEnum::MANUFACTURING_ADMIN,

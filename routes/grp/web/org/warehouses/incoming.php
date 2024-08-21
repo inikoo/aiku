@@ -7,12 +7,19 @@
 
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
+use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
+use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
+use App\Actions\UI\Incoming\ShowIncomingHub;
+use App\Stubs\UIDummies\IndexDummies;
+use App\Stubs\UIDummies\ShowDummy;
 use App\Stubs\UIDummies\ShowDummyDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowDummyDashboard::class)->name('backlog');
+Route::get('/', ShowIncomingHub::class)->name('backlog');
+
+Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inWarehouse'])->name('stock_deliveries.index');
+Route::get('stock-deliveries/{palletDelivery}', [ShowStockDelivery::class, 'inWarehouse'])->name('stock_deliveries.show');
 
 
-
-Route::get('fulfilment-deliveries', [IndexPalletDeliveries::class, 'inWarehouse'])->name('pallet-deliveries.index');
-Route::get('fulfilment-deliveries/{palletDelivery}', [ShowPalletDelivery::class, 'inWarehouse'])->name('pallet-deliveries.show');
+Route::get('fulfilment-deliveries', [IndexPalletDeliveries::class, 'inWarehouse'])->name('pallet_deliveries.index');
+Route::get('fulfilment-deliveries/{palletDelivery}', [ShowPalletDelivery::class, 'inWarehouse'])->name('pallet_deliveries.show');

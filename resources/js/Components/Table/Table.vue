@@ -149,6 +149,7 @@ const props = defineProps(
 
 const emits = defineEmits<{
     (e: 'onSelectRow', value: {[key: string]: boolean}): void
+    (e: 'onCheked', value: {[key: string]: boolean}, checked : {[key: string]: boolean}): void
 }>()
 
 const app = getCurrentInstance();
@@ -625,8 +626,14 @@ const onClickSelectAll = (state: boolean) => {
     }
 }
 
+const onSelectCheckbox = (item : Any) => {
+    emits('onSelectRow', item , !selectRow[item[props.checkboxKey]])
+    selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+   
+}
+
 watch(selectRow, () => {
-    emits('onSelectRow', selectRow)
+    emits('onCheked', selectRow)
 }, {deep: true})
 
 defineExpose({
@@ -855,11 +862,11 @@ defineExpose({
                                                 <div v-if="selectRow[item[checkboxKey]]"
                                                     class="absolute inset-0 bg-lime-500/10 -z-10" />
                                                 <FontAwesomeIcon v-if="selectRow[item[checkboxKey]] === true"
-                                                    @click="selectRow[item[checkboxKey]] = !selectRow[item[checkboxKey]]"
+                                                    @click="onSelectCheckbox(item)"
                                                     icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                                 <FontAwesomeIcon v-else
-                                                    @click="selectRow[item[checkboxKey]] = !selectRow[item[checkboxKey]]"
+                                                    @click="onSelectCheckbox(item)"
                                                     icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
                                                     aria-hidden='true' />
                                             </td>

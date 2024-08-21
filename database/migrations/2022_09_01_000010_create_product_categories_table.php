@@ -34,10 +34,12 @@ return new class () extends Migration {
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
-            $table->timestampstz();
             $table->dateTimeTz('activated_at')->nullable();
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->timestampstz();
             $table = $this->softDeletes($table);
             $table->string('source_department_id')->nullable()->unique();
             $table->string('source_family_id')->nullable()->unique();
