@@ -9,6 +9,7 @@
  *
 */
 
+use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\SysAdmin\User\UI\CreateUser;
 use App\Actions\SysAdmin\User\UI\EditUser;
 use App\Actions\SysAdmin\User\UI\IndexUsers;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowDropshipping::class)->name('dashboard');
 Route::get('/products', IndexProducts::class)->name('products.index');
+
+Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');
 // Route::get('/users/create', CreateUser::class)->name('web-users.create');

@@ -11,6 +11,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\Platform;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,18 +32,18 @@ class StoreShopifyUser extends OrgAction
         data_set($modelData, 'password', Str::random(8));
 
         $customer->shopifyUser()->create($modelData);
-        // $shopifyUser->api()->getRestClient()->request('GET', '/admin/products', []);
-        /*$webUser->customer->platforms()->attach([
+
+        $customer->platforms()->attach([
             Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first() => [
-                'group_id' => $webUser->group_id,
-                'organisation_id' => $webUser->organisation_id
+                'group_id'        => $customer->group_id,
+                'organisation_id' => $customer->organisation_id
             ]
-        ]);*/
+        ]);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->asAction || $request->user() instanceof WebUser) {
             return true;
         }
 
@@ -51,17 +53,18 @@ class StoreShopifyUser extends OrgAction
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'ends_with:.myshopify.com']
+            'name' => ['required', 'string', 'max:255', 'ends_with:.' . config('shopify-app.myshopify_domain')]
         ];
     }
 
-    public function prepareForValidation(\Lorisleiva\Actions\ActionRequest $request): void
+    public function prepareForValidation(ActionRequest $request): void
     {
-        $this->set('name', 'aikuu.myshopify.com');
+        $this->set('name', $request->input('name').'.'.config('shopify-app.myshopify_domain'));
     }
 
-    public function asController(Customer $customer, ActionRequest $request)
+    public function asController(ActionRequest $request)
     {
+        $customer = $request->user()->customer;
         $this->initialisationFromShop($customer->shop, $request);
 
         $this->handle($customer, $this->validatedData);
