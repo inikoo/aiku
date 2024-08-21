@@ -1,33 +1,31 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
-import Tabs from "@/Components/Navigation/Tabs.vue"
-
-import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
-import type { Component } from 'vue'
+import { ref } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { routeType } from '@/types/route'
 
-// import FileShowcase from '@/xxxxxxxxxxxx'
 import { trans } from 'laravel-vue-i18n'
 import Modal from '@/Components/Utils/Modal.vue'
 import PureInputWithAddOn from '@/Components/Pure/PureInputWithAddOn.vue'
 
-import { faGlobe } from '@fal'
+import { faGlobe, faExternalLinkAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faGlobe)
+library.add(faGlobe, faExternalLinkAlt)
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-    connectRoute: routeType
+    connectRoute: {
+        url: string
+    }
     createRoute: routeType
+    shopify_url: string
 
 }>()
 
@@ -66,20 +64,20 @@ const onCreateStore = () => {
                     <img src="https://cdn-icons-png.flaticon.com/256/5968/5968919.png" alt="" class="h-12">
                     <div class="flex flex-col">
                         <div class="font-semibold">Shopify</div>
-                        <div class="text-xs text-gray-500">(Manage product)</div>
+                        <div class="text-xs text-gray-500">({{ trans("Manage product") }})</div>
                     </div>
                 </div>
                 
                 <!-- Button: Connect -->
                 <div class="relative w-full">
                     <Transition name="spin-to-down">
-                        <div v-if="connectRoute?.name" class="w-full flex justify-end">
-                            <Link as="a" target="_blank"
-                                href="http://pupil.aiku.test/authenticate?shop=aikuu"
+                        <div v-if="connectRoute?.url" class="w-full flex justify-end">
+                            <a target="_blank"
+                                :href="connectRoute?.url"
                                 class="w-full"
                             >
-                                <Button label="Connect" type="tertiary" full />
-                            </Link>
+                                <Button label="Connect" type="tertiary" full iconRight="fal fa-external-link-alt" />
+                            </a>
                         </div>
                     
                         <!-- Button: Create -->
@@ -113,7 +111,7 @@ const onCreateStore = () => {
                     icon: 'fal fa-globe'
                 }" 
                 :rightAddOn="{
-                    label: '.shopify.com'
+                    label: shopify_url
                 }"
             />
 
