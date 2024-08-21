@@ -627,8 +627,9 @@ const onClickSelectAll = (state: boolean) => {
 }
 
 const onSelectCheckbox = (item : Any) => {
-    selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
     emits('onSelectRow', item , !selectRow[item[props.checkboxKey]])
+    selectRow[item[props.checkboxKey]] = !selectRow[item[props.checkboxKey]]
+   
 }
 
 watch(selectRow, () => {
