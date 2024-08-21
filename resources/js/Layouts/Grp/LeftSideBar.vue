@@ -85,7 +85,9 @@ const onLogoutAuth = () => {
             <div class="flex justify-center">
                 <Popover class="relative w-full " v-slot="{ open }">
                     <PopoverButton class="flex w-full focus:outline-none focus:ring-0 focus:border-none px-2">
-                        <NavigationSimple :nav="logoutData" />
+                        <div class="w-full rounded-md" :class="[open ? 'bg-black/25' : '']">
+                            <NavigationSimple :nav="logoutData" />
+                        </div>
                         <!-- <Button icon="far fa-door-open" label="Logout" type="tertiary">
                             <div class="text-gray-100">
                                 <FontAwesomeIcon icon="far fa-door-open" fixed-width aria-hidden='true' size="lg" />
