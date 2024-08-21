@@ -11,6 +11,8 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from "@/types/route"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import PureTextarea from "@/Components/Pure/PureTextarea.vue"
+import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 
 const props = defineProps<{
     data?: { data: any[] };
@@ -154,7 +156,7 @@ onBeforeMount(() => {
         </template>
 
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
-            <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 ">
+            <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-2 relative">
                 <Link v-if="pallet.state === 'picking'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
                     :data="{ state: 'picked' }"
@@ -177,7 +179,8 @@ onBeforeMount(() => {
                     <Button icon="fal fa-undo" label="Undo picking" type="tertiary" size="xs" :loading="isUndoLoading === pallet.id" class="py-0" />
                 </Link>
 
-                <Popover v-if="pallet.state === 'picking'">
+                <div class="relative">
+                <Popover v-if="pallet.state === 'picking'" >
                     <template #button="{ open }">
                         <Button icon="fal fa-times"
                             v-tooltip="trans('Set as not picked')"
@@ -215,6 +218,7 @@ onBeforeMount(() => {
                         </div>
                     </template>
                 </Popover>
+            </div>
             </div>
         </template>
 

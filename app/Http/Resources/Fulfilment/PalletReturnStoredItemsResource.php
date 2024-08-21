@@ -48,7 +48,27 @@ class PalletReturnStoredItemsResource extends JsonResource
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
             'quantity'                             => (int) $palletReturnItemQuery?->quantity_ordered ?: intval($this->pallets->sum('pivot.quantity')),
             'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),
-            'is_checked'                           => (bool) $palletReturnItemQuery
+            'is_checked'                           => (bool) $palletReturnItemQuery,
+
+            'updateRoute'           => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.pallet-return-item.update',
+                    'parameters' => $palletReturnItemQuery?->id
+                ],
+                default => [
+                    'name'       => 'grp.models.pallet-return-item.update',
+                    'parameters' => $palletReturnItemQuery?->id
+                ]
+            },
+            'undoPickingRoute' => [
+                'name'       => 'grp.models.pallet-return-item.undo-picking',
+                'parameters' => [$palletReturnItemQuery?->id]
+            ],
+            'notPickedRoute' => [
+                'method'     => 'patch',
+                'name'       => 'grp.models.pallet-return-item.not-picked',
+                'parameters' => [$palletReturnItemQuery?->id]
+            ],
         ];
     }
 }

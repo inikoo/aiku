@@ -30,18 +30,38 @@ class NotPickedPalletFromReturn extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem, $modelData): PalletReturnItem
     {
-        $palletReturnItem = $this->update($palletReturnItem, [
-            'state' => PalletReturnItemStateEnum::NOT_PICKED
-        ], ['data']);
-
-        UpdatePallet::run($palletReturnItem->pallet, [
-            'state'              => Arr::get($modelData, 'state'),
-            'status'             => PalletStatusEnum::INCIDENT,
-            'set_as_incident_at' => now(),
-            'incident_report'    => [
-                'notes' => Arr::get($modelData, 'notes')
-            ]
-        ]);
+        if($palletReturnItem->type == 'Pallet')
+        {
+            $palletReturnItem = $this->update($palletReturnItem, [
+                'state' => PalletReturnItemStateEnum::NOT_PICKED
+            ], ['data']);
+    
+            UpdatePallet::run($palletReturnItem->pallet, [
+                'state'              => Arr::get($modelData, 'state'),
+                'status'             => PalletStatusEnum::INCIDENT,
+                'set_as_incident_at' => now(),
+                'incident_report'    => [
+                    'notes' => Arr::get($modelData, 'notes')
+                ]
+            ]);
+        } else {
+            $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
+            foreach ($storedItems as $storedItem)
+            {
+                $palletReturnItem = $this->update($storedItem, [
+                    'state' => PalletReturnItemStateEnum::NOT_PICKED
+                ], ['data']);
+        
+                UpdatePallet::run($storedItem->pallet, [
+                    'state'              => Arr::get($modelData, 'state'),
+                    'status'             => PalletStatusEnum::INCIDENT,
+                    'set_as_incident_at' => now(),
+                    'incident_report'    => [
+                        'notes' => Arr::get($modelData, 'notes')
+                    ]
+                ]);
+            }
+        }
 
         UpdatePalletReturnStateFromItems::run($palletReturnItem->palletReturn);
 

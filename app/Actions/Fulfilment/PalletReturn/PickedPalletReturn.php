@@ -44,6 +44,11 @@ class PickedPalletReturn extends OrgAction
                 $palletReturnItem = PalletReturnItem::find($pallet->pivot->id);
                 SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
             }
+        } else {
+            foreach($palletReturn->storedItems as $storedItem) {
+                $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
+                SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
+            }
         }
 
         GroupHydratePalletReturns::dispatch($palletReturn->group);

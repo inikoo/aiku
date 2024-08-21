@@ -29,11 +29,24 @@ class UndoPickingPalletFromReturn extends OrgAction
     {
         $modelData['state']       = PalletReturnItemStateEnum::PICKING;
 
-        UpdatePallet::run($palletReturnItem->pallet, [
-            'state' => PalletStateEnum::PICKING
-        ]);
+        if($palletReturnItem->type == 'Pallet')
+        {
+            UpdatePallet::run($palletReturnItem->pallet, [
+                'state' => PalletStateEnum::PICKING
+            ]);
+    
+            $palletReturnItem = $this->update($palletReturnItem, $modelData, ['data']);
+        } else {
+            $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
+            foreach ($storedItems as $storedItem)
+            {
+                UpdatePallet::run($storedItem->pallet, [
+                    'state' => PalletStateEnum::PICKING
+                ]);
 
-        $palletReturnItem = $this->update($palletReturnItem, $modelData, ['data']);
+                $palletReturnItem = $this->update($storedItem, $modelData, ['data']);
+            }
+        }
 
         UpdatePalletReturnStateFromItems::run($palletReturnItem->palletReturn);
 

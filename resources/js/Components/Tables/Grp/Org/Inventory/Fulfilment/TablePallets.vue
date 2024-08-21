@@ -193,11 +193,11 @@ const onUpdateStatus=(routes,data)=>{
     <template #cell(actions)="{ item }">
       <div class="flex gap-x-1 gap-y-1.5">
         <!-- Action: Move Pallet -->
-        <Popover v-if="item.status === 'storing' && isMovePallet" width="w-full" class="relative">
+        <Popover v-if="item.status === 'storing' && isMovePallet"  class="relative">
           <template #button>
             <Button
               @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = { [item.reference]: item.location_id })"
-              type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index"
+              type="secondary" tooltip="Move pallet to another location" label="Move" :key="item.index"
               :size="'xs'" />
           </template>
           <template #content="{ close }">

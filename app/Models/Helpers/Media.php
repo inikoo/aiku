@@ -7,6 +7,7 @@
 
 namespace App\Models\Helpers;
 
+use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Traits\IsMedia;
 use Illuminate\Database\Query\Builder;
@@ -70,4 +71,12 @@ class Media extends BaseMedia
         return (new Image())->make($this->getImgProxyFilename(), $this->is_animated);
     }
 
+    public function getBase64Image(): string
+    {
+        $path   = GetImgProxyUrl::run($this->getImage());
+        $type   = pathinfo($path, PATHINFO_EXTENSION);
+        $data   = file_get_contents($path);
+
+        return base64_encode($data);
+    }
 }

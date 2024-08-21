@@ -27,6 +27,7 @@ class StoreProductToShopify extends OrgAction
      */
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
+        $client   = $shopifyUser->api()->getRestClient();
         $products = $shopifyUser
             ->customer
             ->shop
@@ -39,13 +40,19 @@ class StoreProductToShopify extends OrgAction
         foreach ($products->chunk(2) as $productChunk) {
 
             $variants = [];
+            $images   = [];
             foreach ($productChunk as $product) {
 
                 foreach ($product->productVariants as $variant) {
                     $variants[] = [
-                        "product_id" => $variant->id,
-                        "title"      => $variant->name,
-                        "price"      => $variant->price
+                        "option1"      => $variant->name . rand(0, 3),
+                        "price"        => $variant->price
+                    ];
+                }
+
+                foreach ($product->images as $image) {
+                    $images[] = [
+                        "attachment" => $image->getBase64Image()
                     ];
                 }
 
@@ -56,12 +63,18 @@ class StoreProductToShopify extends OrgAction
                         "body_html"    => $product->description,
                         "vendor"       => $product->shop->name,
                         "product_type" => $product->family->name,
+                        "images"       => $images,
                         "variants"     => $variants
                     ]
                 ];
 
+                $response =  $client->request('POST', '/admin/api/2024-04/products.json', $body);
+
+                if($response['status'] == 422) {
+                    abort($response['status'], $response['body']['base'][0]);
+                }
+
                 $shopifyUser->products()->attach([$product->id]);
-                $shopifyUser->api()->getRestClient()->request('POST', '/admin/api/2024-04/products.json', $body);
 
                 $uploaded++;
 
