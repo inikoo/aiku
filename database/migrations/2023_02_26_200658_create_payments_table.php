@@ -43,7 +43,9 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index()->comment('Most relevant date at current state');
             $table->dateTimeTz('completed_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
-            $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->timestampstz();
             $table->softDeletesTz();
             $table->boolean('with_refund')->default(false);
             $table->string('source_id')->index()->nullable();

@@ -22,6 +22,10 @@ enum WarehousePermissionsEnum: string
     case STOCKS_VIEW = 'stocks.view';
 
 
+    case INCOMING      = 'incoming';
+    case INCOMING_EDIT = 'incoming.edit';
+    case INCOMING_VIEW = 'incoming.view';
+
     case DISPATCHING      = 'dispatching';
     case DISPATCHING_EDIT = 'dispatching.edit';
     case DISPATCHING_VIEW = 'dispatching.view';
@@ -34,18 +38,17 @@ enum WarehousePermissionsEnum: string
     case FULFILMENT_EDIT = 'fulfilment.edit';
 
 
-
-    case SUPERVISOR_LOCATIONS         = 'supervisor-locations';
-    case SUPERVISOR_STOCKS            = 'supervisor-stocks';
-    case SUPERVISOR_DISPATCHING       = 'supervisor-dispatching';
-    case SUPERVISOR_FULFILMENT        = 'supervisor-fulfilment';
+    case SUPERVISOR_LOCATIONS   = 'supervisor-locations';
+    case SUPERVISOR_STOCKS      = 'supervisor-stocks';
+    case SUPERVISOR_DISPATCHING = 'supervisor-dispatching';
+    case SUPERVISOR_INCOMING    = 'supervisor-incoming';
+    case SUPERVISOR_FULFILMENT  = 'supervisor-fulfilment';
 
     public static function getAllValues(Warehouse $warehouse): array
     {
-
         $rawPermissionsNames = array_column(WarehousePermissionsEnum::cases(), 'value');
 
-        $permissionsNames    = [];
+        $permissionsNames = [];
         foreach ($rawPermissionsNames as $rawPermissionsName) {
             $permissionsNames[] = self::getPermissionName($rawPermissionsName, $warehouse);
         }

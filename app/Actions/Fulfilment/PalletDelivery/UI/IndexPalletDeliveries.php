@@ -340,13 +340,13 @@ class IndexPalletDeliveries extends OrgAction
                     ]
                 )
             ),
-            'grp.org.warehouses.show.fulfilment.pallet-deliveries.index' => array_merge(
+            'grp.org.warehouses.show.incoming.pallet_deliveries.index' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index',
+                        'name'       => 'grp.org.warehouses.show.incoming.pallet_deliveries.index',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                     ]
                 )
