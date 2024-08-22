@@ -24,17 +24,17 @@ const props = defineProps<{
 
 // function palletRoute(pallet: Pallet) {
 //     switch (route().current()) {
-//         case 'grp.org.fulfilments.show.operations.pallets.index':
+//         case 'grp.org.fulfilments.show.operations.pallets.current.index':
 //             return route(
-//                 'grp.org.fulfilments.show.operations.pallets.show',
+//                 'grp.org.fulfilments.show.operations.pallets.current.show',
 //                 [
 //                     route().params['organisation'],
 //                     route().params['fulfilment'],
 //                     pallet['slug']
 //                 ])
-//         case 'grp.org.warehouses.show.fulfilment.pallets.index':
+//         case 'grp.org.warehouses.show.inventory.pallets.current.index':
 //             return route(
-//                 'grp.org.warehouses.show.fulfilment.pallets.show',
+//                 'grp.org.warehouses.show.inventory.pallets.current.show',
 //                 [
 //                     route().params['organisation'],
 //                     route().params['warehouse'],

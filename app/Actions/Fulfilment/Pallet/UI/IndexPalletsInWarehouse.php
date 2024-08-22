@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
@@ -29,30 +28,13 @@ use App\Services\QueryBuilder;
 class IndexPalletsInWarehouse extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
-    use WithPalletsInWarehouseSubNavigation;
+    use WithPalletsSubNavigation;
 
     private bool $selectStoredPallets = false;
 
     private Warehouse|Location $parent;
 
-    protected function getElementGroups(Warehouse|Location $parent): array
-    {
-        return [
-            'status' => [
-                'label'    => __('Status'),
-                'elements' => array_merge_recursive(
-                    PalletStatusEnum::labels($parent),
-                    PalletStatusEnum::count($parent)
-                ),
 
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('pallets.status', $elements);
-                }
-            ],
-
-
-        ];
-    }
 
     public function handle(Warehouse|Location $parent, $prefix = null): LengthAwarePaginator
     {
@@ -82,16 +64,7 @@ class IndexPalletsInWarehouse extends OrgAction
         $query->whereIn('pallets.status', ['receiving', 'storing', 'returning']);
 
 
-        if ($parent instanceof Warehouse) {
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $query->whereElementGroup(
-                    key: $key,
-                    allowedElements: array_keys($elementGroup['elements']),
-                    engine: $elementGroup['engine'],
-                    prefix: $prefix
-                );
-            }
-        }
+
 
 
         $query->defaultSort('pallets.id')
@@ -134,15 +107,7 @@ class IndexPalletsInWarehouse extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if ($parent instanceof Warehouse) {
-                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
-            }
+
 
             $table->withGlobalSearch();
 
@@ -235,7 +200,7 @@ class IndexPalletsInWarehouse extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                            'name'       => 'grp.org.warehouses.show.inventory.pallets.current.index',
                             'parameters' => [
                                 'organisation' => $routeParameters['organisation'],
                                 'warehouse'    => $routeParameters['warehouse'],

@@ -119,16 +119,7 @@ class GetFulfilmentNavigation
                             ],
                         ],
 
-                        [
-                            'label'   => __('pallets'),
-                            'tooltip' => __('Pallets'),
-                            'icon'    => ['fal', 'fa-pallet'],
-                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                            ],
-                        ],
+
 
                         [
                             'label'   => __('deliveries'),

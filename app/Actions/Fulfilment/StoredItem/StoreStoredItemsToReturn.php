@@ -46,25 +46,29 @@ class StoreStoredItemsToReturn extends OrgAction
             ->get();
 
         foreach ($storedItems as $storedItem) {
-            $pallets           = $storedItem->pallets;
-            $requiredQuantity  = Arr::get($storedItemModels, $storedItem->id)['quantity'];
+            $pallets = $storedItem->pallets;
+            $requiredQuantity = Arr::get($storedItemModels, $storedItem->id)['quantity'];
+            $allocatedQuantity = 0;
+            $existingPalletReturnItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+            ->where('stored_item_id', $storedItem->id)
+            ->exists();
+            
+            if ($existingPalletReturnItems) {
+                $this->deleteItems($palletReturn, $storedItem, $allocatedQuantity);
+            }
 
             foreach ($pallets as $pallet) {
                 $palletStoredItemQty = $pallet->storedItems
                     ->where('pivot.stored_item_id', $storedItem->id)
-                    ->sum('pivot.quantity');
+                    ->first()->pivot->quantity ?? 0;
 
-                if ($palletStoredItemQty > 0) {
-                    $this->attach($palletReturn, $pallet, $storedItem, $requiredQuantity);
-                }
-
-                if ($palletStoredItemQty >= $requiredQuantity) {
-                    PalletReturnItem::where('pallet_return_id', $palletReturn->id)
-                        ->where('stored_item_id', $storedItem->id)
-                        ->whereNot('pallet_id', $pallet->id)->delete();
-                    break;
+                if ($allocatedQuantity < $requiredQuantity) {
+                    $quantityToUse = min($palletStoredItemQty, $requiredQuantity - $allocatedQuantity);
+                    $this->attach($palletReturn, $pallet, $storedItem, $quantityToUse);
+                    $allocatedQuantity += $quantityToUse;
                 }
             }
+
         }
 
         $palletReturn->refresh();
@@ -76,15 +80,6 @@ class StoreStoredItemsToReturn extends OrgAction
 
     public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
     {
-        $existingPivot = $storedItem->palletReturns()
-            ->wherePivot('pallet_return_id', $palletReturn->id)
-            ->wherePivot('stored_item_id', $storedItem->id)
-            ->wherePivot('pallet_id', $pallet->id)
-            ->first();
-
-        if ($existingPivot) {
-            $existingPivot->pivot->update(['quantity_ordered' => $quantityToUse]);
-        } else {
             $storedItem->palletReturns()->attach($palletReturn->id, [
                 'stored_item_id'       => $storedItem->id,
                 'pallet_id'            => $pallet->id,
@@ -92,6 +87,17 @@ class StoreStoredItemsToReturn extends OrgAction
                 'quantity_ordered'     => $quantityToUse,
                 'type'                 => 'StoredItem'
             ]);
+        
+    }
+
+    protected function deleteItems(PalletReturn $palletReturn, StoredItem $storedItem, $allocatedQuantity): void
+    {
+        $existingPivotItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+            ->where('stored_item_id', $storedItem->id)
+            ->get();
+
+        foreach ($existingPivotItems as $pivotItem) {
+                $pivotItem->delete();
         }
     }
 

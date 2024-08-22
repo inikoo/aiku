@@ -7,11 +7,14 @@
 
 namespace App\Actions\Fulfilment\Pallet\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
@@ -26,17 +29,17 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexReturnedPalletsInWarehouse extends OrgAction
+class IndexLostPallets extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
-    use WithPalletsInWarehouseSubNavigation;
+    use WithPalletsSubNavigation;
 
     private bool $selectStoredPallets = false;
 
-    private Warehouse|Location $parent;
+    private Warehouse|Location|Fulfilment $parent;
 
 
-    public function handle(Warehouse|Location $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Warehouse|Location|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -53,6 +56,9 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
         $query = QueryBuilder::for(Pallet::class);
 
         switch (class_basename($parent)) {
+            case "Fulfillment":
+                $query->where('fulfilment_id', $parent->id);
+                break;
             case "Location":
                 $query->where('location_id', $parent->id);
                 break;
@@ -61,7 +67,8 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
                 break;
         }
 
-        $query->where('pallets.status', PalletStatusEnum::RETURNED);
+        $query->where('pallets.status', PalletStatusEnum::INCIDENT);
+        $query->where('pallets.state', PalletStateEnum::LOST);
 
         $query->defaultSort('pallets.id')
             ->select(
@@ -98,7 +105,7 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Warehouse|Location $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Warehouse|Location|Fulfilment $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
@@ -153,7 +160,7 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'         => __('Returned pallets'),
+                    'title'         => __('Lost pallets'),
                     'icon'          => ['fal', 'fa-pallet'],
                     'subNavigation' => $this->getPalletsInWarehouseSubNavigation($this->parent, $request)
 
@@ -171,6 +178,15 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
         return $this->handle($warehouse, 'pallets');
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
+    }
+
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inLocation(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): LengthAwarePaginator
@@ -184,7 +200,28 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.warehouses.show.fulfilment.returned_pallets.index', 'grp.org.warehouses.show.fulfilment.returned_pallets.show' =>
+            'grp.org.fulfilments.show.operations.pallets.lost.index'=>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.lost.index',
+                                'parameters' => [
+                                    'organisation' => $routeParameters['organisation'],
+                                    'fulfilment'   => $routeParameters['fulfilment'],
+                                ]
+                            ],
+                            'label' => __('Lost pallets'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            ),
+            'grp.org.warehouses.show.inventory.pallets.lost.index', 'grp.org.warehouses.show.inventory.pallets.returned.show' =>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 [
@@ -192,13 +229,13 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'name'       => 'grp.org.warehouses.show.inventory.pallets.current.index',
                                 'parameters' => [
                                     'organisation' => $routeParameters['organisation'],
                                     'warehouse'    => $routeParameters['warehouse'],
                                 ]
                             ],
-                            'label' => __('Returned pallets'),
+                            'label' => __('Lost pallets'),
                             'icon'  => 'fal fa-bars',
                         ],
 

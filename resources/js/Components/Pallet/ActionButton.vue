@@ -53,7 +53,7 @@ const errorMessage = ref('')
  
 // Method: set pallet status as 'damaged' or 'lost'
 const setPalletStatus = (routes: routeType, close: Function) => {
-    const routeToVisit = palletStatus.value === 'damaged' ? route('grp.org.warehouses.show.fulfilment.damaged_pallets.index', layout.currentParams) : route('grp.org.warehouses.show.fulfilment.lost_pallets.index', layout.currentParams)
+    const routeToVisit = palletStatus.value === 'damaged' ? route('grp.org.warehouses.show.inventory.pallets.damaged.index', layout.currentParams) : route('grp.org.warehouses.show.inventory.pallets.lost.index', layout.currentParams)
     form.patch(route(
         routes.name,
         routes.parameters

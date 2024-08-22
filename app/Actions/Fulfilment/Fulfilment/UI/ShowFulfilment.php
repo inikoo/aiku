@@ -109,18 +109,20 @@ class ShowFulfilment extends OrgAction
                         'name'  => __('Pallets'),
                         'icon'  => ['fal', 'fa-pallet'],
                         'href'  => [
-                            'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing
+                            'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing+
+                                $this->organisation->fulfilmentStats->number_pallets_status_receiving      +
+                                $this->organisation->fulfilmentStats->number_pallets_status_returning
                         ],
                     ],
                     [
                         'name'  => __('Stored Items'),
                         'icon'  => ['fal', 'fa-narwhal'],
                         'href'  => [
-                            'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                            'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [

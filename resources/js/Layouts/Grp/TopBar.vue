@@ -62,7 +62,7 @@ import {
   faSign,
   faClipboardListCheck,
   faClipboardList,
-  faPiggyBank,faTruckContainer
+  faPiggyBank,faTruckContainer,faNarwhal
 } from "@fal";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -75,7 +75,7 @@ import ScreenWarning from "@/Components/Utils/ScreenWarning.vue";
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
   faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows, faStream,
   faConciergeBell, faGarage, faHamsa, faCodeMerge, faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse, faHandHoldingBox,
-  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck,faClipboardList,faPiggyBank,faTruckContainer
+  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck,faClipboardList,faPiggyBank,faTruckContainer,faNarwhal
 );
 
 defineProps<{

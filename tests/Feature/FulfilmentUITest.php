@@ -429,7 +429,7 @@ test('UI edit fulfilment customer', function () {
 // Pallets
 
 test('UI Index pallets', function () {
-    $response = $this->get(route('grp.org.fulfilments.show.operations.pallets.index', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallets.current.index', [$this->organisation->slug, $this->fulfilment->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -450,7 +450,7 @@ test('UI Index pallets', function () {
 });
 
 test('UI show pallet', function () {
-    $response = get(route('grp.org.fulfilments.show.operations.pallets.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.current.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Pallet')
@@ -486,7 +486,7 @@ test('UI show pallet (Stored Items Tab)', function () {
 });
 
 test('UI edit pallet', function () {
-    $response = get(route('grp.org.fulfilments.show.operations.pallets.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.current.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -504,7 +504,7 @@ test('UI edit pallet', function () {
 });
 
 test('UI Index damaged pallets in warehouse', function () {
-    $response = $this->get(route('grp.org.warehouses.show.fulfilment.damaged_pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+    $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.damaged.index', [$this->organisation->slug, $this->warehouse->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -524,7 +524,7 @@ test('UI Index damaged pallets in warehouse', function () {
 });
 
 test('UI Index returned pallets in warehouse', function () {
-    $response = $this->get(route('grp.org.warehouses.show.fulfilment.returned_pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+    $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.returned.index', [$this->organisation->slug, $this->warehouse->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -544,7 +544,7 @@ test('UI Index returned pallets in warehouse', function () {
 });
 
 test('UI Index pallets in warehouse', function () {
-    $response = $this->get(route('grp.org.warehouses.show.fulfilment.pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+    $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.current.index', [$this->organisation->slug, $this->warehouse->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -564,7 +564,7 @@ test('UI Index pallets in warehouse', function () {
 });
 
 test('UI Index lost pallets in warehouse', function () {
-    $response = $this->get(route('grp.org.warehouses.show.fulfilment.lost_pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+    $response = $this->get(route('grp.org.warehouses.show.inventory.pallets.lost.index', [$this->organisation->slug, $this->warehouse->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
