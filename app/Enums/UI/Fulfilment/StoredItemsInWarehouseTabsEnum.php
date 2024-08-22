@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 23 Jul 2024 00:55:19 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 22 Aug 2024 10:25:01 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -10,7 +10,7 @@ namespace App\Enums\UI\Fulfilment;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum FulfilmentCustomerStoredItemsTabsEnum: string
+enum StoredItemsInWarehouseTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -29,9 +29,8 @@ enum FulfilmentCustomerStoredItemsTabsEnum: string
             ],
 
             StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS => [
-                'align' => 'right',
-                'type'  => 'icon',
-                'title' => __('Pallet Stored Items'),
+
+                'title' => __('Pallet/Stored items'),
                 'icon'  => 'fal fa-pallet',
             ],
 

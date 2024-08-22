@@ -91,7 +91,7 @@ class GetWarehouseNavigation
                                 "icon"    => ["fal", "fa-narwhal"],
                                 "root"    => "grp.org.warehouses.show.inventory.pallets.",
                                 "route"   => [
-                                    "name"       => "grp.org.warehouses.show.inventory.pallets.current.index",
+                                    "name"       => "grp.org.warehouses.show.inventory.stored_items.current.index",
                                     "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
                                 ],
                             ] : null,

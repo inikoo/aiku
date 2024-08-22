@@ -1,21 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 May 2023 21:14:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 22 Aug 2024 09:44:13 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemsInWarehouseTabsEnum;
 use App\Http\Resources\Fulfilment\ReturnStoredItemsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,11 +27,15 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexStoredItems extends OrgAction
+class IndexStoredItemsInWarehouse extends OrgAction
 {
+    use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    public function handle(Organisation|FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+
+    private Warehouse $parent;
+
+    public function handle(Warehouse $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -43,18 +47,14 @@ class IndexStoredItems extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(StoredItem::class)
-            ->defaultSort('slug')
-            ->when($parent, function ($query) use ($parent) {
-                if($parent instanceof FulfilmentCustomer) {
-                    $query->where('fulfilment_customer_id', $parent->id);
-                }
+        $query = QueryBuilder::for(StoredItem::class);
+        $query->leftJoin('pallet_stored_items', 'pallet_stored_items.stored_item_id', 'stored_items.id');
+        $query->leftJoin('pallets', 'pallet_stored_items.pallet_id', 'pallets.id');
+        $query->where('pallets.warehouse_id', $parent->id);
 
-                if($parent instanceof Fulfilment) {
-                    $query->where('fulfilment_id', $parent->id);
-                }
-            })
-            ->allowedSorts(['slug', 'state'])
+        return QueryBuilder::for(StoredItem::class)
+            ->defaultSort('reference')
+            ->allowedSorts(['slug', 'state', 'reference'])
             ->allowedFilters([$globalSearch, 'slug', 'state'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -63,7 +63,6 @@ class IndexStoredItems extends OrgAction
     public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
-
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -76,9 +75,9 @@ class IndexStoredItems extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'FulfilmentCustomer' => [
-                            'title'         => __("No stored items found"),
-                            'count'         => $parent->count(),
-                            'description'   => __("No items stored in this customer")
+                            'title'       => __("No stored items found"),
+                            'count'       => $parent->count(),
+                            'description' => __("No items stored in this customer")
                         ],
                         default => []
                     }
@@ -92,17 +91,6 @@ class IndexStoredItems extends OrgAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
-    }
-
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
     {
@@ -112,32 +100,21 @@ class IndexStoredItems extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
-        // dd($this->parent);
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-narwhal'];
-        $title     =__('stored items');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon       = ['fal', 'fa-narwhal'];
+        $title      = __('stored items');
+        $afterTitle = null;
+        $iconRight  = null;
 
-        if($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
-                'icon' => 'fal fa-narwhal',
-            ];
-            $afterTitle= [
 
-                'label'     => __('stored items')
-            ];
-        }
+
         return Inertia::render(
             'Org/Fulfilment/StoredItems',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('stored items'),
-                'pageHead'    => [
+                'breadcrumbs'                                              => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'                                                    => __('stored items'),
+                'pageHead'                                                 => [
                     'title'         => $title,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
@@ -153,13 +130,13 @@ class IndexStoredItems extends OrgAction
                         ]
                     ],
                 ],
-                'tabs'                                              => [
+                'tabs'                                                     => [
                     'current'    => $this->tab,
                     'navigation' => StoredItemsInWarehouseTabsEnum::navigation(),
                 ],
                 StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value => $this->tab == StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value ?
-                fn () => StoredItemResource::collection($storedItems)
-                : Inertia::lazy(fn () => StoredItemResource::collection($storedItems)),
+                    fn () => StoredItemResource::collection($storedItems)
+                    : Inertia::lazy(fn () => StoredItemResource::collection($storedItems)),
 
                 StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value => $this->tab == StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value ?
                     fn () => ReturnStoredItemsResource::collection(IndexPalletStoredItems::run($this->parent))
@@ -167,45 +144,39 @@ class IndexStoredItems extends OrgAction
 
             ]
         )->table($this->tableStructure($storedItems, prefix: StoredItemsInWarehouseTabsEnum::STORED_ITEMS->value))
-        ->table(
-            IndexPalletStoredItems::make()->tableStructure(
-                $this->parent,
-                prefix: StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value
-            )
-        );
+            ->table(
+                IndexPalletStoredItems::make()->tableStructure(
+                    $this->parent,
+                    prefix: StoredItemsInWarehouseTabsEnum::PALLET_STORED_ITEMS->value
+                )
+            );
     }
 
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-        return $this->handle($fulfilmentCustomer, 'stored_items');
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
+
+        return $this->handle($warehouse);
     }
 
-
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(StoredItemsInWarehouseTabsEnum::values());
-
-        return $this->handle($fulfilmentCustomer, 'stored_items');
-    }
-
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            ShowFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                            'parameters' => request()->route()->originalParameters()
+                            'name'       => 'grp.org.warehouses.show.inventory.stored_items.current.index',
+                            'parameters' => [
+                                'organisation' => $routeParameters['organisation'],
+                                'warehouse'    => $routeParameters['warehouse'],
+                            ]
                         ],
-                        'label' => __('stored items'),
+                        'label' => __('Stored items'),
                         'icon'  => 'fal fa-bars',
                     ],
 
@@ -213,4 +184,6 @@ class IndexStoredItems extends OrgAction
             ]
         );
     }
+
+
 }

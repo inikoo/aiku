@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexLostPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInWarehouse;
 use App\Actions\Goods\Stock\UI\CreateStock;
 use App\Actions\Goods\Stock\UI\EditStock;
 use App\Actions\Goods\Stock\UI\ShowStock;
@@ -136,4 +137,12 @@ Route::prefix('pallets')->as('pallets.')->group(function () {
         Route::get('', IndexLostPallets::class)->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
     });
+});
+
+Route::prefix('stored-items')->as('stored_items.')->group(function () {
+
+    Route::prefix('current')->as('current.')->group(function () {
+        Route::get('', IndexStoredItemsInWarehouse::class)->name('index');
+    });
+
 });
