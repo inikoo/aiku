@@ -44,10 +44,15 @@ class StoreProductToShopify extends OrgAction
             foreach ($productChunk as $product) {
 
                 foreach ($product->productVariants as $variant) {
-                    $variants[] = [
-                        "option1"      => $variant->name . rand(0, 3),
-                        "price"        => $variant->price
-                    ];
+                    $existingOptions = Arr::pluck($variants, 'option1');
+
+                    if(!in_array($variant->name, $existingOptions)) {
+                        $variants[] = [
+                            "option1"      => $variant->name,
+                            "price"        => $variant->price,
+                            "barcode"      => $variant->slug
+                        ];
+                    }
                 }
 
                 foreach ($product->images as $image) {
@@ -62,16 +67,20 @@ class StoreProductToShopify extends OrgAction
                         "title"        => $product->name,
                         "body_html"    => $product->description,
                         "vendor"       => $product->shop->name,
-                        "product_type" => $product->family->name,
+                        "product_type" => $product->family?->name,
                         "images"       => $images,
-                        "variants"     => $variants
+                        "variants"     => $variants,
+                        "options"      => [
+                            "name"   => "Options",
+                            "values" => Arr::pluck($variants, "option1")
+                        ]
                     ]
                 ];
 
                 $response =  $client->request('POST', '/admin/api/2024-04/products.json', $body);
 
                 if($response['status'] == 422) {
-                    abort($response['status'], $response['body']['base'][0]);
+                    abort($response['status'], $response['body']);
                 }
 
                 $shopifyUser->products()->attach([$product->id]);

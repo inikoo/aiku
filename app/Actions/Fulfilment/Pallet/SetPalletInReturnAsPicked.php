@@ -35,13 +35,11 @@ class SetPalletInReturnAsPicked extends OrgAction
         data_set($modelData, 'picking_location_id', $palletReturnItem->pallet->location_id);
         data_set($modelData, 'state', PalletReturnItemStateEnum::PICKED);
 
-        if ($palletReturnItem->type == 'Pallet')
-        {
+        if ($palletReturnItem->type == 'Pallet') {
             $this->update($palletReturnItem, $modelData);
         } else {
             $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
-            foreach ($storedItems as $storedItem)
-            {
+            foreach ($storedItems as $storedItem) {
                 $this->update($storedItem, $modelData);
             }
         }
@@ -50,8 +48,7 @@ class SetPalletInReturnAsPicked extends OrgAction
         data_set($modelData, 'state', PalletStateEnum::PICKED);
         data_set($modelData, 'status', PalletStatusEnum::RETURNING);
 
-        if($palletReturnItem->type == 'Pallet')
-        {
+        if($palletReturnItem->type == 'Pallet') {
             $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
         } else {
             $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();
