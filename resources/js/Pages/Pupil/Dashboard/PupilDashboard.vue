@@ -22,6 +22,8 @@ import { faSearch, faThLarge, faListUl, faStar as falStar } from '@fal'
 import { faStar } from '@fas'
 import Select from 'primevue/select'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import Image from '@/Components/Image.vue'
+import { notify } from '@kyvg/vue3-notification'
 library.add(faSearch, faThLarge, faListUl, faStar, falStar)
 
 const props = defineProps<{
@@ -100,7 +102,6 @@ const isSelected = (id: number) => {
     return selectedProducts.value.some(item => item.id === id);
 }
 const onSubmitProduct = () => {
-    isLoadingSubmit.value = true
     router.post(
         route(props.routes.store_product.name, props.routes.store_product.parameters),
         {
@@ -110,10 +111,30 @@ const onSubmitProduct = () => {
             headers: {
                 Authorization: `Bearer ${props.token_request}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            onStart: () => {
+                isLoadingSubmit.value = true
+            },
+            onSuccess: () => {
+                notify({
+                    title: trans('Success'),
+                    text: trans('Successfully add') + selectedProducts.value.length + trans('products'),
+                    type: 'success',
+                })
+                selectedProducts.value = []
+            },
+            onError: () => {
+                notify({
+                    title: trans('Failed'),
+                    text: trans('Something went wrong. Try again.'),
+                    type: 'error',
+                })
+            },
+            onFinish: () => {
+                isLoadingSubmit.value = false
             }
         }
     )
-    isLoadingSubmit.value = false
 }
 
 
@@ -228,8 +249,12 @@ const onSortChange = (event) => {
 
                 <Column header="Image">
                     <template #body="slotProps">
-                        <img :src="`https://primefaces.org/cdn/primevue/images/product/bracelet.jpg`"
-                            :alt="slotProps.data.image" class="rounded" style="width: 64px" />
+                        <!-- <pre>{{ slotProps.data.image_thumbnail }}</pre> -->
+                        <div class="rounded overflow-hidden w-16 h-16">
+                            <Image :src="slotProps.data.image_thumbnail" />
+                        </div>
+                        <!-- <img :src="`http://10.0.0.100:8080/YQRETa_oz-CyT7iEpGMHeDV0hOf4LzZo1db_2zcuhDo/rs::720:480::/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvODM5LzQ4NGMxZWRjNTUzN2NkZDcxYjI0NjdmNWJhMGEzOWM1LmpwZWc`"
+                            :alt="slotProps.data.image" class="rounded" style="width: 64px" /> -->
                     </template>
                 </Column>
 
@@ -254,14 +279,14 @@ const onSortChange = (event) => {
                     </template>
                 </Column>
                 
-                <Column :exportable="false" style="min-width: 12rem">
+                <!-- <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <div class="flex gap-x-1">
                             <Button type="edit" class="mr-2" @click="editProduct(slotProps.data)" />
                             <Button type="delete" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
                         </div>
                     </template>
-                </Column>
+                </Column> -->
             </DataTable>
 
             <!-- View: Grid -->
