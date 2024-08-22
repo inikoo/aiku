@@ -32,7 +32,7 @@ class StoreShopifyUser extends OrgAction
         data_set($modelData, 'username', Str::random(4));
         data_set($modelData, 'password', Str::random(8));
 
-        $customer->shopifyUser()->create($modelData);
+        $shopifyUser = $customer->shopifyUser()->create($modelData);
 
         $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), [
             'group_id'        => $customer->group_id,
