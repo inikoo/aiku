@@ -14,9 +14,29 @@ import Layout from '@/Layouts/Grp.vue'
 import { capitalize } from '@/Composables/capitalize.ts'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
+import { definePreset } from '@primevue/themes';
 
 const appName = capitalize(window.document.getElementsByTagName('title')[0]?.innerText) ||
     'Aiku';
+
+const MyPreset = definePreset(Aura, {
+  semantic: {
+      primary: {
+          50: '{gray.50}',
+          100: '{gray.100}',
+          200: '{gray.200}',
+          300: '{gray.300}',
+          400: '{gray.400}',
+          500: '{gray.500}',
+          600: '{gray.600}',
+          700: '{gray.700}',
+          800: '{gray.800}',
+          900: '{gray.900}',
+          950: '{gray.950}'
+      }
+  }
+});
+
 
 createInertiaApp(
     {
@@ -47,9 +67,10 @@ createInertiaApp(
             .use(createPinia())
             .use(ZiggyVue, Ziggy)
             .use(Notifications)
-            .use(FloatingVue).use(PrimeVue, {
+            .use(FloatingVue)
+            .use(PrimeVue, {
               theme: {
-                preset: Aura,
+                preset: MyPreset,
                 options: {
                   darkModeSelector: '.my-app-dark',  // dark mode of Primevue depends .my-add-dark in <html>
                 }

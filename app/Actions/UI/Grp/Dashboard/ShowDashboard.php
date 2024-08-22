@@ -28,9 +28,143 @@ class ShowDashboard
             'sales'         => JsonResource::make($group->salesStats),
             'currency'      => $group->currency,
             'total'         => [
-                'total_invoices' => $group->salesStats->number_invoices_type_invoice,
-                'total_refunds'  => $group->salesStats->number_invoices_type_refund,
-                'total_sales'    => $group->salesIntervals->group_amount_all
+                'ytd' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_ytd ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_ytd ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_ytd ?? 0;
+                    }),
+                ],
+                'qtd' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_qtd ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_qtd ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_qtd ?? 0;
+                    }),
+                ],
+                'mtd' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_mtd ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_mtd ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_mtd ?? 0;
+                    }),
+                ],
+                'wtd' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_wtd ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_wtd ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_wtd ?? 0;
+                    }),
+                ],
+                'lm' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_lm ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_lm ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_lm ?? 0;
+                    }),
+                ],
+                'lw' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_lw ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_lw ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_lw ?? 0;
+                    }),
+                ],
+                'yda' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_yda ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_yda ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_yda ?? 0;
+                    }),
+                ],
+                'tdy' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_tdy ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_tdy ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_tdy ?? 0;
+                    }),
+                ],
+                '1y' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_1y ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_1y ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_1y ?? 0;
+                    }),
+                ],
+                '1q' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_1q ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_1q ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_1q ?? 0;
+                    }),
+                ],
+                '1m' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_1m ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_1m ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_1m ?? 0;
+                    }),
+                ],
+                '1w' => [
+                    'total_invoices' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->invoices_1w ?? 0;
+                    }),
+                    'total_refunds' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->refunds_1w ?? 0;
+                    }),
+                    'total_sales' => $group->organisations->sum(function ($organisation) {
+                        return $organisation->salesIntervals->org_amount_1w ?? 0;
+                    }),
+                ],
+                'all' => [
+                    'total_invoices' => $group->salesStats->number_invoices_type_invoice,
+                    'total_refunds'  => $group->salesStats->number_invoices_type_refund,
+                    'total_sales'    => $group->salesIntervals->group_amount_all
+                ]
             ],
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
                 // Initialize the response data
@@ -40,13 +174,14 @@ class ShowDashboard
                     'type'      => $organisation->type,
                     'currency'  => $organisation->currency,
                     'sales'     => $organisation->salesIntervals,
-                    'invoices'  => [
-                        'number_invoices' => $organisation->salesStats->number_invoices_type_invoice ?? null
-                    ],
-                    'refunds' => [
-                        'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
-                    ],
+                    // 'invoices'  => [
+                    //     'number_invoices' => $organisation->salesStats->number_invoices_type_invoice ?? null
+                    // ],
+                    // 'refunds' => [
+                    //     'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
+                    // ],
                 ];
+
                 if ($organisation->salesIntervals !== null) {
                     $responseData['interval_percentages'] = [
                             'sales' => [

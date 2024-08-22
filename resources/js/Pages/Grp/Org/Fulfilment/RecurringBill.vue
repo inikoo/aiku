@@ -21,6 +21,7 @@ import { routeType } from '@/types/route'
 // import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 // import type { Timeline } from '@/types/Timeline'
 import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { BoxStats } from '@/types/Pallet'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -43,7 +44,7 @@ const props = defineProps<{
         start_date: string
         end_date: string
     }
-    box_stats: {}
+    box_stats: BoxStats
     consolidateRoute: routeType
 
 
@@ -71,8 +72,6 @@ const isLoading = ref(false)
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-
-    <!-- <pre>{{ props.box_stats }}</pre> -->
 
     <!-- Section: Timeline -->
     <!-- <div class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
@@ -117,6 +116,7 @@ const isLoading = ref(false)
                     :startDate="timeline_rb.start_date"
                     :endDate="timeline_rb.end_date"
                     :updateRoute
+                    :isEndDateNotEditable="status_rb === 'former'"
                 />
             </div>
 

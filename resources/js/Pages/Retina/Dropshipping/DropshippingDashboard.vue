@@ -23,7 +23,7 @@ const props = defineProps<{
     tabs: TSTabs
     connectRoute: {
         url: string
-    }
+    } | null
     createRoute: routeType
     shopify_url: string
 
@@ -41,7 +41,10 @@ const onCreateStore = () => {
         },
         {
             onStart: () => isLoading.value = true,
-            onFinish: () => isLoading.value = false
+            onFinish: () => {
+                isLoading.value = false
+                isModalOpen.value = false
+            }
         }
     )
 }
@@ -76,7 +79,7 @@ const onCreateStore = () => {
                                 :href="connectRoute?.url"
                                 class="w-full"
                             >
-                                <Button label="Connect" type="tertiary" full iconRight="fal fa-external-link-alt" />
+                                <Button label="Open" type="tertiary" full iconRight="fal fa-external-link-alt" />
                             </a>
                         </div>
                     
@@ -113,6 +116,7 @@ const onCreateStore = () => {
                 :rightAddOn="{
                     label: shopify_url
                 }"
+                @keydown.enter="() => onCreateStore()"
             />
 
             <Button @click="() => onCreateStore()" full label="Create" :loading="!!isLoading" class="mt-6" />

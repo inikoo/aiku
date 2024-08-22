@@ -191,11 +191,14 @@ class IndexOrgStocks extends OrgAction
                 'org_stocks.slug',
                 'org_stocks.unit_value',
                 'number_locations',
-                'quantity_in_locations'
+                'quantity_in_locations',
+                'org_stock_families.slug as family_slug',
+                'org_stock_families.code as family_code',
             ])
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
+            ->leftJoin('org_stock_families', 'org_stocks.org_stock_family_id', 'org_stock_families.id')
             ->allowedSorts(['code', 'family_code', 'unit_value'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix)
             ->withQueryString();
     }
