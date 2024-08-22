@@ -13,6 +13,8 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
+use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
@@ -28,4 +30,5 @@ Route::post('profile', UpdateProfile::class)->name('profile.update');
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 
 
-
+Route::patch('pallet-delivery/{palletDelivery:id}/received', ReceivedPalletDelivery::class)->name('pallet-delivery.received');
+Route::patch('pallet-delivery/{palletDelivery:id}/start-booking', StartBookingPalletDelivery::class)->name('pallet-delivery.start_booking');

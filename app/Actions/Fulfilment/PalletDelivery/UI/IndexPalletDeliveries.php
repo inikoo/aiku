@@ -144,7 +144,7 @@ class IndexPalletDeliveries extends OrgAction
         return $queryBuilder
             ->defaultSort('reference')
             ->allowedSorts(['reference'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -232,7 +232,7 @@ class IndexPalletDeliveries extends OrgAction
         $subNavigation=[];
 
         $icon      =['fal', 'fa-truck-couch'];
-        $title     =__('deliveries');
+        $title     =__('fulfilment deliveries');
         $afterTitle=null;
         $iconRight =null;
 

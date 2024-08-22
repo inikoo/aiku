@@ -1,5 +1,3 @@
-
-
 <?php
 /*
  * Author: Vika Aqordi <aqordivika@yahoo.co.id>
