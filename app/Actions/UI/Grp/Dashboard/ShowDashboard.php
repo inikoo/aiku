@@ -174,12 +174,12 @@ class ShowDashboard
                     'type'      => $organisation->type,
                     'currency'  => $organisation->currency,
                     'sales'     => $organisation->salesIntervals,
-                    'invoices'  => [
-                        'number_invoices' => $organisation->salesStats->number_invoices_type_invoice ?? null
-                    ],
-                    'refunds' => [
-                        'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
-                    ],
+                    // 'invoices'  => [
+                    //     'number_invoices' => $organisation->salesStats->number_invoices_type_invoice ?? null
+                    // ],
+                    // 'refunds' => [
+                    //     'number_refunds' => $organisation->salesStats->number_invoices_type_refund ?? null
+                    // ],
                 ];
 
                 if ($organisation->salesIntervals !== null) {

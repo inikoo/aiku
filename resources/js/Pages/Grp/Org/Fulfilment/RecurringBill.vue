@@ -21,6 +21,7 @@ import { routeType } from '@/types/route'
 // import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 // import type { Timeline } from '@/types/Timeline'
 import { useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { BoxStats } from '@/types/Pallet'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -43,7 +44,7 @@ const props = defineProps<{
         start_date: string
         end_date: string
     }
-    box_stats: {}
+    box_stats: BoxStats
     consolidateRoute: routeType
 
 

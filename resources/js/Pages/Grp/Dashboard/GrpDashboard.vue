@@ -35,9 +35,11 @@ const props = defineProps<{
             code: string
         }
         total: {
-            total_invoices: number
-            total_refunds: number
-            total_sales: string
+            [key: string]: {
+                total_invoices: number
+                total_refunds: number
+                total_sales: string
+            }
         }
         organisations: {
             name: string
@@ -91,7 +93,8 @@ const props = defineProps<{
     }[]
 }>()
 
-console.log('asdsadsa', props.groupStats.total)
+console.log('groupStats total: ', props.groupStats.total)
+console.log('groupStats Organisations: ', props.groupStats)
 const layout = inject('layout', layoutStructure)
 const locale = inject('locale', {})
 
@@ -130,12 +133,12 @@ const abcdef = computed(() => {
             name: org.name,
             code: org.code,
             interval_percentages: org.interval_percentages,
-            refunds: org.refunds.number_refunds || 0,
-            refunds_diff: 0,
-            invoices: org.invoices.number_invoices || 0,
-            invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
-            sales: org.sales?.org_amount_all || 0,
-            sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
+            // refunds: org.refunds.number_refunds || 0,
+            // refunds_diff: 0,
+            // invoices: org.invoices.number_invoices || 0,
+            // invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
+            sales: org.sales || 0,
+            // sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
         }
     })
 })
@@ -178,25 +181,27 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
+                <!-- Refunds -->
                 <Column field="refunds" sortable class="overflow-hidden transition-all" header="Refunds" headerStyle="text-align: green; width: 250px" headerClass="bg-red-500">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.refunds">
-                                    {{ locale.number(data.refunds || 0) }}
+                                <div :key="data.sales?.[`refunds_${selectedDateOption}`] || 0">
+                                    {{ locale.number(data.sales?.[`refunds_${selectedDateOption}`] || 0) }}
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
 
+                <!-- Refunds: Diff 1y -->
                 <Column field="refunds_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 130px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <!-- {{ data.interval_percentages?.refunds[selectedDateOption].amount }} -->
                             
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.interval_percentages?.refunds[selectedDateOption].amount">
+                                <div :key="`${data.interval_percentages?.refunds[selectedDateOption].difference}_${data.interval_percentages?.refunds[selectedDateOption].percentage}`">
                                     {{ locale.number(data.interval_percentages?.refunds[selectedDateOption].difference || 0) }} ({{ data.interval_percentages?.refunds[selectedDateOption].percentage || 0 }}%)
                                 </div>
                             </Transition>
@@ -204,12 +209,13 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
-                <Column field="invoices" sortable class="overflow-hidden transition-all" header="Invoices" headerStyle="text-align: right; width: 200px">
+                <!-- Invoice -->
+                <Column field="invoices" sortable class="overflow-hidden transition-all" header="Invoices" headerStyle="text-align: right; width: 200px;">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.invoices">
-                                    {{ locale.number(data.invoices || 0) }}
+                                <div :key="data.sales?.[`invoices_${selectedDateOption}`] || 0">
+                                    {{ locale.number(data.sales?.[`invoices_${selectedDateOption}`] || 0) }}
                                 </div>
                             </Transition>
                         </div>
@@ -217,11 +223,12 @@ const abcdef = computed(() => {
 
                 </Column>
 
+                <!-- Invoice: Diff 1y -->
                 <Column field="invoices_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 200px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.interval_percentages?.invoices[selectedDateOption].amount">
+                                <div :key="`${data.interval_percentages?.invoices[selectedDateOption].difference}_${data.interval_percentages?.invoices[selectedDateOption].percentage}`">
                                     {{ data.interval_percentages?.invoices[selectedDateOption].difference || 0 }}
                                     ({{ data.interval_percentages?.invoices[selectedDateOption].percentage || 0 }}%)
                                 </div>
@@ -230,44 +237,47 @@ const abcdef = computed(() => {
                     </template>
                 </Column>
 
+                <!-- Sales -->
                 <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="text-align: green; width: 250px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.sales">
-                                    {{
-                                        useLocaleStore().currencyFormat(groupStats.currency.code, data.sales)
-                                    }}
+                                <div :key="data.sales?.[`org_amount_${selectedDateOption}`]">
+                                    {{ useLocaleStore().currencyFormat(groupStats.currency.code, data.sales?.[`org_amount_${selectedDateOption}`] || 0) }}
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
 
+                <!-- Sales: Diff 1y -->
                 <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 270px">
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
+                        <!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.interval_percentages?.refunds[selectedDateOption].amount">
-                                    {{ useLocaleStore().currencyFormat( groupStats.currency.code, data.interval_percentages?.refunds[selectedDateOption].difference || 0) }}
-                                    ({{ data.interval_percentages?.refunds[selectedDateOption].percentage || 0 }}%)
+                                <div :key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`">
+                                    {{ useLocaleStore().currencyFormat( groupStats.currency.code, data.interval_percentages?.sales[selectedDateOption].difference || 0) }}
+                                    ({{ data.interval_percentages?.sales[selectedDateOption].percentage || 0 }}%)
+                                    <!-- {{ data.interval_percentages?.sales[selectedDateOption] }} -->
                                 </div>
                             </Transition>
                         </div>
                     </template>
                 </Column>
 
+                <!-- Total -->
                 <ColumnGroup type="footer">
                     <Row>
-                        <Column footer="Total" footerStyle="text-align:right">
-                            Total
-                        </Column>
-                        <Column :footer="groupStats.total.total_refunds" footerStyle="text-align:right" />
-                        <Column footer="-------------" footerStyle="text-align:right" />
-                        <Column :footer="groupStats.total.total_invoices" footerStyle="text-align:right" />
-                        <Column footer="-------------" footerStyle="text-align:right" />
-                        <Column :footer="useLocaleStore().currencyFormat(groupStats.currency.code, Number(groupStats.total.total_sales))" footerStyle="text-align:right" />
-                        <Column footer="-------------" footerStyle="text-align:right" />
+                        <Column footer="Total"> Total </Column>
+                        <Column :footer="groupStats.total[selectedDateOption].total_refunds.toString()" footerStyle="text-align:right" />
+                        <Column footer="" footerStyle="text-align:right" />
+
+                        <Column :footer="groupStats.total[selectedDateOption].total_invoices.toString()" footerStyle="text-align:right" />
+                        <Column footer="" footerStyle="text-align:right" />
+
+                        <Column :footer="useLocaleStore().currencyFormat(groupStats.currency.code, Number(groupStats.total[selectedDateOption].total_sales))" footerStyle="text-align:right" />
+                        <Column footer="" footerStyle="text-align:right" />
                     </Row>
                 </ColumnGroup>
 
@@ -336,5 +346,7 @@ const abcdef = computed(() => {
                 </div> -->
             </div>
         </div>
+
+        <!-- <pre>{{ groupStats }}</pre> -->
     </div>
 </template>
