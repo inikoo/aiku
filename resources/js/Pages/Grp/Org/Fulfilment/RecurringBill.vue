@@ -72,8 +72,6 @@ const isLoading = ref(false)
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
 
-    <!-- <pre>{{ props.box_stats }}</pre> -->
-
     <!-- Section: Timeline -->
     <!-- <div class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
         <Timeline :options="timeline_rb" :slidesPerView="6" />
@@ -117,6 +115,7 @@ const isLoading = ref(false)
                     :startDate="timeline_rb.start_date"
                     :endDate="timeline_rb.end_date"
                     :updateRoute
+                    :isEndDateNotEditable="status_rb === 'former'"
                 />
             </div>
 
