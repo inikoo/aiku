@@ -19,6 +19,7 @@ const props = defineProps<{
     startDate: string
     endDate: string
     updateRoute?: routeType
+    isEndDateNotEditable?: boolean
 }>()
 
 const isEndDateToday = isToday(new Date(props.endDate))
@@ -77,7 +78,11 @@ const onChangeEstimateDate = async (newDate: Date, close: Function) => {
                 <FontAwesomeIcon v-if="isEndDateToday" v-tooltip="isEndDateToday ? 'Today is the end date' : undefined" icon='fal fa-exclamation-triangle' class='text-sm text-red-500' fixed-width aria-hidden='true' />
             </div>
             <div class="font-medium">
-                <Popover position="right-0">
+                <div v-if="isEndDateNotEditable">
+                    <div>{{ useFormatTime(endDate)}}</div>
+                </div>
+                
+                <Popover v-else position="right-0">
                     <template #button>
                         <div class="flex flex-nowrap items-center gap-x-1">
                             <Transition name="spin-to-down">

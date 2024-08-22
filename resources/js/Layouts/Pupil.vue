@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import Notification from '@/Components/Utils/Notification.vue'
 
 </script>
 
@@ -24,7 +25,7 @@
         </main>
     </div>
 
-    <!-- <notifications
+    <notifications
         dangerously-set-inner-html
         :max="3"
         width="500"
@@ -34,7 +35,7 @@
         <template #body="props">
             <Notification :notification="props" />  
         </template>
-</notifications> -->
+    </notifications>
 </template>
 
 <style lang="scss"></style>

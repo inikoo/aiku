@@ -50,7 +50,7 @@ const locale = inject('locale', {})
                 <component :is="node.href?.name ? Link : 'div'" :href="node.href?.name ? route(node.href.name, node.href.parameters) : ''"
                     class="group/node flex flex-col md:flex-row w-full items-start md:items-center justify-between pr-10"
                 >
-                    <div class="flex items-center px-4 text-lg xl:px-6 font-medium gap-x-4" :class="[mode == 'compact' ? 'py-2' : node.sub_data?.length ? 'pt-4 pb-1' : 'py-4']">
+                    <div class="flex items-center px-4 text-lg xl:px-6 font-medium gap-x-4" :class="[mode == 'compact' ? 'py-2' : node.sub_data?.length ? 'pt-4 md:pt-0 ' : 'py-4']">
                         <FontAwesomeIcon v-if="node.icon" :size="mode == 'compact' ? undefined : 'lg'" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" fixed-width />
                         <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover/node:text-gray-700">
                             <span class="hidden lg:inline">{{ node.name }}</span>
@@ -70,12 +70,12 @@ const locale = inject('locale', {})
                     </div>
 
                     <!-- Section: Sub data -->
-                    <div v-if="node.sub_data?.length" class="pb-2 md:pb-0 px-3 md:px-0 text-sm text-gray-500 flex gap-x-3 justify-end items-center flex-wrap">
+                    <div v-if="node.sub_data?.length" class="py-2 px-3 md:px-0 text-sm text-gray-500 flex gap-x-3 gap-y-0.5 justify-end items-center flex-wrap">
                         <Link
                             v-for="subData in node.sub_data"
                             :is="subData.href?.name ? Link : 'div'"
                             :href="subData.href?.name ? route(subData.href.name, subData.href.parameters) : ''"
-                            class="group/sub px-2 py-1 flex gap-x-0.5 items-center font-normal"
+                            class="group/sub px-2 flex gap-x-0.5 items-center font-normal"
                             v-tooltip="capitalize(subData.icon?.tooltip)"
                         >
                             <FontAwesomeIcon :icon="subData.icon?.icon" class="md:opacity-50 group-hover/sub:opacity-100" :class="subData.icon?.class" fixed-width :title="subData.icon?.tooltip" aria-hidden="true" />

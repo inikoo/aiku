@@ -23,7 +23,7 @@ const props = defineProps<{
     tabs: TSTabs
     connectRoute: {
         url: string
-    }
+    } | boolean
     createRoute: routeType
     shopify_url: string
 
@@ -41,7 +41,10 @@ const onCreateStore = () => {
         },
         {
             onStart: () => isLoading.value = true,
-            onFinish: () => isLoading.value = false
+            onFinish: () => {
+                isLoading.value = false
+                isModalOpen.value = false
+            }
         }
     )
 }
@@ -113,6 +116,7 @@ const onCreateStore = () => {
                 :rightAddOn="{
                     label: shopify_url
                 }"
+                @keydown.enter="() => onCreateStore()"
             />
 
             <Button @click="() => onCreateStore()" full label="Create" :loading="!!isLoading" class="mt-6" />
