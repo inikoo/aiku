@@ -7,6 +7,7 @@
 
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStock;
@@ -17,7 +18,7 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
     Route::get('{orgStock:id}', ShowOrgStock::class)->name('show')->withoutScopedBindings();
 });
 
-Route::prefix('pallets')->as('org_stocks.')->group(function () {
-    Route::get('/', IndexPallets::class)->name('index');
+Route::prefix('pallets')->as('pallets.')->group(function () {
+    Route::get('/', IndexPalletsInWarehouse::class)->name('index');
     Route::get('{pallet:id}', ShowPallet::class)->name('show');
 });
