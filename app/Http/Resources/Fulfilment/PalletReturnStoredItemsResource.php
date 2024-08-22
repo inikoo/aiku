@@ -37,37 +37,37 @@ class PalletReturnStoredItemsResource extends JsonResource
     public function toArray($request): array
     {
         $palletReturn          = PalletReturn::where('slug', $request->route()->originalParameters()['palletReturn'])->first();
-        $palletReturnItemQuery = PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->first();
+        $palletReturnItemQuery = PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->get();
 
         return [
             'id'                                   => $this->id,
             'slug'                                 => $this->slug,
             'reference'                            => $this->reference,
-            'state'                                => $palletReturnItemQuery?->state ?: $this->state,
-            'state_icon'                           => $palletReturnItemQuery?->state->stateIcon()[$this->state->value] ?: $this->state->stateIcon()[$this->state->value],
+            'state'                                => $palletReturnItemQuery->first()?->state ?: $this->state,
+            'state_icon'                           => $palletReturnItemQuery->first()?->state->stateIcon()[$this->state->value] ?: $this->state->stateIcon()[$this->state->value],
             'total_quantity'                       => intval($this->pallets->sum('pivot.quantity')),
-            'quantity'                             => (int) $palletReturnItemQuery?->quantity_ordered ?: intval($this->pallets->sum('pivot.quantity')),
+            'quantity'                             => (int) $palletReturnItemQuery?->sum('quantity_ordered') ?: intval($this->pallets->sum('pivot.quantity')),
             'damaged_quantity'                     => intval($this->pallets->sum('pivot.damaged_quantity')),
-            'is_checked'                           => (bool) $palletReturnItemQuery,
+            'is_checked'                           => (bool) $palletReturnItemQuery->first(),
 
             'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return-item.update',
-                    'parameters' => $palletReturnItemQuery?->id
+                    'parameters' => $palletReturnItemQuery->first()?->id
                 ],
                 default => [
                     'name'       => 'grp.models.pallet-return-item.update',
-                    'parameters' => $palletReturnItemQuery?->id
+                    'parameters' => $palletReturnItemQuery->first()?->id
                 ]
             },
             'undoPickingRoute' => [
                 'name'       => 'grp.models.pallet-return-item.undo-picking',
-                'parameters' => [$palletReturnItemQuery?->id]
+                'parameters' => [$palletReturnItemQuery->first()?->id]
             ],
             'notPickedRoute' => [
                 'method'     => 'patch',
                 'name'       => 'grp.models.pallet-return-item.not-picked',
-                'parameters' => [$palletReturnItemQuery?->id]
+                'parameters' => [$palletReturnItemQuery->first()?->id]
             ],
         ];
     }
