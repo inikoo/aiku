@@ -83,7 +83,9 @@ class StoreProductToShopify extends OrgAction
                     abort($response['status'], $response['body']);
                 }
 
-                $shopifyUser->products()->attach([$product->id]);
+                $shopifyUser->products()->attach($product->id, [
+                    'shopify_product_id' => $response['body']['product']['id']
+                ]);
 
                 $uploaded++;
 

@@ -46,13 +46,13 @@ class StoreStoredItemsToReturn extends OrgAction
             ->get();
 
         foreach ($storedItems as $storedItem) {
-            $pallets = $storedItem->pallets;
-            $requiredQuantity = Arr::get($storedItemModels, $storedItem->id)['quantity'];
-            $allocatedQuantity = 0;
+            $pallets                   = $storedItem->pallets;
+            $requiredQuantity          = Arr::get($storedItemModels, $storedItem->id)['quantity'];
+            $allocatedQuantity         = 0;
             $existingPalletReturnItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
             ->where('stored_item_id', $storedItem->id)
             ->exists();
-            
+
             if ($existingPalletReturnItems) {
                 $this->deleteItems($palletReturn, $storedItem, $allocatedQuantity);
             }
@@ -80,14 +80,14 @@ class StoreStoredItemsToReturn extends OrgAction
 
     public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
     {
-            $storedItem->palletReturns()->attach($palletReturn->id, [
-                'stored_item_id'       => $storedItem->id,
-                'pallet_id'            => $pallet->id,
-                'pallet_stored_item_id'=> $pallet->pivot->id,
-                'quantity_ordered'     => $quantityToUse,
-                'type'                 => 'StoredItem'
-            ]);
-        
+        $storedItem->palletReturns()->attach($palletReturn->id, [
+            'stored_item_id'       => $storedItem->id,
+            'pallet_id'            => $pallet->id,
+            'pallet_stored_item_id'=> $pallet->pivot->id,
+            'quantity_ordered'     => $quantityToUse,
+            'type'                 => 'StoredItem'
+        ]);
+
     }
 
     protected function deleteItems(PalletReturn $palletReturn, StoredItem $storedItem, $allocatedQuantity): void
@@ -97,7 +97,7 @@ class StoreStoredItemsToReturn extends OrgAction
             ->get();
 
         foreach ($existingPivotItems as $pivotItem) {
-                $pivotItem->delete();
+            $pivotItem->delete();
         }
     }
 
