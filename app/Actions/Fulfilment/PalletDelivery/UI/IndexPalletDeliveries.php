@@ -144,7 +144,7 @@ class IndexPalletDeliveries extends OrgAction
         return $queryBuilder
             ->defaultSort('reference')
             ->allowedSorts(['reference'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -215,6 +215,9 @@ class IndexPalletDeliveries extends OrgAction
             $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'estimated_delivery_date', label: __('estimated delivery date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+
+
         };
     }
 
@@ -229,7 +232,7 @@ class IndexPalletDeliveries extends OrgAction
         $subNavigation=[];
 
         $icon      =['fal', 'fa-truck-couch'];
-        $title     =__('deliveries');
+        $title     =__('fulfilment deliveries');
         $afterTitle=null;
         $iconRight =null;
 
