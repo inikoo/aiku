@@ -215,6 +215,9 @@ class IndexPalletDeliveries extends OrgAction
             $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'number_pallets', label: __('pallets'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'estimated_delivery_date', label: __('estimated delivery date'), canBeHidden: false, sortable: true, searchable: true);
+            if ($parent instanceof Warehouse) {
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true, className: 'hello');
+            }
         };
     }
 
