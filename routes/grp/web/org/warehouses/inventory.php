@@ -32,9 +32,6 @@ Route::get('/', ShowInventoryDashboard::class)->name('dashboard');
 
 
 Route::prefix('stocks')->as('org_stocks.')->group(function () {
-
-
-
     Route::prefix('all')->as('all_org_stocks.')->group(function () {
         Route::get('/', IndexOrgStocks::class)->name('index');
         Route::get('/export', ExportOrgStocks::class)->name('export');
@@ -84,9 +81,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
             Route::get('edit', [EditOrgStock::class, 'discontinued'])->name('edit');
         });
     });
-
-
-
 });
 
 Route::prefix('families')->as('org_stock_families.')->group(function () {
