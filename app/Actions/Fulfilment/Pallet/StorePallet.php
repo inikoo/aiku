@@ -38,6 +38,7 @@ class StorePallet extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Pallet
     {
+
         if (Arr::get($modelData, 'notes') === null) {
             data_set($modelData, 'notes', '');
         }
@@ -58,7 +59,6 @@ class StorePallet extends OrgAction
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment->id);
-
         /** @var Pallet $pallet */
         $pallet = $fulfilmentCustomer->pallets()->create($modelData);
 
@@ -153,6 +153,7 @@ class StorePallet extends OrgAction
                 'integer',
                 Rule::exists('rentals', 'id')->where('auto_assign_asset', 'Pallet')
             ],
+            'fetched_at'          => ['sometimes', 'date'],
 
         ];
     }

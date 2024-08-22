@@ -13,6 +13,7 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -70,11 +72,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_stored_item_audits
  * @property int $number_stored_item_audits_state_in_process
  * @property int $number_stored_item_audits_state_completed
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
@@ -101,7 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Pallet withoutTrashed()
  * @mixin \Eloquent
  */
-class Pallet extends Model
+class Pallet extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
@@ -109,6 +114,7 @@ class Pallet extends Model
     use HasUniversalSearch;
     use HasRetinaSearch;
     use InFulfilmentCustomer;
+    use HasHistory;
 
     protected $guarded = [];
     protected $casts   = [
@@ -134,6 +140,20 @@ class Pallet extends Model
         'data'            => '{}',
         'incident_report' => '{}',
         'notes'           => '',
+    ];
+
+    public function generateTags(): array
+    {
+        return ['fulfilment', 'inventory'];
+    }
+
+    protected array $auditInclude = [
+        'reference',
+        'customer_reference',
+        'status',
+        'state',
+        'type',
+        'notes',
     ];
 
     public function getRouteKeyName(): string
