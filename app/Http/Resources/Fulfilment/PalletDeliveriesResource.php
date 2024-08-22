@@ -39,8 +39,9 @@ class PalletDeliveriesResource extends JsonResource
             'estimated_delivery_date'    => $this->estimated_delivery_date,
 
             'receiveRoute'               => [
-                'name' => 'grp.models.pallet-delivery.received',
-                'parameters' => $this->id
+                'name'       => 'grp.models.pallet-delivery.received',
+                'parameters' => $this->id,
+                'method'     => 'post'
             ]
         ];
     }

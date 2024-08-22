@@ -19,6 +19,9 @@ import { ref } from 'vue'
 import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
 import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
+import { routeType } from "@/types/route"
+import { notify } from "@kyvg/vue3-notification"
+import { trans } from "laravel-vue-i18n"
 
 library.add(faPlus, faCheckDouble, faShare, faCross)
 
@@ -93,7 +96,7 @@ function customerRoute(palletDelivery: PalletDelivery) {
 
 
 
-const handleClick = (action: Action) => {
+const onClickNewPalletDelivery = (action: Action) => {
     if (action.disabled) openModal.value = true
     else {
         const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
@@ -107,6 +110,26 @@ const handleClick = (action: Action) => {
     }
 };
 
+
+const isLoading = ref<string | boolean>(false)
+const onClickReceived = (receivedRoute: routeType) => {
+    router[receivedRoute.method || 'post'](
+        route(receivedRoute.name, receivedRoute.parameters),
+        {},
+        {
+            onStart: () => isLoading.value = 'received',
+            onError: () => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: trans('Failed to update the Delivery status'),
+                    type: 'error',
+                })
+            },
+            onFinish: () => isLoading.value = false,
+        }
+    )
+}
+
 </script>
 
 <template>
@@ -114,7 +137,7 @@ const handleClick = (action: Action) => {
 
         <template #button-new-pallet-delivery="{ linkButton }">
             <Button :style="linkButton.style" :icon="linkButton.icon" :label="linkButton.label" size="l"
-                :loading="loading" @click="() => handleClick(linkButton)" />
+                :loading="loading" @click="() => onClickNewPalletDelivery(linkButton)" />
         </template>
 
         <!-- Column: Reference -->
@@ -156,6 +179,14 @@ const handleClick = (action: Action) => {
             </div>
         </template>
 
+        <template #cell(actions)="{ item }">
+            <Button
+                v-if="item.state === 'confirmed'"
+                @click="() => onClickReceived(item.receiveRoute)"
+                label="received"
+                :loading="isLoading == 'received'"
+            />
+        </template>
         <!-- <template #buttondeliveries="{ linkButton: linkButton }">
             <Link v-if="linkButton?.route?.name" method="post"
                 as="div"
