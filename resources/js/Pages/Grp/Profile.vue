@@ -16,6 +16,7 @@ import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequ
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
 // import TableNotifications from "@/Components/Profile/TableNotifications.vue"
 import ProfileKPIs from "@/Components/Profile/ProfileKPIs.vue"
+import ProfileVisitLogs from "@/Components/Profile/ProfileVisitLogs.vue"
 import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
 import ProfileNotifications from "@/Components/Profile/ProfileNotifications.vue"
 // import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
@@ -78,7 +79,7 @@ const component = computed(() => {
         todo: ProfileTodo,
         notifications: ProfileNotifications,
         kpi: ProfileKPIs,
-        visit_logs: TableUserRequestLogs,
+        visit_logs: ProfileVisitLogs,
         timesheets: TableTimesheets,
         dashboard: ProfileShowcase,
         history: TableHistories,
