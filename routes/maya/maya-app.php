@@ -17,7 +17,7 @@ Route::name('maya.')->group(function () {
             ->group(__DIR__."/profile.php");
 
 
-        Route::prefix("org/{organisation}")
+        Route::prefix("org/{organisation:id}")
             ->name("org.")
             ->group(__DIR__."/org/org.php");
 

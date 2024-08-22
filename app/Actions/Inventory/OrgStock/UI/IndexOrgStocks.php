@@ -185,6 +185,7 @@ class IndexOrgStocks extends OrgAction
         return $queryBuilder
             ->defaultSort('org_stocks.code')
             ->select([
+                'org_stocks.id',
                 'org_stocks.code',
                 'org_stocks.name',
                 'org_stocks.slug',
@@ -194,7 +195,7 @@ class IndexOrgStocks extends OrgAction
             ])
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
             ->allowedSorts(['code', 'family_code', 'unit_value'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch,AllowedFilter::exact('state')])
             ->withPaginator($prefix)
             ->withQueryString();
     }

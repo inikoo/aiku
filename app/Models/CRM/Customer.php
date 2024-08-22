@@ -202,7 +202,6 @@ class Customer extends Model implements HasMedia, Auditable
         'contact_website',
         'identity_document_type',
         'identity_document_number',
-
     ];
 
     public function getSlugOptions(): SlugOptions

@@ -113,11 +113,12 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'rental_id'          => ['nullable', 'exists:rentals,id'],
-            'notes'              => ['nullable', 'string', 'max:1024'],
-            'received_at'        => ['nullable', 'nullable', 'date'],
-            'booked_in_at'       => ['sometimes', 'nullable', 'date'],
-            'storing_at'         => ['sometimes', 'nullable', 'date'],
+            'rental_id'                => ['nullable', 'exists:rentals,id'],
+            'notes'                    => ['nullable', 'string', 'max:1024'],
+            'received_at'              => ['nullable', 'nullable', 'date'],
+            'booked_in_at'             => ['sometimes', 'nullable', 'date'],
+            'storing_at'               => ['sometimes', 'nullable', 'date'],
+            'last_fetched_at'          => ['sometimes', 'date'],
         ];
     }
 
@@ -149,8 +150,12 @@ class UpdatePallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $audit =true): Pallet
     {
+        if(!$audit) {
+            Pallet::disableAuditing();
+        }
+
         $this->pallet         = $pallet;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;

@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexWarehouses::class)->name('index');
 
-Route::prefix('{warehouse}')
+Route::prefix('{warehouse:id}')
     ->group(function () {
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
         Route::name('show')

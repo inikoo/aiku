@@ -128,7 +128,9 @@ class FetchAuroraPallet extends FetchAurora
             'booked_in_at'       => $bookedInAt,
             'storing_at'         => $bookedInAt,
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
-            'rental_id'          => $rental->id
+            'rental_id'          => $rental->id,
+            'fetched_at'         => now(),
+            'last_fetched_at'    => now()
         ];
         if ($location_id) {
             $this->parsedData['pallet']['location_id'] = $location_id;

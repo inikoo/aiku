@@ -73,7 +73,8 @@ return new class () extends Migration {
                 $table=$this->storedItemsStatsFields($table);
 
                 $table=$this->storedItemsAuditStats($table);
-
+                $table->datetimeTz('fetched_at')->nullable();
+                $table->datetimeTz('last_fetched_at')->nullable();
                 $table->timestampsTz();
                 $table = $this->softDeletes($table);
                 $table->string('source_id')->nullable()->unique();
