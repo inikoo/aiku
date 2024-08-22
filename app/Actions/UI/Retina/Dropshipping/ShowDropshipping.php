@@ -53,7 +53,7 @@ class ShowDropshipping extends RetinaAction
                     'url'       => route('pupil.authenticate', [
                         'shop' => $customer->shopifyUser?->name
                     ])
-                ] : false
+                ] : null
             ]
         );
     }

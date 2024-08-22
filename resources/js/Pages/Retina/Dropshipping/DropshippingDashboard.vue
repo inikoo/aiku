@@ -23,7 +23,7 @@ const props = defineProps<{
     tabs: TSTabs
     connectRoute: {
         url: string
-    } | boolean
+    } | null
     createRoute: routeType
     shopify_url: string
 
@@ -79,7 +79,7 @@ const onCreateStore = () => {
                                 :href="connectRoute?.url"
                                 class="w-full"
                             >
-                                <Button label="Connect" type="tertiary" full iconRight="fal fa-external-link-alt" />
+                                <Button label="Open" type="tertiary" full iconRight="fal fa-external-link-alt" />
                             </a>
                         </div>
                     
