@@ -183,7 +183,7 @@ const onClickReceived = (receivedRoute: routeType) => {
             <Button
                 v-if="item.state === 'confirmed'"
                 @click="() => onClickReceived(item.receiveRoute)"
-                label="received"
+                label="receive"
                 :loading="isLoading == 'received'"
             />
         </template>
