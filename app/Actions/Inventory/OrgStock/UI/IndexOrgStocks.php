@@ -185,6 +185,7 @@ class IndexOrgStocks extends OrgAction
         return $queryBuilder
             ->defaultSort('org_stocks.code')
             ->select([
+                'org_stocks.id',
                 'org_stocks.code',
                 'org_stocks.name',
                 'org_stocks.slug',

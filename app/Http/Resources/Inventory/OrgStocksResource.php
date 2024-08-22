@@ -29,6 +29,7 @@ class OrgStocksResource extends JsonResource
         $orgStock = $this;
 
         return [
+            'id'                 => $orgStock->id,
             'slug'               => $orgStock->slug,
             'code'               => $this->code,
             'name'               => $this->name,
