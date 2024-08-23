@@ -101,9 +101,10 @@ const onSubmitAddItem = async (url: string, close: Function, idProduct: number) 
                                 @update:modelValue="() => errorMessage = null"
                                 :canClear="false"
                                 :canDeselect="false"
+                                searchable
                                 label="code"
                                 valueProp="id"
-                                placeholder="Select location.."
+                                placeholder="Select item.."
                                 :options="portfoliosList"
                                 :noResultsText="isLoadingFetch ? 'loading...' : 'No Result'">
                             </PureMultiselect>
