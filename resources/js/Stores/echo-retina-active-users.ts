@@ -57,16 +57,28 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                 // })
 
                 .joining((user: LiveUser) => {
-                    console.log('Someone join')
+                    // console.log('This LiveUsers', this.liveUsers)
+                    console.log('Someone join:', user?.alias)
+
+                    if(this.liveUsers?.[user.id]) {
+                        this.liveUsers[user.id].action = 'navigate'
+                    } else {
+                        this.liveUsers[user.id] = {
+                            ...user,
+                            action: 'navigate'
+                        }
+                    }
+
                     // if UserA join, then others send their data to UserA
                     window.Echo.join(`retina.active.users`).whisper(`sendTo${user.id}`, this.liveUsers[usePage().props.auth.user.id])
                 })
 
                 .leaving((user: {id: number, alias: string, name: string}) => {
-                    console.log('Someone leaved: ', user)
+                    console.log('Someone leaved:', user?.alias)
+                    // console.log('aaaaa', user)
 
                     // If user 'logout', no need to set the action to 'leave'
-                    if (this.liveUsers[user.id].action != 'logout') {
+                    if (this.liveUsers?.[user.id].action != 'logout') {
                         this.liveUsers[user.id].action = 'leave'
                         this.liveUsers[user.id].last_active = new Date()
                     }

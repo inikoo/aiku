@@ -62,7 +62,7 @@ export const initialiseRetinaApp = () => {
                 useLiveUsers().liveUsers[usePage().props.auth.user.id] = dataActiveUser
 
                 // Websockets: broadcast to others
-                window.Echo.join(`retina.live.users`).whisper('otherIsNavigating', dataActiveUser)
+                window.Echo.join(`retina.active.users`).whisper('otherIsNavigating', dataActiveUser)
             }
         })
     }
