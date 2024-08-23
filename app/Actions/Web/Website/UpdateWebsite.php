@@ -45,7 +45,7 @@ class UpdateWebsite extends OrgAction
                 'ascii',
                 'lowercase',
                 'max:255',
-                new IUnique(
+                $this->strict?new IUnique(
                     table: 'websites',
                     extraConditions: [
                         [
@@ -63,7 +63,7 @@ class UpdateWebsite extends OrgAction
                             'value'    => $this->website->id
                         ],
                     ]
-                ),
+                ):null,
             ],
             'code'            => [
                 'sometimes',
@@ -94,11 +94,12 @@ class UpdateWebsite extends OrgAction
         ];
     }
 
-    public function action(Website $website, array $modelData, bool $audit = true): Website
+    public function action(Website $website, array $modelData, bool $strict = true, bool $audit = true): Website
     {
         if (!$audit) {
             Website::disableAuditing();
         }
+        $this->strict   = $strict;
         $this->asAction = true;
         $this->website  = $website;
 
