@@ -15,11 +15,11 @@ Route::name('webhooks.')->group(function () {
 
 Route::prefix('shopify')->name('webhooks.shopify.')->group(function () {
     Route::prefix('products')->as('products.')->group(function () {
-        Route::post('deleted', [DeleteProductFromShopify::class, 'inWebhook'])->name('deleted');
+        Route::post('delete', [DeleteProductFromShopify::class, 'inWebhook'])->name('delete');
     });
 
     Route::prefix('orders')->as('orders.')->group(function () {
-        Route::post('created', CreateDummy::class)->name('create');
+        Route::post('create', CreateDummy::class)->name('create');
         Route::post('updated', CreateDummy::class)->name('updated');
         Route::post('delete', CreateDummy::class)->name('delete');
         Route::post('paid', CreateDummy::class)->name('paid');

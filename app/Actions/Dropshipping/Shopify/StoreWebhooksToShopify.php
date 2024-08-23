@@ -13,6 +13,7 @@ use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Route;
 
 class StoreWebhooksToShopify extends OrgAction
 {
@@ -25,17 +26,18 @@ class StoreWebhooksToShopify extends OrgAction
      */
     public function handle(ShopifyUser $shopifyUser)
     {
-        $webhooks        = [];
-        $webhookTypes    = [
-            [
-                "type"  => "products/delete",
-                "route" => route("pupil.webhooks.products.delete")
-            ],
-            [
-                "type"  => "orders/create",
-                "route" => route("pupil.webhooks.orders.store")
-            ]
-        ];
+        $webhooks     = [];
+        $webhookTypes = [];
+        $routes       = collect(Route::getRoutes())->filter(function ($route) {
+            return str_contains($route->getName(), 'webhooks.shopify');
+        });
+
+        foreach ($routes as $route) {
+            $webhookTypes[] =             [
+                "type"  => str_replace('webhooks/shopify/', '', $route->uri()),
+                "route" => route($route->getName())
+            ];
+        }
 
         foreach ($webhookTypes as $webhookType) {
             $webhooks[]      = [
