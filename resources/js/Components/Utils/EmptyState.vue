@@ -19,8 +19,8 @@ const props = defineProps<{
             tooltip: string
             icon?: string | string[]
         }
-        description: string
-        title: string
+        description?: string
+        title?: string
         icons?: string[]
     }
 }>()
@@ -67,7 +67,7 @@ const isLoading = ref(false)
             <FontAwesomeIcon :icon="randomIcon[randomIndex].secondIcon" class="mx-auto h-8  text-gray-300" aria-hidden="true" />
         </div>
 
-        <h3 class="font-logo text-lg font-bold text-gray-600">{{ data?.title ?? trans('No records found') }}</h3>
+        <h3 v-if="data?.title" class="font-logo text-lg font-semibold text-gray-600 tracking-wide">{{ data?.title ?? trans('No records found') }}</h3>
         <p v-if="data?.description" class="text-sm text-gray-500 inline-block">{{ data?.description }}</p>
 
         <slot name='button-empty-state'>

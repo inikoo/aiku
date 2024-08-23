@@ -9,8 +9,8 @@ namespace App\Actions\Dropshipping\Shopify;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\Customer;
-use App\Models\Dropshipping\ShopifyUser;
+use App\Models\ShopifyUserHasProduct;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -20,23 +20,17 @@ class DeleteProductFromShopify extends OrgAction
     use WithAttributes;
     use WithActionUpdate;
 
-    /**
-     * @throws \Exception
-     */
-    public function handle(ShopifyUser $shopifyUser): \GuzzleHttp\Promise\PromiseInterface
+    public function handle(ShopifyUserHasProduct $product): int
     {
-        $productId = 0;
-        $body      = [
-            "product" => [
-                "title" => "product title"
-            ]
-        ];
-
-        return $shopifyUser->api()->getRestClient()->request('POST', '/admin/api/2024-04/products/'.$productId.'.json', $body);
+        return $product->delete();
     }
 
-    public function asController(Customer $customer, ShopifyUser $shopifyUser): \GuzzleHttp\Promise\PromiseInterface
+    public function inWebhook(ActionRequest $request): int
     {
-        return $this->handle($shopifyUser);
+        $productId = $request->input("id");
+
+        $product = ShopifyUserHasProduct::where("shopify_product_id", $productId)->first();
+
+        return $this->handle($product);
     }
 }
