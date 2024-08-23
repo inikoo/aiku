@@ -9,7 +9,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('model_has_collection', function (Blueprint $table) {
+        Schema::create('model_has_collections', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('collection_id');
             $table->foreign('collection_id')->references('id')->on('collections');

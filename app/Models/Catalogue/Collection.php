@@ -15,6 +15,7 @@ use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -101,4 +102,10 @@ class Collection extends Model implements Auditable
     {
         return $this->belongsToMany(CollectionCategory::class);
     }
+
+    public function collections(): MorphToMany
+    {
+        return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
+    }
+
 }

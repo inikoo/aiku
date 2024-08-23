@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -201,5 +202,9 @@ class Product extends Model implements Auditable, HasMedia
         return $this->belongsTo(ProductCategory::class, 'family_id');
     }
 
+    public function collections(): MorphToMany
+    {
+        return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
+    }
 
 }
