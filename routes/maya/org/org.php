@@ -13,3 +13,7 @@ Route::prefix("hr")
 Route::prefix("warehouses")
     ->name("warehouses.")
     ->group(__DIR__."/warehouses/warehouses.php");
+
+Route::prefix("fulfilment/{fulfilment:id}")
+    ->name("fulfilment.")
+    ->group(__DIR__."/fulfilment.php");
