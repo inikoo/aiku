@@ -116,7 +116,7 @@ class FetchAuroraPallet extends FetchAurora
             ->where('auto_assign_asset_type', $type->value)->firstOrFail();
 
 
-        if(strlen($notes)>1000){
+        if(strlen($notes)>1000) {
             $notes='';
         }
 

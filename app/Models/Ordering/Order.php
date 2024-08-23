@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $customer_client_id
  * @property string|null $reference
  * @property string|null $customer_reference Customers own order reference
+ * @property string|null $nest
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
  * @property OrderHandingTypeEnum $handing_type

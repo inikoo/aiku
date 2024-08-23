@@ -66,14 +66,14 @@ class FetchAuroraOrder extends FetchAurora
             "PackedDone" => OrderStateEnum::PACKED,
             "Approved"   => OrderStateEnum::FINALISED,
             "Dispatched" => OrderStateEnum::DISPATCHED,
-            "InBasket"   => OrderStateEnum::IN_BASKET,
-            default      => OrderStateEnum::IN_PROCESS,
+            "InBasket"   => OrderStateEnum::CREATING,
+            default      => OrderStateEnum::SUBMITTED,
         };
 
 
         $status = match ($this->auroraModelData->{'Order State'}) {
             "Cancelled","Dispatched"  => OrderStatusEnum::SETTLED,
-            "InBasket"   => OrderStatusEnum::IN_BASKET,
+            "InBasket"   => OrderStatusEnum::CREATING,
             default      => OrderStatusEnum::PROCESSING,
         };
 
@@ -104,7 +104,7 @@ class FetchAuroraOrder extends FetchAurora
             ) {
                 $stateWhenCancelled = OrderStateEnum::HANDLING;
             } else {
-                $stateWhenCancelled = OrderStateEnum::IN_PROCESS;
+                $stateWhenCancelled = OrderStateEnum::CREATING;
             }
 
 

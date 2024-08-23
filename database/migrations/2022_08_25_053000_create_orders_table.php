@@ -6,6 +6,8 @@
  */
 
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasOrderAmountTotals;
 use Illuminate\Database\Migrations\Migration;
@@ -33,9 +35,9 @@ return new class () extends Migration {
             $table->string('reference')->nullable()->index();
             $table->string('customer_reference')->index()->nullable()->comment('Customers own order reference');
 
-
-            $table->string('state')->default()->index();
-            $table->string('status')->default()->index();
+            $table->string('nest')->nullable()->index();
+            $table->string('state')->default(OrderStateEnum::CREATING->value)->index();
+            $table->string('status')->default(OrderStatusEnum::CREATING->value)->index();
             $table->string('handing_type')->default(OrderHandingTypeEnum::SHIPPING->value)->index();
 
             $table->boolean('customer_locked')->default(false);
