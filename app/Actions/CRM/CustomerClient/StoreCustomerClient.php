@@ -11,10 +11,8 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\CRM\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
-use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -27,7 +25,7 @@ class StoreCustomerClient extends OrgAction
     use WithModelAddressActions;
 
 
-    public function handle(Customer $customer, array $modelData): Customer
+    public function handle(Customer $customer, array $modelData): CustomerClient
     {
         $address = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
@@ -52,7 +50,7 @@ class StoreCustomerClient extends OrgAction
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);
         CustomerHydrateClients::dispatch($customer);
 
-        return $customer;
+        return $customerClient;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -93,7 +91,7 @@ class StoreCustomerClient extends OrgAction
         return Redirect::route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]);
     }
 
-    public function action(Customer $customer, array $modelData): Customer
+    public function action(Customer $customer, array $modelData): CustomerClient
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
@@ -101,7 +99,7 @@ class StoreCustomerClient extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Customer
+    public function asController(Customer $customer, ActionRequest $request): CustomerClient
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $request);
@@ -109,12 +107,5 @@ class StoreCustomerClient extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function asFetch(Customer $customer, array $modelData): Customer
-    {
-        $this->asAction = true;
-        $this->strict   = false;
-        $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($customer, $this->validatedData);
-    }
 }
