@@ -14,7 +14,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
 use App\Actions\Web\Website\Search\WebsiteRecordSearch;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
-use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -93,9 +92,8 @@ class StoreWebsite extends OrgAction
         OrganisationHydrateWebsites::dispatch($shop->organisation);
         WebsiteRecordSearch::dispatch($website);
 
-        if ($website->engine === WebsiteEngineEnum::AIKU) {
-            $website = SeedWebsiteFixedWebpages::run($website);
-        }
+        $website = SeedWebsiteFixedWebpages::run($website);
+
 
 
         return $website;
@@ -159,7 +157,6 @@ class StoreWebsite extends OrgAction
             'launched_at' => ['sometimes', 'date'],
             'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'      => ['sometimes', 'boolean'],
-            'engine'      => ['sometimes', Rule::enum(WebsiteEngineEnum::class)],
             'fetched_at'  => ['sometimes', 'date'],
         ];
     }

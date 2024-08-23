@@ -90,7 +90,6 @@ class UpdateWebsite extends OrgAction
             'launched_at'     => ['sometimes', 'date'],
             'state'           => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'          => ['sometimes', 'boolean'],
-            'engine'          => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'last_fetched_at' => ['sometimes', 'date'],
         ];
     }

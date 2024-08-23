@@ -6,7 +6,6 @@
  */
 
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
-use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
@@ -26,7 +25,6 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('type')->index();
-            $table->string('engine')->default(WebsiteEngineEnum::AIKU->value)->index();
             $table->string('code')->collation('und_ns')->index();
             $table->string('name')->collation('und_ns')->index();
             $table->string('state')->default(WebsiteStateEnum::IN_PROCESS->value)->index();
