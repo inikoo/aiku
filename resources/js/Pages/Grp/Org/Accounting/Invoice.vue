@@ -26,6 +26,7 @@ import { Calculation, ProductTransaction } from '@/types/Invoices'
 import { routeType } from '@/types/route'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import { FieldOrderSummary } from '@/types/Pallet'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -53,7 +54,7 @@ import { InvoiceResource } from '@/types/invoice'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 // const locale = useLocaleStore()
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 
 const props = defineProps<{

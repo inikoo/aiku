@@ -79,7 +79,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                             </div>
                         </template>
                         <template #content="{ close }">
-                            <div class="w-96">
+                            <div class="w-[450px]">
                                 <NotificationList :close />
                             </div>
                         </template>

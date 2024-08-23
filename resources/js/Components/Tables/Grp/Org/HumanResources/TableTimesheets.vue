@@ -61,7 +61,7 @@ const timesheetRoute = (timesheet: Timesheet) => {
         <template #cell(end_at)="{ item: user }">
             <div class="whitespace-nowrap">
                 {{ useFormatTime(user.end_at, {localeCode: locale.language.code }) }}
-                </div>
+            </div>
         </template>
 
         <!-- Column: Working duration -->

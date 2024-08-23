@@ -19,6 +19,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
 import Tag from '@/Components/Tag.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -94,7 +95,7 @@ const props = defineProps<{
     tab: string
 }>()
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 
 // Tabs radio: v-model

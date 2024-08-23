@@ -8,6 +8,7 @@ import { capitalize } from '@/Composables/capitalize'
 import { trans } from 'laravel-vue-i18n'
 import Popover from '@/Components/Popover.vue'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { Link, router } from '@inertiajs/vue3'
 
 import { notify } from '@kyvg/vue3-notification'
@@ -21,7 +22,7 @@ import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
 library.add(faQuestionCircle, faExpandArrows)
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
     dataPalletDelivery: PalletDelivery
     boxStats: BoxStats
