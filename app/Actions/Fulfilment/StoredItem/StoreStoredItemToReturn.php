@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -28,26 +29,27 @@ class StoreStoredItemToReturn extends OrgAction
         $storedItem = StoredItem::where('reference', $reference)
                     ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
                     ->first();
-        $currentQuantity   = 0;
+        $allocatedQuantity         = 0;
         $pallets           = $storedItem->pallets;
         $requiredQuantity  = Arr::get($modelData, 'quantity');
 
+        $existingPalletReturnItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+            ->where('stored_item_id', $storedItem->id)
+            ->exists();
+
+        if ($existingPalletReturnItems) {
+            $this->deleteItems($palletReturn, $storedItem, $allocatedQuantity);
+        }
+
         foreach ($pallets as $pallet) {
-            $remainingQuantity   = $requiredQuantity - $currentQuantity;
-            $palletStoredItemQty = $pallet->storedItems->sum('pivot.quantity');
+            $palletStoredItemQty = $pallet->storedItems
+                ->where('pivot.stored_item_id', $storedItem->id)
+                ->first()->pivot->quantity ?? 0;
 
-            if ($palletStoredItemQty <= $remainingQuantity) {
-                $currentQuantity += $palletStoredItemQty;
-            } else {
-                $partialPallet           = clone $pallet;
-                $partialPallet->quantity = $remainingQuantity;
-                $currentQuantity += $remainingQuantity;
-            }
-
-            $this->attach($palletReturn, $pallet, $storedItem, $currentQuantity);
-
-            if ($currentQuantity == $requiredQuantity) {
-                break;
+            if ($allocatedQuantity < $requiredQuantity) {
+                $quantityToUse = min($palletStoredItemQty, $requiredQuantity - $allocatedQuantity);
+                $this->attach($palletReturn, $pallet, $storedItem, $quantityToUse);
+                $allocatedQuantity += $quantityToUse;
             }
         }
 
@@ -58,26 +60,26 @@ class StoreStoredItemToReturn extends OrgAction
         return $palletReturn;
     }
 
-    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $value, $currentQuantity): void
+    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
     {
-        $exists = $value->palletReturns()
-            ->wherePivot('pallet_return_id', $palletReturn->id)
-            ->wherePivot('stored_item_id', $value->id)
-            ->exists();
+        $storedItem->palletReturns()->attach($palletReturn->id, [
+            'stored_item_id'       => $storedItem->id,
+            'pallet_id'            => $pallet->id,
+            'pallet_stored_item_id'=> $pallet->pivot->id,
+            'quantity_ordered'     => $quantityToUse,
+            'type'                 => 'StoredItem'
+        ]);
 
-        if (!$exists) {
-            $value->palletReturns()->attach($palletReturn->id, [
-                'stored_item_id'       => $value->id,
-                'pallet_id'            => $pallet->id,
-                'pallet_stored_item_id'=> $pallet->pivot->id,
-                'quantity_ordered'     => $currentQuantity,
-                'type'                 => 'StoredItem'
-            ]);
-        } else {
-            $value->palletReturns()->updateExistingPivot($palletReturn->id, [
-                'quantity_ordered'     => $currentQuantity,
-                'type'                 => 'StoredItem'
-            ]);
+    }
+
+    protected function deleteItems(PalletReturn $palletReturn, StoredItem $storedItem, $allocatedQuantity): void
+    {
+        $existingPivotItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
+            ->where('stored_item_id', $storedItem->id)
+            ->get();
+
+        foreach ($existingPivotItems as $pivotItem) {
+            $pivotItem->delete();
         }
     }
 
