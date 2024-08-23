@@ -10,7 +10,7 @@ import Table from "@/Components/Table/Table.vue";
 import {Order} from "@/types/order";
 import type {Links, Meta} from "@/types/Table";
 
-const props = defineProps<{
+defineProps<{
   data: {
     data: {}[]
     links: Links
@@ -23,18 +23,14 @@ const props = defineProps<{
 function orderRoute(order: Order) {
   console.log(route().current())
   switch (route().current()) {
-    case "shops.show.customers.show":
+    case "grp.org.shops.show.crm.show.orders.index":
       return route(
-          "shops.show.customers.show.orders.show",
-          [route().params["shop"], route().params["customer"], order.slug]);
-    case "customers.show":
+          "grp.org.shops.show.crm.show.orders.show",
+          [route().params["organisation"],,route().params["shop"], route().params["customer"], order.slug]);
+    case "grp.org.shops.show.ordering.orders.index":
       return route(
-          "customers.show.orders.show",
-          [route().params["customer"], order.slug]);
-    case "shops.show.orders.index":
-      return route(
-          "shops.show.orders.show",
-          [order.shop_slug, order.slug]);
+          "grp.org.shops.show.ordering.orders.show",
+          [ route().params["organisation"],route().params["shop"],order.slug]);
     default:
       return null;
   }
@@ -55,7 +51,7 @@ function shopRoute(order: Order) {
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
     <template #cell(reference)="{ item: order }">
-      <Link :href="orderRoute(order)">
+      <Link :href="orderRoute(order)" class="primaryLink">
         {{ order["reference"] }}
       </Link>
     </template>

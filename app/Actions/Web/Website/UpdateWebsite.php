@@ -45,7 +45,7 @@ class UpdateWebsite extends OrgAction
                 'ascii',
                 'lowercase',
                 'max:255',
-                $this->strict?new IUnique(
+                $this->strict ? new IUnique(
                     table: 'websites',
                     extraConditions: [
                         [
@@ -63,7 +63,7 @@ class UpdateWebsite extends OrgAction
                             'value'    => $this->website->id
                         ],
                     ]
-                ):null,
+                ) : null,
             ],
             'code'            => [
                 'sometimes',

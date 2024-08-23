@@ -13,7 +13,6 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
@@ -22,13 +21,13 @@ use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrder extends OrgAction
 {
-    use HasUIOrder;
     use HasOrderingAuthorisation;
 
     public function handle(Order $order): Order
@@ -60,8 +59,9 @@ class ShowOrder extends OrgAction
             [
                 'title'       => __('order'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $order,
                     $request->route()->getName(),
-                    $request->route()->originalParameters()(),
+                    $request->route()->originalParameters(),
                 ),
                 'navigation'  => [
                     'previous' => $this->getPrevious($order, $request),
@@ -74,26 +74,25 @@ class ShowOrder extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => OrderTabsEnum::navigation()
                 ],
+                'showcase'=> GetOrderShowcase::run($order),
 
-                OrderTabsEnum::SHOWCASE->value => $this->tab == OrderTabsEnum::SHOWCASE->value ?
-                    fn () => GetOrderShowcase::run($this->order)
-                    : Inertia::lazy(fn () => GetOrderShowcase::run($this->order)),
+
 
                 OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentsResource::collection(IndexPayments::run($this->order))
-                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($this->order))),
+                    fn () => PaymentsResource::collection(IndexPayments::run($order))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($order))),
 
                 OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
-                    fn () => InvoicesResource::collection(IndexInvoices::run($this->order))
-                    : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($this->order))),
+                    fn () => InvoicesResource::collection(IndexInvoices::run($order))
+                    : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($order))),
 
                 OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
-                    fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($this->order))
-                    : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($this->order))),
+                    fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))
+                    : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))),
 
             ]
-        )->table(IndexPayments::make()->tableStructure())
-            ->table(IndexInvoices::make()->tableStructure())
+        )->table(IndexPayments::make()->tableStructure($order))
+            ->table(IndexInvoices::make()->tableStructure($order))
             ->table(IndexDeliveryNotes::make()->tableStructure($order));
     }
 
@@ -110,7 +109,7 @@ class ShowOrder extends OrgAction
         return new OrderResource($order);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(Order $order, string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $headCrumb = function (Order $order, array $routeParameters, string $suffix) {
             return [
@@ -120,11 +119,11 @@ class ShowOrder extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('orders')
+                            'label' => __('Orders')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $order->slug,
+                            'label' => $order->reference,
                         ],
 
                     ],
@@ -135,47 +134,23 @@ class ShowOrder extends OrgAction
         };
 
         return match ($routeName) {
-            'orders.show',
-            'orders.edit' =>
-
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    $routeParameters['order'],
-                    [
-                        'index' => [
-                            'name'       => 'customers.index',
-                            'parameters' => []
-                        ],
-                        'model' => [
-                            'name'       => 'orders.show',
-                            'parameters' => [$routeParameters['order']->slug]
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
 
 
-            'shops.show.orders.show',
-            'shops.show.orders.edit'
+
+            'grp.org.shops.show.ordering.orders.show',
+            'grp.org.shops.show.ordering.orders.edit'
             => array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['order'],
+                    $order,
                     [
                         'index' => [
-                            'name'       => 'shops.show.orders.index',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                            ]
+                            'name'       => 'grp.org.shops.show.ordering.orders.index',
+                            'parameters' => Arr::except($routeParameters, ['order'])
                         ],
                         'model' => [
-                            'name'       => 'shops.show.orders.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['order']->slug
-                            ]
+                            'name'       => 'grp.org.shops.show.ordering.orders.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -213,25 +188,16 @@ class ShowOrder extends OrgAction
             return null;
         }
 
-        return match ($routeName) {
-            'orders.show',
-            'shops.orders.show' => [
-                'label' => $order->reference,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'order' => $order->slug
-                    ]
 
-                ]
-            ],
-            'shops.show.orders.show' => [
+        return match ($routeName) {
+            'grp.org.shops.show.ordering.orders.show' => [
                 'label' => $order->reference,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'shop'  => $order->shop->slug,
-                        'order' => $order->slug
+                        'organisation'  => $this->organisation->slug,
+                        'shop'          => $order->shop->slug,
+                        'order'         => $order->slug
                     ]
 
                 ]

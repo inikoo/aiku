@@ -216,6 +216,12 @@ class FetchAuroraOrders extends FetchAuroraAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Order Store Key', $sourceData[1]);
+        }
+
         $query->orderBy('Order Date');
 
         return $query;
@@ -226,6 +232,11 @@ class FetchAuroraOrders extends FetchAuroraAction
         $query = DB::connection('aurora')->table('Order Dimension');
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
+        }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Order Store Key', $sourceData[1]);
         }
 
         return $query->count();
