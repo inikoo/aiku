@@ -15,6 +15,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { Link } from "@inertiajs/vue3"
 import { trans } from 'laravel-vue-i18n'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive, inject, defineExpose } from 'vue'
 import qs from 'qs'
@@ -32,7 +33,7 @@ import { faCheckSquare, faCheck, faSquare} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCheckSquare, faCheck, faSquare)
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 const props = defineProps(
     {

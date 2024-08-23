@@ -284,12 +284,12 @@ class IndexPalletDeliveries extends OrgAction
                         match (class_basename($this->parent)) {
                             'FulfilmentCustomer' =>
                                 [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('Create new delivery'),
-                                    'label'   => __('Delivery'),
+                                    'type'          => 'button',
+                                    'style'         => 'create',
+                                    'tooltip'       => __('Create new delivery'),
+                                    'label'         => __('Delivery'),
                                     'fullLoading'   => true,
-                                    'route'   => [
+                                    'route'         => [
                                         'method'     => 'post',
                                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                         'parameters' => [$this->parent->id]

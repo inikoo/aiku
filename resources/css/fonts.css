@@ -1,5 +1,5 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Inter&family=Laila&family=Lobster&family=Playfair&family=Port+Lligat+Slab&family=Quicksand&family=Yatra+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
 
 /* Raleway */
@@ -7,3 +7,18 @@
     font-family: 'Fira';
     src: url(../art/branding/fonts/Fira.ttf);
 }
+
+
+/* Playfair */
+/* @font-face {
+    font-family: 'Playfair';
+    src: url('@/css/Fonts/PlayfairDisplay-Regular.ttf') format('ttf');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Playfair';
+    src: url('@/css/Fonts/PlayfairDisplay-Italic.ttf') format('ttf');
+    font-weight: 400;
+    font-style: italic;
+} */

@@ -28,9 +28,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_websites_state_in_process
  * @property int $number_websites_state_live
  * @property int $number_websites_state_closed
- * @property int $number_websites_engine_aurora
- * @property int $number_websites_engine_aiku
- * @property int $number_websites_engine_other
  * @property int $number_webpages
  * @property int $number_webpages_state_in_process
  * @property int $number_webpages_state_ready

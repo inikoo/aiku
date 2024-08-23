@@ -7,15 +7,16 @@ import ColumnGroup from 'primevue/columngroup'
 import { Link } from '@inertiajs/vue3'
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
 import { Timesheet } from "@/types/timesheet"
-import { useLocaleStore } from '@/Stores/locale'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import { Table } from '@/types/Table'
+import { inject } from 'vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 const props = defineProps<{
     data: Table
 }>()
 
-const locale = useLocaleStore()
+const locale = inject('locale', aikuLocaleStructure)
 
 const timesheetRoute = (timesheet: Timesheet) => {
     switch (route().current()) {

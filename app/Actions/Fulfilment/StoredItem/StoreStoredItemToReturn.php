@@ -30,8 +30,8 @@ class StoreStoredItemToReturn extends OrgAction
                     ->where('fulfilment_customer_id', $palletReturn->fulfilment_customer_id)
                     ->first();
         $allocatedQuantity         = 0;
-        $pallets           = $storedItem->pallets;
-        $requiredQuantity  = Arr::get($modelData, 'quantity');
+        $pallets                   = $storedItem->pallets;
+        $requiredQuantity          = Arr::get($modelData, 'quantity');
 
         $existingPalletReturnItems = PalletReturnItem::where('pallet_return_id', $palletReturn->id)
             ->where('stored_item_id', $storedItem->id)
