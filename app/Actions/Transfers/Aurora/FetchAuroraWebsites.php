@@ -29,6 +29,7 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 $website = UpdateWebsite::make()->action(
                     website: $website,
                     modelData: $websiteData['website'],
+                    strict:false,
                     audit:false
                 );
             } else {

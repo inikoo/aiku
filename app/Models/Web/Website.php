@@ -8,7 +8,6 @@
 namespace App\Models\Web;
 
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
-use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -48,7 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int $shop_id
  * @property WebsiteTypeEnum $type
- * @property WebsiteEngineEnum $engine
  * @property string $code
  * @property string $name
  * @property WebsiteStateEnum $state
@@ -126,7 +124,6 @@ class Website extends Model implements Auditable, HasMedia
         'published_layout'  => 'array',
         'state'             => WebsiteStateEnum::class,
         'status'            => 'boolean',
-        'engine'            => WebsiteEngineEnum::class,
         'cloudflare_status' => WebsiteCloudflareStatusEnum::class,
         'launched_at'       => 'datetime',
         'closed_at'         => 'datetime',

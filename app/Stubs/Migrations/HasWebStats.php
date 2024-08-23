@@ -11,7 +11,6 @@ use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
-use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -30,9 +29,7 @@ trait HasWebStats
         foreach (WebsiteStateEnum::cases() as $websiteState) {
             $table->unsignedInteger('number_websites_state_'.$websiteState->snake())->default(0);
         }
-        foreach (WebsiteEngineEnum::cases() as $websiteEngine) {
-            $table->unsignedInteger('number_websites_engine_'.$websiteEngine->snake())->default(0);
-        }
+
 
 
         return $table;

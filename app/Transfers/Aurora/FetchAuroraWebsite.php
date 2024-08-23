@@ -8,7 +8,6 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Website;
 use Illuminate\Support\Facades\DB;
@@ -49,16 +48,11 @@ class FetchAuroraWebsite extends FetchAurora
 
         $domain = preg_replace('/^www\./', '', strtolower($this->auroraModelData->{'Website URL'}));
 
-        if ($state === WebsiteStateEnum::LIVE) {
-            $engine = WebsiteEngineEnum::AIKU;
-        } else {
-            $engine = WebsiteEngineEnum::AURORA;
-        }
+
 
 
         $this->parsedData['website'] =
             [
-                'engine'          => $engine,
                 'name'            => $this->auroraModelData->{'Website Name'},
                 'code'            => $this->auroraModelData->code,
                 'domain'          => $domain,

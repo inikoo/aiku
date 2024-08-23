@@ -45,7 +45,7 @@ class UpdateWebsite extends OrgAction
                 'ascii',
                 'lowercase',
                 'max:255',
-                new IUnique(
+                $this->strict?new IUnique(
                     table: 'websites',
                     extraConditions: [
                         [
@@ -63,7 +63,7 @@ class UpdateWebsite extends OrgAction
                             'value'    => $this->website->id
                         ],
                     ]
-                ),
+                ):null,
             ],
             'code'            => [
                 'sometimes',
@@ -73,7 +73,7 @@ class UpdateWebsite extends OrgAction
                 'max:64',
                 'alpha_dash',
                 new IUnique(
-                    table: 'shops',
+                    table: 'websites',
                     extraConditions: [
 
                         ['column' => 'group_id', 'value' => $this->organisation->group_id],
@@ -90,16 +90,16 @@ class UpdateWebsite extends OrgAction
             'launched_at'     => ['sometimes', 'date'],
             'state'           => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'          => ['sometimes', 'boolean'],
-            'engine'          => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'last_fetched_at' => ['sometimes', 'date'],
         ];
     }
 
-    public function action(Website $website, array $modelData, bool $audit = true): Website
+    public function action(Website $website, array $modelData, bool $strict = true, bool $audit = true): Website
     {
         if (!$audit) {
             Website::disableAuditing();
         }
+        $this->strict   = $strict;
         $this->asAction = true;
         $this->website  = $website;
 
