@@ -30,7 +30,7 @@ const layout = inject('layout', layoutStructure)
                     <!-- <span class="text-sm leading-none uppercase">
                         xxx
                     </span> -->
-                    <span class="text-xs capitalize leading-none">
+                    <span class="text-xs leading-none">
                         {{ scope }}
                     </span>
                 </div>

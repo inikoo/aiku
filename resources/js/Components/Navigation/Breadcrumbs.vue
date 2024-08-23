@@ -14,6 +14,7 @@ import { faChevronRight } from '@far'
 import { faBars,faBallot } from '@fal'
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from '@fas'
 import { routeType } from '@/types/route'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars,faBallot)
 
@@ -76,6 +77,8 @@ router.on('navigate', (event) => {
     }
     urlParameter.value = `?${new URLSearchParams(filteredParams).toString()}`
 })
+
+const isLoading = ref<string | boolean>(false)
 </script>
 
 <template>
@@ -95,8 +98,11 @@ router.on('navigate', (event) => {
 
                     <template v-if="breadcrumb.type === 'simple'">
                         <FontAwesomeIcon v-if="breadcrumbIdx !== 0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50" icon="fa-regular fa-chevron-right" aria-hidden="true" />
-                        <component :is="breadcrumb.simple.route ? Link : 'span'" :class="'hover:text-gray-700' || ''"
-                            :href="breadcrumb.simple?.route?.name ? route( breadcrumb.simple.route.name, breadcrumb.simple.route.parameters ) : '#' ">
+                        <component
+                            :is="breadcrumb.simple.route ? Link : 'span'"
+                            :class="'hover:text-gray-700' || ''"
+                            :href="breadcrumb.simple?.route?.name ? route( breadcrumb.simple.route.name, breadcrumb.simple.route.parameters ) : '#' "
+                        >
                             <FontAwesomeIcon v-if="breadcrumb.simple?.icon" :class="breadcrumb.simple.label ? 'mr-1' : ''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
                             <span>{{ breadcrumb.simple.label }}</span>
                         </component>
@@ -201,11 +207,14 @@ router.on('navigate', (event) => {
             <!-- Button: Previous -->
             <div class="flex justify-center items-center w-8">
                 <Link v-if="props.navigation.previous"
+                    @start="() => isLoading = 'bcBack'"
+                    @finish="() => isLoading = false"
                     :href="props.navigation?.previous?.route?.name ? route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters) + urlParameter : '#'"
                     class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 cursor-pointer hover:text-indigo-900"
                     :title="props.navigation.previous?.label"
                 >
-                    <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
+                    <LoadingIcon v-if="isLoading === 'bcBack'" />
+                    <FontAwesomeIcon v-else icon="fas fa-arrow-left" class="" aria-hidden="true" />
                 </Link>
                 <FontAwesomeIcon v-else icon="fas fa-arrow-left" class="opacity-20" aria-hidden="true" />
             </div>
@@ -213,11 +222,14 @@ router.on('navigate', (event) => {
             <!-- Button: Next -->
             <div class="flex justify-center items-center w-8">
                 <Link v-if="props.navigation.next"
+                    @start="() => isLoading = 'bcNext'"
+                    @finish="() => isLoading = false"
                     class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 cursor-pointer hover:text-indigo-900"
                     :title="props.navigation.next?.label"
-                    :href="props.navigation?.next?.route?.name ? route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter : '#'"
+                    :href="isLoading === 'bcNext' ? '' : props.navigation?.next?.route?.name ? route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter : '#'"
                 >
-                    <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
+                    <LoadingIcon v-if="isLoading === 'bcNext'" />
+                    <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="" aria-hidden="true" />
                 </Link>
                 <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="opacity-20" aria-hidden="true" />
             </div>
