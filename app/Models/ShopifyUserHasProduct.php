@@ -19,4 +19,5 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class ShopifyUserHasProduct extends Pivot
 {
+    protected $table = 'shopify_user_has_products';
 }
