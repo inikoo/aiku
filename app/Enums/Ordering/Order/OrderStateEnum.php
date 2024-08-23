@@ -13,8 +13,8 @@ enum OrderStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_BASKET    = 'in_basket';
-    case IN_PROCESS   = 'in_process';
+    case CREATING     = 'creating';
+    case SUBMITTED    = 'submitted';
     case IN_WAREHOUSE = 'in_warehouse';
     case HANDLING     = 'handling';
     case PACKED       = 'packed';

@@ -19,15 +19,15 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $customer_id
  * @property int $number_orders
- * @property int $number_orders_state_in_basket
- * @property int $number_orders_state_in_process
+ * @property int $number_orders_state_creating
+ * @property int $number_orders_state_submitted
  * @property int $number_orders_state_in_warehouse
  * @property int $number_orders_state_handling
  * @property int $number_orders_state_packed
  * @property int $number_orders_state_finalised
  * @property int $number_orders_state_dispatched
  * @property int $number_orders_state_cancelled
- * @property int $number_orders_status_in_basket
+ * @property int $number_orders_status_creating
  * @property int $number_orders_status_processing
  * @property int $number_orders_status_settled
  * @property int $number_orders_handing_type_collection

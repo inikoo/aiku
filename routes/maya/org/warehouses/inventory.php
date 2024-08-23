@@ -6,7 +6,6 @@
  */
 
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;

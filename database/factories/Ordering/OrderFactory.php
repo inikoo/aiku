@@ -7,6 +7,7 @@
 
 namespace Database\Factories\Ordering;
 
+use App\Enums\Ordering\Order\OrderStateEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +20,8 @@ class OrderFactory extends Factory
         return [
             'reference'      => fake()->lexify(),
             'date'           => fake()->date,
-            'customer_id'    => fake()->numberBetween(1, 100)
+            'customer_id'    => fake()->numberBetween(1, 100),
+            'state'          => OrderStateEnum::CREATING->value
         ];
     }
 }
