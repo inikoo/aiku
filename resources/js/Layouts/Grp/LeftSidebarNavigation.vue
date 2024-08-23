@@ -113,7 +113,7 @@ const iconList: { [key: string]: string } = {
                                 :key="itemKey"
                                 icon="fal fa-warehouse"
                                 :navs="orgNav[Object.keys(orgNav)[0]]"
-                                :scope="trans('Warehouse')"
+                                :scope="trans('Warehouse') + ` (${Object.keys(orgNav)[0]})`"
                                 root="grp.org.warehouses.show"
                             />
 
@@ -138,7 +138,7 @@ const iconList: { [key: string]: string } = {
                             :key="itemKey"
                             icon="fal fa-fill-drip"
                             :navs="orgNav[Object.keys(orgNav)[0]]"
-                            :scope="trans('production')"
+                            :scope="trans('Production')"
                             root="grp.org.productions.show."
                         />
                     </template>
