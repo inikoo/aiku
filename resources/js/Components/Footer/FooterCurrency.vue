@@ -20,8 +20,9 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
 import { inject, ref } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 const layout = inject('layout', layoutStructure)
 
 const isLoadingCurrency = ref(false)

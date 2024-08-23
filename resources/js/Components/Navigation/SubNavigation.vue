@@ -5,6 +5,7 @@ import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import { Link } from "@inertiajs/vue3"
 import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faNarwhal } from '@fal'
@@ -29,7 +30,7 @@ const props = defineProps<{
 }>()
 
 const isLoading = ref<string | boolean | number>(false)
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 // const originUrl = location.origin
 </script>

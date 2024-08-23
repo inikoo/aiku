@@ -6,6 +6,7 @@ import { useLocaleStore } from '@/Stores/locale'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 
 
@@ -96,7 +97,7 @@ const props = defineProps<{
 console.log('groupStats total: ', props.groupStats.total)
 console.log('groupStats Organisations: ', props.groupStats)
 const layout = inject('layout', layoutStructure)
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 
 // Decriptor: Date interval

@@ -7,6 +7,7 @@ import { inject, ref } from 'vue'
 import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import LoadingText from '@/Components/Utils/LoadingText.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -58,7 +59,7 @@ const emits = defineEmits<{
     (e: 'finishVisit', value: false): void
 }>()
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 const isLoading = ref(false)
 

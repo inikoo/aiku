@@ -4,6 +4,7 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faEmptySet } from '@fas'
@@ -19,7 +20,7 @@ const props = defineProps<{
     }
 }>()
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 </script>
 

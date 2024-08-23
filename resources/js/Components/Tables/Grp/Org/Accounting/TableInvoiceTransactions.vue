@@ -2,13 +2,14 @@
 
 import Table from '@/Components/Table/Table.vue'
 import { inject } from 'vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 defineProps<{
     data: object
     tab: string
 }>()
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 
 </script>

@@ -2,6 +2,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { inject } from 'vue'
 import { FieldOrderSummary } from '@/types/Pallet'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faQuestionCircle } from '@fal'
@@ -13,7 +14,7 @@ const props = defineProps<{
     order_summary: FieldOrderSummary[][]
 }>()
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
     
 </script>
 

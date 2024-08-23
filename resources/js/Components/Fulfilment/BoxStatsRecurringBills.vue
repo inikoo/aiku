@@ -13,6 +13,7 @@ import { Link, router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import { routeType } from '@/types/route'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay } from '@fal'
@@ -21,7 +22,7 @@ import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 
 library.add(faQuestionCircle, faIdCardAlt, faEnvelope, faPhone, faCalendarDay)
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 const props = defineProps<{
     boxStats: BoxStats
 }>()

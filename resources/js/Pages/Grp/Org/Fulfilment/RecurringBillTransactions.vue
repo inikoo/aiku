@@ -2,6 +2,7 @@
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import { FieldOrderSummary } from '@/types/Pallet'
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { Links, Meta } from '@/types/Table'
 import { faRobot, faBadgePercent, faTag } from '@fal'
 import Table from "@/Components/Table/Table.vue"
@@ -35,7 +36,7 @@ const props = defineProps<{
     tab?: string
 }>()
 
-const locale = inject('locale', {})
+const locale = inject('locale', aikuLocaleStructure)
 
 </script>
 
