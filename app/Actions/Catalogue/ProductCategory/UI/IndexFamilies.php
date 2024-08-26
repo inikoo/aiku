@@ -7,7 +7,9 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
@@ -32,6 +34,7 @@ class IndexFamilies extends OrgAction
 {
     use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
+    use WithCollectionSubNavigation;
 
     private Shop|ProductCategory|Organisation|Collection $parent;
 
@@ -111,7 +114,7 @@ class IndexFamilies extends OrgAction
                 abort(419);
             }
         }  elseif (class_basename($parent) == 'Collection') {
-            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+            $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
                         ->where('model_has_collections.model_type', '=', ProductCategory::class)
                         ->where('model_has_collections.collection_id', '=', $parent->id);
@@ -144,7 +147,7 @@ class IndexFamilies extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -222,6 +225,9 @@ class IndexFamilies extends OrgAction
                 $subNavigation = $this->getDepartmentSubNavigation($this->parent);
             }
         }
+        if ($this->parent instanceof Collection) {
+            $subNavigation = $this->getCollectionSubNavigation($this->parent);
+        }
 
 
         $title = __('families');
@@ -249,6 +255,19 @@ class IndexFamilies extends OrgAction
                     'label'     => __('Families')
                 ];
             }
+        } elseif ($this->parent instanceof Collection) {
+                $title = $this->parent->name;
+                $model = __('collection');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-cube'],
+                    'title' => __('collection')
+                ];
+                $iconRight    =[
+                    'icon' => 'fal fa-folder',
+                ];
+                $afterTitle= [
+                    'label'     => __('Families')
+                ];
         }
 
 
@@ -324,6 +343,17 @@ class IndexFamilies extends OrgAction
                             $routeParameters['shop'],
                             $routeParameters['department']
                         ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.collections.families.index' =>
+            array_merge(
+                ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
                     ],
                     $suffix
                 )

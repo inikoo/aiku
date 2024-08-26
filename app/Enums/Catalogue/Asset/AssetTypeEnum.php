@@ -135,7 +135,7 @@ enum AssetTypeEnum: string
         ];
     }
 
-    public static function count(Shop|Organisation|ProductCategory $parent): array
+    public static function count(Shop|Organisation|ProductCategory|Collection $parent): array
     {
         $stats  = $parent->stats;
         $counts = [
