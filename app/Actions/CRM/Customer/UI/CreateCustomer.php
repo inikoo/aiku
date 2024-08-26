@@ -64,7 +64,7 @@ class CreateCustomer extends OrgAction
                                         'type'  => 'input',
                                         'label' => __('contact name')
                                     ],
-                                    'address'      => [
+                                    'contact_address'      => [
                                         'type'    => 'address',
                                         'label'   => __('Address'),
                                         'value'   => AddressFormFieldsResource::make(

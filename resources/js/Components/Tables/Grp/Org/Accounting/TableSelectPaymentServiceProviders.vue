@@ -15,6 +15,7 @@ import Modal from "@/Components/Utils/Modal.vue"
 import { ref } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 import AccountProvidersForm from '@/Components/PaymentProviders/accountProvidersForm.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 library.add(faPlus, faCheckDouble)
 
 const props = defineProps<{
@@ -118,7 +119,8 @@ const onCloseModal = async (data) => {
                         <FontAwesomeIcon icon='fal fa-check-double' class='' fixed-width aria-hidden='true' />
                     </div>
                     <div v-else v-tooltip="'Create Account'">
-                        <FontAwesomeIcon icon='fas fa-plus' @click="() => onOpenModal(item)" class="px-1 cursor-pointer text-gray-400 hover:text-gray-600" fixed-width aria-hidden='true' />
+                        <Button @click="() => onOpenModal(item)" icon="fas fa-plus" size="xs" type="tertiary" />
+                        <!-- <FontAwesomeIcon icon='fas fa-plus' class="px-1 cursor-pointer text-gray-400 hover:text-gray-600" fixed-width aria-hidden='true' /> -->
                     </div>
                 </template>
 

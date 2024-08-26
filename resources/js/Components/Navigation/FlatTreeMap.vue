@@ -13,8 +13,9 @@ import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import { Icon } from '@/types/Utils/Icon'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt, faTasks)
 
 const props = defineProps<{
@@ -42,6 +43,8 @@ const props = defineProps<{
 }>()
 
 const locale = inject('locale', aikuLocaleStructure)
+
+const isLoading = ref<string | boolean>(false)
 </script>
 
 <template>
@@ -49,11 +52,16 @@ const locale = inject('locale', aikuLocaleStructure)
         <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
-                <component :is="node.href?.name ? Link : 'div'" :href="node.href?.name ? route(node.href.name, node.href.parameters) : ''"
+                <component
+                    :is="node.href?.name ? Link : 'div'"
+                    :href="node.href?.name ? route(node.href.name, node.href.parameters) : ''"
                     class="group/node flex flex-col md:flex-row w-full items-start md:items-center justify-between pr-10"
+                    @start="() => isLoading = 'node' + nodeIdx"
+                    @finish="() => isLoading = false"
                 >
                     <div class="flex items-center px-4 text-lg xl:px-6 font-medium gap-x-4" :class="[mode == 'compact' ? 'py-2' : node.sub_data?.length ? 'pt-4 md:pt-0 ' : 'py-4']">
-                        <FontAwesomeIcon v-if="node.icon" :size="mode == 'compact' ? undefined : 'lg'" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" fixed-width />
+                        <LoadingIcon v-if="isLoading === 'node' + nodeIdx" :size="mode == 'compact' ? undefined : 'lg'" class="flex-shrink-0 text-gray-400" />
+                        <FontAwesomeIcon v-else-if="node.icon" :size="mode == 'compact' ? undefined : 'lg'" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" fixed-width />
                         <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover/node:text-gray-700">
                             <span class="hidden lg:inline">{{ node.name }}</span>
                             <span class="inline lg:hidden">{{ node.shortName ? node.shortName : node.name }}</span>
@@ -91,9 +99,14 @@ const locale = inject('locale', aikuLocaleStructure)
 
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
-                    <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : ''"
+                    <component
+                        :is="node.rightSubLink?.href?.name ? Link : 'div'"
+                        :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : ''"
+                        @start="() => isLoading = 'subLink' + nodeIdx"
+                        @finish="() => isLoading = false"
                         class="w-9 h-9 flex justify-center items-center specialBox">
-                        <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" fixed-width />
+                        <LoadingIcon v-if="isLoading === 'subLink' + nodeIdx" />
+                        <FontAwesomeIcon v-else-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" fixed-width />
                     </component>
                 </div>
 

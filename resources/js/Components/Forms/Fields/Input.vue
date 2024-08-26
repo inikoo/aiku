@@ -67,9 +67,19 @@ const updateFormValue = (newValue) => {
 <template>
     <div class="relative">
         <div class="relative">
-            <PureInput v-model="value" :inputName="fieldName" :readonly="fieldData?.readonly"
-                :type="fieldData?.type ?? 'text'" :placeholder="fieldData?.placeholder" :maxlength="fieldData?.maxLength"
-                :copyButton="fieldData?.copyButton">
+            <PureInput
+                v-model="value"
+                :inputName="fieldName"
+                :readonly="fieldData?.readonly"
+                :type="fieldData?.type ?? 'text'"
+                :placeholder="fieldData?.placeholder"
+                :maxlength="fieldData?.maxLength"
+                :copyButton="fieldData?.copyButton"
+                :isError="!!form.errors[fieldName]"
+                :class="
+                    !!form.errors[fieldName] ? 'errorShake' : ''
+                "
+            >
                 <!-- Icon: Error, Success, Loading -->
                 <template #stateIcon>
                     <div class="mr-2 h-full flex items-center pointer-events-none">
@@ -88,9 +98,9 @@ const updateFormValue = (newValue) => {
         <!-- Counter: Letters and Words -->
         <div v-if="props.options?.counter"
             class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
-            <p class="">Letters: {{ form[fieldName]?.length ?? 0 }}</p>
+            <p class="">{{ trans('Letters') }}: {{ form[fieldName]?.length ?? 0 }}</p>
             <p class="">
-                Words: {{ form[fieldName]?.trim().split(/\s+/).filter(Boolean).length ?? 0 }}
+                {{ trans('Words') }}: {{ form[fieldName]?.trim().split(/\s+/).filter(Boolean).length ?? 0 }}
             </p>
         </div>
     </div>
