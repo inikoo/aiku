@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Catalogue\Shop;
@@ -41,13 +42,13 @@ class ShowCustomerClient extends OrgAction
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
 
-    public function inOrganisation(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(CustomerTabsEnum::values());
+    // public function inOrganisation(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
+    // {
+    //     $this->parent = $organisation;
+    //     $this->initialisation($organisation, $request)->withTab(CustomerTabsEnum::values());
 
-        return $this->handle($customer);
-    }
+    //     return $this->handle($customer);
+    // }
 
 
     public function asController(
@@ -79,12 +80,18 @@ class ShowCustomerClient extends OrgAction
                 ],
             ];
         }
+        $subNavigation = null;
+        if ($this->parent instanceof Shop) {
+            if ($this->parent->type == ShopTypeEnum::DROPSHIPPING) {
+                $subNavigation = $this->getCustomerSubNavigation($customerClient->customer, $request);
+            }
+        }
 
 
         return Inertia::render(
             'Org/Shop/CRM/Customer',
             [
-                'title'       => __('customer'),
+                'title'       => __('customer client'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -108,15 +115,16 @@ class ShowCustomerClient extends OrgAction
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
+                'subNavigation' => $subNavigation,
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => CustomerTabsEnum::navigation()
 
                 ],
 
-                CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
-                    fn () => GetCustomerClientShowcase::run($customerClient)
-                    : Inertia::lazy(fn () => GetCustomerClientShowcase::run($customerClient)),
+                // CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
+                //     fn () => GetCustomerClientShowcase::run($customerClient)
+                //     : Inertia::lazy(fn () => GetCustomerClientShowcase::run($customerClient)),
 
                 // CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
                 //     fn () => OrderResource::collection(IndexOrders::run($customer))
@@ -186,7 +194,7 @@ class ShowCustomerClient extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('Customer Client')
+                            'label' => __('Clients')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -200,7 +208,7 @@ class ShowCustomerClient extends OrgAction
             ];
         };
 
-        $customerClient = CustomerClient::where('slug', $routeParameters['customerClient'])->first();
+        $customerClient = CustomerClient::where('ulid', $routeParameters['customerClient'])->first();
 
 
         return match ($routeName) {
@@ -249,14 +257,14 @@ class ShowCustomerClient extends OrgAction
 
     public function getPrevious(CustomerClient $customerClient, ActionRequest $request): ?array
     {
-        $previous = CustomerClient::where('slug', '<', $customerClient->slug)->orderBy('slug', 'desc')->first();
+        $previous = CustomerClient::where('ulid', '<', $customerClient->ulid)->orderBy('ulid', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(CustomerClient $customerClient, ActionRequest $request): ?array
     {
-        $next = CustomerClient::where('slug', '>', $customerClient->slug)->orderBy('slug')->first();
+        $next = CustomerClient::where('ulid', '>', $customerClient->ulid)->orderBy('ulid')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
@@ -276,7 +284,7 @@ class ShowCustomerClient extends OrgAction
                         'organisation'   => $customerClient->organisation->slug,
                         'shop'           => $customerClient->shop->slug,
                         'customer'       => $customerClient->customer->slug,
-                        'customerClient' => $customerClient->slug,
+                        'customerClient' => $customerClient->ulid,
                     ]
 
                 ]

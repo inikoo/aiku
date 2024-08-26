@@ -25,7 +25,7 @@ function customerRoute(customer: FulfilmentCustomer) {
         case "grp.org.shops.show.crm.customers.show.customer-clients.index":
             return route(
                 "grp.org.shops.show.crm.customers.show.customer-clients.show",
-                [route().params["organisation"],route().params["shop"],route().params["customer"],customer.slug]);
+                [route().params["organisation"],route().params["shop"],route().params["customer"],customer.ulid]);
         case "grp.fulfilment.customers.index":
             return route(
                 "grp.fulfilment.customers.show",
@@ -57,9 +57,9 @@ function shopRoute(customer: FulfilmentCustomer) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: customer }">
+        <template #cell(name)="{ item: customer }">
             <Link :href="customerRoute(customer)" class="primaryLink">
-                {{ customer["slug"] }}
+                {{ customer["name"] }}
             </Link>
         </template>
         <template #cell(shop)="{ item: customer }" class="primaryLink">
