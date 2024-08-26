@@ -17,4 +17,4 @@ Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes')
 Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('delivery-notes.show');
 
 Route::get('returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-returns.index');
-Route::get('returns/{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show');
+Route::get('returns/{palletReturn:id}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show')->withoutScopedBindings();
