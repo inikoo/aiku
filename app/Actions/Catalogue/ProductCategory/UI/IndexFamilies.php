@@ -317,7 +317,7 @@ class IndexFamilies extends OrgAction
                         'name'          => 'grp.dashboard',   // TODO: Kirin zero
                         'parameters'    => null
                     ],
-                    'submitDepartment'  => [
+                    'submitAttach'  => [
                         'name'          => 'grp.dashboard',   // TODO: Kirin zero
                         'parameters'    => null
                     ],

@@ -313,8 +313,27 @@ class IndexProducts extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
+
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attach-product',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach product to this collection'),
+                            'label'    => __('Attach product'),
+                        ] : false
                     ],
                     'subNavigation' => $subNavigation,
+                ],
+                'routes'    => [
+                    'dataList'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
+                    'submitAttach'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
                 ],
                 'data'        => ProductsResource::collection($products),
 

@@ -27,7 +27,7 @@ const props = defineProps<{
     data: {}
     routes: {
         dataList: routeType
-        submitDepartment: routeType
+        submitAttach: routeType
     }
 }>()
 
@@ -58,10 +58,10 @@ const fetchDepartmentList = async () => {
     isLoading.value = false
 }
 const onSubmitAddService = (closedPopover: Function) => {
-    isLoading.value = 'submitDepartment'
+    isLoading.value = 'submitAttach'
 
     router.post(
-        route(props.routes.submitDepartment.name, props.routes.submitDepartment.parameters),
+        route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
         {
             id: formDepartment.value.selectedId
         },
@@ -150,7 +150,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                             <Button
                                 @click="() => onSubmitAddService(closed)"
                                 :style="'save'"
-                                :loading="isLoading == 'submitDepartment'"
+                                :loading="isLoading == 'submitAttach'"
                                 :disabled="!formDepartment.selectedId.length"
                                 label="Save"
                                 full

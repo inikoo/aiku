@@ -27,7 +27,7 @@ const props = defineProps<{
     data: {}
     routes: {
         dataList: routeType
-        submitFamily: routeType
+        submitAttach: routeType
     }
 }>()
 
@@ -58,10 +58,10 @@ const fetchFamilyList = async () => {
     isLoading.value = false
 }
 const onSubmitAddService = (closedPopover: Function) => {
-    isLoading.value = 'submitFamily'
+    isLoading.value = 'submitAttach'
 
     router.post(
-        route(props.routes.submitFamily.name, props.routes.submitFamily.parameters),
+        route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
         {
             id: formFamily.value.selectedId
         },
@@ -149,7 +149,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                             <Button
                                 @click="() => onSubmitAddService(closed)"
                                 :style="'save'"
-                                :loading="isLoading == 'submitFamily'"
+                                :loading="isLoading == 'submitAttach'"
                                 :disabled="!formFamily.selectedId.length"
                                 label="Save"
                                 full
