@@ -70,7 +70,7 @@ onMounted(() => {
 <template>
     <div class="h-min grid grid-cols-2 sm:grid-cols-4 border-t border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
-        <BoxStatPallet class="py-1 sm:py-2 px-3" :label="dataPalletDelivery.customer_name" icon="fal fa-user">
+        <BoxStatPallet class="py-1 sm:py-2 px-3" :label="dataPalletDelivery?.customer_name" icon="fal fa-user">
             <!-- Field: Reference -->
             <Link as="a" v-if="boxStats.fulfilment_customer.customer.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, boxStats.fulfilment_customer.fulfilment.slug, boxStats.fulfilment_customer.slug])"
@@ -129,7 +129,7 @@ onMounted(() => {
 
 
         <!-- Box: Status -->
-        <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletDelivery.state)" icon="fal fa-truck-couch">
+        <BoxStatPallet class="py-1 sm:py-2 px-3" :label="capitalize(dataPalletDelivery?.state)" icon="fal fa-truck-couch">
             <div class="mb-4 h-full w-full py-1 px-2 flex flex-col bg-gray-100 ring-1 ring-gray-300 rounded items-center">
                 <svg id="palletDeliveryBarcode" class="w-full h-full" />
                 <div class="text-xxs text-gray-500">

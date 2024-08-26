@@ -104,7 +104,9 @@ const isLoading = ref<string | boolean>(false)
                             :href="breadcrumb.simple?.route?.name ? route( breadcrumb.simple.route.name, breadcrumb.simple.route.parameters ) : '#' "
                         >
                             <FontAwesomeIcon v-if="breadcrumb.simple?.icon" :class="breadcrumb.simple.label ? 'mr-1' : ''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
-                            <span>{{ breadcrumb.simple.label }}</span>
+                            <Transition name="spin-to-down">
+                                <div :key="breadcrumb.simple.label" class="inline-block">{{ breadcrumb.simple.label }}</div>
+                            </Transition>
                         </component>
                     </template>
 

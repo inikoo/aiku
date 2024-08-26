@@ -570,7 +570,7 @@ const changePalletType=(form,fieldName,value)=>{
                 'bg-red-200': pallet_limits?.status === 'exceeded',
             }"
         >
-            <div class="flex qwezxc" :class="{
+            <div class="flex" :class="{
                 'text-amber-500': pallet_limits?.status === 'almost',
                 'text-orange-600': pallet_limits?.status === 'limit',
                 'text-red-600': pallet_limits?.status === 'exceeded',

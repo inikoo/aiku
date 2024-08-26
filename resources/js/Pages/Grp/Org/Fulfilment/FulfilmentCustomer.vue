@@ -149,24 +149,3 @@ onUnmounted(() => {
 
 </template>
 
-
-<style src="@vueform/multiselect/themes/default.css"></style>
-
-<style>
-/* Style for multiselect globally */
-.multiselect-option.is-selected,
-.multiselect-option.is-selected.is-pointed {
-    background: var(--ms-option-bg-selected, #6366f1) !important;
-    color: var(--ms-option-color-selected, #fff) !important;
-}
-
-.multiselect-option.is-selected.is-disabled {
-    background: var(--ms-option-bg-selected-disabled, #c7d2fe);
-    color: var(--ms-option-color-selected-disabled, #818cf8);
-}
-
-.multiselect.is-active {
-    border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid var(--ms-border-color-active, var(--ms-border-color, #d1d5db));
-    box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(99, 102, 241, 0.188));
-}
-</style>

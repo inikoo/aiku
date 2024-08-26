@@ -102,9 +102,9 @@ class ShowCustomerClient extends OrgAction
                 ],
                 'pageHead' => [
                     'title'     => $customerClient->name,
-                    'model'     => __('customer'),
+                    'model'     => __('Client'),
                     'icon'      => [
-                        'icon'  => ['fal', 'fa-user'],
+                        'icon'  => ['fal', 'fa-folder'],
                         'title' => __('customer client')
                     ],
                     'meta' => array_filter([
@@ -113,10 +113,22 @@ class ShowCustomerClient extends OrgAction
                     'actions' => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => 'Add order',
+                            'key'     => 'addorder',
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                'parameters' => [
+                                    'palletDelivery' => 3
+                                ]
+                            ]
+                        ],
                     ],
                 ],
                 'subNavigation' => $subNavigation,
-                'tabs' => [
+                'tabs'          => [
                     'current'    => $this->tab,
                     'navigation' => CustomerTabsEnum::navigation()
 
