@@ -14,6 +14,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -29,7 +30,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexDepartments extends OrgAction
 {
     use HasCatalogueAuthorisation;
-    private Shop|ProductCategory|Organisation $parent;
+    private Shop|ProductCategory|Organisation|Collection $parent;
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -47,6 +48,14 @@ class IndexDepartments extends OrgAction
         return $this->handle(parent: $productCategory);
     }
 
+    public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $collection;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $collection);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
@@ -55,8 +64,7 @@ class IndexDepartments extends OrgAction
         return $this->handle(parent: $shop);
     }
 
-
-    public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -101,6 +109,12 @@ class IndexDepartments extends OrgAction
                 'shops.code as shop_code',
                 'shops.name as shop_name',
             );
+        } elseif (class_basename($parent) == 'Collection') {
+            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+                $join->on('product_categories.id', '=', 'model_has_collections.model_id')
+                        ->where('model_has_collections.model_type', '=', ProductCategory::class)
+                        ->where('model_has_collections.collection_id', '=', $parent->id);
+            });
         }
 
 
@@ -126,7 +140,7 @@ class IndexDepartments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {

@@ -108,4 +108,23 @@ class Collection extends Model implements Auditable
         return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
     }
 
+    public function products(): MorphToMany
+    {
+        return $this->morphToMany(Product::class, 'model', 'model_has_collections')->withTimestamps();
+    }
+
+    public function departments(): MorphToMany
+    {
+        return $this->morphToMany(ProductCategory::class, 'model', 'model_has_collections')
+                    ->wherePivot('type', 'Department')
+                    ->withTimestamps();
+    }
+    
+    public function families(): MorphToMany
+    {
+        return $this->morphToMany(ProductCategory::class, 'model', 'model_has_collections')
+                    ->wherePivot('type', 'Family')
+                    ->withTimestamps();
+    }
+
 }

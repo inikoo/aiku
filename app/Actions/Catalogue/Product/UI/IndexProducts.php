@@ -19,6 +19,7 @@ use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -38,9 +39,9 @@ class IndexProducts extends OrgAction
     use WithDepartmentSubNavigation;
     use WithFamilySubNavigation;
 
-    private Shop|ProductCategory|Organisation $parent;
+    private Shop|ProductCategory|Organisation|Collection $parent;
 
-    protected function getElementGroups(Shop|ProductCategory|Organisation $parent): array
+    protected function getElementGroups(Shop|ProductCategory|Organisation|Collection $parent): array
     {
         return [
 
@@ -71,7 +72,7 @@ class IndexProducts extends OrgAction
         ];
     }
 
-    public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -104,6 +105,12 @@ class IndexProducts extends OrgAction
             } else {
                 abort(419);
             }
+        } elseif (class_basename($parent) == 'Collection') {
+            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+                $join->on('product_categories.id', '=', 'model_has_collections.model_id')
+                        ->where('model_has_collections.model_type', '=', Product::class)
+                        ->where('model_has_collections.collection_id', '=', $parent->id);
+            });
         } else {
             abort(419);
         }
@@ -332,6 +339,14 @@ class IndexProducts extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $department);
+    }
+
+    public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $collection;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $collection);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
