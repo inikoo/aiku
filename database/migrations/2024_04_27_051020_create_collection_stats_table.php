@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table->unsignedInteger('collection_id')->index();
             $table->foreign('collection_id')->references('id')->on('collections');
             $table = $this->catalogueProductsStats($table);
+            $table->unsignedInteger('number_collections')->default(0);
             $table->unsignedInteger('number_families')->default(0);
             $table->unsignedSmallInteger('number_current_families')->default(0)->comment('state: active+discontinuing');
             foreach (ProductCategoryStateEnum::cases() as $familyState) {
