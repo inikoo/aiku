@@ -282,7 +282,7 @@ class IndexCollection extends OrgAction
                     'simple' => [
                         'route' => $routeParameters,
                         'label' => __('Collections'),
-                        'icon'  => 'fal fa-cube'
+                        'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
                 ]
