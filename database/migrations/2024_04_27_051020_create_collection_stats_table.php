@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Stubs\Migrations\HasCatalogueStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,6 +21,16 @@ return new class () extends Migration {
             $table->unsignedInteger('collection_id')->index();
             $table->foreign('collection_id')->references('id')->on('collections');
             $table = $this->catalogueProductsStats($table);
+            $table->unsignedInteger('number_families')->default(0);
+            $table->unsignedSmallInteger('number_current_families')->default(0)->comment('state: active+discontinuing');
+            foreach (ProductCategoryStateEnum::cases() as $familyState) {
+                $table->unsignedInteger('number_families_state_'.$familyState->snake())->default(0);
+            }
+            $table->unsignedInteger('number_departments')->default(0);
+            $table->unsignedSmallInteger('number_current_departments')->default(0)->comment('state: active+discontinuing');
+            foreach (ProductCategoryStateEnum::cases() as $departmentState) {
+                $table->unsignedInteger('number_departments_state_'.$departmentState->snake())->default(0);
+            }
             $table->timestampsTz();
         });
     }
