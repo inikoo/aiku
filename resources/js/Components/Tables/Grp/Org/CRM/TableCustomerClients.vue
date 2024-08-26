@@ -5,19 +5,20 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import Table from "@/Components/Table/Table.vue";
-import { FulfilmentCustomer } from "@/types/Customer";
-import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
-import { useFormatTime } from "@/Composables/useFormatTime";
-import { useLocaleStore } from "@/Stores/locale";
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import { FulfilmentCustomer } from "@/types/Customer"
+import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
+import { useFormatTime } from "@/Composables/useFormatTime"
+import { inject } from "vue"
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 
 const props = defineProps<{
-    data: object,
+    data: {}
     tab?: string
-}>();
+}>()
 
-const locale = useLocaleStore();
+const locale = inject('locale', aikuLocaleStructure)
 
 
 function customerRoute(customer: FulfilmentCustomer) {
@@ -25,11 +26,11 @@ function customerRoute(customer: FulfilmentCustomer) {
         case "grp.org.shops.show.crm.customers.show.customer-clients.index":
             return route(
                 "grp.org.shops.show.crm.customers.show.customer-clients.show",
-                [route().params["organisation"],route().params["shop"],route().params["customer"],customer.ulid]);
+                [route().params["organisation"], route().params["shop"], route().params["customer"], customer.ulid])
         case "grp.fulfilment.customers.index":
             return route(
                 "grp.fulfilment.customers.show",
-                [customer.slug]);
+                [customer.slug])
         default:
             return route(
                 "grp.org.shops.show.crm.customers.show",
@@ -37,20 +38,7 @@ function customerRoute(customer: FulfilmentCustomer) {
                     route().params["organisation"],
                     route().params["shop"],
                     customer.slug
-                ]);
-    }
-}
-
-function shopRoute(customer: FulfilmentCustomer) {
-    switch (route().current()) {
-        case "shops.show.customers.index":
-            return route(
-                "shops.show",
-                [customer.shop_slug]);
-        default:
-            return route(
-                "shops.show",
-                [customer.shop_slug]);
+                ])
     }
 }
 </script>
@@ -62,18 +50,15 @@ function shopRoute(customer: FulfilmentCustomer) {
                 {{ customer["name"] }}
             </Link>
         </template>
-        <template #cell(shop)="{ item: customer }" class="primaryLink">
-            <Link :href="shopRoute(customer)">
-                {{ customer["shop"] }}
-            </Link>
-        </template>
+
         <template #cell(location)="{ item: customer }">
             <AddressLocation :data="customer['location']" />
         </template>
+
         <template #cell(created_at)="{ item: customer }">
-            <div class="text-gray-500">{{ useFormatTime(customer["created_at"], { localeCode: locale.language.code, formatTime: "Ymd" }) }}</div>
+            <div class="text-gray-500">{{ useFormatTime(customer["created_at"], {
+                localeCode: locale.language.code,
+                formatTime: "Ymd" }) }}</div>
         </template>
     </Table>
 </template>
-
-

@@ -1,8 +1,9 @@
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Mon, 17 Oct 2022 17:33:07 British Summer Time, Sheffield, UK
-  -  Copyright (c) 2022, Raul A Perusquia Flores
-  -->
+    -  Author: Vika Aqordi <aqordivika@yahoo.co.id>
+    -  Created on: 26-08-2024, Bali, Indonesia
+    -  Github: https://github.com/aqordeon
+    -  Copyright: 2024
+-->
 
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3'
@@ -94,9 +95,10 @@ const props = defineProps<{
     physical_good_list_route: routeType
 }>()
 
+console.log('ggg', props.box_stats)
 
 
-const currentTab = ref(props.tabs.current)
+const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
@@ -600,13 +602,13 @@ const changePalletType=(form,fieldName,value)=>{
 
     <!-- Section: Timeline -->
     <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline :options="props.data?.data?.timeline" :state="props.data?.data?.state" :slidesPerView="6" />
+        <Timeline v-if="props.data?.data?.timeline" :options="props.data?.data?.timeline" :state="props.data?.data?.state" :slidesPerView="6" />
     </div>
 
     <!-- Box -->
-    <BoxStatsPalletDelivery :dataPalletDelivery="data.data" :boxStats="box_stats" :updateRoute />
+    <BoxStatsPalletDelivery :dataPalletDelivery="data?.data" :boxStats="box_stats" :updateRoute />
 
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+    <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
     <div class="pb-12">
         <component
@@ -633,7 +635,7 @@ const changePalletType=(form,fieldName,value)=>{
         }"
         progressDescription="Adding Pallet Deliveries"        
         :upload_spreadsheet
-        :additionalDataToSend="interest.pallets_storage ? ['stored_items'] : undefined"
+        :additionalDataToSend="interest?.pallets_storage ? ['stored_items'] : undefined"
     />
 
     <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>

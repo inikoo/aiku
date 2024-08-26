@@ -7,7 +7,9 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
@@ -29,6 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDepartments extends OrgAction
 {
+    use WithCollectionSubNavigation;
     use HasCatalogueAuthorisation;
     private Shop|ProductCategory|Organisation|Collection $parent;
 
@@ -110,7 +113,7 @@ class IndexDepartments extends OrgAction
                 'shops.name as shop_name',
             );
         } elseif (class_basename($parent) == 'Collection') {
-            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+            $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
                         ->where('model_has_collections.model_type', '=', ProductCategory::class)
                         ->where('model_has_collections.collection_id', '=', $parent->id);
@@ -205,9 +208,12 @@ class IndexDepartments extends OrgAction
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if(class_basename($parent) != 'Collection') {
+                $table->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
@@ -218,7 +224,33 @@ class IndexDepartments extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        if ($this->parent instanceof Collection) {
+            $subNavigation = $this->getCollectionSubNavigation($this->parent);
+        }
+        $title = __('Departments');
+        $model = __('department');
+        $icon  = [
+            'icon'  => ['fal', 'fa-folder-tree'],
+            'title' => __('departments')
+        ];
+        $afterTitle=null;
+        $iconRight =null;
 
+        if ($this->parent instanceof Collection) {
+            $title = $this->parent->name;
+            $model = __('collection');
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('collection')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-folder-tree',
+            ];
+            $afterTitle= [
+                'label'     => __('Departments')
+            ];
+        }
         return Inertia::render(
             'Org/Catalogue/Departments',
             [
@@ -228,12 +260,12 @@ class IndexDepartments extends OrgAction
                 ),
                 'title'       => __('Departments'),
                 'pageHead'    => [
-                    'title'     => __('departments'),
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-folder-tree'],
-                        'title' => __('department')
-                    ],
-                    'actions'   => [
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'actions'       => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -244,7 +276,18 @@ class IndexDepartments extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                    ]
+                    ],
+                    'subNavigation' => $subNavigation,
+                ],
+                'routes'    => [
+                    'dataList'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
+                    'submitAttach'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
                 ],
                 'data'        => DepartmentsResource::collection($departments),
             ]
@@ -271,6 +314,17 @@ class IndexDepartments extends OrgAction
             'grp.org.shops.show.catalogue.departments.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.collections.departments.index' =>
+            array_merge(
+                ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

@@ -27,7 +27,7 @@ trait WithCollectionSubNavigation
             ],
             [
                 'label'    => __('Departments'),
-                // 'number'   => $collection->stats->number_departments,
+                'number'   => $collection->stats->number_departments ?? 0,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.collections.departments.index',
                     'parameters' => [$this->organisation->slug, $collection->shop->slug, $collection->slug]
@@ -39,7 +39,7 @@ trait WithCollectionSubNavigation
             ],
             [
                 'label'    => __('Families'),
-                // 'number'   => $collection->stats->number_families,
+                'number'   => $collection->stats->number_families ?? 0,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.collections.families.index',
                     'parameters' => [$this->organisation->slug, $collection->shop->slug, $collection->slug]
@@ -51,7 +51,7 @@ trait WithCollectionSubNavigation
             ],
             [
                 'label'    => __('Products'),
-                // 'number'   => $collection->stats->number_products,
+                'number'   => $collection->stats->number_products ?? 0,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.collections.products.index',
                     'parameters' => [$this->organisation->slug, $collection->shop->slug, $collection->slug]
@@ -63,7 +63,7 @@ trait WithCollectionSubNavigation
             ],
             [
                 'label'    => __('Collections'),
-                // 'number'   => $collection->stats->number_collections,
+                'number'   => $collection->stats->number_collections ?? 0,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.collections.collections.index',
                     'parameters' => [$this->organisation->slug, $collection->shop->slug, $collection->slug]

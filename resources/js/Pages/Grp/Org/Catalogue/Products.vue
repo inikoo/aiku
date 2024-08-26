@@ -5,22 +5,166 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
+import { Head, router } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue"
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { ref } from 'vue'
+import { notify } from '@kyvg/vue3-notification'
+import { trans } from 'laravel-vue-i18n'
+import axios from 'axios'
+import { routeType } from '@/types/route'
+import Popover from '@/Components/Popover.vue'
+import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
-const props = defineProps <{
-    pageHead: object
-    data: object
+
+const props = defineProps<{
+    pageHead: PageHeadingTypes
     title: string
+    data: {}
+    routes: {
+        dataList: routeType
+        submitAttach: routeType
+    }
 }>()
 
+const isLoading = ref<string | boolean>(false)
+const errorMessage = ref<string>('')
+
+const formProduct = ref({
+    selectedId: []
+})
+
+
+const dataProductList = ref([])
+const fetchProductList = async () => {
+    isLoading.value = 'fetchProduct'
+    try {
+        const xxx = await axios.get(
+            route(props.routes.dataList.name, props.routes.dataList.parameters)
+        )
+        dataProductList.value = xxx?.data?.data || []
+    } catch (error) {
+        // console.log(error)
+        notify({
+            title: trans('Something went wrong.'),
+            text: trans('Failed to fetch product list'),
+            type: 'error',
+        })
+    }
+    isLoading.value = false
+}
+const onSubmitAddService = (closedPopover: Function) => {
+    isLoading.value = 'submitAttach'
+
+    router.post(
+        route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
+        {
+            id: formProduct.value.selectedId
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                closedPopover()
+                notify({
+                    title: trans('Succes'),
+                    text: trans('Successfully attach product.'),
+                    type: 'success',
+                })
+                formProduct.value.selectedId = []
+            },
+            onError: (errors) => {
+                // console.log(errors)
+                errorMessage.value = errors
+                notify({
+                    title: trans('Something went wrong.'),
+                    text: trans('Failed to attach product, please try again.'),
+                    type: 'error',
+                })
+            },
+            onFinish: () => {
+                isLoading.value = false
+            }
+        }
+    )
+}
 </script>
 
 <template>
     <Head :title="capitalize(title)"/>
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #button-attach-product>
+            <Popover>
+                <template #button="{ open }">
+                    <Button
+                        @click="() => open ? false : fetchProductList()"
+                        type="secondary"
+                        label="Attach product"
+                        icon="fal fa-plus"
+                        :tooltip="trans('Attach product to this collections')"
+                    />
+                </template>
+                <template #content="{ close: closed }">
+                    <div class="w-[350px]">
+                        <span class="text-xs px-1 my-2">{{ trans('Select product') }}: </span>
+                        <div class="">
+                            <PureMultiselect
+                                v-model="formProduct.selectedId"
+                                autofocus
+                                caret
+                                required
+                                searchable
+                                placeholder="Select Product"
+                                :options="dataProductList"
+                                label="name"
+                                valueProp="id"
+                            >
+                                <template #label="{ value }">
+                                    <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
+                                </template>
+
+                                <template #option="{ option, isSelected, isPointed }">
+                                    <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                                </template>
+                            </PureMultiselect>
+                            <p v-if="errorMessage" class="mt-2 text-sm text-red-500">
+                                {{ errorMessage }}
+                            </p>
+                        </div>
+                        <!-- <div class="mt-3">
+                            <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
+                            <PureInput
+                                v-model="formAddService.quantity"
+                                :placeholder="trans('Quantity')"
+                                @keydown.enter="() => onSubmitAddService(action, closed)"
+                            />
+                            <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
+                                {{ formAddService.errors.quantity }}
+                            </p>
+                        </div> -->
+                        <div class="flex justify-end mt-3">
+                            <Button
+                                @click="() => onSubmitAddService(closed)"
+                                :style="'save'"
+                                :loading="isLoading == 'submitAttach'"
+                                :disabled="!formProduct.selectedId.length"
+                                label="Save"
+                                full
+                            />
+                        </div>
+                        
+                        <!-- Loading: fetching service list -->
+                        <div v-if="isLoading === 'fetchProduct'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                            <LoadingIcon class="text-5xl" />
+                        </div>
+                    </div>
+                </template>
+            </Popover>
+        </template>
+    </PageHeading>
     <TableProducts :data="data" />
 </template>
 

@@ -7,9 +7,11 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\OrgAction;
@@ -38,6 +40,7 @@ class IndexProducts extends OrgAction
     use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
     use WithFamilySubNavigation;
+    use WithCollectionSubNavigation;
 
     private Shop|ProductCategory|Organisation|Collection $parent;
 
@@ -106,8 +109,8 @@ class IndexProducts extends OrgAction
                 abort(419);
             }
         } elseif (class_basename($parent) == 'Collection') {
-            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
-                $join->on('product_categories.id', '=', 'model_has_collections.model_id')
+            $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
+                $join->on('products.id', '=', 'model_has_collections.model_id')
                         ->where('model_has_collections.model_type', '=', Product::class)
                         ->where('model_has_collections.collection_id', '=', $parent->id);
             });
@@ -146,7 +149,7 @@ class IndexProducts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -238,6 +241,8 @@ class IndexProducts extends OrgAction
             } elseif ($this->parent->type == ProductCategoryTypeEnum::FAMILY) {
                 $subNavigation = $this->getFamilySubNavigation($this->parent, $this->parent, $request);
             }
+        } elseif ($this->parent instanceof Collection) {
+            $subNavigation = $this->getCollectionSubNavigation($this->parent);
         }
 
         $title      = __('products');
@@ -264,6 +269,19 @@ class IndexProducts extends OrgAction
                     'label'     => __('Products')
                 ];
             }
+        } elseif ($this->parent instanceof Collection) {
+            $title = $this->parent->name;
+            $model = __('collection');
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('collection')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-cube',
+            ];
+            $afterTitle= [
+                'label'     => __('Products')
+            ];
         }
 
         return Inertia::render(
@@ -295,8 +313,27 @@ class IndexProducts extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
+
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attach-product',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach product to this collection'),
+                            'label'    => __('Attach product'),
+                        ] : false
                     ],
                     'subNavigation' => $subNavigation,
+                ],
+                'routes'    => [
+                    'dataList'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
+                    'submitAttach'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
                 ],
                 'data'        => ProductsResource::collection($products),
 
@@ -421,6 +458,17 @@ class IndexProducts extends OrgAction
             'grp.org.shops.show.catalogue.products.index' =>
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.collections.products.index' =>
+            array_merge(
+                ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

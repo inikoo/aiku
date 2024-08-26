@@ -244,7 +244,7 @@ const isModalAddress = ref(false)
                             :options="{
                                 formattingFn: (value: number) => locale.currencyFormat(data.currency_code, value)
                             }" />
-                        <div class="text-white/60 text-sm leading-4">
+                        <div class="text-white/60 text-sm leading-4 font-normal">
                             {{data.balance.credit_transactions}} credit transactions
                         </div>
                     </div>

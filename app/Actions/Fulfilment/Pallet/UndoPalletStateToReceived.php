@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,6 +26,7 @@ class UndoPalletStateToReceived extends OrgAction
     public function handle(Pallet $pallet): Pallet
     {
         $modelData['state']       = PalletStateEnum::RECEIVED;
+        $modelData['status']      = PalletStatusEnum::RECEIVING;
         $modelData['location_id'] = null;
 
         $pallet = $this->update($pallet, $modelData, ['data']);

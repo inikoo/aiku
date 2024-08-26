@@ -35,6 +35,9 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         $modelData['booked_in_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::BOOKED_IN;
 
+        if ($palletDelivery->pallets->contains(fn ($pallet) => is_null($pallet->location))) {
+            abort(400, 'One or more pallets do not have a location assigned.');
+        }
 
         foreach ($palletDelivery->pallets as $pallet) {
             if ($pallet->state == PalletStateEnum::BOOKED_IN) {

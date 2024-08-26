@@ -15,6 +15,7 @@ use App\Actions\CRM\Customer\UI\IndexPortfolios;
 use App\Actions\CRM\Customer\UI\IndexFilteredProducts;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
+use App\Actions\CRM\Customer\UI\ShowCustomerOrder;
 use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUsers;
@@ -41,6 +42,9 @@ Route::prefix('{customer}')->as('show')->group(function () {
         Route::prefix('{customerClient}')->group(function () {
             Route::get('', ShowCustomerClient::class)->name('.show');
             // Route::get('edit', [EditWebUser::class, 'inCustomerInShop'])->name('.edit');
+            Route::prefix('orders')->as('.orders')->group(function () {
+                Route::get('{order}', ShowCustomerOrder::class)->name('.show');
+            });
         });
     });
     Route::prefix('portfolios')->as('.portfolios')->group(function () {

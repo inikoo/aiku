@@ -7,7 +7,9 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
@@ -32,6 +34,7 @@ class IndexFamilies extends OrgAction
 {
     use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
+    use WithCollectionSubNavigation;
 
     private Shop|ProductCategory|Organisation|Collection $parent;
 
@@ -144,7 +147,7 @@ class IndexFamilies extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -204,8 +207,11 @@ class IndexFamilies extends OrgAction
 
 
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if(class_basename($parent) != 'Collection') {
+                $table->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
@@ -221,6 +227,9 @@ class IndexFamilies extends OrgAction
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $subNavigation = $this->getDepartmentSubNavigation($this->parent);
             }
+        }
+        if ($this->parent instanceof Collection) {
+            $subNavigation = $this->getCollectionSubNavigation($this->parent);
         }
 
 
@@ -249,6 +258,19 @@ class IndexFamilies extends OrgAction
                     'label'     => __('Families')
                 ];
             }
+        } elseif ($this->parent instanceof Collection) {
+            $title = $this->parent->name;
+            $model = __('collection');
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('collection')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-folder',
+            ];
+            $afterTitle= [
+                'label'     => __('Families')
+            ];
         }
 
 
@@ -279,8 +301,26 @@ class IndexFamilies extends OrgAction
                             ]
                         ] : false
                         ) : false,
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attachFamily',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach family to this collection'),
+                            'label'    => __('Attach family'),
+                        ] : false
                     ],
                     'subNavigation' => $subNavigation,
+                ],
+                'routes'    => [
+                    'dataList'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
+                    'submitAttach'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
                 ],
                 'data'        => FamiliesResource::collection($families),
             ]
@@ -324,6 +364,17 @@ class IndexFamilies extends OrgAction
                             $routeParameters['shop'],
                             $routeParameters['department']
                         ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.collections.families.index' =>
+            array_merge(
+                ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
                     ],
                     $suffix
                 )

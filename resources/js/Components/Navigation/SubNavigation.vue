@@ -92,14 +92,14 @@ const locale = inject('locale', aikuLocaleStructure)
                         :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
                         @start="() => isLoading = itemIdx"
                         @finish="() => isLoading = false"
-                        class="py-1.5 px-3 flex w-fit items-center gap-x-2 transition-all"
+                        class="pt-2 pb-1.5 px-3 flex w-fit items-center gap-x-2 transition-all"
                         :class="[
                             layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'tabSubNavActive' : 'tabSubNav',
                         ]"
                     >
                         <div v-if="subNav.leftIcon" class="">
-                            <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="text-sm animate-spin" />
-                            <FontAwesomeIcon v-else :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" class="text-sm opacity-50" fixed-width aria-hidden="true" />
+                            <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third" v-tooltip="capitalize(subNav.leftIcon.tooltip)" fixed-width aria-hidden="true" class="text-base animate-spin" />
+                            <FontAwesomeIcon v-else :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" class="text-base opacity-50" fixed-width aria-hidden="true" />
                         </div>
                         <div class="xl:whitespace-nowrap flex items-center gap-x-1.5">
                             <span class="leading-none font-medium text-base">{{ subNav.label }}</span>
