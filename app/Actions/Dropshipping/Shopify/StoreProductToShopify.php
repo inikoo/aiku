@@ -107,6 +107,6 @@ class StoreProductToShopify extends OrgAction
     {
         $this->initialisationFromShop($shopifyUser->customer->shop, $request);
 
-        $this->handle($shopifyUser, $this->validatedData);
+        self::dispatch($shopifyUser, $this->validatedData);
     }
 }

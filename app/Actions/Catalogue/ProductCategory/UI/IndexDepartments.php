@@ -7,13 +7,16 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -28,8 +31,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDepartments extends OrgAction
 {
+    use WithCollectionSubNavigation;
     use HasCatalogueAuthorisation;
-    private Shop|ProductCategory|Organisation $parent;
+    private Shop|ProductCategory|Organisation|Collection $parent;
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -47,6 +51,14 @@ class IndexDepartments extends OrgAction
         return $this->handle(parent: $productCategory);
     }
 
+    public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $collection;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $collection);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
@@ -55,8 +67,7 @@ class IndexDepartments extends OrgAction
         return $this->handle(parent: $shop);
     }
 
-
-    public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -101,6 +112,12 @@ class IndexDepartments extends OrgAction
                 'shops.code as shop_code',
                 'shops.name as shop_name',
             );
+        } elseif (class_basename($parent) == 'Collection') {
+            $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
+                $join->on('product_categories.id', '=', 'model_has_collections.model_id')
+                        ->where('model_has_collections.model_type', '=', ProductCategory::class)
+                        ->where('model_has_collections.collection_id', '=', $parent->id);
+            });
         }
 
 
@@ -126,7 +143,7 @@ class IndexDepartments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -191,9 +208,12 @@ class IndexDepartments extends OrgAction
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if(class_basename($parent) != 'Collection') {
+                $table->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
@@ -204,7 +224,33 @@ class IndexDepartments extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        if ($this->parent instanceof Collection) {
+            $subNavigation = $this->getCollectionSubNavigation($this->parent);
+        }
+        $title = __('Departments');
+        $model = __('department');
+        $icon  = [
+            'icon'  => ['fal', 'fa-folder-tree'],
+            'title' => __('departments')
+        ];
+        $afterTitle=null;
+        $iconRight =null;
 
+        if ($this->parent instanceof Collection) {
+                $title = $this->parent->name;
+                $model = __('collection');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-cube'],
+                    'title' => __('collection')
+                ];
+                $iconRight    =[
+                    'icon' => 'fal fa-folder-tree',
+                ];
+                $afterTitle= [
+                    'label'     => __('Departments')
+                ];
+        }
         return Inertia::render(
             'Org/Catalogue/Departments',
             [
@@ -214,11 +260,11 @@ class IndexDepartments extends OrgAction
                 ),
                 'title'       => __('Departments'),
                 'pageHead'    => [
-                    'title'     => __('departments'),
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-folder-tree'],
-                        'title' => __('department')
-                    ],
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'actions'   => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.departments.index' ? [
                             'type'    => 'button',
@@ -230,7 +276,8 @@ class IndexDepartments extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                    ]
+                    ],
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => DepartmentsResource::collection($departments),
             ]
@@ -257,6 +304,17 @@ class IndexDepartments extends OrgAction
             'grp.org.shops.show.catalogue.departments.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.collections.departments.index' =>
+            array_merge(
+                ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

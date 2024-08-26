@@ -9,6 +9,7 @@ namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowCollection extends OrgAction
 {
+    use WithCollectionSubNavigation;
     use HasCatalogueAuthorisation;
 
     private Organisation|Shop $parent;
@@ -84,7 +86,8 @@ class ShowCollection extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
-                    ]
+                    ],
+                    'subNavigation' => $this->getCollectionSubNavigation($collection),
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,

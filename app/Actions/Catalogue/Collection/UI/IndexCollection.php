@@ -8,6 +8,7 @@
 namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
+use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
@@ -28,10 +29,11 @@ use Lorisleiva\Actions\ActionRequest;
 class IndexCollection extends OrgAction
 {
     use HasCatalogueAuthorisation;
+    use WithCollectionSubNavigation;
 
-    private Shop|Organisation $parent;
+    private Shop|Organisation|Collection $parent;
 
-    protected function getElementGroups(Shop|Organisation $parent): array
+    protected function getElementGroups(Shop|Organisation|Collection $parent): array
     {
         return [
             'type'  => [
@@ -48,7 +50,7 @@ class IndexCollection extends OrgAction
         ];
     }
 
-    public function handle(Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -86,6 +88,12 @@ class IndexCollection extends OrgAction
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('collections.organisation_id', $parent->id);
 
+        } elseif (class_basename($parent) == 'Collection') {
+            $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
+                $join->on('collections.id', '=', 'model_has_collections.model_id')
+                        ->where('model_has_collections.model_type', '=', Collection::class)
+                        ->where('model_has_collections.collection_id', '=', $parent->id);
+            });
         } else {
             abort(419);
         }
@@ -98,7 +106,7 @@ class IndexCollection extends OrgAction
     }
 
     public function tableStructure(
-        Shop|Organisation $parent,
+        Shop|Organisation|Collection $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
@@ -181,6 +189,34 @@ class IndexCollection extends OrgAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
+
+        $subNavigation = null;
+        if ($this->parent instanceof Collection) {
+            $subNavigation = $this->getCollectionSubNavigation($this->parent);
+        }
+        $title = __('Collections');
+        $model = __('collection');
+        $icon  = [
+            'icon'  => ['fal', 'fa-cube'],
+            'title' => __('collections')
+        ];
+        $afterTitle=null;
+        $iconRight =null;
+
+        if ($this->parent instanceof Collection) {
+                $title = $this->parent->name;
+                $model = __('collection');
+                $icon  = [
+                    'icon'  => ['fal', 'fa-cube'],
+                    'title' => __('collection')
+                ];
+                $iconRight    =[
+                    'icon' => 'fal fa-cube',
+                ];
+                $afterTitle= [
+                    'label'     => __('Collections')
+                ];
+        }
         return Inertia::render(
             'Org/Catalogue/Collections',
             [
@@ -190,12 +226,12 @@ class IndexCollection extends OrgAction
                 ),
                 'title'    => __('Collections'),
                 'pageHead' => [
-                    'title'     => __('Collections'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'container' => $container,
-                    'icon'      => [
-                        'icon'  => ['fal', 'fa-cube'],
-                        'title' => __('Collections')
-                    ],
                     'actions'   => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.collections.index' ? [
                             'type'    => 'button',
@@ -207,7 +243,8 @@ class IndexCollection extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                    ]
+                    ],
+                    'subNavigation' => $subNavigation,
                 ],
                 'data' => CollectionResource::collection($collections),
             ]
@@ -228,6 +265,14 @@ class IndexCollection extends OrgAction
         return $this->handle(parent: $shop);
     }
 
+    public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $collection;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $collection);
+    }
+
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
         $headCrumb = function (array $routeParameters, ?string $suffix) {
@@ -237,7 +282,7 @@ class IndexCollection extends OrgAction
                     'simple' => [
                         'route' => $routeParameters,
                         'label' => __('Collections'),
-                        'icon'  => 'fal fa-cube'
+                        'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
                 ]
@@ -247,6 +292,17 @@ class IndexCollection extends OrgAction
             'grp.org.shops.show.catalogue.collections.index' =>
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.collections.collections.index' =>
+            array_merge(
+                ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
