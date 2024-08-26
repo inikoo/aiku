@@ -29,9 +29,9 @@ class IndexCollection extends OrgAction
 {
     use HasCatalogueAuthorisation;
 
-    private Shop|Organisation $parent;
+    private Shop|Organisation|Collection $parent;
 
-    protected function getElementGroups(Shop|Organisation $parent): array
+    protected function getElementGroups(Shop|Organisation|Collection $parent): array
     {
         return [
             'type'  => [
@@ -48,7 +48,7 @@ class IndexCollection extends OrgAction
         ];
     }
 
-    public function handle(Shop|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -86,6 +86,12 @@ class IndexCollection extends OrgAction
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('collections.organisation_id', $parent->id);
 
+        } elseif (class_basename($parent) == 'Collection') {
+            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+                $join->on('product_categories.id', '=', 'model_has_collections.model_id')
+                        ->where('model_has_collections.model_type', '=', Collection::class)
+                        ->where('model_has_collections.collection_id', '=', $parent->id);
+            });
         } else {
             abort(419);
         }
@@ -98,7 +104,7 @@ class IndexCollection extends OrgAction
     }
 
     public function tableStructure(
-        Shop|Organisation $parent,
+        Shop|Organisation|Collection $parent,
         ?array $modelOperations = null,
         $prefix = null,
         $canEdit = false
@@ -226,6 +232,14 @@ class IndexCollection extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
         return $this->handle(parent: $shop);
+    }
+
+    public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $collection;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $collection);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array

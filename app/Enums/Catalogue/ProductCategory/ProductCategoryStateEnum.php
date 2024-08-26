@@ -8,6 +8,7 @@
 namespace App\Enums\Catalogue\ProductCategory;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -54,7 +55,7 @@ enum ProductCategoryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-           'discontinuing' => [
+            'discontinuing' => [
                 'tooltip' => __('Discontinuing'),
                 'icon'    => 'fal fa-exclamation-triangle',
                 'class'   => 'text-orange-500',
@@ -76,7 +77,7 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countDepartments(Shop|Organisation $parent): array
+    public static function countDepartments(Shop|Organisation|Collection $parent): array
     {
         if($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;
@@ -92,7 +93,7 @@ enum ProductCategoryStateEnum: string
         ];
     }
 
-    public static function countFamily(Shop|ProductCategory|Organisation $parent): array
+    public static function countFamily(Shop|ProductCategory|Organisation|Collection $parent): array
     {
         if($parent instanceof Organisation) {
             $stats = $parent->catalogueStats;

@@ -15,6 +15,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -32,7 +33,7 @@ class IndexFamilies extends OrgAction
     use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
 
-    private Shop|ProductCategory|Organisation $parent;
+    private Shop|ProductCategory|Organisation|Collection $parent;
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -51,6 +52,14 @@ class IndexFamilies extends OrgAction
         return $this->handle(parent: $department);
     }
 
+    public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $collection;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $collection);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
@@ -60,7 +69,7 @@ class IndexFamilies extends OrgAction
     }
 
 
-    public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -101,7 +110,14 @@ class IndexFamilies extends OrgAction
                 // todo
                 abort(419);
             }
+        }  elseif (class_basename($parent) == 'Collection') {
+            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+                $join->on('product_categories.id', '=', 'model_has_collections.model_id')
+                        ->where('model_has_collections.model_type', '=', ProductCategory::class)
+                        ->where('model_has_collections.collection_id', '=', $parent->id);
+            });
         }
+
 
         return $queryBuilder
             ->defaultSort('product_categories.code')

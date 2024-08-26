@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -185,5 +186,10 @@ class ProductCategory extends Model implements Auditable, HasMedia
             default                             => null
         };
 
+    }
+
+    public function collections(): MorphToMany
+    {
+        return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
     }
 }

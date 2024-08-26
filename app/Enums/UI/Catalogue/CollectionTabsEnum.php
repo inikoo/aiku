@@ -19,9 +19,10 @@ enum CollectionTabsEnum: string
 
     case SHOWCASE            = 'showcase';
 
+    // case DEPARTMENTS         = 'departments';
     // case FAMILIES            = 'families';
     // case PRODUCTS            = 'products';
-
+    // case COLLECTIONS         = 'collections';
     // case SALES               = 'sales';
     // case CUSTOMERS           = 'customers';
     // case OFFERS              = 'offers';
@@ -81,9 +82,25 @@ enum CollectionTabsEnum: string
                 'align' => 'right',
             ],
             CollectionTabsEnum::SHOWCASE => [
-                'title' => __('collection'),
+                'title' => __('Details'),
                 'icon'  => 'fas fa-info-circle',
             ],
+            // CollectionTabsEnum::DEPARTMENTS => [
+            //     'title' => __('Departments'),
+            //     'icon'  => 'fas fa-folder-tree',
+            // ],
+            // CollectionTabsEnum::FAMILIES => [
+            //     'title' => __('Families'),
+            //     'icon'  => 'fas fa-folder',
+            // ],
+            // CollectionTabsEnum::PRODUCTS => [
+            //     'title' => __('Products'),
+            //     'icon'  => 'fas fa-cube',
+            // ],
+            // CollectionTabsEnum::COLLECTIONS => [
+            //     'title' => __('Collections'),
+            //     'icon'  => 'fas fa-cube',
+            // ],
         };
     }
 }
