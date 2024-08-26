@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue;
 
 use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\ProductCategory;
 
 trait WithCollectionSubNavigation
 {

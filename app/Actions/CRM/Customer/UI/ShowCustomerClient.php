@@ -116,7 +116,7 @@ class ShowCustomerClient extends OrgAction
                     ],
                 ],
                 'subNavigation' => $subNavigation,
-                'tabs' => [
+                'tabs'          => [
                     'current'    => $this->tab,
                     'navigation' => CustomerTabsEnum::navigation()
 
