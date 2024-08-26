@@ -8,7 +8,6 @@
 use App\Actions\Catalogue\Collection\UI\CreateCollection;
 use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
-use App\Actions\Catalogue\Collection\UI\IndexCollections;
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct as UIEditProduct;
@@ -112,7 +111,7 @@ Route::name("collections.")->prefix('collections')
         Route::prefix('{collection}')->group(function () {
             Route::get('', ShowCollection::class)->name('show');
             Route::get('edit', EditCollection::class)->name('edit');
-            
+
             Route::prefix('products')->name('products.')->group(function () {
                 Route::get('index', [IndexProducts::class, 'inCollection'])->name('index');
             });

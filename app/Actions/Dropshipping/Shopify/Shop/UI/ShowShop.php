@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Artha <artha@aw-advantage.com>
- * Created: Thu, 11 Jul 2024 10:16:19 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Mon, 26 Aug 2024 14:04:02 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\Shopify\UI;
+namespace App\Actions\Dropshipping\Shopify\Shop\UI;
 
 use App\Actions\Traits\WithActionUpdate;
 use Lorisleiva\Actions\Concerns\AsAction;

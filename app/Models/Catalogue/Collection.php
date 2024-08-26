@@ -119,7 +119,7 @@ class Collection extends Model implements Auditable
                     ->wherePivot('type', 'Department')
                     ->withTimestamps();
     }
-    
+
     public function families(): MorphToMany
     {
         return $this->morphToMany(ProductCategory::class, 'model', 'model_has_collections')
