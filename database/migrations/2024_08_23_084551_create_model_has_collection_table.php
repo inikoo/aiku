@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreign('collection_id')->references('id')->on('collections');
             $table->string('model_type');
             $table->unsignedInteger('model_id');
+            $table->string('type')->nullable();
             $table->index(['model_type','model_id']);
             $table->unique(['collection_id','model_type','model_id']);
             $table->timestampsTz();
