@@ -46,7 +46,7 @@ class MarketingHub extends InertiaAction
     public function htmlResponse(ActionRequest $request): Response
     {
         $routeName       = $request->route()->getName();
-        $routeParameters = $request->route()->originalParameters()();
+        $routeParameters = $request->route()->originalParameters();
 
 
         return Inertia::render(

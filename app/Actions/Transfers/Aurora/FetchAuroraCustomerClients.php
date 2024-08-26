@@ -37,7 +37,7 @@ class FetchAuroraCustomerClients extends FetchAuroraAction
                 }
             } else {
                 try {
-                    $customerClient = StoreCustomerClient::make()->asFetch(
+                    $customerClient = StoreCustomerClient::make()->action(
                         customer: $customerClientData['customer'],
                         modelData: $customerClientData['customer_client'],
                     );

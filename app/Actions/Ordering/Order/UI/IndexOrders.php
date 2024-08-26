@@ -44,8 +44,16 @@ class IndexOrders extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Order::class)
-            ->defaultSort('orders.reference')
+        $query=QueryBuilder::for(Order::class);
+
+        if (class_basename($parent) == 'Shop') {
+            $query->where('orders.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Customer') {
+            $query->where('orders.customer_id', $parent->id);
+        }
+
+
+        return $query->defaultSort('orders.reference')
             ->select([
                 'orders.reference',
                 'orders.date',
@@ -57,13 +65,6 @@ class IndexOrders extends OrgAction
             ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
             ->leftJoin('shops', 'orders.shop_id', 'shops.id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('orders.shop_id', $parent->id);
-                } elseif (class_basename($parent) == 'Customer') {
-                    $query->where('orders.customer_id', $parent->id);
-                }
-            })
             ->allowedSorts(['reference', 'date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

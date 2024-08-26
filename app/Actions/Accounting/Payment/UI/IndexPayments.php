@@ -18,11 +18,11 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,7 +34,7 @@ class IndexPayments extends OrgAction
 {
     private Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
 
-    public function handle(Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -57,16 +57,13 @@ class IndexPayments extends OrgAction
             $queryBuilder->where('payments.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Invoice') {
 
-            //            abort(404);
+            $queryBuilder->leftJoin('model_has_payments', 'payments.id', 'model_has_payments.payment_id')
+                ->where('model_has_payments.model_id', $parent->id)
+                ->where('model_has_payments.model_type', 'Invoice');
         } elseif (class_basename($parent) == 'Order') {
-            $queryBuilder->leftJoin(
-                'paymentables',
-                function ($leftJoin) {
-                    $leftJoin->on('paymentables.payment_id', 'payments.id');
-                    $leftJoin->on(DB::raw('paymentables.paymentable_type'), DB::raw("'Order'"));
-                }
-            );
-            $queryBuilder->where('paymentables.paymentable_id', $parent->id);
+            $queryBuilder->leftJoin('model_has_payments', 'payments.id', 'model_has_payments.payment_id')
+                ->where('model_has_payments.model_id', $parent->id)
+                ->where('model_has_payments.model_type', 'Order');
         } else {
             abort(422);
         }
@@ -102,7 +99,7 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount|Order $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {

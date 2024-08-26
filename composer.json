@@ -89,8 +89,7 @@
         "nunomaduro/collision": "^8.1",
         "pestphp/pest": "^2.0",
         "pestphp/pest-plugin-laravel": "^2.0",
-        "phpunit/phpunit": "^10",
-        "spatie/laravel-ignition": "^2.0"
+        "phpunit/phpunit": "^10"
     },
     "autoload": {
         "psr-4": {
