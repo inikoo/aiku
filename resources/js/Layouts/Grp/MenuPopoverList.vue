@@ -38,7 +38,7 @@ const layout = inject('layout', layoutStructure)
                     as="div"
                     @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))" :class="[
                         showare.slug == layout.organisationsState?.[layout.currentParams.organisation]?.[`current${capitalize(navKey)}`] && (navKey == layout.organisationsState?.[layout.currentParams.organisation]?.currentType)
-                            ? 'border-l-2 border-indigo-500 bg-indigo-500/10 text-indigo-600 rounded-r cursor-pointer'
+                            ? 'navigationDropdownActive'
                             : 'rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer',
                         'group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm',
                     ]">
@@ -52,3 +52,14 @@ const layout = inject('layout', layoutStructure)
         </div>
     </div>
 </template>
+
+
+<style lang="scss" scoped>
+.navigationDropdownActive {
+    @apply rounded-r cursor-pointer;
+    border-left: v-bind('`3px solid ${layout.app.theme[0]}`');
+    background-color: v-bind('`${layout.app.theme[0]}22`');
+    color: v-bind('`${layout.app.theme[0]}`');
+}
+
+</style>

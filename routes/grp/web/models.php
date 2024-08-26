@@ -268,7 +268,6 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
 
-    Route::post('/shop/{shop:id}/customer/{customer:id}/client', [StoreCustomerClient::class, 'inCustomer'])->name('shop.customer.client.store')->withoutScopedBindings();
 
     Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
@@ -503,6 +502,10 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
     Route::post('payment/{paymentAccount:id}/{invoice:id}', StorePayment::class)->name('payment.store')->withoutScopedBindings();
+
+    Route::post('client', StoreCustomerClient::class)->name('client.store');
+
+
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

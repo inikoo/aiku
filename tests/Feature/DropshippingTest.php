@@ -84,6 +84,7 @@ test('test platform were seeded ', function () {
 
 test('create customer client', function () {
     $customerClient = StoreCustomerClient::make()->action($this->customer, CustomerClient::factory()->definition());
+
     expect($customerClient)->toBeInstanceOf(CustomerClient::class);
 
     return $customerClient;

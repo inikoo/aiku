@@ -74,7 +74,7 @@ class ShowDeliveryNote extends OrgAction
             'Org/Dispatching/DeliveryNote',
             [
                 'title'                                 => __('delivery_note'),
-                // 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()(), $deliveryNote),
+                // 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters(), $deliveryNote),
                 // 'navigation'                            => [
                 //     'previous' => $this->getPrevious($deliveryNote, $request),
                 //     'next'     => $this->getNext($deliveryNote, $request),

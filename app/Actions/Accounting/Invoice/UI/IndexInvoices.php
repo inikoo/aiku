@@ -18,6 +18,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -34,7 +35,7 @@ class IndexInvoices extends OrgAction
 
     private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
-    public function handle(Organisation|Fulfilment|FulfilmentCustomer|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Fulfilment|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -57,6 +58,8 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.shop_id', $parent->shop->id);
         } elseif ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('invoices.customer_id', $parent->customer->id);
+        } elseif ($parent instanceof Order) {
+            $queryBuilder->where('invoices.order', $parent->id);
         } else {
             abort(422);
         }
@@ -101,7 +104,7 @@ class IndexInvoices extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Fulfilment|FulfilmentCustomer|Shop $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Fulfilment|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
