@@ -238,18 +238,18 @@ class IndexDepartments extends OrgAction
         $iconRight =null;
 
         if ($this->parent instanceof Collection) {
-                $title = $this->parent->name;
-                $model = __('collection');
-                $icon  = [
-                    'icon'  => ['fal', 'fa-cube'],
-                    'title' => __('collection')
-                ];
-                $iconRight    =[
-                    'icon' => 'fal fa-folder-tree',
-                ];
-                $afterTitle= [
-                    'label'     => __('Departments')
-                ];
+            $title = $this->parent->name;
+            $model = __('collection');
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('collection')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-folder-tree',
+            ];
+            $afterTitle= [
+                'label'     => __('Departments')
+            ];
         }
         return Inertia::render(
             'Org/Catalogue/Departments',
@@ -265,7 +265,7 @@ class IndexDepartments extends OrgAction
                     'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
-                    'actions'   => [
+                    'actions'       => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -278,6 +278,16 @@ class IndexDepartments extends OrgAction
                         ] : false,
                     ],
                     'subNavigation' => $subNavigation,
+                ],
+                'routes'    => [
+                    'dataList'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
+                    'submitDepartment'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
                 ],
                 'data'        => DepartmentsResource::collection($departments),
             ]
