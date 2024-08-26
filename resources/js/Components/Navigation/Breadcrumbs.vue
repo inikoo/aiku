@@ -82,7 +82,7 @@ const isLoading = ref<string | boolean>(false)
 </script>
 
 <template>
-    <nav class="py-4 md:py-0 flex text-gray-600 border-b h-6 border-gray-200 text-sm" aria-label="Breadcrumb"
+    <nav class="overflow-y-hidden py-4 md:py-0 flex text-gray-600 h-6 border-b border-gray-200 text-sm" aria-label="Breadcrumb"
         :class="[layout ? layout.leftSidebar.show ? 'pr-0 md:pr-48' : 'pr-0 md:pr-12' : '']"
     >
         <!-- Breadcrumb -->
@@ -102,8 +102,11 @@ const isLoading = ref<string | boolean>(false)
                             :is="breadcrumb.simple.route ? Link : 'span'"
                             :class="'hover:text-gray-700' || ''"
                             :href="breadcrumb.simple?.route?.name ? route( breadcrumb.simple.route.name, breadcrumb.simple.route.parameters ) : '#' "
+                            class="overflow-hidden"
                         >
-                            <FontAwesomeIcon v-if="breadcrumb.simple?.icon" :class="breadcrumb.simple.label ? 'mr-1' : ''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
+                            <Transition name="spin-to-down">
+                                <FontAwesomeIcon v-if="breadcrumb.simple?.icon" :class="breadcrumb.simple.label ? 'mr-1' : ''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
+                            </Transition>
                             <Transition name="spin-to-down">
                                 <div :key="breadcrumb.simple.label" class="inline-block">{{ breadcrumb.simple.label }}</div>
                             </Transition>
