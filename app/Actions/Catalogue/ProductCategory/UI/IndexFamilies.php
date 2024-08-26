@@ -113,7 +113,7 @@ class IndexFamilies extends OrgAction
                 // todo
                 abort(419);
             }
-        }  elseif (class_basename($parent) == 'Collection') {
+        } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
                         ->where('model_has_collections.model_type', '=', ProductCategory::class)
@@ -259,18 +259,18 @@ class IndexFamilies extends OrgAction
                 ];
             }
         } elseif ($this->parent instanceof Collection) {
-                $title = $this->parent->name;
-                $model = __('collection');
-                $icon  = [
-                    'icon'  => ['fal', 'fa-cube'],
-                    'title' => __('collection')
-                ];
-                $iconRight    =[
-                    'icon' => 'fal fa-folder',
-                ];
-                $afterTitle= [
-                    'label'     => __('Families')
-                ];
+            $title = $this->parent->name;
+            $model = __('collection');
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('collection')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-folder',
+            ];
+            $afterTitle= [
+                'label'     => __('Families')
+            ];
         }
 
 
@@ -301,8 +301,26 @@ class IndexFamilies extends OrgAction
                             ]
                         ] : false
                         ) : false,
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attachFamily',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach family to this collection'),
+                            'label'    => __('Attach family'),
+                        ] : false
                     ],
                     'subNavigation' => $subNavigation,
+                ],
+                'routes'    => [
+                    'dataList'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
+                    'submitAttach'  => [
+                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                        'parameters'    => null
+                    ],
                 ],
                 'data'        => FamiliesResource::collection($families),
             ]

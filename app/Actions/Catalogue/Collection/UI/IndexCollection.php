@@ -204,18 +204,18 @@ class IndexCollection extends OrgAction
         $iconRight =null;
 
         if ($this->parent instanceof Collection) {
-                $title = $this->parent->name;
-                $model = __('collection');
-                $icon  = [
-                    'icon'  => ['fal', 'fa-cube'],
-                    'title' => __('collection')
-                ];
-                $iconRight    =[
-                    'icon' => 'fal fa-cube',
-                ];
-                $afterTitle= [
-                    'label'     => __('Collections')
-                ];
+            $title = $this->parent->name;
+            $model = __('collection');
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('collection')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-cube',
+            ];
+            $afterTitle= [
+                'label'     => __('Collections')
+            ];
         }
         return Inertia::render(
             'Org/Catalogue/Collections',
@@ -231,8 +231,8 @@ class IndexCollection extends OrgAction
                     'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
-                    'container' => $container,
-                    'actions'   => [
+                    'container'     => $container,
+                    'actions'       => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.collections.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -243,6 +243,24 @@ class IndexCollection extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attach-collection',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach collection to this collection'),
+                            'label'    => __('Attach collection'),
+                        ] : false
+                    ],
+                    'routes'    => [
+                        'dataList'  => [
+                            'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                            'parameters'    => null
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.dashboard',   // TODO: Kirin zero
+                            'parameters'    => null
+                        ],
                     ],
                     'subNavigation' => $subNavigation,
                 ],
