@@ -114,7 +114,7 @@ class IndexFamilies extends OrgAction
                 abort(419);
             }
         } elseif (class_basename($parent) == 'Collection') {
-            $queryBuilder->leftJoin('model_has_collections', function ($join) use ($parent) {
+            $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
                         ->where('model_has_collections.model_type', '=', ProductCategory::class)
                         ->where('model_has_collections.collection_id', '=', $parent->id);
