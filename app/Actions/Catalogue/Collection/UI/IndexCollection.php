@@ -72,6 +72,7 @@ class IndexCollection extends OrgAction
             ->select([
                 'collections.code',
                 'collections.name',
+                'collections.description',
                 'collections.created_at',
                 'collections.updated_at',
                 'collections.slug',
@@ -168,7 +169,8 @@ class IndexCollection extends OrgAction
 
             $table
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'description', label: __('Description'), canBeHidden: false, sortable: false, searchable: true);
         };
     }
 
@@ -224,7 +226,8 @@ class IndexCollection extends OrgAction
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.collections',
                             'parameters'    => [
-                                'shop' => $this->parent->shop->slug
+                                'shop' => $this->parent->shop->slug,
+                                'scope' => $this->parent->slug
                             ]
                         ],
                         'submitAttach'  => [

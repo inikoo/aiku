@@ -65,7 +65,7 @@ class EditCollection extends OrgAction
                                     'label' => __('name'),
                                     'value' => $collection->name
                                 ],
-                                'desciption' => [
+                                'description' => [
                                     'type'  => 'textEditor',
                                     'label' => __('description'),
                                     'value' => $collection->description

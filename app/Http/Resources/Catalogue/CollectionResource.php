@@ -24,7 +24,7 @@ class CollectionResource extends JsonResource
             'shop'              => $collection->shop_slug,
             'code'              => $collection->code,
             'name'              => $collection->name,
-            'description'       => $collection->description,
+            'description'       => html_entity_decode(strip_tags($collection->description)),
             'created_at'        => $collection->created_at,
             'updated_at'        => $collection->updated_at,
         ];
