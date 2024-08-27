@@ -7,17 +7,16 @@
 
 namespace App\Actions\Dropshipping\Shopify\Webhook;
 
-use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
-use App\Models\Helpers\Country;
-use Illuminate\Support\Str;
+use App\Models\ShopifyUserHasOrder;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class CreateOrderWebhooksShopify extends OrgAction
+class DeleteOrderWebhooksShopify extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -25,20 +24,11 @@ class CreateOrderWebhooksShopify extends OrgAction
 
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $billingAddress = $modelData['billing_address'];
+        $shopifyUserHasOrder = ShopifyUserHasOrder::where('shopify_user_id', $shopifyUser->id)
+            ->where('shopify_order_id', $modelData['id'])
+            ->firstOrFail();
 
-        $country = Country::where('code', $billingAddress['country_code'])->first();
-        data_set($billingAddress, 'country_id', $country->id);
-
-        $order = StoreOrder::make()->action($shopifyUser->customer, [
-            'reference'       => Str::random(8),
-            'date'            => $modelData['created_at'],
-            'billing_address' => $billingAddress
-        ]);
-
-        $shopifyUser->orders()->attach($order->id, [
-            'shopify_order_id' => $modelData['id']
-        ]);
+        DeleteOrder::run($shopifyUserHasOrder->order);
     }
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void

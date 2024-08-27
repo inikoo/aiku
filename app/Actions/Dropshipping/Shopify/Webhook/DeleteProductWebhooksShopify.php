@@ -23,7 +23,7 @@ class DeleteProductWebhooksShopify extends OrgAction
 
     public function handle(int $productId): void
     {
-        $product = ShopifyUserHasProduct::where("shopify_product_id", $productId)->first();
+        $product = ShopifyUserHasProduct::where("shopify_product_id", $productId)->firstOrFail();
 
         DeleteProductFromShopify::run($product);
     }

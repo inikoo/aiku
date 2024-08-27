@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Dropshipping\Shopify\Webhook\CreateOrderWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\DeleteOrderWebhooksShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
 use App\Actions\Mail\Notifications\GetSnsNotification;
 use App\Stubs\UIDummies\CreateDummy;
@@ -14,7 +15,7 @@ Route::name('webhooks.')->group(function () {
     Route::any('sns', GetSnsNotification::class)->name('sns');
 });
 
-Route::prefix('shopify')->name('webhooks.shopify.')->group(function () {
+Route::prefix('shopify-user/{shopifyUser}')->name('webhooks.shopify.')->group(function () {
     Route::prefix('products')->as('products.')->group(function () {
         Route::post('delete', DeleteProductWebhooksShopify::class)->name('delete');
     });
@@ -22,7 +23,7 @@ Route::prefix('shopify')->name('webhooks.shopify.')->group(function () {
     Route::prefix('orders')->as('orders.')->group(function () {
         Route::post('create', CreateOrderWebhooksShopify::class)->name('create');
         Route::post('updated', CreateDummy::class)->name('updated');
-        Route::post('delete', CreateDummy::class)->name('delete');
+        Route::post('delete', DeleteOrderWebhooksShopify::class)->name('delete');
         Route::post('paid', CreateDummy::class)->name('paid');
         Route::post('edited', CreateDummy::class)->name('edited');
         Route::post('fulfilled', CreateDummy::class)->name('fulfilled');
