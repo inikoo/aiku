@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/vue-tel-input.css'
 import { ref } from 'vue'
+import { trans } from 'laravel-vue-i18n'
 library.add(faExclamationCircle, faCheckCircle)
 
 const props = defineProps(['form', 'fieldName', 'options', 'fieldData'])
@@ -30,12 +31,19 @@ const phone = ref(props.form[props['fieldName']])
 </script>
 
 <template>
-    <div class="relative rounded-md shadow-sm">
+    <div class="relative rounded-md">
     <!-- {{ phone }} --- {{ form.phone }} -->
         <VueTelInput
             @on-input="handleChange"
             v-model="phone"
-            inputOptions.placeholder="''"
+            :styleClasses="[
+                form.errors[fieldName] ? 'errorShake' : '',
+                'ring-1 ring-gray-300 focus-within:shadow-none focus-within:ring-2 focus-within:ring-gray-500 rounded-md'
+            ]"
+            :inputOptions="{
+                placeholder: fieldData.placeholder || trans('Enter a phone number'),
+                styleClasses: 'placeholder:text-gray-400 rounded-r-lg qwezxc focus:border-none focus:ring-0'
+            }"
             :defaultCountry="defaultCountry"
         />
 
@@ -47,6 +55,4 @@ const phone = ref(props.form[props['fieldName']])
     <p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">{{ form.errors[fieldName] }}</p>
 
 </template>
-
-
 

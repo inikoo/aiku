@@ -35,9 +35,12 @@ onMounted(() => {
 
 <template>
 	<div class="">
-		<div class="relative">
+		<div class="relative"
+            :class="form.errors[fieldName] ? 'errorShake' : ''"
+        >
 			<Multiselect
 				v-model="form[fieldName]"
+                @update:modelValue="() => form.errors[fieldName] = null"
 				:class="{ 'pr-8': form.errors[fieldName] || form.recentlySuccessful }"
 				:options="props.options"
 				:placeholder="props.fieldData.placeholder ?? 'Select your option'"
@@ -64,6 +67,7 @@ onMounted(() => {
 					aria-hidden="true" />
 			</div>
 		</div>
+        
 		<p v-if="form.errors[fieldName]" class="mt-2 text-sm text-red-600" id="email-error">
 			{{ form.errors[fieldName] }}
 		</p>
