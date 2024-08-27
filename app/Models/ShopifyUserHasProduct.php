@@ -7,6 +7,8 @@
 
 namespace App\Models;
 
+use App\Models\Dropshipping\ShopifyUser;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
@@ -26,4 +28,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class ShopifyUserHasProduct extends Pivot
 {
     protected $table = 'shopify_user_has_products';
+
+    public function shopifyUser(): BelongsTo
+    {
+        return $this->belongsTo(ShopifyUser::class);
+    }
 }

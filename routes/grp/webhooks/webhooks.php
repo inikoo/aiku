@@ -5,7 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Dropshipping\Shopify\DeleteProductFromShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\CreateOrderWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
 use App\Actions\Mail\Notifications\GetSnsNotification;
 use App\Stubs\UIDummies\CreateDummy;
 
@@ -15,11 +16,11 @@ Route::name('webhooks.')->group(function () {
 
 Route::prefix('shopify')->name('webhooks.shopify.')->group(function () {
     Route::prefix('products')->as('products.')->group(function () {
-        Route::post('delete', [DeleteProductFromShopify::class, 'inWebhook'])->name('delete');
+        Route::post('delete', DeleteProductWebhooksShopify::class)->name('delete');
     });
 
     Route::prefix('orders')->as('orders.')->group(function () {
-        Route::post('create', CreateDummy::class)->name('create');
+        Route::post('create', CreateOrderWebhooksShopify::class)->name('create');
         Route::post('updated', CreateDummy::class)->name('updated');
         Route::post('delete', CreateDummy::class)->name('delete');
         Route::post('paid', CreateDummy::class)->name('paid');

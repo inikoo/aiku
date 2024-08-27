@@ -6,6 +6,10 @@
  */
 
 use App\Actions\Accounting\PaymentAccount\Json\GetShopPaymentAccounts;
+use App\Actions\Catalogue\Collection\Json\GetCollections;
+use App\Actions\Catalogue\Product\Json\GetProducts;
+use App\Actions\Catalogue\ProductCategory\Json\GetDepartments;
+use App\Actions\Catalogue\ProductCategory\Json\GetFamilies;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
@@ -35,3 +39,9 @@ Route::get('email/templates/{emailTemplate:id}/compiled_layout', GetEmailTemplat
 Route::get('/mailshot/{mailshot:id}/merge-tags', GetMailshotMergeTags::class)->name('mailshot.merge-tags');
 
 Route::get('shop/{shop}/payment-accounts', GetShopPaymentAccounts::class)->name('shop.payment-accounts');
+
+
+Route::get('shop/{shop}/catalogue/products', GetProducts::class)->name('shop.products');
+Route::get('shop/{shop}/catalogue/departments', GetDepartments::class)->name('shop.departments');
+Route::get('shop/{shop}/catalogue/families', GetFamilies::class)->name('shop.families');
+Route::get('shop/{shop}/catalogue/collections', GetCollections::class)->name('shop.collections');

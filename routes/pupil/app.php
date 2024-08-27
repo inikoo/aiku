@@ -6,10 +6,10 @@
  */
 
 
-use App\Actions\Dropshipping\Shopify\GetProductForShopify;
-use App\Actions\Dropshipping\Shopify\StoreProductToShopify;
-use Osiset\ShopifyApp\Http\Controllers\AuthController;
+use App\Actions\Dropshipping\Shopify\Product\GetProductForShopify;
+use App\Actions\Dropshipping\Shopify\Product\StoreProductToShopify;
 use App\Actions\UI\Pupil\Dashboard\ShowDashboard;
+use Osiset\ShopifyApp\Http\Controllers\AuthController;
 
 Route::middleware(['verify.shopify'])->group(function () {
     Route::get('/', ShowDashboard::class)->name('home');

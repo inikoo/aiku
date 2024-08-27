@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Actions\Dropshipping\Shopify\StoreWebhooksToShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\StoreWebhooksToShopify;
 use App\Models\Dropshipping\ShopifyUser;
 use Arr;
 use Osiset\ShopifyApp\Messaging\Events\ShopAuthenticatedEvent;

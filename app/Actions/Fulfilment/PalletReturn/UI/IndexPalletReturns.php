@@ -138,7 +138,7 @@ class IndexPalletReturns extends OrgAction
         return $queryBuilder
             ->defaultSort('reference')
             ->allowedSorts(['reference'])
-            ->allowedFilters([$globalSearch])
+            ->allowedFilters([$globalSearch, 'type'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
