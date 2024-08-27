@@ -17,5 +17,5 @@ const props = defineProps<{
 
 
 <template>
-    /Grp/ShopShowcase.vue
+    <div>/Grp/ShopShowcase.vue</div>
 </template>

@@ -37,7 +37,7 @@ const onInput = (keyOption : any) => {
 
 <template>
     <!-- <pre>{{ options }}</pre> -->
-    <div class="relative w-full text-gray-600 rounded-sm errorShake">
+    <div class="relative w-full text-gray-600 rounded-sm">
         <Multiselect
             :value="modelValue"
             @input="onInput"

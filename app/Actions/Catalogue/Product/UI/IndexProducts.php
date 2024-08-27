@@ -282,6 +282,8 @@ class IndexProducts extends OrgAction
             $afterTitle= [
                 'label'     => __('Products')
             ];
+        } elseif ($this->parent instanceof Shop) {
+            $model = __('catalogue');
         }
         $routes = null;
         if($this->parent instanceof Collection) {

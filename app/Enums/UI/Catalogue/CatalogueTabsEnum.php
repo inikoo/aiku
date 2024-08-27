@@ -23,8 +23,8 @@ enum CatalogueTabsEnum: string
     {
         return match ($this) {
             CatalogueTabsEnum::DASHBOARD => [
-                'title' => __('stats'),
-                'icon'  => 'fal fa-chart-line',
+                'title' => __('Dashboard'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
 
 

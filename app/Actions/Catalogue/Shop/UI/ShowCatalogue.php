@@ -59,6 +59,7 @@ class ShowCatalogue extends OrgAction
                 ],
                 'pageHead'    => [
                     'title' => $shop->name,
+                    'model' => __('Catalogue'),
                     'icon'  => [
                         'title' => __('Shop'),
                         'icon'  => 'fal fa-store-alt'
@@ -69,6 +70,45 @@ class ShowCatalogue extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => CatalogueTabsEnum::navigation()
                 ],
+
+                'dashboard' => [
+                    [
+                        'label' => __('Department'),
+                        'icon'  => 'fal fa-folder-tree',
+                        'value' => $shop->stats->number_departments,
+                        'meta'  => [
+                            'value' => '+4',
+                            'label' => __('from last month'),
+                        ]
+                    ],
+                    [
+                        'label' => __('Families'),
+                        'icon'  => 'fal fa-folder',
+                        'value' => $shop->stats->number_families,
+                        'meta'  => [
+                            'value' => '+4',
+                            'label' => __('from last month'),
+                        ]
+                    ],
+                    [
+                        'label' => __('Products'),
+                        'icon'  => 'fal fa-cube',
+                        'value' => $shop->stats->number_products,
+                        'meta'  => [
+                            'value' => '+4',
+                            'label' => __('from last month'),
+                        ]
+                    ],
+                    [
+                        'label' => __('Collections'),
+                        'icon'  => 'fal fa-cube',
+                        'value' => $shop->stats->number_collections,
+                        'meta'  => [
+                            'value' => '+4',
+                            'label' => __('from last month'),
+                        ]
+                    ],
+                ]
 
             ]
         );

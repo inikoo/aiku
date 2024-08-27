@@ -43,8 +43,10 @@ class EditCollection extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title'     => $collection->code,
-                    'actions'   => [
+                    'title'       => $collection->code,
+                    'model'       => __('Edit collections'),
+                    'icon'        => 'fal fa-cube',
+                    'actions'     => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
@@ -58,7 +60,7 @@ class EditCollection extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('edit collection'),
+                            'label'  => __('Properties collection'),
                             'fields' => [
                                 'name' => [
                                     'type'  => 'input',
@@ -66,7 +68,7 @@ class EditCollection extends OrgAction
                                     'value' => $collection->name
                                 ],
                                 'description' => [
-                                    'type'  => 'textEditor',
+                                    'type'  => 'textarea',
                                     'label' => __('description'),
                                     'value' => $collection->description
                                 ]

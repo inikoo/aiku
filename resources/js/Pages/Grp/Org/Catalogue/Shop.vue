@@ -5,8 +5,8 @@
   -->
 
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { Head } from "@inertiajs/vue3"
+import { library } from "@fortawesome/fontawesome-svg-core"
 import {
     faCube,
     faFileInvoice,
@@ -14,42 +14,45 @@ import {
     faFolderTree,
     faChartLine,
     faShoppingCart, faStickyNote
-} from '@fal';
-import { faCheckCircle } from '@fas';
+} from '@fal'
+import { faCheckCircle } from '@fas'
 
-import PageHeading from "@/Components/Headings/PageHeading.vue";
-import { capitalize } from "@/Composables/capitalize";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import { computed, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
+import PageHeading from "@/Components/Headings/PageHeading.vue"
+import { capitalize } from "@/Composables/capitalize"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { computed, ref } from "vue"
+import { useTabChange } from "@/Composables/tab-change"
 
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
-import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import ShopShowcase from "@/Components/Showcases/Grp/ShopShowcase.vue"
+import CatalogueDashboard from "@/Components/Dropshipping/CatalogueDashboard.vue"
 
-library.add(faChartLine, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote);
+library.add(faChartLine, faCheckCircle, faFolderTree, faFolder, faCube, faShoppingCart, faFileInvoice, faStickyNote)
 
 const props = defineProps<{
-    pageHead: object
+    pageHead: {}
     tabs: {
-        current: string;
-        navigation: object;
+        current: string
+        navigation: {}
     },
     title: string
-    showcase?: object
-     history?: {}
+    dashboard?: {}
+    showcase?: {}
+    history?: {}
 
-}>();
+}>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+let currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
     const components = {
         showcase: ShopShowcase,
+        dashboard: CatalogueDashboard,
         history: TableHistories,
-    };
-    return components[currentTab.value];
+    }
+    return components[currentTab.value]
 
 });
 
@@ -57,9 +60,9 @@ const component = computed(() => {
 
 
 <template>
+
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
-
