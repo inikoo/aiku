@@ -5,9 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dropshipping\Shopify\Webhook\CancelledOrderWebhooksShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\CreateOrderWebhooksShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\DeleteOrderWebhooksShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\PaidOrderWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\UpdateOrderWebhooksShopify;
 use App\Actions\Mail\Notifications\GetSnsNotification;
 use App\Stubs\UIDummies\CreateDummy;
 
@@ -22,11 +25,10 @@ Route::prefix('shopify-user/{shopifyUser}')->name('webhooks.shopify.')->group(fu
 
     Route::prefix('orders')->as('orders.')->group(function () {
         Route::post('create', CreateOrderWebhooksShopify::class)->name('create');
-        Route::post('updated', CreateDummy::class)->name('updated');
+        Route::post('updated', UpdateOrderWebhooksShopify::class)->name('updated');
         Route::post('delete', DeleteOrderWebhooksShopify::class)->name('delete');
-        Route::post('paid', CreateDummy::class)->name('paid');
-        Route::post('edited', CreateDummy::class)->name('edited');
+        Route::post('paid', PaidOrderWebhooksShopify::class)->name('paid');
         Route::post('fulfilled', CreateDummy::class)->name('fulfilled');
-        Route::post('cancelled', CreateDummy::class)->name('cancelled');
+        Route::post('cancelled', CancelledOrderWebhooksShopify::class)->name('cancelled');
     });
 });
