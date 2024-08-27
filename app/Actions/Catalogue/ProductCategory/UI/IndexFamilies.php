@@ -116,7 +116,7 @@ class IndexFamilies extends OrgAction
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
-                        ->where('model_has_collections.model_type', '=', ProductCategory::class)
+                        ->where('model_has_collections.model_type', '=', 'ProductCategory')
                         ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         }
@@ -273,6 +273,23 @@ class IndexFamilies extends OrgAction
             ];
         }
 
+        $routes = null;
+        if($this->parent instanceof Collection) {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.families',
+                            'parameters'    => [
+                                'shop' => $this->parent->shop->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
+                        ],
+                    ];
+        }
 
         return Inertia::render(
             'Org/Catalogue/Families',
@@ -312,16 +329,7 @@ class IndexFamilies extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'routes'    => [
-                    'dataList'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                    'submitAttach'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                ],
+                'routes'      => $routes,
                 'data'        => FamiliesResource::collection($families),
             ]
         )->table($this->tableStructure($this->parent));

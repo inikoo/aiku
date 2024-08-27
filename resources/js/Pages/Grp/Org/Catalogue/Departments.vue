@@ -63,7 +63,7 @@ const onSubmitAddService = (closedPopover: Function) => {
     router.post(
         route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
         {
-            id: formDepartment.value.selectedId
+            departments: formDepartment.value.selectedId
         },
         {
             preserveScroll: true,
@@ -97,7 +97,7 @@ const onSubmitAddService = (closedPopover: Function) => {
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
-        <template #other>
+        <template #button-attach-department>
             <Popover>
                 <template #button="{ open }">
                     <Button
@@ -116,6 +116,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                                 v-model="formDepartment.selectedId"
                                 autofocus
                                 caret
+                                mode="multiple"
                                 required
                                 searchable
                                 placeholder="Select Department"

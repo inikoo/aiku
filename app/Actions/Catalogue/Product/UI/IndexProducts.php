@@ -111,7 +111,7 @@ class IndexProducts extends OrgAction
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('products.id', '=', 'model_has_collections.model_id')
-                        ->where('model_has_collections.model_type', '=', Product::class)
+                        ->where('model_has_collections.model_type', '=', 'Product')
                         ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         } else {
@@ -283,7 +283,23 @@ class IndexProducts extends OrgAction
                 'label'     => __('Products')
             ];
         }
-
+        $routes = null;
+        if($this->parent instanceof Collection) {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.products',
+                            'parameters'    => [
+                                'shop' => $this->parent->shop->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
+                        ],
+                    ];
+        }
         return Inertia::render(
             'Org/Catalogue/Products',
             [
@@ -325,16 +341,7 @@ class IndexProducts extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'routes'    => [
-                    'dataList'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                    'submitAttach'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                ],
+                'routes'      => $routes,
                 'data'        => ProductsResource::collection($products),
 
 

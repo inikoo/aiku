@@ -115,12 +115,10 @@ class IndexDepartments extends OrgAction
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
-                        ->where('model_has_collections.model_type', '=', ProductCategory::class)
+                        ->where('model_has_collections.model_type', '=', 'ProductCategory')
                         ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         }
-
-
 
         return $queryBuilder
             ->defaultSort('product_categories.code')
@@ -251,6 +249,24 @@ class IndexDepartments extends OrgAction
                 'label'     => __('Departments')
             ];
         }
+
+        $routes = null;
+        if($this->parent instanceof Collection) {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.departments',
+                            'parameters'    => [
+                                'shop' => $this->parent->shop->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
+                        ],
+                    ];
+        }
         return Inertia::render(
             'Org/Catalogue/Departments',
             [
@@ -276,19 +292,18 @@ class IndexDepartments extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attach-department',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach department to this collection'),
+                            'label'    => __('Attach department'),
+                        ] : false
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'routes'    => [
-                    'dataList'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                    'submitAttach'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                ],
+                'routes'      => $routes,
                 'data'        => DepartmentsResource::collection($departments),
             ]
         )->table($this->tableStructure($this->parent));

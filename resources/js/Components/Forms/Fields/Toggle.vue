@@ -68,8 +68,15 @@ watch(value, (newValue) => {
 </script>
 <template>
     <div>
-        <Switch v-model="value" :class="value ? 'bg-indigo-500' : 'bg-indigo-100'"
-            class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+        <Switch
+            v-model="value"
+            @update:modelValue="() => form.errors[fieldName] = null"
+            class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            :class="[
+                value ? 'bg-indigo-500' : 'bg-indigo-100',
+                form.errors[fieldName] ? 'errorShake' : ''
+            ]" 
+        >
             <span aria-hidden="true" :class="value ? 'translate-x-6' : 'translate-x-0'"
                 class="flex items-center justify-center pointer-events-none h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition">
                 <FontAwesomeIcon v-if="value" icon='fal fa-check' class='text-sm text-green-500' fixed-width aria-hidden='true' />

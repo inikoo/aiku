@@ -63,7 +63,7 @@ const onSubmitAddService = (closedPopover: Function) => {
     router.post(
         route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
         {
-            id: formFamily.value.selectedId
+            families: formFamily.value.selectedId
         },
         {
             preserveScroll: true,
@@ -115,6 +115,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                                 v-model="formFamily.selectedId"
                                 autofocus
                                 caret
+                                mode="multiple"
                                 required
                                 searchable
                                 placeholder="Select Family"

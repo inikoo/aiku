@@ -15,6 +15,7 @@ library.add(faExclamationCircle, faCheckCircle, faEye, faEyeSlash)
 const props = defineProps(['form', 'fieldName', 'options', 'fieldData'])
 
 const handleChange = (form) => {
+    props.form.errors[props.fieldName] = null
     if (form.fieldType === 'edit') {
         form.clearErrors()
     }
@@ -30,7 +31,9 @@ const showPassword = ref(true);
 </script>
 
 <template>
-    <div class="relative rounded-md shadow-sm">
+    <div class="relative rounded-md shadow-sm"
+        :class="form.errors[fieldName] ? 'errorShake' : ''"
+    >
         <div class="flex">
             <input @input="handleChange(form)" v-model="form[fieldName]" :type="showPassword ? 'password' : 'text'"
                 autocomplete="off" :placeholder="fieldData.placeholder"

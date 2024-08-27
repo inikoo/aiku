@@ -91,7 +91,7 @@ class IndexCollection extends OrgAction
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('collections.id', '=', 'model_has_collections.model_id')
-                        ->where('model_has_collections.model_type', '=', Collection::class)
+                        ->where('model_has_collections.model_type', '=', 'Collection')
                         ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         } else {
@@ -217,6 +217,24 @@ class IndexCollection extends OrgAction
                 'label'     => __('Collections')
             ];
         }
+
+        $routes = null;
+        if($this->parent instanceof Collection) {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.collections',
+                            'parameters'    => [
+                                'shop' => $this->parent->shop->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
+                        ],
+                    ];
+        }
         return Inertia::render(
             'Org/Catalogue/Collections',
             [
@@ -252,19 +270,10 @@ class IndexCollection extends OrgAction
                             'label'    => __('Attach collection'),
                         ] : false
                     ],
-                    'routes'    => [
-                        'dataList'  => [
-                            'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                            'parameters'    => null
-                        ],
-                        'submitAttach'  => [
-                            'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                            'parameters'    => null
-                        ],
-                    ],
                     'subNavigation' => $subNavigation,
                 ],
-                'data' => CollectionResource::collection($collections),
+                'routes'        => $routes,
+                'data'          => CollectionResource::collection($collections),
             ]
         )->table($this->tableStructure($this->parent));
     }

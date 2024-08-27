@@ -151,6 +151,7 @@ class AppServiceProvider extends ServiceProvider
                 'ShippingZone'                  => 'App\Models\Ordering\ShippingZone',
                 'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
                 'Product'                       => 'App\Models\Catalogue\Product',
+                'Collection'                    => 'App\Models\Catalogue\Collection',
                 'Rental'                        => 'App\Models\Fulfilment\Rental',
                 'Service'                       => 'App\Models\Catalogue\Service',
                 'Charge'                        => 'App\Models\Catalogue\Charge',

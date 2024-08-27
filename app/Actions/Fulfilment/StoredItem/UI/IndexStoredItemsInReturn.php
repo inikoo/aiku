@@ -20,6 +20,8 @@ use App\Models\Fulfilment\StoredItem;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
@@ -173,6 +175,13 @@ class IndexStoredItemsInReturn extends OrgAction
                 'warehouses-view.' . $this->organisation->id
             ]
         );
+    }
+
+    public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($palletReturn);
     }
 
 }

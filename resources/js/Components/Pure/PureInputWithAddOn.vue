@@ -15,6 +15,7 @@ const props = defineProps<{
     placeholder?: string
     readonly?: boolean
     inputName?: string
+    isError?: boolean
 }>()
 
 defineOptions({
@@ -25,7 +26,10 @@ defineOptions({
 <template>
     <div
         class="relative flex items-center justify-between rounded-md px-3 shadow-sm ring-1 ring-inset ring-gray-300 sm:max-w-md"
-        :class="[readonly ? 'focus-within:ring-1 bg-gray-100' : 'focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500']"
+        :class="[
+            readonly ? 'focus-within:ring-1 bg-gray-100' : 'focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500',
+            isError ? 'errorShake' : ''
+        ]"
     >
         <div class="flex w-full">
             <div v-if="leftAddOn" class="flex items-center gap-x-1.5">
