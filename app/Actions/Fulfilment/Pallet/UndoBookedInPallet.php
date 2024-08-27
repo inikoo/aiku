@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
+use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -16,7 +17,7 @@ use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use Lorisleiva\Actions\ActionRequest;
 
-class UndoPalletStateToReceived extends OrgAction
+class UndoBookedInPallet extends OrgAction
 {
     use WithActionUpdate;
 
@@ -25,11 +26,16 @@ class UndoPalletStateToReceived extends OrgAction
 
     public function handle(Pallet $pallet): Pallet
     {
+
+        $oldLocationId = $pallet->location;
+
         $modelData['state']       = PalletStateEnum::RECEIVED;
         $modelData['status']      = PalletStatusEnum::RECEIVING;
         $modelData['location_id'] = null;
 
         $pallet = $this->update($pallet, $modelData, ['data']);
+
+        LocationHydratePallets::dispatch($oldLocationId);
 
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
 

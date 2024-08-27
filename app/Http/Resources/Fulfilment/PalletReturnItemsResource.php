@@ -130,11 +130,11 @@ class PalletReturnItemsResource extends JsonResource
                 'parameters' => [$this->id]
             ],
             'bookInRoute' => [
-                'name'       => 'grp.models.pallet.booked-in',
+                'name'       => 'grp.models.pallet.book_in',
                 'parameters' => [$this->id]
             ],
             'undoBookInRoute' => [
-                'name'       => 'grp.models.pallet.undo-booked-in',
+                'name'       => 'grp.models.pallet.undo_book_in',
                 'parameters' => [$this->id]
             ],
             'updateLocationRoute' => [

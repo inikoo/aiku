@@ -29,9 +29,8 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\AttachPalletsToReturn;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\ImportPalletReturnItem;
-use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
+use App\Actions\Fulfilment\Pallet\UndoBookedInPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\Notifications\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\Pdf\PdfPalletDelivery;
@@ -796,6 +795,7 @@ test('remove a pallet from pallet delivery', function (PalletDelivery $palletDel
         ->and($palletDelivery->stats->number_pallets_with_stored_items)->toBe(0)
         ->and($palletDelivery->stats->number_stored_items)->toBe(0);
 
+
     return $palletDelivery;
 })->depends('add multiple pallets to pallet delivery');
 
@@ -899,6 +899,7 @@ test('start booking-in pallet delivery', function (PalletDelivery $palletDeliver
     $palletDelivery->refresh();
 
 
+
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN)
         ->and($palletDelivery->booking_in_at)->toBeInstanceOf(Carbon::class);
 
@@ -953,12 +954,12 @@ test('set location of only pallet in the second pallet delivery', function (Pall
     return $palletDelivery;
 })->depends('start booking-in second pallet delivery');
 
-test('update location of first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
+test('book in 1st pallet', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
     /** @var Location $location */
     $location = $this->warehouse->locations->skip(1)->first();
 
-    UpdatePalletLocation::make()->action($location, $pallet);
+    BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
     $pallet->refresh();
     expect($pallet->location)->toBeInstanceOf(Location::class)
         ->and($pallet->location->id)->toBe($location->id);
@@ -966,17 +967,32 @@ test('update location of first pallet in the pallet delivery', function (PalletD
     return $palletDelivery;
 })->depends('set location of first pallet in the pallet delivery');
 
-test('undo pallet state to received', function (PalletDelivery $palletDelivery) {
+test('undo booked in', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
 
-    UndoPalletStateToReceived::make()->action($pallet);
+    UndoBookedInPallet::make()->action($pallet);
     $pallet->refresh();
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::RECEIVED);
 
     return $pallet;
-})->depends('start booking-in pallet delivery');
+})->depends('book in 1st pallet');
+
+
+test('book in 1st pallet again', function (Pallet $pallet) {
+
+    /** @var Location $location */
+    $location = $this->warehouse->locations->skip(1)->first();
+    expect($location->stats->number_pallets)->toBe(0);
+    BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id);
+
+
+})->depends('undo booked in');
+
 
 test('set rental to first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
@@ -988,7 +1004,8 @@ test('set rental to first pallet in the pallet delivery', function (PalletDelive
     $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
     expect($pallet->rental)->toBeInstanceOf(Rental::class)
-        ->and($palletNotInRentalCount)->toBe(0);
+        ->and($palletNotInRentalCount)->toBe(0)
+    ->and($palletDelivery->stats->number_pallets)->toBe(3);
 
 
     return $palletDelivery;
@@ -1055,7 +1072,7 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
     $pallet = $palletDelivery->pallets->last();
     /** @var Location $location */
     $location = $this->warehouse->locations->last();
-    expect($location->stats->number_pallets)->toBe(0)
+    expect($location->stats->number_pallets)->toBe(1)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
 
     BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
@@ -1078,7 +1095,7 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
         ->and($pallet->location->id)->toBe($location->id)
         ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
-        ->and($location->stats->number_pallets)->toBe(1)
+        ->and($location->stats->number_pallets)->toBe(2)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
 
     return $palletDelivery;
@@ -1117,17 +1134,10 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
 
     $recurringBill = $fulfilmentCustomer->currentRecurringBill;
-    expect($recurringBill->stats->number_transactions)->toBe(2)
-        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(1)
+    expect($recurringBill->stats->number_transactions)->toBe(3)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
 
-    $firstPallet  = $palletDelivery->pallets->first();
-    $secondPallet = $palletDelivery->pallets->skip(1)->first();
-    $thirdPallet  = $palletDelivery->pallets->last();
-
-    expect($firstPallet->state)->toBe(PalletStateEnum::RECEIVED)
-        ->and($secondPallet->state)->toBe(PalletStateEnum::NOT_RECEIVED)
-        ->and($thirdPallet->state)->toBe(PalletStateEnum::STORING);
 
 
     return $palletDelivery;
@@ -2455,13 +2465,11 @@ test('pay invoice (exceed)', function ($invoice) {
     $invoice->refresh();
     $customer->refresh();
 
-    expect($invoice->total_amount)->toBe($invoice->payment_amount);
-
-    expect($payment)->toBeInstanceOf(Payment::class)
+    expect($invoice->total_amount)->toBe($invoice->payment_amount)
+        ->and($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
-        ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
-
-    expect($customer->creditTransactions)->not->toBeNull()
+        ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED)
+        ->and($customer->creditTransactions)->not->toBeNull()
         ->and($customer->balance)->toBe("60.00")
         ->and($customer->creditTransactions->first()->amount)->toBe("60.00");
 

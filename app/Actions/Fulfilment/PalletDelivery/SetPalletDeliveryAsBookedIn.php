@@ -35,9 +35,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         $modelData['booked_in_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::BOOKED_IN;
 
-        if ($palletDelivery->pallets->contains(fn ($pallet) => is_null($pallet->location))) {
-            abort(400, 'One or more pallets do not have a location assigned.');
-        }
+
 
         foreach ($palletDelivery->pallets as $pallet) {
             if ($pallet->state == PalletStateEnum::BOOKED_IN) {
@@ -67,7 +65,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                         'start_date' => now()
                     ]
                 );
-            };
+            }
         } else {
             foreach($palletDelivery->transactions as $transaction) {
                 StoreRecurringBillTransaction::make()->action(
@@ -77,7 +75,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                         'start_date' => now()
                     ]
                 );
-            };
+            }
             foreach($palletDelivery->pallets as $pallet) {
                 StoreRecurringBillTransaction::make()->action(
                     $recurringBill,
@@ -116,6 +114,20 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         }
 
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+    }
+
+    public function prepareForValidation(): void
+    {
+        if($this->palletDelivery->pallets()->whereNotIn('state', [PalletStateEnum::BOOKED_IN,PalletStateEnum::NOT_RECEIVED])->count()>0) {
+            abort(400, 'One or more pallets are not in a state that can be booked in.');
+        }
+    }
+
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        $this->palletDelivery = $palletDelivery;
+        $this->initialisation($palletDelivery->organisation, $request);
+        return $this->handle($palletDelivery);
     }
 
     public function action(PalletDelivery $palletDelivery): PalletDelivery
