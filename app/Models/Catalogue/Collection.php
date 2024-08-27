@@ -7,6 +7,7 @@
 
 namespace App\Models\Catalogue;
 
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -103,26 +104,30 @@ class Collection extends Model implements Auditable
         return $this->belongsToMany(CollectionCategory::class);
     }
 
-    public function collections(): MorphToMany
+    public function inCollections(): MorphToMany
     {
         return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
     }
 
+    public function collections(): MorphToMany
+    {
+        return $this->morphedByMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
+    }
+
     public function products(): MorphToMany
     {
-        return $this->morphToMany(Product::class, 'model', 'model_has_collections')->withTimestamps();
+        return $this->morphedByMany(Product::class, 'model', 'model_has_collections')->withTimestamps();
     }
 
     public function departments(): MorphToMany
     {
-        return $this->morphToMany(ProductCategory::class, 'model', 'model_has_collections')
+        return $this->morphedByMany(ProductCategory::class, 'model', 'model_has_collections')
                     ->wherePivot('type', 'Department')
                     ->withTimestamps();
     }
-
     public function families(): MorphToMany
     {
-        return $this->morphToMany(ProductCategory::class, 'model', 'model_has_collections')
+        return $this->morphedByMany(ProductCategory::class, 'model', 'model_has_collections')
                     ->wherePivot('type', 'Family')
                     ->withTimestamps();
     }

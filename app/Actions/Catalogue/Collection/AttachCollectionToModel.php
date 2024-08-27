@@ -34,7 +34,7 @@ class AttachCollectionToModel extends OrgAction
                 'type' => 'Product',
             ]);
         } else {
-            $model->collections()->attach($collection->id, [
+            $model->inCollections()->attach($collection->id, [
                 'type' => 'Collection',
             ]);
         }
