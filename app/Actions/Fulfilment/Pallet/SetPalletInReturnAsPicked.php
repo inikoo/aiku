@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
+use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
@@ -119,8 +120,8 @@ class SetPalletInReturnAsPicked extends OrgAction
         return $this->handle($palletReturnItem);
     }
 
-    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemsResource
+    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemResource
     {
-        return new PalletReturnItemsResource($palletReturnItem);
+        return new PalletReturnItemResource($palletReturnItem);
     }
 }

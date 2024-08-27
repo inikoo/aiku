@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
+use App\Http\Resources\Fulfilment\PalletReturnItemResource;
 use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturnItem;
@@ -75,8 +76,8 @@ class UndoPickingPalletFromReturn extends OrgAction
         return $this->handle($palletReturnItem);
     }
 
-    public function jsonResponse(Pallet $palletReturnItem): PalletReturnItemsResource
+    public function jsonResponse(PalletReturnItem $palletReturnItem): PalletReturnItemResource
     {
-        return new PalletReturnItemsResource($palletReturnItem);
+        return new PalletReturnItemResource($palletReturnItem);
     }
 }
