@@ -35,6 +35,8 @@ class AttachCollectionToModels extends OrgAction
                 }
             }
         }
+
+        return $collection;
     }
 
     public function action(Collection $collection, $modelData)
