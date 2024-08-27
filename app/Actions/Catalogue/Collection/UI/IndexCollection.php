@@ -269,9 +269,9 @@ class IndexCollection extends OrgAction
                             'label'    => __('Attach collection'),
                         ] : false
                     ],
-                    'routes'        => $routes,
                     'subNavigation' => $subNavigation,
                 ],
+                'routes'        => $routes,
                 'data' => CollectionResource::collection($collections),
             ]
         )->table($this->tableStructure($this->parent));
