@@ -8,6 +8,7 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
 
@@ -22,10 +23,10 @@ class UpdateStateToSettledOrder
     public function handle(Order $order): Order
     {
         $data = [
-            'state' => \App\Enums\Ordering\Order\OrderStateEnum::SETTLED
+            'state' => OrderStateEnum::SETTLED
         ];
 
-        if ($order->state === \App\Enums\Ordering\Order\OrderStateEnum::FINALISED) {
+        if ($order->state === OrderStateEnum::FINALISED) {
             $order->transactions()->update($data);
 
             $data[$order->state->value . '_at'] = null;
