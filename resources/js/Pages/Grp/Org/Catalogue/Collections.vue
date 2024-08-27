@@ -114,6 +114,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                             <PureMultiselect
                                 v-model="formCollection.selectedId"
                                 autofocus
+                                mode="multiple"
                                 caret
                                 required
                                 searchable

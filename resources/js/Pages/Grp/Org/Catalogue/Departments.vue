@@ -116,6 +116,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                                 v-model="formDepartment.selectedId"
                                 autofocus
                                 caret
+                                mode="multiple"
                                 required
                                 searchable
                                 placeholder="Select Department"
