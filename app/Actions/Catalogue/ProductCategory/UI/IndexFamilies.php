@@ -274,13 +274,13 @@ class IndexFamilies extends OrgAction
         }
 
         $routes = null;
-        if($this->parent instanceof Shop)
+        if($this->parent instanceof Collection)
         {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.families',
                             'parameters'    => [
-                                'shop' => $this->parent
+                                'shop' => $this->parent->shop->slug
                             ]
                         ],
                         'submitAttach'  => [
