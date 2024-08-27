@@ -7,6 +7,7 @@
 
 use App\Actions\Catalogue\Charge\StoreCharge;
 use App\Actions\Catalogue\Charge\UpdateCharge;
+use App\Actions\Catalogue\Collection\AttachCollectionToModels;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
@@ -719,6 +720,25 @@ test('update shipping', function ($shipping) {
 
     return $updatedShipping;
 })->depends('create shipping');
+
+test('add items to collection',  function(Collection $collection) {
+
+    $data = [
+        'collections' => [2],
+        'departments' => [1,3],
+        'families'    => [4],
+        'products'    => [2]
+    ];
+
+    $collection = AttachCollectionToModels::make()->action($collection, $data);
+    $collection->refresh();
+    expect($collection)->toBeInstanceOf(Collection::class)
+        ->and($collection->collections()->count())->toBe(1)
+        ->and($collection->departments()->count())->toBe(2)
+        ->and($collection->families()->count())->toBe(1)
+        ->and($collection->products()->count())->toBe(1);
+    
+})->depends('update collection');
 
 test('hydrate shops', function (Shop $shop) {
     HydrateShops::run($shop);
