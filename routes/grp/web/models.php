@@ -11,13 +11,18 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Catalogue\Collection\AttachCollectionToCollections;
+use App\Actions\Catalogue\Collection\AttachCollectionToModels;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
+use App\Actions\Catalogue\Product\AttachCollectionToProducts;
 use App\Actions\Catalogue\Product\DeleteImagesFromProduct;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\Product\UploadImagesToProduct;
+use App\Actions\Catalogue\ProductCategory\AttachCollectionToDepartments;
+use App\Actions\Catalogue\ProductCategory\AttachCollectionToFamilies;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\StoreService;
@@ -539,6 +544,9 @@ Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');
 Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
 
+Route::name('collection.')->prefix('collection/{collection:id}')->group(function () {
+    Route::post('attach-models', AttachCollectionToModels::class)->name('attach-models');
+});
 /*
 
 
