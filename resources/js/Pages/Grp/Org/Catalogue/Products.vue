@@ -108,8 +108,8 @@ const onSubmitAddService = (closedPopover: Function) => {
                     />
                 </template>
                 <template #content="{ close: closed }">
-                    <div class="w-[350px]">
-                        <span class="text-xs px-1 my-2">{{ trans('Select product') }}: </span>
+                    <div class="w-[350px] px-1 pb-2">
+                        <span class="text-sm px-1 my-2 inline-block">{{ trans('Select product') }}: </span>
                         <div class="">
                             <PureMultiselect
                                 v-model="formProduct.selectedId"

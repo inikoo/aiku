@@ -108,8 +108,8 @@ const onSubmitAddService = (closedPopover: Function) => {
                     />
                 </template>
                 <template #content="{ close: closed }">
-                    <div class="w-[350px]">
-                        <span class="text-xs px-1 my-2">{{ trans('Select collection') }}: </span>
+                    <div class="w-[350px] px-1 pb-2">
+                        <span class="text-sm px-1 my-2 inline-block">{{ trans('Select collection') }}: </span>
                         <div class="">
                             <PureMultiselect
                                 v-model="formCollection.selectedId"
@@ -131,6 +131,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                                     <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                                 </template>
                             </PureMultiselect>
+                            
                             <p v-if="errorMessage" class="mt-2 text-sm text-red-500">
                                 {{ errorMessage }}
                             </p>
