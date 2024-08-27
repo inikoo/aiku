@@ -7,7 +7,6 @@
 
 namespace App\Models\Catalogue;
 
-use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -45,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductCategory> $departments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductCategory> $families
  * @property-read Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $inCollections
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\Product> $products
  * @property-read \App\Models\Catalogue\CollectionSalesIntervals|null $salesIntervals
