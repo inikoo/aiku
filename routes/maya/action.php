@@ -44,10 +44,10 @@ Route::patch('pallet-delivery/{palletDelivery:id}/received', ReceivedPalletDeliv
 Route::patch('pallet-delivery/{palletDelivery:id}/start-booking', StartBookingPalletDelivery::class)->name('pallet-delivery.start_booking');
 Route::patch('pallet-delivery/{palletDelivery:id}/booked-in', SetPalletDeliveryAsBookedIn::class)->name('pallet-delivery.booked-in');
 
-Route::patch('pallet-return/{palletReturn:id}/confirm', ConfirmPalletReturn::class)->name('pallet-return.confirm');
-Route::patch('pallet-return/{palletReturn:id}/start-picking', PickingPalletReturn::class)->name('pallet-return.picking');
-Route::patch('pallet-return/{palletReturn:id}/picked', PickedPalletReturn::class)->name('pallet-return.picked');
-Route::patch('pallet-return/{palletReturn:id}/dispatch', DispatchedPalletReturn::class)->name('pallet-return.dispatch');
+Route::patch('pallet-return/{palletReturn:id}/confirm', [ConfirmPalletReturn::class, 'maya'])->name('pallet-return.confirm');
+Route::patch('pallet-return/{palletReturn:id}/start-picking', [PickingPalletReturn::class, 'maya'])->name('pallet-return.picking');
+Route::patch('pallet-return/{palletReturn:id}/picked', [PickedPalletReturn::class, 'maya'])->name('pallet-return.picked');
+Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchedPalletReturn::class, 'maya'])->name('pallet-return.dispatch');
 
 Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnAsPicked::class)->name('pallet-return-item.pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
