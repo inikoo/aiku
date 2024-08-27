@@ -283,7 +283,22 @@ class IndexProducts extends OrgAction
                 'label'     => __('Products')
             ];
         }
-
+        $routes = null;
+        if($this->parent instanceof Shop)
+        {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.products',
+                            'parameters'    => [
+                                'shop' => $this->parent
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.dashboard',
+                            'parameters'    => null
+                        ],
+                    ];
+        }
         return Inertia::render(
             'Org/Catalogue/Products',
             [
@@ -325,16 +340,7 @@ class IndexProducts extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'routes'    => [
-                    'dataList'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                    'submitAttach'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                ],
+                'routes'      => $routes,
                 'data'        => ProductsResource::collection($products),
 
 

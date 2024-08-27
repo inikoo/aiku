@@ -217,6 +217,23 @@ class IndexCollection extends OrgAction
                 'label'     => __('Collections')
             ];
         }
+
+        $routes = null;
+        if($this->parent instanceof Shop)
+        {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.collections',
+                            'parameters'    => [
+                                'shop' => $this->parent
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.dashboard',
+                            'parameters'    => null
+                        ],
+                    ];
+        }
         return Inertia::render(
             'Org/Catalogue/Collections',
             [
@@ -252,16 +269,7 @@ class IndexCollection extends OrgAction
                             'label'    => __('Attach collection'),
                         ] : false
                     ],
-                    'routes'    => [
-                        'dataList'  => [
-                            'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                            'parameters'    => null
-                        ],
-                        'submitAttach'  => [
-                            'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                            'parameters'    => null
-                        ],
-                    ],
+                    'routes'        => $routes,
                     'subNavigation' => $subNavigation,
                 ],
                 'data' => CollectionResource::collection($collections),

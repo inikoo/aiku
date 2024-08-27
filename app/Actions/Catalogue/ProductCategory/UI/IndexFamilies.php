@@ -273,6 +273,22 @@ class IndexFamilies extends OrgAction
             ];
         }
 
+        $routes = null;
+        if($this->parent instanceof Shop)
+        {
+            $routes = [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.families',
+                            'parameters'    => [
+                                'shop' => $this->parent
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.dashboard',
+                            'parameters'    => null
+                        ],
+                    ];
+        }
 
         return Inertia::render(
             'Org/Catalogue/Families',
@@ -312,16 +328,7 @@ class IndexFamilies extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'routes'    => [
-                    'dataList'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                    'submitAttach'  => [
-                        'name'          => 'grp.dashboard',   // TODO: Kirin zero
-                        'parameters'    => null
-                    ],
-                ],
+                'routes'      => $routes,
                 'data'        => FamiliesResource::collection($families),
             ]
         )->table($this->tableStructure($this->parent));
