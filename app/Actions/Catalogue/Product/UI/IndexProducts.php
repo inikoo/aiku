@@ -289,7 +289,8 @@ class IndexProducts extends OrgAction
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.products',
                             'parameters'    => [
-                                'shop' => $this->parent->shop->slug
+                                'shop' => $this->parent->shop->slug,
+                                'scope' => $this->parent->slug
                             ]
                         ],
                         'submitAttach'  => [
