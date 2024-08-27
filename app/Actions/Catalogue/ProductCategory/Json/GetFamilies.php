@@ -47,6 +47,7 @@ class GetFamilies extends OrgAction
         return $queryBuilder
             ->defaultSort('product_categories.code')
             ->select([
+                'product_categories.id',
                 'product_categories.slug',
                 'product_categories.code',
                 'product_categories.name',
