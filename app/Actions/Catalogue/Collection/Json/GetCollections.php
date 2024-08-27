@@ -23,10 +23,11 @@ class GetCollections extends OrgAction
 
     private Shop $parent;
 
-    public function handle(Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop $parent, Collection $scope, $prefix = null): LengthAwarePaginator
     {
         $queryBuilder = QueryBuilder::for(Collection::class);
-
+        $queryBuilder->whereNotIn('collections.id', $scope->collections()->pluck('model_id'))
+                        ->where('collections.id', '!=', $scope->id);
 
         $queryBuilder
             ->defaultSort('collections.code')
@@ -60,11 +61,11 @@ class GetCollections extends OrgAction
         return CollectionResource::collection($collections);
     }
 
-    public function asController(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Shop $shop, Collection $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
-        return $this->handle(parent: $shop);
+        return $this->handle(parent: $shop, scope: $scope);
     }
 
 }

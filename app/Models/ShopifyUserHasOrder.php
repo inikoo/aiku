@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int|null $shopify_order_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Order $order
  * @property-read ShopifyUser $shopifyUser
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasOrder newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasOrder newQuery()

@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Catalogue\Collection\Hydrators;
+namespace App\Actions\Catalogue\Collection\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Catalogue\Collection;
@@ -33,9 +33,9 @@ class CollectionHydrateItems
         $stats         = [
             'number_departments' => $collection->departments()->count(),
             'number_families'    => $collection->families()->count(),
-            'number_products' => $collection->products()->count(),
+            'number_products'    => $collection->products()->count(),
             'number_collections' => $collection->collections()->count(),
-            
+
         ];
 
         $collection->stats->update($stats);

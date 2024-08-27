@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\Product\Json;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\ProductsResource;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Services\QueryBuilder;
@@ -24,7 +25,7 @@ class GetProducts extends OrgAction
 
     private Shop $parent;
 
-    public function handle(Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop $parent, Collection $scope, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -35,6 +36,7 @@ class GetProducts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->where('products.shop_id', $parent->id);
+        $queryBuilder->whereNotIn('products.id', $scope->products()->pluck('model_id'));
 
         $queryBuilder
             ->defaultSort('products.code')
@@ -61,12 +63,12 @@ class GetProducts extends OrgAction
         return ProductsResource::collection($products);
     }
 
-    public function asController(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Shop $shop, Collection $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $shop);
+        return $this->handle(parent: $shop, scope: $scope);
     }
 
 }

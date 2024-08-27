@@ -8,6 +8,7 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
 
@@ -22,10 +23,10 @@ class UpdateStateToFinalizedOrder
     public function handle(Order $order): Order
     {
         $data = [
-            'state' => \App\Enums\Ordering\Order\OrderStateEnum::FINALISED
+            'state' => OrderStateEnum::FINALISED
         ];
 
-        if (in_array($order->state, [\App\Enums\Ordering\Order\OrderStateEnum::SETTLED, \App\Enums\Ordering\Order\OrderStateEnum::PACKED])) {
+        if (in_array($order->state, [OrderStateEnum::HANDLING, OrderStateEnum::PACKED])) {
             $order->transactions()->update($data);
 
             $data[$order->state->value . '_at'] = null;

@@ -23,10 +23,10 @@ class UpdateStateToHandlingOrder
     public function handle(Order $order): Order
     {
         $data = [
-            'state' => \App\Enums\Ordering\Order\OrderStateEnum::HANDLING
+            'state' => OrderStateEnum::HANDLING
         ];
 
-        if (in_array($order->state, [OrderStateEnum::SUBMITTED, \App\Enums\Ordering\Order\OrderStateEnum::PACKED])) {
+        if (in_array($order->state, [OrderStateEnum::SUBMITTED, OrderStateEnum::PACKED])) {
             $order->transactions()->update($data);
 
             $data[$order->state->value . '_at'] = null;
