@@ -31,6 +31,7 @@ class GetCollections extends OrgAction
         $queryBuilder
             ->defaultSort('collections.code')
             ->select([
+                'collections.id',
                 'collections.code',
                 'collections.name',
                 'collections.created_at',

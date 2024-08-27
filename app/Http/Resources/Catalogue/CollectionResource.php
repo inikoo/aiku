@@ -19,6 +19,7 @@ class CollectionResource extends JsonResource
         $collection=$this;
 
         return [
+            'id'                => $collection->id,
             'slug'              => $collection->slug,
             'shop'              => $collection->shop_slug,
             'code'              => $collection->code,
