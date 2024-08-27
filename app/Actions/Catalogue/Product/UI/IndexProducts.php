@@ -111,7 +111,7 @@ class IndexProducts extends OrgAction
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('products.id', '=', 'model_has_collections.model_id')
-                        ->where('model_has_collections.model_type', '=', Product::class)
+                        ->where('model_has_collections.model_type', '=', 'Product')
                         ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         } else {
@@ -294,8 +294,10 @@ class IndexProducts extends OrgAction
                             ]
                         ],
                         'submitAttach'  => [
-                            'name'          => 'grp.dashboard',
-                            'parameters'    => null
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
                         ],
                     ];
         }
