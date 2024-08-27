@@ -11,6 +11,7 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasEmail;
@@ -73,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read Collection<int, Product> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Osiset\ShopifyApp\Storage\Models\Plan|null $plan
@@ -141,6 +143,12 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'shopify_user_has_products')
+            ->withTimestamps();
+    }
+
+    public function orders(): BelongsToMany
+    {
+        return $this->belongsToMany(Order::class, 'shopify_user_has_orders')
             ->withTimestamps();
     }
 }

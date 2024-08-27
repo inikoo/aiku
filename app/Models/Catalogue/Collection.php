@@ -41,8 +41,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductCategory> $departments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductCategory> $families
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\Product> $products
  * @property-read \App\Models\Catalogue\CollectionSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\CollectionStats|null $stats

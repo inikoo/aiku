@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<{
     label?: string
     valueProp?: string
     isLoading?: boolean
+    isError?: boolean
 }>(), {
     clearOnBlur: true
 })
@@ -36,12 +37,15 @@ const onInput = (keyOption : any) => {
 
 <template>
     <!-- <pre>{{ options }}</pre> -->
-    <div class="relative w-full text-gray-600">
+    <div class="relative w-full text-gray-600 rounded-sm errorShake">
         <Multiselect
             :value="modelValue"
             @input="onInput"
             :loading="isLoading"
-            :classes="{placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1', ...classes}"
+            :classes="{
+                placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1',
+                ...classes,
+            }"
             :options="props.options"
             :placeholder="placeholder ?? 'Select your option'"
             :canClear="!required"

@@ -34,8 +34,10 @@ class StoreWebhooksToShopify extends OrgAction
 
         foreach ($routes as $route) {
             $webhookTypes[] =             [
-                "type"  => str_replace('webhooks/shopify/', '', $route->uri()),
-                "route" => route($route->getName())
+                "type"  => str_replace('webhooks/shopify-user/{shopifyUser}/', '', $route->uri()),
+                "route" => route($route->getName(), [
+                    'shopifyUser' => $shopifyUser->id
+                ])
             ];
         }
 

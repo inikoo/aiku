@@ -63,6 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_family_id
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, ProductCategory> $children
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read ProductCategory|null $department
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image

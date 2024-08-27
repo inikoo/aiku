@@ -39,8 +39,10 @@ const props = defineProps<{
         <!-- <label :for="fieldName" class="block text-sm font-medium leading-6">{{ fieldData.label }}</label> -->
         <PureInputWithAddOn
             v-model="form[fieldName]"
+            @update:modelValue="() => form.errors[fieldName] = null"
             :inputName="fieldName"
             v-bind="fieldData"
+            :isError="form.errors[fieldName]"
         >
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <FontAwesomeIcon

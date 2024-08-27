@@ -30,10 +30,12 @@ delete attributes.value
         <div class="rounded-md shadow-sm">
             <textarea
                 v-model.trim="form[fieldName]"
+                @update:modelValue="() => form.errors[fieldName] = null"
                 :id="fieldName" v-bind="attributes"
                 :name="fieldName"
                 :rows="attributes.rows || 3"
                 class="block w-full rounded-md border-gray-300 placeholder:text-gray-400 shadow-sm focus:ring-indigo-500 sm:text-sm"
+                :class="form.errors[fieldName] ? 'errorShake' : ''"
 
             />
         </div>

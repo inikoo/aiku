@@ -32,6 +32,19 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_subscriptions_state_in_process
  * @property int $number_subscriptions_state_active
  * @property int $number_subscriptions_state_discontinued
+ * @property int $number_collections
+ * @property int $number_families
+ * @property int $number_current_families state: active+discontinuing
+ * @property int $number_families_state_in_process
+ * @property int $number_families_state_active
+ * @property int $number_families_state_discontinuing
+ * @property int $number_families_state_discontinued
+ * @property int $number_departments
+ * @property int $number_current_departments state: active+discontinuing
+ * @property int $number_departments_state_in_process
+ * @property int $number_departments_state_active
+ * @property int $number_departments_state_discontinuing
+ * @property int $number_departments_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionStats newModelQuery()

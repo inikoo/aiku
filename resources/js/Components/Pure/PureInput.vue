@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
     step?: number
     isLoading?: boolean
     align?: string  // 'right' 
+    isError?: boolean
 }>(), {
     caret: true,
     type: 'text'
@@ -96,7 +97,10 @@ const checkNumber = (event: KeyboardEvent) => {
 </script>
 
 <template>
-    <div class="bg-white w-full flex relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
+    <div
+        class="bg-white w-full flex relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden"
+        :class="isError ? 'errorShake' : ''"
+    >
         <div class="relative w-full">
             <input
                 ref="_inputRef"

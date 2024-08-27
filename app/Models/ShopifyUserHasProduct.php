@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $shopify_product_id
+ * @property-read ShopifyUser $shopifyUser
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasProduct query()

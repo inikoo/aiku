@@ -151,6 +151,7 @@ onMounted(() => {
             // console.log('qq', _editorInstance.value.getAttributes('textStyle'))
             // emits('update:modelValue', _editorInstance.value?.getHTML())
             props.form[props.fieldName] = _editorInstance.value?.getHTML()
+            props.form.errors[props.fieldName] = null
         },
     })
 })
@@ -192,7 +193,10 @@ const setLink = () => {
 </script>
 
 <template>
-    <div id="text-editor" class="w-full border border-gray-400 rounded">
+    <div id="text-editor"
+        class="w-full border border-gray-400 rounded"
+        :class="form.errors[fieldName] ? 'errorShake' : ''"
+    >
         <div class="p-2 flex items-center gap-x-1 gap-y-1.5 flex-wrap border-b border-gray-500" v-if="_editorInstance">
             <!-- Action: Heading -->
             <div class="group relative inline-block">
