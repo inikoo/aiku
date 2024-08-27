@@ -63,7 +63,7 @@ const onSubmitAddService = (closedPopover: Function) => {
     router.post(
         route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
         {
-            id: formFamily.value.selectedId
+            families: formFamily.value.selectedId
         },
         {
             preserveScroll: true,
