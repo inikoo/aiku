@@ -251,8 +251,7 @@ class IndexDepartments extends OrgAction
         }
 
         $routes = null;
-        if($this->parent instanceof Collection)
-        {
+        if($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.departments',

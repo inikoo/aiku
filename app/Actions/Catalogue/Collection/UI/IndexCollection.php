@@ -219,8 +219,7 @@ class IndexCollection extends OrgAction
         }
 
         $routes = null;
-        if($this->parent instanceof Collection)
-        {
+        if($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.collections',
@@ -274,7 +273,7 @@ class IndexCollection extends OrgAction
                     'subNavigation' => $subNavigation,
                 ],
                 'routes'        => $routes,
-                'data' => CollectionResource::collection($collections),
+                'data'          => CollectionResource::collection($collections),
             ]
         )->table($this->tableStructure($this->parent));
     }
