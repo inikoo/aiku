@@ -293,6 +293,14 @@ class IndexDepartments extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
+                        class_basename($this->parent) == 'Collection' ? [
+                            'type'     => 'button',
+                            'style'    => 'secondary',
+                            'key'      => 'attach-department',
+                            'icon'     => 'fal fa-plus',
+                            'tooltip'  => __('Attach department to this collection'),
+                            'label'    => __('Attach department'),
+                        ] : false
                     ],
                     'subNavigation' => $subNavigation,
                 ],

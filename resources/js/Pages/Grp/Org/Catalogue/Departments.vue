@@ -97,7 +97,7 @@ const onSubmitAddService = (closedPopover: Function) => {
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead">
-        <template #other>
+        <template #button-attach-department>
             <Popover>
                 <template #button="{ open }">
                     <Button
