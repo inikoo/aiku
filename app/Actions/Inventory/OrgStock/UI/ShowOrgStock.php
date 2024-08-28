@@ -75,7 +75,7 @@ class ShowOrgStock extends OrgAction
             'Org/Inventory/OrgStock',
             [
                 'title'                         => __('stock'),
-                'breadcrumbs'                  => $this->getBreadcrumbs(
+                'breadcrumbs'                   => $this->getBreadcrumbs(
                     $orgStock,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -116,7 +116,7 @@ class ShowOrgStock extends OrgAction
         return new OrgStockResource($orgStock);
     }
 
-    public function getBreadcrumbs(OrgStock $orgStock,string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(OrgStock $orgStock, string $routeName, array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (OrgStock $orgStock, array $routeParameters, $suffix) {
             return [
@@ -144,7 +144,7 @@ class ShowOrgStock extends OrgAction
             array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                   $orgStock,
+                    $orgStock,
                     [
                         'index' => [
                             'name'       => preg_replace('/\.show$/', '.index', $routeName),

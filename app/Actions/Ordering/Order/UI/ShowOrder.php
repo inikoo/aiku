@@ -19,6 +19,8 @@ use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -29,6 +31,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowOrder extends OrgAction
 {
     use HasOrderingAuthorisation;
+    private Shop|Customer|CustomerClient $parent;
 
     public function handle(Order $order): Order
     {
@@ -46,8 +49,25 @@ class ShowOrder extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Order $order, ActionRequest $request): Order
     {
-        $this->scope = $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
+        $this->parent = $shop;
+        $this->scope  = $shop;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($order);
+    }
+
+    public function inCustomerInShop(Organisation $organisation, Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
+    {
+        $this->parent = $customer;
+        $this->scope  = $shop;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($order);
+    }
+
+    public function inCustomerClient(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, Order $order, ActionRequest $request): Order
+    {
+        $this->parent = $customerClient;
+        $this->scope  = $shop;
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($order);
     }
 
@@ -55,7 +75,7 @@ class ShowOrder extends OrgAction
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Ordering/Order',
+            'Org/Ordering/Order',
             [
                 'title'       => __('order'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -68,32 +88,211 @@ class ShowOrder extends OrgAction
                     'next'     => $this->getNext($order, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $order->reference,
+                    'title'     => $order->reference,
+                    'model'     => __('Order'),
+                    'icon'      => [
+                        'icon'  => 'fal fa-shopping-cart',
+                        'title' => __('customer client')
+                    ],
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => OrderTabsEnum::navigation()
+                // 'tabs'        => [
+                //     'current'    => $this->tab,
+                //     'navigation' => OrderTabsEnum::navigation()
+                // ],
+                'box_stats'     => [
+                    'fulfilment_customer' => [
+                        'radioTabs' => [
+                            'pallets_storage' => true,
+                            'items_storage'   => false,
+                            'dropshipping'    => true
+                        ],
+                        'number_pallets'                => 26,
+                        'number_pallets_state_received' => 0,
+                        'number_stored_items'           => 0,
+                        'number_pallet_deliveries'      => 2,
+                        'number_pallet_returns'         => 0,
+                        'slug'                          => 'airhead-designs-ltd',
+                        'fulfilment'                    => [
+                            'slug' => 'awf',
+                            'name' => 'AW Fulfilment'
+                        ],
+                        'customer' => [
+                            'slug'         => 'airhead-designs-ltd',
+                            'reference'    => '415850',
+                            'name'         => 'airHEAD Designs Ltd',
+                            'contact_name' => 'Holly Galbraith',
+                            'company_name' => 'airHEAD Designs Ltd',
+                            'location'     => [
+                                'GB',
+                                'United Kingdom',
+                                'London'
+                            ],
+                            'address' => [
+                                'id'                  => 711,
+                                'address_line_1'      => 'Studio 19',
+                                'address_line_2'      => 'Grow Studios, 86 Wallis Road, Main Yard',
+                                'sorting_code'        => '',
+                                'postal_code'         => 'E9 5LN',
+                                'locality'            => 'London',
+                                'dependent_locality'  => '',
+                                'administrative_area' => '',
+                                'country_code'        => 'GB',
+                                'country_id'          => 48,
+                                'checksum'            => 'dcd0872437dca2150658f0db835a67e0',
+                                'created_at'          => '2024-08-22T21:04:42.000000Z',
+                                'updated_at'          => '2024-08-22T21:04:42.000000Z',
+                                'country'             => [
+                                    'code' => 'GB',
+                                    'iso3' => 'GBR',
+                                    'name' => 'United Kingdom'
+                                ],
+                                'formatted_address' => '<p translate="no"><span class="address-line1">Studio 19</span><br><span class="address-line2">Grow Studios, 86 Wallis Road, Main Yard</span><br><span class="locality">London</span><br><span class="postal-code">E9 5LN</span><br><span class="country">United Kingdom</span></p>',
+                                'can_edit'          => null,
+                                'can_delete'        => null
+                            ],
+                            'email'      => 'accounts@ventete.com',
+                            'phone'      => '+447725269253',
+                            'created_at' => '2021-12-01T09:46:06.000000Z'
+                        ]
+                    ],
+                    'delivery_status' => [
+                        'tooltip' => 'In process',
+                        'icon'    => 'fal fa-seedling',
+                        'class'   => 'text-lime-500',
+                        'color'   => 'lime',
+                        'app'     => [
+                            'name' => 'seedling',
+                            'type' => 'font-awesome-5'
+                        ]
+                    ],
+                    'order_summary' => [
+                        [
+                            [
+                                'label'       => 'Services',
+                                'quantity'    => 2,
+                                'price_base'  => 'Multiple',
+                                'price_total' => '3.20'
+                            ],
+                            [
+                                'label'       => 'Physical Goods',
+                                'quantity'    => 0,
+                                'price_base'  => 'Multiple',
+                                'price_total' => '0.00'
+                            ]
+                        ],
+                        [],
+                        [
+                            [
+                                'label'       => 'Net',
+                                'information' => '',
+                                'price_total' => '3.20'
+                            ],
+                            [
+                                'label'       => 'Tax 20%',
+                                'information' => '',
+                                'price_total' => '0.64'
+                            ]
+                        ],
+                        [
+                            [
+                                'label'       => 'Total',
+                                'price_total' => '3.84'
+                            ]
+                        ],
+                        'currency' => [
+                            'data' => [
+                                'id'     => 23,
+                                'code'   => 'GBP',
+                                'name'   => 'British Pound',
+                                'symbol' => '£'
+                            ]
+                        ]
+                    ]
                 ],
-                'showcase'=> GetOrderShowcase::run($order),
+                'data'  => [
+                    'data'  => [
+                        'id'            => 7,
+                        'customer_name' => 'airHEAD Designs Ltd',
+                        'reference'     => 'ADL-002',
+                        'state'         => 'in-process',
+                        'timeline'      => [
+                            'in-process' => [
+                                'label'     => 'In Process',
+                                'tooltip'   => 'In Process',
+                                'key'       => 'in-process',
+                                'timestamp' => '2024-08-25T18:13:50.000000Z'
+                            ],
+                            'submitted' => [
+                                'label'     => 'Submitted',
+                                'tooltip'   => 'Submitted',
+                                'key'       => 'submitted',
+                                'timestamp' => null
+                            ],
+                            'confirmed' => [
+                                'label'     => 'Confirmed',
+                                'tooltip'   => 'Confirmed',
+                                'key'       => 'confirmed',
+                                'timestamp' => null
+                            ],
+                            'received' => [
+                                'label'     => 'Received',
+                                'tooltip'   => 'Received',
+                                'key'       => 'received',
+                                'timestamp' => null
+                            ],
+                            'booking-in' => [
+                                'label'     => 'Booking In',
+                                'tooltip'   => 'Booking In',
+                                'key'       => 'booking-in',
+                                'timestamp' => null
+                            ],
+                            'booked-in' => [
+                                'label'     => 'Booked In',
+                                'tooltip'   => 'Booked In',
+                                'key'       => 'booked-in',
+                                'timestamp' => null
+                            ]
+                        ],
+                        'number_pallets'        => 1,
+                        'number_boxes'          => 1,
+                        'number_oversizes'      => 1,
+                        'number_services'       => 2,
+                        'number_physical_goods' => 0,
+                        'state_label'           => 'In Process',
+                        'state_icon'            => [
+                            'tooltip' => 'In process',
+                            'icon'    => 'fal fa-seedling',
+                            'class'   => 'text-lime-500',
+                            'color'   => 'lime',
+                            'app'     => [
+                                'name' => 'seedling',
+                                'type' => 'font-awesome-5'
+                            ]
+                        ],
+                        'estimated_delivery_date' => '2024-10-12T00:00:00.000000Z'
+                    ]
+                    ],
+                // 'showcase'=> GetOrderShowcase::run($order),
 
 
 
-                OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentsResource::collection(IndexPayments::run($order))
-                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($order))),
+                // OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
+                //     fn () => PaymentsResource::collection(IndexPayments::run($order))
+                //     : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($order))),
 
-                OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
-                    fn () => InvoicesResource::collection(IndexInvoices::run($order))
-                    : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($order))),
+                // OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
+                //     fn () => InvoicesResource::collection(IndexInvoices::run($order))
+                //     : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($order))),
 
-                OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
-                    fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))
-                    : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))),
+                // OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
+                //     fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))
+                //     : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))),
 
             ]
-        )->table(IndexPayments::make()->tableStructure($order))
-            ->table(IndexInvoices::make()->tableStructure($order))
-            ->table(IndexDeliveryNotes::make()->tableStructure($order));
+        );
+        // ->table(IndexPayments::make()->tableStructure($order))
+        //     ->table(IndexInvoices::make()->tableStructure($order))
+        //     ->table(IndexDeliveryNotes::make()->tableStructure($order));
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -156,6 +355,42 @@ class ShowOrder extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.shops.show.crm.customers.show.orders.show'
+            => array_merge(
+                (new IndexOrders())->getBreadcrumbs('grp.org.shops.show.crm.customers.show.orders.index', $routeParameters),
+                $headCrumb(
+                    $order,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
+                            'parameters' => Arr::except($routeParameters, ['order'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.crm.customers.show.orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.crm.customers.show.customer-clients.orders.show'
+            => array_merge(
+                (new IndexOrders())->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.orders.index', $routeParameters),
+                $headCrumb(
+                    $order,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.orders.index',
+                            'parameters' => Arr::except($routeParameters, ['order'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }
@@ -198,6 +433,33 @@ class ShowOrder extends OrgAction
                         'organisation'  => $this->organisation->slug,
                         'shop'          => $order->shop->slug,
                         'order'         => $order->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.shops.show.crm.customers.show.orders.show' => [
+                'label' => $order->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $this->organisation->slug,
+                        'shop'          => $order->shop->slug,
+                        'customer'      => $this->parent->slug,
+                        'order'         => $order->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.shops.show.crm.customers.show.customer-clients.orders.show' => [
+                'label' => $order->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'   => $this->organisation->slug,
+                        'shop'           => $order->shop->slug,
+                        'customer'       => $this->parent->customer->slug,
+                        'customerClient' => $this->parent->ulid,
+                        'order'          => $order->slug
                     ]
 
                 ]

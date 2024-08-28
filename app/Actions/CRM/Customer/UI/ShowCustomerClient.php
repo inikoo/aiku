@@ -11,7 +11,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerClientTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
@@ -83,7 +82,7 @@ class ShowCustomerClient extends OrgAction
         }
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
-                $subNavigation = $this->getCustomerClientSubNavigation($customerClient, $request);
+            $subNavigation = $this->getCustomerClientSubNavigation($customerClient, $request);
         }
 
         return Inertia::render(
