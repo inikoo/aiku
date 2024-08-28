@@ -97,6 +97,68 @@ class ShowCollection extends OrgAction
                     ],
                     // 'subNavigation' => $this->getCollectionSubNavigation($collection),
                 ],
+                'routes' => [
+                    'department' =>  [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.departments',
+                            'parameters'    => [
+                                'shop'  => $collection->shop->slug,
+                                'scope' => $collection->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
+                        ]
+                    ],
+                    'families' => [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.families',
+                            'parameters'    => [
+                                'shop'  => $collection->shop->slug,
+                                'scope' => $collection->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
+                        ]
+                    ],
+                    'products' => [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.products',
+                            'parameters'    => [
+                                'shop'  => $collection->shop->slug,
+                                'scope' => $collection->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
+                        ]
+                    ],
+                    'collections' => [
+                        'dataList'  => [
+                            'name'          => 'grp.json.shop.catalogue.collections',
+                            'parameters'    => [
+                                'shop'  => $collection->shop->slug,
+                                'scope' => $collection->slug
+                            ]
+                        ],
+                        'submitAttach'  => [
+                            'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
+                        ]
+                    ]
+                ],
                 'tabs'=> [
                     'current'    => $this->tab,
                     'navigation' => CollectionTabsEnum::navigation($collection)
