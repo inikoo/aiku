@@ -102,7 +102,7 @@ const locale = inject('locale', aikuLocaleStructure)
                             <FontAwesomeIcon v-else :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" class="text-base opacity-50" fixed-width aria-hidden="true" />
                         </div>
                         <div class="xl:whitespace-nowrap flex items-center gap-x-1.5">
-                            <span class="leading-none font-medium text-base">{{ subNav.label }}</span>
+                            <span class="leading-none text-sm xl:text-base">{{ subNav.label }}</span>
                             <div v-if="typeof subNav.number == 'number'"
                                 class="inline-flex items-center w-fit rounded-full px-2 py-0.5 text-xs font-medium"
                                 :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'bg-indigo-100 ' : 'bg-gray-200 '"

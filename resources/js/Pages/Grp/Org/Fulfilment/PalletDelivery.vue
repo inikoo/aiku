@@ -42,6 +42,7 @@ import axios from 'axios'
 import { Action } from '@/types/Action'
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
 import { notify } from '@kyvg/vue3-notification'
+import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
 
@@ -428,7 +429,7 @@ const changePalletType=(form,fieldName,value)=>{
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
                             <div class="">
-                                <PureMultiselect
+                                <!-- <PureMultiselect
                                     v-model="formAddService.service_id"
                                     autofocus
                                     caret
@@ -446,7 +447,15 @@ const changePalletType=(form,fieldName,value)=>{
                                     <template #option="{ option, isSelected, isPointed }">
                                         <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
-                                </PureMultiselect>
+                                </PureMultiselect> -->
+
+                                <PureMultiselectInfiniteScroll
+                                    v-model="formAddService.service_id"
+                                    :fetchRoute="props.service_list_route"
+                                    :placeholder="trans('Select Services')"
+                                    valueProp="id"
+                                />
+
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
                                     {{ formAddService.errors.service_id }}
                                 </p>
@@ -502,7 +511,7 @@ const changePalletType=(form,fieldName,value)=>{
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>
                             <div>
-                                <PureMultiselect
+                                <!-- <PureMultiselect
                                     v-model="formAddPhysicalGood.outer_id"
                                     autofocus
                                     caret
@@ -520,7 +529,15 @@ const changePalletType=(form,fieldName,value)=>{
                                     <template #option="{ option, isSelected, isPointed }">
                                         <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                                     </template>
-                                </PureMultiselect>
+                                </PureMultiselect> -->
+
+                                <PureMultiselectInfiniteScroll
+                                    v-model="formAddPhysicalGood.outer_id"
+                                    :fetchRoute="physical_good_list_route"
+                                    :placeholder="trans('Select Physical Goods')"
+                                    valueProp="id"
+                                />
+
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])" class="mt-2 text-sm text-red-600">
                                     {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
