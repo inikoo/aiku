@@ -126,7 +126,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->palletDelivery = $palletDelivery;
-        $this->initialisation($palletDelivery->organisation, $request);
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }
 
@@ -134,7 +134,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
     {
         $this->asAction       = true;
         $this->palletDelivery = $palletDelivery;
-        $this->initialisation($palletDelivery->organisation, []);
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
         return $this->handle($palletDelivery);
     }
 
