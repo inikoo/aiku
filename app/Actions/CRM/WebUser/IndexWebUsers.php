@@ -8,6 +8,7 @@
 namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
@@ -34,6 +35,7 @@ class IndexWebUsers extends OrgAction
 {
     use WithAuthorizeWebUserScope;
     use WithFulfilmentCustomerSubNavigation;
+    use WithCustomerSubNavigation;
 
     private Shop|Organisation|Customer|FulfilmentCustomer|Website $parent;
 
@@ -104,6 +106,17 @@ class IndexWebUsers extends OrgAction
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $icon         =['fal', 'fa-user'];
             $title        =$this->parent->customer->name;
+            $iconRight    =[
+                'icon' => 'fal fa-terminal',
+            ];
+            $afterTitle= [
+
+                'label'     => __('Web users')
+            ];
+        } elseif($this->parent instanceof Customer) {
+            $subNavigation=$this->getCustomerSubNavigation($this->parent, $request);
+            $icon         =['fal', 'fa-user'];
+            $title        =$this->parent->name;
             $iconRight    =[
                 'icon' => 'fal fa-terminal',
             ];

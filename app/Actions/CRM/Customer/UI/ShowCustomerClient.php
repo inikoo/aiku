@@ -12,6 +12,7 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\UI\CRM\CustomerClientTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Catalogue\Shop;
@@ -81,12 +82,9 @@ class ShowCustomerClient extends OrgAction
             ];
         }
         $subNavigation = null;
-        if ($this->parent instanceof Shop) {
-            if ($this->parent->type == ShopTypeEnum::DROPSHIPPING) {
-                $subNavigation = $this->getCustomerSubNavigation($customerClient->customer, $request);
-            }
+        if ($this->parent instanceof Customer) {
+                $subNavigation = $this->getCustomerClientSubNavigation($customerClient, $request);
         }
-
 
         return Inertia::render(
             'Org/Shop/CRM/Customer',
@@ -126,11 +124,11 @@ class ShowCustomerClient extends OrgAction
                             ]
                         ],
                     ],
+                    'subNavigation' => $subNavigation,
                 ],
-                'subNavigation' => $subNavigation,
                 'tabs'          => [
                     'current'    => $this->tab,
-                    'navigation' => CustomerTabsEnum::navigation()
+                    'navigation' => CustomerClientTabsEnum::navigation()
 
                 ],
 

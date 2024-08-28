@@ -8,6 +8,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\ActionRequest;
 
 trait WithCustomerSubNavigation
@@ -56,6 +57,18 @@ trait WithCustomerSubNavigation
                 ]
             ],
             [
+                'label'    => __('Orders'),
+                'number'   => $customer->orders()->count(),
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
+                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-shopping-cart'],
+                    'tooltip' => __('orders')
+                ]
+            ],
+            [
                 'label'    => __('Portfolios'),
                 'number'   => $customer->portfolios()->count(),
                 'href'     => [
@@ -65,6 +78,35 @@ trait WithCustomerSubNavigation
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-folder'],
                     'tooltip' => __('portfolios')
+                ]
+            ],
+        ];
+    }
+
+    protected function getCustomerClientSubNavigation(CustomerClient $customerClient, ActionRequest $request): array
+    {
+        return [
+            [
+                'label'    => $customerClient->name,
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
+                    'parameters' => [$this->organisation->slug, $customerClient->shop->slug, $customerClient->customer->slug, $customerClient->ulid]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-user'],
+                    'tooltip' => __('Customer')
+                ]
+            ],
+            [
+                'label'    => __('Orders'),
+                'number'   => $customerClient->orders()->count(),
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.orders.index',
+                    'parameters' => [$this->organisation->slug, $customerClient->shop->slug, $customerClient->customer->slug, $customerClient->ulid]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-shopping-cart'],
+                    'tooltip' => __('orders')
                 ]
             ],
         ];
