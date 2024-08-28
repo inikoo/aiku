@@ -23,8 +23,7 @@
   
   
   <template>
-      <ul role="list"
-          class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+      <ul class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 ">
           <li v-for="location in data.locations.data" :key="location.code"
               class="relative flex justify-between gap-x-6 px-4 py-4 hover:bg-gray-50 sm:px-6">
   

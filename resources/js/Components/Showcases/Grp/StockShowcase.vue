@@ -13,11 +13,7 @@ import StockCard from '@/Components/StockCard/StockCard.vue'
 const props = defineProps<{
     data: object
 }>();
-/* const product = props.data.data; */
 
-console.log('hhhh', props.data)
-
-// Inventory/OrgStock/UI/ShowOrgStock.php
 
 </script>
 

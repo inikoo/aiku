@@ -21,8 +21,8 @@ const props = defineProps<{
 
 
 <template>
-    <ul role="list"
-        class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+    <ul 
+        class="divide-y divide-gray-100  bg-white shadow-sm ring-1 ring-gray-900/5">
         <li v-for="location in data.locations.data" :key="location.code"
             class="relative flex justify-between gap-x-6 px-4 py-4 hover:bg-gray-50 sm:px-6">
 
@@ -33,9 +33,9 @@ const props = defineProps<{
 
                 <div class="flex-auto">
                     <div class="text-sm font-semibold leading-6 text-gray-900">
-                       <span v-tooltip="'location'">{{ location.location.code }}</span> 
+                       <span v-tooltip="'location'">{{ location.location.code }} {{ " " }}</span> 
                         <span v-if="location.settings.min_stock || location.settings.max_stock" class="text-gray-400">
-                            ( <span  v-tooltip="'minimum stock'">{{ location?.settings?.min_stock }}</span> ,<span  v-tooltip="'maximum stock'">{{ location?.settings?.max_stock }}</span>  )
+                            ( <span  v-tooltip="'minimum stock'">{{ location?.settings?.min_stock }}</span> , <span  v-tooltip="'maximum stock'">{{ location?.settings?.max_stock }}</span>  )
                         </span>
                         <span v-else class="text-gray-400">( ? )</span>
                     </div>
