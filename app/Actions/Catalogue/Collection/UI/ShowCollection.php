@@ -49,6 +49,7 @@ class ShowCollection extends OrgAction
 
     public function htmlResponse(Collection $collection, ActionRequest $request): Response
     {
+        // dd($collection->stats);
         return Inertia::render(
             'Org/Catalogue/Collection',
             [
@@ -93,7 +94,6 @@ class ShowCollection extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => CollectionTabsEnum::navigation()
                 ],
-
 
                 CollectionTabsEnum::SHOWCASE->value => $this->tab == CollectionTabsEnum::SHOWCASE->value ?
                     fn () => GetCollectionShowcase::run($collection)
