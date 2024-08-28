@@ -17,7 +17,7 @@ import { trans } from 'laravel-vue-i18n'
 import axios from 'axios'
 import { routeType } from '@/types/route'
 import Popover from '@/Components/Popover.vue'
-import PureMultiselectWithPagination from '@/Components/Pure/PureMultiselectWithPagination.vue'
+import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
 
 
 const props = defineProps<{
@@ -90,7 +90,7 @@ const onSubmitAddService = (closedPopover: Function) => {
                     <div class="w-[350px] px-1 pb-2">
                         <div class="text-sm px-1 my-2 block tabular-nums">{{ trans('Select collection') }}: {{ formProduct.selectedId.length }} {{ trans('selected') }} </div>
                         <div class="">
-                            <PureMultiselectWithPagination
+                            <PureMultiselectInfiniteScroll
                                 v-model="formProduct.selectedId"
                                 :fetchRoute="routes.dataList"
                                 mode="multiple"
