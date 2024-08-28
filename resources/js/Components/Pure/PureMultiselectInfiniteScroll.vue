@@ -23,6 +23,7 @@ const props = defineProps<{
     classes?: {}
     fetchRoute: routeType
     required?: boolean
+    placeholder?: string
 }>()
 
 
@@ -50,7 +51,7 @@ const fetchProductList = async (url?: string) => {
         const xxx = await axios.get(
             fetchUrl
         )
-        optionsList.value = [...optionsList.value, ...xxx?.data.data]
+        optionsList.value = optionsList.value.concat(xxx?.data?.data)
         optionsMeta.value = xxx?.data.meta || null
         optionsLinks.value = xxx?.data.links || null
     } catch (error) {
@@ -70,17 +71,20 @@ const onSearchQuery = debounce((query: string) => {
 
 
 // Method: fetching next page
-const onFetchNext = async () => {
+const onFetchNext = () => {
     const dropdown = document.querySelector('.multiselect-dropdown')
+    // console.log(dropdown?.scrollTop, dropdown?.clientHeight, dropdown?.scrollHeight)
 
     const bottomReached = (dropdown?.scrollTop || 0) + (dropdown?.clientHeight || 0) >= (dropdown?.scrollHeight || 10) - 10
-    if (bottomReached && optionsLinks.value?.next) {
-        await fetchProductList(optionsLinks.value.next)
+    if (bottomReached && optionsLinks.value?.next && isLoading.value != 'fetchProduct') {
+        // console.log(dropdown?.scrollTop, dropdown?.clientHeight, dropdown?.scrollHeight)
+        fetchProductList(optionsLinks.value.next)
     }
 }
 
 onMounted(() => {
     const dropdown = document.querySelector('.multiselect-dropdown')
+    // console.log('bb', dropdown, dropdown?.scrollTop)
     if (dropdown) {
         dropdown.addEventListener('scroll', onFetchNext)
     }
@@ -113,9 +117,10 @@ onUnmounted(() => {
             :clearOnSelect="false"
             searchable
             :clearOnBlur="false"
+            clearOnSearch
             autofocus
             :loading="isLoading === 'fetchProduct'"
-            :placeholder="trans('Select Product')"
+            :placeholder="placeholder || trans('Select option')"
             :options="optionsList"
             label="name"
             :resolve-on-load="true"
