@@ -8,7 +8,6 @@
 namespace App\Enums\UI\Catalogue;
 
 use App\Enums\EnumHelperTrait;
-use App\Enums\HasTabs;
 use App\Enums\HasTabsWithQuantity;
 use App\Models\Catalogue\Collection;
 
@@ -89,19 +88,19 @@ enum CollectionTabsEnum: string
             ],
             CollectionTabsEnum::DEPARTMENTS => [
                 'title' => __("Departments")." ({$parent->stats->number_departments})",
-                'icon'  => 'fas fa-folder-tree',
+                'icon'  => 'fal fa-folder-tree',
             ],
             CollectionTabsEnum::FAMILIES => [
                 'title' => __('Families')." ({$parent->stats->number_families})",
-                'icon'  => 'fas fa-folder',
+                'icon'  => 'fal fa-folder',
             ],
             CollectionTabsEnum::PRODUCTS => [
                 'title' => __('Products')." ({$parent->stats->number_products})",
-                'icon'  => 'fas fa-cube',
+                'icon'  => 'fal fa-cube',
             ],
             CollectionTabsEnum::COLLECTIONS => [
                 'title' => __('Collections')." ({$parent->stats->number_collections})",
-                'icon'  => 'fas fa-cube',
+                'icon'  => 'fal fa-cube',
             ],
         };
     }

@@ -12,8 +12,12 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 
 import CollectionsShowcase from '@/Components/Dropshipping/Catalogue/CollectionsShowcase.vue'
+import TableDepartments from '@/Components/Tables/Grp/Org/Catalogue/TableDepartments.vue'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
+import TableCollections from '@/Components/Tables/Grp/Org/Catalogue/TableCollections.vue'
+import TableProducts from '@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue'
+import TableFamilies from '@/Components/Tables/Grp/Org/Catalogue/TableFamilies.vue'
 
 const props = defineProps<{
     title: string,
@@ -22,6 +26,10 @@ const props = defineProps<{
     showcase: {
         stats: {}
     }
+    departments: {}
+    families: {}
+    products: {}
+    collections: {}
     
 }>()
 
@@ -31,7 +39,11 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components: Component = {
-        showcase: CollectionsShowcase
+        showcase: CollectionsShowcase,
+        departments: TableDepartments,
+        families: TableFamilies,
+        products: TableProducts,
+        collections: TableCollections,
     }
 
     return components[currentTab.value]
