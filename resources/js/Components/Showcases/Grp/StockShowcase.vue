@@ -5,12 +5,17 @@
   -->
 
 <script setup lang="ts">
+import StockCard from '@/Components/StockCard/StockCard.vue'
+
+
 
 
 const props = defineProps<{
     data: object
 }>();
-const product = props.data.data;
+/* const product = props.data.data; */
+
+console.log('hhhh', props.data)
 
 // Inventory/OrgStock/UI/ShowOrgStock.php
 
@@ -18,14 +23,18 @@ const product = props.data.data;
 
 
 <template>
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-4 ">
-        <pre>{{ props.data }}</pre>
-        <div class="m-auto">
-            <!-- <img :src="route('grp.media.show',product.image_id)" alt="product main image"
-                 class=" sm:max-w-xs  md:max-w lg:h-64 "
-            /> -->
+    <div class="grid grid-cols-6 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-6 gap-4 p-7">
+        <!-- <pre>{{ props.data }}</pre> -->
+        <div class="col-span-4"></div>
+
+        <div class="col-span-2 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
+            <StockCard :data="data.contactCard" :locationRoute="data.locationRoute" />
         </div>
-        <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
+
+
+
+
+        <!--         <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
             <tr>
                 <td class="px-1 border border-gray-200">All sales since: Thu 30 Mar 2023</td>
             </tr>
@@ -105,10 +114,10 @@ const product = props.data.data;
                 <td class="px-1 border-b border-gray-200">jsb-03</td>
             </tr>
             </tbody>
-        </table>
+        </table> -->
 
     </div>
-<!--
+    <!--
     <table class="table-auto">
         <tbody>
         <tr>
