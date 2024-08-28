@@ -95,7 +95,7 @@ class ShowCollection extends OrgAction
                             ]
                         ] : false
                     ],
-                    'subNavigation' => $this->getCollectionSubNavigation($collection),
+                    // 'subNavigation' => $this->getCollectionSubNavigation($collection),
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
