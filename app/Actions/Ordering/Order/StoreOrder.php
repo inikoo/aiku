@@ -26,9 +26,11 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreOrder extends OrgAction
 {
@@ -58,7 +60,7 @@ class StoreOrder extends OrgAction
         $billingAddress  = Arr::pull($modelData, 'billing_address');
         $deliveryAddress = Arr::pull($modelData, 'delivery_address');
 
-        if (!$billingAddress  && !$deliveryAddress) {
+        if (!$billingAddress && !$deliveryAddress) {
             if ($parent instanceof Customer) {
                 $billingAddress  = $parent->address;
                 $deliveryAddress = $parent->deliveryAddress;
@@ -168,7 +170,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'          => [
+            'reference' => [
                 'sometimes',
                 'max:64',
                 'string',
@@ -237,11 +239,32 @@ class StoreOrder extends OrgAction
         }
     }
 
+    public function htmlResponse(Order $order, ActionRequest $request): Response
+    {
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.customer.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.orders.show', [
+                'organisation'       => $order->organisation->slug,
+                'shop'              => $order->shop->slug,
+                'customer'          => $order->customer->slug,
+                'order'             => $order->slug
+            ])),
+            'grp.models.customer-client.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
+                'organisation'       => $order->organisation->slug,
+                'shop'              => $order->shop->slug,
+                'customer'          => $order->customer->slug,
+                'customerClient'    => $order->customerClient->ulid,
+                'order'             => $order->slug
+            ])),
+        };
+    }
+
     public function action(
         Shop|Customer|CustomerClient $parent,
-        array $modelData,
-        bool $strict = true,
-        int $hydratorsDelay = 60
+        array                        $modelData,
+        bool                         $strict = true,
+        int                          $hydratorsDelay = 60
     ): Order {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;

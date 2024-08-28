@@ -7,6 +7,9 @@
 
 namespace App\Actions\Catalogue\Collection\UI;
 
+use App\Actions\Catalogue\Product\UI\IndexProducts;
+use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
+use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
@@ -14,6 +17,10 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
+use App\Http\Resources\Catalogue\CollectionsResource;
+use App\Http\Resources\Catalogue\DepartmentsResource;
+use App\Http\Resources\Catalogue\FamiliesResource;
+use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -92,16 +99,28 @@ class ShowCollection extends OrgAction
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
-                    'navigation' => CollectionTabsEnum::navigation()
+                    'navigation' => CollectionTabsEnum::navigation($collection)
                 ],
 
                 CollectionTabsEnum::SHOWCASE->value => $this->tab == CollectionTabsEnum::SHOWCASE->value ?
                     fn () => GetCollectionShowcase::run($collection)
                     : Inertia::lazy(fn () => GetCollectionShowcase::run($collection)),
 
-                // ProductTabsEnum::ORDERS->value => $this->tab == ProductTabsEnum::ORDERS->value ?
-                //     fn () => OrderResource::collection(IndexOrders::run($product))
-                //     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),
+                CollectionTabsEnum::DEPARTMENTS->value => $this->tab == CollectionTabsEnum::DEPARTMENTS->value ?
+                    fn () => DepartmentsResource::collection(IndexDepartments::run($collection))
+                    : Inertia::lazy(fn () => DepartmentsResource::collection(DepartmentsResource::run($collection))),
+
+                CollectionTabsEnum::FAMILIES->value => $this->tab == CollectionTabsEnum::FAMILIES->value ?
+                    fn () => FamiliesResource::collection(IndexFamilies::run($collection))
+                    : Inertia::lazy(fn () => FamiliesResource::collection(IndexFamilies::run($collection))),
+
+                CollectionTabsEnum::PRODUCTS->value => $this->tab == CollectionTabsEnum::PRODUCTS->value ?
+                    fn () => ProductsResource::collection(IndexProducts::run($collection))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($collection))),
+
+                CollectionTabsEnum::COLLECTIONS->value => $this->tab == CollectionTabsEnum::COLLECTIONS->value ?
+                    fn () => CollectionsResource::collection(IndexCollection::run($collection))
+                    : Inertia::lazy(fn () => CollectionsResource::collection(IndexCollection::run($collection))),
 
                 // ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
                 //     fn () => CustomersResource::collection(IndexCustomers::run($product))
@@ -118,6 +137,26 @@ class ShowCollection extends OrgAction
                 */
 
             ]
+        )->table(
+            IndexDepartments::make()->tableStructure(
+                $collection,
+                prefix: CollectionTabsEnum::DEPARTMENTS->value
+            )
+        )->table(
+            IndexFamilies::make()->tableStructure(
+                $collection,
+                prefix: CollectionTabsEnum::FAMILIES->value
+            )
+        )->table(
+            IndexProducts::make()->tableStructure(
+                $collection,
+                prefix: CollectionTabsEnum::PRODUCTS->value
+            )
+        )->table(
+            IndexCollection::make()->tableStructure(
+                $collection,
+                prefix: CollectionTabsEnum::COLLECTIONS->value
+            )
         );
     }
 

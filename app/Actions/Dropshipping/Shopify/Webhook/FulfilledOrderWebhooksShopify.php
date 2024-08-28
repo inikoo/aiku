@@ -7,33 +7,32 @@
 
 namespace App\Actions\Dropshipping\Shopify\Webhook;
 
-use App\Actions\Dropshipping\Shopify\Product\DeleteProductFromShopify;
+use App\Actions\Ordering\Order\UpdateStateToSettledOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\ShopifyUserHasOrder;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteProductWebhooksShopify extends OrgAction
+class FulfilledOrderWebhooksShopify extends OrgAction
 {
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(ShopifyUser $shopifyUser, int $productId): void
+    public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $product = $shopifyUser->products()
-            ->where("shopify_product_id", $productId)
+        $shopifyUserHasOrder = ShopifyUserHasOrder::where('shopify_user_id', $shopifyUser->id)
+            ->where('shopify_order_id', $modelData['id'])
             ->firstOrFail();
 
-        DeleteProductFromShopify::run($product);
+        UpdateStateToSettledOrder::run($shopifyUserHasOrder->order);
     }
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
     {
-        $productId = $request->input("id");
-
-        $this->handle($shopifyUser, $productId);
+        $this->handle($shopifyUser, $request->all());
     }
 }

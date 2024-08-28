@@ -11,7 +11,9 @@ use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,15 +27,41 @@ class CreateOrderWebhooksShopify extends OrgAction
 
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $billingAddress = $modelData['billing_address'];
+        $billingAddress  = Arr::get($modelData, 'billing_address');
+        $deliveryAddress = Arr::get($modelData, 'shipping_address');
 
-        $country = Country::where('code', $billingAddress['country_code'])->first();
-        data_set($billingAddress, 'country_id', $country->id);
+        $countryBillingAddress  = Country::where('code', Arr::get($billingAddress, 'country_code'))->first();
+        $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
+
+        $billingAddress = [
+            'address_line_1'      => Arr::get($billingAddress, 'address1'),
+            'address_line_2'      => Arr::get($billingAddress, 'address2'),
+            'sorting_code'        => null,
+            'postal_code'         => Arr::get($billingAddress, 'zip'),
+            'dependent_locality'  => null,
+            'locality'            => Arr::get($billingAddress, 'city'),
+            'administrative_area' => Arr::get($billingAddress, 'province'),
+            'country_code'        => Arr::get($billingAddress, 'country_code'),
+            'country_id'          => $countryBillingAddress->id
+        ];
+
+        $deliveryAddress = [
+            'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
+            'address_line_2'      => Arr::get($deliveryAddress, 'address2'),
+            'sorting_code'        => null,
+            'postal_code'         => Arr::get($deliveryAddress, 'zip'),
+            'dependent_locality'  => null,
+            'locality'            => Arr::get($deliveryAddress, 'city'),
+            'administrative_area' => Arr::get($deliveryAddress, 'province'),
+            'country_code'        => Arr::get($deliveryAddress, 'country_code'),
+            'country_id'          => $countryDeliveryAddress->id
+        ];
 
         $order = StoreOrder::make()->action($shopifyUser->customer, [
-            'reference'       => Str::random(8),
-            'date'            => $modelData['created_at'],
-            'billing_address' => $billingAddress
+            'reference'        => Str::random(8),
+            'date'             => $modelData['created_at'],
+            'billing_address'  => new Address($billingAddress),
+            'delivery_address' => new Address($deliveryAddress)
         ]);
 
         $shopifyUser->orders()->attach($order->id, [
