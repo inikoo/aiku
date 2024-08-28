@@ -55,23 +55,20 @@ class StoreOrder extends OrgAction
             );
         }
         data_set($modelData, 'date', now());
-        if($parent instanceof Customer)
-        {
-            $billingAddress = $parent->address;
-            $deliveryAddress = $parent->deliveryAddress;
-        }
-        elseif ($parent instanceof CustomerClient)
-        {
-            $billingAddress = $parent->address;
-            $deliveryAddress = $parent->address;
-        } else {
-            $billingAddress = $modelData['billing_address'];
-            data_forget($modelData, 'billing_address');
-            /** @var Address $deliveryAddress */
-            $deliveryAddress = Arr::get($modelData, 'delivery_address');
-            data_forget($modelData, 'delivery_address');
-        }
 
+        $billingAddress = Arr::pull($modelData, 'billing_address');
+        $deliveryAddress = Arr::pull($modelData, 'delivery_address');
+
+        if (!$billingAddress  && !$deliveryAddress ) {
+                    if ($parent instanceof Customer) {
+                        $billingAddress = $parent->address;
+                        $deliveryAddress = $parent->deliveryAddress;
+                    } elseif ($parent instanceof CustomerClient) {
+                        $billingAddress = $parent->address;
+                        $deliveryAddress = $parent->address;
+                    }
+                }
+                
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
             $modelData['currency_id'] = $parent->shop->currency_id;
