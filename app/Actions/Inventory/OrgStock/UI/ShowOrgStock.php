@@ -19,6 +19,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -74,7 +75,8 @@ class ShowOrgStock extends OrgAction
             'Org/Inventory/OrgStock',
             [
                 'title'                         => __('stock'),
-                'breadcrumbsx'                  => $this->getBreadcrumbs(
+                'breadcrumbs'                  => $this->getBreadcrumbs(
+                    $orgStock,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -87,7 +89,7 @@ class ShowOrgStock extends OrgAction
                         'title' => __('sku'),
                         'icon'  => 'fal fa-box'
                     ],
-                    'title'   => $orgStock->slug,
+                    'title'   => $orgStock->code,
 
                 ],
                 'tabs'                         => [
@@ -114,7 +116,7 @@ class ShowOrgStock extends OrgAction
         return new OrgStockResource($orgStock);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(OrgStock $orgStock,string $routeName, array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (OrgStock $orgStock, array $routeParameters, $suffix) {
             return [
@@ -127,7 +129,7 @@ class ShowOrgStock extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $orgStock->slug,
+                            'label' => $orgStock->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -138,21 +140,20 @@ class ShowOrgStock extends OrgAction
 
 
         return match ($routeName) {
-            'grp.goods.stocks.show' =>
+            'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.show' =>
             array_merge(
                 (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['orgStock'],
+                   $orgStock,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
-                            'parameters' => []
+                            'name'       => preg_replace('/\.show$/', '.index', $routeName),
+                            'parameters' => Arr::except($routeParameters, ['orgStock'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.org-stocks.show',
-                            'parameters' => [
-                                $routeParameters['orgStock']->slug
-                            ]
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
+
                         ]
                     ],
                     $suffix
@@ -162,7 +163,7 @@ class ShowOrgStock extends OrgAction
             array_merge(
                 (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
-                    $routeParameters['stock'],
+                    $orgStock,
                     [
                         'index' => [
                             'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
