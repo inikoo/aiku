@@ -31,6 +31,14 @@ function orderRoute(order: Order) {
       return route(
           "grp.org.shops.show.ordering.orders.show",
           [ route().params["organisation"],route().params["shop"],order.slug]);
+    case "grp.org.shops.show.crm.customers.show.orders.index":
+      return route(
+          "grp.org.shops.show.crm.customers.show.orders.show",
+          [ route().params["organisation"],route().params["shop"],route().params["customer"],order.slug]);
+    case "grp.org.shops.show.crm.customers.show.customer-clients.orders.index":
+      return route(
+          "grp.org.shops.show.crm.customers.show.customer-clients.orders.show",
+          [ route().params["organisation"],route().params["shop"],route().params["customer"],route().params["customerClient"],order.slug]);
     default:
       return null;
   }

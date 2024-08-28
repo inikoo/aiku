@@ -15,15 +15,14 @@ class GetOrgStockShowcase
 {
     use AsObject;
 
-    public function handle(OrgStock $orgStock): array
+    public function handle(OrgStock $orgStock)
     {
         $orgStock->load('locations');
 
-        return [
-            [
-                'contactCard'              => OrgStockResource::make($orgStock)->getArray(),
-
-            ]
-        ];
+        return collect(
+                [
+                    'contactCard'              => OrgStockResource::make($orgStock)->getArray()
+                ]
+            );
     }
 }

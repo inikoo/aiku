@@ -7,8 +7,6 @@
 
 namespace App\Http\Resources\Inventory;
 
-use App\Models\Inventory\Location;
-use App\Models\Inventory\LocationOrgStock;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -34,7 +32,7 @@ class OrgStockLocationsResource extends JsonResource
             'settings'         => $this->pivot->settings,
             'created_at'       => $this->pivot->created_at,
             'updated_at'       => $this->pivot->updated_at,
-            'location' => new LocationsResource($this->pivot->location)
+            'location'         => new LocationsResource($this->pivot->location)
 
 
         ];
