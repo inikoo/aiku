@@ -53,7 +53,7 @@ const props = defineProps<{
     payments?: object
 }>()
 
-let currentTab = ref(props.tabs.current);
+let currentTab = ref(props.tabs?.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
@@ -76,7 +76,7 @@ const component = computed(() => {
 
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs?.['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 
 </template>
