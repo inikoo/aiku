@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class LocationsResource extends JsonResource
 {
+    public static $wrap = null;
     public function toArray($request): array
     {
         /** @var Location $location */
