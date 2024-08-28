@@ -9,20 +9,22 @@ namespace App\Enums\UI\Catalogue;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
+use App\Enums\HasTabsWithQuantity;
+use App\Models\Catalogue\Collection;
 
 enum CollectionTabsEnum: string
 {
     use EnumHelperTrait;
-    use HasTabs;
+    use HasTabsWithQuantity;
 
 
 
     case SHOWCASE            = 'showcase';
 
-    // case DEPARTMENTS         = 'departments';
-    // case FAMILIES            = 'families';
-    // case PRODUCTS            = 'products';
-    // case COLLECTIONS         = 'collections';
+    case DEPARTMENTS         = 'departments';
+    case FAMILIES            = 'families';
+    case PRODUCTS            = 'products';
+    case COLLECTIONS         = 'collections';
     // case SALES               = 'sales';
     // case CUSTOMERS           = 'customers';
     // case OFFERS              = 'offers';
@@ -36,7 +38,7 @@ enum CollectionTabsEnum: string
 
 
 
-    public function blueprint(): array
+    public function blueprint(Collection $parent): array
     {
         return match ($this) {
             // DepartmentTabsEnum::DATA => [
@@ -85,22 +87,22 @@ enum CollectionTabsEnum: string
                 'title' => __('Details'),
                 'icon'  => 'fas fa-info-circle',
             ],
-            // CollectionTabsEnum::DEPARTMENTS => [
-            //     'title' => __('Departments'),
-            //     'icon'  => 'fas fa-folder-tree',
-            // ],
-            // CollectionTabsEnum::FAMILIES => [
-            //     'title' => __('Families'),
-            //     'icon'  => 'fas fa-folder',
-            // ],
-            // CollectionTabsEnum::PRODUCTS => [
-            //     'title' => __('Products'),
-            //     'icon'  => 'fas fa-cube',
-            // ],
-            // CollectionTabsEnum::COLLECTIONS => [
-            //     'title' => __('Collections'),
-            //     'icon'  => 'fas fa-cube',
-            // ],
+            CollectionTabsEnum::DEPARTMENTS => [
+                'title' => __("Departments")." ({$parent->stats->number_departments})",
+                'icon'  => 'fas fa-folder-tree',
+            ],
+            CollectionTabsEnum::FAMILIES => [
+                'title' => __('Families')." ({$parent->stats->number_families})",
+                'icon'  => 'fas fa-folder',
+            ],
+            CollectionTabsEnum::PRODUCTS => [
+                'title' => __('Products')." ({$parent->stats->number_products})",
+                'icon'  => 'fas fa-cube',
+            ],
+            CollectionTabsEnum::COLLECTIONS => [
+                'title' => __('Collections')." ({$parent->stats->number_collections})",
+                'icon'  => 'fas fa-cube',
+            ],
         };
     }
 }
