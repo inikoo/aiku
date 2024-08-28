@@ -246,16 +246,16 @@ class StoreOrder extends OrgAction
         return match ($routeName) {
             'grp.models.customer.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.orders.show', [
                 'organisation'       => $order->organisation->slug,
-                'shop'              => $order->shop->slug,
-                'customer'          => $order->customer->slug,
-                'order'             => $order->slug
+                'shop'               => $order->shop->slug,
+                'customer'           => $order->customer->slug,
+                'order'              => $order->slug
             ])),
             'grp.models.customer-client.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
                 'organisation'       => $order->organisation->slug,
-                'shop'              => $order->shop->slug,
-                'customer'          => $order->customer->slug,
-                'customerClient'    => $order->customerClient->ulid,
-                'order'             => $order->slug
+                'shop'               => $order->shop->slug,
+                'customer'           => $order->customer->slug,
+                'customerClient'     => $order->customerClient->ulid,
+                'order'              => $order->slug
             ])),
         };
     }
