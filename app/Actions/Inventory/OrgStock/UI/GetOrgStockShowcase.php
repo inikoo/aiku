@@ -16,11 +16,11 @@ class GetOrgStockShowcase
 {
     use AsObject;
 
-    public function handle(Warehouse $warehouse, OrgStock $orgStock): array
+    public function handle(Warehouse $warehouse, OrgStock $orgStock)
     {
         $orgStock->load('locations');
 
-        return [
+        return collect(
             [
                 'contactCard'              => OrgStockResource::make($orgStock)->getArray(),
                 'locationRoute'            => [
@@ -32,6 +32,6 @@ class GetOrgStockShowcase
                 ]
 
             ]
-        ];
+        );
     }
 }
