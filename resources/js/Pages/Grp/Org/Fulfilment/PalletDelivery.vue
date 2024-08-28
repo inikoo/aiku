@@ -453,6 +453,7 @@ const changePalletType=(form,fieldName,value)=>{
                                     v-model="formAddService.service_id"
                                     :fetchRoute="props.service_list_route"
                                     :placeholder="trans('Select Services')"
+                                    valueProp="id"
                                 />
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
@@ -534,6 +535,7 @@ const changePalletType=(form,fieldName,value)=>{
                                     v-model="formAddPhysicalGood.outer_id"
                                     :fetchRoute="physical_good_list_route"
                                     :placeholder="trans('Select Physical Goods')"
+                                    valueProp="id"
                                 />
 
                                 <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])" class="mt-2 text-sm text-red-600">
