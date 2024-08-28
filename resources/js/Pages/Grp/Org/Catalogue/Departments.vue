@@ -14,11 +14,9 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { ref } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
 import { trans } from 'laravel-vue-i18n'
-import axios from 'axios'
 import { routeType } from '@/types/route'
 import Popover from '@/Components/Popover.vue'
-import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
-import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import PureMultiselectWithPagination from '@/Components/Pure/PureMultiselectWithPagination.vue'
 
 
 const props = defineProps<{
@@ -31,39 +29,18 @@ const props = defineProps<{
     }
 }>()
 
-const isLoading = ref<string | boolean>(false)
-const errorMessage = ref<string>('')
-
-const formDepartment = ref({
+const formProduct = ref({
     selectedId: []
 })
-
-// Tabs: Services
-const dataDepartmentList = ref([])
-const fetchDepartmentList = async () => {
-    isLoading.value = 'fetchDepartment'
-    try {
-        const xxx = await axios.get(
-            route(props.routes.dataList.name, props.routes.dataList.parameters)
-        )
-        dataDepartmentList.value = xxx?.data?.data || []
-    } catch (error) {
-        // console.log(error)
-        notify({
-            title: trans('Something went wrong.'),
-            text: trans('Failed to fetch department list'),
-            type: 'error',
-        })
-    }
-    isLoading.value = false
-}
+const errorMessage = ref<string>('')
+const isLoading = ref<string | boolean>(false)
 const onSubmitAddService = (closedPopover: Function) => {
     isLoading.value = 'submitAttach'
 
     router.post(
         route(props.routes.submitAttach.name, props.routes.submitAttach.parameters),
         {
-            departments: formDepartment.value.selectedId
+            products: formProduct.value.selectedId
         },
         {
             preserveScroll: true,
@@ -74,9 +51,9 @@ const onSubmitAddService = (closedPopover: Function) => {
                     text: trans('Successfully attach department.'),
                     type: 'success',
                 })
-                formDepartment.value.selectedId = []
+                formProduct.value.selectedId = []
             },
-            onError: (errors) => {
+            onError: (errors: any) => {
                 // console.log(errors)
                 errorMessage.value = errors
                 notify({
@@ -101,7 +78,6 @@ const onSubmitAddService = (closedPopover: Function) => {
             <Popover>
                 <template #button="{ open }">
                     <Button
-                        @click="() => open ? false : fetchDepartmentList()"
                         type="secondary"
                         label="Attach department"
                         icon="fal fa-plus"
@@ -110,58 +86,34 @@ const onSubmitAddService = (closedPopover: Function) => {
                 </template>
                 <template #content="{ close: closed }">
                     <div class="w-[350px] px-1 pb-2">
-                        <span class="text-sm px-1 my-2 inline-block">{{ trans('Select department') }}: </span>
+                        <div class="text-sm px-1 my-2 block tabular-nums">{{ trans('Select department') }}: {{ formProduct.selectedId.length }} {{ trans('selected') }} </div>
                         <div class="">
-                            <PureMultiselect
-                                v-model="formDepartment.selectedId"
-                                autofocus
-                                caret
+                            <PureMultiselectWithPagination
+                                v-model="formProduct.selectedId"
+                                :fetchRoute="routes.dataList"
                                 mode="multiple"
-                                required
-                                searchable
-                                placeholder="Select Department"
-                                :options="dataDepartmentList"
-                                label="name"
-                                valueProp="id"
-                            >
-                                <template #label="{ value }">
-                                    <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
-                                </template>
+                            />
 
-                                <template #option="{ option, isSelected, isPointed }">
-                                    <div class="">{{ option.name }} <span class="text-sm" :class="isSelected ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
-                                </template>
-                            </PureMultiselect>
                             <p v-if="errorMessage" class="mt-2 text-sm text-red-500">
                                 {{ errorMessage }}
                             </p>
                         </div>
-                        <!-- <div class="mt-3">
-                            <span class="text-xs px-1 my-2">{{ trans('Quantity') }}: </span>
-                            <PureInput
-                                v-model="formAddService.quantity"
-                                :placeholder="trans('Quantity')"
-                                @keydown.enter="() => onSubmitAddService(action, closed)"
-                            />
-                            <p v-if="get(formAddService, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
-                                {{ formAddService.errors.quantity }}
-                            </p>
-                        </div> -->
+                        
                         <div class="flex justify-end mt-3">
                             <Button
                                 @click="() => onSubmitAddService(closed)"
                                 :style="'save'"
                                 :loading="isLoading == 'submitAttach'"
-                                :disabled="!formDepartment.selectedId.length"
+                                :disabled="!formProduct.selectedId.length"
                                 label="Save"
                                 full
                             />
                         </div>
                         
                         <!-- Loading: fetching service list -->
-                        <div v-if="isLoading === 'fetchDepartment'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                        <!-- <div v-if="isLoading === 'fetchProduct'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                             <LoadingIcon class="text-5xl" />
-                        </div>
+                        </div> -->
                     </div>
                 </template>
             </Popover>
