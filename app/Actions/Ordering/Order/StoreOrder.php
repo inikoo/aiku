@@ -60,7 +60,7 @@ class StoreOrder extends OrgAction
         $billingAddress  = Arr::pull($modelData, 'billing_address');
         $deliveryAddress = Arr::pull($modelData, 'delivery_address');
 
-        if (!$billingAddress  && !$deliveryAddress) {
+        if (!$billingAddress && !$deliveryAddress) {
             if ($parent instanceof Customer) {
                 $billingAddress  = $parent->address;
                 $deliveryAddress = $parent->deliveryAddress;
@@ -170,7 +170,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'          => [
+            'reference' => [
                 'sometimes',
                 'max:64',
                 'string',
@@ -262,9 +262,9 @@ class StoreOrder extends OrgAction
 
     public function action(
         Shop|Customer|CustomerClient $parent,
-        array $modelData,
-        bool $strict = true,
-        int $hydratorsDelay = 60
+        array                        $modelData,
+        bool                         $strict = true,
+        int                          $hydratorsDelay = 60
     ): Order {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
