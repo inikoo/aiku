@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
+use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Route;
@@ -20,6 +21,8 @@ class StoreWebhooksToShopify extends OrgAction
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
+
+    public string $commandSignature = 'shopify:webhook {shopify}';
 
     /**
      * @throws \Exception
@@ -54,16 +57,25 @@ class StoreWebhooksToShopify extends OrgAction
         foreach ($webhooks as $webhook) {
             $webhook = $shopifyUser->api()->getRestClient()->request('POST', 'admin/api/2024-07/webhooks.json', $webhook);
 
-            $this->update($shopifyUser, [
-                'data' => [
-                    'webhooks' => $webhook['body']
-                ]
-            ]);
+            if($webhook['errors']) {
+                $this->update($shopifyUser, [
+                    'data' => [
+                        'webhooks' => array_merge($shopifyUser->settings, $webhook['body'])
+                    ]
+                ]);
+            }
         }
     }
 
     public function asController(Customer $customer, ShopifyUser $shopifyUser)
     {
+        $this->handle($shopifyUser);
+    }
+
+    public function asCommand(Command $command)
+    {
+        $shopifyUser = ShopifyUser::where('name', $command->argument('shopify'))->first();
+
         $this->handle($shopifyUser);
     }
 }
