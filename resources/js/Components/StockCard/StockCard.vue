@@ -54,7 +54,7 @@ const getComponent = (componentName: string) => {
         'moveStock': MoveStockCard,
         'editLocation': EditLocationCard,
     };
-    return components[componentName] ?? InfoCard
+    return components[componentName?.key] ?? InfoCard
 };
 
 
@@ -65,11 +65,20 @@ const activeMenu = ref(null)
 
 <template>
     <div class="flex justify-between border-b border-gray-300 p-2">
-        <div class="font-semibold">{{ trans("Contact Card") }} :</div>
-        <Menu v-if="!activeMenu" as="div" class="relative inline-block text-left">
+        <div class="font-semibold flex gap-3">
+            <span>{{ trans("Contact Card") }}</span>
+            <div class="text-xs my-auto" v-if="activeMenu">
+                <FontAwesomeIcon :icon="activeMenu.icon" class="mr-2" aria-hidden="true" />
+                <span>{{ activeMenu.label }}</span>
+            </div>
+        </div>
+
+        <!-- Hover menu implementation -->
+        <Menu v-if="!activeMenu" as="div" class="relative inline-block text-left" @mouseleave="activeMenu = null">
             <div>
                 <MenuButton
-                    class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium  hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                    @mouseover="activeMenu = null"
+                    class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
                     <FontAwesomeIcon :icon="faEllipsisV" />
                 </MenuButton>
             </div>
@@ -79,22 +88,24 @@ const activeMenu = ref(null)
                 leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100"
                 leave-to-class="transform scale-95 opacity-0">
                 <MenuItems
+                    v-show="!activeMenu"
+                    @mouseover="activeMenu = null"
                     class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg z-30 ring-1 ring-black/5 focus:outline-none">
                     <div v-for="item in menu" class="px-1 py-1 border-b-1" :key="item.key">
                         <MenuItem>
-                        <button @click="() => activeMenu = item.key"
-                            :class="['text-gray-900 group flex w-full items-center rounded-md px-2 py-2 text-sm']">
-                            <FontAwesomeIcon :icon="item.icon" class="mr-2 h-5 w-5" aria-hidden="true" />
-                            {{ item.label }}
-                        </button>
+                            <button @click="() => activeMenu = item"
+                                :class="['text-gray-900 group flex w-full items-center rounded-md px-2 py-2 text-sm']">
+                                <FontAwesomeIcon :icon="item.icon" class="mr-2 h-5 w-5" aria-hidden="true" />
+                                {{ item.label }}
+                            </button>
                         </MenuItem>
                     </div>
                 </MenuItems>
             </transition>
         </Menu>
-        <div v-else class="flex justify-between gap-2">
+
+        <div v-else  class="flex justify-between gap-2">
             <Button type='tertiary' label="Cancel" size="xs" @click="() => activeMenu = null" />
-            <!-- <Button type='save' size="xs" /> -->
         </div>
     </div>
 
