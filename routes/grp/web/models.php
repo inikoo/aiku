@@ -509,7 +509,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 });
 
 Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->group(function () {
-    Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
+    Route::post('order', [StoreOrder::class, 'inCustomerClient'])->name('order.store');
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

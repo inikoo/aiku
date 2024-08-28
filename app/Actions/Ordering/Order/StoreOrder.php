@@ -122,7 +122,7 @@ class StoreOrder extends OrgAction
         } else {
             $order = $this->addAddressToModel(
                 model: $order,
-                addressData: $billingAddress->toArray(),
+                addressData: Arr::except($billingAddress->toArray(), ['id']),
                 scope: 'billing',
                 updateLocation: false,
                 updateAddressField: 'billing_address_id'
@@ -142,7 +142,7 @@ class StoreOrder extends OrgAction
             } else {
                 $order = $this->addAddressToModel(
                     model: $order,
-                    addressData: $deliveryAddress->toArray(),
+                    addressData: Arr::except($billingAddress->toArray(), ['id']),
                     scope: 'delivery',
                     updateLocation: false,
                     updateAddressField: 'delivery_address_id'
