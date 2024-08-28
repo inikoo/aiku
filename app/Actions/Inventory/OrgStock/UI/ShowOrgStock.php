@@ -98,8 +98,8 @@ class ShowOrgStock extends OrgAction
 
                 ],
                 OrgStockTabsEnum::SHOWCASE->value => $this->tab == OrgStockTabsEnum::SHOWCASE->value ?
-                    fn () => GetOrgStockShowcase::run($orgStock)
-                    : Inertia::lazy(fn () => GetOrgStockShowcase::run($orgStock)),
+                    fn () => GetOrgStockShowcase::run($this->warehouse, $orgStock)
+                    : Inertia::lazy(fn () => GetOrgStockShowcase::run($this->warehouse, $orgStock)),
 
                 OrgStockTabsEnum::HISTORY->value => $this->tab == OrgStockTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgStock))

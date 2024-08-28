@@ -9,19 +9,27 @@ namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetOrgStockShowcase
 {
     use AsObject;
 
-    public function handle(OrgStock $orgStock): array
+    public function handle(Warehouse $warehouse, OrgStock $orgStock): array
     {
         $orgStock->load('locations');
 
         return [
             [
                 'contactCard'              => OrgStockResource::make($orgStock)->getArray(),
+                'locationRoute'            => [
+                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
+                    'parameters' => [
+                        'organisation' => $warehouse->organisation->slug,
+                        'warehouse'    => $warehouse->slug
+                    ]
+                ]
 
             ]
         ];
