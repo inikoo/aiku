@@ -35,7 +35,7 @@ class IndexOrders extends OrgAction
 {
     private Organisation|Shop|Customer|CustomerClient|Asset $parent;
     use WithCustomerSubNavigation;
-    
+
     public function handle(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -145,6 +145,20 @@ class IndexOrders extends OrgAction
             $afterTitle= [
                 'label'     => __('Orders')
             ];
+            $actions = [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'label'   => 'Add order',
+                            'key'     => 'addorder',
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                'parameters' => [
+                                    'palletDelivery' => 3
+                                ]
+                            ]
+                        ],
+                    ];
         } elseif ($this->parent instanceof Customer) {
             $title = $this->parent->name;
             $model = __('customer');
@@ -157,6 +171,20 @@ class IndexOrders extends OrgAction
             ];
             $afterTitle= [
                 'label'     => __('Orders')
+            ];
+            $actions = [
+                [
+                    'type'    => 'button',
+                    'style'   => 'create',
+                    'label'   => 'Add order',
+                    'key'     => 'addorder',
+                    'route'   => [
+                        'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                        'parameters' => [
+                            'palletDelivery' => 3
+                        ]
+                    ]
+                ],
             ];
         }
         return Inertia::render(
@@ -174,6 +202,7 @@ class IndexOrders extends OrgAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
+                    'actions' => $actions
                 ],
                 'data'        => OrderResource::collection($orders),
 
