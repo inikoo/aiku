@@ -33,8 +33,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrders extends OrgAction
 {
-    private Organisation|Shop|Customer|CustomerClient|Asset $parent;
     use WithCustomerSubNavigation;
+    private Organisation|Shop|Customer|CustomerClient|Asset $parent;
 
     public function handle(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): LengthAwarePaginator
     {
@@ -57,7 +57,7 @@ class IndexOrders extends OrgAction
             $query->where('orders.customer_id', $parent->id);
         } elseif (class_basename($parent) == 'CustomerClient') {
             $query->where('orders.customer_client_id', $parent->id);
-        } 
+        }
 
 
         return $query->defaultSort('orders.reference')
@@ -152,9 +152,10 @@ class IndexOrders extends OrgAction
                             'label'   => 'Add order',
                             'key'     => 'addorder',
                             'route'   => [
-                                'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                'method'     => 'post',
+                                'name'       => 'grp.models.customer-client.order.store',
                                 'parameters' => [
-                                    'palletDelivery' => 3
+                                    'customerClient' => $this->parent->id
                                 ]
                             ]
                         ],
@@ -179,9 +180,10 @@ class IndexOrders extends OrgAction
                     'label'   => 'Add order',
                     'key'     => 'addorder',
                     'route'   => [
-                        'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                        'method'     => 'post',
+                        'name'       => 'grp.models.customer.order.store',
                         'parameters' => [
-                            'palletDelivery' => 3
+                            'customer' => $this->parent->id
                         ]
                     ]
                 ],
@@ -202,7 +204,7 @@ class IndexOrders extends OrgAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
-                    'actions' => $actions
+                    'actions'       => $actions
                 ],
                 'data'        => OrderResource::collection($orders),
 
@@ -281,7 +283,7 @@ class IndexOrders extends OrgAction
             ),
             'grp.org.shops.show.crm.customers.show.orders.index' =>
             array_merge(
-                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show',$routeParameters),
+                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
@@ -291,7 +293,7 @@ class IndexOrders extends OrgAction
             ),
             'grp.org.shops.show.crm.customers.show.customer-clients.orders.index' =>
             array_merge(
-                ShowCustomerClient::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show',$routeParameters),
+                ShowCustomerClient::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show', $routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.orders.index',
