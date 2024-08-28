@@ -20,17 +20,12 @@ use Illuminate\Validation\Validator;
 
 class StoreLocationOrgStock extends OrgAction
 {
+    use WithLocationOrgStockActionAuthorisation;
+
     private Location $location;
     private OrgStock $orgStock;
 
-    public function authorize(ActionRequest $request)
-    {
-        if ($this->asAction) {
-            return true;
-        }
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
-    }
 
     public function handle(Location $location, OrgStock $orgStock, array $modelData): LocationOrgStock
     {

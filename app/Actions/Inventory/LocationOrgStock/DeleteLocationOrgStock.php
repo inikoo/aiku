@@ -16,14 +16,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class DeleteLocationOrgStock extends OrgAction
 {
-    public function authorize(ActionRequest $request)
-    {
-        if ($this->asAction) {
-            return true;
-        }
+    use WithLocationOrgStockActionAuthorisation;
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
-    }
 
     public function handle(LocationOrgStock $locationOrgStock): void
     {
