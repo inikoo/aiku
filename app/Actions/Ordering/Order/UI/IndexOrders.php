@@ -152,9 +152,10 @@ class IndexOrders extends OrgAction
                             'label'   => 'Add order',
                             'key'     => 'addorder',
                             'route'   => [
-                                'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                                'method'     => 'post',
+                                'name'       => 'grp.models.customer-client.order.store',
                                 'parameters' => [
-                                    'palletDelivery' => 3
+                                    'customerClient' => $this->parent->id
                                 ]
                             ]
                         ],
@@ -179,9 +180,10 @@ class IndexOrders extends OrgAction
                     'label'   => 'Add order',
                     'key'     => 'addorder',
                     'route'   => [
-                        'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
+                        'method'     => 'post',
+                        'name'       => 'grp.models.customer.order.store',
                         'parameters' => [
-                            'palletDelivery' => 3
+                            'customer' => $this->parent->id
                         ]
                     ]
                 ],

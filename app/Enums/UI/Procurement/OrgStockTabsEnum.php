@@ -20,30 +20,28 @@ enum OrgStockTabsEnum: string
     case SALES              = 'sales';
     case STOCK_HISTORY      = 'stock_history';
 
-    case ISSUES              = 'issues';
+
+
+
     case PURCHASE_ORDERS     = 'purchase_orders';
     case SUPPLIERS_PRODUCTS  = 'supplier_products';
     case PRODUCTS            = 'product';
-    case LOCATIONS           = 'locations';
-    case IMAGES              = 'images';
 
     case HISTORY             = 'history';
-
-    case DATA                = 'data';
-
+    case IMAGES              = 'images';
     case ATTACHMENTS         = 'attachments';
-
+    case ISSUES              = 'issues';
 
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            OrgStockTabsEnum::DATA => [
-                'type'  => 'icon',
+            OrgStockTabsEnum::HISTORY => [
                 'align' => 'right',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
             ],
             OrgStockTabsEnum::SALES => [
                 'title' => __('sales'),
@@ -54,6 +52,8 @@ enum OrgStockTabsEnum: string
                 'icon'  => 'fal fa-scanner',
             ],
             OrgStockTabsEnum::ISSUES => [
+                'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('issue'),
                 'icon'  => 'fal fa-poop',
             ],
@@ -69,28 +69,21 @@ enum OrgStockTabsEnum: string
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
             ],
-            OrgStockTabsEnum::LOCATIONS => [
-                'title' => __('locations'),
-                'icon'  => 'fal fa-inventory',
-                'type'  => 'icon-only',
-            ],
+
             OrgStockTabsEnum::ATTACHMENTS => [
                 'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon',
+
             ],
             OrgStockTabsEnum::IMAGES => [
+                'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon-only',
             ],
-            OrgStockTabsEnum::HISTORY => [
-                'align' => 'right',
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-            ],
+
             OrgStockTabsEnum::SHOWCASE => [
                 'title' => __('stock'),
                 'icon'  => 'fas fa-info-circle',

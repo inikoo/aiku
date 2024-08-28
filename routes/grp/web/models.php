@@ -136,6 +136,7 @@ use App\Actions\Manufacturing\ManufactureTask\UpdateManufactureTask;
 use App\Actions\Manufacturing\RawMaterial\ImportRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
+use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
@@ -503,10 +504,12 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
     Route::post('payment/{paymentAccount:id}/{invoice:id}', StorePayment::class)->name('payment.store')->withoutScopedBindings();
-
     Route::post('client', StoreCustomerClient::class)->name('client.store');
+    Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
+});
 
-
+Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->group(function () {
+    Route::post('order', [StoreOrder::class, 'inCustomerClient'])->name('order.store');
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');

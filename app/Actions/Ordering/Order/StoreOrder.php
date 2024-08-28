@@ -7,12 +7,14 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
@@ -25,6 +27,7 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -41,11 +44,33 @@ class StoreOrder extends OrgAction
 
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
-        $billingAddress = $modelData['billing_address'];
-        data_forget($modelData, 'billing_address');
-        /** @var Address $deliveryAddress */
-        $deliveryAddress = Arr::get($modelData, 'delivery_address');
-        data_forget($modelData, 'delivery_address');
+        if (!Arr::get($modelData, 'reference')) {
+            data_set(
+                $modelData,
+                'reference',
+                GetSerialReference::run(
+                    container: $parent->shop,
+                    modelType: SerialReferenceModelEnum::ORDER
+                )
+            );
+        }
+        data_set($modelData, 'date', now());
+        if($parent instanceof Customer)
+        {
+            $billingAddress = $parent->address;
+            $deliveryAddress = $parent->deliveryAddress;
+        }
+        elseif ($parent instanceof CustomerClient)
+        {
+            $billingAddress = $parent->address;
+            $deliveryAddress = $parent->address;
+        } else {
+            $billingAddress = $modelData['billing_address'];
+            data_forget($modelData, 'billing_address');
+            /** @var Address $deliveryAddress */
+            $deliveryAddress = Arr::get($modelData, 'delivery_address');
+            data_forget($modelData, 'delivery_address');
+        }
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -97,7 +122,7 @@ class StoreOrder extends OrgAction
         } else {
             $order = $this->addAddressToModel(
                 model: $order,
-                addressData: $billingAddress->toArray(),
+                addressData: Arr::except($billingAddress->toArray(), ['id']),
                 scope: 'billing',
                 updateLocation: false,
                 updateAddressField: 'billing_address_id'
@@ -117,7 +142,7 @@ class StoreOrder extends OrgAction
             } else {
                 $order = $this->addAddressToModel(
                     model: $order,
-                    addressData: $deliveryAddress->toArray(),
+                    addressData: Arr::except($billingAddress->toArray(), ['id']),
                     scope: 'delivery',
                     updateLocation: false,
                     updateAddressField: 'delivery_address_id'
@@ -148,7 +173,7 @@ class StoreOrder extends OrgAction
     {
         $rules = [
             'reference'          => [
-                'required',
+                'sometimes',
                 'max:64',
                 'string',
                 new IUnique(
@@ -158,7 +183,7 @@ class StoreOrder extends OrgAction
                     ]
                 ),
             ],
-            'date'               => ['required', 'date'],
+            'date'               => ['sometimes', 'date'],
             'submitted_at'       => ['sometimes', 'nullable', 'date'],
             'in_warehouse_at'    => ['sometimes', 'nullable', 'date'],
             'packed_at'          => ['sometimes', 'nullable', 'date'],
@@ -172,8 +197,8 @@ class StoreOrder extends OrgAction
             'created_at'   => ['sometimes', 'required', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],
 
-            'billing_address'  => ['required', new ValidAddress()],
-            'delivery_address' => ['sometimes', 'required', new ValidAddress()],
+            'billing_address'  => ['sometimes', new ValidAddress()],
+            'delivery_address' => ['sometimes', new ValidAddress()],
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean'],
 
@@ -235,6 +260,22 @@ class StoreOrder extends OrgAction
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($parent, $this->validatedData);
+    }
+
+    public function inCustomer(Customer $customer, ActionRequest $request): Order
+    {
+        $this->parent = $customer;
+        $this->initialisationFromShop($customer->shop, $request);
+
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function inCustomerClient(CustomerClient $customerClient, ActionRequest $request): Order
+    {
+        $this->parent = $customerClient;
+        $this->initialisationFromShop($customerClient->shop, $request);
+
+        return $this->handle($customerClient, $this->validatedData);
     }
 
 
