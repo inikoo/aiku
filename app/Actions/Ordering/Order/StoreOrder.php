@@ -26,9 +26,11 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreOrder extends OrgAction
 {
@@ -235,6 +237,27 @@ class StoreOrder extends OrgAction
         if ($this->get('handing_type') == OrderHandingTypeEnum::COLLECTION and !$this->shop->collectionAddress->country_id) {
             abort(400, 'Invalid collection address');
         }
+    }
+
+    public function htmlResponse(Order $order, ActionRequest $request): Response
+    {
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.customer.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.orders.show', [
+                'organisation'       => $order->organisation->slug,
+                'shop'              => $order->shop->slug,
+                'customer'          => $order->customer->slug,
+                'order'             => $order->slug
+            ])),
+            'grp.models.customer-client.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
+                'organisation'       => $order->organisation->slug,
+                'shop'              => $order->shop->slug,
+                'customer'          => $order->customer->slug,
+                'customerClient'    => $order->customerClient->ulid,
+                'order'             => $order->slug
+            ])),
+        };
     }
 
     public function action(
