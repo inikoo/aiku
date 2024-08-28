@@ -102,7 +102,7 @@ enum PalletStatusEnum: string
                 'tooltip' => __('Incident'),
                 'icon'    => 'fal fa-sad-cry',
                 'class'   => 'text-red-600',
-                'color'   => 'gray',
+                'color'   => 'red',
                 'app'     => [
                     'name' => 'sad-cry',
                     'type' => 'font-awesome-5'
