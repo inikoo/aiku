@@ -16,8 +16,8 @@ use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
-use App\Actions\Inventory\OrgStock\AttachOrgStockToLocation;
 use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
 use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
@@ -403,13 +403,15 @@ test('fail to create another stock if state in process', function () {
     return $stock->fresh();
 })->throws(ValidationException::class);
 
-test('attach stock to location', function ($location) {
+test('attach stock to location', function (Location $location) {
     $orgStocks = OrgStock::all();
     expect($orgStocks->count())->toBe(2);
+    $locationOrgStocks=[];
     foreach ($orgStocks as $orgStock) {
-        $location = AttachOrgStockToLocation::run($location, $orgStock, []);
+        $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock,$location, []);
     }
-    expect($location->stats->number_org_stock_slots)->toBe(2);
+    expect($location->stats->number_org_stock_slots)->toBe(2)
+        ->and($locationOrgStocks[0])->toBeInstanceOf(LocationOrgStock::class);
 })->depends('create location in warehouse area');
 
 

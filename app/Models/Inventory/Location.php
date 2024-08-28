@@ -152,7 +152,7 @@ class Location extends Model implements Auditable
 
     public function orgStocks(): BelongsToMany
     {
-        return $this->belongsToMany(OrgStock::class)->using(LocationOrgStock::class);
+        return $this->belongsToMany(OrgStock::class)->using(LocationOrgStock::class)->withTimestamps();
     }
 
     public function stats(): HasOne
