@@ -548,6 +548,7 @@ Route::name('collection.')->prefix('collection/{collection:id}')->group(function
 });
 
 require __DIR__."/models/inventory/org_stock.php";
+require __DIR__."/models/inventory/location_org_stock.php";
 
 
 /*

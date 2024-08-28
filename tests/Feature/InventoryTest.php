@@ -16,9 +16,9 @@ use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
-use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
 use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
@@ -408,18 +408,22 @@ test('attach stock to location', function (Location $location) {
     expect($orgStocks->count())->toBe(2);
     $locationOrgStocks=[];
     foreach ($orgStocks as $orgStock) {
-        $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock,$location, []);
+        $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock, $location, []);
     }
     expect($location->stats->number_org_stock_slots)->toBe(2)
         ->and($locationOrgStocks[0])->toBeInstanceOf(LocationOrgStock::class);
+
+    return $locationOrgStocks[0];
+
 })->depends('create location in warehouse area');
 
 
-test('detach stock from location', function ($location, $orgStock) {
-    DetachOrgStockFromLocation::run($location, $orgStock);
+test('detach stock from location', function (LocationOrgStock $locationOrgStock) {
+    $location=$locationOrgStock->location;
+    DeleteLocationOrgStock::make()->action($locationOrgStock);
     $location->refresh();
     expect($location->stats->number_org_stock_slots)->toBe(1);
-})->depends('create location in warehouse area', 'create org stock');
+})->depends('attach stock to location');
 
 test('move stock location', function () {
     /** @var LocationOrgStock $currentLocation */

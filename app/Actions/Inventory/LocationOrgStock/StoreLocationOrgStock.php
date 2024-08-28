@@ -20,7 +20,6 @@ use Illuminate\Validation\Validator;
 
 class StoreLocationOrgStock extends OrgAction
 {
-
     private Location $location;
     private OrgStock $orgStock;
 
