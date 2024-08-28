@@ -721,7 +721,7 @@ test('update shipping', function ($shipping) {
     return $updatedShipping;
 })->depends('create shipping');
 
-test('add items to collection',  function(Collection $collection) {
+test('add items to collection', function (Collection $collection) {
 
     $data = [
         'collections' => [2],
@@ -737,7 +737,7 @@ test('add items to collection',  function(Collection $collection) {
         ->and($collection->departments()->count())->toBe(2)
         ->and($collection->families()->count())->toBe(1)
         ->and($collection->products()->count())->toBe(1);
-    
+
 })->depends('update collection');
 
 test('hydrate shops', function (Shop $shop) {

@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 1
       - name: Composer install
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Prepare environment

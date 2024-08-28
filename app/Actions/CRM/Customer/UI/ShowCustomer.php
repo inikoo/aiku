@@ -185,9 +185,9 @@ class ShowCustomer extends OrgAction
                     fn () => GetCustomerShowcase::run($customer)
                     : Inertia::lazy(fn () => GetCustomerShowcase::run($customer)),
 
-                CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexOrders::run($customer))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
+                // CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
+                //     fn () => OrderResource::collection(IndexOrders::run($customer))
+                //     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
 
                 /*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?

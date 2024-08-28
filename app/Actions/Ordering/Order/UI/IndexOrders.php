@@ -8,6 +8,9 @@
 namespace App\Actions\Ordering\Order\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\Customer\UI\ShowCustomerClient;
+use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
 use App\Http\Resources\Ordering\OrdersResource;
@@ -16,6 +19,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -29,9 +33,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrders extends OrgAction
 {
-    private Organisation|Shop|Customer|Asset $parent;
-
-    public function handle(Organisation|Shop|Customer|Asset $parent, $prefix = null): LengthAwarePaginator
+    private Organisation|Shop|Customer|CustomerClient|Asset $parent;
+    use WithCustomerSubNavigation;
+    
+    public function handle(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -50,7 +55,9 @@ class IndexOrders extends OrgAction
             $query->where('orders.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Customer') {
             $query->where('orders.customer_id', $parent->id);
-        }
+        } elseif (class_basename($parent) == 'CustomerClient') {
+            $query->where('orders.customer_client_id', $parent->id);
+        } 
 
 
         return $query->defaultSort('orders.reference')
@@ -71,7 +78,7 @@ class IndexOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Customer|Asset $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
@@ -110,6 +117,48 @@ class IndexOrders extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $orders, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        if ($this->parent instanceof CustomerClient) {
+            $subNavigation = $this->getCustomerClientSubNavigation($this->parent, $request);
+        } elseif ($this->parent instanceof Customer) {
+            $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+        }
+        $title = __('Orders');
+        $model = __('order');
+        $icon  = [
+            'icon'  => ['fal', 'fa-shopping-cart'],
+            'title' => __('orders')
+        ];
+        $afterTitle=null;
+        $iconRight =null;
+
+        if ($this->parent instanceof CustomerClient) {
+            $title = $this->parent->name;
+            $model = __('customer client');
+            $icon  = [
+                'icon'  => ['fal', 'fa-folder'],
+                'title' => __('customer client')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-shopping-cart',
+            ];
+            $afterTitle= [
+                'label'     => __('Orders')
+            ];
+        } elseif ($this->parent instanceof Customer) {
+            $title = $this->parent->name;
+            $model = __('customer');
+            $icon  = [
+                'icon'  => ['fal', 'fa-user'],
+                'title' => __('customer')
+            ];
+            $iconRight    =[
+                'icon' => 'fal fa-shopping-cart',
+            ];
+            $afterTitle= [
+                'label'     => __('Orders')
+            ];
+        }
         return Inertia::render(
             'Ordering/Orders',
             [
@@ -119,9 +168,15 @@ class IndexOrders extends OrgAction
                 ),
                 'title'       => __('orders'),
                 'pageHead'    => [
-                    'title' => __('orders'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => OrderResource::collection($orders),
+
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => OrdersTabsEnum::navigation(),
@@ -153,6 +208,22 @@ class IndexOrders extends OrgAction
         return $this->handle(parent: $shop);
     }
 
+    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $customer;
+        $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
+
+        return $this->handle(parent: $customer);
+    }
+
+    public function inCustomerClient(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $customerClient;
+        $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
+
+        return $this->handle(parent: $customerClient);
+    }
+
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) {
@@ -161,7 +232,7 @@ class IndexOrders extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('orders'),
+                        'label' => __('Orders'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -175,6 +246,26 @@ class IndexOrders extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.ordering.orders.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.crm.customers.show.orders.index' =>
+            array_merge(
+                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show',$routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.crm.customers.show.customer-clients.orders.index' =>
+            array_merge(
+                ShowCustomerClient::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show',$routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.orders.index',
                         'parameters' => $routeParameters
                     ]
                 )

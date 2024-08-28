@@ -10,7 +10,7 @@ namespace App\Enums\UI\CRM;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum CustomerTabsEnum: string
+enum CustomerClientTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -31,11 +31,11 @@ enum CustomerTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            CustomerTabsEnum::TIMELINE => [
+            CustomerClientTabsEnum::TIMELINE => [
                 'title' => __('timeline'),
                 'icon'  => 'fal fa-code-branch',
             ],
-            CustomerTabsEnum::DATA => [
+            CustomerClientTabsEnum::DATA => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('data'),
@@ -50,29 +50,29 @@ enum CustomerTabsEnum: string
             //     'title' => __('orders'),
             //     'icon'  => 'fal fa-shopping-cart',
             // ],
-            CustomerTabsEnum::ATTACHMENTS => [
+            CustomerClientTabsEnum::ATTACHMENTS => [
                 'align' => 'right',
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon'
             ],
-            CustomerTabsEnum::DISPATCHED_EMAILS => [
+            CustomerClientTabsEnum::DISPATCHED_EMAILS => [
                 'align' => 'right',
                 'title' => __('dispatched emails'),
                 'icon'  => 'fal fa-paper-plane',
                 'type'  => 'icon',
             ],
-            CustomerTabsEnum::SHOWCASE => [
+            CustomerClientTabsEnum::SHOWCASE => [
                 'title' => __('customer'),
                 'icon'  => 'fas fa-info-circle',
             ],
-            CustomerTabsEnum::WEB_USERS => [
+            CustomerClientTabsEnum::WEB_USERS => [
                 'align' => 'right',
                 'title' => __('users'),
                 'icon'  => 'fal fa-globe',
                 'type'  => 'icon',
             ],
-            CustomerTabsEnum::CREDIT_TRANSACTIONS => [
+            CustomerClientTabsEnum::CREDIT_TRANSACTIONS => [
                 'align' => 'right',
                 'title' => __('credit transactions'),
                 'icon'  => 'fal fa-abacus',

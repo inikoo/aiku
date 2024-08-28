@@ -11,6 +11,7 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -123,6 +125,11 @@ class CustomerClient extends Model implements Auditable
                 $customerClient->name = $customerClient->company_name == '' ? $customerClient->contact_name : $customerClient->company_name;
             }
         });
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
 }

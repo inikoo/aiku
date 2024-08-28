@@ -15,8 +15,6 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnItemResource;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturnItem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;

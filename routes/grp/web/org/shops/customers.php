@@ -20,6 +20,7 @@ use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
+use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 
 Route::get('', IndexCustomers::class)->name('index');
@@ -27,6 +28,7 @@ Route::get('create', CreateCustomer::class)->name('create');
 Route::get('{customer}/edit', EditCustomer::class)->name('edit');
 Route::prefix('{customer}')->as('show')->group(function () {
     Route::get('', ShowCustomer::class);
+    Route::get('/orders', [IndexOrders::class, 'inCustomer'])->name('.orders.index');
     Route::get('/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
     Route::prefix('web-users')->as('.web-users')->group(function () {
         Route::get('', IndexWebUsers::class)->name('.index');
@@ -43,6 +45,7 @@ Route::prefix('{customer}')->as('show')->group(function () {
             Route::get('', ShowCustomerClient::class)->name('.show');
             // Route::get('edit', [EditWebUser::class, 'inCustomerInShop'])->name('.edit');
             Route::prefix('orders')->as('.orders')->group(function () {
+                Route::get('', [IndexOrders::class, 'inCustomerClient'])->name('.index');
                 Route::get('{order}', ShowCustomerOrder::class)->name('.show');
             });
         });
