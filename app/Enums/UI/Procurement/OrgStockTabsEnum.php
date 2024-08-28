@@ -85,8 +85,8 @@ enum OrgStockTabsEnum: string
             ],
 
             OrgStockTabsEnum::SHOWCASE => [
-                'title' => __('stock'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }
