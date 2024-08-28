@@ -17,9 +17,12 @@ class GetOrgStockShowcase
 
     public function handle(OrgStock $orgStock): array
     {
+        $orgStock->load('locations');
+
         return [
             [
                 'contactCard'              => OrgStockResource::make($orgStock)->getArray(),
+
             ]
         ];
     }

@@ -14,20 +14,22 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class OrgStockResource extends JsonResource
 {
     use HasSelfCall;
-
+    public static $wrap = null;
     public function toArray($request): array
     {
         /** @var OrgStock $orgStock */
         $orgStock = $this;
 
         return [
+            'id'=> $orgStock->id,
             'slug'               => $orgStock->slug,
             'code'               => $orgStock->code,
             'unit_value'         => $orgStock->unit_value,
             'description'        => $orgStock->stock->description,
             'number_locations'   => $orgStock->stats->number_locations,
             'quantity_locations' => $orgStock->quantity_in_locations,
-            'photo'              => $orgStock->stock->imageSources()
+            'photo'              => $orgStock->stock->imageSources(),
+            'locations'          => OrgStockLocationsResource::collection($orgStock->locations)
         ];
     }
 }
