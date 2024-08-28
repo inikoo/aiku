@@ -21,7 +21,6 @@ use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
@@ -56,19 +55,19 @@ class StoreOrder extends OrgAction
         }
         data_set($modelData, 'date', now());
 
-        $billingAddress = Arr::pull($modelData, 'billing_address');
+        $billingAddress  = Arr::pull($modelData, 'billing_address');
         $deliveryAddress = Arr::pull($modelData, 'delivery_address');
 
-        if (!$billingAddress  && !$deliveryAddress ) {
-                    if ($parent instanceof Customer) {
-                        $billingAddress = $parent->address;
-                        $deliveryAddress = $parent->deliveryAddress;
-                    } elseif ($parent instanceof CustomerClient) {
-                        $billingAddress = $parent->address;
-                        $deliveryAddress = $parent->address;
-                    }
-                }
-                
+        if (!$billingAddress && !$deliveryAddress) {
+            if ($parent instanceof Customer) {
+                $billingAddress  = $parent->address;
+                $deliveryAddress = $parent->deliveryAddress;
+            } elseif ($parent instanceof CustomerClient) {
+                $billingAddress  = $parent->address;
+                $deliveryAddress = $parent->address;
+            }
+        }
+
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
             $modelData['currency_id'] = $parent->shop->currency_id;
@@ -169,7 +168,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'          => [
+            'reference' => [
                 'sometimes',
                 'max:64',
                 'string',
@@ -240,9 +239,9 @@ class StoreOrder extends OrgAction
 
     public function action(
         Shop|Customer|CustomerClient $parent,
-        array $modelData,
-        bool $strict = true,
-        int $hydratorsDelay = 60
+        array                        $modelData,
+        bool                         $strict = true,
+        int                          $hydratorsDelay = 60
     ): Order {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
