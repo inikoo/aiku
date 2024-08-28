@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
     required?: boolean
     searchable?: boolean
     clearOnBlur?: boolean  // Whether the search is cleared on blur or not
+    clearOnSelect?: boolean
     classes?: {}
     options: {
         label: string
@@ -18,6 +19,9 @@ const props = withDefaults(defineProps<{
     valueProp?: string
     isLoading?: boolean
     isError?: boolean
+    resolveOnLoad?: boolean
+    delay?: number
+    minChars?: number
 }>(), {
     clearOnBlur: true
 })
@@ -26,6 +30,7 @@ const props = withDefaults(defineProps<{
 const emits = defineEmits<{
     (e: 'update:modelValue', value: {}): void
     (e: 'OnChange', value: {}): void
+    (e: 'search-change', value: string): void
 }>()
 
 const onInput = (keyOption : any) => {
@@ -41,6 +46,7 @@ const onInput = (keyOption : any) => {
         <Multiselect
             :value="modelValue"
             @input="onInput"
+            @search-change="(e) => emits('search-change', e)"
             :loading="isLoading"
             :classes="{
                 placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1',
@@ -55,6 +61,10 @@ const onInput = (keyOption : any) => {
             :hideSelected="false"
             :clearOnBlur
             :object
+            :resolve-on-load
+            :delay
+            :clearOnSelect
+            :min-chars
             :searchable="!!searchable"
             :caret="isLoading ? false : caret ?? true"
             :label="label"
@@ -66,6 +76,14 @@ const onInput = (keyOption : any) => {
 
             <template #option="{option, isSelected, isPointed, search}">
                 <slot name="option" :option :isSelected="isSelected(option)" :isPointed="isPointed(option)" :search />
+            </template>
+
+            <template #afterlist>
+                <slot name="afterlist"></slot>
+            </template>
+
+            <template #spinner>
+                <slot name="spinner"></slot>
             </template>
         </Multiselect>
     </div>

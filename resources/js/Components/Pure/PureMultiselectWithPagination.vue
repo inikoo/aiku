@@ -83,7 +83,7 @@ const onSearchQuery = debounce((query: string) => {
             :caret="isLoading ? false : true"
             :clearOnSelect="false"
             searchable
-
+            :clearOnBlur="false"
             autofocus
             :loading="isLoading === 'fetchProduct'"
             :placeholder="trans('Select Product')"
@@ -92,7 +92,7 @@ const onSearchQuery = debounce((query: string) => {
             :resolve-on-load="true"
             :min-chars="1"
             valueProp="id"
-            @open="() => fetchProductList()"
+            @open="() => optionsList?.data?.length ? false : fetchProductList()"
             @search-change="(ee) => onSearchQuery(ee)"
         >
 
