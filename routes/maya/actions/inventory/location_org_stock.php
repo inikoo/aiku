@@ -13,5 +13,5 @@ use Illuminate\Support\Facades\Route;
 Route::name('location_org_stock.')->prefix('location-org-stock/{locationOrgStock:id}')->group(function () {
     Route::delete('', DeleteLocationOrgStock::class)->name('delete');
     Route::patch('audit', AuditLocationOrgStock::class)->name('audit');
-    Route::patch('move/{locationOrgStock:id}', MoveOrgStockToOtherLocation::class)->name('move');
+    Route::patch('move/{locationOrgStock:id}', MoveOrgStockToOtherLocation::class)->name('move')->withoutScopedBindings();
 });
