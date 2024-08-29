@@ -57,6 +57,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read Group $group
+ * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch

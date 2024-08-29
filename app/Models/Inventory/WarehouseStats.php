@@ -50,6 +50,13 @@ use Illuminate\Support\Carbon;
  * @property int $number_delivery_notes_cancelled_at_state_packed
  * @property int $number_delivery_notes_cancelled_at_state_finalised
  * @property int $number_delivery_notes_cancelled_at_state_settled
+ * @property int $number_org_stock_audits
+ * @property int $number_org_stock_audits_state_in_process
+ * @property int $number_org_stock_audits_state_completed
+ * @property int $number_org_stock_audit_deltas
+ * @property int $number_org_stock_audit_delta_type_addition
+ * @property int $number_org_stock_audit_delta_type_subtraction
+ * @property int $number_org_stock_audit_delta_type_no_change
  * @property int $number_fulfilments
  * @property int $number_customers_interest_pallets_storage
  * @property int $number_customers_interest_items_storage

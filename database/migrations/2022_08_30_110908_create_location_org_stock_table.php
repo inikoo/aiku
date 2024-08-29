@@ -6,15 +6,22 @@
  */
 
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('location_org_stock', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('warehouse_id')->index();
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
+            $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();
+            $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
             $table->unsignedInteger('org_stock_id')->index();
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
             $table->unsignedInteger('location_id')->index();

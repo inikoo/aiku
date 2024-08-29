@@ -20,7 +20,7 @@ class OrgStockLocationsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'               => $this->id,
+            'id'               => $this->pivot->id,
             'code'             => $this->code,
             'quantity'         => (int) $this->pivot->quantity,
             'value'            => $this->pivot->value,

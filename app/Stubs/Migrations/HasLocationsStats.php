@@ -29,4 +29,7 @@ trait HasLocationsStats
 
         return $table;
     }
+
+
+
 }

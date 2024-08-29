@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jul 2024 18:06:56 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 29 Aug 2024 11:54:59 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\StoredItemAudit;
+namespace App\Actions\Inventory\OrgStockAuditDelta;
 
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateStoredItemAudits;
@@ -16,19 +16,17 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStoredItemAudits;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItemAudit;
+use App\Models\Inventory\LocationOrgStock;
+use App\Models\Inventory\OrgStockAudit;
 use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Symfony\Component\HttpFoundation\Response;
 
-class StoreStoredItemAudit extends OrgAction
+class StoreOrgStockAuditDelta extends OrgAction
 {
     use HasRentalAgreement;
     use WithDeliverableStoreProcessing;
@@ -39,16 +37,12 @@ class StoreStoredItemAudit extends OrgAction
     private bool $action = false;
     private FulfilmentCustomer $fulfilmentCustomer;
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemAudit
+    public function handle(LocationOrgStock|OrgStockAudit $parent, array $modelData): StoredItemAudit
     {
-        $modelData = $this->processData(
-            $modelData,
-            $fulfilmentCustomer,
-            SerialReferenceModelEnum::STORED_ITEM_AUDIT
-        );
+
 
         /** @var StoredItemAudit $storedItemAudit */
-        $storedItemAudit = $fulfilmentCustomer->storedItemAudit()->create($modelData);
+        $storedItemAudit = $parent->orgStockAuditDeltas()->create($modelData);
         $storedItemAudit->refresh();
 
         GroupHydrateStoredItemAudits::dispatch($storedItemAudit->group);
@@ -110,47 +104,29 @@ class StoreStoredItemAudit extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): StoredItemAudit
+    public function asController(LocationOrgStock|OrgStockAudit $parent, ActionRequest $request): StoredItemAudit
     {
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
+        $this->initialisation($parent->organisation, $request);
+
+        return $this->handle($parent, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): StoredItemAudit
+    public function action(LocationOrgStock|OrgStockAudit $parent, $modelData): StoredItemAudit
     {
+
+
+
         $this->action = true;
-        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
+        $this->initialisation($parent->organisation, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 
-    public function jsonResponse(StoredItemAudit $storedItemAudit): array
-    {
-        return [
-            'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
-                'parameters' => [
-                    'organisation'       => $storedItemAudit->organisation->slug,
-                    'fulfilment'         => $storedItemAudit->fulfilment->slug,
-                    'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
-                    'storedItemAudit'    => $storedItemAudit->reference
-                ]
-            ]
-        ];
-    }
 
-    public function htmlResponse(StoredItemAudit $storedItemAudit, ActionRequest $request): Response
-    {
-        return Redirect::route('grp.org.fulfilments.show.crm.customers.show.stored-item-audits.show', [
-            'organisation'       => $storedItemAudit->organisation->slug,
-            'fulfilment'         => $storedItemAudit->fulfilment->slug,
-            'fulfilmentCustomer' => $storedItemAudit->fulfilmentCustomer->slug,
-            'storedItemAudit'    => $storedItemAudit->slug
-        ]);
-    }
+
+
 
 
 }

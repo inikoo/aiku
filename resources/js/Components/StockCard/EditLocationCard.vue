@@ -34,7 +34,6 @@ const form = useForm({
     location_id: null
 })
 
-
 const AssociateLocation = () => {
     form.post(route(
         props.associateLocationRoute.name,

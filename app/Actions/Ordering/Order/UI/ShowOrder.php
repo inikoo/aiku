@@ -8,7 +8,6 @@
 namespace App\Actions\Ordering\Order\UI;
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
@@ -18,7 +17,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
-use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
