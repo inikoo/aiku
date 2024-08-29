@@ -22,6 +22,8 @@ const props = defineProps<{
         mode: "multiple" | "single" | "tags"
 		searchable: boolean
         readonly: boolean
+		label : String,
+		valueProp : String
     }
 }>()
 
@@ -51,7 +53,10 @@ onMounted(() => {
 				:hideSelected="false"
                 :disabled="fieldData.readonly"
                 :caret="!fieldData.readonly"
-				:searchable="!!props.fieldData.searchable" />
+				:searchable="!!props.fieldData.searchable" 
+				:label="fieldData.label || 'value'"
+				:valueProp="fieldData.valueProp || 'value'"
+				/>
 			<div
 				v-if="form.errors[fieldName] || form.recentlySuccessful"
 				class="absolute inset-y-2/4 right-0 pr-3 flex items-center pointer-events-none bg-red-500">
