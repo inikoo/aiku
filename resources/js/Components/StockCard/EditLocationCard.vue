@@ -6,10 +6,9 @@
 
 <script setup lang="ts">
 import SelectQuery from '@/Components/SelectQuery.vue'
-import { useForm } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import { notify } from "@kyvg/vue3-notification"
-import { Link } from '@inertiajs/vue3'
+import { Link, useForm } from '@inertiajs/vue3'
 import { routeType } from "@/types/route"
 import { ref } from 'vue'
 
@@ -26,7 +25,7 @@ const props = defineProps<{
     locationRoute: routeType
     associateLocationRoute: routeType,
     disassociateLocationRoute: routeType,
-    auditLocationRoute: routeType,
+    auditRoute: routeType,
     moveLocationRoute: routeType
 }>();
 
@@ -81,7 +80,7 @@ const AssociateLocation = () => {
             <div class="flex justify-end w-1/2">
                 <div class="flex justify-end">
                     <div class="text-sm font-semibold leading-6 text-gray-900">
-                        <Link method="delete" :href="route(disassociateLocationRoute.name, location.id)" type="button">
+                        <Link method="delete" :href="route(disassociateLocationRoute.name, {locationOrgStock : location.id})" type="button">
                         <button v-tooltip="'Unlink Location'"
                             class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium  hover:bg-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
                             <FontAwesomeIcon :icon="faUnlink" />

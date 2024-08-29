@@ -94,10 +94,34 @@ class ShowOrder extends OrgAction
                         'icon'  => 'fal fa-shopping-cart',
                         'title' => __('customer client')
                     ],
+                    'actions'   => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
+                            'key'     => 'add-products',
+                            'label'   => __('add products'),
+                            'tooltip' => __('Add products'),
+                            'route'   => [  // TODO
+                                'name'       => 'grp.profile.show',
+                                'parameters' => [
+
+                                ]
+                            ]
+                        ]
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => OrderTabsEnum::navigation()
+                ],
+                'routes'    => [
+                    'products_list' => [  // TODO
+                        'name'       => 'grp.profile.show',
+                        'parameters' => [
+
+                        ]
+                    ]
                 ],
                 'box_stats'     => [
                     'fulfilment_customer' => [

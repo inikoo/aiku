@@ -47,9 +47,9 @@ class MoveOrgStockToOtherLocation extends OrgAction
         return $this->handle($currentLocationStock, $targetLocation, $this->validatedData);
     }
 
-    public function asController(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocation, ActionRequest $request): LocationOrgStock
+    public function asController(LocationOrgStock $locationOrgStock, LocationOrgStock $targetLocation, ActionRequest $request): LocationOrgStock
     {
-        $this->initialisation($currentLocationStock->location->organisation, $request);
-        return $this->handle($currentLocationStock, $targetLocation, $this->validatedData);
+        $this->initialisation($locationOrgStock->location->organisation, $request);
+        return $this->handle($locationOrgStock, $targetLocation, $this->validatedData);
     }
 }

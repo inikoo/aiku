@@ -30,7 +30,7 @@ const props = defineProps<{
     locationRoute: routeType
     associateLocationRoute : routeType,
     disassociateLocationRoute : routeType,
-    auditLocationRoute : routeType,
+    auditRoute : routeType,
     moveLocationRoute : routeType
 }>();
 
@@ -121,7 +121,7 @@ const activeMenu = ref(null)
             :locationRoute="locationRoute" 
             :associateLocationRoute="associateLocationRoute"
             :disassociateLocationRoute="disassociateLocationRoute"
-            :auditLocationRoute="auditLocationRoute"
+            :auditRoute="auditRoute"
             :moveLocationRoute="moveLocationRoute"
         />
     </div>

@@ -40,17 +40,14 @@ class GetOrgStockShowcase
                 'disassociateLocationRoute' => [
                     'method'    => 'delete',
                     'name'      => 'grp.models.location_org_stock.delete',
-                    'parameters'=> [] //need locationorgstock param
                 ],
-                'auditLocationRoute' => [
+                'auditRoute' => [
                     'method'    => 'patch',
                     'name'      => 'grp.models.location_org_stock.audit',
-                    'parameters'=> [] //need locationorgstock param
                 ],
                 'moveLocationRoute' => [
                     'method'    => 'patch',
                     'name'      => 'grp.models.location_org_stock.move',
-                    'parameters'=> [] //need 2 locationorgstock param
                 ]
             ]
         );
