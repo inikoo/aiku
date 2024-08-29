@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { routeType } from "@/types/route"
 import { cloneDeep } from "lodash"
 import Select from '@/Components/Forms/Fields/Select.vue'
@@ -40,15 +40,15 @@ const form = useForm({
     newLocation: null
 })
 
-const sendMoveStock = (location = null, close = ()=>null ) => {
+const sendMoveStock = (location = null, close = () => null) => {
     router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
         { quantity: location.quantity },
         {
             onBefore: () => { loading.value = true },
-            onSuccess: () => { 
-                form.reset('newLocation'), 
-                loading.value = false , 
-                close()
+            onSuccess: () => {
+                form.reset('newLocation'),
+                    loading.value = false,
+                    close()
             },
             onError: () => {
                 notify({
@@ -61,6 +61,15 @@ const sendMoveStock = (location = null, close = ()=>null ) => {
 
         })
 }
+
+
+watch(
+    () => props.data,
+    (newData) => {
+        cloneData.value = cloneDeep(newData);
+    },
+    { deep: true }  // Add this option if you want to watch deeply nested changes
+)
 
 </script>
 
@@ -135,7 +144,8 @@ const sendMoveStock = (location = null, close = ()=>null ) => {
                                             }" />
                                     </div>
                                     <div class="flex justify-end">
-                                        <Button :loading="loading" type="save" @click="() => sendMoveStock(location, close)" />
+                                        <Button :loading="loading" type="save"
+                                            @click="() => sendMoveStock(location, close)" />
                                     </div>
                                 </div>
                             </template>
