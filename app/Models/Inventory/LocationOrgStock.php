@@ -15,6 +15,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * App\Models\Inventory\LocationOrgStock
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int $warehouse_id
+ * @property int|null $warehouse_area_id
  * @property int $org_stock_id
  * @property int $location_id
  * @property string $quantity in units

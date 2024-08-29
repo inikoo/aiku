@@ -8,8 +8,10 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\Inventory\OrgStockAuditDelta\OrgStockAuditDeltaTypeEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
@@ -101,6 +103,22 @@ trait HasInventoryStats
             $table->unsignedInteger('number_deliveries_cancelled_at_state_'.$case->snake())->default(0);
         }
 
+
+        return $table;
+    }
+
+    public function orgStocksAuditStats(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_org_stock_audits')->default(0);
+        foreach (StoredItemAuditStateEnum::cases() as $case) {
+            $table->unsignedInteger("number_org_stock_audits_state_{$case->snake()}")->default(0);
+        }
+
+        $table->unsignedInteger('number_org_stock_audit_deltas')->default(0);
+        foreach (OrgStockAuditDeltaTypeEnum::cases() as $case) {
+            $table->unsignedInteger("number_org_stock_audit_delta_type_{$case->snake()}")->default(0);
+        }
 
         return $table;
     }

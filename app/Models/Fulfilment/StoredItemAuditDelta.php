@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $pallet_id
  * @property int $stored_item_id
  * @property \Illuminate\Support\Carbon|null $audited_at
+ * @property int|null $user_id User who audited the stock
  * @property string|null $original_quantity
  * @property string $audited_quantity
  * @property string|null $state

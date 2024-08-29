@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jul 2024 17:02:43 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 29 Aug 2024 11:54:59 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -16,15 +16,9 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('stored_item_audits', function (Blueprint $table) {
+        Schema::create('org_stock_audits', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-
-
-            $table->unsignedSmallInteger('fulfilment_customer_id');
-            $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-            $table->unsignedSmallInteger('fulfilment_id');
-            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedSmallInteger('warehouse_id')->nullable();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('slug')->unique()->collation('und_ns');
@@ -45,6 +39,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('stored_item_audits');
+        Schema::dropIfExists('org_stock_audits');
     }
 };

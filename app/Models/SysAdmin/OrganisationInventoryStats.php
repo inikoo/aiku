@@ -69,6 +69,13 @@ use Illuminate\Support\Carbon;
  * @property int $number_deliveries_cancelled_at_state_packed
  * @property int $number_deliveries_cancelled_at_state_finalised
  * @property int $number_deliveries_cancelled_at_state_settled
+ * @property int $number_org_stock_audits
+ * @property int $number_org_stock_audits_state_in_process
+ * @property int $number_org_stock_audits_state_completed
+ * @property int $number_org_stock_audit_deltas
+ * @property int $number_org_stock_audit_delta_type_addition
+ * @property int $number_org_stock_audit_delta_type_subtraction
+ * @property int $number_org_stock_audit_delta_type_no_change
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
