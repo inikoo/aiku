@@ -40,12 +40,16 @@ const form = useForm({
     newLocation: null
 })
 
-const sendMoveStock = (location: any) => {
-    router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, newLocationOrgStock: form.newLocation }),
+const sendMoveStock = (location = null, close = ()=>null ) => {
+    router.patch(route(props.moveLocationRoute.name, { currentLocationStock: location.id, targetLocation: form.newLocation }),
         { quantity: location.quantity },
         {
             onBefore: () => { loading.value = true },
-            onSuccess: () => { form.reset('newLocation'), loading.value = false },
+            onSuccess: () => { 
+                form.reset('newLocation'), 
+                loading.value = false , 
+                close()
+            },
             onError: () => {
                 notify({
                     title: "Failed",
@@ -131,7 +135,7 @@ const sendMoveStock = (location: any) => {
                                             }" />
                                     </div>
                                     <div class="flex justify-end">
-                                        <Button type="save" @click="() => sendMoveStock(location)" />
+                                        <Button :loading="loading" type="save" @click="() => sendMoveStock(location, close)" />
                                     </div>
                                 </div>
                             </template>

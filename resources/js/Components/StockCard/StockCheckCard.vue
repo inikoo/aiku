@@ -70,7 +70,7 @@ const cloneData = ref(cloneDeep(props.data))
             <!-- Right Side: Stock Information (Duplicated) -->
             <div class="flex justify-end w-1/4">
                 <div class="flex justify-end gap-3">
-                    <PureInputNumber v-model="location.quantity" minValue="0" />
+                    <PureInputNumber v-model="location.quantity" minValue="0"  @input="(e)=>location.quantity =e"/>
                     <span class="ml-2 my-auto flex-shrink-0">
                         <Link v-if="data.locations.data[index].quantity != location.quantity" method="patch"
                             :href="route(auditRoute.name, { locationOrgStock: location.id })"
@@ -79,6 +79,8 @@ const cloneData = ref(cloneDeep(props.data))
                             <FontAwesomeIcon :icon="faSave" class="h-8"
                                 :style="{ '--fa-secondary-color': 'rgb(0, 255, 4)' }" aria-hidden="true" />
                         </button>
+
+
                         </Link>
                         <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                     </span>
