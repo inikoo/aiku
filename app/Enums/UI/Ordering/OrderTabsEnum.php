@@ -15,7 +15,7 @@ enum OrderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case ITEMS                       = 'items';
+    case PRODUCTS                       = 'products';
     // case PAYMENTS                    = 'payments';
     // case DISCOUNTS                   = 'discounts';
     // case INVOICES                    = 'invoices';
@@ -36,8 +36,8 @@ enum OrderTabsEnum: string
     {
         return match ($this) {
 
-            OrderTabsEnum::ITEMS => [
-                'title' => __('items'),
+            OrderTabsEnum::PRODUCTS => [
+                'title' => __('products'),
                 'icon'  => 'fal fa-bars',
             ],
             // OrderTabsEnum::PAYMENTS => [
