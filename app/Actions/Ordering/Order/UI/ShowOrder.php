@@ -119,9 +119,10 @@ class ShowOrder extends OrgAction
                 ],
                 'routes'    => [
                     'products_list' => [  // TODO
-                        'name'       => 'grp.profile.show',
+                        'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
-
+                            'shop' => $order->shop->slug,
+                            'scope' => $order->slug
                         ]
                     ]
                 ],

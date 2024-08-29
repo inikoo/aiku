@@ -289,7 +289,7 @@ class IndexProducts extends OrgAction
         if($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
-                            'name'          => 'grp.json.shop.catalogue.products',
+                            'name'          => 'grp.json.shop.catalogue.collection.products',
                             'parameters'    => [
                                 'shop'  => $this->parent->shop->slug,
                                 'scope' => $this->parent->slug
