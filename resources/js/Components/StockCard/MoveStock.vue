@@ -11,7 +11,9 @@ import { routeType } from "@/types/route"
 import { cloneDeep } from "lodash"
 import Select from '@/Components/Forms/Fields/Select.vue'
 import Popover from '@/Components/Popover.vue'
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link, useForm, router } from '@inertiajs/vue3'
+import Button from "@/Components/Elements/Buttons/Button.vue";
+import { notify } from "@kyvg/vue3-notification"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket, faClock, faEllipsisV, } from '@far'
@@ -33,9 +35,28 @@ const props = defineProps<{
 
 
 const cloneData = ref(cloneDeep(props.data))
+const loading = ref(false)
 const form = useForm({
     newLocation: null
 })
+
+const sendMoveStock = (location: any) => {
+    router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, newLocationOrgStock: form.newLocation }),
+        { quantity: location.quantity },
+        {
+            onBefore: () => { loading.value = true },
+            onSuccess: () => { form.reset('newLocation'), loading.value = false },
+            onError: () => {
+                notify({
+                    title: "Failed",
+                    text: "failed to add location",
+                    type: "error"
+                })
+                loading.value = false
+            }
+
+        })
+}
 
 </script>
 
@@ -96,23 +117,25 @@ const form = useForm({
 
                             <template #content="{ open, close }">
                                 <div class="w-72">
-
                                     <div class="mb-3">
                                         Move {{ data.locations.data[index].quantity -
                                             location.quantity }} stock to :
                                     </div>
-                                    <Select :form="form" :fieldName="'newLocation'" :options="data.locations.data"
-                                        :fieldData="{
-                                            placeholder: 'select Location',
-                                            searchable: true,
-                                            label: 'code',
-                                            valueProp: 'id'
-                                        }" />
+                                    <div class="mb-3">
+                                        <Select :form="form" :fieldName="'newLocation'" :options="data.locations.data"
+                                            :fieldData="{
+                                                placeholder: 'select Location',
+                                                searchable: true,
+                                                label: 'code',
+                                                valueProp: 'id'
+                                            }" />
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <Button type="save" @click="() => sendMoveStock(location)" />
+                                    </div>
                                 </div>
                             </template>
                         </Popover>
-
-
                         <FontAwesomeIcon v-else :icon="falForklift" class="h-6 text-gray-300" aria-hidden="true" />
                     </span>
                 </div>

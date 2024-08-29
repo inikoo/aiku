@@ -27,9 +27,9 @@ const props = defineProps<{
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-6 gap-4 p-7">
         <!-- <pre>{{ props.data }}</pre> -->
-        <div class="col-span-4 xl:col-span-3 "></div>
+        <div class="col-span-4 xl:col-span-3 sm:grid-cols-1 "></div>
 
-        <div class="col-span-2 xl:col-span-3  border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
+        <div class="col-span-2 xl:col-span-3 sm:grid-cols-1 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
             <StockCard 
                 :data="data.contactCard" 
                 :locationRoute="data.locationRoute" 
