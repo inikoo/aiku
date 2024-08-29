@@ -17,7 +17,7 @@ class OrderResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Order $order */
-        $order = $this;
+        $order          = $this;
         $timeline       = [];
         foreach (OrderStateEnum::cases() as $state) {
 

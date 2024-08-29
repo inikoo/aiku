@@ -41,7 +41,7 @@ const form = useForm({
 })
 
 const sendMoveStock = (location = null, close = ()=>null ) => {
-    router.patch(route(props.moveLocationRoute.name, { currentLocationStock: location.id, targetLocation: form.newLocation }),
+    router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
         { quantity: location.quantity },
         {
             onBefore: () => { loading.value = true },
