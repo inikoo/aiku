@@ -14,5 +14,4 @@ Route::name('location_org_stock.')->prefix('location-org-stock/{currentLocationS
     Route::delete('', DeleteLocationOrgStock::class)->name('delete');
     Route::patch('audit', AuditLocationOrgStock::class)->name('audit');
     Route::patch('move/{targetLocation:id}', MoveOrgStockToOtherLocation::class)->name('move')->withoutScopedBindings();
-
 });
