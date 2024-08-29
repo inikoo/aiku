@@ -13,8 +13,6 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\UniversalSearch;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAttachments;
@@ -75,8 +73,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
- * @property-read LocationOrgStock $pivot
- * @property-read Collection<int, Location> $locations
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read \App\Models\SupplyChain\StockStats|null $stats
@@ -171,19 +167,10 @@ class Stock extends Model implements HasMedia, Auditable
         return $this->hasMany(OrgStock::class);
     }
 
-
-    public function locations(): BelongsToMany
-    {
-        return $this->belongsToMany(Location::class)->using(LocationOrgStock::class)->withTimestamps()
-            ->withPivot('quantity');
-    }
-
-
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
     }
-
 
     public function stats(): HasOne
     {

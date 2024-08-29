@@ -32,9 +32,10 @@ class StoreLocationOrgStock extends OrgAction
         data_set($modelData, 'organisation_id', $location->organisation_id);
         data_set($modelData, 'warehouse_id', $location->warehouse_id);
         data_set($modelData, 'warehouse_area_id', $location->warehouse_area_id);
+        data_set($modelData, 'org_stock_id', $orgStock->id);
 
 
-        $location->orgStocks()->attach($orgStock->id, $modelData);
+        $location->locationOrgStocks()->create($modelData);
         $locationStock = LocationOrgStock::where('location_id', $location->id)->where('org_stock_id', $orgStock->id)
             ->first();
 
@@ -65,7 +66,7 @@ class StoreLocationOrgStock extends OrgAction
         $this->orgStock = $orgStock;
         $this->initialisation($orgStock->organisation, $request);
 
-        return $this->handle($orgStock,$location, $this->validatedData);
+        return $this->handle($orgStock, $location, $this->validatedData);
     }
 
     public function action(OrgStock $orgStock, Location $location, array $modelData): LocationOrgStock
@@ -75,7 +76,7 @@ class StoreLocationOrgStock extends OrgAction
         $this->orgStock = $orgStock;
         $this->initialisation($orgStock->organisation, $modelData);
 
-        return $this->handle($orgStock,$location, $this->validatedData);
+        return $this->handle($orgStock, $location, $this->validatedData);
     }
 
     public function jsonResponse(LocationOrgStock $locationStock): LocationOrgStockResource

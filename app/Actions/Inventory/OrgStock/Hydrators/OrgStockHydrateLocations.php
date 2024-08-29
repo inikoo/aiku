@@ -33,7 +33,7 @@ class OrgStockHydrateLocations
 
         $orgStock->stats->update(
             [
-                'number_locations' => $orgStock->locations->count()
+                'number_locations' => $orgStock->locationOrgStocks()->count()
             ]
         );
     }

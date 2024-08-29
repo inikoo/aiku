@@ -41,20 +41,20 @@ class ProductsResource extends JsonResource
                 'icon'  => $this->state->stateIcon()[$this->state->value]['icon'],
                 'class' => $this->state->stateIcon()[$this->state->value]['class']
             ],
-            'created_at'      => $this->created_at,
-            'updated_at'      => $this->updated_at,
-            'shop_slug'       => $this->shop_slug,
-            'shop_code'       => $this->shop_code,
-            'shop_name'       => $this->shop_name,
-            'department_slug' => $this->department_slug,
-            'department_code' => $this->department_code,
-            'department_name' => $this->department_name,
-            'family_slug'     => $this->family_slug,
-            'family_code'     => $this->family_code,
-            'family_name'     => $this->family_name,
+            'created_at'                => $this->created_at,
+            'updated_at'                => $this->updated_at,
+            'shop_slug'                 => $this->shop_slug,
+            'shop_code'                 => $this->shop_code,
+            'shop_name'                 => $this->shop_name,
+            'department_slug'           => $this->department_slug,
+            'department_code'           => $this->department_code,
+            'department_name'           => $this->department_name,
+            'family_slug'               => $this->family_slug,
+            'family_code'               => $this->family_code,
+            'family_name'               => $this->family_name,
             'current_historic_asset_id' => $this->current_historic_asset_id,
-            'asset_id'  => $this->asset_id,
-            'stock'     => $this->available_quantity
+            'asset_id'                  => $this->asset_id,
+            'stock'                     => $this->available_quantity
         ];
     }
 }

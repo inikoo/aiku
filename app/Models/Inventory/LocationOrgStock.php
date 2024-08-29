@@ -8,8 +8,8 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * App\Models\Inventory\LocationOrgStock
@@ -42,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock query()
  * @mixin \Eloquent
  */
-class LocationOrgStock extends Pivot
+class LocationOrgStock extends Model
 {
     public $incrementing = true;
 

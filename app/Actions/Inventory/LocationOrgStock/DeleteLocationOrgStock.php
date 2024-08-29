@@ -24,7 +24,7 @@ class DeleteLocationOrgStock extends OrgAction
         $location = $locationOrgStock->location;
         $orgStock = $locationOrgStock->orgStock;
 
-        $locationOrgStock->location->orgStocks()->detach($locationOrgStock->org_stock_id);
+        $locationOrgStock->delete();
 
         LocationHydrateStocks::dispatch($location);
         LocationHydrateStockValue::dispatch($location);

@@ -7,7 +7,6 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-
 use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
@@ -23,15 +22,14 @@ class SyncOrgStockLocations
     public function handle(OrgStock $orgStock, array $locationsData): array
     {
 
-        $oldLocations = $orgStock->locations()->pluck('locations.id')->toArray();
+        $oldLocations = $orgStock->locationOrgStocks()->pluck('location_id')->toArray();
 
         foreach ($locationsData as $locationID=>$locationOrgStockData) {
 
-            if($locationOrgStock = LocationOrgStock::
-            where('org_stock_id', $orgStock->id)->where('location_id', $locationID)->first()) {
-               // todo update locationOrgStock
+            if($locationOrgStock = LocationOrgStock::where('org_stock_id', $orgStock->id)->where('location_id', $locationID)->first()) {
+                // todo update locationOrgStock
                 //AuditLocationOrgStock::make()->action($locationOrgStock, $locationOrgStockData);
-            }else{
+            } else {
                 /** @var Location $location */
                 $location=Location::find($locationID);
                 StoreLocationOrgStock::make()->action($orgStock, $location, $locationOrgStockData);
@@ -43,7 +41,7 @@ class SyncOrgStockLocations
 
 
 
-        $newLocations = $orgStock->locations()->pluck('locations.id')->toArray();
+        $newLocations = $orgStock->locationOrgStocks()->pluck('location_id')->toArray();
 
 
         foreach(array_diff($oldLocations, $newLocations) as $locationID) {

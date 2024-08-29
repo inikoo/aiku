@@ -15,7 +15,7 @@ use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -52,8 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $discontinued_in_organisation_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read \App\Models\Inventory\LocationOrgStock $pivot
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $owner
@@ -123,12 +122,9 @@ class OrgStock extends Model
         return $this->belongsTo(OrgStockFamily::class);
     }
 
-    public function locations(): BelongsToMany
+    public function locationOrgStocks(): HasMany
     {
-        return $this->belongsToMany(Location::class)->using(LocationOrgStock::class)->withTimestamps()
-            ->withPivot(
-                ['id', 'group_id', 'organisation_id', 'warehouse_id', 'warehouse_area_id', 'quantity', 'value', 'commercial_value', 'type', 'picking_priority', 'notes', 'data', 'settings', 'audited_at', 'source_stock_id', 'source_location_id', 'dropshipping_pipe']
-            );
+        return $this->hasMany(LocationOrgStock::class);
     }
 
     public function owner(): MorphTo

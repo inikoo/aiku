@@ -140,10 +140,10 @@ class ShowOrder extends OrgAction
                     'navigation' => OrderTabsEnum::navigation()
                 ],
                 'routes'    => [
-                    'products_list' => [ 
+                    'products_list' => [
                         'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
-                            'shop' => $order->shop->slug,
+                            'shop'  => $order->shop->slug,
                             'scope' => $order->slug
                         ]
                     ]

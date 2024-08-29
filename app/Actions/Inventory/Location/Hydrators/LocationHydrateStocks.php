@@ -33,14 +33,14 @@ class LocationHydrateStocks
     {
         $location->update(
             [
-                'has_stock_slots'        => $location->orgStocks()->where('dropshipping_pipe', false)->count() > 0,
-                'has_dropshipping_slots' => $location->orgStocks()->where('dropshipping_pipe', true)->count()  > 0
+                'has_stock_slots'        => $location->locationOrgStocks()->where('dropshipping_pipe', false)->count() > 0,
+                'has_dropshipping_slots' => $location->locationOrgStocks()->where('dropshipping_pipe', true)->count()  > 0
             ]
         );
 
 
         $stats = [
-            'number_org_stock_slots' => $location->orgStocks()->count()
+            'number_org_stock_slots' => $location->locationOrgStocks()->count()
         ];
 
         $location->stats()->update($stats);

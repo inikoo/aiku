@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -63,9 +62,8 @@ use Spatie\Tags\HasTags;
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
- * @property-read \App\Models\Inventory\LocationOrgStock $pivot
- * @property-read Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read Collection<int, Pallet> $pallets
  * @property Collection<int, \Spatie\Tags\Tag> $tags
@@ -150,9 +148,9 @@ class Location extends Model implements Auditable
         return $this->belongsTo(WarehouseArea::class);
     }
 
-    public function orgStocks(): BelongsToMany
+    public function locationOrgStocks(): HasMany
     {
-        return $this->belongsToMany(OrgStock::class)->using(LocationOrgStock::class)->withTimestamps();
+        return $this->hasMany(LocationOrgStock::class);
     }
 
     public function stats(): HasOne
