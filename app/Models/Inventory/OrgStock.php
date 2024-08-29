@@ -126,7 +126,7 @@ class OrgStock extends Model
     public function locations(): BelongsToMany
     {
         return $this->belongsToMany(Location::class)->using(LocationOrgStock::class)->withTimestamps()
-            ->withPivot(['quantity','value','commercial_value','type','picking_priority','notes','data','settings','audited_at','source_stock_id','source_location_id','dropshipping_pipe']);
+            ->withPivot(['id', 'quantity','value','commercial_value','type','picking_priority','notes','data','settings','audited_at','source_stock_id','source_location_id','dropshipping_pipe']);
     }
 
     public function owner(): MorphTo

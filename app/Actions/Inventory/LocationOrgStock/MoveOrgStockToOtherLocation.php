@@ -22,13 +22,12 @@ class MoveOrgStockToOtherLocation extends OrgAction
     public function handle(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocation, array $movementData): LocationOrgStock
     {
         $this->update($currentLocationStock, [
-            'quantity' => $currentLocationStock->quantity - $movementData['quantity'],
+            'quantity' => (int) $currentLocationStock->quantity - (int) $movementData['quantity'],
         ]);
 
         $this->update($targetLocation, [
-            'quantity' => (float) $targetLocation->quantity + (float) $movementData['quantity'],
+            'quantity' => (int) $targetLocation->quantity + (int) $movementData['quantity'],
         ]);
-
 
         return $currentLocationStock;
     }
