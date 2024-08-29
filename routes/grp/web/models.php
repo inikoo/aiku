@@ -547,7 +547,6 @@ Route::name('collection.')->prefix('collection/{collection:id}')->group(function
     Route::post('attach-models', AttachCollectionToModels::class)->name('attach-models');
 });
 
-require __DIR__."/models/inventory/org_stock.php";
 require __DIR__."/models/inventory/location_org_stock.php";
 
 

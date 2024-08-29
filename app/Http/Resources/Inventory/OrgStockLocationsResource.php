@@ -21,6 +21,7 @@ class OrgStockLocationsResource extends JsonResource
     {
         return [
             'id'               => $this->id,
+            'code'             => $this->code,
             'quantity'         => (int) $this->pivot->quantity,
             'value'            => $this->pivot->value,
             'audited_at'       => $this->pivot->audited_at,

@@ -40,7 +40,7 @@ const onChange = (event: Event) => {
 
     // Check if the input matches the pattern
     const patternRegex = new RegExp(props.pattern || "[0-9]*");
-    console.log(patternRegex.test(inputValue))
+
     if (!patternRegex.test(inputValue)) {
         return; // If not, do not proceed further
     }
