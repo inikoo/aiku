@@ -52,3 +52,6 @@ Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchedPalletReturn
 Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnAsPicked::class)->name('pallet-return-item.pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
+
+require __DIR__."/actions/inventory/org_stock.php";
+require __DIR__."/actions/inventory/location_org_stock.php";

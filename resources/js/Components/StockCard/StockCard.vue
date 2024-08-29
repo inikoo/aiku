@@ -13,6 +13,7 @@ import EditLocationCard from '@/Components/StockCard/EditLocationCard.vue'
 import StockCheckCard from '@/Components/StockCard/StockCheckCard.vue'
 import MoveStockCard from '@/Components/StockCard/MoveStock.vue'
 import Button from "@/Components/Elements/Buttons/Button.vue";
+import { routeType } from "@/types/route"
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -27,6 +28,10 @@ library.add(faShoppingBasket, faStickyNote, faClock, faEllipsisV, faClipboard, f
 const props = defineProps<{
     data: object,
     locationRoute: routeType
+    associateLocationRoute : routeType,
+    disassociateLocationRoute : routeType,
+    auditLocationRoute : routeType,
+    moveLocationRoute : routeType
 }>();
 
 const menu = [
@@ -110,6 +115,14 @@ const activeMenu = ref(null)
     </div>
 
     <div class="mt-2 flow-root">
-        <component :is="getComponent(activeMenu)" :data="data" :locationRoute="locationRoute" />
+        <component 
+            :is="getComponent(activeMenu)" 
+            :data="data" 
+            :locationRoute="locationRoute" 
+            :associateLocationRoute="associateLocationRoute"
+            :disassociateLocationRoute="disassociateLocationRoute"
+            :auditLocationRoute="auditLocationRoute"
+            :moveLocationRoute="moveLocationRoute"
+        />
     </div>
 </template>

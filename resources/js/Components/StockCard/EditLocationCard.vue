@@ -8,6 +8,10 @@
 import SelectQuery from '@/Components/SelectQuery.vue'
 import { useForm } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue";
+import { notify } from "@kyvg/vue3-notification"
+import { Link } from '@inertiajs/vue3'
+import { routeType } from "@/types/route"
+import { ref } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket } from '@far'
@@ -20,11 +24,36 @@ library.add(faShoppingBasket, faUnlink)
 const props = defineProps<{
     data: object
     locationRoute: routeType
+    associateLocationRoute: routeType,
+    disassociateLocationRoute: routeType,
+    auditLocationRoute: routeType,
+    moveLocationRoute: routeType
 }>();
 
+const loading = ref(false)
 const form = useForm({
     location_id: null
 })
+
+
+const AssociateLocation = () => {
+    form.post(route(
+        props.associateLocationRoute.name,
+        { ...props.associateLocationRoute.parameters, location: form.location_id }
+    ),
+        {
+            onBefore: () => { loading.value = true },
+            onSuccess: () => { form.reset('location_id'), loading.value = false },
+            onError: () => {
+                notify({
+                    title: "Failed",
+                    text: "failed to add location",
+                    type: "error"
+                })
+                loading.value = false
+            }
+        })
+}
 
 </script>
 
@@ -52,10 +81,12 @@ const form = useForm({
             <div class="flex justify-end w-1/2">
                 <div class="flex justify-end">
                     <div class="text-sm font-semibold leading-6 text-gray-900">
+                        <Link method="delete" :href="route(disassociateLocationRoute.name, location.id)" type="button">
                         <button v-tooltip="'Unlink Location'"
                             class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium  hover:bg-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
                             <FontAwesomeIcon :icon="faUnlink" />
                         </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -67,8 +98,9 @@ const form = useForm({
                     <SelectQuery :urlRoute="route(locationRoute?.name, locationRoute?.parameters)" :value="form"
                         :placeholder="'Select location'" :required="true" :trackBy="'code'" :label="'code'"
                         :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false" :fieldName="'location_id'" />
+                    <p class="text-xs text-red-500">{{ form.errors.location_id }}</p>
                 </div>
-                <Button type="create" label="add Location"/>
+                <Button type="create" label="add Location" @click="AssociateLocation" />
             </div>
         </li>
     </ul>

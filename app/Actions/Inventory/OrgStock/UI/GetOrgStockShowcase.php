@@ -29,8 +29,29 @@ class GetOrgStockShowcase
                         'organisation' => $warehouse->organisation->slug,
                         'warehouse'    => $warehouse->slug
                     ]
+                ],
+                'associateLocationRoute'  => [
+                    'method'     => 'post',
+                    'name'       => 'grp.models.org_stock.location.store',
+                    'parameters' => [
+                        'orgStock' => $orgStock->id
+                    ]
+                ],
+                'disassociateLocationRoute' => [
+                    'method'    => 'delete',
+                    'name'      => 'grp.models.location_org_stock.delete',
+                    'parameters'=> [] //need locationorgstock param
+                ],
+                'auditLocationRoute' => [
+                    'method'    => 'patch',
+                    'name'      => 'grp.models.location_org_stock.audit',
+                    'parameters'=> [] //need locationorgstock param
+                ],
+                'moveLocationRoute' => [
+                    'method' => 'patch',
+                    'name'   => 'grp.models.location_org_stock.move',
+                    'parameters'=> [] //need 2 locationorgstock param
                 ]
-
             ]
         );
     }

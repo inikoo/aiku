@@ -6,14 +6,20 @@
 
 <script setup lang="ts">
 import StockCard from '@/Components/StockCard/StockCard.vue'
-
+import { routeType } from "@/types/route"
 
 
 
 const props = defineProps<{
-    data: object
+    data: {
+        contactCard : object,
+        locationRoute : routeType,
+        associateLocationRoute : routeType,
+        disassociateLocationRoute : routeType,
+        auditLocationRoute : routeType,
+        moveLocationRoute : routeType
+    }
 }>();
-
 
 </script>
 
@@ -24,7 +30,14 @@ const props = defineProps<{
         <div class="col-span-4"></div>
 
         <div class="col-span-2 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
-            <StockCard :data="data.contactCard" :locationRoute="data.locationRoute" />
+            <StockCard 
+                :data="data.contactCard" 
+                :locationRoute="data.locationRoute" 
+                :associateLocationRoute="data.associateLocationRoute"
+                :disassociateLocationRoute="data.disassociateLocationRoute"
+                :auditLocationRoute="data.auditLocationRoute"
+                :moveLocationRoute="data.moveLocationRoute"
+            />
         </div>
 
 

@@ -12,14 +12,14 @@ use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
-use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\MoveOrgStockToOtherLocation;
+use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
-use App\Actions\Inventory\OrgStock\AttachOrgStockToLocation;
-use App\Actions\Inventory\OrgStock\DetachOrgStockFromLocation;
-use App\Actions\Inventory\OrgStock\MoveOrgStockLocation;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
@@ -403,32 +403,51 @@ test('fail to create another stock if state in process', function () {
     return $stock->fresh();
 })->throws(ValidationException::class);
 
-test('attach stock to location', function ($location) {
+test('attach stock to location', function (Location $location) {
     $orgStocks = OrgStock::all();
     expect($orgStocks->count())->toBe(2);
+    $locationOrgStocks=[];
     foreach ($orgStocks as $orgStock) {
-        $location = AttachOrgStockToLocation::run($location, $orgStock, []);
+        $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock, $location, []);
     }
-    expect($location->stats->number_org_stock_slots)->toBe(2);
+    expect($location->stats->number_org_stock_slots)->toBe(2)
+        ->and($locationOrgStocks[0])->toBeInstanceOf(LocationOrgStock::class);
+
+    return $locationOrgStocks[0];
+
 })->depends('create location in warehouse area');
 
 
-test('detach stock from location', function ($location, $orgStock) {
-    DetachOrgStockFromLocation::run($location, $orgStock);
+test('detach stock from location', function (LocationOrgStock $locationOrgStock) {
+    $location=$locationOrgStock->location;
+    DeleteLocationOrgStock::make()->action($locationOrgStock);
     $location->refresh();
     expect($location->stats->number_org_stock_slots)->toBe(1);
-})->depends('create location in warehouse area', 'create org stock');
+})->depends('attach stock to location');
+
+
+test('audit stock in location', function () {
+    $locationOrgStock = LocationOrgStock::first();
+    $locationOrgStock = AuditLocationOrgStock::run($locationOrgStock, [
+        'quantity' => 2
+    ]);
+    expect($locationOrgStock->quantity)->toBe(2);
+});
 
 test('move stock location', function () {
     /** @var LocationOrgStock $currentLocation */
     $currentLocation = LocationOrgStock::first();
     $targetLocation  = LocationOrgStock::latest()->first();
 
-    $stock = MoveOrgStockLocation::make()->action($currentLocation, $targetLocation, [
+    expect($currentLocation->quantity)->toBeNumeric(2)
+        ->and($targetLocation->quantity)->toBeNumeric(0);
+
+    $currentLocation = MoveOrgStockToOtherLocation::make()->action($currentLocation, $targetLocation, [
         'quantity' => 1
     ]);
-
-    expect($stock->quantity)->toBeNumeric(1);
+    $targetLocation->refresh();
+    expect($currentLocation->quantity)->toBeNumeric(1)
+        ->and($targetLocation->quantity)->toBeNumeric(1);
 })->depends('detach stock from location');
 
 test('update location', function ($location) {
@@ -436,10 +455,7 @@ test('update location', function ($location) {
     expect($location->code)->toBe('AE-3');
 })->depends('create location in warehouse area');
 
-test('audit stock in location', function ($location) {
-    $location = AuditLocation::run($location);
-    expect($location->audited_at)->not->toBeNull();
-})->depends('create location in warehouse area');
+
 
 test('add found stock', function ($location) {
     $lostAndFound = AddLostAndFoundOrgStock::make()->action(
