@@ -27,20 +27,20 @@ class TransactionsResource extends JsonResource
     {
         $transaction = $this;
         return [
-            'id'         => $transaction->id,
-            'state'  => $transaction->state,
-            'status'       => $transaction->status,
+            'id'                     => $transaction->id,
+            'state'                  => $transaction->state,
+            'status'                 => $transaction->status,
             'quantity_ordered'       => $transaction->quantity_ordered,
-            'quantity_bonus'      => $transaction->quantity_bonus,
-            'quantity_dispatched' => $transaction->quantity_dispatched,
-            'quantity_fail' => $transaction->quantity_fail,
-            'quantity_cancelled'  => $transaction->quantity_cancelled,
-            'gross_amount'        => $transaction->gross_amount,
-            'net_amount'          => $transaction->net_amount,
-            'asset_code'          => $transaction->asset_code,
-            'asset_name'          => $transaction->asset_name,
-            'asset_type'          => $transaction->asset_type,
-            'created_at'          => $transaction->created_at
+            'quantity_bonus'         => $transaction->quantity_bonus,
+            'quantity_dispatched'    => $transaction->quantity_dispatched,
+            'quantity_fail'          => $transaction->quantity_fail,
+            'quantity_cancelled'     => $transaction->quantity_cancelled,
+            'gross_amount'           => $transaction->gross_amount,
+            'net_amount'             => $transaction->net_amount,
+            'asset_code'             => $transaction->asset_code,
+            'asset_name'             => $transaction->asset_name,
+            'asset_type'             => $transaction->asset_type,
+            'created_at'             => $transaction->created_at
         ];
     }
 }
