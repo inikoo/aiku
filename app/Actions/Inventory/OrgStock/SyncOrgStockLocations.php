@@ -7,9 +7,12 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
-use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
+
+use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,25 +22,37 @@ class SyncOrgStockLocations
 
     public function handle(OrgStock $orgStock, array $locationsData): array
     {
+
         $oldLocations = $orgStock->locations()->pluck('locations.id')->toArray();
 
-        $orgStock->locations()->sync(
-            $locationsData
-        );
+        foreach ($locationsData as $locationID=>$locationOrgStockData) {
+
+            if($locationOrgStock = LocationOrgStock::
+            where('org_stock_id', $orgStock->id)->where('location_id', $locationID)->first()) {
+               // todo update locationOrgStock
+                //AuditLocationOrgStock::make()->action($locationOrgStock, $locationOrgStockData);
+            }else{
+                /** @var Location $location */
+                $location=Location::find($locationID);
+                StoreLocationOrgStock::make()->action($orgStock, $location, $locationOrgStockData);
+            }
+
+
+
+        }
+
+
 
         $newLocations = $orgStock->locations()->pluck('locations.id')->toArray();
 
 
+        foreach(array_diff($oldLocations, $newLocations) as $locationID) {
+            $locationOrgStock = LocationOrgStock::where('org_stock_id', $orgStock->id)->where('location_id', $locationID)->first();
+            AuditLocationOrgStock::make()->action($locationOrgStock, ['quantity' => 0]);
+            DeleteLocationOrgStock::make()->action($locationOrgStock);
 
-        foreach (
-            array_unique(
-                array_merge($oldLocations, $newLocations)
-            ) as $locationID
-        ) {
-            $location = Location::find($locationID);
-            LocationHydrateStocks::dispatch($location);
-            LocationHydrateStockValue::dispatch($location);
         }
+
 
 
         return $newLocations;
