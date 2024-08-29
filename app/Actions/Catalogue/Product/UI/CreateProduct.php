@@ -77,7 +77,7 @@ class CreateProduct extends OrgAction
                                         'type'     => 'select',
                                         'label'    => __('unit'),
                                         'required' => true,
-                                        'options'  => Options::forEnum(RentalUnitEnum::class)
+                                        'options'  => Options::forEnum(RentalUnitEnum::class),
                                     ],
                                     'state' => [
                                         'type'     => 'select',

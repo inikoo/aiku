@@ -124,7 +124,6 @@ const fetchPaymentMethod = async () => {
         isLoadingFetch.value = true
         const { data } = await axios.get(route(props.box_stats.information.routes.fetch_payment_accounts.name, props.box_stats.information.routes.fetch_payment_accounts.parameters))
         listPaymentMethod.value = data.data
-        console.log('opop', listPaymentMethod.value)
     } catch (error) {
         notify({
             title: trans('Something went wrong'),

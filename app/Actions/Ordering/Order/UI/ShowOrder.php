@@ -7,17 +7,17 @@
 
 namespace App\Actions\Ordering\Order\UI;
 
-use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\Accounting\Payment\UI\IndexPayments;
+// use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+// use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+// use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
-use App\Http\Resources\Accounting\InvoicesResource;
-use App\Http\Resources\Accounting\PaymentsResource;
-use App\Http\Resources\Dispatching\DeliveryNoteResource;
+// use App\Http\Resources\Accounting\InvoicesResource;
+// use App\Http\Resources\Accounting\PaymentsResource;
+// use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
@@ -29,6 +29,7 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Enums\Ordering\Order\OrderStateEnum;
 
 class ShowOrder extends OrgAction
 {
@@ -76,6 +77,26 @@ class ShowOrder extends OrgAction
 
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
+
+        $timeline       = [];
+        foreach (OrderStateEnum::cases() as $state) {
+
+            $timeline[$state->value] = [
+                'label'   => $state->labels()[$state->value],
+                'tooltip' => $state->labels()[$state->value],
+                'key'     => $state->value,
+               /*  'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
+                'timestamp' => $order->{$state->snake() . '_at'} ? $order->{$state->snake() . '_at'}->toISOString() : null
+            ];
+        }
+
+        $finalTimeline = Arr::except(
+            $timeline,
+            [$order->state->value == OrderStateEnum::CANCELLED->value
+                ? OrderStateEnum::DISPATCHED->value
+                : OrderStateEnum::CANCELLED->value]
+        );
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -125,61 +146,46 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
+                'timeline'      => $finalTimeline,
+
                 'box_stats'     => [
-                    'fulfilment_customer' => [
-                        'radioTabs' => [
-                            'pallets_storage' => true,
-                            'items_storage'   => false,
-                            'dropshipping'    => true
+                    'customer' => [
+                        'slug'         => 'airhead-designs-ltd',
+                        'reference'    => '415850',
+                        'name'         => 'airHEAD Designs Ltd',
+                        'contact_name' => 'Holly Galbraith',
+                        'company_name' => 'airHEAD Designs Ltd',
+                        'location'     => [
+                            'GB',
+                            'United Kingdom',
+                            'London'
                         ],
-                        'number_pallets'                => 26,
-                        'number_pallets_state_received' => 0,
-                        'number_stored_items'           => 0,
-                        'number_pallet_deliveries'      => 2,
-                        'number_pallet_returns'         => 0,
-                        'slug'                          => 'airhead-designs-ltd',
-                        'fulfilment'                    => [
-                            'slug' => 'awf',
-                            'name' => 'AW Fulfilment'
+                        'address' => [
+                            'id'                  => 711,
+                            'address_line_1'      => 'Studio 19',
+                            'address_line_2'      => 'Grow Studios, 86 Wallis Road, Main Yard',
+                            'sorting_code'        => '',
+                            'postal_code'         => 'E9 5LN',
+                            'locality'            => 'London',
+                            'dependent_locality'  => '',
+                            'administrative_area' => '',
+                            'country_code'        => 'GB',
+                            'country_id'          => 48,
+                            'checksum'            => 'dcd0872437dca2150658f0db835a67e0',
+                            'created_at'          => '2024-08-22T21:04:42.000000Z',
+                            'updated_at'          => '2024-08-22T21:04:42.000000Z',
+                            'country'             => [
+                                'code' => 'GB',
+                                'iso3' => 'GBR',
+                                'name' => 'United Kingdom'
+                            ],
+                            'formatted_address' => '<p translate="no"><span class="address-line1">Studio 19</span><br><span class="address-line2">Grow Studios, 86 Wallis Road, Main Yard</span><br><span class="locality">London</span><br><span class="postal-code">E9 5LN</span><br><span class="country">United Kingdom</span></p>',
+                            'can_edit'          => null,
+                            'can_delete'        => null
                         ],
-                        'customer' => [
-                            'slug'         => 'airhead-designs-ltd',
-                            'reference'    => '415850',
-                            'name'         => 'airHEAD Designs Ltd',
-                            'contact_name' => 'Holly Galbraith',
-                            'company_name' => 'airHEAD Designs Ltd',
-                            'location'     => [
-                                'GB',
-                                'United Kingdom',
-                                'London'
-                            ],
-                            'address' => [
-                                'id'                  => 711,
-                                'address_line_1'      => 'Studio 19',
-                                'address_line_2'      => 'Grow Studios, 86 Wallis Road, Main Yard',
-                                'sorting_code'        => '',
-                                'postal_code'         => 'E9 5LN',
-                                'locality'            => 'London',
-                                'dependent_locality'  => '',
-                                'administrative_area' => '',
-                                'country_code'        => 'GB',
-                                'country_id'          => 48,
-                                'checksum'            => 'dcd0872437dca2150658f0db835a67e0',
-                                'created_at'          => '2024-08-22T21:04:42.000000Z',
-                                'updated_at'          => '2024-08-22T21:04:42.000000Z',
-                                'country'             => [
-                                    'code' => 'GB',
-                                    'iso3' => 'GBR',
-                                    'name' => 'United Kingdom'
-                                ],
-                                'formatted_address' => '<p translate="no"><span class="address-line1">Studio 19</span><br><span class="address-line2">Grow Studios, 86 Wallis Road, Main Yard</span><br><span class="locality">London</span><br><span class="postal-code">E9 5LN</span><br><span class="country">United Kingdom</span></p>',
-                                'can_edit'          => null,
-                                'can_delete'        => null
-                            ],
-                            'email'      => 'accounts@ventete.com',
-                            'phone'      => '+447725269253',
-                            'created_at' => '2021-12-01T09:46:06.000000Z'
-                        ]
+                        'email'      => 'accounts@ventete.com',
+                        'phone'      => '+447725269253',
+                        'created_at' => '2021-12-01T09:46:06.000000Z'
                     ],
                     'delivery_status' => [
                         'tooltip' => 'In process',
@@ -194,19 +200,24 @@ class ShowOrder extends OrgAction
                     'order_summary' => [
                         [
                             [
-                                'label'       => 'Services',
+                                'label'       => 'Items',
                                 'quantity'    => 2,
                                 'price_base'  => 'Multiple',
                                 'price_total' => '3.20'
                             ],
+                        ],
+                        [
                             [
-                                'label'       => 'Physical Goods',
-                                'quantity'    => 0,
-                                'price_base'  => 'Multiple',
-                                'price_total' => '0.00'
+                                'label'       => 'Charges',
+                                'information' => '',
+                                'price_total' => '3.20'
+                            ],
+                            [
+                                'label'       => 'Shipping',
+                                'information' => '',
+                                'price_total' => '0.64'
                             ]
                         ],
-                        [],
                         [
                             [
                                 'label'       => 'Net',
@@ -225,14 +236,14 @@ class ShowOrder extends OrgAction
                                 'price_total' => '3.84'
                             ]
                         ],
-                        'currency' => [
-                            'data' => [
-                                'id'     => 23,
-                                'code'   => 'GBP',
-                                'name'   => 'British Pound',
-                                'symbol' => '£'
-                            ]
-                        ]
+                    ]
+                ],
+                'currency' => [
+                    'data' => [
+                        'id'     => 23,
+                        'code'   => 'GBP',
+                        'name'   => 'British Pound',
+                        'symbol' => '£'
                     ]
                 ],
                 'data'       => OrderResource::make($order),
@@ -240,7 +251,7 @@ class ShowOrder extends OrgAction
 
 
 
-                OrderTabsEnum::ITEMS->value => $this->tab == OrderTabsEnum::ITEMS->value ?
+                OrderTabsEnum::PRODUCTS->value => $this->tab == OrderTabsEnum::PRODUCTS->value ?
                     fn () => TransactionsResource::collection(IndexTransactions::run($order))
                     : Inertia::lazy(fn () => TransactionsResource::collection(IndexTransactions::run($order))),
 

@@ -6,7 +6,7 @@
 -->
 
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -34,10 +34,9 @@ import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStats
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay, faPencil } from '@fal'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
+import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import axios from 'axios'
 import { Action } from '@/types/Action'
@@ -46,20 +45,29 @@ import { notify } from '@kyvg/vue3-notification'
 import OrderProductTable from '@/Components/Dropshipping/Orders/OrderProductTable.vue'
 import { Button as TSButton } from '@/types/Button'
 import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
+import NeedToPay from '@/Components/Utils/NeedToPay.vue'
+import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
-
+import { library } from "@fortawesome/fontawesome-svg-core"
+import {  faDollarSign, faShippingFast, faIdCard, faEnvelope, faPhone } from '@fal'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import OrderSummary from '@/Components/Summary/OrderSummary.vue'
+import Modal from '@/Components/Utils/Modal.vue'
+import ModalAddress from '@/Components/Utils/ModalAddress.vue'
+library.add(faExclamationTriangle, faDollarSign, faShippingFast, faIdCard, faEnvelope, faPhone)
 
 
 const props = defineProps<{
     title: string
     tabs: TSTabs
-    pallets?: TableTS
-    services?: TableTS
-    physical_goods?: TableTS
+    
+    products: TableTS
+
     data?: {
         data: PalletDelivery
     }
+    timeline: TSTimeline
+
     pageHead: PageHeadingTypes
     updateRoute: routeType
 
@@ -109,6 +117,7 @@ const component = computed(() => {
 
 const isLoadingButton = ref<string | boolean>(false)
 const isLoadingData = ref<string | boolean>(false)
+const isModalAddress = ref<boolean>(false)
 
 // Tabs: Products
 const formProducts = useForm({ selectedId : [], quantity: 1,  })
@@ -210,14 +219,112 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 
     <!-- Section: Timeline -->
     <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline v-if="props.data?.data?.timeline" :options="props.data?.data?.timeline" :state="props.data?.data?.state" :slidesPerView="6" />
+        <Timeline v-if="timeline" :options="timeline" :state="props.data?.data?.state" :slidesPerView="6" />
     </div>
 
     <!-- Box -->
-    <BoxStatsPalletDelivery :dataPalletDelivery="data?.data" :boxStats="box_stats" :updateRoute />
+    <!-- <BoxStatsPalletDelivery :dataPalletDelivery="data?.data" :boxStats="box_stats" :updateRoute /> -->
+    
+    <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
+        
+        <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
+            <!-- Field: Registration Number -->
+            <Link as="a" v-if="box_stats?.customer.reference" :href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
+                class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
+            </Link>
+
+            <!-- Field: Contact name -->
+            <div v-if="box_stats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Contact name'" class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
+            </div>
+
+            <!-- Field: Company name -->
+            <div v-if="box_stats?.customer.company_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats?.customer.company_name }}</dd>
+            </div>
+
+            
+            <!-- Field: Email -->
+            <div v-if="box_stats?.customer.email" class="pl-1 flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Email'" class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'" class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
+            </div>
+            
+            <!-- Field: Phone -->
+            <div v-if="box_stats?.customer.phone" class="pl-1 flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Phone'" class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <a :href="`tel:${box_stats?.customer.phone}`" v-tooltip="'Click to make a phone call'" class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
+            </div>
+
+            <!-- Field: Address -->
+            <div v-if="box_stats?.customer.address" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
+                <dt v-tooltip="'Address'" class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="w-full text-gray-500 text-xs">
+                    <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
+                        <span class="" v-html="box_stats?.customer.address.formatted_address" />
+
+                        <div @click="() => isModalAddress = true"
+                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
+                            <span>{{ trans('Edit') }}</span>
+                        </div>
+                    </div>
+                </dd>
+            </div>
+        </BoxStatPallet>
+
+        <!-- Box: Product stats -->
+        <BoxStatPallet class="py-4 pl-1 pr-2" icon="fal fa-user">
+            <div class="relative flex items-start w-full flex-none gap-x-2">
+                <dt class="flex-none pt-1">
+                    <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
+                </dt>
+
+                <NeedToPay 
+                    :payAmount="0"
+                    :paidAmount="99"
+                    :totalAmount="11"
+                />
+            </div>
+        </BoxStatPallet>
+
+        <!-- Box: Order summary -->
+        <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
+            <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
+                <!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
+
+                <OrderSummary :order_summary="box_stats.order_summary" />
+
+                <!-- <div class="mt-6">
+                    <button type="submit"
+                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
+                </div> -->
+            </section>
+        </BoxStatPallet>
+    </div>
 
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
+<!-- <pre>{{ timeline }}</pre> -->
     <div class="pb-12">
         <component
             :is="component"
@@ -226,4 +333,10 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
         />
     </div>
 
+    <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+        <ModalAddress
+            :addresses="data.addresses"
+            :updateRoute="data.address_update_route"
+        />
+    </Modal>
 </template>

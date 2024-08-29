@@ -15,15 +15,15 @@ library.add(faExclamationCircle, faCheckCircle)
 const props = defineProps<{
     form: any
     fieldName: any
-    options: string[] | {label?: string, value: any}[]
+    options: string[] | {label?: string, value: string}[]
     fieldData: {
         placeholder: string
         required: boolean
         mode: "multiple" | "single" | "tags"
 		searchable: boolean
         readonly: boolean
-		label : String,
-		valueProp : String
+		labelProp: string
+		valueProp: string
     }
 }>()
 
@@ -54,7 +54,7 @@ onMounted(() => {
                 :disabled="fieldData.readonly"
                 :caret="!fieldData.readonly"
 				:searchable="!!props.fieldData.searchable" 
-				:label="fieldData.label || 'value'"
+				:label="fieldData.labelProp || 'value'"
 				:valueProp="fieldData.valueProp || 'value'"
 				/>
 			<div
