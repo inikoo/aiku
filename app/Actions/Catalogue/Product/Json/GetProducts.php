@@ -55,6 +55,7 @@ class GetProducts extends OrgAction
                 'products.created_at',
                 'products.updated_at',
                 'products.slug',
+                'products.available_quantity'
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
 
