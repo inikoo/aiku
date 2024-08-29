@@ -169,23 +169,23 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
 }
 
 // Tabs: Services
-const dataServiceList = ref([])
-const onOpenModalAddService = async () => {
-    isLoadingData.value = 'addService'
-    try {
-        const xxx = await axios.get(
-            route(props.service_list_route.name, props.service_list_route.parameters)
-        )
-        dataServiceList.value = xxx?.data?.data || []
-    } catch (error) {
-        notify({
-            title: 'Something went wrong.',
-            text: 'Failed to fetch Services list',
-            type: 'error',
-        })
-    }
-    isLoadingData.value = false
-}
+// const dataServiceList = ref([])
+// const onOpenModalAddService = async () => {
+//     isLoadingData.value = 'addService'
+//     try {
+//         const xxx = await axios.get(
+//             route(props.service_list_route.name, props.service_list_route.parameters)
+//         )
+//         dataServiceList.value = xxx?.data?.data || []
+//     } catch (error) {
+//         notify({
+//             title: 'Something went wrong.',
+//             text: 'Failed to fetch Services list',
+//             type: 'error',
+//         })
+//     }
+//     isLoadingData.value = false
+// }
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
     const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
     
@@ -417,7 +417,6 @@ const changePalletType=(form,fieldName,value)=>{
                 <Popover>
                     <template #button="{open}">
                         <Button
-                            @click="() => open ? false : onOpenModalAddService()"
                             :style="action.style"
                             :label="action.label"
                             :icon="action.icon"
