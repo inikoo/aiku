@@ -11,12 +11,14 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
+use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -238,9 +240,9 @@ class ShowOrder extends OrgAction
 
 
 
-                // OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
-                //     fn () => PaymentsResource::collection(IndexPayments::run($order))
-                //     : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($order))),
+                OrderTabsEnum::ITEMS->value => $this->tab == OrderTabsEnum::ITEMS->value ?
+                    fn () => TransactionsResource::collection(IndexTransactions::run($order))
+                    : Inertia::lazy(fn () => TransactionsResource::collection(IndexTransactions::run($order))),
 
                 // OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
                 //     fn () => InvoicesResource::collection(IndexInvoices::run($order))
@@ -251,8 +253,8 @@ class ShowOrder extends OrgAction
                 //     : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))),
 
             ]
-        );
-        // ->table(IndexPayments::make()->tableStructure($order))
+        )
+        ->table(IndexTransactions::make()->tableStructure($order));
         //     ->table(IndexInvoices::make()->tableStructure($order))
         //     ->table(IndexDeliveryNotes::make()->tableStructure($order));
     }
