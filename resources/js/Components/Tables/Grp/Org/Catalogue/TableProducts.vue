@@ -10,9 +10,9 @@ import Table from '@/Components/Table/Table.vue'
 import { Product } from "@/types/product"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faConciergeBell, faGarage } from '@fal'
+import { faConciergeBell, faGarage, faExclamationTriangle } from '@fal'
 
-library.add(faConciergeBell, faGarage)
+library.add(faConciergeBell, faGarage, faExclamationTriangle)
 
 
 const props = defineProps<{
@@ -21,10 +21,11 @@ const props = defineProps<{
 }>()
 
 function productRoute(product: Product) {
-    console.log(route().current())
+    // console.log(route().current())
     switch (route().current()) {
 
         case "grp.org.shops.show.catalogue.products.index":
+        case "grp.org.shops.show.catalogue.collections.show":
         case "grp.org.shops.show.catalogue.dashboard":
             return route(
                 'grp.org.shops.show.catalogue.products.show',
