@@ -43,6 +43,9 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'submitted_at', $order->submitted_at, overwrite: false);
         data_set($modelData, 'gross_amount', $historicAsset->price);
         data_set($modelData, 'net_amount', $historicAsset->price);
+        data_set($modelData, 'state', TransactionStateEnum::CREATING);
+        data_set($modelData, 'status', TransactionStatusEnum::CREATING);
+        data_set($modelData, 'net_amount', $historicAsset->price);
 
         if($this->inOrder)
         {
