@@ -51,15 +51,15 @@ class ShowOrder extends OrgAction
     {
         $this->parent = $shop;
         $this->scope  = $shop;
-        $this->initialisationFromShop($shop, $request);
-        return $this->handle($order);
+        $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
+        return $this->handle($order)->withTab;
     }
 
     public function inCustomerInShop(Organisation $organisation, Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
     {
         $this->parent = $customer;
         $this->scope  = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);
     }
 
@@ -67,7 +67,7 @@ class ShowOrder extends OrgAction
     {
         $this->parent = $customerClient;
         $this->scope  = $shop;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);
     }
 
@@ -95,10 +95,10 @@ class ShowOrder extends OrgAction
                         'title' => __('customer client')
                     ],
                 ],
-                // 'tabs'        => [
-                //     'current'    => $this->tab,
-                //     'navigation' => OrderTabsEnum::navigation()
-                // ],
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => OrderTabsEnum::navigation()
+                ],
                 'box_stats'     => [
                     'fulfilment_customer' => [
                         'radioTabs' => [
@@ -209,69 +209,7 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
-                'data'  => [
-                    'data'  => [
-                        'id'            => 7,
-                        'customer_name' => 'airHEAD Designs Ltd',
-                        'reference'     => 'ADL-002',
-                        'state'         => 'in-process',
-                        'timeline'      => [
-                            'in-process' => [
-                                'label'     => 'In Process',
-                                'tooltip'   => 'In Process',
-                                'key'       => 'in-process',
-                                'timestamp' => '2024-08-25T18:13:50.000000Z'
-                            ],
-                            'submitted' => [
-                                'label'     => 'Submitted',
-                                'tooltip'   => 'Submitted',
-                                'key'       => 'submitted',
-                                'timestamp' => null
-                            ],
-                            'confirmed' => [
-                                'label'     => 'Confirmed',
-                                'tooltip'   => 'Confirmed',
-                                'key'       => 'confirmed',
-                                'timestamp' => null
-                            ],
-                            'received' => [
-                                'label'     => 'Received',
-                                'tooltip'   => 'Received',
-                                'key'       => 'received',
-                                'timestamp' => null
-                            ],
-                            'booking-in' => [
-                                'label'     => 'Booking In',
-                                'tooltip'   => 'Booking In',
-                                'key'       => 'booking-in',
-                                'timestamp' => null
-                            ],
-                            'booked-in' => [
-                                'label'     => 'Booked In',
-                                'tooltip'   => 'Booked In',
-                                'key'       => 'booked-in',
-                                'timestamp' => null
-                            ]
-                        ],
-                        'number_pallets'        => 1,
-                        'number_boxes'          => 1,
-                        'number_oversizes'      => 1,
-                        'number_services'       => 2,
-                        'number_physical_goods' => 0,
-                        'state_label'           => 'In Process',
-                        'state_icon'            => [
-                            'tooltip' => 'In process',
-                            'icon'    => 'fal fa-seedling',
-                            'class'   => 'text-lime-500',
-                            'color'   => 'lime',
-                            'app'     => [
-                                'name' => 'seedling',
-                                'type' => 'font-awesome-5'
-                            ]
-                        ],
-                        'estimated_delivery_date' => '2024-10-12T00:00:00.000000Z'
-                    ]
-                    ],
+                'data'       => OrderResource::make($order),
                 // 'showcase'=> GetOrderShowcase::run($order),
 
 
