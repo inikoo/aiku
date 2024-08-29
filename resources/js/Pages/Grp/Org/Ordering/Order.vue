@@ -49,12 +49,12 @@ import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import {  faDollarSign, faShippingFast, faIdCard, faEnvelope, faPhone } from '@fal'
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
-library.add(faExclamationTriangle, faDollarSign, faShippingFast, faIdCard, faEnvelope, faPhone)
+library.add(faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone)
 
 
 const props = defineProps<{
@@ -91,7 +91,17 @@ const props = defineProps<{
         index: routeType
         store: routeType
     }
-    box_stats: BoxStats
+    box_stats: {
+        customer: {
+
+        }
+        products: {
+
+        }
+        order_sumaary: {
+            
+        }
+    }
     pallet_limits?: {
         status: string
         message: string
@@ -116,34 +126,38 @@ const component = computed(() => {
 
 
 const isLoadingButton = ref<string | boolean>(false)
-const isLoadingData = ref<string | boolean>(false)
+// const isLoadingData = ref<string | boolean>(false)
 const isModalAddress = ref<boolean>(false)
 
 // Tabs: Products
-const formProducts = useForm({ selectedId : [], quantity: 1,  })
+const formProducts = useForm({ historicAssetId : null, quantity_ordered: 1,  })
 const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
     isLoadingButton.value = 'addProducts'
 
-    formProducts.post(
-        route(data.route?.name || '#', {...data.route?.parameters }),
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                closedPopover()
-                formProducts.reset()
-            },
-            onError: (errors) => {
-                notify({
-                    title: 'Something went wrong.',
-                    text: 'Failed to add service, please try again.',
-                    type: 'error',
-                })
-            },
-            onFinish: () => {
-                isLoadingButton.value = false
+    formProducts
+        .transform((data) => ({
+            quantity_ordered: data.quantity_ordered,
+        }))
+        .post(
+            route(data.route?.name || '#', {...data.route?.parameters, historicAsset: formProducts.historicAssetId }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    closedPopover()
+                    formProducts.reset()
+                },
+                onError: (errors) => {
+                    notify({
+                        title: 'Something went wrong.',
+                        text: 'Failed to add service, please try again.',
+                        type: 'error',
+                    })
+                },
+                onFinish: () => {
+                    isLoadingButton.value = false
+                }
             }
-        }
-    )
+        )
 }
 
 </script>
@@ -172,26 +186,26 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                             <div class="text-xs px-1 my-2">{{ trans('Products') }}: </div>
                             <div class="">
                                 <PureMultiselectInfiniteScroll
-                                    v-model="formProducts.selectedId"
+                                    v-model="formProducts.historicAssetId"
                                     :fetchRoute="routes.products_list"
                                     :placeholder="trans('Select Products')"
-                                    valueProp="id"
+                                    valueProp="current_historic_asset_id"
                                 />
 
                                 <p v-if="get(formProducts, ['errors', 'selectedId'])" class="mt-2 text-sm text-red-500">
-                                    {{ formProducts.errors.selectedId }}
+                                    {{ formProducts.errors.historicAssetId }}
                                 </p>
                             </div>
 
                             <div class="mt-4">
                                 <div class="text-xs px-1 my-2">{{ trans('Quantity') }}: </div>
                                 <PureInput
-                                    v-model="formProducts.quantity"
+                                    v-model="formProducts.quantity_ordered"
                                     :placeholder="trans('Quantity')"
                                     @keydown.enter="() => onSubmitAddProducts(action, closed)"
                                 />
                                 <p v-if="get(formProducts, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
-                                    {{ formProducts.errors.quantity }}
+                                    {{ formProducts.errors.quantity_ordered }}
                                 </p>
                             </div>
 
@@ -199,17 +213,17 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                                 <Button
                                     @click="() => onSubmitAddProducts(action, closed)"
                                     :style="'save'"
-                                    :loading="isLoadingButton == 'addService'"
-                                    :disabled="!formProducts.selectedId?.length || (formProducts.quantity < 1)"
+                                    :loading="isLoadingButton == 'addProducts'"
+                                    :disabled="!formProducts.historicAssetId || (formProducts.quantity_ordered < 1)"
                                     label="Save"
                                     full
                                 />
                             </div>
                             
                             <!-- Loading: fetching service list -->
-                            <div v-if="isLoadingData === 'addService'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                            <!-- <div v-if="isLoadingData === 'addProducts'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
-                            </div>
+                            </div> -->
                         </div>
                     </template>
                 </Popover>
@@ -235,7 +249,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">#{{ box_stats?.customer.reference }}</dd>
+                <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -244,7 +258,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
+                <dd class="text-xs text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
@@ -253,7 +267,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats?.customer.company_name }}</dd>
+                <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
             

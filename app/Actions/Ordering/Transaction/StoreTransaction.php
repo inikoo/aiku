@@ -47,8 +47,7 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'status', TransactionStatusEnum::CREATING);
         data_set($modelData, 'net_amount', $historicAsset->price);
 
-        if($this->inOrder)
-        {
+        if($this->inOrder) {
             data_set($modelData, 'type', TransactionTypeEnum::ORDER);
         }
 
@@ -114,11 +113,11 @@ class StoreTransaction extends OrgAction
         return $this->handle($order, $historicAsset, $this->validatedData);
     }
 
-    public function asController(Order $order, HistoricAsset $historicAsset, ActionRequest $request): Transaction
+    public function asController(Order $order, HistoricAsset $historicAsset, ActionRequest $request): void
     {
         $this->inOrder = true;
         $this->initialisationFromShop($order->shop, $request);
 
-        return $this->handle($order, $historicAsset, $this->validatedData);
+        $this->handle($order, $historicAsset, $this->validatedData);
     }
 }
