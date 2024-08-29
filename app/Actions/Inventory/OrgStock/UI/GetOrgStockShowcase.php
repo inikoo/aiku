@@ -48,8 +48,8 @@ class GetOrgStockShowcase
                     'parameters'=> [] //need locationorgstock param
                 ],
                 'moveLocationRoute' => [
-                    'method' => 'patch',
-                    'name'   => 'grp.models.location_org_stock.move',
+                    'method'    => 'patch',
+                    'name'      => 'grp.models.location_org_stock.move',
                     'parameters'=> [] //need 2 locationorgstock param
                 ]
             ]

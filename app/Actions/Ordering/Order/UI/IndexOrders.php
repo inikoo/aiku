@@ -131,7 +131,7 @@ class IndexOrders extends OrgAction
         ];
         $afterTitle=null;
         $iconRight =null;
-        $actions = null;
+        $actions   = null;
 
         if ($this->parent instanceof CustomerClient) {
             $title = $this->parent->name;

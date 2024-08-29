@@ -10,5 +10,5 @@ use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
 use Illuminate\Support\Facades\Route;
 
 Route::name('org_stock.')->prefix('org-stock/{orgStock:id}')->group(function () {
-    Route::post('location/{location:id}', StoreLocationOrgStock::class)->name('location.store');
+    Route::post('location/{location:id}', StoreLocationOrgStock::class)->name('location.store')->withoutScopedBindings();
 });
