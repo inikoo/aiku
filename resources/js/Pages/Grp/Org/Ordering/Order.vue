@@ -166,7 +166,6 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
     <!-- <pre>{{ data.data }}</pre> -->
     <!-- {{ props.service_list_route.name }} -->
     <Head :title="capitalize(title)" />
-    <pre>{{ formProducts }}</pre>
     <PageHeading :data="pageHead">
         <!-- Button: Add service -->
         <template #button-add-products="{ action }">
