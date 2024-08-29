@@ -40,9 +40,9 @@ const form = useForm({
     newLocation: null
 })
 
-const sendMoveStock = (location = null, close = () => null) => {
+const sendMoveStock = (location = null, realQty = 0, close = () => null) => {
     router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
-        { quantity: location.quantity },
+        { quantity: realQty - location.quantity },
         {
             onBefore: () => { loading.value = true },
             onSuccess: () => {
@@ -145,7 +145,7 @@ watch(
                                     </div>
                                     <div class="flex justify-end">
                                         <Button :loading="loading" type="save"
-                                            @click="() => sendMoveStock(location, close)" />
+                                            @click="() => sendMoveStock( location, data.locations.data[index].quantity ,close)" />
                                     </div>
                                 </div>
                             </template>
