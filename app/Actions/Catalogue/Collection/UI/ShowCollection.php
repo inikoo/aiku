@@ -98,7 +98,7 @@ class ShowCollection extends OrgAction
                     // 'subNavigation' => $this->getCollectionSubNavigation($collection),
                 ],
                 'routes' => [
-                    'department' =>  [
+                    'departments' => [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.departments',
                             'parameters'    => [

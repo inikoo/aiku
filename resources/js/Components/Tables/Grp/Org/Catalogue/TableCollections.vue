@@ -5,28 +5,32 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import Table from "@/Components/Table/Table.vue";
-import { Family } from "@/types/family";
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import { Family } from "@/types/family"
 
 
 const props = defineProps<{
-  data: object
-  tab?: string,
-}>();
+    data: {}
+    tab?: string
+}>()
 
 // TODO: FIX TS
-function familyRoute(collection: {}) {
-  switch (route().current()) {
-    case "grp.org.shops.show.catalogue.collections.index":
-    return route(
+function collectionRoute(collection: {}) {
+    switch (route().current()) {
+        case "grp.org.shops.show.catalogue.collections.show":
+            return route(
                 "grp.org.shops.show.catalogue.collections.show",
-                [route().params["organisation"], collection.shop, collection.slug]);
-    case "grp.org.shops.show.catalogue.dashboard":
-    return route(
+                [route().params["organisation"], route().params['shop'], collection.slug])
+        case "grp.org.shops.show.catalogue.collections.index":
+            return route(
                 "grp.org.shops.show.catalogue.collections.show",
-                [route().params["organisation"], collection.shop, collection.slug]);
-  }
+                [route().params["organisation"], collection.shop, collection.slug])
+        case "grp.org.shops.show.catalogue.dashboard":
+            return route(
+                "grp.org.shops.show.catalogue.collections.show",
+                [route().params["organisation"], collection.shop, collection.slug])
+    }
 }
 
 function shopRoute(family: Family) {
@@ -34,7 +38,7 @@ function shopRoute(family: Family) {
         case 'grp.org.shops.index':
             return route(
                 "grp.org.shops.show.catalogue.dashboard",
-                [route().params["organisation"], family.shop_slug]);
+                [route().params["organisation"], family.shop_slug])
     }
 }
 
@@ -43,30 +47,28 @@ function departmentRoute(family: Family) {
         case 'grp.org.shops.index':
             return route(
                 "grp.org.shops.show.catalogue.departments.index",
-                [route().params["organisation"], family.shop_slug,family.department_slug]);
+                [route().params["organisation"], family.shop_slug, family.department_slug])
     }
 }
 
 </script>
 
 <template>
-  <Table :resource="data" :name="tab" class="mt-5">
-    <template #cell(code)="{ item: family }">
-      <Link :href="familyRoute(family)" class="primaryLink">
-        {{ family["code"] }}
-      </Link>
-    </template>
-      <template #cell(shop_code)="{ item: family }">
-          <Link :href="shopRoute(family)" class="secondaryLink">
-              {{ family["shop_code"] }}
-          </Link>
-      </template>
-      <template #cell(department_code)="{ item: family }">
-          <Link :href="departmentRoute(family)" class="secondaryLink">
-              {{ family["department_code"] }}
-          </Link>
-      </template>
-  </Table>
+    <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(code)="{ item: collection }">
+            <Link :href="collectionRoute(collection)" class="primaryLink">
+                {{ collection["code"] }}
+            </Link>
+        </template>
+        <template #cell(shop_code)="{ item: collection }">
+            <Link :href="shopRoute(collection)" class="secondaryLink">
+                {{ collection["shop_code"] }}
+            </Link>
+        </template>
+        <template #cell(department_code)="{ item: collection }">
+            <Link :href="departmentRoute(collection)" class="secondaryLink">
+                {{ collection["department_code"] }}
+            </Link>
+        </template>
+    </Table>
 </template>
-
-

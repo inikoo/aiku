@@ -21,6 +21,7 @@ function familyRoute(family: Family) {
   switch (route().current()) { 
     case "grp.shops.show":
     case "grp.org.shops.show.catalogue.families.index":
+    case "grp.org.shops.show.catalogue.collections.show":
       return route(
         "grp.org.shops.show.catalogue.families.show",
         [route().params["organisation"], route().params["shop"], family.slug]);

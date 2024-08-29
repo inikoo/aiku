@@ -15,10 +15,11 @@ defineProps<{
     tab?:string
 }>();
 
-console.log(route().current())
+// console.log(route().current())
 function departmentRoute(department: Department) {
     switch (route().current()) {
       case "grp.org.shops.show.catalogue.departments.index":
+      case "grp.org.shops.show.catalogue.collections.show":
       case 'grp.org.shops.show.catalogue.dashboard':
         return route(
           'grp.org.shops.show.catalogue.departments.show',
