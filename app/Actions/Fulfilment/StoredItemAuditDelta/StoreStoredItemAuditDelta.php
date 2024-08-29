@@ -122,7 +122,6 @@ class StoreStoredItemAuditDelta extends OrgAction
     {
         $this->action = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
-        $this->setRawAttributes($modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

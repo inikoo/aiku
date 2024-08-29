@@ -9,12 +9,14 @@ namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\StoredItemAudit\StoredItemAuditStateEnum;
 use App\Models\Inventory\Warehouse;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasRetinaSearch;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -24,10 +26,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $slug
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
  * @property int|null $warehouse_id
+ * @property string $slug
  * @property string $reference
  * @property StoredItemAuditStateEnum $state
  * @property \Illuminate\Support\Carbon|null $in_process_at
@@ -38,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $ulid
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $deltas
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
@@ -51,12 +54,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit query()
  * @mixin \Eloquent
  */
-class StoredItemAudit extends Model
+class StoredItemAudit extends Model implements Auditable
 {
     use HasSlug;
     use HasUniversalSearch;
     use HasRetinaSearch;
     use InFulfilmentCustomer;
+    use HasHistory;
 
     protected $guarded = [];
 

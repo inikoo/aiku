@@ -6,6 +6,7 @@
  */
 
 use App\Stubs\Migrations\HasFulfilmentStats;
+use App\Stubs\Migrations\HasInventoryStats;
 use App\Stubs\Migrations\HasLocationsStats;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
@@ -16,6 +17,7 @@ return new class () extends Migration {
     use HasLocationsStats;
     use HasFulfilmentStats;
     use HasSalesStats;
+    use HasInventoryStats;
 
     public function up(): void
     {
@@ -26,6 +28,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
             $table = $this->locationsStats($table);
             $table = $this->deliveryNotesStatsFields($table);
+            $table = $this->orgStocksAuditStats($table);
             $table->unsignedSmallInteger('number_fulfilments')->default(0);
             $table = $this->fulfilmentCustomersStats($table);
             $table = $this->fulfilmentStats($table);
