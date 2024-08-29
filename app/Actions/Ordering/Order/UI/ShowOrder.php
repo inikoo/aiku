@@ -126,10 +126,10 @@ class ShowOrder extends OrgAction
                             'key'     => 'add-products',
                             'label'   => __('add products'),
                             'tooltip' => __('Add products'),
-                            'route'   => [  // TODO
-                                'name'       => 'grp.profile.show',
+                            'route'   => [
+                                'name'       => 'grp.models.order.transaction.store',
                                 'parameters' => [
-
+                                    'order' => $order->id,
                                 ]
                             ]
                         ]
@@ -140,7 +140,7 @@ class ShowOrder extends OrgAction
                     'navigation' => OrderTabsEnum::navigation()
                 ],
                 'routes'    => [
-                    'products_list' => [  // TODO
+                    'products_list' => [ 
                         'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
                             'shop' => $order->shop->slug,
