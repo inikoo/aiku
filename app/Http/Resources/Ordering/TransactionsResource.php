@@ -30,7 +30,7 @@ class TransactionsResource extends JsonResource
             'id'                     => $transaction->id,
             'state'                  => $transaction->state,
             'status'                 => $transaction->status,
-            'quantity_ordered'       => $transaction->quantity_ordered,
+            'quantity_ordered'       => intVal($transaction->quantity_ordered),
             'quantity_bonus'         => $transaction->quantity_bonus,
             'quantity_dispatched'    => $transaction->quantity_dispatched,
             'quantity_fail'          => $transaction->quantity_fail,
