@@ -10,14 +10,15 @@ namespace App\Actions\Ordering\Order\UI;
 // use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 // use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-// use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+// use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\Customer\UI\ShowCustomerClient;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 // use App\Http\Resources\Accounting\InvoicesResource;
-// use App\Http\Resources\Accounting\PaymentsResource;
-// use App\Http\Resources\Dispatching\DeliveryNoteResource;
+// // use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
@@ -140,9 +141,10 @@ class ShowOrder extends OrgAction
                 ],
                 'routes'    => [
                     'products_list' => [  // TODO
-                        'name'       => 'grp.profile.show',
+                        'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
-
+                            'shop' => $order->shop->slug,
+                            'scope' => $order->slug
                         ]
                     ]
                 ],
@@ -332,7 +334,7 @@ class ShowOrder extends OrgAction
             ),
             'grp.org.shops.show.crm.customers.show.orders.show'
             => array_merge(
-                (new IndexOrders())->getBreadcrumbs('grp.org.shops.show.crm.customers.show.orders.index', $routeParameters),
+                (new ShowCustomer())->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
                 $headCrumb(
                     $order,
                     [
@@ -350,7 +352,7 @@ class ShowOrder extends OrgAction
             ),
             'grp.org.shops.show.crm.customers.show.customer-clients.orders.show'
             => array_merge(
-                (new IndexOrders())->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.orders.index', $routeParameters),
+                (new ShowCustomerClient())->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show', $routeParameters),
                 $headCrumb(
                     $order,
                     [

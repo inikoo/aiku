@@ -13,6 +13,7 @@ use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,7 +26,7 @@ class GetProducts extends OrgAction
 
     private Shop $parent;
 
-    public function handle(Shop $parent, Collection $scope, $prefix = null): LengthAwarePaginator
+    public function handle(Shop $parent, Order|Collection $scope, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +37,11 @@ class GetProducts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->where('products.shop_id', $parent->id);
-        $queryBuilder->whereNotIn('products.id', $scope->products()->pluck('model_id'));
+        if ($scope instanceof Collection) {
+            $queryBuilder->whereNotIn('products.id', $scope->products()->pluck('model_id'));
+        } elseif ($scope instanceof Order) {
+            $queryBuilder->whereNotIn('products.asset_id', $scope->transactions()->pluck('asset_id'));
+        }
 
         $queryBuilder
             ->defaultSort('products.code')
@@ -64,6 +69,14 @@ class GetProducts extends OrgAction
     }
 
     public function asController(Shop $shop, Collection $scope, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $shop, scope: $scope);
+    }
+
+    public function inOrder(Shop $shop, Order $scope, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);

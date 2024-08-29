@@ -130,7 +130,7 @@ class ShowCollection extends OrgAction
                     ],
                     'products' => [
                         'dataList'  => [
-                            'name'          => 'grp.json.shop.catalogue.products',
+                            'name'          => 'grp.json.shop.catalogue.collection.products',
                             'parameters'    => [
                                 'shop'  => $collection->shop->slug,
                                 'scope' => $collection->slug

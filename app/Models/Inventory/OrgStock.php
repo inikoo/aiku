@@ -77,16 +77,16 @@ class OrgStock extends Model
     use HasFactory;
 
     protected $casts = [
-        'data'                   => 'array',
-        'activated_at'           => 'datetime',
-        'discontinuing_at'       => 'datetime',
-        'discontinued_at'        => 'datetime',
-        'state'                  => OrgStockStateEnum::class,
-        'quantity_status'        => OrgStockQuantityStatusEnum::class,
+        'data'             => 'array',
+        'activated_at'     => 'datetime',
+        'discontinuing_at' => 'datetime',
+        'discontinued_at'  => 'datetime',
+        'state'            => OrgStockStateEnum::class,
+        'quantity_status'  => OrgStockQuantityStatusEnum::class,
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -100,7 +100,7 @@ class OrgStock extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->code. ' '.$this->organisation->code;
+                return $this->code.' '.$this->organisation->code;
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
@@ -126,7 +126,9 @@ class OrgStock extends Model
     public function locations(): BelongsToMany
     {
         return $this->belongsToMany(Location::class)->using(LocationOrgStock::class)->withTimestamps()
-            ->withPivot(['id', 'quantity','value','commercial_value','type','picking_priority','notes','data','settings','audited_at','source_stock_id','source_location_id','dropshipping_pipe']);
+            ->withPivot(
+                ['id', 'group_id', 'organisation_id', 'warehouse_id', 'warehouse_area_id', 'quantity', 'value', 'commercial_value', 'type', 'picking_priority', 'notes', 'data', 'settings', 'audited_at', 'source_stock_id', 'source_location_id', 'dropshipping_pipe']
+            );
     }
 
     public function owner(): MorphTo
