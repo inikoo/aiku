@@ -16,16 +16,16 @@ enum OrderTabsEnum: string
     use HasTabs;
 
     case ITEMS                       = 'items';
-    case PAYMENTS                    = 'payments';
-    case DISCOUNTS                   = 'discounts';
-    case INVOICES                    = 'invoices';
-    case DELIVERY_NOTES              = 'delivery_notes';
+    // case PAYMENTS                    = 'payments';
+    // case DISCOUNTS                   = 'discounts';
+    // case INVOICES                    = 'invoices';
+    // case DELIVERY_NOTES              = 'delivery_notes';
 
-    case HISTORY                     = 'history';
+    // case HISTORY                     = 'history';
 
-    case ATTACHMENTS                 = 'attachments';
+    // case ATTACHMENTS                 = 'attachments';
 
-    case SENT_EMAILS                 = 'sent_emails';
+    // case SENT_EMAILS                 = 'sent_emails';
 
 
 
@@ -40,51 +40,51 @@ enum OrderTabsEnum: string
                 'title' => __('items'),
                 'icon'  => 'fal fa-bars',
             ],
-            OrderTabsEnum::PAYMENTS => [
-                'type'  => 'icon',
-                'align' => 'right',
-                'title' => __('payments'),
-                'icon'  => 'fal fa-dollar-sign',
-            ],
+            // OrderTabsEnum::PAYMENTS => [
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            //     'title' => __('payments'),
+            //     'icon'  => 'fal fa-dollar-sign',
+            // ],
 
-            OrderTabsEnum::SENT_EMAILS => [
-                'title' => __('sent emails'),
-                'icon'  => 'fal fa-envelope',
-                'type'  => 'icon',
-                'align' => 'right',
+            // OrderTabsEnum::SENT_EMAILS => [
+            //     'title' => __('sent emails'),
+            //     'icon'  => 'fal fa-envelope',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
 
-            ],
-            OrderTabsEnum::DISCOUNTS => [
-                'title' => __('discounts'),
-                'icon'  => 'fal fa-tag',
-                'type'  => 'icon',
-                'align' => 'right',
+            // ],
+            // OrderTabsEnum::DISCOUNTS => [
+            //     'title' => __('discounts'),
+            //     'icon'  => 'fal fa-tag',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
 
-            ],
-            OrderTabsEnum::INVOICES => [
-                'title' => __('invoices'),
-                'icon'  => 'fal fa-file-invoice-dollar',
-                'type'  => 'icon',
-                'align' => 'right',
+            // ],
+            // OrderTabsEnum::INVOICES => [
+            //     'title' => __('invoices'),
+            //     'icon'  => 'fal fa-file-invoice-dollar',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
 
-            ],
-            OrderTabsEnum::DELIVERY_NOTES => [
-                'title' => __('delivery notes'),
-                'icon'  => 'fal fa-truck',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            OrderTabsEnum::ATTACHMENTS => [
-                'title' => __('attachments'),
-                'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],OrderTabsEnum::HISTORY => [
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+            // ],
+            // OrderTabsEnum::DELIVERY_NOTES => [
+            //     'title' => __('delivery notes'),
+            //     'icon'  => 'fal fa-truck',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],
+            // OrderTabsEnum::ATTACHMENTS => [
+            //     'title' => __('attachments'),
+            //     'icon'  => 'fal fa-paperclip',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],OrderTabsEnum::HISTORY => [
+            //     'title' => __('history'),
+            //     'icon'  => 'fal fa-clock',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],
 
         };
     }
