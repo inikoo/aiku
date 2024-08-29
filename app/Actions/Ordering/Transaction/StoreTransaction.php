@@ -19,10 +19,13 @@ use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreTransaction extends OrgAction
 {
     use WithOrderExchanges;
+
+    private $inOrder;
 
     public function handle(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
     {
@@ -38,6 +41,13 @@ class StoreTransaction extends OrgAction
 
         data_set($modelData, 'date', now(), overwrite: false);
         data_set($modelData, 'submitted_at', $order->submitted_at, overwrite: false);
+        data_set($modelData, 'gross_amount', $historicAsset->price);
+        data_set($modelData, 'net_amount', $historicAsset->price);
+
+        if($this->inOrder)
+        {
+            data_set($modelData, 'type', TransactionTypeEnum::ORDER);
+        }
 
         $modelData = $this->processExchanges($modelData, $order->shop);
 
@@ -61,7 +71,7 @@ class StoreTransaction extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'type'                => ['required', Rule::enum(TransactionTypeEnum::class)],
+            'type'                => ['sometimes', Rule::enum(TransactionTypeEnum::class)],
             'quantity_ordered'    => ['required', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
@@ -71,8 +81,8 @@ class StoreTransaction extends OrgAction
             'state'               => ['sometimes', Rule::enum(TransactionStateEnum::class)],
             'status'              => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
             'fail_status'         => ['sometimes', 'nullable', Rule::enum(TransactionFailStatusEnum::class)],
-            'gross_amount'        => ['required', 'numeric'],
-            'net_amount'          => ['required', 'numeric'],
+            'gross_amount'        => ['sometimes', 'numeric'],
+            'net_amount'          => ['sometimes', 'numeric'],
             'org_exchange'        => ['sometimes', 'numeric'],
             'grp_exchange'        => ['sometimes', 'numeric'],
             'org_net_amount'      => ['sometimes', 'numeric'],
@@ -97,6 +107,14 @@ class StoreTransaction extends OrgAction
     {
         $this->initialisationFromShop($order->shop, $modelData);
         $this->strict = $strict;
+
+        return $this->handle($order, $historicAsset, $this->validatedData);
+    }
+
+    public function asController(Order $order, HistoricAsset $historicAsset, ActionRequest $request): Transaction
+    {
+        $this->inOrder = true;
+        $this->initialisationFromShop($order->shop, $request);
 
         return $this->handle($order, $historicAsset, $this->validatedData);
     }

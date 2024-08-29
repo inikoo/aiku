@@ -52,6 +52,8 @@ class ProductsResource extends JsonResource
             'family_slug'     => $this->family_slug,
             'family_code'     => $this->family_code,
             'family_name'     => $this->family_name,
+            'current_historic_asset_id' => $this->current_historic_asset_id,
+            'asset_id'  => $this->asset_id
         ];
     }
 }

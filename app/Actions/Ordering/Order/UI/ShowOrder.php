@@ -10,7 +10,7 @@ namespace App\Actions\Ordering\Order\UI;
 // use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 // use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-// use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;

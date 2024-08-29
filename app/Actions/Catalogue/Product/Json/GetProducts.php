@@ -40,13 +40,15 @@ class GetProducts extends OrgAction
         if ($scope instanceof Collection) {
             $queryBuilder->whereNotIn('products.id', $scope->products()->pluck('model_id'));
         } elseif ($scope instanceof Order) {
-            $queryBuilder->whereNotIn('products.asset_id', $scope->transactions()->pluck('asset_id'));
+            $queryBuilder->whereNotIn('products.current_historic_asset_id', $scope->transactions()->pluck('historic_asset_id'));
         }
 
         $queryBuilder
             ->defaultSort('products.code')
             ->select([
                 'products.id',
+                'products.current_historic_asset_id',
+                'products.asset_id',
                 'products.code',
                 'products.name',
                 'products.state',
