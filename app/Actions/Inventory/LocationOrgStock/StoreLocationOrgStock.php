@@ -27,7 +27,7 @@ class StoreLocationOrgStock extends OrgAction
 
 
 
-    public function handle(Location $location, OrgStock $orgStock, array $modelData): LocationOrgStock
+    public function handle(Location $location, OrgStock $orgStock, array $modelData)
     {
         $location->orgStocks()->attach($orgStock->id, $modelData);
         $locationStock = LocationOrgStock::where('location_id', $location->id)->where('org_stock_id', $orgStock->id)
@@ -37,8 +37,6 @@ class StoreLocationOrgStock extends OrgAction
         LocationHydrateStocks::dispatch($location);
         LocationHydrateStockValue::dispatch($location);
         OrgStockHydrateLocations::dispatch($orgStock);
-
-        return $locationStock;
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
@@ -54,23 +52,23 @@ class StoreLocationOrgStock extends OrgAction
         }
     }
 
-    public function asController(OrgStock $orgStock, Location $location, ActionRequest $request): LocationOrgStock
+    public function asController(OrgStock $orgStock, Location $location, ActionRequest $request)
     {
         $this->location = $location;
         $this->orgStock = $orgStock;
         $this->initialisation($orgStock->organisation, $request);
 
-        return $this->handle($location, $orgStock, $this->validatedData);
+        $this->handle($location, $orgStock, $this->validatedData);
     }
 
-    public function action(OrgStock $orgStock, Location $location, array $modelData): LocationOrgStock
+    public function action(OrgStock $orgStock, Location $location, array $modelData)
     {
         $this->asAction = true;
         $this->location = $location;
         $this->orgStock = $orgStock;
         $this->initialisation($orgStock->organisation, $modelData);
 
-        return $this->handle($location, $orgStock, $this->validatedData);
+        $this->handle($location, $orgStock, $this->validatedData);
     }
 
     public function jsonResponse(LocationOrgStock $locationStock): LocationOrgStockResource
