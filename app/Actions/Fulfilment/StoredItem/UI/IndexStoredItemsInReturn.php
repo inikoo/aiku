@@ -12,6 +12,7 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemInReturnOptionEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
+use App\Http\Resources\Fulfilment\PalletReturnStoredItemsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -25,6 +26,7 @@ use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class IndexStoredItemsInReturn extends OrgAction
 {
@@ -182,6 +184,11 @@ class IndexStoredItemsInReturn extends OrgAction
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($palletReturn);
+    }
+
+    public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
+    {
+        return PalletReturnStoredItemsResource::collection($storedItems);
     }
 
 }
