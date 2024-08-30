@@ -12,11 +12,10 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Events\UploadProductToShopifyProgressEvent;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Support\Arr;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreProductToShopify extends OrgAction
+class HandleApiProductToShopify extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -91,22 +90,6 @@ class StoreProductToShopify extends OrgAction
 
                 UploadProductToShopifyProgressEvent::dispatch($shopifyUser, $totalProducts, $uploaded);
             }
-
-            sleep(2);
         }
-    }
-
-    public function rules(): array
-    {
-        return [
-            'products' => ['required', 'array']
-        ];
-    }
-
-    public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
-    {
-        $this->initialisationFromShop($shopifyUser->customer->shop, $request);
-
-        self::dispatch($shopifyUser, $this->validatedData);
     }
 }
