@@ -120,7 +120,7 @@ class ShowOrder extends OrgAction
 
         $customerAddressId              = $order->customer->address->id;
         $customerDeliveryAddressId      = $order->customer->deliveryAddress->id;
-        $orderDeliveryAddressIds = Order::where('customer_id', $order->customer_id)
+        $orderDeliveryAddressIds        = Order::where('customer_id', $order->customer_id)
                                             ->pluck('delivery_address_id')
                                             ->unique()
                                             ->toArray();
@@ -181,6 +181,13 @@ class ShowOrder extends OrgAction
                     'navigation' => OrderTabsEnum::navigation()
                 ],
                 'routes'    => [
+                    'updateOrderRoute' => [
+                        'method'     => 'patch',
+                        'name'       => 'grp.models.order.update',
+                        'parameters' => [
+                            'order' => $order->id,
+                        ]
+                    ],
                     'products_list' => [
                         'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [

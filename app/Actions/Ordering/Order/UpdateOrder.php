@@ -18,6 +18,7 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrder extends OrgAction
 {
@@ -97,12 +98,12 @@ class UpdateOrder extends OrgAction
                     ]
                 ),
             ],
-            'date'             => ['sometimes', 'required', 'date'],
-            'billing_address'  => ['sometimes', 'required', new ValidAddress()],
-            'delivery_address' => ['sometimes', 'required', new ValidAddress()],
-            'billing_locked'   => ['sometimes', 'boolean'],
-            'delivery_locked'  => ['sometimes', 'boolean'],
-            'last_fetched_at'  => ['sometimes', 'date'],
+            'date'                => ['sometimes', 'required', 'date'],
+            'billing_address'     => ['sometimes', 'required', new ValidAddress()],
+            'delivery_address'    => ['sometimes', 'required', new ValidAddress()],
+            'billing_locked'      => ['sometimes', 'boolean'],
+            'delivery_locked'     => ['sometimes', 'boolean'],
+            'last_fetched_at'     => ['sometimes', 'date'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
         ];
 
@@ -126,5 +127,12 @@ class UpdateOrder extends OrgAction
         $this->initialisationFromShop($order->shop, $modelData);
 
         return $this->handle($order, $this->validatedData);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->initialisationFromShop($order->shop, $request->validated());
+        return $this->handle($order, $request->validated());
     }
 }
