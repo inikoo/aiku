@@ -410,7 +410,7 @@ test('attach stock to location', function (Location $location) {
     $locationOrgStocks=[];
     foreach ($orgStocks as $orgStock) {
         $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock, $location, [
-            'type'=>LocationStockTypeEnum::PICKING
+            'type'=> LocationStockTypeEnum::PICKING
         ]);
     }
     expect($location->stats->number_org_stock_slots)->toBe(2)

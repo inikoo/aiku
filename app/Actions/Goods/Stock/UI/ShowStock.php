@@ -11,13 +11,14 @@ use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Inventory\UI\ShowInventoryDashboard;
+use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,6 +32,7 @@ class ShowStock extends GrpAction
 
     public function handle(Stock $stock): Stock
     {
+
         return $stock;
     }
 
@@ -39,7 +41,6 @@ class ShowStock extends GrpAction
     {
         $this->parent=group();
         $this->initialisation($this->parent, $request)->withTab(StockTabsEnum::values());
-
         return $this->handle($stock);
     }
 
@@ -55,10 +56,11 @@ class ShowStock extends GrpAction
     {
 
         return Inertia::render(
-            'Inventory/Stock',
+            'Goods/Stock',
             [
                  'title'       => __('stock'),
                  'breadcrumbs' => $this->getBreadcrumbs(
+                     $stock,
                      $request->route()->getName(),
                      $request->route()->originalParameters()
                  ),
@@ -116,7 +118,7 @@ class ShowStock extends GrpAction
         return new OrgStockResource($stock);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(Stock $stock, string $routeName, array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (Stock $stock, array $routeParameters, $suffix) {
             return [
@@ -138,46 +140,39 @@ class ShowStock extends GrpAction
             ];
         };
 
-
         return match ($routeName) {
-            'grp.goods.stocks.show' =>
+            'grp.goods.stocks.show',
+            'grp.goods.stocks.active_stocks.show' =>
             array_merge(
-                (new ShowInventoryDashboard())->getBreadcrumbs(),
+                ShowGoodsDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
-                    $routeParameters['stock'],
+                    $stock,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
+                            'name'       => preg_replace('/show$/', 'index', $routeName),
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.org-stocks.show',
-                            'parameters' => [
-                                $routeParameters['stock']->slug
-                            ]
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show' =>
+            'grp.goods.stock_families.show.stocks.show' =>
             array_merge(
                 (new ShowStockFamily())->getBreadcrumbs($routeParameters['stockFamily']),
                 $headCrumb(
-                    $routeParameters['stock'],
+                    $stock,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
-                            'parameters' => [
-                                $routeParameters['stockFamily']->slug
-                            ]
+                            'name'       => 'grp.goods.stock_families.show.stocks.index',
+                            'parameters' => Arr::except($routeParameters, 'stock')
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show',
-                            'parameters' => [
-                                $routeParameters['stockFamily']->slug,
-                                $routeParameters['stock']->slug
-                            ]
+                            'name'       => 'grp.goods.stock_families.show.stocks.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -214,8 +209,10 @@ class ShowStock extends GrpAction
             return null;
         }
 
+
         return match ($routeName) {
-            'grp.org.warehouses.show.inventory.org-stocks.show' => [
+            'grp.goods.stocks.show',
+            'grp.goods.stocks.active_stocks.show' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
@@ -224,7 +221,7 @@ class ShowStock extends GrpAction
                     ]
                 ]
             ],
-            'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show' => [
+            'grp.goods.org_stock_families.show.stocks.show' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,

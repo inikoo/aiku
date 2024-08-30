@@ -32,8 +32,8 @@ Route::prefix('stocks')->as('stocks.')->group(function () {
     Route::prefix('active')->as('active_stocks.')->group(function () {
         Route::get('/', [IndexStocks::class, 'active'])->name('index');
         Route::prefix('{stock}')->group(function () {
-            Route::get('', [ShowStock::class, 'active'])->name('show');
-            Route::get('edit', [EditStock::class, 'active'])->name('edit');
+            Route::get('', ShowStock::class)->name('show');
+            Route::get('edit', EditStock::class)->name('edit');
         });
     });
 

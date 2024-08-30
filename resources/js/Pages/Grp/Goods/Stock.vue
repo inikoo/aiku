@@ -55,10 +55,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     }
-    showcase: object;
-    supplier_products: object;
-    products: object;
-    locations: object;
+    showcase?: object,
+    supplier_products?: object
+
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -68,10 +67,7 @@ const component = computed(() => {
 
     const components = {
         showcase: StockShowcase,
-        locations: TableLocations,
         supplier_products: TableSupplierProducts,
-        products: TableProducts,
-        details: ModelDetails,
         history: ModelChangelog,
     };
     return components[currentTab.value];

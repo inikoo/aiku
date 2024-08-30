@@ -293,7 +293,7 @@ class IndexStocks extends GrpAction
                 'number' => $this->group->inventoryStats->number_stocks_state_discontinued
             ],
             [
-                'label' => __('All SKUs'),
+                'label' => __('All'),
                 'icon'  => 'fal fa-bars',
                 'root'  => 'grp.goods.stocks.index',
                 'align' => 'right',

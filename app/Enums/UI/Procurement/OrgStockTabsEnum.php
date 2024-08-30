@@ -54,7 +54,7 @@ enum OrgStockTabsEnum: string
             OrgStockTabsEnum::ISSUES => [
                 'align' => 'right',
                 'type'  => 'icon',
-                'title' => __('issue'),
+                'title' => __('issues'),
                 'icon'  => 'fal fa-poop',
             ],
             OrgStockTabsEnum::PURCHASE_ORDERS => [

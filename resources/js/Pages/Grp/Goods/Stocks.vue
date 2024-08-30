@@ -11,7 +11,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableStocks from "@/Components/Tables/Grp/Goods/TableStocks.vue";
 import { capitalize } from "@/Composables/capitalize"
 
-const props = defineProps<{
+defineProps<{
     data: object
     title: string
     pageHead: object

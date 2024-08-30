@@ -16,7 +16,12 @@ const props = defineProps<{
 
 
 function stockRoute(stock: Stock) {
+  console.log(route().current())
     switch (route().current()) {
+      case 'grp.goods.stocks.active_stocks.index':
+          return route(
+              'grp.goods.stocks.active_stocks.show',
+              [stock.slug]);
         case 'grp.goods.stock-families.show.stocks.index':
             return route(
                 'grp.goods.stock-families.show.stocks.show',
