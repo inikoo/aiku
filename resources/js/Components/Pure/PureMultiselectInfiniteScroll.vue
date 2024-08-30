@@ -131,11 +131,15 @@ onUnmounted(() => {
         >
 
             <template #singlelabel="{ value }">
-                <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
+                <slot name="singlelabel" :value>
+                    <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
+                </slot>
             </template>
 
             <template #option="{ option, isSelected, isPointed }">
-                <div class="">{{ option.name }} <span class="text-sm" :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                <slot name="option" :option :isSelected :isPointed>
+                    <div class="">{{ option.name }} <span class="text-sm" :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                </slot>
             </template>
 
             <template #spinner>
