@@ -256,7 +256,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
     <!-- Box -->
     <!-- <BoxStatsPalletDelivery :dataPalletDelivery="data?.data" :boxStats="box_stats" :updateRoute /> -->
     
-    <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
+    <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
             <!-- Field: Registration Number -->
@@ -324,9 +324,9 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
         </BoxStatPallet>
 
         <!-- Box: Product stats -->
-        <BoxStatPallet class="py-4 pl-1 pr-2" icon="fal fa-user">
-            <div class="relative flex items-start w-full flex-none gap-x-2">
-                <dt class="flex-none pt-1">
+        <BoxStatPallet class="py-4 pl-1.5 pr-3" icon="fal fa-user">
+            <div class="relative flex items-start w-full flex-none gap-x-1">
+                <dt class="flex-none pt-0.5">
                     <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                 </dt>
 
@@ -339,7 +339,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
         </BoxStatPallet>
 
         <!-- Box: Order summary -->
-        <BoxStatPallet class="sm:col-span-2 border-t sm:border-t-0 border-gray-300">
+        <BoxStatPallet class="col-span-2 border-t lg:border-t-0 border-gray-300">
             <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
                 <!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
 

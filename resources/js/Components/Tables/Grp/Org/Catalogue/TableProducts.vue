@@ -71,16 +71,19 @@ function productRoute(product: Product) {
         <template #cell(state)="{ item: product }">
             <Icon :data="product.state"> </Icon>
         </template>
+
         <template #cell(code)="{ item: product }">
             <Link :href="productRoute(product)" class="primaryLink">
                 {{ product['code'] }}
             </Link>
         </template>
+
         <template #cell(shop_code)="{ item: product }">
             <Link v-if="product['shop_slug']" :href="productRoute(product)" class="secondaryLink">
                 {{ product['shop_slug'] }}
             </Link>
         </template>
+        
         <template #cell(type)="{ item: product }">
             <Icon :data="product['type_icon']" />
             <Icon :data="product['state_icon']" />

@@ -293,7 +293,7 @@ const onDeleteAddress = (addressID: number) => {
                 <div v-else class="col-span-2 relative py-4 h-fit">
                     <template v-if="addresses.address_list.data?.length">
                         <div class="grid gap-x-3 gap-y-4 h-fit transition-all"
-                            :class="[isEditAddress ? '' : 'col-span-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4']">
+                            :class="[isEditAddress ? '' : 'col-span-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4']">
 
                             <!-- Section: Address Home -->
                             <div v-if="homeAddress" class="overflow-hidden relative text-xs ring-1 ring-gray-300 rounded-lg h-full transition-all">
