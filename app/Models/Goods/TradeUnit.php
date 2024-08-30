@@ -40,8 +40,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $barcode_id
  * @property Collection<int, Barcode> $barcode
- * @property float|null $gross_weight in kilograms include packing
- * @property float|null $net_weight in kilograms
+ * @property int|null $gross_weight grams
+ * @property int|null $net_weight grams
  * @property array|null $dimensions
  * @property float|null $volume in cubic meters
  * @property string|null $type unit type

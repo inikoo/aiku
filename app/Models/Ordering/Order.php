@@ -63,6 +63,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $customer_locked
  * @property bool $billing_locked
  * @property bool $delivery_locked
+ * @property int|null $estimated_weight grams
+ * @property int|null $weight actual weight, grams
  * @property int|null $billing_address_id
  * @property int|null $delivery_address_id
  * @property int|null $collection_address_id
@@ -108,6 +110,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
  * @property-read Address|null $collectionAddress
+ * @property-read Currency $currency
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read CustomerClient|null $customerClient
  * @property-read Address|null $deliveryAddress
@@ -121,6 +124,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Platform> $platforms
  * @property-read Shop $shop
  * @property-read \App\Models\Ordering\OrderStats|null $stats
+ * @property-read TaxCategory $taxCategory
  * @property-read Collection<int, \App\Models\Ordering\Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Ordering\OrderFactory factory($count = null, $state = [])

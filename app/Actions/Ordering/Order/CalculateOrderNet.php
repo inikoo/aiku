@@ -18,7 +18,7 @@ class CalculateOrderNet extends OrgAction
         $itemsNet    = $items->sum('net_amount');
         $itemsGross  = $items->sum('gross_amount');
         $tax         = $order->taxCategory->rate;
-        
+
         $estWeight = 0;
         foreach($items as $item) {
             $weight = $item->historicAsset->model->weight;

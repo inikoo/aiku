@@ -27,6 +27,9 @@ return new class () extends Migration {
 
             $table=$this->assetModelFields($table);
 
+            $table->unsignedInteger('weight')->nullable()->comment('grams');
+            $table->unsignedInteger('commercial_weight')->nullable()->comment('grams');
+
             $table->string('barcode')->index()->nullable()->comment('mirror from trade_unit');
             $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->unsignedInteger('image_id')->nullable();

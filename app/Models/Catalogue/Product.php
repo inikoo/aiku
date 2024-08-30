@@ -52,6 +52,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
+ * @property int|null $weight grams
+ * @property int|null $commercial_weight grams
  * @property string|null $barcode mirror from trade_unit
  * @property string|null $rrp RRP per outer
  * @property int|null $image_id

@@ -55,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_carton units per carton
  * @property string|null $unit_value
  * @property int|null $image_id
+ * @property int|null $weight grams
  * @property array $settings
  * @property array $data
  * @property Carbon|null $activated_at

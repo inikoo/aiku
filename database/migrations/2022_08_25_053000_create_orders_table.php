@@ -44,6 +44,9 @@ return new class () extends Migration {
             $table->boolean('billing_locked')->default(false);
             $table->boolean('delivery_locked')->default(false);
 
+            $table->unsignedInteger('estimated_weight')->nullable()->comment('grams');
+            $table->unsignedInteger('weight')->nullable()->comment('actual weight, grams');
+
 
             $table->unsignedInteger('billing_address_id')->index()->nullable();
             $table->foreign('billing_address_id')->references('id')->on('addresses');
