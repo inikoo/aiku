@@ -224,6 +224,10 @@ class IndexProducts extends OrgAction
             }
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if($parent instanceof Collection) {
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
