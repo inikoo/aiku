@@ -23,11 +23,11 @@ class ShowDashboard
     {
         $shopifyUser = $request->user('pupil');
         // dd(session('_token'));
-
         return Inertia::render('Dashboard/PupilDashboard', [
             // 'shop'                  => $shopifyUser,
             // 'token'                 => session()->all(),
             'token_request'         => $request->get('token'),
+            'user'                  => $shopifyUser,
             'routes'                => [
                 'products' => [
                     'name'       => 'pupil.products',

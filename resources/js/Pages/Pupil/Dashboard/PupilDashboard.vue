@@ -27,6 +27,7 @@ import { notify } from '@kyvg/vue3-notification'
 library.add(faSearch, faThLarge, faListUl, faStar, falStar)
 
 const props = defineProps<{
+    user: {}
     shop: string
     routes: {
         products: routeType 
@@ -36,25 +37,13 @@ const props = defineProps<{
     token_request: string
 }>()
 
-// console.log('token', Object.keys(props.token)[1])
+console.log('token', props.user)
 // const xxToken = Object.keys(props.token)[1].match(/login_pupil_([a-f0-9]+)/)?.[1]
 const locale = useLocaleStore()
 
-const productDialog = ref(false)
-const deleteProductDialog = ref(false)
 const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 })
-
-const confirmDeleteProduct = (product) => {
-    product.value = product
-    deleteProductDialog.value = true
-}
-
-const editProduct = (product) => {
-    product.value = {...product}
-    productDialog.value = true
-}
 
 const getStatusLabel = (status) => {
     switch (status) {
@@ -75,6 +64,14 @@ const getStatusLabel = (status) => {
 // Fetch: product
 const realProducts = ref([])
 onMounted(async () => {
+    
+    const xxx = window.Echo.private(`shopify.upload-product.${props.user.id}`).
+        listen('.action-progress', (e) => {
+            console.log('xxxxxxxxxxxxxx', e)
+
+    });
+
+    console.log('xxx', xxx)
 
     try {
         const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
@@ -118,7 +115,7 @@ const onSubmitProduct = () => {
             onSuccess: () => {
                 notify({
                     title: trans('Success'),
-                    text: trans('Successfully add') + selectedProducts.value.length + trans('products'),
+                    text: trans('Successfully add') + ` ${selectedProducts.value.length} ` + trans('products'),
                     type: 'success',
                 })
                 selectedProducts.value = []
@@ -166,7 +163,6 @@ const toggleItem = (id) => {
     }
 }
 
-const isLoadingDisplay = ref(false)
 const onChangeDisplay = (type: string) => {
     if (productView.value == type) return
     productView.value = type
@@ -197,6 +193,7 @@ const onSortChange = (event) => {
         sortKey.value = sortValue;
     }
 }
+
 
 </script>
 
