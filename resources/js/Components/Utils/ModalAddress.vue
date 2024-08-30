@@ -19,6 +19,7 @@ library.add(faThumbtack, faPencil, faHouse, faTrashAlt, faTruck, faTruckCouch, f
 const props = defineProps<{
     updateRoute: routeType
     addresses: AddressManagement
+    keyPayloadEdit?: string
 }>()
 
 const emits = defineEmits<{
@@ -87,7 +88,7 @@ const onSubmitEditAddress = (address: Address) => {
     router.patch(
         route(props.updateRoute.name, props.updateRoute.parameters),
         {
-            address: filterDataAdddress
+            [props.keyPayloadEdit || 'address']: filterDataAdddress
         },
         {
             preserveScroll: true,
@@ -115,7 +116,7 @@ const onSubmitEditAddress = (address: Address) => {
 
 // Method: Select address history
 const isCreateNewAddress = ref(false)
-const isSelectAddressLoading = ref<number | boolean>(false)
+const isSelectAddressLoading = ref<number | boolean | null | undefined>(false)
 const onSelectAddress = (selectedAddress: Address) => {
     router.patch(
         route(props.updateRoute.name, props.updateRoute.parameters),
@@ -131,6 +132,7 @@ const onSelectAddress = (selectedAddress: Address) => {
 }
 
 const isLoading = ref<string | boolean>(false)
+// Method: Pinned address
 const onPinnedAddress = (addressID: number) => {
     router[props.addresses.routes_list.pinned_route.method || 'patch'](
         route(props.addresses.routes_list.pinned_route.name, props.addresses.routes_list.pinned_route.parameters),
@@ -151,9 +153,10 @@ const onPinnedAddress = (addressID: number) => {
         }
     )
 }
+// Method: Delete address
 const onDeleteAddress = (addressID: number) => {
     // console.log('vvcxvcxvcx', props.addressesList.delete_route.method, route(props.addressesList.delete_route.name, props.addressesList.delete_route.parameters))
-    router[props.addresses.routes_list.delete_route.method || 'delete'](
+    router.delete(
         route(props.addresses.routes_list.delete_route.name, {
             ...props.addresses.routes_list.delete_route.parameters,
             address: addressID
@@ -165,7 +168,7 @@ const onDeleteAddress = (addressID: number) => {
                 isLoading.value = false
             },
             onError: () => notify({
-                title: "Failed",
+                title: trans("Failed"),
                 text: trans("Failed to delete the address, try again"),
                 type: "error",
             })
@@ -344,7 +347,7 @@ const onDeleteAddress = (addressID: number) => {
                                         :class="addresses.current_selected_address_id == address.id ? 'bg-green-50' : 'bg-gray-100'"
                                     >
                                         <div class="flex gap-x-1 items-center relative">
-                                            <FontAwesomeIcon v-if="addresses.selected_delivery_addresses_id.includes(address.id)" icon='fal fa-truck-couch' class='px-0.5 py-1 cursor-pointer' :class="addresses.selected_delivery_addresses_id.includes(address.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('This address is already selected')" />
+                                            <FontAwesomeIcon v-if="false && addresses.selected_delivery_addresses_id?.includes(address.id)" icon='fal fa-truck-couch' class='px-0.5 py-1 cursor-pointer' :class="addresses.selected_delivery_addresses_id.includes(address.id) ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'" fixed-width aria-hidden='true' v-tooltip="trans('This address is already selected')" />
                                             <div v-if="address.label" class="font-semibold text-sm whitespace-nowrap">
                                                 {{ useTruncate(address.label, 14) }}
                                             </div>

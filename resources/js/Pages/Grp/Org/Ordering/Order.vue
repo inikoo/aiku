@@ -368,6 +368,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
         <ModalAddress
             :addresses="box_stats?.customer.addresses"
             :updateRoute="routes.updateOrderRoute"
+            keyPayloadEdit="delivery_address"
         />
     </Modal>
 </template>
