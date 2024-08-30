@@ -212,6 +212,10 @@ class IndexDepartments extends OrgAction
                 $table->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
             }
+
+            if(class_basename($parent) == 'Collection') {
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
