@@ -205,8 +205,8 @@ class ShowOrder extends OrgAction
 
                 'box_stats'     => [
                 'customer'          => array_merge(
-                        CustomerResource::make($order->customer)->getArray(),
-                            [
+                    CustomerResource::make($order->customer)->getArray(),
+                    [
                                 'addresses'      => [
                                     'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
                                     'options' => [
@@ -242,9 +242,9 @@ class ShowOrder extends OrgAction
                                     ]
                                 ],
                             ]
-                    ),
+                ),
                     'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
-                    'order_summary' => [
+                    'order_summary'   => [
                         [
                             [
                                 'label'       => 'Items',

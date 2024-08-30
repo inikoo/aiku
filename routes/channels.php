@@ -11,7 +11,7 @@ use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('shopify.upload-product.{shopifyUserId}', function (ShopifyUser $user, int $shopifyUserId) {
-    return $shopifyUserId === $user->id;
+    return true;
 });
 
 Broadcast::channel('grp.personal.{userID}', function (User $user, int $userID) {
