@@ -34,6 +34,7 @@ use Lorisleiva\Actions\ActionRequest;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -200,7 +201,7 @@ class ShowOrder extends OrgAction
                 'timeline'      => $finalTimeline,
 
                 'box_stats'     => [
-                    array_merge(
+                'customer'          => array_merge(
                         CustomerResource::make($order->customer)->getArray(),
                             [
                                 'addresses'      => [
@@ -238,11 +239,7 @@ class ShowOrder extends OrgAction
                                     ]
                                 ],
                             ]
-                        ),
-                        'email'      => 'accounts@ventete.com',
-                        'phone'      => '+447725269253',
-                        'created_at' => '2021-12-01T09:46:06.000000Z'
-                    ],
+                    ),
                     'delivery_status' => [
                         'tooltip' => 'In process',
                         'icon'    => 'fal fa-seedling',
@@ -292,15 +289,9 @@ class ShowOrder extends OrgAction
                                 'price_total' => '3.84'
                             ]
                         ],
-                ],
-                'currency' => [
-                    'data' => [
-                        'id'     => 23,
-                        'code'   => 'GBP',
-                        'name'   => 'British Pound',
-                        'symbol' => '£'
-                    ]
-                ],
+                            'currency' => CurrencyResource::make($order->currency),
+                        ]
+                    ],
                 'data'       => OrderResource::make($order),
                 // 'showcase'=> GetOrderShowcase::run($order),
 

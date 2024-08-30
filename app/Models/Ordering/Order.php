@@ -17,6 +17,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Currency;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -246,6 +247,11 @@ class Order extends Model implements HasMedia, Auditable
         $platform = $this->platforms()->first();
 
         return $platform;
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 
 }
