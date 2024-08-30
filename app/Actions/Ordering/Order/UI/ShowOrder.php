@@ -13,6 +13,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
@@ -31,6 +32,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Helpers\Address;
 
 class ShowOrder extends OrgAction
 {
@@ -98,6 +101,43 @@ class ShowOrder extends OrgAction
                 : OrderStateEnum::CANCELLED->value]
         );
 
+        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+
+        $processedAddresses = $addresses->map(function ($address) {
+
+
+            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+
+                return $address->setAttribute('can_delete', false)
+                    ->setAttribute('can_edit', true);
+            }
+
+
+            return $address->setAttribute('can_delete', true)
+                            ->setAttribute('can_edit', true);
+        });
+
+        $customerAddressId              = $order->customer->address->id;
+        $customerDeliveryAddressId      = $order->customer->deliveryAddress->id;
+        $orderDeliveryAddressIds = Order::where('customer_id', $order->customer_id)
+                                            ->pluck('delivery_address_id')
+                                            ->unique()
+                                            ->toArray();
+
+        $forbiddenAddressIds = array_merge(
+            $orderDeliveryAddressIds,
+            [$customerAddressId, $customerDeliveryAddressId]
+        );
+
+        $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
+            if (in_array($address->id, $forbiddenAddressIds, true)) {
+                $address->setAttribute('can_delete', false)
+                        ->setAttribute('can_edit', true);
+            }
+        });
+
+        $addressCollection = AddressResource::collection($processedAddresses);
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -162,28 +202,39 @@ class ShowOrder extends OrgAction
                             'United Kingdom',
                             'London'
                         ],
-                        'address' => [
-                            'id'                  => 711,
-                            'address_line_1'      => 'Studio 19',
-                            'address_line_2'      => 'Grow Studios, 86 Wallis Road, Main Yard',
-                            'sorting_code'        => '',
-                            'postal_code'         => 'E9 5LN',
-                            'locality'            => 'London',
-                            'dependent_locality'  => '',
-                            'administrative_area' => '',
-                            'country_code'        => 'GB',
-                            'country_id'          => 48,
-                            'checksum'            => 'dcd0872437dca2150658f0db835a67e0',
-                            'created_at'          => '2024-08-22T21:04:42.000000Z',
-                            'updated_at'          => '2024-08-22T21:04:42.000000Z',
-                            'country'             => [
-                                'code' => 'GB',
-                                'iso3' => 'GBR',
-                                'name' => 'United Kingdom'
+                        'address'      => [
+                            'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
+                            'options' => [
+                                'countriesAddressData' => GetAddressData::run()
                             ],
-                            'formatted_address' => '<p translate="no"><span class="address-line1">Studio 19</span><br><span class="address-line2">Grow Studios, 86 Wallis Road, Main Yard</span><br><span class="locality">London</span><br><span class="postal-code">E9 5LN</span><br><span class="country">United Kingdom</span></p>',
-                            'can_edit'          => null,
-                            'can_delete'        => null
+                            'address_list'                   => $addressCollection,
+                            'pinned_address_id'              => $order->customer->delivery_address_id,
+                            'home_address_id'                => $order->customer->address_id,
+                            'current_selected_address_id'    => $order->delivery_address_id,
+                            'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
+                            'routes_list'                    => [
+                                'pinned_route'                   => [
+                                    'method'     => 'patch',
+                                    'name'       => 'grp.models.customer.delivery-address.update',
+                                    'parameters' => [
+                                        'customer' => $order->customer_id
+                                    ]
+                                ],
+                                'delete_route'  => [
+                                    'method'     => 'delete',
+                                    'name'       => 'grp.models.customer.delivery-address.delete',
+                                    'parameters' => [
+                                        'customer' => $order->customer_id
+                                    ]
+                                ],
+                                'store_route' => [
+                                    'method'      => 'post',
+                                    'name'        => 'grp.models.customer.address.store',
+                                    'parameters'  => [
+                                        'customer' => $order->customer_id
+                                    ]
+                                ],
+                            ]
                         ],
                         'email'      => 'accounts@ventete.com',
                         'phone'      => '+447725269253',
