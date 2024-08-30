@@ -202,8 +202,8 @@ class ShowOrder extends OrgAction
 
                 'box_stats'     => [
                 'customer'          => array_merge(
-                        CustomerResource::make($order->customer)->getArray(),
-                            [
+                    CustomerResource::make($order->customer)->getArray(),
+                    [
                                 'addresses'      => [
                                     'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
                                     'options' => [
@@ -239,9 +239,9 @@ class ShowOrder extends OrgAction
                                     ]
                                 ],
                             ]
-                    ),
+                ),
                     'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
-                    'order_summary' => [
+                    'order_summary'   => [
                         [
                             [
                                 'label'       => 'Items',
@@ -254,12 +254,12 @@ class ShowOrder extends OrgAction
                             [
                                 'label'       => 'Charges',
                                 'information' => '',
-                                'price_total' => '3.20'
+                                'price_total' => '0'
                             ],
                             [
                                 'label'       => 'Shipping',
                                 'information' => '',
-                                'price_total' => '0.64'
+                                'price_total' => '0'
                             ]
                         ],
                         [
