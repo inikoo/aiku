@@ -34,6 +34,7 @@ use Lorisleiva\Actions\ActionRequest;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;
+use Illuminate\Support\Facades\DB;
 
 class ShowOrder extends OrgAction
 {
@@ -101,7 +102,7 @@ class ShowOrder extends OrgAction
                 : OrderStateEnum::CANCELLED->value]
         );
 
-        $addresses = $palletReturn->fulfilmentCustomer->customer->addresses;
+        $addresses = $order->customer->addresses;
 
         $processedAddresses = $addresses->map(function ($address) {
 
