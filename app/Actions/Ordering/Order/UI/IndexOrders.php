@@ -148,17 +148,18 @@ class IndexOrders extends OrgAction
             ];
             $actions = [
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'label'   => 'Add order',
-                            'key'     => 'addorder',
-                            'route'   => [
+                            'type'          => 'button',
+                            'style'         => 'create',
+                            'label'         => 'Add order',
+                            'key'           => 'addorder',
+                            'fullLoading'   => true,
+                            'route'         => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.customer-client.order.store',
                                 'parameters' => [
                                     'customerClient' => $this->parent->id
                                 ]
-                            ]
+                            ],
                         ],
                     ];
         } elseif ($this->parent instanceof Customer) {

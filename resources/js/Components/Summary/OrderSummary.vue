@@ -29,9 +29,15 @@ const locale = inject('locale', aikuLocaleStructure)
                         <span>{{ fieldSummary.label }}</span>
                         <FontAwesomeIcon v-if="fieldSummary.information" icon='fal fa-question-circle' v-tooltip="fieldSummary.information" class='ml-1 cursor-pointer text-gray-400 hover:text-gray-500' fixed-width aria-hidden='true' />
                     </dt>
-                    <dd class="justify-self-end text-sm">{{ typeof fieldSummary.quantity === 'number' ? locale.number(fieldSummary.quantity) : null}}</dd>
+                    <Transition name="spin-to-down">
+                        <dd :key="fieldSummary.quantity" class="justify-self-end text-sm">{{ typeof fieldSummary.quantity === 'number' ? locale.number(fieldSummary.quantity) : null}}</dd>
+                    </Transition>
                     <!-- <dd class="col-span-2 place-self-end text-sm">{{ fieldSummary.price_base }}</dd> -->
-                    <dd class="col-span-4 place-self-end text-sm font-medium" :class="fieldSummary.price_total === 'free' ? 'text-green-600 animate-pulse' : ''">{{ locale.currencyFormat(order_summary?.currency?.data?.code || 'usd', fieldSummary.price_total || 0) }}</dd>
+                    <div class="relative col-span-4 place-self-end text-sm font-medium overflow-hidden">
+                        <Transition name="spin-to-right">
+                            <dd :key="fieldSummary.price_total" class="" :class="fieldSummary.price_total === 'free' ? 'text-green-600 animate-pulse' : ''">{{ locale.currencyFormat(order_summary?.currency?.data?.code || 'usd', fieldSummary.price_total || 0) }}</dd>
+                        </Transition>
+                    </div>
                 </div>
             </div>
         </template>

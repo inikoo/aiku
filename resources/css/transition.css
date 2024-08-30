@@ -1,7 +1,7 @@
 /* Transition without name */
 .v-enter-active,
 .v-leave-active {
-    transition: opacity 0.1s ease;
+    transition: all 0.1s ease;
 }
 
 .v-enter-from,
