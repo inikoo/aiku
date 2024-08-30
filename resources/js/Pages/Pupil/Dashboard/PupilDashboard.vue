@@ -30,7 +30,7 @@ const props = defineProps<{
     user: {}
     shop: string
     routes: {
-        products: routeType 
+        products: routeType
         store_product: routeType
     }
     // token: string
@@ -64,8 +64,8 @@ const getStatusLabel = (status) => {
 // Fetch: product
 const realProducts = ref([])
 onMounted(async () => {
-    
-    const xxx = window.Echo.private(`shopify.upload-product.${props.user.id}`).
+
+    const xxx = window.Echo.join(`shopify.upload-product.${props.user.id}`).
         listen('.action-progress', (e) => {
             console.log('xxxxxxxxxxxxxx', e)
 
@@ -260,7 +260,7 @@ const onSortChange = (event) => {
                         {{ locale.currencyFormat('usd', data.price) }}
                     </template>
                 </Column>
-                
+
                 <Column field="rating" header="Reviews" sortable style="min-width: 12rem">
                     <template #body="slotProps">
                         <div class="isolate relative">
@@ -275,7 +275,7 @@ const onSortChange = (event) => {
                             :severity="getStatusLabel(slotProps.data.inventoryStatus)" />
                     </template>
                 </Column>
-                
+
                 <!-- <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <div class="flex gap-x-1">
@@ -318,11 +318,11 @@ const onSortChange = (event) => {
                                         <div class="text-lg font-medium">{{ item.name }}</div>
                                     </div>
                                 </div>
-                    
+
                                 <!-- Section: Price -->
                                 <div class="flex justify-between mt-6">
                                     <span class="text-2xl font-semibold">${{ item.price }}</span>
-                    
+
                                     <div class="p-1" style="border-radius: 30px">
                                         <div class="flex items-center gap-2 justify-center py-1 px-2" style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
                                             <span class="font-medium text-sm">{{ item.rating || 0 }}</span>
@@ -343,6 +343,6 @@ const onSortChange = (event) => {
             </DataView>
         </div>
 
-        
+
     </div>
 </template>
