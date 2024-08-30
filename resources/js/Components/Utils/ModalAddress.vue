@@ -203,9 +203,9 @@ const onDeleteAddress = (addressID: number) => {
             </div>
         </div>
 
-        <div class="relative">
-            <Transition name="v">
-                <div v-if="isCreateNewAddress" class="max-w-96 mx-auto py-4">
+        <div class="relative transition-all">
+            <!-- <Transition name="v"> -->
+                <div v-if="isCreateNewAddress" class="mx-auto max-w-96 py-4">
                     <div class="mb-2">{{ trans('Create new address')}} </div>
                     <div class="border border-gray-300 rounded-lg relative p-3 ">
                         <PureAddress
@@ -219,7 +219,7 @@ const onDeleteAddress = (addressID: number) => {
                                 label="Create new and select"
                                 :loading="isSubmitAddressLoading"
                                 full
-                                :disabled="!selectedAddress?.country_id"    
+                                :disabled="!selectedAddress?.country_id"
                             />
                         </div>
                         <!-- <Transition>
@@ -248,7 +248,7 @@ const onDeleteAddress = (addressID: number) => {
                                     ({{ trans('No label') }})
                                 </div>
                                 <div class="relative">
-                                    <Transition name="slide-to-left">
+                                    <Transition name="spin-to-right">
                                         <FontAwesomeIcon v-if="addresses.current_selected_address_id == selectedAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                         <Button
                                             v-else
@@ -290,7 +290,7 @@ const onDeleteAddress = (addressID: number) => {
                 </div>
                 
                 <!-- Section: Address list -->
-                <div v-else class="col-span-2 relative py-4 h-fit">
+                <div v-else class="relative py-4 h-fit">
                     <template v-if="addresses.address_list.data?.length">
                         <div class="grid gap-x-3 gap-y-4 h-fit transition-all"
                             :class="[isEditAddress ? '' : 'col-span-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4']">
@@ -307,7 +307,7 @@ const onDeleteAddress = (addressID: number) => {
                                         </div>
 
                                         <div class="relative">
-                                            <Transition name="slide-to-left">
+                                            <Transition name="spin-to-right">
                                                 <FontAwesomeIcon v-if="addresses.current_selected_address_id == homeAddress?.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                 <Button
                                                     v-else-if="!addresses.isCannotSelect"
@@ -355,7 +355,7 @@ const onDeleteAddress = (addressID: number) => {
                                                 ({{ trans('No label') }})
                                             </div>
                                             <div class="relative">
-                                                <Transition name="slide-to-left">
+                                                <Transition name="spin-to-right">
                                                     <FontAwesomeIcon v-if="addresses.current_selected_address_id == address.id" icon='fas fa-check-circle' class='text-green-500' fixed-width aria-hidden='true' />
                                                     <Button
                                                         v-else-if="!addresses.isCannotSelect"
@@ -399,7 +399,7 @@ const onDeleteAddress = (addressID: number) => {
                         {{ trans('No address history found') }}
                     </div>
                 </div>
-            </Transition>
+            <!-- </Transition> -->
         </div>
 
     </div>

@@ -39,9 +39,9 @@ class AuthServiceProvider extends ServiceProvider
             }
 
             $id=Session::get('login_pupil_'.sha1('Illuminate\Auth\SessionGuard'));
-
-            if (is_null($id)) {
-                return ShopifyUser::first();
+            // dd($id);
+            if (!is_null($id)) {
+                return ShopifyUser::find($id);
             }
 
             return false;

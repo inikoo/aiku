@@ -204,46 +204,70 @@ class ShowOrder extends OrgAction
                 'timeline'      => $finalTimeline,
 
                 'box_stats'     => [
-                'customer'          => array_merge(
-                    CustomerResource::make($order->customer)->getArray(),
-                    [
-                                'addresses'      => [
-                                    'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
-                                    'options' => [
-                                        'countriesAddressData' => GetAddressData::run()
+                    'customer'          => array_merge(
+                        CustomerResource::make($order->customer)->getArray(),
+                        [
+                            'addresses'      => [
+                                'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
+                                'options' => [
+                                    'countriesAddressData' => GetAddressData::run()
+                                ],
+                                'address_list'                   => $addressCollection,
+                                'pinned_address_id'              => $order->customer->delivery_address_id,
+                                'home_address_id'                => $order->customer->address_id,
+                                'current_selected_address_id'    => $order->delivery_address_id,
+                                'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
+                                'routes_list'                    => [
+                                    'pinned_route'                   => [
+                                        'method'     => 'patch',
+                                        'name'       => 'grp.models.customer.delivery-address.update',
+                                        'parameters' => [
+                                            'customer' => $order->customer_id
+                                        ]
                                     ],
-                                    'address_list'                   => $addressCollection,
-                                    'pinned_address_id'              => $order->customer->delivery_address_id,
-                                    'home_address_id'                => $order->customer->address_id,
-                                    'current_selected_address_id'    => $order->delivery_address_id,
-                                    'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
-                                    'routes_list'                    => [
-                                        'pinned_route'                   => [
-                                            'method'     => 'patch',
-                                            'name'       => 'grp.models.customer.delivery-address.update',
-                                            'parameters' => [
-                                                'customer' => $order->customer_id
-                                            ]
-                                        ],
-                                        'delete_route'  => [
-                                            'method'     => 'delete',
-                                            'name'       => 'grp.models.customer.delivery-address.delete',
-                                            'parameters' => [
-                                                'customer' => $order->customer_id
-                                            ]
-                                        ],
-                                        'store_route' => [
-                                            'method'      => 'post',
-                                            'name'        => 'grp.models.customer.address.store',
-                                            'parameters'  => [
-                                                'customer' => $order->customer_id
-                                            ]
-                                        ],
+                                    'delete_route'  => [
+                                        'method'     => 'delete',
+                                        'name'       => 'grp.models.customer.delivery-address.delete',
+                                        'parameters' => [
+                                            'customer' => $order->customer_id
+                                        ]
+                                    ],
+                                    'store_route' => [
+                                        'method'      => 'post',
+                                        'name'        => 'grp.models.customer.address.store',
+                                        'parameters'  => [
+                                            'customer' => $order->customer_id
+                                        ]
+                                    ],
+                                ]
+                            ],
+                        ]
+                    ),
+                    'products'  => [
+                        'payment'  => [
+                            'routes' => [
+                                'fetch_payment_accounts' => [
+                                    'name'       => 'grp.json.shop.payment-accounts',
+                                    'parameters' => [
+                                        'shop' => $order->shop->slug
                                     ]
                                 ],
-                            ]
-                ),
-                    'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
+                                'submit_payment' => [
+                                    'name'       => 'grp.models.customer.payment.order.store',
+                                    'parameters' => [
+                                        'customer' => $order->customer_id,
+                                        'scope'    => $order->id
+                                    ]
+                                ]
+
+                            ],
+                            'total_amount'=> $order->total_amount,
+                            'paid_amount' => $order->payment_amount,
+                            'pay_amount'  => $roundedDiff,
+                        ]
+                    ],
+
+                    // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
                     'order_summary'   => [
                         [
                             [
@@ -257,12 +281,12 @@ class ShowOrder extends OrgAction
                             [
                                 'label'       => 'Charges',
                                 'information' => '',
-                                'price_total' => '3.20'
+                                'price_total' => '0'
                             ],
                             [
                                 'label'       => 'Shipping',
                                 'information' => '',
-                                'price_total' => '0.64'
+                                'price_total' => '0'
                             ]
                         ],
                         [
@@ -284,28 +308,9 @@ class ShowOrder extends OrgAction
                             ]
                         ],
                         'currency' => CurrencyResource::make($order->currency),
-                        'payment'  => [
-                                        'routes' => [
-                                            'fetch_payment_accounts' => [
-                                                'name'       => 'grp.json.shop.payment-accounts',
-                                                'parameters' => [
-                                                    'shop' => $order->shop->slug
-                                                ]
-                                            ],
-                                            'submit_payment' => [
-                                                'name'       => 'grp.models.customer.payment.order.store',
-                                                'parameters' => [
-                                                    'customer' => $order->customer_id,
-                                                    'scope'    => $order->id
-                                                ]
-                                            ]
 
-                                        ],
-                                        'paid_amount' => $order->payment_amount,
-                                        'pay_amount'  => $roundedDiff
-                                    ]
-                                ]
                     ],
+                ],
                 'data'       => OrderResource::make($order),
                 // 'showcase'=> GetOrderShowcase::run($order),
 
