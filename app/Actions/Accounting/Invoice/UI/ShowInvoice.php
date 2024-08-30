@@ -217,10 +217,10 @@ class ShowInvoice extends OrgAction
                                 ]
                             ],
                             'submit_payment' => [
-                                'name'       => 'grp.models.customer.payment.store',
+                                'name'       => 'grp.models.customer.payment.invoice.store',
                                 'parameters' => [
                                     'customer' => $invoice->customer_id,
-                                    'invoice'  => $invoice->id
+                                    'scope'    => $invoice->id
                                 ]
                             ]
 

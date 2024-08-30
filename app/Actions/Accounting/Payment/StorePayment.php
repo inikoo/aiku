@@ -16,6 +16,7 @@ use App\Actions\Accounting\PaymentGateway\Xendit\Channels\Invoice\MakePaymentUsi
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\Ordering\Order\AttachPaymentToOrder;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
@@ -26,6 +27,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
+use App\Models\Ordering\Order;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -36,9 +38,9 @@ class StorePayment extends OrgAction
 {
     use AsCommand;
 
-    public string $commandSignature = 'payment:create {customer} {paymentAccount} {invoice}';
+    public string $commandSignature = 'payment:create {customer} {paymentAccount} {scope}';
 
-    public function handle(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, array $modelData): Payment
+    public function handle(Customer $customer, PaymentAccount $paymentAccount, Invoice|Order $scope = null, array $modelData): Payment
     {
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
 
@@ -68,8 +70,13 @@ class StorePayment extends OrgAction
         };
         */
 
-        if($invoice) {
-            AttachPaymentToInvoice::make()->action($invoice, $payment, [
+        if($scope instanceof Invoice) {
+            AttachPaymentToInvoice::make()->action($scope, $payment, [
+                'amount'    => Arr::get($modelData, 'amount'),
+                'reference' => Arr::get($modelData, 'reference')
+            ]);
+        } elseif ($scope instanceof Order) {
+            AttachPaymentToOrder::make()->action($scope, $payment, [
                 'amount'    => Arr::get($modelData, 'amount'),
                 'reference' => Arr::get($modelData, 'reference')
             ]);
@@ -124,19 +131,27 @@ class StorePayment extends OrgAction
         return $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
     }
 
-    public function asController(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, ActionRequest $request, int $hydratorsDelay = 0)
+    public function asController(Customer $customer, PaymentAccount $paymentAccount, Invoice $scope = null, ActionRequest $request, int $hydratorsDelay = 0)
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $request);
 
-        $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
+        $this->handle($customer, $paymentAccount, $scope, $this->validatedData);
+    }
+
+    public function inOrder(Customer $customer, PaymentAccount $paymentAccount, Order $scope = null, ActionRequest $request, int $hydratorsDelay = 0)
+    {
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($customer->shop, $request);
+
+        $this->handle($customer, $paymentAccount, $scope, $this->validatedData);
     }
 
     public function asCommand(Command $command): int
     {
         $customer       = Customer::where('slug', $command->argument('customer'))->first();
         $paymentAccount = PaymentAccount::where('slug', $command->argument('paymentAccount'))->first();
-        $invoice        = Invoice::where('slug', $command->argument('invoice'))->first() ?? null;
+        $scope          = Invoice::where('slug', $slug)->first() ?? Order::where('slug', $slug)->first() ?? null;
 
         $modelData = [
             'reference'   => rand(),
@@ -151,7 +166,7 @@ class StorePayment extends OrgAction
             ]
         ];
 
-        $this->handle($customer, $paymentAccount, $invoice, $modelData);
+        $this->handle($customer, $paymentAccount, $scope, $modelData);
 
         return 0;
     }
