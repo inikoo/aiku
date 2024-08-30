@@ -56,7 +56,7 @@ class ShowOrder extends OrgAction
         $this->parent = $shop;
         $this->scope  = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
-        return $this->handle($order)->withTab;
+        return $this->handle($order);
     }
 
     public function inCustomerInShop(Organisation $organisation, Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
