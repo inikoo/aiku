@@ -12,7 +12,9 @@ use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Country;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
@@ -24,6 +26,7 @@ class UpdateOrder extends OrgAction
 {
     use WithActionUpdate;
     use WithFixedAddressActions;
+    use WithModelAddressActions;
 
     private Order $order;
 
@@ -58,22 +61,31 @@ class UpdateOrder extends OrgAction
             }
         }
         if ($deliveryAddressData) {
-            if ($order->delivery_locked) {
-                if ($order->deliveryAddress->is_fixed) {
-                    $order = $this->updateFixedAddress(
-                        $order,
-                        $order->deliveryAddress,
-                        $deliveryAddressData,
-                        'Ordering',
-                        'delivery',
-                        'delivery_address_id'
-                    );
-                } else {
-                    // todo remove non fixed address
-                    $order = $this->createFixedAddress($order, $deliveryAddressData, 'Ordering', 'delivery', 'delivery_address_id');
-                }
+            $groupId     = $order->group_id;
+
+            data_set($deliveryAddressData, 'group_id', $groupId);
+
+            if (Arr::exists($deliveryAddressData, 'id')) {
+                $countryCode = Country::find(Arr::get($deliveryAddressData, 'country_id'))->code;
+                data_set($deliveryAddressData, 'country_code', $countryCode);
+                $label = isset($deliveryAddressData['label']) ? $deliveryAddressData['label'] : null;
+                unset($deliveryAddressData['label']);
+                unset($deliveryAddressData['can_edit']);
+                unset($deliveryAddressData['can_delete']);
+                $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($deliveryAddressData, 'id')), $deliveryAddressData);
+                $pivotData['label'] = $label;
+                $order->customer->addresses()->updateExistingPivot(
+                    $updatedAddress->id,
+                    $pivotData
+                );
             } else {
-                UpdateAddress::run($order->deliveryAddress, $deliveryAddressData->toArray());
+                $this->addAddressToModel(
+                    $order->customer,
+                    $deliveryAddressData,
+                    'delivery',
+                    false,
+                    'delivery_address_id'
+                );
             }
         }
 
@@ -132,7 +144,7 @@ class UpdateOrder extends OrgAction
     public function asController(Order $order, ActionRequest $request)
     {
         $this->order = $order;
-        $this->initialisationFromShop($order->shop, $request->validated());
-        return $this->handle($order, $request->validated());
+        $this->initialisationFromShop($order->shop, $request);
+        return $this->handle($order, $this->validatedData);
     }
 }
