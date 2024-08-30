@@ -503,7 +503,8 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('address', AddDeliveryAddressToCustomer::class)->name('address.store');
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
-    Route::post('payment/{paymentAccount:id}/{invoice:id}', StorePayment::class)->name('payment.store')->withoutScopedBindings();
+    Route::post('payment/invoice/{paymentAccount:id}/{scope:id}', StorePayment::class)->name('payment.invoice.store')->withoutScopedBindings();
+    Route::post('payment/order/{paymentAccount:id}/{scope:id}', [StorePayment::class, 'inOrder'])->name('payment.order.store')->withoutScopedBindings();
     Route::post('client', StoreCustomerClient::class)->name('client.store');
     Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
 });

@@ -8,6 +8,7 @@
 namespace App\Providers;
 
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\ShopifyUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -35,6 +36,12 @@ class AuthServiceProvider extends ServiceProvider
 
             if (!is_null($id)) {
                 return WebUser::find($id);
+            }
+
+            $id=Session::get('login_pupil_'.sha1('Illuminate\Auth\SessionGuard'));
+
+            if (is_null($id)) {
+                return ShopifyUser::first();
             }
 
             return false;

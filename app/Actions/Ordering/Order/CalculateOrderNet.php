@@ -14,10 +14,10 @@ class CalculateOrderNet extends OrgAction
 {
     public function handle(Order $order)
     {
-        $items    = $order->transactions()->get();
-        $itemsNet = $items->sum('net_amount');
+        $items       = $order->transactions()->get();
+        $itemsNet    = $items->sum('net_amount');
         $itemsGross  = $items->sum('gross_amount');
-        $tax        = $order->taxCategory->rate;
+        $tax         = $order->taxCategory->rate;
 
         $taxAmount   = $itemsNet * $tax;
         $totalAmount = $itemsNet + $taxAmount;
