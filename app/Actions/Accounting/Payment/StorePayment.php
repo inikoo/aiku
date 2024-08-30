@@ -80,7 +80,7 @@ class StorePayment extends OrgAction
                 'amount'    => Arr::get($modelData, 'amount'),
                 'reference' => Arr::get($modelData, 'reference')
             ]);
-        }  
+        }
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
@@ -151,7 +151,7 @@ class StorePayment extends OrgAction
     {
         $customer       = Customer::where('slug', $command->argument('customer'))->first();
         $paymentAccount = PaymentAccount::where('slug', $command->argument('paymentAccount'))->first();
-        $scope = Invoice::where('slug', $slug)->first() ?? Order::where('slug', $slug)->first() ?? null;
+        $scope          = Invoice::where('slug', $slug)->first() ?? Order::where('slug', $slug)->first() ?? null;
 
         $modelData = [
             'reference'   => rand(),

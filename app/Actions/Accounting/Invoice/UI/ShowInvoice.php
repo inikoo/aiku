@@ -220,7 +220,7 @@ class ShowInvoice extends OrgAction
                                 'name'       => 'grp.models.customer.payment.invoice.store',
                                 'parameters' => [
                                     'customer' => $invoice->customer_id,
-                                    'scope'  => $invoice->id
+                                    'scope'    => $invoice->id
                                 ]
                             ]
 

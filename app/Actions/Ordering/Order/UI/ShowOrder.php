@@ -143,7 +143,7 @@ class ShowOrder extends OrgAction
 
         $payAmount   = $order->total_amount - $order->payment_amount;
         $roundedDiff = round($payAmount, 2);
-        
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -284,7 +284,7 @@ class ShowOrder extends OrgAction
                             ]
                         ],
                         'currency' => CurrencyResource::make($order->currency),
-                        'payment' => [
+                        'payment'  => [
                                         'routes' => [
                                             'fetch_payment_accounts' => [
                                                 'name'       => 'grp.json.shop.payment-accounts',
@@ -296,7 +296,7 @@ class ShowOrder extends OrgAction
                                                 'name'       => 'grp.models.customer.payment.order.store',
                                                 'parameters' => [
                                                     'customer' => $order->customer_id,
-                                                    'scope'  => $order->id
+                                                    'scope'    => $order->id
                                                 ]
                                             ]
 
