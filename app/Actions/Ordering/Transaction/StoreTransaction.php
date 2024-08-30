@@ -7,6 +7,7 @@
 
 namespace App\Actions\Ordering\Transaction;
 
+use App\Actions\Ordering\Order\CalculateOrderNet;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrderExchanges;
@@ -18,6 +19,7 @@ use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -31,6 +33,8 @@ class StoreTransaction extends OrgAction
     {
         data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
 
+        $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+        $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
@@ -65,6 +69,8 @@ class StoreTransaction extends OrgAction
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
 
+        $order->refresh();
+        CalculateOrderNet::run($order);
         OrderHydrateTransactions::dispatch($order);
 
         return $transaction;
