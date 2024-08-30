@@ -10,11 +10,14 @@ namespace App\Actions\Inventory\LocationOrgStock;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLocations;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Actions\OrgAction;
+use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use App\Http\Resources\Inventory\LocationOrgStockResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStock;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Illuminate\Validation\Validator;
 
@@ -43,8 +46,29 @@ class StoreLocationOrgStock extends OrgAction
         LocationHydrateStocks::dispatch($location);
         LocationHydrateStockValue::dispatch($location);
         OrgStockHydrateLocations::dispatch($orgStock);
-
+        OrgStockHydrateQuantityInLocations::dispatch($orgStock);
         return $locationStock;
+    }
+
+    public function rules(): array
+    {
+        $rules = [
+            'data'               => ['sometimes', 'array'],
+            'settings'           => ['sometimes', 'array'],
+            'notes'              => ['sometimes', 'nullable', 'string', 'max:255'],
+            'source_stock_id'    => ['sometimes', 'string', 'max:255'],
+            'source_location_id' => ['sometimes', 'string', 'max:255'],
+            'picking_priority'   => ['sometimes', 'integer'],
+            'type'               => ['required', Rule::enum(LocationStockTypeEnum::class)],
+            'fetched_at'         => ['sometimes', 'date'],
+        ];
+
+        if (!$this->strict) {
+            $rules['audited_at'] = ['date'];
+            $rules['quantity']   = ['required', 'numeric'];
+        }
+
+        return $rules;
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
@@ -60,7 +84,7 @@ class StoreLocationOrgStock extends OrgAction
         }
     }
 
-    public function asController(OrgStock $orgStock, Location $location, ActionRequest $request): LocationOrgStock
+    public function asController(OrgStock $orgStock, Location $location, ActionRequest $request, int $hydratorsDelay = 0, bool $strict = true): LocationOrgStock
     {
         $this->location = $location;
         $this->orgStock = $orgStock;
@@ -69,11 +93,13 @@ class StoreLocationOrgStock extends OrgAction
         return $this->handle($orgStock, $location, $this->validatedData);
     }
 
-    public function action(OrgStock $orgStock, Location $location, array $modelData): LocationOrgStock
+    public function action(OrgStock $orgStock, Location $location, array $modelData, int $hydratorsDelay = 0, bool $strict = true): LocationOrgStock
     {
-        $this->asAction = true;
-        $this->location = $location;
-        $this->orgStock = $orgStock;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
+        $this->location       = $location;
+        $this->orgStock       = $orgStock;
         $this->initialisation($orgStock->organisation, $modelData);
 
         return $this->handle($orgStock, $location, $this->validatedData);

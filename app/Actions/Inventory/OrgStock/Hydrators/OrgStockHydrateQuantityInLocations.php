@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStock\Hydrators;
 
-use App\Models\SupplyChain\Stock;
+use App\Models\Inventory\OrgStock;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,16 +17,16 @@ class OrgStockHydrateQuantityInLocations implements ShouldBeUnique
 
 
 
-    public function handle(Stock $stock): void
+    public function handle(OrgStock $orgStock): void
     {
-        $stock->update([
+        $orgStock->update([
             'quantity_in_locations' =>
-                $stock->locations()->sum('quantity')
+                $orgStock->locationOrgStocks()->sum('quantity')
         ]);
     }
 
-    public function getJobUniqueId(Stock $stock): int
+    public function getJobUniqueId(OrgStock $orgStock): int
     {
-        return $stock->id;
+        return $orgStock->id;
     }
 }

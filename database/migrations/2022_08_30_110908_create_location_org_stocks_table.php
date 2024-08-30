@@ -36,9 +36,11 @@ return new class () extends Migration {
             $table->jsonb('settings');
             $table->dateTimeTz('audited_at')->nullable()->index();
             $table->timestampsTz();
-            $table->unsignedInteger('source_stock_id')->nullable();
-            $table->unsignedInteger('source_location_id')->nullable();
             $table->boolean('dropshipping_pipe')->default(false)->index();
+            $table->string('source_stock_id')->nullable();
+            $table->string('source_location_id')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->unique(['org_stock_id', 'location_id']);
         });
     }

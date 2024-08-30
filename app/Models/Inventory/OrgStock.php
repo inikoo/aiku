@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -55,7 +54,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read Organisation $organisation
- * @property-read Model|\Eloquent $owner
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
@@ -127,10 +125,6 @@ class OrgStock extends Model
         return $this->hasMany(LocationOrgStock::class);
     }
 
-    public function owner(): MorphTo
-    {
-        return $this->morphTo();
-    }
 
     public function stockMovements(): MorphMany
     {

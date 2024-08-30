@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\LocationOrgStock;
 
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\LocationOrgStock;
@@ -30,6 +31,8 @@ class AuditLocationOrgStock extends OrgAction
         $locationOrgStock=$this->update($locationOrgStock, $modelData);
         $newStock        =$locationOrgStock->quantity;
         $stockDiff       =$newStock-$currentStock;
+
+        OrgStockHydrateQuantityInLocations::dispatch($locationOrgStock->orgStock);
 
         return $locationOrgStock;
     }
@@ -55,7 +58,7 @@ class AuditLocationOrgStock extends OrgAction
     {
         $this->asAction        = true;
         $this->locationOrgStock=$locationOrgStock;
-        $this->initialisation($locationOrgStock->location->organisation, $modelData);
+        $this->initialisation($locationOrgStock->organisation, $modelData);
 
         return $this->handle($locationOrgStock, $this->validatedData);
     }
@@ -63,7 +66,7 @@ class AuditLocationOrgStock extends OrgAction
     public function asController(LocationOrgStock $locationOrgStock, ActionRequest $request): LocationOrgStock
     {
         $this->locationOrgStock=$locationOrgStock;
-        $this->initialisation($locationOrgStock->location->organisation, $request);
+        $this->initialisation($locationOrgStock->organisation, $request);
 
         return $this->handle($locationOrgStock, $this->validatedData);
     }

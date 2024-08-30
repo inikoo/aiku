@@ -29,6 +29,7 @@ use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\HydrateWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
+use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
@@ -408,7 +409,9 @@ test('attach stock to location', function (Location $location) {
     expect($orgStocks->count())->toBe(2);
     $locationOrgStocks=[];
     foreach ($orgStocks as $orgStock) {
-        $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock, $location, []);
+        $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock, $location, [
+            'type'=>LocationStockTypeEnum::PICKING
+        ]);
     }
     expect($location->stats->number_org_stock_slots)->toBe(2)
         ->and($locationOrgStocks[0])->toBeInstanceOf(LocationOrgStock::class);

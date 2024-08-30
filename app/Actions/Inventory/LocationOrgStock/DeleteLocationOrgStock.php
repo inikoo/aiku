@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\LocationOrgStock;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLocations;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Actions\OrgAction;
 use App\Models\Inventory\LocationOrgStock;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,18 +30,19 @@ class DeleteLocationOrgStock extends OrgAction
         LocationHydrateStocks::dispatch($location);
         LocationHydrateStockValue::dispatch($location);
         OrgStockHydrateLocations::dispatch($orgStock);
+        OrgStockHydrateQuantityInLocations::dispatch($orgStock);
     }
 
     public function asController(LocationOrgStock $locationOrgStock, ActionRequest $request): void
     {
-        $this->initialisation($locationOrgStock->location->organisation, $request);
+        $this->initialisation($locationOrgStock->organisation, $request);
         $this->handle($locationOrgStock);
     }
 
     public function action(LocationOrgStock $locationOrgStock): void
     {
         $this->asAction = true;
-        $this->initialisation($locationOrgStock->location->organisation, []);
+        $this->initialisation($locationOrgStock->organisation, []);
 
         $this->handle($locationOrgStock);
     }

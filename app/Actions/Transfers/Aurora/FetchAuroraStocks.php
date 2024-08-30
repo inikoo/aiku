@@ -106,7 +106,9 @@ class FetchAuroraStocks extends FetchAuroraAction
                 }
 
                 $locationsData=$this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
-                SyncOrgStockLocations::run($orgStock, $locationsData);
+                SyncOrgStockLocations::make()->action($orgStock, [
+                    'locationsData'=> $locationsData
+                ], 60, false);
             }
         }
 

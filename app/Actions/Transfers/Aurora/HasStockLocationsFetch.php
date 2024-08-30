@@ -17,15 +17,14 @@ trait HasStockLocationsFetch
 
     public function getStockLocationData($organisationSource, $sourceId): array
     {
-        $sourceData = explode(':', $sourceId);
+        $organisation = $organisationSource->getOrganisation();
+        $sourceData   = explode(':', $sourceId);
 
 
         $stockLocations  = [];
         $auroraModelData = DB::connection('aurora')
             ->table('Part Location Dimension')
             ->where('Part SKU', $sourceData[1])->get();
-
-
 
 
         foreach ($auroraModelData as $modelData) {
@@ -38,7 +37,7 @@ trait HasStockLocationsFetch
                     'Stock Location',
                     'fetching',
                     [
-                        'msg'=> 'Location not found',
+                        'msg' => 'Location not found',
                     ]
                 );
                 continue;
@@ -69,10 +68,12 @@ trait HasStockLocationsFetch
                 'notes'              => $modelData->{'Part Location Note'},
                 'data'               => [],
                 'settings'           => $settings,
-                'source_stock_id'    => $modelData->{'Part SKU'},
-                'source_location_id' => $modelData->{'Location Key'},
+                'source_stock_id'    => $organisation->id.':'.$modelData->{'Part SKU'},
+                'source_location_id' => $organisation->id.':'.$modelData->{'Location Key'},
                 'picking_priority'   => $pickingPriority,
                 'type'               => $type,
+                'fetched_at'         => now(),
+                'last_fetched_at'    => now()
             ];
         }
 

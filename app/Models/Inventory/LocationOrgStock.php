@@ -8,8 +8,11 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\InWarehouse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * App\Models\Inventory\LocationOrgStock
@@ -32,18 +35,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $audited_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $source_stock_id
- * @property int|null $source_location_id
  * @property bool $dropshipping_pipe
+ * @property string|null $source_stock_id
+ * @property string|null $source_location_id
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Inventory\Location $location
  * @property-read \App\Models\Inventory\OrgStock $orgStock
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock query()
  * @mixin \Eloquent
  */
-class LocationOrgStock extends Model
+class LocationOrgStock extends Model implements Auditable
 {
+    use InWarehouse;
+    use HasHistory;
+
     public $incrementing = true;
 
     protected $casts = [
@@ -58,6 +70,22 @@ class LocationOrgStock extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['inventory','location_org_stock'];
+    }
+
+    protected array $auditInclude = [
+        'type',
+        'picking_priority',
+        'notes',
+        'data',
+        'settings',
+        'contact_website',
+        'identity_document_type',
+        'identity_document_number',
+    ];
 
 
     public function orgStock(): BelongsTo

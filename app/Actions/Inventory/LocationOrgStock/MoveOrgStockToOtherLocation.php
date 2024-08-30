@@ -42,13 +42,13 @@ class MoveOrgStockToOtherLocation extends OrgAction
     public function action(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocationOrgStock, array $modelData): LocationOrgStock
     {
         $this->asAction = true;
-        $this->initialisation($currentLocationStock->location->organisation, $modelData);
+        $this->initialisation($currentLocationStock->organisation, $modelData);
         return $this->handle($currentLocationStock, $targetLocationOrgStock, $this->validatedData);
     }
 
     public function asController(LocationOrgStock $locationOrgStock, LocationOrgStock $targetLocationOrgStock, ActionRequest $request): LocationOrgStock
     {
-        $this->initialisation($locationOrgStock->location->organisation, $request);
+        $this->initialisation($locationOrgStock->organisation, $request);
         return $this->handle($locationOrgStock, $targetLocationOrgStock, $this->validatedData);
     }
 }
