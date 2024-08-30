@@ -21,7 +21,6 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import { get } from 'lodash'
-import { faExclamationTriangle } from '@fad'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
@@ -48,13 +47,16 @@ import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfi
 import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 
-import { library } from "@fortawesome/fontawesome-svg-core"
-import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone } from '@fal'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
-library.add(faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone)
+import { Address, AddressManagement } from "@/types/PureComponent/Address"
+
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faExclamationTriangle, faExclamation } from '@fas'
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone } from '@fal'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add(faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faExclamation)
 
 
 const props = defineProps<{
@@ -69,13 +71,13 @@ const props = defineProps<{
     timeline: TSTimeline
 
     pageHead: PageHeadingTypes
-    updateRoute: routeType
+    // updateRoute: routeType
 
-    interest: {
-        pallets_storage: boolean
-        items_storage: boolean
-        dropshipping: boolean
-    }
+    // interest: {
+    //     pallets_storage: boolean
+    //     items_storage: boolean
+    //     dropshipping: boolean
+    // }
 
     // uploadRoutes: {
     //     upload: routeType
@@ -85,15 +87,15 @@ const props = defineProps<{
 
     upload_spreadsheet: UploadPallet
 
-    locationRoute: routeType
-    rentalRoute: routeType
-    storedItemsRoute: {
-        index: routeType
-        store: routeType
-    }
+    // locationRoute: routeType
+    // rentalRoute: routeType
+    // storedItemsRoute: {
+    //     index: routeType
+    //     store: routeType
+    // }
     box_stats: {
         customer: {
-
+            addresses: AddressManagement
         }
         products: {
 
@@ -108,10 +110,12 @@ const props = defineProps<{
     }
 
     routes: {
+        updateOrderRoute: routeType
         products_list: routeType
     }
 }>()
 
+// console.log(props.box_stats.customer.addresses)
 
 const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -190,9 +194,22 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                                     :fetchRoute="routes.products_list"
                                     :placeholder="trans('Select Products')"
                                     valueProp="current_historic_asset_id"
-                                />
+                                >
+                                    <template #singlelabel="{ value }">
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.stock }})</span></div>
+                                    </template>
 
-                                <p v-if="get(formProducts, ['errors', 'selectedId'])" class="mt-2 text-sm text-red-500">
+                                    <template #option="{ option, isSelected, isPointed }">
+                                        <div class="w-full flex items-center justify-between gap-x-3">
+                                            <div :class="isSelected(option) ? option.stock ? '' : 'text-indigo-200' : option.stock ? '' : 'text-gray-400'">{{ option.name }} <span class="text-sm" :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{ option.stock }})</span></div>
+                                            
+                                            <FontAwesomeIcon v-if="option.stock === 0" v-tooltip="trans('No stock')" icon='fas fa-exclamation-triangle' class='text-red-500' fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-else-if="option.stock < 10" icon='fas fa-exclamation' class='text-yellow-500' fixed-width aria-hidden='true' />
+                                        </div>
+                                    </template>
+                                </PureMultiselectInfiniteScroll>
+
+                                <p v-if="get(formProducts, ['errors', 'historicAssetId'])" class="mt-2 text-sm text-red-500">
                                     {{ formProducts.errors.historicAssetId }}
                                 </p>
                             </div>
@@ -204,7 +221,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                                     :placeholder="trans('Quantity')"
                                     @keydown.enter="() => onSubmitAddProducts(action, closed)"
                                 />
-                                <p v-if="get(formProducts, ['errors', 'quantity'])" class="mt-2 text-sm text-red-600">
+                                <p v-if="get(formProducts, ['errors', 'quantity_ordered'])" class="mt-2 text-sm text-red-600">
                                     {{ formProducts.errors.quantity_ordered }}
                                 </p>
                             </div>
@@ -288,13 +305,13 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
             </div>
 
             <!-- Field: Address -->
-            <div v-if="box_stats?.customer.address" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
+            <div v-if="box_stats?.customer.addresses" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
                 <dt v-tooltip="'Address'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="w-full text-gray-500 text-xs">
                     <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
-                        <span class="" v-html="box_stats?.customer.address.formatted_address" />
+                        <span class="" v-html="box_stats?.customer.addresses.value.formatted_address" />
 
                         <div @click="() => isModalAddress = true"
                             class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
@@ -349,8 +366,8 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
-            :addresses="data.addresses"
-            :updateRoute="data.address_update_route"
+            :addresses="box_stats?.customer.addresses"
+            :updateRoute="routes.updateOrderRoute"
         />
     </Modal>
 </template>
