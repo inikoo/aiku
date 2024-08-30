@@ -18,6 +18,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -254,4 +255,8 @@ class Order extends Model implements HasMedia, Auditable
         return $this->belongsTo(Currency::class);
     }
 
+    public function taxCategory(): BelongsTo
+    {
+        return $this->belongsTo(TaxCategory::class);
+    }
 }

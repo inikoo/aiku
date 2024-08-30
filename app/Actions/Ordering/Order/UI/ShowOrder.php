@@ -240,23 +240,14 @@ class ShowOrder extends OrgAction
                                 ],
                             ]
                     ),
-                    'delivery_status' => [
-                        'tooltip' => 'In process',
-                        'icon'    => 'fal fa-seedling',
-                        'class'   => 'text-lime-500',
-                        'color'   => 'lime',
-                        'app'     => [
-                            'name' => 'seedling',
-                            'type' => 'font-awesome-5'
-                        ]
-                    ],
+                    'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
                     'order_summary' => [
                         [
                             [
                                 'label'       => 'Items',
-                                'quantity'    => 2,
+                                'quantity'    => $order->stats->number_transactions,
                                 'price_base'  => 'Multiple',
-                                'price_total' => '3.20'
+                                'price_total' => $order->net_amount
                             ],
                         ],
                         [
@@ -275,18 +266,18 @@ class ShowOrder extends OrgAction
                             [
                                 'label'       => 'Net',
                                 'information' => '',
-                                'price_total' => '3.20'
+                                'price_total' => $order->net_amount
                             ],
                             [
                                 'label'       => 'Tax 20%',
                                 'information' => '',
-                                'price_total' => '0.64'
+                                'price_total' => $order->tax_amount
                             ]
                         ],
                         [
                             [
                                 'label'       => 'Total',
-                                'price_total' => '3.84'
+                                'price_total' => $order->total_amount
                             ]
                         ],
                             'currency' => CurrencyResource::make($order->currency),
