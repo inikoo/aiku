@@ -32,6 +32,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
@@ -199,51 +200,45 @@ class ShowOrder extends OrgAction
                 'timeline'      => $finalTimeline,
 
                 'box_stats'     => [
-                    'customer' => [
-                        'slug'         => 'airhead-designs-ltd',
-                        'reference'    => '415850',
-                        'name'         => 'airHEAD Designs Ltd',
-                        'contact_name' => 'Holly Galbraith',
-                        'company_name' => 'airHEAD Designs Ltd',
-                        'location'     => [
-                            'GB',
-                            'United Kingdom',
-                            'London'
-                        ],
-                        'addresses'      => [
-                            'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
-                            'options' => [
-                                'countriesAddressData' => GetAddressData::run()
-                            ],
-                            'address_list'                   => $addressCollection,
-                            'pinned_address_id'              => $order->customer->delivery_address_id,
-                            'home_address_id'                => $order->customer->address_id,
-                            'current_selected_address_id'    => $order->delivery_address_id,
-                            'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
-                            'routes_list'                    => [
-                                'pinned_route'                   => [
-                                    'method'     => 'patch',
-                                    'name'       => 'grp.models.customer.delivery-address.update',
-                                    'parameters' => [
-                                        'customer' => $order->customer_id
-                                    ]
-                                ],
-                                'delete_route'  => [
-                                    'method'     => 'delete',
-                                    'name'       => 'grp.models.customer.delivery-address.delete',
-                                    'parameters' => [
-                                        'customer' => $order->customer_id
-                                    ]
-                                ],
-                                'store_route' => [
-                                    'method'      => 'post',
-                                    'name'        => 'grp.models.customer.address.store',
-                                    'parameters'  => [
-                                        'customer' => $order->customer_id
+                    array_merge(
+                        CustomerResource::make($order->customer)->getArray(),
+                            [
+                                'addresses'      => [
+                                    'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
+                                    'options' => [
+                                        'countriesAddressData' => GetAddressData::run()
+                                    ],
+                                    'address_list'                   => $addressCollection,
+                                    'pinned_address_id'              => $order->customer->delivery_address_id,
+                                    'home_address_id'                => $order->customer->address_id,
+                                    'current_selected_address_id'    => $order->delivery_address_id,
+                                    'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
+                                    'routes_list'                    => [
+                                        'pinned_route'                   => [
+                                            'method'     => 'patch',
+                                            'name'       => 'grp.models.customer.delivery-address.update',
+                                            'parameters' => [
+                                                'customer' => $order->customer_id
+                                            ]
+                                        ],
+                                        'delete_route'  => [
+                                            'method'     => 'delete',
+                                            'name'       => 'grp.models.customer.delivery-address.delete',
+                                            'parameters' => [
+                                                'customer' => $order->customer_id
+                                            ]
+                                        ],
+                                        'store_route' => [
+                                            'method'      => 'post',
+                                            'name'        => 'grp.models.customer.address.store',
+                                            'parameters'  => [
+                                                'customer' => $order->customer_id
+                                            ]
+                                        ],
                                     ]
                                 ],
                             ]
-                        ],
+                        ),
                         'email'      => 'accounts@ventete.com',
                         'phone'      => '+447725269253',
                         'created_at' => '2021-12-01T09:46:06.000000Z'
@@ -297,7 +292,6 @@ class ShowOrder extends OrgAction
                                 'price_total' => '3.84'
                             ]
                         ],
-                    ]
                 ],
                 'currency' => [
                     'data' => [

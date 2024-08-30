@@ -8,6 +8,7 @@
 namespace App\Http\Resources\CRM;
 
 use App\Http\Resources\HasSelfCall;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\CRM\Customer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +23,6 @@ class CustomerResource extends JsonResource
     {
         /** @var Customer $customer */
         $customer = $this;
-
         return [
             'slug'                   => $customer->slug,
             'reference'              => $customer->reference,
@@ -30,10 +30,12 @@ class CustomerResource extends JsonResource
             'contact_name'           => $customer->contact_name,
             'company_name'           => $customer->company_name,
             'location'               => $customer->location,
+            'address'                => AddressResource::make($customer->address),
             'email'                  => $customer->email,
             'phone'                  => $customer->phone,
             'created_at'             => $customer->created_at,
-            'number_current_clients' => $this->number_current_clients
+            'number_current_clients' => $this->number_current_clients,
+            'created_at'             => $customer->created_at,
         ];
     }
 }
