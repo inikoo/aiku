@@ -18,6 +18,12 @@ class CalculateOrderNet extends OrgAction
         $itemsNet    = $items->sum('net_amount');
         $itemsGross  = $items->sum('gross_amount');
         $tax         = $order->taxCategory->rate;
+        
+        $estWeight = 0;
+        foreach($items as $item) {
+            $weight = $item->historicAsset->model->weight;
+            $estWeight += $weight;
+        }
 
         $taxAmount   = $itemsNet * $tax;
         $totalAmount = $itemsNet + $taxAmount;
@@ -31,6 +37,7 @@ class CalculateOrderNet extends OrgAction
         data_set($modelData, 'grp_net_amount', $grpNet);
         data_set($modelData, 'org_net_amount', $orgNet);
         data_set($modelData, 'gross_amount', $itemsGross);
+        data_set($modelData, 'estimated_weight', $estWeight);
 
         $order->update($modelData);
     }
