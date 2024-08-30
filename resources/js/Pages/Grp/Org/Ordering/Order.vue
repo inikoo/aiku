@@ -50,6 +50,7 @@ import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
+import { Address, AddressManagement } from "@/types/PureComponent/Address"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faExclamationTriangle, faExclamation } from '@fas'
@@ -94,7 +95,7 @@ const props = defineProps<{
     // }
     box_stats: {
         customer: {
-
+            addresses: AddressManagement
         }
         products: {
 
@@ -109,10 +110,12 @@ const props = defineProps<{
     }
 
     routes: {
+        updateOrderRoute: routeType
         products_list: routeType
     }
 }>()
 
+// console.log(props.box_stats.customer.addresses)
 
 const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -302,13 +305,13 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
             </div>
 
             <!-- Field: Address -->
-            <div v-if="box_stats?.customer.address" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
+            <div v-if="box_stats?.customer.addresses" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
                 <dt v-tooltip="'Address'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="w-full text-gray-500 text-xs">
                     <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
-                        <span class="" v-html="box_stats?.customer.address.formatted_address" />
+                        <span class="" v-html="box_stats?.customer.addresses.value.formatted_address" />
 
                         <div @click="() => isModalAddress = true"
                             class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
@@ -363,8 +366,8 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
-            :addresses="data.addresses"
-            :updateRoute="data.address_update_route"
+            :addresses="box_stats?.customer.addresses"
+            :updateRoute="routes.updateOrderRoute"
         />
     </Modal>
 </template>

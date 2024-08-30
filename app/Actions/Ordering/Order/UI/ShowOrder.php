@@ -210,7 +210,7 @@ class ShowOrder extends OrgAction
                             'United Kingdom',
                             'London'
                         ],
-                        'address'      => [
+                        'addresses'      => [
                             'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
                             'options' => [
                                 'countriesAddressData' => GetAddressData::run()
