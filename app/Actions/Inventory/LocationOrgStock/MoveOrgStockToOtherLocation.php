@@ -39,16 +39,16 @@ class MoveOrgStockToOtherLocation extends OrgAction
         ];
     }
 
-    public function action(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocation, array $modelData): LocationOrgStock
+    public function action(LocationOrgStock $currentLocationStock, LocationOrgStock $targetLocationOrgStock, array $modelData): LocationOrgStock
     {
         $this->asAction = true;
         $this->initialisation($currentLocationStock->location->organisation, $modelData);
-        return $this->handle($currentLocationStock, $targetLocation, $this->validatedData);
+        return $this->handle($currentLocationStock, $targetLocationOrgStock, $this->validatedData);
     }
 
-    public function asController(LocationOrgStock $locationOrgStock, LocationOrgStock $targetLocation, ActionRequest $request): LocationOrgStock
+    public function asController(LocationOrgStock $locationOrgStock, LocationOrgStock $targetLocationOrgStock, ActionRequest $request): LocationOrgStock
     {
         $this->initialisation($locationOrgStock->location->organisation, $request);
-        return $this->handle($locationOrgStock, $targetLocation, $this->validatedData);
+        return $this->handle($locationOrgStock, $targetLocationOrgStock, $this->validatedData);
     }
 }
