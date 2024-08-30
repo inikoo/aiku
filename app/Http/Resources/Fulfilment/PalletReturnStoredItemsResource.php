@@ -36,9 +36,15 @@ class PalletReturnStoredItemsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $palletReturn          = PalletReturn::where('slug', $request->route()->originalParameters()['palletReturn'])->first();
+        $palletReturn = PalletReturn::where(function ($query) use ($request) {
+            $param = $request->route()->originalParameters()['palletReturn'];
+            if (is_numeric($param)) {
+                $query->where('id', $param);
+            } else {
+                $query->where('slug', $param);
+            }
+        })->first();
         $palletReturnItemQuery = PalletReturnItem::where([['pallet_return_id', $palletReturn->id], ['stored_item_id', $this->id]])->get();
-
         return [
             'id'                                   => $this->id,
             'slug'                                 => $this->slug,
