@@ -17,6 +17,7 @@ use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 
 class UpdateOrder extends OrgAction
 {
@@ -102,6 +103,7 @@ class UpdateOrder extends OrgAction
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean'],
             'last_fetched_at'  => ['sometimes', 'date'],
+            'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
         ];
 
         if (!$this->strict) {
