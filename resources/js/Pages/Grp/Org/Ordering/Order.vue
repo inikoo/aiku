@@ -68,7 +68,9 @@ const props = defineProps<{
     data?: {
         data: PalletDelivery
     }
-    timeline: TSTimeline
+    timeline: {
+        [key: string]: TSTimeline
+    }
 
     pageHead: PageHeadingTypes
     // updateRoute: routeType
@@ -95,6 +97,11 @@ const props = defineProps<{
     // }
     box_stats: {
         customer: {
+            reference: string
+            contact_name: string
+            company_name: string
+            email: string
+            phone: string
             addresses: AddressManagement
         }
         products: {
@@ -152,8 +159,8 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
                 },
                 onError: (errors) => {
                     notify({
-                        title: 'Something went wrong.',
-                        text: 'Failed to add service, please try again.',
+                        title: trans('Something went wrong.'),
+                        text: trans('Failed to add service, please try again.'),
                         type: 'error',
                     })
                 },
@@ -272,8 +279,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
             <!-- Field: Contact name -->
             <div v-if="box_stats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
             </div>
@@ -281,8 +287,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
             <!-- Field: Company name -->
             <div v-if="box_stats?.customer.company_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Company name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
