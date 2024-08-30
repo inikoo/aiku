@@ -65,6 +65,7 @@ class IndexTransactions extends OrgAction
         }
 
         $query->leftjoin('assets', 'transactions.asset_id', '=', 'assets.id');
+        $query->leftjoin('products', 'assets.model_id', '=', 'products.id');
 
         return $query->defaultSort('transactions.id')
             ->select([
@@ -82,6 +83,7 @@ class IndexTransactions extends OrgAction
                 'assets.code as asset_code',
                 'assets.name as asset_name',
                 'assets.type as asset_type',
+                'products.slug as product_slug'
             ])
             ->allowedSorts(['asset_code', 'asset_name', 'net_amount', 'quantity_ordered' ])
             ->allowedFilters([$globalSearch])
