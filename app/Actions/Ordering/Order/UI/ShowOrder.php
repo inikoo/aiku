@@ -141,6 +141,9 @@ class ShowOrder extends OrgAction
 
         $addressCollection = AddressResource::collection($processedAddresses);
 
+        $payAmount   = $order->total_amount - $order->payment_amount;
+        $roundedDiff = round($payAmount, 2);
+        
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -280,8 +283,28 @@ class ShowOrder extends OrgAction
                                 'price_total' => $order->total_amount
                             ]
                         ],
-                            'currency' => CurrencyResource::make($order->currency),
-                        ]
+                        'currency' => CurrencyResource::make($order->currency),
+                        'payment' => [
+                                        'routes' => [
+                                            'fetch_payment_accounts' => [
+                                                'name'       => 'grp.json.shop.payment-accounts',
+                                                'parameters' => [
+                                                    'shop' => $order->shop->slug
+                                                ]
+                                            ],
+                                            'submit_payment' => [
+                                                'name'       => 'grp.models.customer.payment.order.store',
+                                                'parameters' => [
+                                                    'customer' => $order->customer_id,
+                                                    'scope'  => $order->id
+                                                ]
+                                            ]
+
+                                        ],
+                                        'paid_amount' => $order->payment_amount,
+                                        'pay_amount'  => $roundedDiff
+                                    ]
+                                ]
                     ],
                 'data'       => OrderResource::make($order),
                 // 'showcase'=> GetOrderShowcase::run($order),

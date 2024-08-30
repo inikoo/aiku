@@ -116,6 +116,7 @@ class UpdateOrder extends OrgAction
             'billing_locked'      => ['sometimes', 'boolean'],
             'delivery_locked'     => ['sometimes', 'boolean'],
             'last_fetched_at'     => ['sometimes', 'date'],
+            'payment_amount'      => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
         ];
 
