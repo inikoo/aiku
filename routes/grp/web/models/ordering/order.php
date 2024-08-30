@@ -5,10 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use Illuminate\Support\Facades\Route;
 
 Route::name('order.')->prefix('order/{order:id}')->group(function () {
+    Route::patch('update', UpdateOrder::class)->name('update');
     Route::name('transaction.')->prefix('transaction')->group(function () {
         Route::post('{historicAsset:id}', StoreTransaction::class)->name('store')->withoutScopedBindings();
     });
