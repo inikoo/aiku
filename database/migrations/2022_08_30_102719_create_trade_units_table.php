@@ -23,8 +23,8 @@ return new class () extends Migration {
             $table->unsignedInteger('barcode_id')->index()->nullable();
             $table->foreign('barcode_id')->references('id')->on('barcodes')->onUpdate('cascade')->onDelete('cascade');
             $table->string('barcode')->index()->nullable();
-            $table->float('gross_weight')->nullable()->comment('in kilograms include packing');
-            $table->float('net_weight')->nullable()->comment('in kilograms');
+            $table->unsignedInteger('gross_weight')->nullable()->comment('in grams');
+            $table->unsignedInteger('net_weight')->nullable()->comment('in grams');
             $table->jsonb('dimensions')->nullable();
             $table->double('volume')->nullable()->comment('in cubic meters');
             $table->string('type')->default('piece')->index()->nullable()->comment('unit type');
