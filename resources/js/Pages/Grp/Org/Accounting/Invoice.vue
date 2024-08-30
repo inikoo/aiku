@@ -53,6 +53,7 @@ import PureInput from '@/Components/Pure/PureInput.vue'
 import { InvoiceResource } from '@/types/invoice'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
+import NeedToPay from '@/Components/Utils/NeedToPay.vue'
 // const locale = useLocaleStore()
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -321,28 +322,15 @@ watch(paymentData, () => {
                     <dt class="flex-none pt-1">
                         <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
-                    <dd @click="() => Number(box_stats.information.pay_amount) > 0 ? (isOpenModalPayment = true, fetchPaymentMethod()) : false"
-                        class="relative w-full flex flex-col border px-2.5 py-1 rounded-md border-gray-300 overflow-hidden"
-                        :class="Number(box_stats.information.pay_amount) > 0 ? 'cursor-pointer hover:bg-gray-100' : ''"    
-                    >
-                        <!-- Block: Corner label (fully paid) -->
-                        <Transition>
-                            <div v-if="Number(box_stats.information.pay_amount) <= 0"
-                                v-tooltip="trans('Fully paid')"
-                                class="absolute top-0 right-0 text-green-500 p-1 text-xxs"
-                            >
-                                <div class="absolute top-0 right-0 w-0 h-0 border-b-[25px] border-r-[25px] border-transparent border-r-green-500">
-                                </div>
-                                <FontAwesomeIcon icon='far fa-check' class='absolute top-1/2 right-1/2 text-white text-[8px]' fixed-width aria-hidden='true' />
-                            </div>
-                        </Transition>
+                    <NeedToPay
+                        @click="() => Number(box_stats.information.pay_amount) > 0 ? (isOpenModalPayment = true, fetchPaymentMethod()) : false"
+                        :totalAmount="Number(props.invoice.total_amount)"
+                        :paidAmount="Number(box_stats.information.paid_amount)"
+                        :payAmount="Number(box_stats.information.pay_amount)"
+                        :class="[Number(box_stats.information.pay_amount) ? 'hover:bg-gray-100 cursor-pointer' : '']"
+                    />
 
-                        <div v-tooltip="'Amount need to pay by customer'" class="text-sm w-fit">
-                            {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(props.invoice.total_amount)) }}
-                        </div>
-                        <div class="text-xs text-gray-500 font-light">Paid: {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(box_stats.information.paid_amount)) }}</div>
-                        <div class="text-xs text-gray-500 font-light">Need to pay: {{ locale.currencyFormat(props.invoice.currency_code || 'usd', Number(box_stats.information.pay_amount)) }}</div>
-                    </dd>
+                    
                 </div>
             </div>
         </BoxStatPallet>
