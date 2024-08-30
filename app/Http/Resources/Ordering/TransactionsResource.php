@@ -40,6 +40,7 @@ class TransactionsResource extends JsonResource
             'asset_code'             => $transaction->asset_code,
             'asset_name'             => $transaction->asset_name,
             'asset_type'             => $transaction->asset_type,
+            'product_slug'           => $transaction->product_slug,
             'created_at'             => $transaction->created_at
         ];
     }
