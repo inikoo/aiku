@@ -67,10 +67,10 @@ class IndexStockFamilies extends GrpAction
                 'code',
                 'stock_families.id as id',
                 'name',
-                'number_stocks'
+                'number_current_stocks'
             ])
             ->leftJoin('stock_family_stats', 'stock_family_stats.stock_family_id', 'stock_families.id')
-            ->allowedSorts(['code', 'name', 'number_stocks'])
+            ->allowedSorts(['code', 'name', 'number_current_stocks'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -105,7 +105,7 @@ class IndexStockFamilies extends GrpAction
                 )
                 ->column(key: 'code', label: 'code', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
+                ->column(key: 'number_current_stocks', label: 'SKUs', canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
     }

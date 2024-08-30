@@ -34,7 +34,6 @@ class IndexStocks extends GrpAction
     private string $bucket;
 
 
-
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
@@ -180,7 +179,7 @@ class IndexStocks extends GrpAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group|StockFamily $parent, ?array $modelOperations = null, $prefix = null, $bucket='all'): Closure
+    public function tableStructure(Group|StockFamily $parent, ?array $modelOperations = null, $prefix = null, $bucket = 'all'): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $bucket) {
             if ($prefix) {
@@ -189,7 +188,7 @@ class IndexStocks extends GrpAction
                     ->pageName($prefix.'Page');
             }
 
-            if($bucket=='all') {
+            if ($bucket == 'all') {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -239,9 +238,11 @@ class IndexStocks extends GrpAction
                         default => null
                     }
                 )
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
+            if($parent instanceof Group) {
+                $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
+            }
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -257,47 +258,47 @@ class IndexStocks extends GrpAction
         return [
 
             [
-                'label' => __('Active'),
-                'root'  => 'grp.goods.stocks.active_stocks.',
-                'href'  => [
+                'label'  => __('Active'),
+                'root'   => 'grp.goods.stocks.active_stocks.',
+                'href'   => [
                     'name'       => 'grp.goods.stocks.active_stocks.index',
                     'parameters' => []
                 ],
                 'number' => $this->group->inventoryStats->number_stocks_state_active
             ],
             [
-                'label' => __('In process'),
-                'root'  => 'grp.goods.stocks.in_process_stocks.',
-                'href'  => [
+                'label'  => __('In process'),
+                'root'   => 'grp.goods.stocks.in_process_stocks.',
+                'href'   => [
                     'name'       => 'grp.goods.stocks.in_process_stocks.index',
                     'parameters' => []
                 ],
                 'number' => $this->group->inventoryStats->number_stocks_state_in_process
             ],
             [
-                'label' => __('Discounting'),
-                'root'  => 'grp.goods.stocks.discontinuing_stocks.',
-                'href'  => [
+                'label'  => __('Discounting'),
+                'root'   => 'grp.goods.stocks.discontinuing_stocks.',
+                'href'   => [
                     'name'       => 'grp.goods.stocks.discontinuing_stocks.index',
                     'parameters' => []
                 ],
                 'number' => $this->group->inventoryStats->number_stocks_state_discontinuing
             ],
             [
-                'label' => __('Discontinued'),
-                'root'  => 'grp.goods.stocks.discontinued_stocks.',
-                'href'  => [
+                'label'  => __('Discontinued'),
+                'root'   => 'grp.goods.stocks.discontinued_stocks.',
+                'href'   => [
                     'name'       => 'grp.goods.stocks.discontinued_stocks.index',
                     'parameters' => []
                 ],
                 'number' => $this->group->inventoryStats->number_stocks_state_discontinued
             ],
             [
-                'label' => __('All'),
-                'icon'  => 'fal fa-bars',
-                'root'  => 'grp.goods.stocks.index',
-                'align' => 'right',
-                'href'  => [
+                'label'  => __('All'),
+                'icon'   => 'fal fa-bars',
+                'root'   => 'grp.goods.stocks.index',
+                'align'  => 'right',
+                'href'   => [
                     'name'       => 'grp.goods.stocks.index',
                     'parameters' => []
                 ],
@@ -314,11 +315,11 @@ class IndexStocks extends GrpAction
         $subNavigation = $this->getStocksSubNavigation();
 
         $title = match ($this->bucket) {
-            'active'        => __('Active SKUs'),
-            'in_process'    => __('In process SKUs'),
+            'active' => __('Active SKUs'),
+            'in_process' => __('In process SKUs'),
             'discontinuing' => __('Discontinuing SKUs'),
-            'discontinued'  => __('Discontinued SKUs'),
-            default         => __('SKUs')
+            'discontinued' => __('Discontinued SKUs'),
+            default => __('SKUs')
         };
 
         return Inertia::render(
@@ -358,7 +359,7 @@ class IndexStocks extends GrpAction
                 'data'        => StocksResource::collection($stocks),
 
             ]
-        )->table($this->tableStructure(parent:$this->parent, bucket:$this->bucket));
+        )->table($this->tableStructure(parent: $this->parent, bucket: $this->bucket));
     }
 
 

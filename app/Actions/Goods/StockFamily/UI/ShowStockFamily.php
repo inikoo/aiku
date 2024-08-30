@@ -56,7 +56,6 @@ class ShowStockFamily extends GrpAction
                     'next'     => $this->getNext($stockFamily, $request),
                 ],
                 'pageHead'    => [
-                    'model'   => __('stock family'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-boxes-alt'],
@@ -81,6 +80,7 @@ class ShowStockFamily extends GrpAction
                             ]
                         ] : false
                     ],
+                    /*
                     'meta'    => [
                         [
                             'name'     => trans_choice('stock | stocks', $stockFamily->stats->number_stocks),
@@ -95,6 +95,7 @@ class ShowStockFamily extends GrpAction
                             ]
                         ],
                     ]
+                    */
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

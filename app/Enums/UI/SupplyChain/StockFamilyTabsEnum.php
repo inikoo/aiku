@@ -16,24 +16,12 @@ enum StockFamilyTabsEnum: string
     use HasTabs;
 
 
-    case SHOWCASE           = 'showcase';
-
-    case STOCKS              = 'stocks';
-    //    case SALES              = 'sales';
-    //    case ISSUES             = 'issues';
-    //
-    //
-    //
-
-    //    case PRODUCT_FAMILIES   = 'product_families';
-    //    case PRODUCTS           = 'products';
-
-
-
-    case HISTORY            = 'history';
-    case DATA               = 'data';
-    case IMAGES             = 'images';
-
+    case SHOWCASE = 'showcase';
+    case SALES = 'sales';
+    case STOCKS = 'stocks';
+    case HISTORY = 'history';
+    case IMAGES = 'images';
+    case ISSUES = 'issues';
 
 
 
@@ -41,48 +29,39 @@ enum StockFamilyTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-
-            StockFamilyTabsEnum::DATA => [
-                'type'  => 'icon',
-                'align' => 'right',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-            ],
             StockFamilyTabsEnum::STOCKS => [
                 'title' => __('stocks'),
                 'icon'  => 'fal fa-box',
             ],
-            //            StockFamilyTabsEnum::SALES => [
-            //                'title' => __('sales'),
-            //                'icon'  => 'fal fa-dollar-sign',
-            //            ],
-            //            StockFamilyTabsEnum::ISSUES => [
-            //                'title' => __('issues'),
-            //                'icon'  => 'fal fa-poop',
-            //            ],
+            StockFamilyTabsEnum::SALES => [
+                'title' => __('sales'),
+                'icon'  => 'fal fa-dollar-sign',
+            ],
+            StockFamilyTabsEnum::ISSUES => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('issues'),
+                'icon'  => 'fal fa-poop',
+            ],
 
 
-            //            ],StockFamilyTabsEnum::PRODUCT_FAMILIES => [
-            //                'title' => __('product families'),
-            //                'icon'  => 'fal fa-cubes',
-            //            ],StockFamilyTabsEnum::PRODUCTS => [
-            //                'title' => __('products'),
-            //                'icon'  => 'fal fa-cube',
-            //            ],
             StockFamilyTabsEnum::HISTORY => [
                 'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-            ],StockFamilyTabsEnum::IMAGES => [
+
+            ],
+            StockFamilyTabsEnum::IMAGES => [
                 'align' => 'right',
+                'type'  => 'icon',
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
+
             ],
             StockFamilyTabsEnum::SHOWCASE => [
-                'title' => __('stock family'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }
