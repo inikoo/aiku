@@ -12,6 +12,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraClockingMachines;
 use App\Actions\Transfers\Aurora\FetchAuroraCustomers;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedCustomers;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedEmployees;
+use App\Actions\Transfers\Aurora\FetchAuroraDeletedLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedStocks;
 use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
@@ -422,6 +423,9 @@ trait WithAuroraParsers
         if (!$location) {
             $sourceData = explode(':', $sourceId);
             $location   = FetchAuroraLocations::run($organisationSource, $sourceData[1]);
+        }
+        if (!$location) {
+            $location   = FetchAuroraDeletedLocations::run($organisationSource, $sourceData[1]);
         }
 
         return $location;

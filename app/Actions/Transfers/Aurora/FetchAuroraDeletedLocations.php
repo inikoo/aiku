@@ -13,26 +13,29 @@ use App\Models\Inventory\Location;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchAuroraDeletedLocations extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:deleted-locations {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
     {
         if ($deletedLocationData = $organisationSource->fetchDeletedLocation($organisationSourceId)) {
             if ($location = Location::withTrashed()->where('source_id', $deletedLocationData['location']['source_id'])
                 ->first()) {
-                $location = UpdateLocation::run(
+                $location = UpdateLocation::make()->action(
                     location:  $location,
                     modelData: $deletedLocationData['location'],
+                    strict:   false,
                     audit: false
                 );
             } else {
-                $location = StoreLocation::run(
+
+
+                $location = StoreLocation::make()->action(
                     parent:    $deletedLocationData['parent'],
                     modelData: $deletedLocationData['location'],
+                    strict:   false
                 );
             }
             return $location;

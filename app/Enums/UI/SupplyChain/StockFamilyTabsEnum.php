@@ -17,11 +17,11 @@ enum StockFamilyTabsEnum: string
 
 
     case SHOWCASE = 'showcase';
-    case SALES = 'sales';
-    case STOCKS = 'stocks';
-    case HISTORY = 'history';
-    case IMAGES = 'images';
-    case ISSUES = 'issues';
+    case SALES    = 'sales';
+    case STOCKS   = 'stocks';
+    case HISTORY  = 'history';
+    case IMAGES   = 'images';
+    case ISSUES   = 'issues';
 
 
 

@@ -5,15 +5,16 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Inventory\StockMovement;
+namespace App\Enums\Inventory\OrgStockMovement;
 
 use App\Enums\EnumHelperTrait;
 
-enum StockMovementFlowEnum: string
+enum OrgStockMovementFlowEnum: string
 {
     use EnumHelperTrait;
 
 
-    case IN  = 'in';
-    case OUT = 'out';
+    case IN        = 'in';
+    case OUT       = 'out';
+    case NO_CHANGE = 'no-change';
 }

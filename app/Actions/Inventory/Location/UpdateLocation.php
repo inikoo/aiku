@@ -48,7 +48,7 @@ class UpdateLocation extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'code' => [
                 'sometimes',
                 'required',
@@ -71,10 +71,21 @@ class UpdateLocation extends OrgAction
             'allow_dropshipping'     => ['sometimes', 'required', 'boolean'],
             'last_fetched_at'        => ['sometimes', 'date'],
         ];
+
+        if(!$this->strict) {
+            $rules['code'] = [
+                'required',
+                'max:64',
+                'string',
+            ];
+        }
+        return $rules;
+
     }
 
-    public function action(Location $location, array $modelData, bool $audit=true): Location
+    public function action(Location $location, array $modelData, bool $strict=true, bool $audit=true): Location
     {
+        $this->strict = $strict;
         if(!$audit) {
             Location::disableAuditing();
         }

@@ -65,7 +65,7 @@ class StoreLocation extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'code'       => [
                 'required',
                 'max:64',
@@ -83,6 +83,16 @@ class StoreLocation extends OrgAction
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
             'fetched_at'   => ['sometimes', 'date'],
         ];
+
+        if(!$this->strict) {
+            $rules['code'] = [
+                'required',
+                'max:64',
+                'string',
+            ];
+        }
+
+        return $rules;
     }
 
     public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Location
@@ -102,9 +112,10 @@ class StoreLocation extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $modelData): Location
+    public function action(WarehouseArea|Warehouse $parent, array $modelData, bool $strict=true): Location
     {
         $this->asAction = true;
+        $this->strict   = $strict;
 
         if(class_basename($parent::class) == 'WarehouseArea') {
             $this->warehouse = $parent->warehouse;

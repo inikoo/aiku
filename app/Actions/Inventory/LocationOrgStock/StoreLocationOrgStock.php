@@ -38,10 +38,7 @@ class StoreLocationOrgStock extends OrgAction
         data_set($modelData, 'org_stock_id', $orgStock->id);
 
 
-        $location->locationOrgStocks()->create($modelData);
-        $locationStock = LocationOrgStock::where('location_id', $location->id)->where('org_stock_id', $orgStock->id)
-            ->first();
-
+        $locationStock=$location->locationOrgStocks()->create($modelData);
 
         LocationHydrateStocks::dispatch($location);
         LocationHydrateStockValue::dispatch($location);

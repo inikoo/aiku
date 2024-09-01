@@ -35,7 +35,7 @@ class GetCurrencyExchange
             }
 
             if ($currencyExchange) {
-                Cache::add($key, $currencyExchange, now()->addMinutes(15));
+                Cache::add($key, $currencyExchange, now()->addHours(6));
             }
         }
 

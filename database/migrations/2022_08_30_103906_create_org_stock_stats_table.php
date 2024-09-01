@@ -26,6 +26,9 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('number_locations')->default(0);
 
+            $table->unsignedSmallInteger('number_movements')->default(0);
+
+
             $table=$this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
 
             $table->timestampsTz();

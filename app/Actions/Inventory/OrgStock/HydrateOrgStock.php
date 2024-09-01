@@ -9,6 +9,7 @@ namespace App\Actions\Inventory\OrgStock;
 
 use App\Actions\HydrateModel;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLocations;
+use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateMovements;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateValueInLocations;
 use App\Models\SupplyChain\Stock;
@@ -24,6 +25,7 @@ class HydrateOrgStock extends HydrateModel
         OrgStockHydrateLocations::run($stock);
         OrgStockHydrateQuantityInLocations::run($stock);
         OrgStockHydrateValueInLocations::run($stock);
+        OrgStockHydrateMovements::run($stock);
     }
 
 

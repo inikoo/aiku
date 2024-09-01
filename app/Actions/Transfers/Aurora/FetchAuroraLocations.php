@@ -45,7 +45,7 @@ class FetchAuroraLocations extends FetchAuroraAction
 
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'update');
+                    $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'store');
 
                     return null;
                 }

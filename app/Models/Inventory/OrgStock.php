@@ -12,12 +12,12 @@ use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -51,12 +51,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $discontinued_in_organisation_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockMovement> $orgStockMovements
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\StockMovement> $stockMovements
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newQuery()
@@ -72,6 +73,7 @@ class OrgStock extends Model
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
+    use InOrganisation;
 
     protected $casts = [
         'data'             => 'array',
@@ -103,17 +105,10 @@ class OrgStock extends Model
             ->saveSlugsTo('slug');
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-
     public function stock(): BelongsTo
     {
         return $this->belongsTo(Stock::class);
     }
-
 
     public function orgStockFamily(): BelongsTo
     {
@@ -126,9 +121,9 @@ class OrgStock extends Model
     }
 
 
-    public function stockMovements(): MorphMany
+    public function orgStockMovements(): HasMany
     {
-        return $this->morphMany(StockMovement::class, 'stockable');
+        return $this->hasMany(OrgStockMovement::class);
     }
 
     public function stats(): HasOne

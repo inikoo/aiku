@@ -33,7 +33,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
         if (!$auroraDeletedData->{'Supplier Part Part SKU'}) {
             return;
         }
-        $stock = $this->parseStock($auroraDeletedData->{'Supplier Part Part SKU'});
+        $stock = $this->parseStock($this->organisation->id.':'.$auroraDeletedData->{'Supplier Part Part SKU'});
         if (!$stock) {
             return;
         }

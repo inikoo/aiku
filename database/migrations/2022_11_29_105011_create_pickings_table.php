@@ -24,8 +24,8 @@ return new class () extends Migration {
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
-            $table->unsignedInteger('stock_movement_id')->nullable()->index();
-            $table->foreign('stock_movement_id')->references('id')->on('stock_movements');
+            $table->unsignedInteger('org_stock_movement_id')->nullable()->index();
+            $table->foreign('org_stock_movement_id')->references('id')->on('org_stock_movements');
 
             $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks');

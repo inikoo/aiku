@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\LocationOrgStock;
 
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
+use App\Actions\Inventory\OrgStockAuditDelta\StoreOrgStockAuditDelta;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\LocationOrgStock;
@@ -31,6 +32,8 @@ class AuditLocationOrgStock extends OrgAction
         $locationOrgStock=$this->update($locationOrgStock, $modelData);
         $newStock        =$locationOrgStock->quantity;
         $stockDiff       =$newStock-$currentStock;
+
+        StoreOrgStockAuditDelta::make()->action($locationOrgStock, $stockDiff);
 
         OrgStockHydrateQuantityInLocations::dispatch($locationOrgStock->orgStock);
 

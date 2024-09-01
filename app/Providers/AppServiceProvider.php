@@ -33,7 +33,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-
         if ($this->app->runningInConsole()) {
             Actions::registerCommands();
         }
@@ -128,7 +127,7 @@ class AppServiceProvider extends ServiceProvider
                 'OrgStock'                      => 'App\Models\Inventory\OrgStock',
                 'LocationOrgStock'              => 'App\Models\Inventory\LocationOrgStock',
                 'LostAndFoundStock'             => 'App\Models\Inventory\LostAndFoundStock',
-                'StockMovement'                 => 'App\Models\Inventory\StockMovement',
+                'OrgStockMovement'              => 'App\Models\Inventory\OrgStockMovement',
                 'OrgStockFamily'                => 'App\Models\Inventory\OrgStockFamily',
 
                 // Mail

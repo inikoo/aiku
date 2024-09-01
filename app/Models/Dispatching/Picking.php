@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string $state
  * @property string $status
  * @property int $delivery_note_id
- * @property int|null $stock_movement_id
+ * @property int|null $org_stock_movement_id
  * @property int $stock_id
  * @property int|null $picker_id
  * @property int|null $packer_id

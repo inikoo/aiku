@@ -28,10 +28,19 @@ class FetchAuroraDeletedLocation extends FetchAurora
         if (!$parent) {
             $parent = FetchAuroraWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Deleted Warehouse Key'});
         }
+        $code =$this->auroraModelData->{'Location Deleted Code'};
+        $code = str_replace(' ', '-', $code);
+        $code = str_replace('A&C', 'AC', $code);
+        $code = str_replace('.', '-', $code);
+        $code = str_replace('+', '-', $code);
+        $code = str_replace('*', '', $code);
+        $code = str_replace('/', '', $code);
+
+        $code=$code.'-deleted';
 
         $this->parsedData['parent']   = $parent;
         $this->parsedData['location'] = [
-            'code'            => $this->auroraModelData->{'Location Deleted Code'},
+            'code'            => $code,
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Location Deleted Key'},
             'deleted_at'      => $deleted_at,
             'fetched_at'      => now(),
