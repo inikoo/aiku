@@ -7,7 +7,6 @@
 
 namespace Database\Factories\Ordering;
 
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TransactionFactory extends Factory
@@ -17,7 +16,6 @@ class TransactionFactory extends Factory
 
         $grossAmount= fake()->randomFloat(2, 0, 100);
         return [
-            'type'             => TransactionTypeEnum::ORDER,
             'quantity_bonus'   => fake()->numberBetween(0, 10),
             'quantity_ordered' => fake()->numberBetween(0, 10),
             'gross_amount'     => $grossAmount,

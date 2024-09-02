@@ -36,6 +36,7 @@ use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
 use App\Transfers\Aurora\FetchAuroraMailshot;
+use App\Transfers\Aurora\FetchAuroraNoProductTransaction;
 use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
 use App\Transfers\Aurora\FetchAuroraOrgStockMovement;
@@ -193,6 +194,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchTransaction($id): ?array
     {
         return (new FetchAuroraTransaction($this))->fetch($id);
+    }
+
+    public function fetchNoProductTransaction($id): ?array
+    {
+        return (new FetchAuroraNoProductTransaction($this))->fetch($id);
     }
 
     public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote): ?array

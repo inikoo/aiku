@@ -10,7 +10,6 @@ namespace App\Transfers\Aurora;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -81,7 +80,6 @@ class FetchAuroraTransaction extends FetchAurora
             $this->parsedData['transaction'] = [
                 'date'                => $date,
                 'created_at'          => $date,
-                'type'                => TransactionTypeEnum::ORDER,
                 'tax_category_id'     => $taxCategory->id,
                 'state'               => $state,
                 'status'              => $status,

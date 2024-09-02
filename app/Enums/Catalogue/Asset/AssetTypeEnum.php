@@ -22,10 +22,9 @@ enum AssetTypeEnum: string
     case SERVICE      = 'service';
     case SUBSCRIPTION = 'subscription';
     case RENTAL       = 'rental';
-
-    case CHARGE      = 'charge';
-    case SHIPPING    = 'shipping';
-    case ADJUSTMENT  = 'adjustment';
+    case CHARGE       = 'charge';
+    case SHIPPING     = 'shipping';
+    case ADJUSTMENT   = 'adjustment';
 
     public static function labels(Shop|Organisation|ProductCategory|Collection $parent = null): array
     {

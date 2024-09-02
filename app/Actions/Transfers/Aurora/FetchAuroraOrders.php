@@ -10,7 +10,6 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Ordering\Order;
 use App\Transfers\Aurora\WithAuroraAttachments;
@@ -25,7 +24,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments attachments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    private bool $errorReported=false;
+    private bool $errorReported = false;
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Order
     {
@@ -34,8 +33,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
 
             if (!$order) {
-
-                if(!$this->errorReported) {
+                if (!$this->errorReported) {
                     $this->recordFetchError($organisationSource, $orderData, 'Order', 'fetching');
                 }
 
@@ -44,6 +42,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
             if (in_array('transactions', $this->with) or in_array('full', $this->with) or $forceWithTransactions) {
                 $this->fetchTransactions($organisationSource, $order);
+                // $this->fetchNoProductTransactions($organisationSource, $order);
             }
             if (in_array('payments', $this->with) or in_array('full_todo', $this->with)) {
                 $this->fetchPayments($organisationSource, $order);
@@ -92,7 +91,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                 $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false, audit: false);
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
-                $this->errorReported=true;
+                $this->errorReported = true;
             }
         } elseif ($orderData['parent']) {
             try {
@@ -104,7 +103,8 @@ class FetchAuroraOrders extends FetchAuroraAction
                 );
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
-                $this->errorReported=true;
+                $this->errorReported = true;
+
                 return null;
             }
         }
@@ -181,7 +181,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchTransactions($organisationSource, Order $order): void
     {
-        $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
+        $transactionsToDelete = $order->transactions()->whereIn('asset_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
 
 
         $sourceData = explode(':', $order->source_id);
@@ -189,12 +189,30 @@ class FetchAuroraOrders extends FetchAuroraAction
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
                 ->select('Order Transaction Fact Key')
-                ->where('Order Transaction Type', 'Order')
                 ->where('Order Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order Transaction Fact Key'}]);
-            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+            FetchAuroraTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+        }
+        $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
+    }
+
+    private function fetchNoProductTransactions($organisationSource, Order $order): void
+    {
+        $transactionsToDelete = $order->transactions()->whereNotIN('asset_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+
+
+        $sourceData = explode(':', $order->source_id);
+        foreach (
+            DB::connection('aurora')
+                ->table('Order No Product Transaction Fact')
+                ->select('Order No Product Transaction Fact Key')
+                ->where('Order Key', $sourceData[1])
+                ->get() as $auroraData
+        ) {
+            $transactionsToDelete = array_diff($transactionsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order No Product Transaction Fact Key'}]);
+            FetchAuroraNoProductTransactions::run($organisationSource, $auroraData->{'Order No Product Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
     }
