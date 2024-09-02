@@ -129,4 +129,6 @@ interface SourceOrganisationService
 
     public function fetchCredit($id);
 
+    public function fetchShippingZoneSchema($id);
+
 }

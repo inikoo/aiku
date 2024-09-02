@@ -332,4 +332,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchShippingZoneSchema($id): ?array
+    {
+        return null;
+    }
+
 }

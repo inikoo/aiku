@@ -147,8 +147,6 @@ class AppServiceProvider extends ServiceProvider
                 'ProductCategory'               => 'App\Models\Catalogue\ProductCategory',
                 'Asset'                         => 'App\Models\Catalogue\Asset',
                 'HistoricAsset'                 => 'App\Models\Catalogue\HistoricAsset',
-                'ShippingZone'                  => 'App\Models\Ordering\ShippingZone',
-                'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
                 'Product'                       => 'App\Models\Catalogue\Product',
                 'Collection'                    => 'App\Models\Catalogue\Collection',
                 'Rental'                        => 'App\Models\Fulfilment\Rental',
@@ -170,6 +168,8 @@ class AppServiceProvider extends ServiceProvider
                 // Ordering
                 'Order'                         => 'App\Models\Ordering\Order',
                 'Transaction'                   => 'App\Models\Ordering\Transaction',
+                'ShippingZone'                  => 'App\Models\Ordering\ShippingZone',
+                'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
 
                 // Procurement
                 'HistoricSupplierProduct'       => 'App\Models\Procurement\HistoricSupplierProduct',
