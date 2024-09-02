@@ -265,7 +265,7 @@ class ShowOrder extends OrgAction
                             'paid_amount' => $order->payment_amount,
                             'pay_amount'  => $roundedDiff,
                         ],
-                        'estimated_weight' => $order->estimated_weight
+                        'estimated_weight' => $order->estimated_weight ?? 0
                     ],
 
                     // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
