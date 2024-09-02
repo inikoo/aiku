@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $charge_id
+ * @property int $number_historic_assets
  * @property string|null $first_used_at
  * @property string|null $last_used_at
  * @property int $number_customers

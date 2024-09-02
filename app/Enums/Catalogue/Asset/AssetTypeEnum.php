@@ -25,7 +25,6 @@ enum AssetTypeEnum: string
 
     case CHARGE      = 'charge';
     case SHIPPING    = 'shipping';
-    case INSURANCE   = 'insurance';
     case ADJUSTMENT  = 'adjustment';
 
     public static function labels(Shop|Organisation|ProductCategory|Collection $parent = null): array
@@ -37,7 +36,6 @@ enum AssetTypeEnum: string
             'rental'       => __('Rentals'),
             'charge'       => __('Charges'),
             'shipping'     => __('Shipping'),
-            'insurance'    => __('Insurance'),
         ];
 
         if ($parent instanceof Shop) {
@@ -116,14 +114,6 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'insurance'       => [
-                'tooltip' => __('Insurances'),
-                'icon'    => 'fal fa-house-damage',
-                'app'     => [
-                    'name' => 'house-damage',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
             'adjustment'       => [
                 'tooltip' => __('Adjustments'),
                 'icon'    => 'fal fa-house-damage',
@@ -145,7 +135,6 @@ enum AssetTypeEnum: string
             'rental'       => $stats->number_assets_type_rental,
             'charge'       => $stats->number_assets_type_charge,
             'shipping'     => $stats->number_assets_type_shipping,
-            'insurance'    => $stats->number_assets_type_insurance,
             'adjustment'   => $stats->number_assets_type_adjustment,
         ];
 

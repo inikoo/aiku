@@ -20,11 +20,10 @@ use App\Models\Catalogue\Shipping;
 use App\Models\Fulfilment\Rental;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Charge;
-use App\Models\Catalogue\Insurance;
 
 class StoreAsset extends OrgAction
 {
-    public function handle(Product|Rental|Service|Charge|Insurance|Shipping|Adjustment $parent, array $modelData): Asset
+    public function handle(Product|Rental|Service|Charge|Shipping|Adjustment $parent, array $modelData): Asset
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);

@@ -50,14 +50,12 @@ class FetchAuroraCharges extends FetchAuroraAction
         return DB::connection('aurora')
             ->table('Charge Dimension')
             ->select('Charge Key as source_id')
-            ->where('Charge Scope', '!=', 'Insurance')
             ->orderBy('source_id');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Charge Dimension')
-            ->where('Charge Scope', '!=', 'Insurance')->count();
+        return DB::connection('aurora')->table('Charge Dimension')->count();
     }
 
 

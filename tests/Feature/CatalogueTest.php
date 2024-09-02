@@ -12,8 +12,6 @@ use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
-use App\Actions\Catalogue\Insurance\StoreInsurance;
-use App\Actions\Catalogue\Insurance\UpdateInsurance;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\StoreProduct;
@@ -33,7 +31,6 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
 use App\Enums\Catalogue\Charge\ChargeTypeEnum;
-use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
@@ -46,7 +43,6 @@ use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\HistoricAsset;
-use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
@@ -635,50 +631,8 @@ test('update charge', function ($charge) {
     return $updatedCharge;
 })->depends('create charge');
 
-test('create insurance', function ($shop) {
-    $insurance = StoreInsurance::make()->action(
-        $shop,
-        [
-            'code'        => 'MyFColl',
-            'name'        => 'My first collection',
-            'description' => 'My first collection description',
-            'price'       => fake()->numberBetween(100, 2000),
-            'unit'        => 'insurance',
-        ]
-    );
-    $shop->refresh();
-    expect($insurance)->toBeInstanceOf(Insurance::class)
-        ->and($shop->stats->number_assets_type_insurance)->toBe(1)
-        ->and($shop->organisation->catalogueStats->number_assets_type_insurance)->toBe(1)
-        ->and($shop->group->catalogueStats->number_assets_type_insurance)->toBe(1);
 
 
-    return $insurance;
-})->depends('create shop');
-
-test('update insurance', function ($insurance) {
-    $updatedInsurance = UpdateInsurance::make()->action(
-        $insurance,
-        [
-            'code'  => 'Insurance',
-            'name'  => 'insuranceeee',
-            'price' => fake()->numberBetween(100, 2000),
-            'unit'  => 'insurance',
-            'state' => InsuranceStateEnum::ACTIVE,
-        ]
-    );
-    $updatedInsurance->refresh();
-    expect($updatedInsurance)->toBeInstanceOf(Insurance::class)
-        ->and($updatedInsurance->name)->toBe('insuranceeee')
-        ->and($updatedInsurance->state)->toBe(InsuranceStateEnum::ACTIVE)
-        ->and($updatedInsurance->status)->toBe(true)
-        ->and($updatedInsurance->shop->stats->number_assets_type_insurance)->toBe(1)
-        ->and($updatedInsurance->organisation->catalogueStats->number_assets_type_insurance)->toBe(1)
-        ->and($updatedInsurance->group->catalogueStats->number_assets_type_insurance)->toBe(1);
-
-
-    return $updatedInsurance;
-})->depends('create insurance');
 
 test('create shipping', function ($shop) {
     $shipping = StoreShipping::make()->action(

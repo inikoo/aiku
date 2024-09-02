@@ -86,7 +86,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property int $number_assets_type_charge
  * @property int $number_assets_type_shipping
- * @property int $number_assets_type_insurance
  * @property int $number_assets_type_adjustment
  * @property int $number_charges
  * @property int $number_charges_state_in_process
@@ -96,10 +95,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_shippings_state_in_process
  * @property int $number_shippings_state_active
  * @property int $number_shippings_state_discontinued
- * @property int $number_insurances
- * @property int $number_insurances_state_in_process
- * @property int $number_insurances_state_active
- * @property int $number_insurances_state_discontinued
  * @property-read \App\Models\Catalogue\Shop $shop
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()

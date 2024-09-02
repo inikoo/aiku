@@ -16,11 +16,6 @@ class FetchAuroraCharge extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if ($this->auroraModelData->{'Charge Scope'} == 'Insurance') {
-            return;
-        }
-
-
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Charge Store Key'});
 
         $trigger = match ($this->auroraModelData->{'Charge Trigger'}) {
@@ -32,30 +27,29 @@ class FetchAuroraCharge extends FetchAurora
         };
 
         $type = match ($this->auroraModelData->{'Charge Scope'}) {
-            'Hanging'  => ChargeTypeEnum::HANGING,
-            'Premium'  => ChargeTypeEnum::PREMIUM,
-            'Tracking' => ChargeTypeEnum::TRACKING,
-            'Pastpay'  => ChargeTypeEnum::PAYMENT,
-            'CoD'      => ChargeTypeEnum::COD,
-            'Packing'  => ChargeTypeEnum::PACKING,
-            default    => null
+            'Hanging'   => ChargeTypeEnum::HANGING,
+            'Premium'   => ChargeTypeEnum::PREMIUM,
+            'Tracking'  => ChargeTypeEnum::TRACKING,
+            'Pastpay'   => ChargeTypeEnum::PAYMENT,
+            'Insurance' => ChargeTypeEnum::INSURANCE,
+            'CoD'       => ChargeTypeEnum::COD,
+            'Packing'   => ChargeTypeEnum::PACKING,
+            default     => null
         };
-
-        $this->parsedData['model'] = $this->auroraModelData->{'Charge Scope'} == 'Insurance' ? 'Insurance' : 'Charge';
 
         $settings = [
             'rules'        => $this->auroraModelData->{'Charge Terms Metadata'},
             'rule_subject' => $this->auroraModelData->{'Charge Terms Type'},
         ];
 
-        if ($this->auroraModelData->{'Charge Scope'}!='Pastpay') {
+        if ($this->auroraModelData->{'Charge Scope'} != 'Pastpay') {
             $settings['amount'] = $this->auroraModelData->{'Charge Metadata'};
         }
 
 
-        $description=strip_tags(html_entity_decode(htmlspecialchars_decode($this->auroraModelData->{'Charge Public Description'})));
-        if($description=='') {
-            $description=strip_tags($this->auroraModelData->{'Charge Description'});
+        $description = strip_tags(html_entity_decode(htmlspecialchars_decode($this->auroraModelData->{'Charge Public Description'})));
+        if ($description == '') {
+            $description = strip_tags($this->auroraModelData->{'Charge Description'});
         }
 
         $state                      = $this->auroraModelData->{'Charge Active'} === 'Yes' ? ChargeStateEnum::ACTIVE : ChargeStateEnum::DISCONTINUED;

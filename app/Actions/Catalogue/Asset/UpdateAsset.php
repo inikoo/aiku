@@ -15,7 +15,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
-use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shipping\ShippingStateEnum;
@@ -47,13 +46,13 @@ class UpdateAsset extends OrgAction
 
 
         $modelData['state'] = match ($model->state) {
-            RentalStateEnum::IN_PROCESS, ProductStateEnum::IN_PROCESS, ServiceStateEnum::IN_PROCESS, ChargeStateEnum::IN_PROCESS, ShippingStateEnum::IN_PROCESS, InsuranceStateEnum::IN_PROCESS =>
+            RentalStateEnum::IN_PROCESS, ProductStateEnum::IN_PROCESS, ServiceStateEnum::IN_PROCESS, ChargeStateEnum::IN_PROCESS, ShippingStateEnum::IN_PROCESS=>
             AssetStateEnum::IN_PROCESS,
-            RentalStateEnum::ACTIVE, ProductStateEnum::ACTIVE, ServiceStateEnum::ACTIVE, ChargeStateEnum::ACTIVE, ShippingStateEnum::ACTIVE, InsuranceStateEnum::ACTIVE =>
+            RentalStateEnum::ACTIVE, ProductStateEnum::ACTIVE, ServiceStateEnum::ACTIVE, ChargeStateEnum::ACTIVE, ShippingStateEnum::ACTIVE,=>
             AssetStateEnum::ACTIVE,
             ProductStateEnum::DISCONTINUING =>
             AssetStateEnum::DISCONTINUING,
-            RentalStateEnum::DISCONTINUED, ProductStateEnum::DISCONTINUED, ServiceStateEnum::DISCONTINUED, ChargeStateEnum::DISCONTINUED, ShippingStateEnum::DISCONTINUED, InsuranceStateEnum::DISCONTINUED
+            RentalStateEnum::DISCONTINUED, ProductStateEnum::DISCONTINUED, ServiceStateEnum::DISCONTINUED, ChargeStateEnum::DISCONTINUED, ShippingStateEnum::DISCONTINUED
             => AssetStateEnum::DISCONTINUED,
         };
 

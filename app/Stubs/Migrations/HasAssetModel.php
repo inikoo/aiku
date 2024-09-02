@@ -8,7 +8,6 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
-use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
 use App\Enums\Catalogue\Shipping\ShippingStateEnum;
 use App\Enums\Catalogue\Subscription\SubscriptionStateEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -78,8 +77,6 @@ trait HasAssetModel
 
         } elseif ($table->getTable() == 'shippings') {
             $table->string('state')->default(ShippingStateEnum::IN_PROCESS)->index();
-        } elseif ($table->getTable() == 'insurances') {
-            $table->string('state')->default(InsuranceStateEnum::IN_PROCESS)->index();
         } elseif ($table->getTable() == 'subscriptions') {
             $table->string('state')->default(SubscriptionStateEnum::IN_PROCESS)->index();
         }

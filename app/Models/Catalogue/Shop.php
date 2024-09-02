@@ -133,7 +133,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read LaravelCollection<int, \App\Models\Catalogue\Insurance> $insurances
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read \App\Models\Catalogue\ShopMailStats|null $mailStats
@@ -486,10 +485,6 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Charge::class);
     }
 
-    public function insurances(): HasMany
-    {
-        return $this->hasMany(Insurance::class);
-    }
 
     public function shippings(): HasMany
     {
