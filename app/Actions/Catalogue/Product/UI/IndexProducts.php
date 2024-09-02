@@ -305,6 +305,12 @@ class IndexProducts extends OrgAction
                                 'collection' => $this->parent->id
                             ]
                         ],
+                        'detach'        => [
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
+                        ]
                     ];
         }
         return Inertia::render(

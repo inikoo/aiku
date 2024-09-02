@@ -42,7 +42,7 @@ class StoreOrder extends OrgAction
     use WithOrderExchanges;
 
     public int $hydratorsDelay = 0;
-
+    private $fromPupil;
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
         if (!Arr::get($modelData, 'reference')) {
@@ -116,11 +116,28 @@ class StoreOrder extends OrgAction
         $order->stats()->create();
 
         if ($order->billing_locked) {
-            $order = $this->createFixedAddress($order, $billingAddress, 'Ordering', 'billing', 'billing_address_id');
-        } else {
+            $order = $this->createFixedAddress(
+                $order,
+                $billingAddress,
+                'Ordering',
+                'billing',
+                'billing_address_id'
+            );
+            return $order;
+        }
+
+        if ($this->fromPupil) {
             $order = $this->addAddressToModel(
                 model: $order,
                 addressData: Arr::except($billingAddress->toArray(), ['id']),
+                scope: 'billing',
+                updateLocation: false,
+                updateAddressField: 'billing_address_id'
+            );
+        } else {
+            $order = $this->attachAddressToModel(
+                model: $order,
+                address: $billingAddress,
                 scope: 'billing',
                 updateLocation: false,
                 updateAddressField: 'billing_address_id'
@@ -136,11 +153,26 @@ class StoreOrder extends OrgAction
 
         if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
             if ($order->delivery_locked) {
-                $order = $this->createFixedAddress($order, $deliveryAddress, 'Ordering', 'delivery', 'delivery_address_id');
-            } else {
+                $order = $this->createFixedAddress(
+                    $order,
+                    $deliveryAddress,
+                    'Ordering',
+                    'delivery',
+                    'delivery_address_id'
+                );
+            }
+            if ($this->fromPupil) {
                 $order = $this->addAddressToModel(
                     model: $order,
-                    addressData: Arr::except($billingAddress->toArray(), ['id']),
+                    addressData: Arr::except($deliveryAddress->toArray(), ['id']),
+                    scope: 'delivery',
+                    updateLocation: false,
+                    updateAddressField: 'delivery_address_id'
+                );
+            } else {
+                $order = $this->attachAddressToModel(
+                    model: $order,
+                    address: $deliveryAddress,
                     scope: 'delivery',
                     updateLocation: false,
                     updateAddressField: 'delivery_address_id'
@@ -295,6 +327,13 @@ class StoreOrder extends OrgAction
         $this->initialisationFromShop($customerClient->shop, $request);
 
         return $this->handle($customerClient, $this->validatedData);
+    }
+
+    public function fromPupil(Customer $customer, array $modelData)
+    {
+        $this->fromPupil = true;
+        $this->initialisationFromShop($customer->shop, []);
+        return $this->handle($customer, $modelData);
     }
 
 
