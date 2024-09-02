@@ -117,15 +117,15 @@ class StoreOrder extends OrgAction
 
         if ($order->billing_locked) {
             $order = $this->createFixedAddress(
-                $order, 
-                $billingAddress, 
-                'Ordering', 
-                'billing', 
+                $order,
+                $billingAddress,
+                'Ordering',
+                'billing',
                 'billing_address_id'
             );
             return $order;
         }
-        
+
         if ($this->fromPupil) {
             $order = $this->addAddressToModel(
                 model: $order,
@@ -154,11 +154,12 @@ class StoreOrder extends OrgAction
         if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
             if ($order->delivery_locked) {
                 $order = $this->createFixedAddress(
-                    $order, 
-                    $deliveryAddress, 
-                    'Ordering', 
-                    'delivery', 
-                    'delivery_address_id');
+                    $order,
+                    $deliveryAddress,
+                    'Ordering',
+                    'delivery',
+                    'delivery_address_id'
+                );
             }
             if ($this->fromPupil) {
                 $order = $this->addAddressToModel(

@@ -49,6 +49,11 @@ class ShowDropshipping extends RetinaAction
                     'parameters' => [],
                     'method'     => 'post'
                 ],
+                'unlinkRoute' => [
+                    'name'       => 'retina.dropshipping.shopify_user.delete',
+                    'parameters' => [],
+                    'method'     => 'delete'
+                ],
                 'connectRoute' => $customer->shopifyUser ? [
                     'url'       => route('pupil.authenticate', [
                         'shop' => $customer->shopifyUser?->name
