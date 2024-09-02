@@ -60,6 +60,16 @@ class GetGroupNavigation
 
                             ]
                         ],
+                        [
+                            'label' => 'Trade Units',
+                            'icon'  => ['fal', 'fa-atom'],
+                            'root'  => 'grp.goods.trade-units.',
+                            'route' => [
+                                'name'       => 'grp.goods.trade-units.index',
+                                'parameters' => []
+
+                            ]
+                        ],
 
                     ]
                 ]

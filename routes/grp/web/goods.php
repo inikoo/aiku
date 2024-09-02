@@ -17,7 +17,10 @@ use App\Actions\Goods\StockFamily\UI\EditStockFamily;
 use App\Actions\Goods\StockFamily\UI\IndexStockFamilies;
 use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
+use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
+use App\Stubs\UIDummies\EditDummy;
+use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowGoodsDashboard::class)->name('dashboard');
@@ -91,5 +94,13 @@ Route::prefix('families')->as('stock-families.')->group(function () {
                 Route::get('edit', [EditStock::class, 'inStockFamily'])->name('edit');
             });
         });
+    });
+});
+
+Route::prefix('trade-units')->as('trade-units.')->group(function () {
+    Route::get('/', IndexTradeUnits::class)->name('index');
+    Route::prefix('{tradeUnit}')->group(function () {
+        Route::get('', ShowDummy::class)->name('show');
+        Route::get('edit', EditDummy::class)->name('edit');
     });
 });
