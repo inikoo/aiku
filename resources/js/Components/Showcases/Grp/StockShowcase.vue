@@ -30,7 +30,14 @@ const props = defineProps<{
         <div class="col-span-4 xl:col-span-3 sm:grid-cols-1 "></div>
 
         <div class="col-span-2 xl:col-span-3 sm:grid-cols-1 border border-gray-100 shadow rounded-md px-5 py-3 text-gray-500">
-
+            <StockCard 
+                :data="data.contactCard" 
+                :locationRoute="data.locationRoute" 
+                :associateLocationRoute="data.associateLocationRoute" 
+                :disassociateLocationRoute="data.disassociateLocationRoute" 
+                :auditRoute="data.auditRoute" 
+                :moveLocationRoute="data.moveLocationRoute"
+            />
         </div>
 
 
