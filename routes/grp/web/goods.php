@@ -17,6 +17,7 @@ use App\Actions\Goods\StockFamily\UI\EditStockFamily;
 use App\Actions\Goods\StockFamily\UI\IndexStockFamilies;
 use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
+use App\Actions\Goods\TradeUnit\UI\EditTradeUnit;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnit;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
@@ -102,6 +103,6 @@ Route::prefix('trade-units')->as('trade-units.')->group(function () {
     Route::get('/', IndexTradeUnits::class)->name('index');
     Route::prefix('{tradeUnit:slug}')->group(function () {
         Route::get('', ShowTradeUnit::class)->name('show');
-        Route::get('edit', EditDummy::class)->name('edit');
+        Route::get('edit', EditTradeUnit::class)->name('edit');
     });
 });

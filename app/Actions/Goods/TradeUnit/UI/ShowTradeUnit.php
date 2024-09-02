@@ -69,25 +69,25 @@ class ShowTradeUnit extends GrpAction
                             'icon'  => 'fal fa-atom'
                         ],
                         'title'   => $tradeUnit->code,
-                        // 'actions' => [
-                        //     $this->canEdit ? [
-                        //         'type'  => 'button',
-                        //         'style' => 'edit',
-                        //         'route' => [
-                        //             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                        //             'parameters' => array_values($request->route()->originalParameters())
-                        //         ]
-                        //     ] : false,
-                        //     $this->canDelete ? [
-                        //         'type'  => 'button',
-                        //         'style' => 'delete',
-                        //         'route' => [
-                        //             'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.remove',
-                        //             'parameters' => array_values($request->route()->originalParameters())
-                        //         ]
+                        'actions' => [
+                            $this->canEdit ? [
+                                'type'  => 'button',
+                                'style' => 'edit',
+                                'route' => [
+                                    'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                    'parameters' => array_values($request->route()->originalParameters())
+                                ]
+                            ] : false,
+                            // $this->canDelete ? [
+                            //     'type'  => 'button',
+                            //     'style' => 'delete',
+                            //     'route' => [
+                            //         'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.remove',
+                            //         'parameters' => array_values($request->route()->originalParameters())
+                            //     ]
 
-                        //     ] : false
-                        // ]
+                            // ] : false
+                        ]
                     ],
                     'tabs'=> [
                         'current'    => $this->tab,
