@@ -9,6 +9,7 @@
 
 namespace App\Actions\UI\Pupil\Dashboard;
 
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,6 +29,7 @@ class ShowDashboard
             // 'token'                 => session()->all(),
             'token_request'         => $request->get('token'),
             'user'                  => $shopifyUser,
+            'showIntro'             => !Arr::get($shopifyUser->settings, 'webhooks'),
             'routes'                => [
                 'products' => [
                     'name'       => 'pupil.products',
@@ -37,6 +39,12 @@ class ShowDashboard
                 ],
                 'store_product' => [
                     'name'       => 'pupil.shopify_user.product.store',
+                    'parameters' => [
+                        'shopifyUser' => $shopifyUser->id
+                    ]
+                ],
+                'get_stared' => [
+                    'name'       => 'pupil.shopify_user.get_started.store',
                     'parameters' => [
                         'shopifyUser' => $shopifyUser->id
                     ]

@@ -49,8 +49,8 @@ trait WithUploadProductImage
     public function rules(): array
     {
         return [
-            'images'   => ['required'],
-            'images.*' => ["mimes:jpg,png,jpeg,gif", "max:50000"]
+            '0'   => ['required'],
+            '0.*' => ["mimes:jpg,png,jpeg,gif", "max:50000"]
         ];
     }
 
