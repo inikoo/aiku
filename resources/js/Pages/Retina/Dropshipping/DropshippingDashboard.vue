@@ -13,9 +13,9 @@ import { trans } from 'laravel-vue-i18n'
 import Modal from '@/Components/Utils/Modal.vue'
 import PureInputWithAddOn from '@/Components/Pure/PureInputWithAddOn.vue'
 
-import { faGlobe, faExternalLinkAlt } from '@fal'
+import { faGlobe, faExternalLinkAlt, faUnlink } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faGlobe, faExternalLinkAlt)
+library.add(faGlobe, faExternalLinkAlt, faUnlink)
 
 const props = defineProps<{
     title: string,
@@ -74,12 +74,13 @@ const onCreateStore = () => {
                 <!-- Button: Connect -->
                 <div class="relative w-full">
                     <Transition name="spin-to-down">
-                        <div v-if="connectRoute?.url" class="w-full flex justify-end">
+                        <div v-if="connectRoute?.url" class="w-full flex justify-end gap-x-2">
+                            <Button label="Unlink" type="negative" icon="fal fa-unlink" />
                             <a target="_blank"
                                 :href="connectRoute?.url"
                                 class="w-full"
                             >
-                                <Button label="Open" type="tertiary" full iconRight="fal fa-external-link-alt" />
+                                <Button label="Open" key="secondary" full iconRight="fal fa-external-link-alt" />
                             </a>
                         </div>
                     
