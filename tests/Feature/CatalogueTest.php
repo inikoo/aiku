@@ -31,6 +31,8 @@ use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\Insurance\InsuranceStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
@@ -591,7 +593,10 @@ test('create charge', function ($shop) {
         $shop,
         [
             'code'        => 'MyFColl',
-            'name'        => 'My first collection',
+            'name'        => 'My first charge',
+            'type'        => ChargeTypeEnum::HANGING,
+            'trigger'     => ChargeTriggerEnum::ORDER,
+            'description' => 'Charge description',
             'price'       => fake()->numberBetween(100, 2000),
             'unit'        => 'charge',
         ]
@@ -610,11 +615,11 @@ test('update charge', function ($charge) {
     $updatedCharge = UpdateCharge::make()->action(
         $charge,
         [
-            'code'        => 'MyFColl2',
-            'name'        => 'Charge1',
-            'price'       => fake()->numberBetween(100, 2000),
-            'unit'        => 'charge',
-            'state'       => ChargeStateEnum::ACTIVE
+            'code'  => 'MyFColl2',
+            'name'  => 'Charge1',
+            'price' => fake()->numberBetween(100, 2000),
+            'unit'  => 'charge',
+            'state' => ChargeStateEnum::ACTIVE
         ]
     );
     $updatedCharge->refresh();
@@ -655,11 +660,11 @@ test('update insurance', function ($insurance) {
     $updatedInsurance = UpdateInsurance::make()->action(
         $insurance,
         [
-            'code'        => 'Insurance',
-            'name'        => 'insuranceeee',
-            'price'       => fake()->numberBetween(100, 2000),
-            'unit'        => 'insurance',
-            'state'       => InsuranceStateEnum::ACTIVE,
+            'code'  => 'Insurance',
+            'name'  => 'insuranceeee',
+            'price' => fake()->numberBetween(100, 2000),
+            'unit'  => 'insurance',
+            'state' => InsuranceStateEnum::ACTIVE,
         ]
     );
     $updatedInsurance->refresh();
@@ -679,11 +684,11 @@ test('create shipping', function ($shop) {
     $shipping = StoreShipping::make()->action(
         $shop,
         [
-            'code'        => 'Shipping',
-            'name'        => 'Shippingers',
-            'price'       => fake()->numberBetween(100, 2000),
-            'unit'        => 'shipping',
-            'structural'  => false
+            'code'       => 'Shipping',
+            'name'       => 'Shippingers',
+            'price'      => fake()->numberBetween(100, 2000),
+            'unit'       => 'shipping',
+            'structural' => false
         ]
     );
     $shop->refresh();
@@ -700,12 +705,12 @@ test('update shipping', function ($shipping) {
     $updatedShipping = UpdateShipping::make()->action(
         $shipping,
         [
-            'code'        => 'Shipping2',
-            'name'        => 'shippingers2',
-            'price'       => fake()->numberBetween(100, 2000),
-            'unit'        => 'shipping',
-            'state'       => ShippingStateEnum::ACTIVE,
-            'structural'  => true
+            'code'       => 'Shipping2',
+            'name'       => 'shippingers2',
+            'price'      => fake()->numberBetween(100, 2000),
+            'unit'       => 'shipping',
+            'state'      => ShippingStateEnum::ACTIVE,
+            'structural' => true
         ]
     );
     $updatedShipping->refresh();
@@ -722,10 +727,9 @@ test('update shipping', function ($shipping) {
 })->depends('create shipping');
 
 test('add items to collection', function (Collection $collection) {
-
     $data = [
         'collections' => [2],
-        'departments' => [1,3],
+        'departments' => [1, 3],
         'families'    => [4],
         'products'    => [2]
     ];
@@ -737,7 +741,6 @@ test('add items to collection', function (Collection $collection) {
         ->and($collection->departments()->count())->toBe(2)
         ->and($collection->families()->count())->toBe(1)
         ->and($collection->products()->count())->toBe(1);
-
 })->depends('update collection');
 
 test('hydrate shops', function (Shop $shop) {

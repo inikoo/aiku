@@ -18,6 +18,8 @@ return new class () extends Migration {
             $table->foreign('charge_id')->references('id')->on('charges');
 
 
+            $table->unsignedInteger('number_historic_assets')->default(0);
+
             $table->timestampTz('first_used_at')->nullable();
             $table->timestampTz('last_used_at')->nullable();
 
