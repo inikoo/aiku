@@ -24,9 +24,12 @@ trait HasAssetModel
         $table->string('name', 255)->nullable();
         $table->text('description')->nullable()->fulltext();
 
-        $table->decimal('price', 18)->nullable();
-        $table->decimal('units', 9, 3)->default(1);
-        $table->string('unit');
+
+        if ($table->getTable() != 'charges') {
+            $table->decimal('price', 18)->nullable();
+            $table->decimal('units', 9, 3)->default(1);
+            $table->string('unit');
+        }
 
         $table->jsonb('data');
         $table->jsonb('settings');
@@ -70,8 +73,8 @@ trait HasAssetModel
 
         if ($table->getTable() == 'charges') {
             $table->string('state')->default(ChargeStateEnum::IN_PROCESS)->index();
-
-            $table->string('trigger')->nullable();
+            $table->string('type')->index();
+            $table->string('trigger')->index();
 
         } elseif ($table->getTable() == 'shippings') {
             $table->string('state')->default(ShippingStateEnum::IN_PROCESS)->index();
@@ -83,6 +86,9 @@ trait HasAssetModel
 
         $table = $this->assetModelFields($table);
         $table->timestampsTz();
+        $table->datetimeTz('fetched_at')->nullable();
+        $table->datetimeTz('last_fetched_at')->nullable();
+
         if ($table->getTable() != 'adjustments') {
             $table->softDeletes();
         }

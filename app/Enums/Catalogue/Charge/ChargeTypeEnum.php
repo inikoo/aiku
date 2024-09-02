@@ -16,8 +16,9 @@ enum ChargeTypeEnum: string
     case HANGING  = 'hanging';
     case PREMIUM  = 'premium';
     case TRACKING = 'tracking';
-    case PASTPAY  = 'pastpay';
+    case PAYMENT  = 'payment';
     case COD      = 'cod';
+    case PACKING  = 'packing';
 
     public static function labels(): array
     {
@@ -26,6 +27,8 @@ enum ChargeTypeEnum: string
             'premium'     => __('Premium'),
             'tracking'    => __('Tracking'),
             'cod'         => __('Charge on delivery'),
+            'payment'     => __('Payment'),
+            'packing'     => __('Packing')
         ];
     }
 

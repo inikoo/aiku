@@ -8,6 +8,7 @@
 namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,20 +29,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $asset_id
  * @property bool $status
  * @property ChargeStateEnum $state
- * @property string|null $trigger
+ * @property string $type
+ * @property ChargeTriggerEnum $trigger
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
- * @property string|null $price
- * @property string $units
- * @property string $unit
  * @property array $data
  * @property array $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $historic_source_id
@@ -75,8 +76,8 @@ class Charge extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
-        'price'    => 'decimal:2',
         'state'    => ChargeStateEnum::class,
+        'trigger'  => ChargeTriggerEnum::class,
         'status'   => 'boolean',
         'data'     => 'array',
         'settings' => 'array',

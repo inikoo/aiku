@@ -32,9 +32,9 @@ class StoreAsset extends OrgAction
 
         data_set($modelData, 'code', $parent->code);
         data_set($modelData, 'name', $parent->name);
-        data_set($modelData, 'price', $parent->price);
-        data_set($modelData, 'unit', $parent->unit);
-        data_set($modelData, 'units', $parent->units);
+        data_set($modelData, 'price', $parent->price, overwrite: false);
+        data_set($modelData, 'unit', $parent->unit, overwrite: false);
+        data_set($modelData, 'units', $parent->units, overwrite: false);
         data_set($modelData, 'status', $parent->status);
         data_set($modelData, 'created_at', $parent->created_at);
         data_set($modelData, 'currency_id', $parent->currency_id);

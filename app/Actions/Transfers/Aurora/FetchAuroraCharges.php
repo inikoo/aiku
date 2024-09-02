@@ -22,15 +22,18 @@ class FetchAuroraCharges extends FetchAuroraAction
     {
         if ($chargeData = $organisationSource->fetchCharge($organisationSourceId)) {
 
-            if ($charge = Charge::where('source_id', $chargeData['clocking-machine']['source_id'])->first()) {
+            if ($charge = Charge::where('source_id', $chargeData['charge']['source_id'])->first()) {
                 $charge = UpdateCharge::make()->action(
                     charge: $charge,
-                    modelData: $chargeData['clocking-machine']
+                    modelData: $chargeData['charge'],
+                    strict: false,
+                    audit:false
                 );
             } else {
                 $charge = StoreCharge::make()->action(
-                    shop: $chargeData['workplace'],
-                    modelData: $chargeData['clocking-machine'],
+                    shop: $chargeData['shop'],
+                    modelData: $chargeData['charge'],
+                    strict: false,
                 );
 
 
@@ -47,12 +50,14 @@ class FetchAuroraCharges extends FetchAuroraAction
         return DB::connection('aurora')
             ->table('Charge Dimension')
             ->select('Charge Key as source_id')
+            ->where('Charge Scope', '!=', 'Insurance')
             ->orderBy('source_id');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Charge Dimension')->count();
+        return DB::connection('aurora')->table('Charge Dimension')
+            ->where('Charge Scope', '!=', 'Insurance')->count();
     }
 
 

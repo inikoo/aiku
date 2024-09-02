@@ -17,8 +17,15 @@ return new class () extends Migration {
             $table->unsignedInteger('charge_id')->index();
             $table->foreign('charge_id')->references('id')->on('charges');
 
-            $table->unsignedInteger('number_historic_assets')->default(0);
 
+            $table->timestampTz('first_used_at')->nullable();
+            $table->timestampTz('last_used_at')->nullable();
+
+            $table->unsignedInteger('number_customers')->default(0);
+            $table->unsignedInteger('number_orders')->default(0);
+            $table->decimal('amount')->default(0);
+            $table->decimal('org_amount')->default(0);
+            $table->decimal('group_amount')->default(0);
             $table->timestampsTz();
         });
     }
