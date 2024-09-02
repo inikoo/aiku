@@ -18,6 +18,7 @@ use App\Actions\Goods\StockFamily\UI\IndexStockFamilies;
 use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
+use App\Actions\Goods\TradeUnit\UI\ShowTradeUnit;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Stubs\UIDummies\EditDummy;
 use App\Stubs\UIDummies\ShowDummy;
@@ -99,8 +100,8 @@ Route::prefix('families')->as('stock-families.')->group(function () {
 
 Route::prefix('trade-units')->as('trade-units.')->group(function () {
     Route::get('/', IndexTradeUnits::class)->name('index');
-    Route::prefix('{tradeUnit}')->group(function () {
-        Route::get('', ShowDummy::class)->name('show');
+    Route::prefix('{tradeUnit:slug}')->group(function () {
+        Route::get('', ShowTradeUnit::class)->name('show');
         Route::get('edit', EditDummy::class)->name('edit');
     });
 });
