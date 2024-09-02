@@ -9,7 +9,6 @@ namespace App\Actions\Dropshipping\Shopify\Webhook;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\Customer;
 use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -59,7 +58,7 @@ class StoreWebhooksToShopify extends OrgAction
 
             if(!$webhook['errors']) {
                 $this->update($shopifyUser, [
-                    'data' => [
+                    'settings' => [
                         'webhooks' => array_merge($shopifyUser->settings, $webhook['body']['webhook'])
                     ]
                 ]);
@@ -67,7 +66,7 @@ class StoreWebhooksToShopify extends OrgAction
         }
     }
 
-    public function asController(Customer $customer, ShopifyUser $shopifyUser)
+    public function asController(ShopifyUser $shopifyUser)
     {
         $this->handle($shopifyUser);
     }
