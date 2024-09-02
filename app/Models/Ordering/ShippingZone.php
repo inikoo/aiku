@@ -7,12 +7,16 @@
 
 namespace App\Models\Ordering;
 
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -20,17 +24,29 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Ordering\ShippingZone
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $shop_id
  * @property int $shipping_zone_schema_id
  * @property bool $status
  * @property string $slug
+ * @property bool $is_failover
  * @property string $code
  * @property string $name
- * @property array $territories
  * @property array $price
- * @property Carbon|null $deleted_at
+ * @property array $territories
+ * @property int $position
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property Carbon|null $deleted_at
+ * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read \App\Models\Ordering\ShippingZoneStats|null $stats
  * @method static \Database\Factories\Ordering\ShippingZoneFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZone newModelQuery()
  * @method static Builder|ShippingZone newQuery()
@@ -40,13 +56,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ShippingZone withoutTrashed()
  * @mixin Eloquent
  */
-class ShippingZone extends Model
+class ShippingZone extends Model implements Auditable
 {
     use SoftDeletes;
-
+    use InShop;
     use HasSlug;
     use HasFactory;
-
+    use HasHistory;
 
     protected $casts = [
         'territories' => 'array',
@@ -61,6 +77,16 @@ class ShippingZone extends Model
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return ['ordering'];
+    }
+
+    protected array $auditInclude = [
+        'name',
+        'type',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -74,4 +100,11 @@ class ShippingZone extends Model
     {
         return 'slug';
     }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(ShippingZoneStats::class);
+    }
+
+
 }

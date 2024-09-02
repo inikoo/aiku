@@ -51,6 +51,7 @@ use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraService;
 use App\Transfers\Aurora\FetchAuroraShipper;
+use App\Transfers\Aurora\FetchAuroraShippingZone;
 use App\Transfers\Aurora\FetchAuroraShippingZoneSchema;
 use App\Transfers\Aurora\FetchAuroraShop;
 use App\Transfers\Aurora\FetchAuroraStock;
@@ -387,6 +388,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchShippingZoneSchema($id): ?array
     {
         return (new FetchAuroraShippingZoneSchema($this))->fetch($id);
+    }
+
+    public function fetchShippingZone($id): ?array
+    {
+        return (new FetchAuroraShippingZone($this))->fetch($id);
     }
 
 }

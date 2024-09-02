@@ -131,4 +131,6 @@ interface SourceOrganisationService
 
     public function fetchShippingZoneSchema($id);
 
+    public function fetchShippingZone($id);
+
 }

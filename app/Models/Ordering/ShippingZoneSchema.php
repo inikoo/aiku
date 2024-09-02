@@ -75,8 +75,12 @@ class ShippingZoneSchema extends Model implements Auditable
     }
 
     protected array $auditInclude = [
+        'status',
+        'code',
         'name',
-        'type',
+        'territories',
+        'price'
+
     ];
 
     public function getSlugOptions(): SlugOptions
