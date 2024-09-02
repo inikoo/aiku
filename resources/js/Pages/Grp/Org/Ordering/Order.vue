@@ -54,12 +54,12 @@ import { Address, AddressManagement } from "@/types/PureComponent/Address"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faExclamationTriangle, faExclamation } from '@fas'
-import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone } from '@fal'
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
-library.add(faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faExclamation)
+library.add(faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faExclamation)
 
 
 const props = defineProps<{
@@ -117,6 +117,7 @@ const props = defineProps<{
                 paid_amount: number
                 pay_amount: number
             }
+            estimated_weight: number
         }
         order_summary: {
             
@@ -349,7 +350,7 @@ const onSubmitPayment = () => {
             <Link as="a" v-if="box_stats?.customer.reference" :href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
                 class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
                 <dt v-tooltip="'Company name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
@@ -358,7 +359,7 @@ const onSubmitPayment = () => {
             <!-- Field: Contact name -->
             <div v-if="box_stats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
             </div>
@@ -366,7 +367,7 @@ const onSubmitPayment = () => {
             <!-- Field: Company name -->
             <div v-if="box_stats?.customer.company_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Company name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
@@ -390,7 +391,7 @@ const onSubmitPayment = () => {
 
             <!-- Field: Address -->
             <div v-if="box_stats?.customer.addresses" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
-                <dt v-tooltip="'Address'" class="flex-none">
+                <dt v-tooltip="'Address'" class="text-smflex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="w-full text-gray-500 text-xs">
@@ -421,6 +422,15 @@ const onSubmitPayment = () => {
                     :payAmount="box_stats.products.payment.pay_amount"
                     :class="[box_stats.products.payment.pay_amount ? 'hover:bg-gray-100 cursor-pointer' : '']"
                 />
+            </div>
+
+            <div class="mt-1 flex items-center w-full flex-none gap-x-1.5">
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-weight' fixed-width aria-hidden='true' class="text-gray-500" />
+                </dt>
+                <dd class="text-gray-500" v-tooltip="trans('Estimated weight of all products')">
+                    {{ box_stats?.products.estimated_weight || 0 }} grams
+                </dd>
             </div>
         </BoxStatPallet>
 
