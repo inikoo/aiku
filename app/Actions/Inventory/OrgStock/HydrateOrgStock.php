@@ -12,7 +12,7 @@ use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateLocations;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateMovements;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateQuantityInLocations;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateValueInLocations;
-use App\Models\SupplyChain\Stock;
+use App\Models\Inventory\OrgStock;
 use Illuminate\Support\Collection;
 
 class HydrateOrgStock extends HydrateModel
@@ -20,23 +20,23 @@ class HydrateOrgStock extends HydrateModel
     public string $commandSignature = 'org-stocks:hydrate {organisations?*} {--s|slugs=} ';
 
 
-    public function handle(Stock $stock): void
+    public function handle(OrgStock $orgStock): void
     {
-        OrgStockHydrateLocations::run($stock);
-        OrgStockHydrateQuantityInLocations::run($stock);
-        OrgStockHydrateValueInLocations::run($stock);
-        OrgStockHydrateMovements::run($stock);
+        OrgStockHydrateLocations::run($orgStock);
+        OrgStockHydrateQuantityInLocations::run($orgStock);
+        OrgStockHydrateValueInLocations::run($orgStock);
+        OrgStockHydrateMovements::run($orgStock);
     }
 
 
 
-    protected function getModel(string $slug): Stock
+    protected function getModel(string $slug): OrgStock
     {
-        return Stock::where('slug', $slug)->first();
+        return OrgStock::where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
     {
-        return Stock::withTrashed()->get();
+        return OrgStock::withTrashed()->get();
     }
 }

@@ -18,7 +18,7 @@ class GetOrgStockShowcase
 
     public function handle(Warehouse $warehouse, OrgStock $orgStock)
     {
-        $orgStock->load('locations');
+        $orgStock->load('locationOrgStocks');
 
         return collect(
             [

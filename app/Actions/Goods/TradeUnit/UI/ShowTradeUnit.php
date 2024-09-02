@@ -1,0 +1,176 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 23 Mar 2024 12:56:01 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Goods\TradeUnit\UI;
+
+use App\Actions\Goods\HasGoodsAuthorisation;
+use App\Actions\GrpAction;
+use App\Actions\UI\Goods\ShowGoodsDashboard;
+use App\Enums\UI\SupplyChain\TradeUnitTabsEnum;
+use App\Http\Resources\Goods\TradeUnitResource;
+use App\Models\Goods\TradeUnit;
+use App\Models\SupplyChain\Stock;
+use App\Models\SysAdmin\Group;
+use Inertia\Inertia;
+use Inertia\Response;
+use Lorisleiva\Actions\ActionRequest;
+
+class ShowTradeUnit extends GrpAction
+{
+    use HasGoodsAuthorisation;
+
+    private Group $parent;
+
+    public function handle(TradeUnit $tradeUnit): TradeUnit
+    {
+
+        return $tradeUnit;
+    }
+
+
+    public function asController(TradeUnit $tradeUnit, ActionRequest $request): TradeUnit
+    {
+        $this->parent=group();
+        $this->initialisation($this->parent, $request)->withTab(TradeUnitTabsEnum::values());
+        return $this->handle($tradeUnit);
+    }
+
+    public function htmlResponse(TradeUnit $tradeUnit, ActionRequest $request): Response
+    {
+
+        return Inertia::render(
+            'Goods/TradeUnit',
+            [
+                    'title'       => __('Trade Unit'),
+                    'breadcrumbs' => $this->getBreadcrumbs(
+                        $tradeUnit,
+                        $request->route()->getName(),
+                        $request->route()->originalParameters()
+                    ),
+                    'navigation'  => [
+                        'previous' => $this->getPrevious($tradeUnit, $request),
+                        'next'     => $this->getNext($tradeUnit, $request),
+                    ],
+                    'pageHead'    => [
+                        'icon'    => [
+                            'title' => __('trade unit'),
+                            'icon'  => 'fal fa-atom'
+                        ],
+                        'title'   => $tradeUnit->code,
+                        'actions' => [
+                            $this->canEdit ? [
+                                'type'  => 'button',
+                                'style' => 'edit',
+                                'route' => [
+                                    'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                    'parameters' => array_values($request->route()->originalParameters())
+                                ]
+                            ] : false,
+                            // $this->canDelete ? [
+                            //     'type'  => 'button',
+                            //     'style' => 'delete',
+                            //     'route' => [
+                            //         'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.stocks.remove',
+                            //         'parameters' => array_values($request->route()->originalParameters())
+                            //     ]
+
+                            // ] : false
+                        ]
+                    ],
+                    'tabs'=> [
+                        'current'    => $this->tab,
+                        'navigation' => TradeUnitTabsEnum::navigation()
+
+                    ],
+            ]
+        );
+    }
+
+
+    public function jsonResponse(TradeUnit $tradeUnit): TradeUnitResource
+    {
+        return new TradeUnitResource($tradeUnit);
+    }
+
+    public function getBreadcrumbs(TradeUnit $tradeUnit, string $routeName, array $routeParameters, $suffix = null): array
+    {
+        $headCrumb = function (TradeUnit $tradeUnit, array $routeParameters, $suffix) {
+            return [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Trade Units')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $tradeUnit->slug,
+                        ],
+                    ],
+                    'suffix' => $suffix,
+
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.goods.trade-units.show' =>
+            array_merge(
+                ShowGoodsDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    $tradeUnit,
+                    [
+                        'index' => [
+                            'name'       => preg_replace('/show$/', 'index', $routeName),
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => $routeName,
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
+    }
+
+    public function getPrevious(TradeUnit $tradeUnit, ActionRequest $request): ?array
+    {
+        $previous = TradeUnit::where('code', '<', $tradeUnit->code)->orderBy('code', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(TradeUnit $tradeUnit, ActionRequest $request): ?array
+    {
+        $next = TradeUnit::where('code', '>', $tradeUnit->code)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?TradeUnit $tradeUnit, string $routeName): ?array
+    {
+        if (!$tradeUnit) {
+            return null;
+        }
+
+
+        return match ($routeName) {
+            'grp.goods.trade-units.show' => [
+                'label' => $tradeUnit->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'tradeUnit' => $tradeUnit->slug
+                    ]
+                ]
+            ],
+        };
+    }
+}

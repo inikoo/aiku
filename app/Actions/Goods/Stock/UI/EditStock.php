@@ -53,6 +53,7 @@ class EditStock extends InertiaAction
             [
                 'title'       => __('sku'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $stock,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -109,9 +110,10 @@ class EditStock extends InertiaAction
         );
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(Stock $stock, string $routeName, array $routeParameters): array
     {
         return ShowStock::make()->getBreadcrumbs(
+            stock: $stock,
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '(' . __('Editing') . ')'
@@ -147,6 +149,15 @@ class EditStock extends InertiaAction
 
         return match ($routeName) {
             'grp.org.warehouses.show.inventory.org-stocks.edit' => [
+                'label' => $stock->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'stock' => $stock->slug
+                    ]
+                ]
+            ],
+            'grp.goods.stocks.active_stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
                     'name'       => $routeName,
