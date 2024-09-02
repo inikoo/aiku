@@ -7,25 +7,33 @@
 
 namespace App\Actions\Inventory\OrgStock\Hydrators;
 
-use App\Models\SupplyChain\Stock;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use App\Models\Inventory\OrgStock;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrgStockHydrateValueInLocations implements ShouldBeUnique
+class OrgStockHydrateValueInLocations
 {
     use AsAction;
 
+    private OrgStock $orgStock;
 
-    public function handle(Stock $stock): void
+    public function __construct(OrgStock $orgStock)
+    {
+        $this->orgStock = $orgStock;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->orgStock->id))->dontRelease()];
+    }
+
+    public function handle(OrgStock $orgStock): void
     {
 
-        $stock->update([
-            'value_in_locations' => $stock->locations()->sum('quantity')*$stock->unit_value
+        $orgStock->update([
+            'value_in_locations' => $orgStock->locationOrgStocks()->sum('quantity')*$orgStock->unit_value
         ]);
     }
 
-    public function getJobUniqueId(Stock $stock): int
-    {
-        return $stock->id;
-    }
+
 }
