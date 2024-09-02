@@ -12,6 +12,7 @@ use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Catalogue\Collection\AttachCollectionToModels;
+use App\Actions\Catalogue\Collection\DetachModelFromCollection;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\Product\DeleteImagesFromProduct;
@@ -546,6 +547,7 @@ Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
 
 Route::name('collection.')->prefix('collection/{collection:id}')->group(function () {
     Route::post('attach-models', AttachCollectionToModels::class)->name('attach-models');
+    Route::post('detach-models', DetachModelFromCollection::class)->name('detach-models');
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";
