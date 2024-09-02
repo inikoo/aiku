@@ -8,6 +8,7 @@
 
 use App\Actions\Dropshipping\Shopify\Product\GetProductForShopify;
 use App\Actions\Dropshipping\Shopify\Product\StoreProductShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\StoreWebhooksToShopify;
 use App\Actions\UI\Pupil\Dashboard\ShowDashboard;
 use Osiset\ShopifyApp\Http\Controllers\AuthController;
 
@@ -15,6 +16,8 @@ Route::middleware(['verify.shopify'])->group(function () {
     Route::get('/', ShowDashboard::class)->name('home');
     Route::get('shopify-user/{shopifyUser:id}/products', GetProductForShopify::class)->name('products');
     Route::post('shopify-user/{shopifyUser:id}/products', StoreProductShopify::class)->name('shopify_user.product.store')->withoutScopedBindings();
+
+    Route::post('shopify-user/{shopifyUser:id}/get-started', StoreWebhooksToShopify::class)->name('shopify_user.get_started.store')->withoutScopedBindings();
 });
 
 Route::match(
