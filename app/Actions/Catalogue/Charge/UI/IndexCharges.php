@@ -172,18 +172,18 @@ class IndexCharges extends OrgAction
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('charges')
                     ],
-                    // 'actions'   => [
-                    //     $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.departments.index' ? [
-                    //         'type'    => 'button',
-                    //         'style'   => 'create',
-                    //         'tooltip' => __('new department'),
-                    //         'label'   => __('department'),
-                    //         'route'   => [
-                    //             'name'       => 'grp.org.shops.show.catalogue.departments.create',
-                    //             'parameters' => $request->route()->originalParameters()
-                    //         ]
-                    //     ] : false,
-                    // ]
+                    'actions'   => [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.assets.charges.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new charge'),
+                            'label'   => __('charge'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.assets.charges.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                    ]
                 ],
                 'data'        => ChargesResource::collection($charges),
             ]
