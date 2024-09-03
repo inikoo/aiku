@@ -7,7 +7,9 @@
 
 use App\Actions\Catalogue\Asset\UI\CreateProduct;
 use App\Actions\Catalogue\Charge\UI\IndexCharges;
+use App\Actions\Catalogue\Shipping\UI\CreateShippingZoneSchema;
 use App\Actions\Catalogue\Shipping\UI\IndexShippingZoneSchemas;
+use App\Actions\Catalogue\Shipping\UI\ShowShippingZoneSchema;
 use App\Actions\UI\Dropshipping\Assets\ShowAssetDashboard;
 use App\Stubs\UIDummies\EditDummy;
 use App\Stubs\UIDummies\IndexDummies;
@@ -20,9 +22,12 @@ Route::get('', ShowAssetDashboard::class)->name('dashboard');
 Route::name("shipping.")->prefix('shipping')
     ->group(function () {
         Route::get('', IndexShippingZoneSchemas::class)->name('index');
-        Route::get('create', CreateProduct::class)->name('create');
+        Route::get('create', CreateShippingZoneSchema::class)->name('create');
 
-
+        Route::prefix('{shippingZoneSchema}')->group(function () {
+            Route::get('', ShowShippingZoneSchema::class)->name('show');
+            Route::get('edit', EditDummy::class)->name('edit');
+        });
     });
 
 Route::name("charges.")->prefix('charges')

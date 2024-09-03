@@ -10,12 +10,14 @@ namespace App\Enums\UI\Catalogue;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum ShippingZoneSchemaTabsEnum: string
+enum ShippingTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE      = 'showcase';
+    case CURRENT      = 'current';
+    case OFFER        = 'offer';
+    case SCHEMAS      = 'schemas';
     case HISTORY      = 'history';
 
 
@@ -23,11 +25,21 @@ enum ShippingZoneSchemaTabsEnum: string
     {
         return match ($this) {
 
-            ShippingZoneSchemaTabsEnum::SHOWCASE => [
-                'title' => __('details'),
+            ShippingTabsEnum::CURRENT => [
+                'title' => __('current'),
                 'icon'  => 'fal fa-shopping-cart',
             ],
-            ShippingZoneSchemaTabsEnum::HISTORY => [
+            ShippingTabsEnum::OFFER => [
+                'title' => __('offer'),
+                'icon'  => 'fal fa-chart-pie',
+            ],
+            ShippingTabsEnum::SCHEMAS => [
+                'title' => __('schemas'),
+                'icon'  => 'fal fa-tags',
+                'type'  => 'icon',
+                'align' => 'right'
+            ],
+            ShippingTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

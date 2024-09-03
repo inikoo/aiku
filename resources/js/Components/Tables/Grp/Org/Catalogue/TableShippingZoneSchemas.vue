@@ -19,29 +19,17 @@
   }>();
   
   
-//   function shopRoute(schema: {}) {
-//     console.log(route().current())
-//     switch (route().current()) {
-//       case "grp.org.shops.show.assets.shipping.index":
-//         return route(
-//             "grp.org.shops.show.crm.show.orders.show",
-//             [route().params["organisation"],,route().params["shop"], route().params["customer"], order.slug]);
-//       case "grp.org.shops.show.ordering.orders.index":
-//         return route(
-//             "grp.org.shops.show.ordering.orders.show",
-//             [ route().params["organisation"],route().params["shop"],order.slug]);
-//       case "grp.org.shops.show.crm.customers.show.orders.index":
-//         return route(
-//             "grp.org.shops.show.crm.customers.show.orders.show",
-//             [ route().params["organisation"],route().params["shop"],route().params["customer"],order.slug]);
-//       case "grp.org.shops.show.crm.customers.show.customer-clients.orders.index":
-//         return route(
-//             "grp.org.shops.show.crm.customers.show.customer-clients.orders.show",
-//             [ route().params["organisation"],route().params["shop"],route().params["customer"],route().params["customerClient"],order.slug]);
-//       default:
-//         return null;
-//     }
-//   }
+  function shopRoute(schema: {}) {
+    console.log(route().current())
+    switch (route().current()) {
+      case "grp.org.shops.show.assets.shipping.index":
+        return route(
+            "grp.org.shops.show.assets.shipping.show",
+            [route().params["organisation"],route().params["shop"], schema.slug]);
+      default:
+        return null;
+    }
+  }
   
   
   </script>
@@ -49,7 +37,9 @@
   <template>
     <Table :resource="data" :name="tab" class="mt-5">
       <template #cell(name)="{ item: schema }">
-          {{ schema["name"] }}
+        <Link :href="shopRoute(schema)" class="primaryLink">
+        {{ schema["name"] }}
+      </Link>
       </template>
     </Table>
   </template>
