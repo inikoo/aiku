@@ -8,6 +8,7 @@
 namespace App\Actions\Dropshipping\Shopify\Webhook;
 
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
@@ -19,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class CreateOrderWebhooksShopify extends OrgAction
+class CreateFulfilmentWebhooksShopify extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -27,23 +28,8 @@ class CreateOrderWebhooksShopify extends OrgAction
 
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $billingAddress  = Arr::get($modelData, 'billing_address');
-        $deliveryAddress = Arr::get($modelData, 'shipping_address');
-
-        $countryBillingAddress  = Country::where('code', Arr::get($billingAddress, 'country_code'))->first();
+        $deliveryAddress        = Arr::get($modelData, 'destination');
         $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
-
-        $billingAddress = [
-            'address_line_1'      => Arr::get($billingAddress, 'address1'),
-            'address_line_2'      => Arr::get($billingAddress, 'address2'),
-            'sorting_code'        => null,
-            'postal_code'         => Arr::get($billingAddress, 'zip'),
-            'dependent_locality'  => null,
-            'locality'            => Arr::get($billingAddress, 'city'),
-            'administrative_area' => Arr::get($billingAddress, 'province'),
-            'country_code'        => Arr::get($billingAddress, 'country_code'),
-            'country_id'          => $countryBillingAddress->id
-        ];
 
         $deliveryAddress = [
             'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
@@ -60,12 +46,26 @@ class CreateOrderWebhooksShopify extends OrgAction
         $order = StoreOrder::make()->action($shopifyUser->customer, [
             'reference'        => Str::random(8),
             'date'             => $modelData['created_at'],
-            'billing_address'  => new Address($billingAddress),
             'delivery_address' => new Address($deliveryAddress)
         ]);
 
+        $productIds     = collect($modelData['line_items'])->pluck('product_id');
+        $historicAssets = $shopifyUser->organisation->assets()
+            ->whereIn('id', function ($query) use ($productIds) {
+                $query->select('asset_id')
+                    ->from('products')
+                    ->whereIn('id', $productIds);
+            })->chunkMap(function ($asset) {
+                return $asset->historicAsset;
+            }, 100);
+
+        foreach ($historicAssets as $historicAsset) {
+            StoreTransaction::make()->action($order, $historicAsset, []);
+        }
+
         $shopifyUser->orders()->attach($order->id, [
-            'shopify_order_id' => $modelData['id']
+            'shopify_fulfilment_id' => $modelData['id'],
+            'shopify_order_id'      => $modelData['order_id'],
         ]);
     }
 

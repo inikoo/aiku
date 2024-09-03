@@ -11,7 +11,7 @@ use App\Actions\Ordering\Order\UpdateStateToSettledOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
-use App\Models\ShopifyUserHasOrder;
+use App\Models\ShopifyUserHasFulfilment;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -24,7 +24,7 @@ class FulfilledOrderWebhooksShopify extends OrgAction
 
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $shopifyUserHasOrder = ShopifyUserHasOrder::where('shopify_user_id', $shopifyUser->id)
+        $shopifyUserHasOrder = ShopifyUserHasFulfilment::where('shopify_user_id', $shopifyUser->id)
             ->where('shopify_order_id', $modelData['id'])
             ->firstOrFail();
 
