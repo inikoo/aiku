@@ -27,6 +27,8 @@ interface SourceOrganisationService
 
     public function fetchTransaction($id);
 
+    public function fetchNoProductTransaction($id);
+
     public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote);
 
     public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment);
@@ -128,5 +130,9 @@ interface SourceOrganisationService
     public function fetchCharge($id);
 
     public function fetchCredit($id);
+
+    public function fetchShippingZoneSchema($id);
+
+    public function fetchShippingZone($id);
 
 }

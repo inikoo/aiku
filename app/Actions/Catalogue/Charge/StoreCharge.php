@@ -17,6 +17,8 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCharges;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
@@ -46,6 +48,9 @@ class StoreCharge extends OrgAction
         $asset = StoreAsset::run(
             $charge,
             [
+                'units' => 1,
+                'unit'  => 'charge',
+                'price' => null,
                 'type'  => AssetTypeEnum::CHARGE,
                 'state' => match ($charge->state) {
                     ChargeStateEnum::IN_PROCESS   => AssetStateEnum::IN_PROCESS,
@@ -89,8 +94,8 @@ class StoreCharge extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'code'               => [
+        $rules = [
+            'code'        => [
                 'required',
                 'max:32',
                 'alpha_dash',
@@ -103,20 +108,29 @@ class StoreCharge extends OrgAction
                     ]
                 ),
             ],
-            'name'                     => ['required', 'max:250', 'string'],
-            'price'                    => ['required', 'numeric', 'min:0'],
-            'unit'                     => ['required', 'string'],
-            'state'                    => ['sometimes', 'required', Rule::enum(ChargeStateEnum::class)],
-            'data'                     => ['sometimes', 'array'],
-            'created_at'               => ['sometimes', 'date'],
-            'source_id'                => ['sometimes', 'string', 'max:63']
+            'name'        => ['required', 'max:250', 'string'],
+            'description' => ['required', 'nullable', 'max:1024', 'string'],
+            'state'       => ['sometimes', 'required', Rule::enum(ChargeStateEnum::class)],
+            'data'        => ['sometimes', 'array'],
+            'settings'    => ['sometimes', 'array'],
+            'trigger'     => ['sometimes', 'required', Rule::enum(ChargeTriggerEnum::class)],
+            'type'        => ['sometimes', 'required', Rule::enum(ChargeTypeEnum::class)],
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Charge
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Charge
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
+        $this->strict         = $strict;
 
 
         $this->initialisationFromShop($shop, $modelData);

@@ -12,7 +12,6 @@ use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricAssets;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
 use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateHistoricAssets;
-use App\Actions\Catalogue\Insurance\Hydrators\InsuranceHydrateHistoricAssets;
 use App\Actions\Catalogue\Service\Hydrators\ServiceHydrateHistoricAssets;
 use App\Models\Catalogue\Adjustment;
 use App\Models\Catalogue\Charge;
@@ -20,7 +19,6 @@ use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Subscription;
 use App\Models\Fulfilment\Rental;
 use App\Models\Catalogue\HistoricAsset;
-use App\Models\Catalogue\Insurance;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use Illuminate\Support\Arr;
@@ -30,7 +28,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|Insurance|Shipping|Adjustment $assetModel, array $modelData = []): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|Shipping|Adjustment $assetModel, array $modelData = []): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),
@@ -81,9 +79,6 @@ class StoreHistoricAsset
         }
         if ($assetModel instanceof Charge) {
             ChargeHydrateHistoricAssets::dispatch($assetModel);
-        }
-        if ($assetModel instanceof Insurance) {
-            InsuranceHydrateHistoricAssets::dispatch($assetModel);
         }
         AssetHydrateHistoricAssets::dispatch($assetModel->asset);
 

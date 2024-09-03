@@ -16,7 +16,7 @@ use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchTransactions
+class FetchAuroraTransactions
 {
     use AsAction;
 

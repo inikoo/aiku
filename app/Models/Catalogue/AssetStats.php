@@ -30,7 +30,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $number_assets_type_charge
  * @property int $number_assets_type_shipping
- * @property int $number_assets_type_insurance
  * @property int $number_assets_type_adjustment
  * @property-read \App\Models\Catalogue\Asset $asset
  * @method static Builder|AssetStats newModelQuery()

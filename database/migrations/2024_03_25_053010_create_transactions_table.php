@@ -25,7 +25,6 @@ return new class () extends Migration {
             $table = $this->salesTransactionParents($table);
             $table->unsignedInteger('invoice_id')->nullable()->index();
             $table->foreign('invoice_id')->references('id')->on('invoices');
-            $table->string('type');
             $table->datetimeTz('date');
             $table->dateTimeTz('submitted_at')->nullable();
             $table->dateTimeTz('in_warehouse_at')->nullable();

@@ -15,29 +15,17 @@ enum ShippingZoneSchemaTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case CURRENT      = 'current';
-    case OFFER        = 'offer';
-    case SCHEMAS      = 'schemas';
-    case HISTORY      = 'history';
+    case SHOWCASE      = 'showcase';
+    case HISTORY       = 'history';
 
 
     public function blueprint(): array
     {
         return match ($this) {
 
-            ShippingZoneSchemaTabsEnum::CURRENT => [
-                'title' => __('current'),
+            ShippingZoneSchemaTabsEnum::SHOWCASE => [
+                'title' => __('details'),
                 'icon'  => 'fal fa-shopping-cart',
-            ],
-            ShippingZoneSchemaTabsEnum::OFFER => [
-                'title' => __('offer'),
-                'icon'  => 'fal fa-chart-pie',
-            ],
-            ShippingZoneSchemaTabsEnum::SCHEMAS => [
-                'title' => __('schemas'),
-                'icon'  => 'fal fa-tags',
-                'type'  => 'icon',
-                'align' => 'right'
             ],
             ShippingZoneSchemaTabsEnum::HISTORY => [
                 'title' => __('history'),

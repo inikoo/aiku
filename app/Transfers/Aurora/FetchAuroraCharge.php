@@ -8,6 +8,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
 use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -15,47 +16,62 @@ class FetchAuroraCharge extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $shop = $this->parseShop($this->auroraModelData->{'Charge Store Key'});
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Charge Store Key'});
 
-
-        $type = match ($this->auroraModelData->{'Charge Scope'}) {
-            'Hanging'  => ChargeTypeEnum::HANGING,
-            'Premium'  => ChargeTypeEnum::PREMIUM,
-            'Tracking' => ChargeTypeEnum::TRACKING,
-            'Pastpay'  => ChargeTypeEnum::PASTPAY,
-            'CoD'      => ChargeTypeEnum::COD,
-            default    => null
+        $trigger = match ($this->auroraModelData->{'Charge Trigger'}) {
+            'Product'              => ChargeTriggerEnum::PRODUCT,
+            'Order'                => ChargeTriggerEnum::ORDER,
+            'Selected by Customer' => ChargeTriggerEnum::SELECTED_BY_CUSTOMER,
+            'Payment Type'         => ChargeTriggerEnum::PAYMENT_ACCOUNT,
+            default                => null
         };
 
-        $this->parsedData['model'] = $this->auroraModelData->{'Charge Scope'} == 'Insurance' ? 'Insurance' : 'Charge';
+        $type = match ($this->auroraModelData->{'Charge Scope'}) {
+            'Hanging'   => ChargeTypeEnum::HANGING,
+            'Premium'   => ChargeTypeEnum::PREMIUM,
+            'Tracking'  => ChargeTypeEnum::TRACKING,
+            'Pastpay'   => ChargeTypeEnum::PAYMENT,
+            'Insurance' => ChargeTypeEnum::INSURANCE,
+            'CoD'       => ChargeTypeEnum::COD,
+            'Packing'   => ChargeTypeEnum::PACKING,
+            default     => null
+        };
 
         $settings = [
             'rules'        => $this->auroraModelData->{'Charge Terms Metadata'},
             'rule_subject' => $this->auroraModelData->{'Charge Terms Type'},
         ];
 
-        $state = $this->auroraModelData->{'Charge Active'} === 'Yes' ? ChargeStateEnum::ACTIVE : ChargeStateEnum::DISCONTINUED;
-
-        $this->parsedData['modelData'] = [
-            'code'        => $this->auroraModelData->{'Charge Scope'}.'-'.$shop->code,
-            'name'        => $this->auroraModelData->{'Charge Name'},
-            'description' => $this->auroraModelData->{'Charge Public Description'},
-            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Charge Key'},
-            'type'        => $type,
-            'created_at'  => $this->parseDatetime($this->auroraModelData->{'Charge Begin Date'}),
-            'settings'    => $settings,
-            'state'       => $state
-        ];
-
-        if ($type != ChargeTypeEnum::PASTPAY) {
-            $this->parsedData['modelData']['price'] = $this->auroraModelData->{'Charge Metadata'};
+        if ($this->auroraModelData->{'Charge Scope'} != 'Pastpay') {
+            $settings['amount'] = $this->auroraModelData->{'Charge Metadata'};
         }
 
 
-        $createdBy = $this->auroraModelData->{'Clocking Machine Creation Date'};
+        $description = strip_tags(html_entity_decode(htmlspecialchars_decode($this->auroraModelData->{'Charge Public Description'})));
+        if ($description == '') {
+            $description = strip_tags($this->auroraModelData->{'Charge Description'});
+        }
+
+        $state                      = $this->auroraModelData->{'Charge Active'} === 'Yes' ? ChargeStateEnum::ACTIVE : ChargeStateEnum::DISCONTINUED;
+        $this->parsedData['shop']   = $shop;
+        $this->parsedData['charge'] = [
+            'code'            => $this->auroraModelData->{'Charge Scope'}.'-'.$shop->code,
+            'name'            => $this->auroraModelData->{'Charge Name'},
+            'description'     => $description,
+            'type'            => $type,
+            'trigger'         => $trigger,
+            'settings'        => $settings,
+            'state'           => $state,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Charge Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now()
+        ];
+
+
+        $createdBy = $this->auroraModelData->{'Charge Begin Date'};
 
         if ($createdBy) {
-            $this->parsedData['clocking-machine']['created_by'] = $createdBy;
+            $this->parsedData['charge']['created_by'] = $createdBy;
         }
     }
 
@@ -63,7 +79,7 @@ class FetchAuroraCharge extends FetchAurora
     protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
-            ->table('Clocking Machine Dimension')
-            ->where('Clocking Machine Key', $id)->first();
+            ->table('Charge Dimension')
+            ->where('Charge Key', $id)->first();
     }
 }

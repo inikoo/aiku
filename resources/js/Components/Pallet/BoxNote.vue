@@ -61,10 +61,14 @@ const fallbackColor = '#374151'  // Color
         <div class="absolute top-0 left-0 w-full flex gap-x-1 lg:pr-0 justify-between lg:justify-normal">
             <div class="w-full flex items-center justify-between text-xs truncate text-center py-0.5 pl-3 pr-3" :style="{
                 // borderBottom: `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 80%, black) solid 1px`,
-                backgroundColor: useBasicColor(noteData.bgColor) ? `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 40%, white)` : fallbackBgColor,
+                backgroundColor: useBasicColor(noteData.bgColor) ? `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 40%, white)` : noteData.bgColor || fallbackBgColor,
                 color: noteData.color || fallbackColor
             }">
-                <div>
+                <div
+                    :style="{
+                        color: noteData.textColor || fallbackColor
+                    }"
+                >
                     <FontAwesomeIcon icon='fas fa-sticky-note' class='' fixed-width aria-hidden='true' />
                     {{ noteData.label }}
                 </div>
@@ -76,7 +80,7 @@ const fallbackColor = '#374151'  // Color
                         <FontAwesomeIcon icon='fas fa-pencil' size="xs" class='group-hover:text-gray-100'
                             fixed-width aria-hidden='true'
                             :style="{
-                                color: fallbackColor
+                                color: noteData.textColor || fallbackColor
                             }"
                         />
                     </div>
@@ -84,10 +88,10 @@ const fallbackColor = '#374151'  // Color
                     <!-- Icon: Plus (add note) -->
                     <div v-else="!noteData.note" @click="isModalOpen = true" class="h-5 aspect-square flex items-center justify-center cursor-pointer">
                         <FontAwesomeIcon v-tooltip="trans('Add note')" icon='far fa-plus' class='' fixed-width aria-hidden='true'
-                            :style="{
-                                color: fallbackColor
-                            }"
-                        />
+                        :style="{
+                            color: noteData.textColor || fallbackColor
+                        }"
+                    />
                     </div>
                 </template>
 
@@ -104,8 +108,9 @@ const fallbackColor = '#374151'  // Color
             class="h-full mx-auto items-center px-4 rounded-md pt-4 pb-2 text-xxs break-words"
             :class="noteData.editable ? 'cursor-pointer' : ''"
             :style="{
-                backgroundColor: useBasicColor(noteData.bgColor) + '11' || fallbackBgColor,
-                color: fallbackColor
+                backgroundColor: useBasicColor(noteData.bgColor) + '11' || noteData.bgColor ? `${noteData.bgColor}11` : fallbackBgColor,
+                color: fallbackColor,
+                border:`1px solid ${useBasicColor(noteData.bgColor) ? `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 40%, white)` : noteData.bgColor || fallbackBgColor}`
             }"
         >
             <template v-if="noteData.note">{{ noteData.note }}</template>

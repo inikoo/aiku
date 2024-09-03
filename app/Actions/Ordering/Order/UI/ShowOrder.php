@@ -88,12 +88,19 @@ class ShowOrder extends OrgAction
         $timeline       = [];
         foreach (OrderStateEnum::cases() as $state) {
 
+            $timestamp = $order->{$state->snake() . '_at'}
+            ? $order->{$state->snake() . '_at'}
+            : null;
+
+            // If all possible values are null, set the timestamp to null explicitly
+            $timestamp = $timestamp ?: null;
+
             $timeline[$state->value] = [
-                'label'   => $state->labels()[$state->value],
-                'tooltip' => $state->labels()[$state->value],
-                'key'     => $state->value,
-               /*  'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
-                'timestamp' => $order->{$state->snake() . '_at'} ? $order->{$state->snake() . '_at'}->toISOString() : null
+                'label'     => $state->labels()[$state->value],
+                'tooltip'   => $state->labels()[$state->value],
+                'key'       => $state->value,
+                /* 'icon'    => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
+                'timestamp' => $timestamp
             ];
         }
 
@@ -201,7 +208,25 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
-                'timeline'      => $finalTimeline,
+                'alert'   => [  // TODO
+                    'status'        => 'danger',
+                    'title'         => 'Dummy Alert from BE',
+                    'description'   => 'Dummy description'
+                ],
+                'notes' => [  // TODO
+                    "note_list"  => [
+                        [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
+                        [ "label" => __("Public"), "note" => "", "editable" => true, "bgColor" => "#40E0D0", "field" => "public_notes" ],
+                        [ "label" => __("Private"), "note" => "", "editable" => true, "bgColor" => "#4b5563", "textColor" => "#fff", "field" => "internal_notes" ]
+                    ],
+                    "updateRoute"   => [
+                        "name"       => "grp.models.pallet-delivery.update",
+                        "parameters" => [
+                            "palletDelivery" => 1
+                        ]
+                    ]
+                ],
+                'timelines'      => $finalTimeline,
 
                 'box_stats'     => [
                     'customer'          => array_merge(

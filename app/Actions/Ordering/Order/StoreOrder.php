@@ -42,7 +42,7 @@ class StoreOrder extends OrgAction
     use WithOrderExchanges;
 
     public int $hydratorsDelay = 0;
-    private $fromPupil;
+
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
         if (!Arr::get($modelData, 'reference')) {
@@ -65,7 +65,7 @@ class StoreOrder extends OrgAction
                 $billingAddress  = $parent->address;
                 $deliveryAddress = $parent->deliveryAddress;
             } elseif ($parent instanceof CustomerClient) {
-                $billingAddress  = $parent->address;
+                $billingAddress  = $parent->customer->address;
                 $deliveryAddress = $parent->address;
             }
         }
@@ -123,21 +123,10 @@ class StoreOrder extends OrgAction
                 'billing',
                 'billing_address_id'
             );
-            return $order;
-        }
-
-        if ($this->fromPupil) {
+        } else {
             $order = $this->addAddressToModel(
                 model: $order,
                 addressData: Arr::except($billingAddress->toArray(), ['id']),
-                scope: 'billing',
-                updateLocation: false,
-                updateAddressField: 'billing_address_id'
-            );
-        } else {
-            $order = $this->attachAddressToModel(
-                model: $order,
-                address: $billingAddress,
                 scope: 'billing',
                 updateLocation: false,
                 updateAddressField: 'billing_address_id'
@@ -160,8 +149,7 @@ class StoreOrder extends OrgAction
                     'delivery',
                     'delivery_address_id'
                 );
-            }
-            if ($this->fromPupil) {
+            } else {
                 $order = $this->addAddressToModel(
                     model: $order,
                     addressData: Arr::except($deliveryAddress->toArray(), ['id']),
@@ -169,15 +157,8 @@ class StoreOrder extends OrgAction
                     updateLocation: false,
                     updateAddressField: 'delivery_address_id'
                 );
-            } else {
-                $order = $this->attachAddressToModel(
-                    model: $order,
-                    address: $deliveryAddress,
-                    scope: 'delivery',
-                    updateLocation: false,
-                    updateAddressField: 'delivery_address_id'
-                );
             }
+
             $order->updateQuietly(
                 [
                     'delivery_country_id' => $order->deliveryAddress->country_id
@@ -327,13 +308,6 @@ class StoreOrder extends OrgAction
         $this->initialisationFromShop($customerClient->shop, $request);
 
         return $this->handle($customerClient, $this->validatedData);
-    }
-
-    public function fromPupil(Customer $customer, array $modelData)
-    {
-        $this->fromPupil = true;
-        $this->initialisationFromShop($customer->shop, []);
-        return $this->handle($customer, $modelData);
     }
 
 

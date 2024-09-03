@@ -142,6 +142,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchNoProductTransaction($id): ?array
+    {
+        return null;
+    }
+
     public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote): ?array
     {
         return null;
@@ -331,5 +336,16 @@ class WowsbarOrganisationService implements SourceOrganisationService
     {
         return null;
     }
+
+    public function fetchShippingZoneSchema($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchShippingZone($id): ?array
+    {
+        return null;
+    }
+
 
 }

@@ -7,7 +7,6 @@
 
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -33,10 +32,6 @@ return new class () extends Migration {
 
             foreach (TransactionStatusEnum::cases() as $case) {
                 $table->unsignedInteger('number_transactions_status_'.$case->snake())->default(0);
-            }
-
-            foreach (TransactionTypeEnum::cases() as $case) {
-                $table->unsignedInteger('number_transactions_type_'.$case->snake())->default(0);
             }
 
             $table->timestampsTz();

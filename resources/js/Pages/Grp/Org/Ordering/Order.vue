@@ -29,12 +29,11 @@ import { PalletDelivery, BoxStats, PDRNotes, UploadPallet } from '@/types/Pallet
 import { Table as TableTS } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import '@vuepic/vue-datepicker/dist/main.css'
-import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStatsPalletDelivery.vue'
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 
-import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
+import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import axios from 'axios'
@@ -53,13 +52,16 @@ import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import { Address, AddressManagement } from "@/types/PureComponent/Address"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faExclamationTriangle, faExclamation } from '@fas'
-import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
-library.add(faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faExclamation)
+import AlertMessage from '@/Components/Utils/AlertMessage.vue'
+
+import { faExclamationTriangle as fadExclamationTriangle } from '@fad'
+import { faExclamationTriangle, faExclamation } from '@fas'
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight } from '@fal'
+library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faExclamation)
 
 
 const props = defineProps<{
@@ -71,24 +73,29 @@ const props = defineProps<{
     data?: {
         data: PalletDelivery
     }
-    timeline: {
-        [key: string]: TSTimeline
-    }
 
     pageHead: PageHeadingTypes
-    // updateRoute: routeType
-
-    // interest: {
-    //     pallets_storage: boolean
-    //     items_storage: boolean
-    //     dropshipping: boolean
-    // }
-
-    // uploadRoutes: {
-    //     upload: routeType
-    //     download: routeType
-    //     history: routeType
-    // }
+    alert: {
+        status: string
+        title?: string
+        description?: string
+    }
+    notes: {
+        note_list: {
+            label: string
+            note: string
+            editable?: boolean
+            bgColor?: string
+            textColor?: string
+            color?: string
+            lockMessage?: string
+            field: string  // customer_notes, public_notes, internal_notes
+        }[]
+        updateRoute: routeType
+    }
+    timelines: {
+        [key: string]: TSTimeline
+    }
 
     upload_spreadsheet: UploadPallet
 
@@ -251,11 +258,13 @@ const onSubmitPayment = () => {
         errorPaymentMethod.value = error
     }
 }
+
 </script>
 
 <template>
     <!-- <pre>{{ data.data }}</pre> -->
     <!-- {{ props.service_list_route.name }} -->
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: Add service -->
@@ -276,54 +285,54 @@ const onSubmitPayment = () => {
                         <div class="w-[350px]">
                             <div class="text-xs px-1 my-2">{{ trans('Products') }}: </div>
                             <div class="">
-                                <PureMultiselectInfiniteScroll
-                                    v-model="formProducts.historicAssetId"
-                                    :fetchRoute="routes.products_list"
-                                    :placeholder="trans('Select Products')"
-                                    valueProp="current_historic_asset_id"
-                                >
+                                <PureMultiselectInfiniteScroll v-model="formProducts.historicAssetId"
+                                    :fetchRoute="routes.products_list" :placeholder="trans('Select Products')"
+                                    valueProp="current_historic_asset_id">
                                     <template #singlelabel="{ value }">
-                                        <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.stock }})</span></div>
+                                        <div class="w-full text-left pl-4">{{ value.name }} <span
+                                                class="text-sm text-gray-400">({{ value.stock }})</span></div>
                                     </template>
 
                                     <template #option="{ option, isSelected, isPointed }">
                                         <div class="w-full flex items-center justify-between gap-x-3">
-                                            <div :class="isSelected(option) ? option.stock ? '' : 'text-indigo-200' : option.stock ? '' : 'text-gray-400'">{{ option.name }} <span class="text-sm" :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{ option.stock }})</span></div>
-                                            
-                                            <FontAwesomeIcon v-if="option.stock === 0" v-tooltip="trans('No stock')" icon='fas fa-exclamation-triangle' class='text-red-500' fixed-width aria-hidden='true' />
-                                            <FontAwesomeIcon v-else-if="option.stock < 10" icon='fas fa-exclamation' class='text-yellow-500' fixed-width aria-hidden='true' />
+                                            <div
+                                                :class="isSelected(option) ? option.stock ? '' : 'text-indigo-200' : option.stock ? '' : 'text-gray-400'">
+                                                {{ option.name }} <span class="text-sm"
+                                                    :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{
+                                                    option.stock }})</span></div>
+
+                                            <FontAwesomeIcon v-if="option.stock === 0" v-tooltip="trans('No stock')"
+                                                icon='fas fa-exclamation-triangle' class='text-red-500' fixed-width
+                                                aria-hidden='true' />
+                                            <FontAwesomeIcon v-else-if="option.stock < 10" icon='fas fa-exclamation'
+                                                class='text-yellow-500' fixed-width aria-hidden='true' />
                                         </div>
                                     </template>
                                 </PureMultiselectInfiniteScroll>
 
-                                <p v-if="get(formProducts, ['errors', 'historicAssetId'])" class="mt-2 text-sm text-red-500">
+                                <p v-if="get(formProducts, ['errors', 'historicAssetId'])"
+                                    class="mt-2 text-sm text-red-500">
                                     {{ formProducts.errors.historicAssetId }}
                                 </p>
                             </div>
 
                             <div class="mt-4">
                                 <div class="text-xs px-1 my-2">{{ trans('Quantity') }}: </div>
-                                <PureInput
-                                    v-model="formProducts.quantity_ordered"
-                                    :placeholder="trans('Quantity')"
-                                    @keydown.enter="() => onSubmitAddProducts(action, closed)"
-                                />
-                                <p v-if="get(formProducts, ['errors', 'quantity_ordered'])" class="mt-2 text-sm text-red-600">
+                                <PureInput v-model="formProducts.quantity_ordered" :placeholder="trans('Quantity')"
+                                    @keydown.enter="() => onSubmitAddProducts(action, closed)" />
+                                <p v-if="get(formProducts, ['errors', 'quantity_ordered'])"
+                                    class="mt-2 text-sm text-red-600">
                                     {{ formProducts.errors.quantity_ordered }}
                                 </p>
                             </div>
 
                             <div class="flex justify-end mt-4">
-                                <Button
-                                    @click="() => onSubmitAddProducts(action, closed)"
-                                    :style="'save'"
+                                <Button @click="() => onSubmitAddProducts(action, closed)" :style="'save'"
                                     :loading="isLoadingButton == 'addProducts'"
                                     :disabled="!formProducts.historicAssetId || (formProducts.quantity_ordered < 1)"
-                                    label="Save"
-                                    full
-                                />
+                                    label="Save" full />
                             </div>
-                            
+
                             <!-- Loading: fetching service list -->
                             <!-- <div v-if="isLoadingData === 'addProducts'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
@@ -335,25 +344,36 @@ const onSubmitPayment = () => {
         </template>
     </PageHeading>
 
-    <!-- Section: Timeline -->
-    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline v-if="timeline" :options="timeline" :state="props.data?.data?.state" :slidesPerView="6" />
+    <!-- Section: Pallet Warning -->
+    <div v-if="alert?.status" class="p-2 pb-0">
+        <AlertMessage :alert />
     </div>
 
-    <!-- Box -->
-    <!-- <BoxStatsPalletDelivery :dataPalletDelivery="data?.data" :boxStats="box_stats" :updateRoute /> -->
-    
+    <!-- Section: Box Note -->
+    <div class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
+        <BoxNote
+            v-for="(note, index) in notes.note_list"
+            :key="index+note.label"
+            :noteData="note"
+            :updateRoute="notes.updateRoute"
+        />
+    </div>
+
+    <!-- Section: Timeline -->
+    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+        <Timeline v-if="timelines" :options="timelines" :state="props.data?.data?.state" :slidesPerView="6" />
+    </div>
+
     <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
-        
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
-            <!-- Field: Registration Number -->
-            <Link as="a" v-if="box_stats?.customer.reference" :href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
+            <!-- Field: Reference Number -->
+            <Link as="a" v-if="box_stats?.customer.reference"
+                :href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
                 class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
+            <dt v-tooltip="'Company name'" class="flex-none">
+                <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width aria-hidden='true' />
+            </dt>
+            <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -372,25 +392,27 @@ const onSubmitPayment = () => {
                 <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
-            
             <!-- Field: Email -->
             <div v-if="box_stats?.customer.email" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'" class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
+                <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'"
+                    class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
             </div>
-            
+
             <!-- Field: Phone -->
             <div v-if="box_stats?.customer.phone" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <a :href="`tel:${box_stats?.customer.phone}`" v-tooltip="'Click to make a phone call'" class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
+                <a :href="`tel:${box_stats?.customer.phone}`" v-tooltip="'Click to make a phone call'"
+                    class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
             </div>
 
             <!-- Field: Address -->
-            <div v-if="box_stats?.customer.addresses" class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
+            <div v-if="box_stats?.customer.addresses" class="pl-1 flex items w-full flex-none gap-x-2"
+                v-tooltip="trans('Shipping address')">
                 <dt v-tooltip="'Address'" class="text-smflex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
@@ -415,13 +437,12 @@ const onSubmitPayment = () => {
                     <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
                 </dt>
 
-                <NeedToPay 
+                <NeedToPay
                     @click="() => box_stats.products.payment.pay_amount > 0 ? (isOpenModalPayment = true, fetchPaymentMethod()) : false"
                     :totalAmount="box_stats.products.payment.total_amount"
                     :paidAmount="box_stats.products.payment.paid_amount"
                     :payAmount="box_stats.products.payment.pay_amount"
-                    :class="[box_stats.products.payment.pay_amount ? 'hover:bg-gray-100 cursor-pointer' : '']"
-                />
+                    :class="[box_stats.products.payment.pay_amount ? 'hover:bg-gray-100 cursor-pointer' : '']" />
             </div>
 
             <div class="mt-1 flex items-center w-full flex-none gap-x-1.5">
@@ -451,21 +472,13 @@ const onSubmitPayment = () => {
 
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
-<!-- <pre>{{ timeline }}</pre> -->
     <div class="pb-12">
-        <component
-            :is="component"
-            :data="props[currentTab as keyof typeof props]"
-            :tab="currentTab"
-        />
+        <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
     </div>
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
-        <ModalAddress
-            :addresses="box_stats?.customer.addresses"
-            :updateRoute="routes.updateOrderRoute"
-            keyPayloadEdit="delivery_address"
-        />
+        <ModalAddress :addresses="box_stats?.customer.addresses" :updateRoute="routes.updateOrderRoute"
+            keyPayloadEdit="delivery_address" />
     </Modal>
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
@@ -483,33 +496,31 @@ const onSubmitPayment = () => {
                         <span class="text-red-500">*</span> {{ trans('Select payment method') }}
                     </label>
                     <div class="mt-1">
-                        <PureMultiselect
-                            v-model="paymentData.payment_method"
-                            :options="listPaymentMethod"
-                            :isLoading="isLoadingFetch"
-                            label="name"
-                            valueProp="id"
-                            required
-                            caret
-                        />
+                        <PureMultiselect v-model="paymentData.payment_method" :options="listPaymentMethod"
+                            :isLoading="isLoadingFetch" label="name" valueProp="id" required caret />
                     </div>
                 </div>
 
                 <div class="col-span-2">
-                    <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Payment amount') }}</label>
+                    <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Payment amount')
+                        }}</label>
                     <div class="mt-1">
                         <PureInputNumber v-model="paymentData.payment_amount" />
                     </div>
                     <div class="space-x-1">
-                        <span class="text-xxs text-gray-500">{{ trans('Need to pay') }}: {{ locale.currencyFormat(box_stats.order_summary.currency.code || 'usd', box_stats.products.payment.pay_amount) }}</span>
-                        <Button @click="() => paymentData.payment_amount = box_stats.products.payment.pay_amount" :disabled="paymentData.payment_amount === box_stats.products.payment.pay_amount" type="tertiary" label="Pay all" size="xxs" />
+                        <span class="text-xxs text-gray-500">{{ trans('Need to pay') }}: {{
+                            locale.currencyFormat(box_stats.order_summary.currency.code || 'usd',
+                            box_stats.products.payment.pay_amount) }}</span>
+                        <Button @click="() => paymentData.payment_amount = box_stats.products.payment.pay_amount"
+                            :disabled="paymentData.payment_amount === box_stats.products.payment.pay_amount"
+                            type="tertiary" label="Pay all" size="xxs" />
                     </div>
                 </div>
 
                 <div class="col-span-2">
                     <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Reference') }}</label>
                     <div class="mt-1">
-                        <PureInput v-model="paymentData.payment_reference" placeholder="#000000"/>
+                        <PureInput v-model="paymentData.payment_reference" placeholder="#000000" />
                     </div>
                 </div>
 
@@ -526,9 +537,11 @@ const onSubmitPayment = () => {
             </div>
 
             <div class="mt-6 mb-4 relative">
-                <Button @click="() => onSubmitPayment()" label="Submit" :disabled="!(!!paymentData.payment_method)" :loading="isLoadingPayment" full />
+                <Button @click="() => onSubmitPayment()" label="Submit" :disabled="!(!!paymentData.payment_method)"
+                    :loading="isLoadingPayment" full />
                 <Transition name="spin-to-down">
-                    <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{ errorPaymentMethod }}</p>
+                    <p v-if="errorPaymentMethod" class="absolute text-red-500 italic text-sm mt-1">*{{
+                        errorPaymentMethod }}</p>
                 </Transition>
             </div>
         </div>

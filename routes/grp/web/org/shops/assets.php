@@ -5,10 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Asset\UI\CreateProduct;
+use App\Actions\Catalogue\Charge\UI\CreateCharge;
+use App\Actions\Catalogue\Charge\UI\EditCharge;
 use App\Actions\Catalogue\Charge\UI\IndexCharges;
-use App\Actions\Catalogue\Insurance\UI\IndexInsurances;
+use App\Actions\Catalogue\Charge\UI\ShowCharge;
+use App\Actions\Catalogue\Shipping\UI\CreateShippingZoneSchema;
+use App\Actions\Catalogue\Shipping\UI\EditShippingZoneSchema;
 use App\Actions\Catalogue\Shipping\UI\IndexShippingZoneSchemas;
+use App\Actions\Catalogue\Shipping\UI\ShowShippingZoneSchema;
 use App\Actions\UI\Dropshipping\Assets\ShowAssetDashboard;
 use App\Stubs\UIDummies\EditDummy;
 use App\Stubs\UIDummies\IndexDummies;
@@ -21,19 +25,22 @@ Route::get('', ShowAssetDashboard::class)->name('dashboard');
 Route::name("shipping.")->prefix('shipping')
     ->group(function () {
         Route::get('', IndexShippingZoneSchemas::class)->name('index');
-        Route::get('create', CreateProduct::class)->name('create');
+        Route::get('create', CreateShippingZoneSchema::class)->name('create');
 
-
+        Route::prefix('{shippingZoneSchema}')->group(function () {
+            Route::get('', ShowShippingZoneSchema::class)->name('show');
+            Route::get('edit', EditShippingZoneSchema::class)->name('edit');
+        });
     });
 
 Route::name("charges.")->prefix('charges')
     ->group(function () {
         Route::get('', IndexCharges::class)->name('index');
-        Route::get('create', EditDummy::class)->name('create');
+        Route::get('create', CreateCharge::class)->name('create');
 
         Route::prefix('{charge}')->group(function () {
-            Route::get('', ShowDummy::class)->name('show');
-            Route::get('edit', EditDummy::class)->name('edit');
+            Route::get('', ShowCharge::class)->name('show');
+            Route::get('edit', EditCharge::class)->name('edit');
         });
     });
 
@@ -44,17 +51,6 @@ Route::name("services.")->prefix('services')
         Route::get('create', EditDummy::class)->name('create');
 
         Route::prefix('{service}')->group(function () {
-            Route::get('', ShowDummy::class)->name('show');
-            Route::get('edit', EditDummy::class)->name('edit');
-        });
-    });
-
-Route::name("insurances.")->prefix('insurances')
-    ->group(function () {
-        Route::get('', IndexInsurances::class)->name('index');
-        Route::get('create', EditDummy::class)->name('create');
-
-        Route::prefix('{insurance}')->group(function () {
             Route::get('', ShowDummy::class)->name('show');
             Route::get('edit', EditDummy::class)->name('edit');
         });

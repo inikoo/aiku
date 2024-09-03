@@ -88,12 +88,11 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
                 ->select('Order Transaction Fact Key')
-                ->where('Order Transaction Type', 'Order')
                 ->where('Order Key', $order->source_id)
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+            FetchAuroraTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

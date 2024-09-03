@@ -5,13 +5,12 @@
   -->
 
 <script setup lang="ts">
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
-import { useLocaleStore } from '@/Stores/locale'
-import { faCircle, faTrash } from '@fas'
+import GalleryManagement from "@/Components/Utils/GalleryManagement.vue"
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { notify } from '@kyvg/vue3-notification'
-import Image from "@/Components/Image.vue";
+import Image from "@/Components/Image.vue"
+import Modal from "@/Components/Utils/Modal.vue"
 import {
     Tab,
     TabGroup,
@@ -19,20 +18,29 @@ import {
     TabPanel,
     TabPanels,
 } from '@headlessui/vue'
-import { ref } from 'vue'
-import EmptyState from "@/Components/Utils/EmptyState.vue";
+import { inject, ref } from 'vue'
+import EmptyState from "@/Components/Utils/EmptyState.vue"
 import axios from "axios";
-library.add(faCircle, faTrash)
+import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
+
+import { faTrash as falTrash, faEdit } from '@fal'
+import { faCircle, faTrash } from '@fas'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { remove as removeLodash } from 'lodash'
+import { useFormatTime } from '../../../Composables/useFormatTime'
+import { trans } from 'laravel-vue-i18n'
+library.add(faCircle, faTrash, falTrash, faEdit)
 
 const props = defineProps<{
-    data: Object
+    data: {
+        product
+    }
 }>()
 
 
-const locale = useLocaleStore()
-const openGallery = ref(false)
+const locale = inject('locale', aikuLocaleStructure)
 const selectedImage = ref(0)
-
+const isLoading = ref<string[]>([])
 
 const stats = [
     { name: '2024', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -47,20 +55,10 @@ const product = ref({
     images: props.data.product.data.images,
 })
 
-const OnUploadImages = (e) => {
-    product.value.images.push(...e.data)
-    openGallery.value = false
-}
+const deleteImage = async (data, index) => {
+    isLoading.value.push(data.id)
 
-const OnPickImages = (e) => {
-    product.value.images.push(e)
-    openGallery.value = false
-}
-
-const deleteImage = async (data,index) => {
-    console.log(data)
-
-     try {
+    try {
         const response = await axios.delete(route(props.data.deleteImageRoute.name, {
             ...props.data.deleteImageRoute.parameters, media: data.id
         }));
@@ -73,6 +71,11 @@ const deleteImage = async (data,index) => {
             text: 'cannot show stock images',
             type: 'error'
         })
+    } finally {
+        isLoading.value.push(data.id)
+        removeLodash(isLoading.value, (n) => {
+            return n == data.id
+        })
     }
 }
 
@@ -82,6 +85,8 @@ function changeSelectedImage(index) {
 }
 
 
+const isModalGallery = ref(false)
+
 </script>
 
 
@@ -90,52 +95,66 @@ function changeSelectedImage(index) {
         <div class="p-5 space-y-5">
             <div class="relative">
                 <div class=" h-full aspect-square rounded-lg shadow">
-                    <TabGroup as="div" class="flex flex-col-reverse p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
-                        <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
-                            <TabList class="grid grid-cols-3 gap-6">
-                                <Tab v-for="(image,index) in product.images" :key="image.id"
-                                    class="relative flex h-24 w-full cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
-                                    v-slot="{ selected }">
-                                    <span class="sr-only">{{ image.name }}</span>
-                                    <span class="absolute inset-0 overflow-hidden rounded-md ">
-                                        <Image :src="image.source" alt=""
-                                            class="h-full w-full object-cover object-center" />
-                                    </span>
-                                    <div :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
-                                        aria-hidden="true">
-
-                                    </div>
-                                    <font-awesome-icon :icon="['fas', 'trash']"
-                                            class="absolute top-2 right-2 text-red-400 cursor-pointer"
-                                            @click.stop="deleteImage(image,index)" />
-                                </Tab>
-                            </TabList>
-
-                        </div>
-
+                    <!-- Section: Gallery -->
+                    <TabGroup as="div" class="flex flex-col p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
+                        <!-- Section: Main image (big) -->
                         <TabPanels class="overflow-hidden duration-300">
-                            <!-- Menggunakan v-if pada elemen utama untuk kondisi gambar ada -->
                             <template v-if="product.images.length > 0">
                                 <TabPanel v-for="image in product.images" :key="image.id">
-                                    <div
-                                        class="border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow aspect-[1/1] w-full h-[300px] relative overflow-hidden">
-                                        <Image :src="image.source" :alt="image.name" @click="openGallery = true"
-                                            class="w-full h-full object-cover object-center" />
+                                    <div class="relative flex items-center border border-gray-200 rounded-lg aspect-square w-auto h-auto overflow-hidden">
+                                        <div class="absolute top-1 right-3 flex items-center gap-2 capitalize"
+                                            :class="data.product.data.state === 'active' ? 'text-green-500' : ''"
+                                        >
+                                            <FontAwesomeIcon v-if="data.product.data.state === 'active'" icon='fas fa-circle' class='text-xs animate-pulse' fixed-width aria-hidden='true' />
+                                            {{ data.product.data.state }}
+                                        </div>
+                                        <Image :src="image.source" :alt="image.name" class="" />
                                     </div>
                                 </TabPanel>
                             </template>
 
-                            <!-- Menggunakan template v-else untuk kondisi gambar tidak ada -->
                             <template v-else>
                                 <TabPanel>
                                     <EmptyState
                                         :data="{ title: 'You don\'t have any images', description: 'Click to upload' }"
-                                        @click="openGallery = true"
+                                        @click="isModalGallery = true"
                                         class="cursor-pointer hover:bg-gray-50"    
                                     />
                                 </TabPanel>
                             </template>
                         </TabPanels>
+                        
+                        <!-- Section: Images list -->
+                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-56 overflow-y-auto mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
+                            <TabList class="grid grid-cols-3 gap-x-3 gap-y-4 md:gap-x-5 md:gap-y-5">
+                                <Tab v-for="(image,index) in product.images" :key="image.id"
+                                    class="relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
+                                    v-slot="{ selected }"
+                                    
+                                >
+                                    <span class="flex items-center absolute inset-0 overflow-hidden rounded-md ">
+                                        <Image :src="image.source" alt="" class="" />
+                                    </span>
+                                    <div :class="[selected ? 'ring-2 ring-offset-2 ring-indigo-500' : 'ring-1 ring-gray-300', 'pointer-events-none absolute inset-0 rounded-md ']"
+                                        aria-hidden="true">
+
+                                    </div>
+
+                                    <div v-if="!isLoading.includes(image.id)" @click.stop="deleteImage(image,index)" class="absolute top-0.5 right-0.5 py-1 px-0.5 rounded flex justify-center items-center bg-red-500/50 hover:bg-red-500 cursor-pointer text-white">
+                                        <FontAwesomeIcon icon='fal fa-trash' class='text-xs' fixed-width aria-hidden='true' />
+                                    </div>
+                                    <div v-else class="absolute top-1.5 right-1.5 py-1 px-0.5 rounded-sm flex justify-center items-center bg-red-500/70 hover:bg-red-500 cursor-pointer text-white">
+                                        <LoadingIcon />
+                                    </div>
+                                </Tab>
+
+                                <div @click="isModalGallery = true"
+                                    class="border border-dashed border-gray-300 relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md hover:bg-gray-100"
+                                >
+                                    <FontAwesomeIcon icon='fal fa-plus' class="text-xl md:text-2xl" fixed-width aria-hidden='true' />
+                                </div>
+                            </TabList>
+                        </div>
 
                     </TabGroup>
                 </div>
@@ -144,35 +163,36 @@ function changeSelectedImage(index) {
             <!-- Order summary -->
             <section aria-labelledby="summary-heading"
                 class="border border-gray-200 rounded-lg px-4 py-6 sm:p-4 lg:mt-0 lg:p-5">
-                <h2 id="summary-heading" class="text-lg font-medium">Product summary</h2>
+                <h2 id="summary-heading" class="text-lg font-medium">{{ trans('Product summary')}}</h2>
 
                 <dl class="mt-6 space-y-4">
                     <div class="flex items-center justify-between">
-                        <dt class="text-sm text-gray-600">Added date</dt>
-                        <dd class="text-sm font-medium">{{ product.created_at }}</dd>
+                        <dt class="text-sm">{{ trans('Added date') }}</dt>
+                        <dd class="text-sm font-medium">{{ useFormatTime(data.product.data.created_at) }}</dd>
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <dt class="text-sm text-gray-600">Stock</dt>
-                        <dd class="text-sm font-medium">24 pcs</dd>
+                        <dt class="text-sm">{{ trans('Stock') }}</dt>
+                        <dd class="text-sm font-medium">-- pcs</dd>
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <dt class="text-sm text-gray-600">Cost</dt>
-                        <dd class="text-sm font-medium">{{ locale.currencyFormat('usd', 8.80) }}</dd>
+                        <dt class="text-sm">{{ trans('Cost') }}</dt>
+                        <dd class="text-sm font-medium">--</dd>
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <dt class="text-sm text-gray-600">Price</dt>
-                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', product.price) }}
-                            <span class="font-light">margin (45.0%)</span>
+                        <dt class="text-sm">{{ trans('Price') }}</dt>
+                        <dd class="text-sm font-medium text-right">
+                            {{ locale.currencyFormat('usd', data.product.data.price) }}
+                            <span class="font-light">margin (--)</span>
                         </dd>
                     </div>
 
                     <div class="flex items-center justify-between">
-                        <dt class="text-sm text-gray-600">RRP</dt>
-                        <dd class="text-sm font-medium text-right">{{ locale.currencyFormat('usd', 2.95) }} <span
-                                class="font-light">margin (66.1%)</span></dd>
+                        <dt class="text-sm">RRP</dt>
+                        <dd class="text-sm font-medium text-right">--- <span
+                                class="font-light">margin (--)</span></dd>
                     </div>
                 </dl>
             </section>
@@ -191,11 +211,11 @@ function changeSelectedImage(index) {
                         </div>
                         <div
                             :class="[item.changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800', 'inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0']">
-                            <ArrowUpIcon v-if="item.changeType === 'increase'"
+                            <!-- <ArrowUpIcon v-if="item.changeType === 'increase'"
                                 class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500"
                                 aria-hidden="true" />
                             <ArrowDownIcon v-else class="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-red-500"
-                                aria-hidden="true" />
+                                aria-hidden="true" /> -->
                             <span class="sr-only"> {{ item.changeType === 'increase' ? 'Increased' : 'Decreased' }} by
                             </span>
                             {{ item.change }}
@@ -204,11 +224,15 @@ function changeSelectedImage(index) {
                 </div>
             </dl>
         </div>
+        <!-- <pre>{{ data.product }}</pre> -->
     </div>
 
 
-    <Gallery :open="openGallery" @on-close="openGallery = false"
-        :uploadRoutes="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)" @on-upload="OnUploadImages"
-        @on-pick="OnPickImages">
-    </Gallery>
+    <Modal :isOpen="isModalGallery" @onClose="() => isModalGallery = false" width="w-3/4" >
+        <GalleryManagement
+            :uploadRoute="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)"
+            @onSuccessUpload="(data: {}) => product.images = product.images.concat(data.data)"
+        >
+        </GalleryManagement>
+    </Modal>
 </template>

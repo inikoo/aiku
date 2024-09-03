@@ -10,6 +10,7 @@
   import { capitalize } from "@/Composables/capitalize"
   import { PageHeading as TSPageHeading } from '@/types/PageHeading'
   import Table from '@/Components/Table/Table.vue'
+  import TableCharges from '@/Components/Tables/Grp/Org/Catalogue/TableCharges.vue'
   
   const props = defineProps<{
       data: {}
@@ -23,6 +24,5 @@
       <Head :title="capitalize(title)" />
       <PageHeading :data="pageHead" />
   
-      <Table :resource="data" class="mt-5">
-      </Table>
+      <TableCharges :data="data" />
   </template>
