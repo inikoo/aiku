@@ -156,17 +156,6 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
-                        [
-                            "label"   => __("Insurance"),
-                            "tooltip" => __("Insurance"),
-                            "icon"    => ["fal", "fa-house-damage"],
-                            'root'    => 'grp.org.shops.show.assets.insurances.',
-                            "route"   => [
-                                "name"       => "grp.org.shops.show.assets.insurances.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
-
                     ],
                 ],
             ];

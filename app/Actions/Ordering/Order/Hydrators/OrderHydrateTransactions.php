@@ -12,7 +12,6 @@ use App\Actions\Traits\WithEnumStats;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -72,18 +71,7 @@ class OrderHydrateTransactions
             )
         );
 
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'transactions',
-                field: 'type',
-                enum: TransactionTypeEnum::class,
-                models: Transaction::class,
-                where: function ($q) use ($order) {
-                    $q->where('order_id', $order->id);
-                }
-            )
-        );
+
 
         $stats['number_current_transactions']=$stats['number_transactions']-$stats['number_transactions_state_cancelled'];
 

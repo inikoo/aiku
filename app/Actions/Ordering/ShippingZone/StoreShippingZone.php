@@ -7,37 +7,69 @@
 
 namespace App\Actions\Ordering\ShippingZone;
 
+use App\Actions\OrgAction;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreShippingZone
+class StoreShippingZone extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
     public function handle(ShippingZoneSchema $shippingZoneSchema, array $modelData): ShippingZone
     {
-        $modelData['shop_id'] = $shippingZoneSchema->shop_id;
-        /** @var ShippingZone */
-        return $shippingZoneSchema->shippingZone()->create($modelData);
+        data_set($modelData, 'group_id', $shippingZoneSchema->group_id);
+        data_set($modelData, 'organisation_id', $shippingZoneSchema->organisation_id);
+        data_set($modelData, 'shop_id', $shippingZoneSchema->shop_id);
+
+        /** @var $shippingZone ShippingZone */
+        $shippingZone = $shippingZoneSchema->shippingZone()->create($modelData);
+        $shippingZone->stats()->create();
+
+        return $shippingZone;
     }
 
     public function rules(): array
     {
-        return [
-            'code'   => ['required', 'unique:shipping_zones', 'between:2,9', 'alpha'],
-            'name'   => ['required', 'max:250', 'string'],
-            'status' => ['sometimes', 'required', 'boolean']
+        $rules = [
+            'code'        => [
+                'required',
+                new IUnique(
+                    table: 'shipping_zones',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ]
+                ),
+                'between:2,16',
+                'alpha_dash'
+            ],
+            'name'        => ['required', 'max:255', 'string'],
+            'status'      => ['required', 'boolean'],
+            'price'       => ['required', 'array'],
+            'territories' => ['sometimes', 'array'],
+            'position'    => ['required', 'integer'],
+            'is_failover' => ['sometimes', 'boolean'],
+
         ];
+
+        if (!$this->strict) {
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData): ShippingZone
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, bool $strict = true): ShippingZone
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->strict   = $strict;
+        $this->asAction = true;
+        $this->initialisationFromShop($shippingZoneSchema->shop, $modelData);
 
-        return $this->handle($shippingZoneSchema, $validatedData);
+        return $this->handle($shippingZoneSchema, $this->validatedData);
     }
 }

@@ -7,8 +7,10 @@
 
 namespace App\Actions\Ordering\ShippingZoneSchema;
 
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Catalogue\Shop;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -19,16 +21,24 @@ class StoreShippingZoneSchema
 
     public function handle(Shop $shop, array $modelData): ShippingZoneSchema
     {
-        /** @var ShippingZoneSchema */
-        return $shop->shippingZoneSchemas()->create($modelData);
+        data_set($modelData, 'group_id', $shop->group_id);
+        data_set($modelData, 'organisation_id', $shop->organisation_id);
+        /** @var $shippingZoneSchema ShippingZoneSchema */
+        $shippingZoneSchema= $shop->shippingZoneSchemas()->create($modelData);
+        $shippingZoneSchema->stats()->create();
+
+        return $shippingZoneSchema;
+
     }
 
     public function rules(): array
     {
         return [
-            'name'   => ['required', 'max:250', 'string'],
-            'status' => ['sometimes', 'required', 'boolean'],
-            'data'   => ['sometimes', 'required']
+            'name'        => ['required', 'max:255', 'string'],
+            'type'        => ['sometimes', Rule::enum(ShippingZoneSchemaTypeEnum::class)],
+            'fetched_at'  => ['sometimes', 'date'],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'created_at'  => ['sometimes', 'nullable', 'date'],
         ];
     }
 

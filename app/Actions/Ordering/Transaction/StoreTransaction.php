@@ -7,19 +7,16 @@
 
 namespace App\Actions\Ordering\Transaction;
 
-use App\Actions\Ordering\Order\CalculateOrderNet;
+use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrderExchanges;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -27,14 +24,11 @@ class StoreTransaction extends OrgAction
 {
     use WithOrderExchanges;
 
-    private $inOrder;
 
     public function handle(Order $order, HistoricAsset $historicAsset, array $modelData): Transaction
     {
         data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
 
-        $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
-        $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
@@ -51,27 +45,21 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'status', TransactionStatusEnum::CREATING);
         data_set($modelData, 'net_amount', $historicAsset->price);
 
-        if($this->inOrder) {
-            data_set($modelData, 'type', TransactionTypeEnum::ORDER);
-        }
 
         $modelData = $this->processExchanges($modelData, $order->shop);
 
-        $assetType = match ($historicAsset->model_type) {
-            'Service' => AssetTypeEnum::SERVICE,
-            default   => AssetTypeEnum::PRODUCT,
-        };
 
-
-        data_set($modelData, 'asset_type', $assetType);
+        data_set($modelData, 'asset_type', $historicAsset->model_type);
 
 
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
 
-        $order->refresh();
-        CalculateOrderNet::run($order);
-        OrderHydrateTransactions::dispatch($order);
+
+        if ($this->strict) {
+            CalculateOrderTotalAmounts::run($order);
+            OrderHydrateTransactions::dispatch($order);
+        }
 
         return $transaction;
     }
@@ -79,7 +67,6 @@ class StoreTransaction extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'type'                => ['sometimes', Rule::enum(TransactionTypeEnum::class)],
             'quantity_ordered'    => ['required', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
@@ -121,9 +108,7 @@ class StoreTransaction extends OrgAction
 
     public function asController(Order $order, HistoricAsset $historicAsset, ActionRequest $request): void
     {
-        $this->inOrder = true;
         $this->initialisationFromShop($order->shop, $request);
-
         $this->handle($order, $historicAsset, $this->validatedData);
     }
 }

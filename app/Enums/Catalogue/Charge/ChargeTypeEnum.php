@@ -13,11 +13,13 @@ enum ChargeTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case HANGING  = 'hanging';
-    case PREMIUM  = 'premium';
-    case TRACKING = 'tracking';
-    case PASTPAY  = 'pastpay';
-    case COD      = 'cod';
+    case HANGING   = 'hanging';
+    case PREMIUM   = 'premium';
+    case TRACKING  = 'tracking';
+    case INSURANCE = 'insurance';
+    case PAYMENT   = 'payment';
+    case COD       = 'cod';
+    case PACKING   = 'packing';
 
     public static function labels(): array
     {
@@ -25,7 +27,10 @@ enum ChargeTypeEnum: string
             'hanging    ' => __('Hanging'),
             'premium'     => __('Premium'),
             'tracking'    => __('Tracking'),
+            'insurance'   => __('Insurance'),
             'cod'         => __('Charge on delivery'),
+            'payment'     => __('Payment'),
+            'packing'     => __('Packing')
         ];
     }
 

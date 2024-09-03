@@ -27,7 +27,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $asset_id
  * @property string $model_type
  * @property int $model_id
- * @property string $price unit price
+ * @property string|null $price unit price
  * @property string|null $code
  * @property string|null $name
  * @property string|null $units units in outer

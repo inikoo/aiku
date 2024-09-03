@@ -12,8 +12,9 @@ use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Models\Catalogue\Charge;
-use App\Models\Catalogue\Service;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -28,8 +29,7 @@ class UpdateCharge extends OrgAction
 
     public function handle(Charge $charge, array $modelData): Charge
     {
-
-        if(Arr::exists($modelData, 'state')) {
+        if (Arr::exists($modelData, 'state')) {
             $status = false;
             if (Arr::get($modelData, 'state') == ChargeStateEnum::ACTIVE) {
                 $status = true;
@@ -40,7 +40,7 @@ class UpdateCharge extends OrgAction
         $charge  = $this->update($charge, $modelData);
         $changed = $charge->getChanges();
 
-        if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
+        if (Arr::hasAny($changed, ['name', 'code'])) {
             $historicAsset = StoreHistoricAsset::run($charge);
             $charge->updateQuietly(
                 [
@@ -49,24 +49,20 @@ class UpdateCharge extends OrgAction
             );
         }
 
-        UpdateAsset::run($charge->asset);
+        UpdateAsset::run($charge->asset, [
+            'price' => null,
+            'unit'  => 'charge',
+            'units' => 1
+        ]);
 
         return $charge;
     }
 
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     if ($this->asAction) {
-    //         return true;
-    //     }
-
-    //     return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-    // }
 
     public function rules(): array
     {
-        return [
-            'code'                     => [
+        $rules = [
+            'code'        => [
                 'sometimes',
                 'max:32',
                 'alpha_dash',
@@ -79,25 +75,43 @@ class UpdateCharge extends OrgAction
                     ]
                 ),
             ],
-            'name'                     => ['sometimes', 'required', 'max:250', 'string'],
-            'price'                    => ['sometimes', 'required', 'numeric', 'min:0'],
-            'unit'                     => ['sometimes', 'string'],
-            'data'                     => ['sometimes', 'array'],
-            'state'                    => ['sometimes', 'required', Rule::enum(ChargeStateEnum::class)],
+            'name'        => ['sometimes', 'required', 'max:250', 'string'],
+            'description' => ['sometimes', 'max:1024', 'string'],
+
+            'data'     => ['sometimes', 'array'],
+            'settings' => ['sometimes', 'array'],
+
+            'state'   => ['sometimes', 'required', Rule::enum(ChargeStateEnum::class)],
+            'trigger' => ['sometimes', 'required', Rule::enum(ChargeTriggerEnum::class)],
+            'type'    => ['sometimes', 'required', Rule::enum(ChargeTypeEnum::class)],
+
 
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules['created_at']      = ['sometimes', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    // public function asController(Service $service, ActionRequest $request): Service
-    // {
-    //     $this->service = $service;
-    //     $this->initialisationFromShop($service->shop, $request);
-
-    //     return $this->handle($service, $this->validatedData);
-    // }
-
-    public function action(Charge $charge, array $modelData, int $hydratorsDelay = 0): Charge
+    public function asController(Charge $charge, ActionRequest $request): Charge
     {
+        $this->charge = $charge;
+        $this->initialisationFromShop($charge->shop, $request);
+
+        return $this->handle($charge, $this->validatedData);
+    }
+
+    public function action(Charge $charge, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Charge
+    {
+        if (!$audit) {
+            Charge::disableAuditing();
+        }
+
+        $this->strict         = $strict;
         $this->asAction       = true;
         $this->charge         = $charge;
         $this->hydratorsDelay = $hydratorsDelay;
