@@ -17,6 +17,7 @@ use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -30,6 +31,9 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
 
 
+        $net = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+        $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'group_id', $order->group_id);
@@ -39,11 +43,10 @@ class StoreTransaction extends OrgAction
 
         data_set($modelData, 'date', now(), overwrite: false);
         data_set($modelData, 'submitted_at', $order->submitted_at, overwrite: false);
-        data_set($modelData, 'gross_amount', $historicAsset->price);
-        data_set($modelData, 'net_amount', $historicAsset->price);
+        data_set($modelData, 'gross_amount', $gross);
+        data_set($modelData, 'net_amount', $net);
         data_set($modelData, 'state', TransactionStateEnum::CREATING);
         data_set($modelData, 'status', TransactionStatusEnum::CREATING);
-        data_set($modelData, 'net_amount', $historicAsset->price);
 
 
         $modelData = $this->processExchanges($modelData, $order->shop);
