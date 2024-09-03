@@ -65,7 +65,7 @@ class StoreOrder extends OrgAction
                 $billingAddress  = $parent->address;
                 $deliveryAddress = $parent->deliveryAddress;
             } elseif ($parent instanceof CustomerClient) {
-                $billingAddress  = $parent->address;
+                $billingAddress  = $parent->customer->address;
                 $deliveryAddress = $parent->address;
             }
         }
