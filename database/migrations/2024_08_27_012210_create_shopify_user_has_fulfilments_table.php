@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('shopify_user_has_orders', function (Blueprint $table) {
+        Schema::create('shopify_user_has_fulfilments', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedSmallInteger('shopify_user_id');
@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
 
+            $table->unsignedBigInteger('shopify_fulfilment_id')->nullable();
             $table->unsignedBigInteger('shopify_order_id')->nullable();
 
             $table->timestampsTz();

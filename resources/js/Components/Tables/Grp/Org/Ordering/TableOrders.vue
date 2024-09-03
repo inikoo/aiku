@@ -55,6 +55,20 @@ function shopRoute(order: Order) {
 }
 
 
+function customerRoute(order: Order) {
+    switch (route().current()) {
+        case "grp.org.shops.show.ordering.orders.index":
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [route().params["organisation"], route().params["shop"], order.customer_slug])
+        default:
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [route().params["organisation"], route().params["shop"], order.customer_slug])
+    }
+}
+
+
 </script>
 
 <template>
@@ -63,6 +77,12 @@ function shopRoute(order: Order) {
         <template #cell(reference)="{ item: order }">
             <Link :href="orderRoute(order)" class="primaryLink">
                 {{ order["reference"] }}
+            </Link>
+        </template>
+
+        <template #cell(customer_name)="{ item: order }">
+            <Link :href="customerRoute(order)" class="primaryLink">
+                {{ order["customer_name"] }}
             </Link>
         </template>
 

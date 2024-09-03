@@ -59,6 +59,16 @@ class IndexOrders extends OrgAction
             $query->where('orders.customer_client_id', $parent->id);
         }
 
+        $query->leftJoin('customers', 'orders.customer_id', '=', 'customers.id');
+        $query->leftJoin('customer_clients', 'orders.customer_client_id', '=', 'customer_clients.id');
+
+        $query->leftJoin('model_has_payments', function ($join) {
+            $join->on('orders.id', '=', 'model_has_payments.model_id')
+                ->where('model_has_payments.model_type', '=', 'Order');
+        })
+        ->leftJoin('payments', 'model_has_payments.payment_id', '=', 'payments.id');
+
+        $query->leftJoin('currencies', 'orders.currency_id', '=', 'currencies.id');
 
         return $query->defaultSort('orders.reference')
             ->select([
@@ -68,7 +78,17 @@ class IndexOrders extends OrgAction
                 'orders.created_at',
                 'orders.updated_at',
                 'orders.slug',
-                'shops.slug as shop_slug'
+                'orders.total_amount',
+                'orders.state',
+                'customers.name as customer_name',
+                'customers.slug as customer_slug',
+                'customer_clients.name as client_name',
+                'customer_clients.ulid as client_ulid',
+                'payments.state as payment_state',
+                'payments.status as payment_status',
+                'shops.slug as shop_slug',
+                'currencies.code as currency_code',
+                'currencies.id as currency_id',
             ])
             ->leftJoin('order_stats', 'orders.id', 'order_stats.order_id')
             ->leftJoin('shops', 'orders.shop_id', 'shops.id')
@@ -98,6 +118,12 @@ class IndexOrders extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+            if($parent instanceof Shop) {
+                $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: false, searchable: true);
+            }
+            $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: true);
+            $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, sortable: false, searchable: true);
+            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true);
         };
     }
 
