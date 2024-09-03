@@ -39,7 +39,7 @@ class ShowShippingZoneSchema extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ShippingZoneSchema $shippingZoneSchema, ActionRequest $request): ShippingZoneSchema
     {
-        $this->initialisationFromShop($shop, $request)->withTab(TradeUnitTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(ShippingZoneSchemaTabsEnum::values());
         return $this->handle($shippingZoneSchema);
     }
 
