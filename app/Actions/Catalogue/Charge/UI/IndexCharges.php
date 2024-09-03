@@ -199,7 +199,7 @@ class IndexCharges extends OrgAction
                     'simple' => [
                         'route' => $routeParameters,
                         'label' => __('Charges'),
-                        'icon'  => 'fal fa-charging-station'
+                        'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
                 ]
