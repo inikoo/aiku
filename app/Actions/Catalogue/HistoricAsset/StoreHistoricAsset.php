@@ -7,20 +7,19 @@
 
 namespace App\Actions\Catalogue\HistoricAsset;
 
-use App\Actions\Catalogue\Subscription\Hydrators\SubscriptionHydrateHistoricAssets;
-use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricAssets;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
 use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateHistoricAssets;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
 use App\Actions\Catalogue\Service\Hydrators\ServiceHydrateHistoricAssets;
-use App\Models\Catalogue\Adjustment;
+use App\Actions\Catalogue\Subscription\Hydrators\SubscriptionHydrateHistoricAssets;
+use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricAssets;
 use App\Models\Catalogue\Charge;
-use App\Models\Catalogue\Shipping;
-use App\Models\Catalogue\Subscription;
-use App\Models\Fulfilment\Rental;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Subscription;
+use App\Models\Fulfilment\Rental;
+use App\Models\Ordering\ShippingZone;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -28,7 +27,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|Shipping|Adjustment $assetModel, array $modelData = []): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = []): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),
@@ -36,9 +35,19 @@ class StoreHistoricAsset
 
         data_set($historicAssetData, 'code', $assetModel->code);
         data_set($historicAssetData, 'name', $assetModel->name);
-        data_set($historicAssetData, 'price', $assetModel->price);
-        data_set($historicAssetData, 'units', $assetModel->units);
-        data_set($historicAssetData, 'unit', $assetModel->unit);
+
+
+        if($assetModel instanceof ShippingZone) {
+            data_set($historicAssetData, 'price', null);
+            data_set($historicAssetData, 'units', 1);
+            data_set($historicAssetData, 'unit', 'shipping');
+        } else {
+            data_set($historicAssetData, 'price', $assetModel->price);
+            data_set($historicAssetData, 'units', $assetModel->units);
+            data_set($historicAssetData, 'unit', $assetModel->unit);
+        }
+
+
 
 
         if (Arr::get($modelData, 'created_at')) {

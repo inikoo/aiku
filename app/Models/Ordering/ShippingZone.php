@@ -7,6 +7,7 @@
 
 namespace App\Models\Ordering;
 
+use App\Models\Catalogue\InAssetModel;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -36,14 +37,21 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $price
  * @property array $territories
  * @property int $position
+ * @property int $currency_id
+ * @property int|null $asset_id
+ * @property int|null $current_historic_asset_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Helpers\Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Ordering\ShippingZoneStats|null $stats
@@ -60,6 +68,7 @@ class ShippingZone extends Model implements Auditable
 {
     use SoftDeletes;
     use InShop;
+    use InAssetModel;
     use HasSlug;
     use HasFactory;
     use HasHistory;

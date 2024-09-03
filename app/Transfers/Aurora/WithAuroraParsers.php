@@ -7,7 +7,9 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Transfers\Aurora\FetchAuroraAdjustments;
 use App\Actions\Transfers\Aurora\FetchAuroraAgents;
+use App\Actions\Transfers\Aurora\FetchAuroraCharges;
 use App\Actions\Transfers\Aurora\FetchAuroraClockingMachines;
 use App\Actions\Transfers\Aurora\FetchAuroraCustomers;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedCustomers;
@@ -30,6 +32,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
 use App\Actions\Transfers\Aurora\FetchAuroraShippers;
+use App\Actions\Transfers\Aurora\FetchAuroraShippingZones;
 use App\Actions\Transfers\Aurora\FetchAuroraShippingZoneSchemas;
 use App\Actions\Transfers\Aurora\FetchAuroraShops;
 use App\Actions\Transfers\Aurora\FetchAuroraStocks;
@@ -43,6 +46,7 @@ use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -67,7 +71,9 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Agent;
@@ -427,7 +433,7 @@ trait WithAuroraParsers
             $location   = FetchAuroraLocations::run($organisationSource, $sourceData[1]);
         }
         if (!$location) {
-            $location   = FetchAuroraDeletedLocations::run($organisationSource, $sourceData[1]);
+            $location = FetchAuroraDeletedLocations::run($organisationSource, $sourceData[1]);
         }
 
         return $location;
@@ -599,11 +605,45 @@ trait WithAuroraParsers
     {
         $shippingZoneSchema = ShippingZoneSchema::where('source_id', $sourceId)->first();
         if (!$shippingZoneSchema) {
-            $sourceData               = explode(':', $sourceId);
-            $shippingZoneSchema       = FetchAuroraShippingZoneSchemas::run($this->organisationSource, $sourceData[1]);
+            $sourceData         = explode(':', $sourceId);
+            $shippingZoneSchema = FetchAuroraShippingZoneSchemas::run($this->organisationSource, $sourceData[1]);
         }
 
         return $shippingZoneSchema;
+    }
+
+    public function parseShippingZone($sourceId): ?ShippingZone
+    {
+
+        $shippingZone = ShippingZone::where('source_id', $sourceId)->first();
+        if (!$shippingZone) {
+            $sourceData   = explode(':', $sourceId);
+            $shippingZone = FetchAuroraShippingZones::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $shippingZone;
+    }
+
+    public function parseCharge($sourceId): ?Charge
+    {
+        $charge = Charge::where('source_id', $sourceId)->first();
+        if (!$charge) {
+            $sourceData   = explode(':', $sourceId);
+            $charge       = FetchAuroraCharges::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $charge;
+    }
+
+    public function parseAdjustment($sourceId): Adjustment
+    {
+        $adjustment = Adjustment::where('source_id', $sourceId)->first();
+        if (!$adjustment) {
+            $sourceData = explode(':', $sourceId);
+            $adjustment = FetchAuroraAdjustments::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $adjustment;
     }
 
     public function cleanTradeUnitReference(string $reference): string
@@ -825,8 +865,7 @@ trait WithAuroraParsers
             default => $auroraTaxCategoryId
         };
 
-        return TaxCategory::where('source_id', $auroraTaxCategoryId)
-            ->firstOrFail();
+        return TaxCategory::where('source_id', $auroraTaxCategoryId)->firstOrFail();
     }
 
 }

@@ -8,6 +8,7 @@
 namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
+use App\Transfers\Aurora\FetchAuroraAdjustment;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
 use App\Transfers\Aurora\FetchAuroraBarcode;
@@ -70,6 +71,7 @@ use App\Transfers\Aurora\FetchAuroraWebpage;
 use App\Transfers\Aurora\FetchAuroraWebsite;
 use App\Transfers\Aurora\FetchAuroraWebUser;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Ordering\Order;
 use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -196,9 +198,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraTransaction($this))->fetch($id);
     }
 
-    public function fetchNoProductTransaction($id): ?array
+    public function fetchNoProductTransaction($id, Order $order): ?array
     {
-        return (new FetchAuroraNoProductTransaction($this))->fetch($id);
+        return (new FetchAuroraNoProductTransaction($this))->fetchNoProductTransaction($id, $order);
     }
 
     public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote): ?array
@@ -399,6 +401,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchShippingZone($id): ?array
     {
         return (new FetchAuroraShippingZone($this))->fetch($id);
+    }
+
+    public function fetchAdjustment($id): ?array
+    {
+        return (new FetchAuroraAdjustment($this))->fetch($id);
     }
 
 }

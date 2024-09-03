@@ -34,8 +34,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_transactions_status_creating
  * @property int $number_transactions_status_processing
  * @property int $number_transactions_status_settled
- * @property int $number_transactions_type_order
- * @property int $number_transactions_type_refund
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Ordering\Order $order

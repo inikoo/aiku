@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
-use App\Actions\Catalogue\Adjustment\StoreAdjustment;
 use App\Actions\Catalogue\Shipping\StoreShipping;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
@@ -88,31 +87,7 @@ class StoreShop extends OrgAction
         $shop->orderIntervals()->create();
         $shop->mailshotsIntervals()->create();
 
-        StoreShipping::make()->make()->action(
-            $shop,
-            [
-                'code'        => $shop->slug.'-shipping',
-                'name'        => 'Default Shipping',
-                'state'       => ShippingStateEnum::ACTIVE,
-                'units'       => '1',
-                'unit'        => '1',
-                'currency_id' => $shop->currency_id,
-                'price'       => '0',
-                'structural'  => true
-            ]
-        );
 
-        StoreAdjustment::make()->make()->action(
-            $shop,
-            [
-                'code'        => $shop->slug.'-adjustment',
-                'name'        => 'Default Shipping',
-                'units'       => '1',
-                'unit'        => '1',
-                'currency_id' => $shop->currency_id,
-                'price'       => '0'
-            ]
-        );
 
         if($shop->type === ShopTypeEnum::DROPSHIPPING) {
             $shop->dropshippingStats()->create();

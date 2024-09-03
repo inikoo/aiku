@@ -153,7 +153,7 @@ class AppServiceProvider extends ServiceProvider
                 'Service'                       => 'App\Models\Catalogue\Service',
                 'Charge'                        => 'App\Models\Catalogue\Charge',
                 'Shipping'                      => 'App\Models\Catalogue\Shipping',
-                'Adjustment'                    => 'App\Models\Catalogue\Adjustment',
+                'Adjustment'                    => 'App\Models\Ordering\Adjustment',
 
                 // Deals
                 'Offer'                         => 'App\Models\Marketing\Offer',

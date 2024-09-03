@@ -9,6 +9,7 @@ namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 
 interface SourceOrganisationService
@@ -27,7 +28,7 @@ interface SourceOrganisationService
 
     public function fetchTransaction($id);
 
-    public function fetchNoProductTransaction($id);
+    public function fetchNoProductTransaction($id, Order $order);
 
     public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote);
 
@@ -134,5 +135,7 @@ interface SourceOrganisationService
     public function fetchShippingZoneSchema($id);
 
     public function fetchShippingZone($id);
+
+    public function fetchAdjustment($id);
 
 }
