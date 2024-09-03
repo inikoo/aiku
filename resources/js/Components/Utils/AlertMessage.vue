@@ -2,6 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faExclamationTriangle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
 library.add(faExclamationTriangle)
 
 const props = defineProps<{
@@ -11,16 +12,35 @@ const props = defineProps<{
         description?: string
     }
 }>()
+
+const getAlertColor = (alert: string) => {
+    switch (alert) {
+        case 'success':
+            return 'bg-green-100 text-green-600'
+        case 'warning':
+            return 'bg-amber-100 text-amber-600'
+        case 'danger':
+            return 'bg-red-200 text-red-600'
+    }
+}
+
+const getAlertBorder = (alert: string) => {
+    switch (alert) {
+        case 'success':
+            return '#22c55e'
+        case 'warning':
+            return '#fbbf24'
+        case 'danger':
+            return '#f87171'
+    }
+}
 </script>
 
 <template>
     <div class="flex gap-x-3 p-4 rounded"
-        :class="{
-            'bg-amber-200 text-amber-600': alert.status === 'warning',
-            'bg-red-200 text-red-600': alert.status === 'danger',
-        }"
+        :class="getAlertColor(alert.status)"
         :style="{
-            'border': alert.status === 'warning' ? '2px solid #fbbf24' : alert.status === 'danger' ? '2px solid #f87171' : ''
+            'border': `1px solid ${getAlertBorder(alert.status)}`
         }"    
     >
         <div class="">

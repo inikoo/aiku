@@ -201,11 +201,16 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
+                'alert'   => [  // TODO
+                    'status'        => 'danger',
+                    'title'         => 'Dummy Alert from BE',
+                    'description'   => 'Dummy description'
+                ],
                 'notes' => [  // TODO
                     "note_list"  => [
-                        [ "label" => "Customer", "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
-                        [ "label" => "Public", "note" => "", "editable" => true, "bgColor" => "#40E0D0", "field" => "public_notes" ],
-                        [ "label" => "Private", "note" => "", "editable" => true, "bgColor" => "#4b5563", "textColor" => "#fff", "field" => "internal_notes" ]
+                        [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
+                        [ "label" => __("Public"), "note" => "", "editable" => true, "bgColor" => "#40E0D0", "field" => "public_notes" ],
+                        [ "label" => __("Private"), "note" => "", "editable" => true, "bgColor" => "#4b5563", "textColor" => "#fff", "field" => "internal_notes" ]
                     ],
                     "updateRoute"   => [
                         "name"       => "grp.models.pallet-delivery.update",
