@@ -6,7 +6,9 @@
  */
 
 use App\Actions\Catalogue\Asset\UI\CreateProduct;
+use App\Actions\Catalogue\Charge\UI\EditCharge;
 use App\Actions\Catalogue\Charge\UI\IndexCharges;
+use App\Actions\Catalogue\Charge\UI\ShowCharge;
 use App\Actions\Catalogue\Shipping\UI\CreateShippingZoneSchema;
 use App\Actions\Catalogue\Shipping\UI\EditShippingZoneSchema;
 use App\Actions\Catalogue\Shipping\UI\IndexShippingZoneSchemas;
@@ -37,8 +39,8 @@ Route::name("charges.")->prefix('charges')
         Route::get('create', EditDummy::class)->name('create');
 
         Route::prefix('{charge}')->group(function () {
-            Route::get('', ShowDummy::class)->name('show');
-            Route::get('edit', EditDummy::class)->name('edit');
+            Route::get('', ShowCharge::class)->name('show');
+            Route::get('edit', EditCharge::class)->name('edit');
         });
     });
 
