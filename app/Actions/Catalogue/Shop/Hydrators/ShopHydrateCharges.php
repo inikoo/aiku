@@ -8,6 +8,8 @@
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -34,6 +36,18 @@ class ShopHydrateCharges
             'number_assets_type_charge' => $shop->charges()->count(),
         ];
 
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'charges',
+                field: 'state',
+                enum: ChargeStateEnum::class,
+                models: Charge::class,
+                where: function ($q) use ($shop) {
+                    $q->where('is_main', true)->where('shop_id', $shop->id);
+                }
+            )
+        );
         $shop->stats()->update($stats);
     }
 

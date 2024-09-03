@@ -8,6 +8,8 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
+use App\Models\Catalogue\Charge;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,6 +35,19 @@ class GroupHydrateCharges
         $stats = [
             'number_assets_type_charge' => $group->charges()->count(),
         ];
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'charges',
+                field: 'state',
+                enum: ChargeStateEnum::class,
+                models: Charge::class,
+                where: function ($q) use ($group) {
+                    $q->where('is_main', true)->where('group_id', $group->id);
+                }
+            )
+        );
 
         $group->catalogueStats()->update($stats);
 
