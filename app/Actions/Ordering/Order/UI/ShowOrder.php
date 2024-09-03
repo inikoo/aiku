@@ -201,7 +201,20 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
-                'timeline'      => $finalTimeline,
+                'notes' => [  // TODO
+                    "note_list"  => [
+                        [ "label" => "Customer", "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
+                        [ "label" => "Public", "note" => "", "editable" => true, "bgColor" => "#40E0D0", "field" => "public_notes" ],
+                        [ "label" => "Private", "note" => "", "editable" => true, "bgColor" => "#4b5563", "textColor" => "#fff", "field" => "internal_notes" ]
+                    ],
+                    "updateRoute"   => [
+                        "name"       => "grp.models.pallet-delivery.update",
+                        "parameters" => [
+                            "palletDelivery" => 1
+                        ]
+                    ]
+                ],
+                'timelines'      => $finalTimeline,
 
                 'box_stats'     => [
                     'customer'          => array_merge(

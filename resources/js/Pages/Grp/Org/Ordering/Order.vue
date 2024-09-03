@@ -71,24 +71,24 @@ const props = defineProps<{
     data?: {
         data: PalletDelivery
     }
-    timeline: {
-        [key: string]: TSTimeline
-    }
 
     pageHead: PageHeadingTypes
-    // updateRoute: routeType
-
-    // interest: {
-    //     pallets_storage: boolean
-    //     items_storage: boolean
-    //     dropshipping: boolean
-    // }
-
-    // uploadRoutes: {
-    //     upload: routeType
-    //     download: routeType
-    //     history: routeType
-    // }
+    notes: {
+        note_list: {
+            label: string
+            note: string
+            editable?: boolean
+            bgColor?: string
+            textColor?: string
+            color?: string
+            lockMessage?: string
+            field: string  // customer_notes, public_notes, internal_notes
+        }[]
+        updateRoute: routeType
+    }
+    timelines: {
+        [key: string]: TSTimeline
+    }
 
     upload_spreadsheet: UploadPallet
 
@@ -251,6 +251,7 @@ const onSubmitPayment = () => {
         errorPaymentMethod.value = error
     }
 }
+
 </script>
 
 <template>
@@ -335,23 +336,28 @@ const onSubmitPayment = () => {
         </template>
     </PageHeading>
 
-    <!-- Section: Timeline -->
-    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline v-if="timeline" :options="timeline" :state="props.data?.data?.state" :slidesPerView="6" />
+    <!-- Section: Box Note -->
+    <div class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
+        <BoxNote
+            v-for="(note, index) in notes.note_list"
+            :key="index+note.label"
+            :noteData="note"
+            :updateRoute="notes.updateRoute"
+        />
     </div>
 
-    <!-- Box -->
-    <!-- <BoxStatsPalletDelivery :dataPalletDelivery="data?.data" :boxStats="box_stats" :updateRoute /> -->
+    <!-- Section: Timeline -->
+    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+        <Timeline v-if="timelines" :options="timelines" :state="props.data?.data?.state" :slidesPerView="6" />
+    </div>
     
     <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
-        
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
             <!-- Field: Registration Number -->
             <Link as="a" v-if="box_stats?.customer.reference" :href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
                 class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
                 <dt v-tooltip="'Company name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width
-                        aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
             </Link>
@@ -372,7 +378,6 @@ const onSubmitPayment = () => {
                 <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
-            
             <!-- Field: Email -->
             <div v-if="box_stats?.customer.email" class="pl-1 flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
@@ -451,7 +456,6 @@ const onSubmitPayment = () => {
 
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
-<!-- <pre>{{ timeline }}</pre> -->
     <div class="pb-12">
         <component
             :is="component"
