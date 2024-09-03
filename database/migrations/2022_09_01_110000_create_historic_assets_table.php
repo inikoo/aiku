@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->foreign('asset_id')->references('id')->on('assets');
             $table->string('model_type')->index();
             $table->unsignedInteger('model_id')->index();
-            $table->decimal('price', 18)->comment('unit price');
+            $table->decimal('price', 18)->nullable()->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
             $table->decimal('units', 12, 3)->nullable()->comment('units in outer');

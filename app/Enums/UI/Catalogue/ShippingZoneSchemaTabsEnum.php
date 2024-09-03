@@ -15,10 +15,10 @@ enum ShippingZoneSchemaTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case CURRENT     = 'current';
-    case OFFER    = 'offer';
+    case CURRENT      = 'current';
+    case OFFER        = 'offer';
     case SCHEMAS      = 'schemas';
-    case HISTORY   = 'history';
+    case HISTORY      = 'history';
 
 
     public function blueprint(): array

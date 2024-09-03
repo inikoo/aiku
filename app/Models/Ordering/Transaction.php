@@ -10,7 +10,6 @@ namespace App\Models\Ordering;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\CRM\Customer;
@@ -38,7 +37,6 @@ use Illuminate\Support\Carbon;
  * @property int $customer_id
  * @property int|null $order_id
  * @property int|null $invoice_id
- * @property TransactionTypeEnum $type
  * @property string $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
@@ -99,8 +97,6 @@ class Transaction extends Model
         'data'       => 'array',
         'state'      => TransactionStateEnum::class,
         'status'     => TransactionStatusEnum::class,
-        'type'       => TransactionTypeEnum::class,
-        'asset_type' => AssetTypeEnum::class
 
     ];
 

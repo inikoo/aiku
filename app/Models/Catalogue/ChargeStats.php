@@ -16,6 +16,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $charge_id
  * @property int $number_historic_assets
+ * @property string|null $first_used_at
+ * @property string|null $last_used_at
+ * @property int $number_customers
+ * @property int $number_orders
+ * @property string $amount
+ * @property string $org_amount
+ * @property string $group_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Charge $charge

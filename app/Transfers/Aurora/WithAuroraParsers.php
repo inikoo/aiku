@@ -30,6 +30,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
 use App\Actions\Transfers\Aurora\FetchAuroraShippers;
+use App\Actions\Transfers\Aurora\FetchAuroraShippingZoneSchemas;
 use App\Actions\Transfers\Aurora\FetchAuroraShops;
 use App\Actions\Transfers\Aurora\FetchAuroraStocks;
 use App\Actions\Transfers\Aurora\FetchAuroraSuppliers;
@@ -67,6 +68,7 @@ use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
@@ -591,6 +593,17 @@ trait WithAuroraParsers
         }
 
         return $tradeUnit;
+    }
+
+    public function parseShippingZoneSchema($sourceId): ShippingZoneSchema
+    {
+        $shippingZoneSchema = ShippingZoneSchema::where('source_id', $sourceId)->first();
+        if (!$shippingZoneSchema) {
+            $sourceData               = explode(':', $sourceId);
+            $shippingZoneSchema       = FetchAuroraShippingZoneSchemas::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $shippingZoneSchema;
     }
 
     public function cleanTradeUnitReference(string $reference): string

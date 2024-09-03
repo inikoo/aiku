@@ -150,18 +150,7 @@ const props = defineProps<{
                                 {{ locale.currencyFormat(dataCalculations.currency, dataCalculations.shipping || 0) }}
                             </td>
                         </tr>
-                        <tr class="border-b border-gray-300">
-                            <th scope="row" colspan="3"
-                                class="hidden pl-4 pr-3 py-2 text-right text-sm font-normal sm:table-cell sm:pl-0">
-                                Insurance
-                            </th>
-                            <th scope="row" class="pl-4 pr-3 pt-6 text-left text-sm font-normal sm:hidden">
-                                Insurance
-                            </th>
-                            <td class="pl-3 pr-4 py-2 text-right text-sm sm:pr-0">
-                                {{ locale.currencyFormat(dataCalculations.currency, dataCalculations.insurance || 0) }}
-                            </td>
-                        </tr>
+
                         
                         <tr>
                             <th scope="row" colspan="3"
