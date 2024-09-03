@@ -7,17 +7,11 @@
 
 namespace App\Actions\Catalogue\Shipping\UI;
 
-use App\Actions\Catalogue\Shipping\UI\ShowShippingZoneSchema;
-use App\Actions\Goods\HasGoodsAuthorisation;
-use App\Actions\GrpAction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Actions\UI\Iris\ShowShipping;
 use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Goods\TradeUnit;
 use App\Models\Ordering\ShippingZoneSchema;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -47,9 +41,9 @@ class EditShippingZoneSchema extends OrgAction
             [
                 'title'       => __('Shipping Zone Schema'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                        $shippingZoneSchema,
-                        $request->route()->getName(),
-                        $request->route()->originalParameters()
+                    $shippingZoneSchema,
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($shippingZoneSchema, $request),
@@ -143,8 +137,8 @@ class EditShippingZoneSchema extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $shippingZoneSchema->organisation->slug,
-                        'shop'         => $shippingZoneSchema->shop->slug,
+                        'organisation'       => $shippingZoneSchema->organisation->slug,
+                        'shop'               => $shippingZoneSchema->shop->slug,
                         'shippingZoneSchema' => $shippingZoneSchema->slug
                     ]
                 ]

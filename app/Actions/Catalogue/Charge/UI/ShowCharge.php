@@ -8,22 +8,15 @@
 namespace App\Actions\Catalogue\Charge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Goods\HasGoodsAuthorisation;
-use App\Actions\GrpAction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\Catalogue\ChargeTabsEnum;
 use App\Enums\UI\Catalogue\ShippingZoneSchemaTabsEnum;
-use App\Enums\UI\SupplyChain\TradeUnitTabsEnum;
 use App\Http\Resources\Catalogue\ShippingZoneSchemaResource;
-use App\Http\Resources\Goods\TradeUnitResource;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Shop;
-use App\Models\Goods\TradeUnit;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\SupplyChain\Stock;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -127,7 +120,7 @@ class ShowCharge extends OrgAction
         return match ($routeName) {
             'grp.org.shops.show.assets.charges.show' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs( $routeParameters),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $charge,
                     [

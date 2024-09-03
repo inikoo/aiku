@@ -5,7 +5,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Asset\UI\CreateProduct;
 use App\Actions\Catalogue\Charge\UI\CreateCharge;
 use App\Actions\Catalogue\Charge\UI\EditCharge;
 use App\Actions\Catalogue\Charge\UI\IndexCharges;
