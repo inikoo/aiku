@@ -88,13 +88,20 @@ class ShowOrder extends OrgAction
         $timeline       = [];
         foreach (OrderStateEnum::cases() as $state) {
 
-            $timeline[$state->value] = [
-                'label'   => $state->labels()[$state->value],
-                'tooltip' => $state->labels()[$state->value],
-                'key'     => $state->value,
-               /*  'icon'      => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
-                'timestamp' => $order->{$state->snake() . '_at'} ? $order->{$state->snake() . '_at'}->toISOString() : null
-            ];
+            $timestamp = $order->{$state->snake() . '_at'} 
+            ? $order->{$state->snake() . '_at'} 
+            : null;
+        
+        // If all possible values are null, set the timestamp to null explicitly
+        $timestamp = $timestamp ?: null;
+        
+        $timeline[$state->value] = [
+            'label'     => $state->labels()[$state->value],
+            'tooltip'   => $state->labels()[$state->value],
+            'key'       => $state->value,
+            /* 'icon'    => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
+            'timestamp' => $timestamp
+        ];
         }
 
         $finalTimeline = Arr::except(
