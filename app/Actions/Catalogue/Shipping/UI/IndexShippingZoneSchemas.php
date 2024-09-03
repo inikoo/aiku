@@ -75,7 +75,7 @@ class IndexShippingZoneSchemas extends OrgAction
                 'shipping_zone_schemas.id',
                 'shipping_zone_schemas.slug',
                 'shipping_zone_schemas.name',
-                'shipping_zone_schemas.status',
+                'shipping_zone_schemas.type',
                 'shipping_zone_schemas.created_at',
             ]);
 
@@ -122,8 +122,7 @@ class IndexShippingZoneSchemas extends OrgAction
                         ] : null
                     ]*/
                 );
-            $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -187,7 +186,7 @@ class IndexShippingZoneSchemas extends OrgAction
                     : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, prefix: ShippingZoneSchemaTabsEnum::SCHEMAS->value));
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
