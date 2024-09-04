@@ -123,7 +123,7 @@ class IndexOrders extends OrgAction
             }
             $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, sortable: false, searchable: true);
-            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true, type: 'number');
+            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true, type: 'currency');
         };
     }
 
@@ -218,6 +218,13 @@ class IndexOrders extends OrgAction
                 ],
             ];
         }
+
+        if ($this->parent instanceof Shop)
+        {
+            $shop = $this->parent;
+        } else {
+            $shop = $this->parent->shop;
+        }
         return Inertia::render(
             'Ordering/Orders',
             [
@@ -241,6 +248,10 @@ class IndexOrders extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => OrdersTabsEnum::navigation(),
                 ],
+
+                OrdersTabsEnum::STATS->value => $this->tab == OrdersTabsEnum::STATS->value ?
+                    fn () => GetOrderStats::run($shop)
+                    : Inertia::lazy(fn () => GetOrderStats::run($shop)),
 
                 OrdersTabsEnum::ORDERS->value => $this->tab == OrdersTabsEnum::ORDERS->value ?
                     fn () => OrdersResource::collection($orders)
