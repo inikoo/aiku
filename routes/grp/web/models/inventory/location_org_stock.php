@@ -9,10 +9,12 @@ use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\MoveOrgStockToOtherLocation;
 use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock;
 use Illuminate\Support\Facades\Route;
 
 Route::name('org_stock.')->prefix('org-stock/{orgStock:id}')->group(function () {
     Route::post('location/{location:id}', StoreLocationOrgStock::class)->name('location.store')->withoutScopedBindings();
+    Route::patch('location', UpdateLocationOrgStock::class)->name('location.update');
 });
 
 Route::name('location_org_stock.')->prefix('location-org-stock/{locationOrgStock:id}')->group(function () {
