@@ -455,7 +455,7 @@ const onSubmitPayment = () => {
                     <FontAwesomeIcon icon='fal fa-weight' fixed-width aria-hidden='true' class="text-gray-500" />
                 </dt>
                 <dd class="text-gray-500" v-tooltip="trans('Estimated weight of all products')">
-                    {{ box_stats?.products.estimated_weight || 0 }} grams
+                    {{ box_stats?.products.estimated_weight || 0 }} kilograms
                 </dd>
             </div>
         </BoxStatPallet>
