@@ -7,7 +7,6 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-
 use App\Actions\Ordering\Transaction\StoreTransactionFromAdjustment;
 use App\Actions\Ordering\Transaction\StoreTransactionFromCharge;
 use App\Actions\Ordering\Transaction\StoreTransactionFromShipping;

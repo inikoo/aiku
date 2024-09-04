@@ -27,7 +27,7 @@ class DeleteShopifyUser extends OrgAction
         $shopifyUser->orders()->detach();
         $shopifyUser->customer->platforms()->detach();
 
-        $shopifyUser->delete();
+        $shopifyUser->forceDelete();
     }
 
     public function authorize(ActionRequest $request): bool
