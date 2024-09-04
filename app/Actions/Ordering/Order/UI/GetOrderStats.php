@@ -8,7 +8,6 @@
 namespace App\Actions\Ordering\Order\UI;
 
 use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetOrderStats

@@ -219,8 +219,7 @@ class IndexOrders extends OrgAction
             ];
         }
 
-        if ($this->parent instanceof Shop)
-        {
+        if ($this->parent instanceof Shop) {
             $shop = $this->parent;
         } else {
             $shop = $this->parent->shop;
