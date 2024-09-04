@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { routeType } from "@/types/route"
-import { stockLocation } from "@/types/StockLocation"
+import { stockLocation, Datum } from "@/types/StockLocation"
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { useFormatTime } from "@/Composables/useFormatTime"
-import Button from "@/Components/Elements/Buttons/Button.vue";
+import { useForm, router } from '@inertiajs/vue3'
+import { notify } from "@kyvg/vue3-notification"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket, faClock, faPencil, faSave, faTimes } from '@far'
@@ -26,6 +27,7 @@ const props = defineProps<{
 
 const disclosure = ref([])
 const editNotes = ref(false)
+const loading = ref(false)
 
 
 const daysAudit = (day : Date) =>{
@@ -34,6 +36,28 @@ const today = new Date();
 const difference = today - audited_at;
 const differenceDay = Math.floor(difference / (1000 * 60 * 60 * 24));
 return(differenceDay)
+}
+
+
+const sendNotes = (item : Datum) =>{
+    console.log(item)
+  /*   router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
+        { },
+        {
+            onBefore: () => { loading.value = true },
+            onSuccess: () => {
+                    loading.value = false
+            },
+            onError: () => {
+                notify({
+                    title: "Failed",
+                    text: "failed to add location",
+                    type: "error"
+                })
+                loading.value = false
+            }
+
+        }) */
 }
 
 const hideOther = (id : Number) => {
@@ -99,7 +123,7 @@ const hideOther = (id : Number) => {
 
                 <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
                     <PureTextarea :modelValue="location.notes" :disabled="!editNotes" :rows="4" placeholder="Write a notes ....">
-                        <template #stateIcon>
+                        <template v-if="!loading" #stateIcon>
                             <div v-if="!editNotes" @click="()=>editNotes=true"
                                 class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">
                                 <FontAwesomeIcon :icon="faPencil" />
@@ -110,7 +134,7 @@ const hideOther = (id : Number) => {
                                     class="w-8 h-8 flex items-center justify-center text-sm text-red-500 rounded-full bg-white border border-red-500 cursor-pointer">
                                     <FontAwesomeIcon :icon="faTimes" />
                                 </div>
-                                <div 
+                                <div @click="()=>sendNotes(location)"
                                     class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">
                                     <FontAwesomeIcon :icon="faSave" />
                                 </div>
