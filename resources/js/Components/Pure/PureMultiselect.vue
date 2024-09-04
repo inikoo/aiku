@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<{
     classes?: {}
     options: {
         label: string
+        value: string
     }[] | string[]
     caret?: boolean
     object?: boolean

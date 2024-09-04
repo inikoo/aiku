@@ -127,6 +127,8 @@ const layout = inject('layout', layoutStructure)
         <!-- Section: Button and/or ButtonGroup -->
         <slot name="button" :dataPageHead="{ ...props }">
             <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
+                <slot name="otherBefore" :dataPageHead="{ ...props }" />
+                
                 <template v-for="(action, actIndex) in data.actions">
                     <template v-if="action">
                         <!-- Button -->
