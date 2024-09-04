@@ -150,6 +150,8 @@ class ShowOrder extends OrgAction
         $payAmount   = $order->total_amount - $order->payment_amount;
         $roundedDiff = round($payAmount, 2);
 
+        $estWeight = ($order->estimated_weight ?? 0) / 1000;
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -259,7 +261,7 @@ class ShowOrder extends OrgAction
                             'paid_amount' => $order->payment_amount,
                             'pay_amount'  => $roundedDiff,
                         ],
-                        'estimated_weight' => $order->estimated_weight ?? 0
+                        'estimated_weight' => $estWeight
                     ],
 
                     // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
