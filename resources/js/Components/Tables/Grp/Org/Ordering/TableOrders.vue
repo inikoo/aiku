@@ -80,8 +80,9 @@ function customerRoute(order: Order) {
             </Link>
         </template>
 
+        <!-- Column: Customer -->
         <template #cell(customer_name)="{ item: order }">
-            <Link :href="customerRoute(order)" class="primaryLink">
+            <Link :href="customerRoute(order)" class="secondaryLink">
                 {{ order["customer_name"] }}
             </Link>
         </template>

@@ -123,7 +123,7 @@ class IndexOrders extends OrgAction
             }
             $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, sortable: false, searchable: true);
-            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true, type: 'number');
+            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true, type: 'currency');
         };
     }
 
