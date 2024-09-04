@@ -361,7 +361,12 @@ const onSubmitPayment = () => {
 
     <!-- Section: Timeline -->
     <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline v-if="timelines" :options="timelines" :state="props.data?.data?.state" :slidesPerView="6" />
+        <Timeline
+            v-if="timelines"
+            :options="timelines"
+            :state="props.data?.data?.state"
+            :slidesPerView="6"
+        />
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
@@ -411,7 +416,7 @@ const onSubmitPayment = () => {
             </div>
 
             <!-- Field: Address -->
-            <div v-if="box_stats?.customer.addresses" class="pl-1 flex items w-full flex-none gap-x-2"
+            <div v-if="false && box_stats?.customer?.addresses" class="pl-1 flex items w-full flex-none gap-x-2"
                 v-tooltip="trans('Shipping address')">
                 <dt v-tooltip="'Address'" class="text-smflex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />

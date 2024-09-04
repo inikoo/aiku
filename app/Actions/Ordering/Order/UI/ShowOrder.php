@@ -13,7 +13,6 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
-use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
@@ -208,11 +207,11 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
-                'alert'   => [  // TODO
-                    'status'        => 'danger',
-                    'title'         => 'Dummy Alert from BE',
-                    'description'   => 'Dummy description'
-                ],
+                // 'alert'   => [  // TODO
+                //     'status'        => 'danger',
+                //     'title'         => 'Dummy Alert from BE',
+                //     'description'   => 'Dummy description'
+                // ],
                 'notes' => [  // TODO
                     "note_list"  => [
                         [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
