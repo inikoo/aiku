@@ -40,9 +40,10 @@ return(differenceDay)
 
 
 const sendNotes = (item : Datum) =>{
-    console.log(item)
-  /*   router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
-        { },
+    router.patch(route(
+        props.associateLocationRoute.name,
+        { ...props.associateLocationRoute.parameters, location: item.id }),
+        { notes : item.notes},
         {
             onBefore: () => { loading.value = true },
             onSuccess: () => {
@@ -57,7 +58,7 @@ const sendNotes = (item : Datum) =>{
                 loading.value = false
             }
 
-        }) */
+        })
 }
 
 const hideOther = (id : Number) => {
@@ -78,7 +79,7 @@ const hideOther = (id : Number) => {
                             @click="hideOther(index)"
                             :ref="el => (disclosure[index] = close)"
                         >
-                            <FontAwesomeIcon 
+                            <FontAwesomeIcon v-tooltip="'Notes'"
                                 :icon="location.notes ? fasStickyNote : faStickyNote" />
                         </DisclosureButton>
 
@@ -122,7 +123,7 @@ const hideOther = (id : Number) => {
                 </div>
 
                 <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
-                    <PureTextarea :modelValue="location.notes" :disabled="!editNotes" :rows="4" placeholder="Write a notes ....">
+                    <PureTextarea :modelValue="location.notes" @update:modelValue="(value)=>location.notes  = value" :disabled="!editNotes" :rows="4" placeholder="Write a notes ....">
                         <template v-if="!loading" #stateIcon>
                             <div v-if="!editNotes" @click="()=>editNotes=true"
                                 class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">

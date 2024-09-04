@@ -54,7 +54,7 @@ onMounted(() => {
                 :disabled="fieldData.readonly"
                 :caret="!fieldData.readonly"
 				:searchable="!!props.fieldData.searchable" 
-				:label="fieldData.labelProp || 'value'"
+				:label="fieldData.labelProp || 'label'"
 				:valueProp="fieldData.valueProp || 'value'"
 				/>
 			<div
