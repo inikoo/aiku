@@ -54,8 +54,7 @@ const menu = ref([
     },
 ])
 
-
-const getComponent = (componentName: string) => {
+const getComponent = (componentName: any) => {
     const components = {
         'stockCheck': StockCheckCard,
         'moveStock': MoveStockCard,
@@ -63,7 +62,6 @@ const getComponent = (componentName: string) => {
     };
     return components[componentName?.key] ?? InfoCard
 };
-
 
 watch(() => props.data.locations.data.length, (newLength) => {
     if (newLength <= 1) menu.value = menu.value.filter(item => item.key !== 'moveStock');

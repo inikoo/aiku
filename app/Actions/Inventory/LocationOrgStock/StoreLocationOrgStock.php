@@ -29,7 +29,7 @@ class StoreLocationOrgStock extends OrgAction
     private OrgStock $orgStock;
 
 
-    public function handle(OrgStock $orgStock, Location $location, array $modelData): LocationOrgStock
+    public function handle(OrgStock $orgStock, Location $location, array $modelData): void
     {
         data_set($modelData, 'group_id', $location->group_id);
         data_set($modelData, 'organisation_id', $location->organisation_id);
@@ -44,7 +44,6 @@ class StoreLocationOrgStock extends OrgAction
         LocationHydrateStockValue::dispatch($location);
         OrgStockHydrateLocations::dispatch($orgStock);
         OrgStockHydrateQuantityInLocations::dispatch($orgStock);
-        return $locationStock;
     }
 
     public function rules(): array
@@ -56,7 +55,7 @@ class StoreLocationOrgStock extends OrgAction
             'source_stock_id'    => ['sometimes', 'string', 'max:255'],
             'source_location_id' => ['sometimes', 'string', 'max:255'],
             'picking_priority'   => ['sometimes', 'integer'],
-            'type'               => ['required', Rule::enum(LocationStockTypeEnum::class)],
+            'type'               => ['sometimes', Rule::enum(LocationStockTypeEnum::class)],
             'fetched_at'         => ['sometimes', 'date'],
         ];
 
@@ -81,16 +80,16 @@ class StoreLocationOrgStock extends OrgAction
         }
     }
 
-    public function asController(OrgStock $orgStock, Location $location, ActionRequest $request, int $hydratorsDelay = 0, bool $strict = true): LocationOrgStock
+    public function asController(OrgStock $orgStock, Location $location, ActionRequest $request, int $hydratorsDelay = 0, bool $strict = true): void
     {
         $this->location = $location;
         $this->orgStock = $orgStock;
         $this->initialisation($orgStock->organisation, $request);
 
-        return $this->handle($orgStock, $location, $this->validatedData);
+        $this->handle($orgStock, $location, $this->validatedData);
     }
 
-    public function action(OrgStock $orgStock, Location $location, array $modelData, int $hydratorsDelay = 0, bool $strict = true): LocationOrgStock
+    public function action(OrgStock $orgStock, Location $location, array $modelData, int $hydratorsDelay = 0, bool $strict = true): void
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -99,7 +98,7 @@ class StoreLocationOrgStock extends OrgAction
         $this->orgStock       = $orgStock;
         $this->initialisation($orgStock->organisation, $modelData);
 
-        return $this->handle($orgStock, $location, $this->validatedData);
+        $this->handle($orgStock, $location, $this->validatedData);
     }
 
     public function jsonResponse(LocationOrgStock $locationStock): LocationOrgStockResource

@@ -33,7 +33,10 @@ class AuditLocationOrgStock extends OrgAction
         $newStock        =$locationOrgStock->quantity;
         $stockDiff       =$newStock-$currentStock;
 
-        StoreOrgStockAuditDelta::make()->action($locationOrgStock, $stockDiff);
+        StoreOrgStockAuditDelta::make()->action($locationOrgStock, [
+            'original_quantity' => $newStock,
+            'audited_quantity'  => $stockDiff,
+        ]);
 
         OrgStockHydrateQuantityInLocations::dispatch($locationOrgStock->orgStock);
 

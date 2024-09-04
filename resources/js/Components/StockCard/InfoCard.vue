@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { routeType } from "@/types/route"
-import { stockLocation } from "@/types/StockLocation"
+import { stockLocation, Datum } from "@/types/StockLocation"
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
-import Button from "@/Components/Elements/Buttons/Button.vue";
+import { useFormatTime } from "@/Composables/useFormatTime"
+import { useForm, router } from '@inertiajs/vue3'
+import { notify } from "@kyvg/vue3-notification"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket, faClock, faPencil, faSave, faTimes } from '@far'
@@ -25,8 +27,40 @@ const props = defineProps<{
 
 const disclosure = ref([])
 const editNotes = ref(false)
+const loading = ref(false)
 
-const hideOther = id => {
+
+const daysAudit = (day : Date) =>{
+const audited_at = new Date(day);
+const today = new Date();
+const difference = today - audited_at;
+const differenceDay = Math.floor(difference / (1000 * 60 * 60 * 24));
+return(differenceDay)
+}
+
+
+const sendNotes = (item : Datum) =>{
+    console.log(item)
+  /*   router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
+        { },
+        {
+            onBefore: () => { loading.value = true },
+            onSuccess: () => {
+                    loading.value = false
+            },
+            onError: () => {
+                notify({
+                    title: "Failed",
+                    text: "failed to add location",
+                    type: "error"
+                })
+                loading.value = false
+            }
+
+        }) */
+}
+
+const hideOther = (id : Number) => {
   disclosure.value.filter((d, i) => i !== id).forEach(c => c())
 }
 
@@ -66,9 +100,9 @@ const hideOther = id => {
                     <!-- Right Side: Stock Information -->
                     <div class="flex items-center w-1/4 gap-x-4">
                         <div class="flex sm:flex-col sm:items-end">
-                            <div class="flex gap-x-1">
+                            <div class="flex gap-x-1" v-tooltip="`Audited At : ${useFormatTime(location.audited_at)} `">
                                 <div class="flex-auto">
-                                    <div class="text-sm font-semibold leading-6 text-gray-900">999</div>
+                                    <div class="text-sm font-semibold leading-6 text-gray-900" >{{daysAudit(location.audited_at)}}</div>
                                 </div>
                                 <FontAwesomeIcon class="h-4 w-4 mt-1 flex-none rounded-full bg-gray-50"
                                     :icon="faClock" />
@@ -89,7 +123,7 @@ const hideOther = id => {
 
                 <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
                     <PureTextarea :modelValue="location.notes" :disabled="!editNotes" :rows="4" placeholder="Write a notes ....">
-                        <template #stateIcon>
+                        <template v-if="!loading" #stateIcon>
                             <div v-if="!editNotes" @click="()=>editNotes=true"
                                 class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">
                                 <FontAwesomeIcon :icon="faPencil" />
@@ -100,7 +134,7 @@ const hideOther = id => {
                                     class="w-8 h-8 flex items-center justify-center text-sm text-red-500 rounded-full bg-white border border-red-500 cursor-pointer">
                                     <FontAwesomeIcon :icon="faTimes" />
                                 </div>
-                                <div 
+                                <div @click="()=>sendNotes(location)"
                                     class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">
                                     <FontAwesomeIcon :icon="faSave" />
                                 </div>
