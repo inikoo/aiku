@@ -11,6 +11,7 @@ use App\Actions\Catalogue\HasRentalAgreement;
 
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\OrgAction;
+use App\Enums\Inventory\OrgStockAuditDelta\OrgStockAuditDeltaTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStockAudit;
@@ -33,7 +34,10 @@ class StoreOrgStockAuditDelta extends OrgAction
         data_set($modelData, 'audited_at', now(), overwrite: false);
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
-
+        data_set($modelData, 'warehouse_id', $parent->warehouse_id);
+        data_set($modelData, 'org_stock_id', $parent->org_stock_id);
+        data_set($modelData, 'location_id', $parent->location_id);
+        data_set($modelData, 'type', OrgStockAuditDeltaTypeEnum::ADDITION->value);
 
 
         if($parent instanceof OrgStockAudit) {
