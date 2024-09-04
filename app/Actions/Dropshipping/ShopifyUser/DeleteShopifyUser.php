@@ -41,9 +41,11 @@ class DeleteShopifyUser extends OrgAction
 
     public function asController(ActionRequest $request): void
     {
+        /** @var \App\Models\CRM\Customer $customer */
         $customer = $request->user()->customer;
+
         $this->initialisationFromShop($customer->shop, $request);
 
-        $this->handle($customer);
+        $this->handle($customer->shopifyUser);
     }
 }
