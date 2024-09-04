@@ -17,7 +17,7 @@ class FetchAuroraTransaction extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if ($this->auroraModelData->{'Order Transaction Type'}=='Refund') {
+        if ($this->auroraModelData->{'Order Transaction Type'} == 'Refund') {
             return;
         }
 
@@ -37,35 +37,31 @@ class FetchAuroraTransaction extends FetchAurora
             //enum('In Process by Customer','Submitted by Customer','In Process','Ready to Pick','Picking','Ready to Pack','Ready to Ship','Dispatched','Unknown','Packing','Packed','Packed Done','Cancelled','No Picked Due Out of Stock','No Picked Due No Authorised','No Picked Due Not Found','No Picked Due Other','Suspended','Cancelled by Customer','Out of Stock in Basket')
 
 
-
             $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
                 'In Process by Customer' => TransactionStateEnum::CREATING,
                 'In Process', 'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
                 'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
                 'Ready to Ship' => TransactionStateEnum::FINALISED,
-                'Dispatched'    => TransactionStateEnum::DISPATCHED,
+                'Dispatched' => TransactionStateEnum::DISPATCHED,
                 'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
                 'Unknown' => null
             };
 
-            //enum('In Process by Customer','Submitted by Customer','In Process','Ready to Pick','Picking','Ready to Pack','Ready to Ship','Dispatched','Unknown','Packing','Packed','Packed Done','Cancelled','No Picked Due Out of Stock','No Picked Due No Authorised','No Picked Due Not Found','No Picked Due Other','Suspended','Cancelled by Customer','Out of Stock in Basket')
+
             $status = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                'In Process by Customer', 'Out of Stock in Basket' => TransactionStatusEnum::CREATING,
-                'Picking','Ready to Pack' ,'Submitted by Customer','Ready to Ship'=> TransactionStatusEnum::PROCESSING,
+                'In Process by Customer', 'Out of Stock in Basket', 'In Process'=> TransactionStatusEnum::CREATING,
+                'Picking', 'Ready to Pack', 'Submitted by Customer', 'Ready to Ship', 'Ready to Pick', 'Packing', 'Packed', 'Packed Done' => TransactionStatusEnum::PROCESSING,
                 'Suspended', 'Dispatched', 'Unknown', 'Cancelled', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'No Picked Due Out of Stock' => TransactionStatusEnum::SETTLED,
             };
 
 
             $failStatus = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                'No Picked Due Out of Stock'  => TransactionFailStatusEnum::OUT_OF_STOCK,
+                'No Picked Due Out of Stock' => TransactionFailStatusEnum::OUT_OF_STOCK,
                 'No Picked Due No Authorised' => TransactionFailStatusEnum::NO_AUTHORISED,
-                'No Picked Due Not Found'     => TransactionFailStatusEnum::NOT_FOUND,
-                'No Picked Due Other'         => TransactionFailStatusEnum::OTHER,
-                default                       => null,
+                'No Picked Due Not Found' => TransactionFailStatusEnum::NOT_FOUND,
+                'No Picked Due Other' => TransactionFailStatusEnum::OTHER,
+                default => null,
             };
-
-
-
 
 
             $date = $this->parseDate($this->auroraModelData->{'Order Date'});
@@ -103,9 +99,6 @@ class FetchAuroraTransaction extends FetchAurora
                 'last_fetched_at'     => now(),
 
             ];
-
-
-
         } else {
             print "Warning Asset Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }
