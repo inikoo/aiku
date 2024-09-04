@@ -79,9 +79,11 @@ class StoreLocationOrgStock extends OrgAction
             $validator->errors()->add('location_org_stock', __('This stock is already assigned to this location'));
         }
 
-        if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
-                ->count() > 0) {
-            $validator->errors()->add('location_org_stock_type', __('This stock can have one picking only'));
+        if($this->strict) {
+            if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
+                    ->count() > 0) {
+                $validator->errors()->add('location_org_stock_type', __('This stock can have one picking only'));
+            }
         }
     }
 

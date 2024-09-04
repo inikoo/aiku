@@ -28,6 +28,9 @@ class SyncOrgStockLocations extends OrgAction
         $newLocations =[];
 
         foreach ($locationsData as $locationID => $locationOrgStockData) {
+
+            print_r($locationOrgStockData);
+
             if ($locationOrgStock = LocationOrgStock::where('org_stock_id', $orgStock->id)->where('location_id', $locationID)->first()) {
                 UpdateLocationOrgStock::make()->action($locationOrgStock, $locationOrgStockData, $this->hydratorsDelay, $this->strict, audit: false);
             } else {

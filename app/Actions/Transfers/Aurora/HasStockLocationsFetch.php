@@ -24,9 +24,11 @@ trait HasStockLocationsFetch
         $stockLocations  = [];
         $auroraModelData = DB::connection('aurora')
             ->table('Part Location Dimension')
-            ->where('Part SKU', $sourceData[1])->get();
+            ->where('Part SKU', $sourceData[1])
+            ->orderBy('Can Pick')
+            ->get();
 
-
+        $pickingPriority = null;
         foreach ($auroraModelData as $modelData) {
             $location = $this->parseLocation($sourceData[0].':'.$modelData->{'Location Key'}, $organisationSource);
 
@@ -55,12 +57,15 @@ trait HasStockLocationsFetch
                 $settings['max_stock'] = $modelData->{'Moving Quantity'};
             }
 
-            $pickingPriority = null;
+
             $type            = LocationStockTypeEnum::STORING->value;
-            if ($modelData->{'Can Pick'}) {
+            if ($modelData->{'Can Pick'}=='Yes') {
                 $type            = LocationStockTypeEnum::PICKING->value;
-                $pickingPriority = is_null($pickingPriority) ? 0 : $pickingPriority + 1;
             }
+            $pickingPriority = is_null($pickingPriority) ? 1 : $pickingPriority + 1;
+
+
+
 
             $stockLocations[$location->id] = [
                 'quantity'           => round($modelData->{'Quantity On Hand'}, 3),
