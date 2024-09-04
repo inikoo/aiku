@@ -7,26 +7,27 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { trans } from 'laravel-vue-i18n'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import InfoCard from '@/Components/StockCard/InfoCard.vue'
 import EditLocationCard from '@/Components/StockCard/EditLocationCard.vue'
 import StockCheckCard from '@/Components/StockCard/StockCheckCard.vue'
 import MoveStockCard from '@/Components/StockCard/MoveStock.vue'
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import { routeType } from "@/types/route"
+import {stockLocation} from "@/types/StockLocation"
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faShoppingBasket, faClock, faEllipsisV, } from '@far'
+import { faShoppingBasket, faClock, faPencil } from '@far'
 import { faStickyNote, faClipboard, faInventory, faForklift } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 
 
-library.add(faShoppingBasket, faStickyNote, faClock, faEllipsisV, faClipboard, faInventory, faForklift)
+library.add(faShoppingBasket, faStickyNote, faClock, faPencil, faClipboard, faInventory, faForklift)
 
 const props = defineProps<{
-    data: object,
+    data: stockLocation,
     locationRoute: routeType
     associateLocationRoute : routeType,
     disassociateLocationRoute : routeType,
@@ -34,7 +35,8 @@ const props = defineProps<{
     moveLocationRoute : routeType
 }>();
 
-const menu = [
+const activeMenu = ref(null)
+const menu = ref([
     {
         label: 'Stock Check',
         key: 'stockCheck',
@@ -46,11 +48,11 @@ const menu = [
         icon: faForklift
     },
     {
-        label: 'Edit Location',
+        label: 'Associate/Disassociate Locations',
         key: 'editLocation',
         icon: faInventory
     },
-]
+])
 
 
 const getComponent = (componentName: string) => {
@@ -63,7 +65,17 @@ const getComponent = (componentName: string) => {
 };
 
 
-const activeMenu = ref(null)
+watch(() => props.data.locations.data.length, (newLength) => {
+    if (newLength <= 1) menu.value = menu.value.filter(item => item.key !== 'moveStock');
+    else if (!menu.value.find(item => item.key === 'moveStock')) {
+        menu.value.push({
+            label: 'Move Stock',
+            key: 'moveStock',
+            icon: faForklift
+        });
+    }
+}, { immediate: true });
+
 
 </script>
 
@@ -83,8 +95,8 @@ const activeMenu = ref(null)
             <div>
                 <MenuButton
                     @mouseover="activeMenu = null"
-                    class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                    <FontAwesomeIcon :icon="faEllipsisV" />
+                    class="inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-indigo-500 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                    <FontAwesomeIcon :icon="faPencil" />
                 </MenuButton>
             </div>
 
@@ -99,7 +111,7 @@ const activeMenu = ref(null)
                     <div v-for="item in menu" class="px-1 py-1 border-b-1" :key="item.key">
                         <MenuItem>
                             <button @click="() => activeMenu = item"
-                                :class="['text-gray-900 group flex w-full items-center rounded-md px-2 py-2 text-sm']">
+                                :class="['text-gray-900 group flex w-full items-start rounded-md px-2 py-2 text-sm']">
                                 <FontAwesomeIcon :icon="item.icon" class="mr-2 h-5 w-5" aria-hidden="true" />
                                 {{ item.label }}
                             </button>

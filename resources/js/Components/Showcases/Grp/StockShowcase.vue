@@ -39,12 +39,5 @@ const props = defineProps<{
                 :moveLocationRoute="data.moveLocationRoute"
             />
         </div>
-
-
-
-
-
-
     </div>
-
 </template>
