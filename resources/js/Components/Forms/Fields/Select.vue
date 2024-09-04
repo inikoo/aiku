@@ -17,13 +17,13 @@ const props = defineProps<{
     fieldName: any
     options: string[] | {label?: string, value: string}[]
     fieldData: {
-        placeholder: string
-        required: boolean
-        mode: "multiple" | "single" | "tags"
-		searchable: boolean
-        readonly: boolean
-		labelProp: string
-		valueProp: string
+        placeholder?: string
+        required?: boolean
+        mode?: "multiple" | "single" | "tags"
+		searchable?: boolean
+        readonly?: boolean
+		labelProp?: string
+		valueProp?: string
     }
 }>()
 

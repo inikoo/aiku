@@ -1,65 +1,113 @@
-<!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 04 Apr 2023 11:19:33 Malaysia Time, Sanur, Bali, Indonesia
-  - Copyright (c) 2023, Raul A Perusquia Flores
-  -->
-
 <script setup lang="ts">
+import { ref } from 'vue';
+import { routeType } from "@/types/route"
+import { stockLocation } from "@/types/StockLocation"
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import PureTextarea from '@/Components/Pure/PureTextarea.vue'
+import Button from "@/Components/Elements/Buttons/Button.vue";
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faShoppingBasket, faClock, faEllipsisV, } from '@far'
+import { faShoppingBasket, faClock, faPencil, faSave, faTimes } from '@far'
 import { faStickyNote, faClipboard, faInventory, faForklift } from '@fal'
+import { faStickyNote as fasStickyNote } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
-
-library.add(faShoppingBasket, faStickyNote, faClock, faEllipsisV, faClipboard, faInventory, faForklift)
+library.add(faShoppingBasket, faStickyNote, faClock, faClipboard, faInventory, faForklift, fasStickyNote, faPencil , faSave, faTimes)
 
 const props = defineProps<{
-    data: object
+    data: stockLocation
+    locationRoute: routeType;
+    associateLocationRoute: routeType;
+    disassociateLocationRoute: routeType;
+    auditRoute: routeType;
+    moveLocationRoute: routeType;
 }>();
+
+const disclosure = ref([])
+const editNotes = ref(false)
+
+const hideOther = id => {
+  disclosure.value.filter((d, i) => i !== id).forEach(c => c())
+}
 
 </script>
 
-
 <template>
-    <ul 
-        class="divide-y divide-gray-100  bg-white shadow-sm ring-1 ring-gray-900/5">
-        <li v-for="location in data?.locations?.data" :key="location.code"
-            class="relative flex justify-between gap-x-6 px-4 py-4 hover:bg-gray-50 sm:px-6">
+    <ul class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5">
+            <Disclosure v-for="(location, index) in data?.locations?.data" :key="index" as="li" v-slot="{ open, close }">
+                <div class="relative flex justify-between gap-x-6 px-4 py-4 hover:bg-gray-50 sm:px-6 w-full" :class="open && 'bg-gray-100'"
+                     >
+                    <div class="flex items-center w-1/2 gap-x-2">
+                        <!-- Location Icon -->
+                        <DisclosureButton class="flex-none rounded-full focus:outline-none"
+                            :class="location.notes && 'text-yellow-400'"
+                            @click="hideOther(index)"
+                            :ref="el => (disclosure[index] = close)"
+                        >
+                            <FontAwesomeIcon 
+                                :icon="location.notes ? fasStickyNote : faStickyNote" />
+                        </DisclosureButton>
 
-            <div class="flex items-center w-1/2 gap-x-4">
-                <!-- Location Icon -->
-                <FontAwesomeIcon class="h-3 w-3 flex-none rounded-full bg-gray-50" :icon="faStickyNote" />
-                <FontAwesomeIcon class="h-5 w-5 flex-none rounded-full bg-gray-50" :icon="faShoppingBasket" />
+                        <FontAwesomeIcon  :class="location.type == 'picking' && 'text-indigo-500'" class="h-5 w-5 flex-none rounded-full bg-gray-50" :icon="faShoppingBasket" />
 
-                <div class="flex-auto">
-                    <div class="text-sm font-semibold leading-6 text-gray-900">
-                       <span v-tooltip="'location'">{{ location.location.code }} {{ " " }}</span> 
-                        <span v-if="location.settings.min_stock || location.settings.max_stock" class="text-gray-400">
-                            ( <span  v-tooltip="'minimum stock'">{{ location?.settings?.min_stock }}</span> , <span  v-tooltip="'maximum stock'">{{ location?.settings?.max_stock }}</span>  )
-                        </span>
-                        <span v-else class="text-gray-400">( ? )</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side: Stock Information -->
-            <div class="flex items-center w-1/4 gap-x-4">
-                <div class="flex sm:flex-col sm:items-end">
-                    <div class="flex gap-x-1">
-                        <div class="flex-auto">
-                            <div class="text-sm font-semibold leading-6 text-gray-900">999</div>
+                        <div class="px-2">
+                            <div class="text-sm font-semibold leading-6 text-gray-900">
+                                <span v-tooltip="'location'">{{ location.location.code }} {{ " " }}</span>
+                                <span v-if="location.settings.min_stock || location.settings.max_stock"
+                                    class="text-gray-400">
+                                    (<span v-tooltip="'minimum stock'">{{ location?.settings?.min_stock }}</span>,
+                                    <span v-tooltip="'maximum stock'">{{ location?.settings?.max_stock }}</span>)
+                                </span>
+                                <span v-else class="text-gray-400">( ? )</span>
+                            </div>
                         </div>
-                        <FontAwesomeIcon class="h-4 w-4 mt-1 flex-none rounded-full bg-gray-50" :icon="faClock" />
                     </div>
-                </div>
-            </div>
 
-            <!-- Right Side: Stock Information (Duplicated) -->
-            <div class="flex justify-end w-1/4">
-                <div class="flex justify-end">
-                    <div v-tooltip="'Quantity'" class="text-sm font-semibold leading-6 text-gray-900">{{ location.quantity }}</div>
+                    <!-- Right Side: Stock Information -->
+                    <div class="flex items-center w-1/4 gap-x-4">
+                        <div class="flex sm:flex-col sm:items-end">
+                            <div class="flex gap-x-1">
+                                <div class="flex-auto">
+                                    <div class="text-sm font-semibold leading-6 text-gray-900">999</div>
+                                </div>
+                                <FontAwesomeIcon class="h-4 w-4 mt-1 flex-none rounded-full bg-gray-50"
+                                    :icon="faClock" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Stock Information (Duplicated) -->
+                    <slot name="Quantity" :itemData="location" :index="index">
+                        <div class="flex justify-end w-1/4">
+                            <div class="flex justify-end">
+                                <div v-tooltip="'Quantity'" class="text-sm font-semibold leading-6 text-gray-900">{{
+                                    location.quantity }}</div>
+                            </div>
+                        </div>
+                    </slot>
                 </div>
-            </div>
-        </li>
+
+                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                    <PureTextarea :modelValue="location.notes" :disabled="!editNotes" :rows="4" placeholder="Write a notes ....">
+                        <template #stateIcon>
+                            <div v-if="!editNotes" @click="()=>editNotes=true"
+                                class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">
+                                <FontAwesomeIcon :icon="faPencil" />
+                            </div>
+                            <div v-else class="flex gap-3">
+                                <div 
+                                    @click="()=>editNotes=false"
+                                    class="w-8 h-8 flex items-center justify-center text-sm text-red-500 rounded-full bg-white border border-red-500 cursor-pointer">
+                                    <FontAwesomeIcon :icon="faTimes" />
+                                </div>
+                                <div 
+                                    class="w-8 h-8 flex items-center justify-center text-sm text-white rounded-full bg-indigo-500 cursor-pointer">
+                                    <FontAwesomeIcon :icon="faSave" />
+                                </div>
+                            </div>
+                        </template>
+                    </PureTextarea>
+                </DisclosurePanel>
+            </Disclosure>
     </ul>
 </template>
