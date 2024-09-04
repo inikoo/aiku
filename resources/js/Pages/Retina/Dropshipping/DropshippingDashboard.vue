@@ -12,6 +12,8 @@ import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
 import Modal from '@/Components/Utils/Modal.vue'
 import PureInputWithAddOn from '@/Components/Pure/PureInputWithAddOn.vue'
+import { notify } from '@kyvg/vue3-notification'
+
 
 import { faGlobe, faExternalLinkAlt, faUnlink } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -26,6 +28,7 @@ const props = defineProps<{
     } | null
     createRoute: routeType
     shopify_url: string
+    unlinkRoute: routeType
 
 }>()
 
@@ -41,10 +44,17 @@ const onCreateStore = () => {
         },
         {
             onStart: () => isLoading.value = true,
-            onFinish: () => {
-                isLoading.value = false
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: error,
+                    type: 'error',
+                })
+            },
+            onSuccess: () => {
                 isModalOpen.value = false
-            }
+            },
+            onFinish: () => isLoading.value = false
         }
     )
 }
@@ -75,12 +85,25 @@ const onCreateStore = () => {
                 <div class="relative w-full">
                     <Transition name="spin-to-down">
                         <div v-if="connectRoute?.url" class="w-full flex justify-end gap-x-2">
-                            <Button label="Unlink" type="negative" icon="fal fa-unlink" />
+                            <Link
+                                as="button"
+                                :href="route(unlinkRoute.name, unlinkRoute.parameters)"
+                                :method="unlinkRoute.method"
+                                @start="isLoading = 'unlink'"
+                                @error="(error) => notify({
+                                    title: trans('Something went wrong.'),
+                                    text: trans('Please try again'),
+                                    type: 'error',
+                                }) "
+                                @finish="isLoading = false"
+                            >
+                                <Button :loading="isLoading === 'unlink'" label="Unlink" type="negative" icon="fal fa-unlink" size="xs" />
+                            </Link>
                             <a target="_blank"
                                 :href="connectRoute?.url"
                                 class="w-full"
                             >
-                                <Button label="Open" key="secondary" full iconRight="fal fa-external-link-alt" />
+                                <Button label="Open" key="secondary" full iconRight="fal fa-external-link-alt" size="xs" />
                             </a>
                         </div>
                     
