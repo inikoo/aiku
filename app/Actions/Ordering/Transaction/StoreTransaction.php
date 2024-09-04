@@ -43,10 +43,10 @@ class StoreTransaction extends OrgAction
 
         data_set($modelData, 'date', now(), overwrite: false);
         data_set($modelData, 'submitted_at', $order->submitted_at, overwrite: false);
-        data_set($modelData, 'gross_amount', $gross);
-        data_set($modelData, 'net_amount', $net);
-        data_set($modelData, 'state', TransactionStateEnum::CREATING);
-        data_set($modelData, 'status', TransactionStatusEnum::CREATING);
+        data_set($modelData, 'gross_amount', $gross, overwrite: false);
+        data_set($modelData, 'net_amount', $net, overwrite: false);
+        data_set($modelData, 'state', TransactionStateEnum::CREATING, overwrite: false);
+        data_set($modelData, 'status', TransactionStatusEnum::CREATING, overwrite: false);
 
 
         $modelData = $this->processExchanges($modelData, $order->shop);
@@ -75,7 +75,6 @@ class StoreTransaction extends OrgAction
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_fail'       => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_cancelled'  => ['sometimes', 'sometimes', 'numeric', 'min:0'],
-            'source_id'           => ['sometimes', 'string'],
             'state'               => ['sometimes', Rule::enum(TransactionStateEnum::class)],
             'status'              => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
             'fail_status'         => ['sometimes', 'nullable', Rule::enum(TransactionFailStatusEnum::class)],
@@ -92,9 +91,11 @@ class StoreTransaction extends OrgAction
             'fetched_at'          => ['sometimes', 'required', 'date'],
         ];
 
-        // when importing from other system
         if (!$this->strict) {
+
             $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
+            $rules['alt_source_id']   =['sometimes', 'string','max:255'];
+            $rules['source_id']       =['sometimes', 'string','max:255'];
         }
 
 
@@ -103,9 +104,9 @@ class StoreTransaction extends OrgAction
 
     public function action(Order $order, HistoricAsset $historicAsset, array $modelData, bool $strict = true): Transaction
     {
-        $this->initialisationFromShop($order->shop, $modelData);
-        $this->strict = $strict;
 
+        $this->strict = $strict;
+        $this->initialisationFromShop($order->shop, $modelData);
         return $this->handle($order, $historicAsset, $this->validatedData);
     }
 

@@ -34,17 +34,17 @@ return new class () extends Migration {
             $table->string('state')->default()->index();
             $table->string('status')->default()->index();
 
-            $table->string('asset_type')->index();
-            $table->unsignedInteger('asset_id')->index();
+            $table->string('asset_type')->index()->nullable();
+            $table->unsignedInteger('asset_id')->index()->nullable();
             $table->foreign('asset_id')->references('id')->on('assets');
-            $table->unsignedInteger('historic_asset_id')->index();
+            $table->unsignedInteger('historic_asset_id')->index()->nullable();
             $table->foreign('historic_asset_id')->references('id')->on('historic_assets');
 
-            $table->decimal('quantity_ordered', 16, 3);
-            $table->decimal('quantity_bonus', 16, 3)->default(0);
-            $table->decimal('quantity_dispatched', 16, 3)->default(0);
-            $table->decimal('quantity_fail', 16, 3)->default(0);
-            $table->decimal('quantity_cancelled', 16, 3)->default(0);
+            $table->decimal('quantity_ordered', 16, 3)->nullable();
+            $table->decimal('quantity_bonus', 16, 3)->default(0)->nullable();
+            $table->decimal('quantity_dispatched', 16, 3)->default(0)->nullable();
+            $table->decimal('quantity_fail', 16, 3)->default(0)->nullable();
+            $table->decimal('quantity_cancelled', 16, 3)->default(0)->nullable();
 
             $table->string('fail_status')->nullable()->index();
 
@@ -56,6 +56,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
+            $table->string('alt_source_id')->nullable()->unique()->comment('to be used in no products transactions');
         });
     }
 

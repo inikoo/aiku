@@ -42,7 +42,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
             if (in_array('transactions', $this->with) or in_array('full', $this->with) or $forceWithTransactions) {
                 $this->fetchTransactions($organisationSource, $order);
-                // $this->fetchNoProductTransactions($organisationSource, $order);
+                $this->fetchNoProductTransactions($organisationSource, $order);
             }
             if (in_array('payments', $this->with) or in_array('full_todo', $this->with)) {
                 $this->fetchPayments($organisationSource, $order);

@@ -7,7 +7,11 @@
 
 namespace App\Actions\Ordering\ShippingZone;
 
+use App\Actions\Catalogue\Asset\StoreAsset;
+use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Rules\IUnique;
@@ -24,10 +28,49 @@ class StoreShippingZone extends OrgAction
         data_set($modelData, 'group_id', $shippingZoneSchema->group_id);
         data_set($modelData, 'organisation_id', $shippingZoneSchema->organisation_id);
         data_set($modelData, 'shop_id', $shippingZoneSchema->shop_id);
+        data_set($modelData, 'currency_id', $shippingZoneSchema->shop->currency_id);
 
         /** @var $shippingZone ShippingZone */
         $shippingZone = $shippingZoneSchema->shippingZone()->create($modelData);
         $shippingZone->stats()->create();
+        $shippingZone->refresh();
+
+        $asset = StoreAsset::run(
+            $shippingZone,
+            [
+                'units' => 1,
+                'unit'  => 'charge',
+                'price' => null,
+                'type'  => AssetTypeEnum::CHARGE,
+                'state' => $shippingZone->status ? AssetStateEnum::ACTIVE : AssetStateEnum::DISCONTINUED,
+
+            ]
+        );
+
+        $shippingZone->updateQuietly(
+            [
+                'asset_id' => $asset->id
+            ]
+        );
+
+        $historicAsset = StoreHistoricAsset::run(
+            $shippingZone,
+            [
+                'source_id' => $shippingZone->historic_source_id
+            ]
+        );
+        $asset->update(
+            [
+                'current_historic_asset_id' => $historicAsset->id,
+            ]
+        );
+        $shippingZone->updateQuietly(
+            [
+                'current_historic_asset_id' => $historicAsset->id,
+            ]
+        );
+
+
 
         return $shippingZone;
     }

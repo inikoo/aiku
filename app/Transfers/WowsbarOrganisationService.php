@@ -18,6 +18,7 @@ use App\Transfers\Wowsbar\FetchWowsbarEmployee;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -142,7 +143,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchNoProductTransaction($id): ?array
+    public function fetchNoProductTransaction($id, Order $order): ?array
     {
         return null;
     }
@@ -343,6 +344,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
     }
 
     public function fetchShippingZone($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchAdjustment($id): ?array
     {
         return null;
     }
