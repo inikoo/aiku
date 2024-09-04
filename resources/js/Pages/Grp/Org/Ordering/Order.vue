@@ -34,6 +34,7 @@ import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { Timeline as TSTimeline } from "@/types/Timeline"
 
 import axios from 'axios'
@@ -60,8 +61,8 @@ import AlertMessage from '@/Components/Utils/AlertMessage.vue'
 
 import { faExclamationTriangle as fadExclamationTriangle } from '@fad'
 import { faExclamationTriangle, faExclamation } from '@fas'
-import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight } from '@fal'
-library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faExclamation)
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote } from '@fal'
+library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation)
 
 
 const props = defineProps<{
@@ -242,7 +243,7 @@ const onSubmitPayment = () => {
                     isOpenModalPayment.value = false,
                     notify({
                         title: trans('Success'),
-                        text: 'Successfully add payment invoice',
+                        text: trans('Successfully add payment invoice'),
                         type: 'success',
                     })
                 },
@@ -259,6 +260,38 @@ const onSubmitPayment = () => {
     }
 }
 
+
+// Section: add notes (on popup pageheading)
+const errorNote = ref('')
+const noteToSubmit = ref({
+    selectedNote: '',
+    value: ''
+})
+const onSubmitNote = async (closePopup: Function) => {
+    
+    try {
+        router.patch(route(props.notes.updateRoute.name, props.notes.updateRoute.parameters), {
+            [noteToSubmit.value.selectedNote]: noteToSubmit.value.value
+        },
+        {
+            headers: { "Content-Type": 'application/json' },
+            onStart: () => isLoadingButton.value = 'submitNote',
+            onError: (error) => errorNote.value = error,
+            onFinish: () => isLoadingButton.value = false,
+            onSuccess: () => {
+                closePopup(),
+                noteToSubmit.value.selectedNote = ''
+                noteToSubmit.value.value = ''
+            },
+        })
+    } catch (error) {
+        notify({
+			title: trans("Something went wrong"),
+			text: trans("Failed to update the note, try again."),
+			type: "error",
+		})
+    }
+}
 </script>
 
 <template>
@@ -342,15 +375,75 @@ const onSubmitPayment = () => {
                 </Popover>
             </div>
         </template>
+
+        <template #otherBefore>
+            <!-- Section: Add notes -->
+            <Popover v-if="!notes?.note_list?.some(item => !!(item.note.trim()))">
+                <template #button="{open}">
+                    <Button
+                        icon="fal fa-sticky-note"
+                        type="tertiary"
+                        label="Add notes"
+                    />
+                </template>
+                <template #content="{ close: closed }">
+                    <div class="w-[350px]">
+                        <span class="text-xs px-1 my-2">{{ trans('Select type note') }}: </span>
+                        <div class="">
+                            <PureMultiselect
+                                v-model="noteToSubmit.selectedNote"
+                                :placeholder="trans('Select type note')"
+                                required
+                                :options="[{label: 'Public note', value: 'public_notes'}, {label: 'Private note', value: 'internal_notes'}]"
+                                valueProp="value"
+                            />
+
+                            <!-- <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
+                                {{ formAddService.errors.service_id }}
+                            </p> -->
+                        </div>
+
+                        <div class="mt-3">
+                            <span class="text-xs px-1 my-2">{{ trans('Note') }}: </span>
+                            <PureTextarea
+                                v-model="noteToSubmit.value"
+                                :placeholder="trans('Note')"
+                                @keydown.enter="() => onSubmitNote(closed)"
+                            />
+                        </div>
+
+                        <p v-if="errorNote" class="mt-2 text-sm text-red-600">
+                            *{{ errorNote }}sssssssssssssssssssssss
+                        </p>
+
+                        <div class="flex justify-end mt-3">
+                            <Button
+                                @click="() => onSubmitNote(closed)"
+                                :style="'save'"
+                                :loading="isLoadingButton === 'submitNote'"
+                                :disabled="!noteToSubmit.value"
+                                label="Save"
+                                full
+                            />
+                        </div>
+                        
+                        <!-- Loading: fetching service list -->
+                        <div v-if="isLoadingButton === 'submitNote'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                            <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
+                        </div>
+                    </div>
+                </template>
+            </Popover>
+        </template>
     </PageHeading>
 
     <!-- Section: Pallet Warning -->
     <div v-if="alert?.status" class="p-2 pb-0">
         <AlertMessage :alert />
     </div>
-
+    
     <!-- Section: Box Note -->
-    <div class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
+    <div v-if="notes?.note_list?.some(item => !!(item.note.trim()))" class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
         <BoxNote
             v-for="(note, index) in notes.note_list"
             :key="index+note.label"
@@ -378,7 +471,7 @@ const onSubmitPayment = () => {
             <dt v-tooltip="'Company name'" class="flex-none">
                 <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width aria-hidden='true' />
             </dt>
-            <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
+            <dd class="text-sm text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -386,7 +479,7 @@ const onSubmitPayment = () => {
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
+                <dd class="text-sm text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
@@ -394,7 +487,7 @@ const onSubmitPayment = () => {
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
+                <dd class="text-sm text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -403,7 +496,7 @@ const onSubmitPayment = () => {
                     <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'"
-                    class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
+                    class="text-sm text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
             </div>
 
             <!-- Field: Phone -->
@@ -412,7 +505,7 @@ const onSubmitPayment = () => {
                     <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`tel:${box_stats?.customer.phone}`" v-tooltip="'Click to make a phone call'"
-                    class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
+                    class="text-sm text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
             </div>
 
             <!-- Field: Address -->
@@ -507,8 +600,9 @@ const onSubmitPayment = () => {
                 </div>
 
                 <div class="col-span-2">
-                    <label for="last-name" class="block text-sm font-medium leading-6">{{ trans('Payment amount')
-                        }}</label>
+                    <label for="last-name" class="block text-sm font-medium leading-6">
+                        {{ trans('Payment amount') }}
+                    </label>
                     <div class="mt-1">
                         <PureInputNumber v-model="paymentData.payment_amount" />
                     </div>

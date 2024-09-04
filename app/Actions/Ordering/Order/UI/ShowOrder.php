@@ -173,7 +173,7 @@ class ShowOrder extends OrgAction
                         'title' => __('customer client')
                     ],
                     'actions'   => [
-                        [
+                        $order->state->value == OrderStateEnum::CREATING->value ? [
                             'type'    => 'button',
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-plus',
@@ -186,7 +186,7 @@ class ShowOrder extends OrgAction
                                     'order' => $order->id,
                                 ]
                             ]
-                        ]
+                        ] : []
                     ]
                 ],
                 'tabs'        => [
@@ -216,9 +216,9 @@ class ShowOrder extends OrgAction
                 // ],
                 'notes' => [  // TODO
                     "note_list"  => [
-                        [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
-                        [ "label" => __("Public"), "note" => "", "editable" => true, "bgColor" => "#40E0D0", "field" => "public_notes" ],
-                        [ "label" => __("Private"), "note" => "", "editable" => true, "bgColor" => "#4b5563", "textColor" => "#fff", "field" => "internal_notes" ]
+                        [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "#FF7DBD", "field" => "customer_notes" ],
+                        [ "label" => __("Public"), "note" => "", "editable" => true, "bgColor" => "#94DB84", "field" => "public_notes" ],
+                        [ "label" => __("Private"), "note" => "", "editable" => true, "bgColor" => "#FCF4A3", "field" => "internal_notes" ]
                     ],
                     "updateRoute"   => [
                         "name"       => "grp.models.pallet-delivery.update",
