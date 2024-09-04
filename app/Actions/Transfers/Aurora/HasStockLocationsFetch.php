@@ -65,8 +65,6 @@ trait HasStockLocationsFetch
             $pickingPriority = is_null($pickingPriority) ? 1 : $pickingPriority + 1;
 
 
-
-
             $stockLocations[$location->id] = [
                 'quantity'           => round($modelData->{'Quantity On Hand'}, 3),
                 'audited_at'         => $modelData->{'Part Location Last Audit'},
