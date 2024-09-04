@@ -8,12 +8,14 @@
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 import { ref, watch } from 'vue'
 import { routeType } from "@/types/route"
+import {Datum, stockLocation} from "@/types/StockLocation"
 import { cloneDeep } from "lodash"
 import Select from '@/Components/Forms/Fields/Select.vue'
 import Popover from '@/Components/Popover.vue'
-import { Link, useForm, router } from '@inertiajs/vue3'
+import { useForm, router } from '@inertiajs/vue3'
 import Button from "@/Components/Elements/Buttons/Button.vue";
 import { notify } from "@kyvg/vue3-notification"
+import InfoCard from '@/Components/StockCard/InfoCard.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket, faClock, faEllipsisV, } from '@far'
@@ -25,7 +27,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faShoppingBasket, faStickyNote, faClock, faEllipsisV, faClipboard, faInventory, faForklift, falForklift)
 
 const props = defineProps<{
-    data: object,
+    data: stockLocation,
     locationRoute: routeType
     associateLocationRoute: routeType,
     disassociateLocationRoute: routeType,
@@ -40,7 +42,7 @@ const form = useForm({
     newLocation: null
 })
 
-const sendMoveStock = (location = null, realQty = 0, close = () => null) => {
+const sendMoveStock = (location : Datum, realQty = 0, close = () => null) => {
     router.patch(route(props.moveLocationRoute.name, { locationOrgStock: location.id, targetLocation: form.newLocation }),
         { quantity: realQty - location.quantity },
         {
@@ -75,39 +77,8 @@ watch(
 
 
 <template>
-    <ul class="divide-y divide-gray-100 n bg-white shadow-sm ring-1 ring-gray-900/5 ">
-        <li v-for="(location, index) in cloneData.locations.data" :key="location.code"
-            class="relative flex justify-between gap-x-6 px-4 py-4 hover:bg-gray-50 sm:px-6">
-
-            <div class="flex items-center w-1/2 gap-x-4">
-                <!-- Location Icon -->
-                <FontAwesomeIcon class="h-3 w-3 flex-none rounded-full bg-gray-50" :icon="faStickyNote" />
-                <FontAwesomeIcon class="h-5 w-5 flex-none rounded-full bg-gray-50" :icon="faShoppingBasket" />
-
-                <div class="flex-auto">
-                    <div class="text-sm font-semibold leading-6 text-gray-900">
-                        {{ location.location.code }}
-                        <span v-if="location.settings.min_stock || location.settings.max_stock" class="text-gray-400">
-                            ( {{ location?.settings?.min_stock }} , {{ location?.settings?.max_stock }} )
-                        </span>
-                        <span v-else class="text-gray-400">( ? )</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side: Stock Information -->
-            <div class="flex items-center w-1/4 gap-x-4">
-                <div class="flex sm:flex-col sm:items-end">
-                    <div class="flex gap-x-1">
-                        <div class="flex-auto">
-                            <div class="text-sm font-semibold leading-6 text-gray-900">999</div>
-                        </div>
-                        <FontAwesomeIcon class="h-4 w-4 mt-1 flex-none rounded-full bg-gray-50" :icon="faClock" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side: Stock Information (Duplicated) -->
+    <InfoCard v-bind="{...props, data : cloneData}">
+        <template #Quantity="{ itemData : location, index }">
             <div class="flex justify-end w-1/4">
                 <div class="flex justify-end">
                     <div>
@@ -139,13 +110,13 @@ watch(
                                             :fieldData="{
                                                 placeholder: 'select Location',
                                                 searchable: true,
-                                                label: 'code',
+                                                labelProp: 'code',
                                                 valueProp: 'id'
                                             }" />
                                     </div>
                                     <div class="flex justify-end">
                                         <Button :loading="loading" type="save"
-                                            @click="() => sendMoveStock( location, data.locations.data[index].quantity ,close)" />
+                                            @click="() => sendMoveStock(location, data.locations.data[index].quantity ,close)" />
                                     </div>
                                 </div>
                             </template>
@@ -154,6 +125,6 @@ watch(
                     </span>
                 </div>
             </div>
-        </li>
-    </ul>
+        </template>
+    </InfoCard>
 </template>
