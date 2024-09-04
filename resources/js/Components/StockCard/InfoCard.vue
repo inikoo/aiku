@@ -4,6 +4,7 @@ import { routeType } from "@/types/route"
 import { stockLocation } from "@/types/StockLocation"
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
+import { useFormatTime } from "@/Composables/useFormatTime"
 import Button from "@/Components/Elements/Buttons/Button.vue";
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -26,7 +27,16 @@ const props = defineProps<{
 const disclosure = ref([])
 const editNotes = ref(false)
 
-const hideOther = id => {
+
+const daysAudit = (day : Date) =>{
+const audited_at = new Date(day);
+const today = new Date();
+const difference = today - audited_at;
+const differenceDay = Math.floor(difference / (1000 * 60 * 60 * 24));
+return(differenceDay)
+}
+
+const hideOther = (id : Number) => {
   disclosure.value.filter((d, i) => i !== id).forEach(c => c())
 }
 
@@ -66,9 +76,9 @@ const hideOther = id => {
                     <!-- Right Side: Stock Information -->
                     <div class="flex items-center w-1/4 gap-x-4">
                         <div class="flex sm:flex-col sm:items-end">
-                            <div class="flex gap-x-1">
+                            <div class="flex gap-x-1" v-tooltip="`Audited At : ${useFormatTime(location.audited_at)} `">
                                 <div class="flex-auto">
-                                    <div class="text-sm font-semibold leading-6 text-gray-900">999</div>
+                                    <div class="text-sm font-semibold leading-6 text-gray-900" >{{daysAudit(location.audited_at)}}</div>
                                 </div>
                                 <FontAwesomeIcon class="h-4 w-4 mt-1 flex-none rounded-full bg-gray-50"
                                     :icon="faClock" />

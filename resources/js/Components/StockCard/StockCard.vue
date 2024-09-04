@@ -34,7 +34,7 @@ const props = defineProps<{
     auditRoute : routeType,
     moveLocationRoute : routeType
 }>();
-
+console.log(props.data)
 const activeMenu = ref(null)
 const menu = ref([
     {
@@ -63,6 +63,8 @@ const getComponent = (componentName: string) => {
     };
     return components[componentName?.key] ?? InfoCard
 };
+
+
 
 
 watch(() => props.data.locations.data.length, (newLength) => {
