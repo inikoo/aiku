@@ -31,7 +31,7 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
 
 
-        $net = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+        $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
         $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
         data_set($modelData, 'shop_id', $order->shop_id);
