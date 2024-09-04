@@ -42,7 +42,7 @@ class FetchAuroraTransaction extends FetchAurora
                 'In Process', 'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
                 'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
                 'Ready to Ship' => TransactionStateEnum::FINALISED,
-                'Dispatched' => TransactionStateEnum::DISPATCHED,
+                'Dispatched'    => TransactionStateEnum::DISPATCHED,
                 'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
                 'Unknown' => null
             };
@@ -56,11 +56,11 @@ class FetchAuroraTransaction extends FetchAurora
 
 
             $failStatus = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                'No Picked Due Out of Stock' => TransactionFailStatusEnum::OUT_OF_STOCK,
+                'No Picked Due Out of Stock'  => TransactionFailStatusEnum::OUT_OF_STOCK,
                 'No Picked Due No Authorised' => TransactionFailStatusEnum::NO_AUTHORISED,
-                'No Picked Due Not Found' => TransactionFailStatusEnum::NOT_FOUND,
-                'No Picked Due Other' => TransactionFailStatusEnum::OTHER,
-                default => null,
+                'No Picked Due Not Found'     => TransactionFailStatusEnum::NOT_FOUND,
+                'No Picked Due Other'         => TransactionFailStatusEnum::OTHER,
+                default                       => null,
             };
 
 
