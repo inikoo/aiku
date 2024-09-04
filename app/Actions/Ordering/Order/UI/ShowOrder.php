@@ -13,7 +13,6 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
-use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
@@ -208,11 +207,11 @@ class ShowOrder extends OrgAction
                         ]
                     ]
                 ],
-                'alert'   => [  // TODO
-                    'status'        => 'danger',
-                    'title'         => 'Dummy Alert from BE',
-                    'description'   => 'Dummy description'
-                ],
+                // 'alert'   => [  // TODO
+                //     'status'        => 'danger',
+                //     'title'         => 'Dummy Alert from BE',
+                //     'description'   => 'Dummy description'
+                // ],
                 'notes' => [  // TODO
                     "note_list"  => [
                         [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "silver", "field" => "customer_notes" ],
@@ -233,38 +232,8 @@ class ShowOrder extends OrgAction
                         CustomerResource::make($order->customer)->getArray(),
                         [
                             'addresses'      => [
-                                'value'   => AddressResource::make($order->deliveryAddress ?? new Address()),
-                                'options' => [
-                                    'countriesAddressData' => GetAddressData::run()
-                                ],
-                                'address_list'                   => $addressCollection,
-                                'pinned_address_id'              => $order->customer->delivery_address_id,
-                                'home_address_id'                => $order->customer->address_id,
-                                'current_selected_address_id'    => $order->delivery_address_id,
-                                'selected_delivery_addresses_id' => $orderDeliveryAddressIds,
-                                'routes_list'                    => [
-                                    'pinned_route'                   => [
-                                        'method'     => 'patch',
-                                        'name'       => 'grp.models.customer.delivery-address.update',
-                                        'parameters' => [
-                                            'customer' => $order->customer_id
-                                        ]
-                                    ],
-                                    'delete_route'  => [
-                                        'method'     => 'delete',
-                                        'name'       => 'grp.models.customer.delivery-address.delete',
-                                        'parameters' => [
-                                            'customer' => $order->customer_id
-                                        ]
-                                    ],
-                                    'store_route' => [
-                                        'method'      => 'post',
-                                        'name'        => 'grp.models.customer.address.store',
-                                        'parameters'  => [
-                                            'customer' => $order->customer_id
-                                        ]
-                                    ],
-                                ]
+                                'delivery'   => AddressResource::make($order->deliveryAddress ?? new Address()),
+                                'billing'    => AddressResource::make($order->billingAddress ?? new Address())
                             ],
                         ]
                     ),

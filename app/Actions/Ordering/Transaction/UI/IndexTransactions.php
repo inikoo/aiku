@@ -66,6 +66,8 @@ class IndexTransactions extends OrgAction
 
         $query->leftjoin('assets', 'transactions.asset_id', '=', 'assets.id');
         $query->leftjoin('products', 'assets.model_id', '=', 'products.id');
+        $query->leftjoin('orders', 'transactions.order_id', '=', 'orders.id');
+        $query->leftjoin('currencies', 'orders.currency_id', '=', 'currencies.id');
 
         return $query->defaultSort('transactions.id')
             ->select([
@@ -83,7 +85,8 @@ class IndexTransactions extends OrgAction
                 'assets.code as asset_code',
                 'assets.name as asset_name',
                 'assets.type as asset_type',
-                'products.slug as product_slug'
+                'products.slug as product_slug',
+                'currencies.code as currency_code'
             ])
             ->allowedSorts(['asset_code', 'asset_name', 'net_amount', 'quantity_ordered' ])
             ->allowedFilters([$globalSearch])
@@ -111,7 +114,7 @@ class IndexTransactions extends OrgAction
             $table->column(key: 'asset_code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'asset_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_ordered', label: __('Quantity'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'net_amount', label: __('Net'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'net_amount', label: __('Net'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
         };
     }
 

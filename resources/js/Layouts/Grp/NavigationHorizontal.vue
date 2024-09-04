@@ -10,7 +10,7 @@ import { Navigation } from '@/types/Navigation'
 import { Link } from '@inertiajs/vue3'
 import { isNavigationActive } from '@/Composables/useUrl'
 import { generateCurrentString } from '@/Composables/useConvertString'
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -18,6 +18,7 @@ import { faChevronLeft, faChevronRight } from '@fas'
 import { faParachuteBox } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { capitalize } from '@/Composables/capitalize'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 library.add(faChevronLeft, faChevronRight, faParachuteBox)
 
 
@@ -178,6 +179,8 @@ const routeLabelHorizontal = () => {
     // }
 }
 
+
+const isLoadingNavigation = ref<string | boolean>(false)
 </script>
 
 <template>
@@ -220,17 +223,29 @@ const routeLabelHorizontal = () => {
             
             <!-- Section: Arrow left-right -->
             <Transition name="slide-to-left">
-                <div v-if="layout.leftSidebar.show" class="absolute right-1 top-2 flex text-white text-xxs"
+                <div v-if="layout.leftSidebar.show" class="absolute right-0.5 top-3 flex text-white text-xxs"
                 >
-                    <component :is="previousNavigation() ? Link : 'div'" :href="routeArrow(previousNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
+                    <component
+                        :is="previousNavigation() ? Link : 'div'"
+                        :href="routeArrow(previousNavigation())"
                         :class="previousNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
+                        class="py-0.5 px-[1px] flex justify-center items-center rounded"
+                        @start="() => isLoadingNavigation = 'prevNav'"
+                        @finish="() => isLoadingNavigation = false"
                     >
-                        <FontAwesomeIcon icon='fas fa-chevron-left' class='' fixed-width aria-hidden='true' />
+                        <LoadingIcon v-if="isLoadingNavigation == 'prevNav'" />
+                        <FontAwesomeIcon v-else icon='fas fa-chevron-left' class='' fixed-width aria-hidden='true' />
                     </component>
-                    <component :is="nextNavigation() ? Link : 'div'" :href="routeArrow(nextNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
+                    <component
+                        :is="nextNavigation() ? Link : 'div'"
+                        :href="routeArrow(nextNavigation())"
+                        class="py-0.5 px-[1px] flex justify-center items-center rounded"
                         :class="nextNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
+                        @start="() => isLoadingNavigation = 'nextNav'"
+                        @finish="() => isLoadingNavigation = false"
                     >
-                        <FontAwesomeIcon icon='fas fa-chevron-right' class='' fixed-width aria-hidden='true' />
+                        <LoadingIcon v-if="isLoadingNavigation == 'nextNav'" />
+                        <FontAwesomeIcon v-else icon='fas fa-chevron-right' class='' fixed-width aria-hidden='true' />
                     </component>
                 </div>
             </Transition>

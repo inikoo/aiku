@@ -31,17 +31,18 @@ class TransactionsResource extends JsonResource
             'state'                  => $transaction->state,
             'status'                 => $transaction->status,
             'quantity_ordered'       => intVal($transaction->quantity_ordered),
-            'quantity_bonus'         => $transaction->quantity_bonus,
-            'quantity_dispatched'    => $transaction->quantity_dispatched,
-            'quantity_fail'          => $transaction->quantity_fail,
-            'quantity_cancelled'     => $transaction->quantity_cancelled,
+            'quantity_bonus'         => intVal($transaction->quantity_bonus),
+            'quantity_dispatched'    => intVal($transaction->quantity_dispatched),
+            'quantity_fail'          => intVal($transaction->quantity_fail),
+            'quantity_cancelled'     => intVal($transaction->quantity_cancelled),
             'gross_amount'           => $transaction->gross_amount,
             'net_amount'             => $transaction->net_amount,
             'asset_code'             => $transaction->asset_code,
             'asset_name'             => $transaction->asset_name,
             'asset_type'             => $transaction->asset_type,
             'product_slug'           => $transaction->product_slug,
-            'created_at'             => $transaction->created_at
+            'created_at'             => $transaction->created_at,
+            'currency_code'          => $transaction->currency_code
         ];
     }
 }

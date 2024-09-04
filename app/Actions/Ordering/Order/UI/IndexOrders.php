@@ -123,7 +123,7 @@ class IndexOrders extends OrgAction
             }
             $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, sortable: false, searchable: true);
-            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true);
+            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true, type: 'number');
         };
     }
 
@@ -203,11 +203,12 @@ class IndexOrders extends OrgAction
             ];
             $actions = [
                 [
-                    'type'    => 'button',
-                    'style'   => 'create',
-                    'label'   => 'Add order',
-                    'key'     => 'addorder',
-                    'route'   => [
+                    'type'          => 'button',
+                    'style'         => 'create',
+                    'label'         => 'Add order',
+                    'key'           => 'addorder',
+                    'fullLoading'   => true,
+                    'route'         => [
                         'method'     => 'post',
                         'name'       => 'grp.models.customer.order.store',
                         'parameters' => [
