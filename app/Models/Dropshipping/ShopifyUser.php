@@ -148,7 +148,7 @@ class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopM
 
     public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class, 'shopify_user_has_orders')
+        return $this->belongsToMany(Order::class, 'shopify_user_has_fulfilments')
             ->withTimestamps();
     }
 }

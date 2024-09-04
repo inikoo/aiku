@@ -7,7 +7,6 @@
 
 namespace App\Models\Ordering;
 
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Catalogue\Asset;
@@ -43,14 +42,14 @@ use Illuminate\Support\Carbon;
  * @property string|null $settled_at
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
- * @property AssetTypeEnum $asset_type
- * @property int $asset_id
- * @property int $historic_asset_id
- * @property string $quantity_ordered
- * @property string $quantity_bonus
- * @property string $quantity_dispatched
- * @property string $quantity_fail
- * @property string $quantity_cancelled
+ * @property string|null $asset_type
+ * @property int|null $asset_id
+ * @property int|null $historic_asset_id
+ * @property string|null $quantity_ordered
+ * @property string|null $quantity_bonus
+ * @property string|null $quantity_dispatched
+ * @property string|null $quantity_fail
+ * @property string|null $quantity_cancelled
  * @property string|null $fail_status
  * @property string $gross_amount net amount before discounts
  * @property string $net_amount
@@ -66,11 +65,12 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read Asset $asset
+ * @property string|null $alt_source_id to be used in no products transactions
+ * @property-read Asset|null $asset
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read HistoricAsset $historicAsset
+ * @property-read HistoricAsset|null $historicAsset
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\Ordering\Order|null $order
  * @property-read \App\Models\SysAdmin\Organisation $organisation

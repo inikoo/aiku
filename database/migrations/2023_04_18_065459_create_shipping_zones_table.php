@@ -28,8 +28,16 @@ return new class () extends Migration {
             $table->string('name');
             $table->jsonb('price');
             $table->jsonb('territories');
-
             $table->unsignedSmallInteger('position');
+
+            $table->unsignedSmallInteger('currency_id');
+            $table->foreign('currency_id')->references('id')->on('currencies');
+            $table->unsignedInteger('asset_id')->nullable();
+            $table->foreign('asset_id')->references('id')->on('assets');
+            $table->unsignedInteger('current_historic_asset_id')->index()->nullable();
+            $table->foreign('current_historic_asset_id')->references('id')->on('historic_assets');
+
+
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();

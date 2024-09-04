@@ -40,6 +40,7 @@ use App\Models\Helpers\UniversalSearch;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
+use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
@@ -114,7 +115,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
- * @property-read LaravelCollection<int, \App\Models\Catalogue\Adjustment> $adjustments
+ * @property-read LaravelCollection<int, Adjustment> $adjustments
  * @property-read LaravelCollection<int, Appointment> $appointments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits

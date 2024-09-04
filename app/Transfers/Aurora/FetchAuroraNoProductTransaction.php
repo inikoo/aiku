@@ -7,94 +7,93 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionStateEnum;
-use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Models\Ordering\Order;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraNoProductTransaction extends FetchAurora
 {
-    protected function parseModel(): void
+    protected function parseNoProductTransaction(Order $order): void
     {
+        $shippingZone = null;
+        $charge       = null;
 
-        dd($this->auroraModelData);
+        if (in_array($this->auroraModelData->{'Transaction Type'}, ['Adjust', 'Credit'])) {
+            $adjust                         = $this->parseAdjustment($this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'});
+            $this->parsedData['adjustment'] = $adjust;
 
-
-        $historicAsset = $this->parseHistoricAsset(
-            $this->organisation,
-            $this->auroraModelData->{'Product Key'}
-        );
-
-        //enum('In Process by Customer','Submitted by Customer','In Process','Ready to Pick','Picking','Ready to Pack','Ready to Ship','Dispatched','Unknown','Packing','Packed','Packed Done','Cancelled','No Picked Due Out of Stock','No Picked Due No Authorised','No Picked Due Not Found','No Picked Due Other','Suspended','Cancelled by Customer','Out of Stock in Basket')
-
-        $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-            'In Process by Customer' => TransactionStateEnum::CREATING,
-            'In Process', 'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
-            'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
-            'Ready to Ship' => TransactionStateEnum::FINALISED,
-            'Dispatched'    => TransactionStateEnum::DISPATCHED,
-            'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
-            'Unknown' => null
-        };
-
-        $status = match ($this->auroraModelData->{'Current Dispatching State'}) {
-            'In Process by Customer', 'Out of Stock in Basket' => TransactionStatusEnum::CREATING,
-            'Picking','Ready to Pack', 'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other' => TransactionStatusEnum::PROCESSING,
-            'Suspended', 'Dispatched', 'Unknown', 'Cancelled' => TransactionStatusEnum::SETTLED,
-        };
+            $net                      = $this->auroraModelData->{'Transaction Invoice Net Amount'};
+            $gross                    = $net;
+            $this->parsedData['type'] = 'Adjustment';
+        } elseif ($this->auroraModelData->{'Transaction Type'} == 'Shipping') {
+            if ($this->auroraModelData->{'Transaction Type Key'}) {
+                $shippingZone = $this->parseShippingZone($this->organisation->id.':'.$this->auroraModelData->{'Transaction Type Key'});
+            }
 
 
-        $failStatus = match ($this->auroraModelData->{'Current Dispatching State'}) {
-            'No Picked Due Out of Stock'  => TransactionFailStatusEnum::OUT_OF_STOCK,
-            'No Picked Due No Authorised' => TransactionFailStatusEnum::NO_AUTHORISED,
-            'No Picked Due Not Found'     => TransactionFailStatusEnum::NOT_FOUND,
-            'No Picked Due Other'         => TransactionFailStatusEnum::OTHER,
-            default                       => null,
-        };
+            $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
+            $net                      = $this->auroraModelData->{'Transaction Net Amount'};
+            $this->parsedData['type'] = $this->auroraModelData->{'Transaction Type'};
+        } elseif ($this->auroraModelData->{'Transaction Type'} == 'Charges') {
+            if ($this->auroraModelData->{'Transaction Type Key'}) {
+                $charge = $this->parseCharge($this->organisation->id.':'.$this->auroraModelData->{'Transaction Type Key'});
+            }
 
-
-
+            $gross                    = $this->auroraModelData->{'Transaction Gross Amount'};
+            $net                      = $this->auroraModelData->{'Transaction Net Amount'};
+            $this->parsedData['type'] = $this->auroraModelData->{'Transaction Type'};
+        } elseif ($this->auroraModelData->{'Transaction Type'} == 'Refund') {
+            return;
+        } else {
+            dd($this->auroraModelData);
+        }
 
 
         $date = $this->parseDate($this->auroraModelData->{'Order Date'});
         $date = new Carbon($date);
 
-        $this->parsedData['historic_asset'] = $historicAsset;
 
-        $quantityFail = round($this->auroraModelData->{'No Shipped Due Out of Stock'}, 4);
-        if ($quantityFail < 0.001) {
-            $quantityFail = 0;
+        $taxCategoryID = $this->auroraModelData->{'Order No Product Transaction Tax Category Key'};
+
+        if (!$taxCategoryID) {
+            $taxCategoryID = $order->tax_category_id;
+        } else {
+            $taxCategory   = $this->parseTaxCategory($taxCategoryID);
+            $taxCategoryID = $taxCategory->id;
         }
 
-        $quantityBonus = round($this->auroraModelData->{'Order Bonus Quantity'}, 4);
-        if ($quantityBonus < 0.001) {
-            $quantityBonus = 0;
-        }
-
-        $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
         $this->parsedData['transaction'] = [
-            'date'                => $date,
-            'created_at'          => $date,
-            'tax_category_id'     => $taxCategory->id,
-            'state'               => $state,
-            'status'              => $status,
-            'quantity_ordered'    => $this->auroraModelData->{'Order Quantity'},
-            'quantity_bonus'      => $quantityBonus,
-            'quantity_dispatched' => $this->auroraModelData->{'Delivery Note Quantity'},
-            'quantity_fail'       => $quantityFail,
-            'gross_amount'        => $this->auroraModelData->{'Order Transaction Gross Amount'},
-            'net_amount'          => $this->auroraModelData->{'Order Transaction Amount'},
-            'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
-            'fail_status'         => $failStatus,
-            'fetched_at'          => now(),
-            'last_fetched_at'     => now(),
-
+            'date'            => $date,
+            'created_at'      => $date,
+            'tax_category_id' => $taxCategoryID,
+            'gross_amount'    => $gross,
+            'net_amount'      => $net,
+            'alt_source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
 
+        if ($shippingZone and $shippingZone->shop_id==$order->shop_id) {
+
+            $this->parsedData['transaction']['shipping_zone_id'] = $shippingZone->id;
+        }
+
+        if ($charge) {
+            $this->parsedData['transaction']['charge_id'] = $charge->id;
+        }
     }
 
+    public function fetchNoProductTransaction(int $id, Order $order): ?array
+    {
+        $this->auroraModelData = $this->fetchData($id);
+
+        if ($this->auroraModelData) {
+            $this->parseNoProductTransaction($order);
+        }
+
+        return $this->parsedData;
+    }
 
     protected function fetchData($id): object|null
     {

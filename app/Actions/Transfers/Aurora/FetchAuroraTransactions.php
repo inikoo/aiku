@@ -24,12 +24,17 @@ class FetchAuroraTransactions
     public function handle(SourceOrganisationService $organisationSource, int $source_id, Order $order): ?Transaction
     {
         if ($transactionData = $organisationSource->fetchTransaction(id: $source_id)) {
+
+
+
+
             $transactionData['transaction']['org_exchange']   =
                 GetHistoricCurrencyExchange::run($order->shop->currency, $order->organisation->currency, $transactionData['transaction']['date']);
             $transactionData['transaction']['grp_exchange']   =
                 GetHistoricCurrencyExchange::run($order->shop->currency, $order->group->currency, $transactionData['transaction']['date']);
             $transactionData['transaction']['org_net_amount'] = $transactionData['transaction']['net_amount'] * $transactionData['transaction']['org_exchange'];
             $transactionData['transaction']['grp_net_amount'] = $transactionData['transaction']['net_amount'] * $transactionData['transaction']['grp_exchange'];
+
 
 
             if ($order->submitted_at) {
@@ -45,10 +50,12 @@ class FetchAuroraTransactions
                     modelData: $transactionData['transaction'],
                 );
             } else {
+
                 $transaction = StoreTransaction::make()->action(
                     order: $order,
                     historicAsset: $transactionData['historic_asset'],
-                    modelData: $transactionData['transaction']
+                    modelData: $transactionData['transaction'],
+                    strict: false
                 );
 
                 $sourceData = explode(':', $transaction->source_id);

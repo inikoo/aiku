@@ -54,10 +54,12 @@ class FetchAuroraOrder extends FetchAurora
 
         $this->parsedData["parent"] = $parent;
         if (!$parent) {
+            $this->parsedData= null;
             return;
         }
 
         if ($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
+            $this->parsedData= null;
             return;
         }
 
