@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $id
  * @property int $shopify_user_id
  * @property int $order_id
+ * @property int|null $shopify_fulfilment_id
  * @property int|null $shopify_order_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

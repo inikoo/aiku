@@ -34,7 +34,11 @@ return new class () extends Migration {
             $table->string('state')->default()->index();
             $table->string('status')->default()->index();
 
-            $table->string('asset_type')->index()->nullable();
+            $table->string('model_type')->index()->nullable();
+            $table->unsignedInteger('model_id')->index()->nullable();
+
+
+
             $table->unsignedInteger('asset_id')->index()->nullable();
             $table->foreign('asset_id')->references('id')->on('assets');
             $table->unsignedInteger('historic_asset_id')->index()->nullable();
@@ -51,12 +55,13 @@ return new class () extends Migration {
             $table= $this->orderMoneyFields($table);
 
             $table->jsonb('data');
+
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
-            $table->string('alt_source_id')->nullable()->unique()->comment('to be used in no products transactions');
+            $table->string('source_alt_id')->nullable()->unique()->comment('to be used in no products transactions');
         });
     }
 

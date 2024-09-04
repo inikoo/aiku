@@ -34,6 +34,8 @@ interface SourceOrganisationService
 
     public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment);
 
+    public function fetchNoProductInvoiceTransaction($id, Invoice $invoice);
+
     public function fetchCustomer($id);
 
     public function fetchDeletedCustomer($id);

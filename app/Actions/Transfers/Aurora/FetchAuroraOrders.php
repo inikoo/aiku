@@ -181,7 +181,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchTransactions($organisationSource, Order $order): void
     {
-        $transactionsToDelete = $order->transactions()->whereIn('asset_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+        $transactionsToDelete = $order->transactions()->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
 
 
         $sourceData = explode(':', $order->source_id);
@@ -200,7 +200,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchNoProductTransactions($organisationSource, Order $order): void
     {
-        $transactionsToDelete = $order->transactions()->whereNotIN('asset_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+        $transactionsToDelete = $order->transactions()->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
 
 
         $sourceData = explode(':', $order->source_id);

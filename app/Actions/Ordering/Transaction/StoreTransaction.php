@@ -31,6 +31,11 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
 
 
+        data_set($modelData, 'model_type', $historicAsset->asset->model_type);
+        data_set($modelData, 'model_id', $historicAsset->asset->model_id);
+
+
+
         $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
         $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
@@ -52,7 +57,6 @@ class StoreTransaction extends OrgAction
         $modelData = $this->processExchanges($modelData, $order->shop);
 
 
-        data_set($modelData, 'asset_type', $historicAsset->model_type);
 
 
         /** @var Transaction $transaction */
@@ -94,7 +98,7 @@ class StoreTransaction extends OrgAction
         if (!$this->strict) {
 
             $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
-            $rules['alt_source_id']   =['sometimes', 'string','max:255'];
+            $rules['source_alt_id']   =['sometimes', 'string','max:255'];
             $rules['source_id']       =['sometimes', 'string','max:255'];
         }
 

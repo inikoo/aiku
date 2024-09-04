@@ -42,7 +42,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $settled_at
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
- * @property string|null $asset_type
+ * @property string|null $model_type
+ * @property int|null $model_id
  * @property int|null $asset_id
  * @property int|null $historic_asset_id
  * @property string|null $quantity_ordered
@@ -59,13 +60,13 @@ use Illuminate\Support\Carbon;
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property array $data
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property string|null $alt_source_id to be used in no products transactions
+ * @property string|null $source_alt_id to be used in no products transactions
  * @property-read Asset|null $asset
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
