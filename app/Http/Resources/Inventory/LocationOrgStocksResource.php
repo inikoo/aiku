@@ -33,6 +33,7 @@ class LocationOrgStocksResource extends JsonResource
     {
         return [
             'id'               => $this->id,
+            'code'             => $this->location->code,
             'quantity'         => (int) $this->quantity,
             'value'            => $this->value,
             'audited_at'       => $this->audited_at,
