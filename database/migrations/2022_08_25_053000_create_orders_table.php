@@ -78,9 +78,13 @@ return new class () extends Migration {
             $table->boolean('is_invoiced')->default('false');
             $table->boolean('is_picking_on_hold')->nullable();
             $table->boolean('can_dispatch')->nullable();
+            $table->text('customer_notes')->nullable();
+            $table->text('public_notes')->nullable();
+            $table->text('internal_notes')->nullable();
 
             $table=$this->currencyFields($table);
             $table=$this->orderTotalAmounts($table);
+
 
             $table->jsonb('data');
             $table->datetimeTz('fetched_at')->nullable();
