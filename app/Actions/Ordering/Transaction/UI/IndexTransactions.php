@@ -114,7 +114,7 @@ class IndexTransactions extends OrgAction
             $table->column(key: 'asset_code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'asset_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_ordered', label: __('Quantity'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'net_amount', label: __('Net'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'net_amount', label: __('Net'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
         };
     }
 
