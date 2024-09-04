@@ -19,9 +19,7 @@ const locale = inject('locale', aikuLocaleStructure)
 </script>
 
 <template>
-    <dl class="flex flex-col space-y-2 text-gray-500 border border-gray-300 px-4 py-3 rounded-lg bg-gray-50 text-sm">
-
-
+    <dl class="flex flex-col space-y-2 text-gray-500 rounded-lg text-sm">
         <template v-for="(summaryGroup, summaryRowIndex) in order_summary" :key="'fieldSummary' + summaryRowIndex">
             <div v-if="summaryGroup.length" class="pt-2 first:pt-0 pr-2 flex flex-col gap-y-2 first:border-t-0 border-t border-gray-200 ">
                 <div v-for="fieldSummary in summaryGroup" class="grid grid-cols-7 gap-x-4 items-center justify-between">

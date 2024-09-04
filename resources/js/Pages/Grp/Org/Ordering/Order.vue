@@ -471,7 +471,7 @@ const onSubmitNote = async (closePopup: Function) => {
             <dt v-tooltip="'Company name'" class="flex-none">
                 <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width aria-hidden='true' />
             </dt>
-            <dd class="text-xs text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
+            <dd class="text-sm text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
@@ -479,7 +479,7 @@ const onSubmitNote = async (closePopup: Function) => {
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
+                <dd class="text-sm text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
@@ -487,7 +487,7 @@ const onSubmitNote = async (closePopup: Function) => {
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
+                <dd class="text-sm text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -496,7 +496,7 @@ const onSubmitNote = async (closePopup: Function) => {
                     <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'"
-                    class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
+                    class="text-sm text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
             </div>
 
             <!-- Field: Phone -->
@@ -505,7 +505,7 @@ const onSubmitNote = async (closePopup: Function) => {
                     <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`tel:${box_stats?.customer.phone}`" v-tooltip="'Click to make a phone call'"
-                    class="text-xs text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
+                    class="text-sm text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
             </div>
 
             <!-- Field: Address -->
