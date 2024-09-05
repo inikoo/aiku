@@ -92,7 +92,7 @@ const props = defineProps<{
             lockMessage?: string
             field: string  // customer_notes, public_notes, internal_notes
         }[]
-        updateRoute: routeType
+        // updateRoute: routeType
     }
     timelines: {
         [key: string]: TSTimeline
@@ -270,7 +270,7 @@ const noteToSubmit = ref({
 const onSubmitNote = async (closePopup: Function) => {
     
     try {
-        router.patch(route(props.notes.updateRoute.name, props.notes.updateRoute.parameters), {
+        router.patch(route(props.routes.updateOrderRoute.name, props.routes.updateOrderRoute.parameters), {
             [noteToSubmit.value.selectedNote]: noteToSubmit.value.value
         },
         {
@@ -392,6 +392,7 @@ const onSubmitNote = async (closePopup: Function) => {
                         <div class="">
                             <PureMultiselect
                                 v-model="noteToSubmit.selectedNote"
+                                @update:modelValue="() => errorNote = ''"
                                 :placeholder="trans('Select type note')"
                                 required
                                 :options="[{label: 'Public note', value: 'public_notes'}, {label: 'Private note', value: 'internal_notes'}]"
@@ -413,7 +414,7 @@ const onSubmitNote = async (closePopup: Function) => {
                         </div>
 
                         <p v-if="errorNote" class="mt-2 text-sm text-red-600">
-                            *{{ errorNote }}sssssssssssssssssssssss
+                            *{{ errorNote }}
                         </p>
 
                         <div class="flex justify-end mt-3">
@@ -448,7 +449,7 @@ const onSubmitNote = async (closePopup: Function) => {
             v-for="(note, index) in notes.note_list"
             :key="index+note.label"
             :noteData="note"
-            :updateRoute="notes.updateRoute"
+            :updateRoute="routes.updateOrderRoute"
         />
     </div>
 
@@ -575,8 +576,11 @@ const onSubmitNote = async (closePopup: Function) => {
     </div>
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
-        <ModalAddress :addresses="box_stats?.customer.addresses" :updateRoute="routes.updateOrderRoute"
-            keyPayloadEdit="delivery_address" />
+        <ModalAddress
+            :addresses="box_stats?.customer.addresses"
+            :updateRoute="routes.updateOrderRoute"
+            keyPayloadEdit="delivery_address"
+        />
     </Modal>
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">

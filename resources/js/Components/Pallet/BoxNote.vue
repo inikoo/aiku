@@ -131,7 +131,7 @@ const fallbackColor = '#374151'  // Color
                 <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
                     Clear
                 </div>
-                <PureTextarea v-model="noteModalValue" counter rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
+                <PureTextarea v-model="noteModalValue" counter :rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
             </div>
 
             <div class="flex justify-end gap-x-2 mt-3">
