@@ -24,7 +24,16 @@ class ShippingZoneFactory extends Factory
         return [
             'code'   => fake()->lexify,
             'name'   => fake()->name,
-            'status' => fake()->boolean
+            'status' => fake()->boolean,
+            'price'  => [
+                'amount'   => fake()->randomFloat(2, 1, 100),
+                'currency' => fake()->currencyCode
+            ],
+            'territories' => [
+                'territory' => fake()->countryCode
+            ],
+            'position' => fake()->numberBetween(1, 100),
+
         ];
     }
 }
