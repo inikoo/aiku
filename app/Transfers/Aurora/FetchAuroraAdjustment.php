@@ -15,12 +15,27 @@ class FetchAuroraAdjustment extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Order Store Key'});
+
+
+        if($this->auroraModelData->{'Order Store Key'}!='') {
+            $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Order Store Key'});
+            $date                     = $this->parseDateTime($this->auroraModelData->{'Order Date'});
+        } else {
+            $date           = $this->parseDateTime($this->auroraModelData->{'Invoice Date'});
+            $dataWithInvoice=DB::connection('aurora')
+                ->table('Order No Product Transaction Fact')
+                ->leftJoin('Invoice Dimension', 'Order No Product Transaction Fact.Invoice Key', '=', 'Invoice Dimension.Invoice Key')
+                ->where('Order No Product Transaction Fact Key', $this->auroraModelData->{'Order No Product Transaction Fact Key'})->first();
+
+            $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$dataWithInvoice->{'Invoice Store Key'});
+        }
+
+
 
         $netAmount = $this->auroraModelData->{'Transaction Invoice Net Amount'};
         $taxAmount = $this->auroraModelData->{'Transaction Invoice Tax Amount'};
 
-        $date = $this->parseDateTime($this->auroraModelData->{'Order Date'});
+
 
 
         $orgExchange   = GetHistoricCurrencyExchange::run($this->parsedData['shop']->currency, $this->parsedData['shop']->organisation->currency, $date);
@@ -63,7 +78,8 @@ class FetchAuroraAdjustment extends FetchAurora
     protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
-            ->table('Order No Product Transaction Fact')->leftJoin('Order Dimension', 'Order No Product Transaction Fact.Order Key', '=', 'Order Dimension.Order Key')
+            ->table('Order No Product Transaction Fact')
+            ->leftJoin('Order Dimension', 'Order No Product Transaction Fact.Order Key', '=', 'Order Dimension.Order Key')
             ->where('Order No Product Transaction Fact Key', $id)->first();
     }
 }
