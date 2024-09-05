@@ -77,14 +77,14 @@ const hideOther = (id : Number) => {
   disclosure.value.filter((d, i) => i !== id).forEach(c => c())
 }
 
-const sendSetting = ({settingForm = {} , loading = false}) => {
+const sendSetting = ({settingForm = {} , loading = false, close = ()=>null }) => {
     settingForm.patch(route(
        'grp.models.location_org_stock.update',
        { locationOrgStock: settingForm.id }
     ),
         {
             onBefore: () => { loading = true },
-            onSuccess: () => { loading = false },
+            onSuccess: () => { loading = false , close()},
             onError: () => {
                 notify({
                     title: "Failed",
