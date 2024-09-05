@@ -5,8 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -26,8 +26,8 @@ return new class () extends Migration {
             $table->string('parent_name')->index()->comment('Parent name on the time of consolidation');
             $table->string('reference')->index();
             $table->jsonb('data');
-            $table->string('state')->index()->default(PurchaseOrderItemStateEnum::CREATING->value);
-            $table->string('status')->index()->default(PurchaseOrderItemStatusEnum::PROCESSING->value);
+            $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::CREATING->value);
+            $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
             $table->dateTimeTz('date')->comment('latest relevant date');
             $table->dateTimeTz('submitted_at')->nullable();
             $table->dateTimeTz('confirmed_at')->nullable();
@@ -57,9 +57,10 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('partner_id')->nullable();
             $table->foreign('partner_id')->references('id')->on('organisations');
+
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->index(['parent_id', 'parent_type']);

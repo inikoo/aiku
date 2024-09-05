@@ -31,7 +31,7 @@ class UpdateStateToCreatingPurchaseOrder
         ];
 
         if ($purchaseOrder->state == PurchaseOrderStateEnum::SUBMITTED) {
-            $purchaseOrder->items()->update($data);
+            $purchaseOrder->purchaseOrderTransactions()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
 

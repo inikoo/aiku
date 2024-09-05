@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -17,10 +17,10 @@ class AddItemPurchaseOrder
     use AsAction;
     use WithAttributes;
 
-    public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderItem
+    public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderTransaction
     {
-        /** @var PurchaseOrderItem $items */
-        $items = $purchaseOrder->items()->create($modelData);
+        /** @var PurchaseOrderTransaction $items */
+        $items = $purchaseOrder->purchaseOrderTransactions()->create($modelData);
 
         return $items;
     }
@@ -34,7 +34,7 @@ class AddItemPurchaseOrder
         ];
     }
 
-    public function action(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderItem
+    public function action(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrderTransaction
     {
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();

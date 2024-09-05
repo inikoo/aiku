@@ -17,7 +17,7 @@ class ShippingZoneSchemaFactory extends Factory
         return [
             'name'   => fake()->name,
             'status' => false,
-            'type'=>ShippingZoneSchemaTypeEnum::CURRENT,
+            'type'   => ShippingZoneSchemaTypeEnum::CURRENT,
         ];
     }
 }

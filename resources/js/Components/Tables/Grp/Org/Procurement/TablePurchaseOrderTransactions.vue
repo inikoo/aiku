@@ -32,25 +32,25 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: purchaseOrderItem }">
-            <Link :href="PurchaseOrderRoute(purchaseOrderItem)">
-                {{ purchaseOrderItem['reference'] }}
+        <template #cell(reference)="{ item: purchaseOrderTransaction }">
+            <Link :href="PurchaseOrderRoute(purchaseOrderTransaction)">
+                {{ purchaseOrderTransaction['reference'] }}
             </Link>
         </template>
-        <template #cell(name)="{ item: purchaseOrderItem }">
-            {{ purchaseOrderItem['name'] }}
+        <template #cell(name)="{ item: purchaseOrderTransaction }">
+            {{ purchaseOrderTransaction['name'] }}
         </template>
-        <template #cell(unit_price)="{ item: purchaseOrderItem }">
-            {{ purchaseOrderItem['unit_price'] }}
+        <template #cell(unit_price)="{ item: purchaseOrderTransaction }">
+            {{ purchaseOrderTransaction['unit_price'] }}
         </template>
-        <template #cell(unit_quantity)="{ item: purchaseOrderItem }">
-            {{ purchaseOrderItem['unit_quantity'] }}
+        <template #cell(unit_quantity)="{ item: purchaseOrderTransaction }">
+            {{ purchaseOrderTransaction['unit_quantity'] }}
         </template>
-        <template #cell(unit_cost)="{ item: purchaseOrderItem }">
-            {{ purchaseOrderItem['unit_cost'] }}
+        <template #cell(unit_cost)="{ item: purchaseOrderTransaction }">
+            {{ purchaseOrderTransaction['unit_cost'] }}
         </template>
-        <template #cell(status)="{ item: purchaseOrderItem }">
-            {{ purchaseOrderItem['status'] }}
+        <template #cell(status)="{ item: purchaseOrderTransaction }">
+            {{ purchaseOrderTransaction['status'] }}
         </template>
     </Table>
 </template>

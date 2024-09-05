@@ -8,11 +8,10 @@
 
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
-use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderItemQuantity;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToCheckedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmPurchaseOrder;
@@ -21,13 +20,14 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToDispatchedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToDispatchStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToSettledStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStockDeliveryStateToReceived;
 use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItem;
-use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderItem;
+use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderTransaction;
 use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
@@ -37,7 +37,7 @@ use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\Procurement\StockDelivery;
 use App\Models\Procurement\StockDeliveryItem;
 use App\Models\SupplyChain\Agent;
@@ -147,18 +147,51 @@ test('create purchase order independent supplier', function (OrgSupplierProduct 
     return $purchaseOrder;
 })->depends('attach supplier product to organisation');
 
-test('add items to purchase order', function ($purchaseOrder) {
-    $i = 1;
-    do {
-        AddItemPurchaseOrder::make()->action($purchaseOrder, PurchaseOrderItem::factory()->definition());
-        $i++;
-    } while ($i <= 5);
+test('add item to purchase order', function (PurchaseOrder $purchaseOrder, OrgSupplierProduct $orgSupplierProduct) {
 
-    $purchaseOrder->load('items');
-    expect($purchaseOrder->items()->count())->toBe(5);
+
+
+
+    $purchaseOrderTransaction=StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+
+    expect($purchaseOrderTransaction)->toBeInstanceOf(PurchaseOrderTransaction::class)
+        ->and($purchaseOrderTransaction->purchase_order_id)->toBe($purchaseOrder->id)
+        ->and($purchaseOrderTransaction->supplier_product_id)->toBe($orgSupplierProduct->supplierProduct->id)
+        ->and($purchaseOrder->purchaseOrderTransactions()->count())->toBe(1);
 
     return $purchaseOrder;
-})->depends('create purchase order independent supplier');
+})->depends('create purchase order independent supplier', 'attach supplier product to organisation');
+
+
+test('add more items to purchase order', function (PurchaseOrder $purchaseOrder) {
+
+
+    /** @var OrgSupplier $orgSupplier */
+    $orgSupplier=$purchaseOrder->parent;
+
+    $supplierProduct = StoreSupplierProduct::make()->action($orgSupplier->supplier, [
+        'code' => 'product-2',
+        'name' => 'Product 2',
+        'cost' => 100,
+    ]);
+
+    $purchaseOrderTransaction2=StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+
+    $supplierProduct = StoreSupplierProduct::make()->action($orgSupplier->supplier, [
+        'code' => 'product-3',
+        'name' => 'Product 3',
+        'cost' => 150,
+    ]);
+
+    $purchaseOrderTransaction3=StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+
+
+    expect($purchaseOrderTransaction2)->toBeInstanceOf(PurchaseOrderTransaction::class)
+        ->and($purchaseOrderTransaction3)->toBeInstanceOf(PurchaseOrderTransaction::class)
+        ->and($purchaseOrder->purchaseOrderTransactions()->count())->toBe(3);
+
+    return $purchaseOrder;
+})->depends('add item to purchase order');
 
 
 test('delete purchase order', function () {
@@ -186,24 +219,24 @@ test('delete purchase order', function () {
 });
 
 test('update quantity items to 0 in purchase order', function ($purchaseOrder) {
-    $item = $purchaseOrder->items()->first();
+    $item = $purchaseOrder->purchaseOrderTransactions()->first();
 
-    $item = UpdatePurchaseOrderItemQuantity::make()->action($item, [
+    $item = UpdatePurchaseOrderTransactionQuantity::make()->action($item, [
         'unit_quantity' => 0
     ]);
 
     $this->assertModelMissing($item);
-    expect($purchaseOrder->items()->count())->toBe(4);
-})->depends('add items to purchase order');
+    expect($purchaseOrder->purchaseOrderTransactions()->count())->toBe(2);
+})->depends('add item to purchase order');
 
 test('update quantity items in purchase order', function ($purchaseOrder) {
-    $item = $purchaseOrder->items()->first();
+    $item = $purchaseOrder->purchaseOrderTransactions()->first();
 
-    $item = UpdatePurchaseOrderItemQuantity::make()->action($item, [
+    $item = UpdatePurchaseOrderTransactionQuantity::make()->action($item, [
         'unit_quantity' => 12
     ]);
-    expect($item)->toBeInstanceOf(PurchaseOrderItem::class)->and($item->unit_quantity)->toBe(12);
-})->depends('add items to purchase order');
+    expect($item)->toBeInstanceOf(PurchaseOrderTransaction::class)->and($item->unit_quantity)->toBe(12);
+})->depends('add item to purchase order');
 
 
 test('update purchase order', function ($purchaseOrder) {
@@ -227,7 +260,7 @@ test('change state to submit purchase order', function ($purchaseOrder) {
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
 
     return $purchaseOrder;
-})->depends('add items to purchase order');
+})->depends('add item to purchase order');
 
 test('change state to confirm purchase order', function ($purchaseOrder) {
     try {
@@ -352,11 +385,11 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
 })->depends('create supplier delivery')->todo();
 
 test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
-    $supplier = StoreStockDeliveryItemBySelectedPurchaseOrderItem::run($stockDelivery, $items->pluck('id')->toArray());
+    $supplier = StoreStockDeliveryItemBySelectedPurchaseOrderTransaction::run($stockDelivery, $items->pluck('id')->toArray());
     expect($supplier)->toBeArray();
 
     return $supplier;
-})->depends('create supplier delivery', 'add items to purchase order')->todo();
+})->depends('create supplier delivery', 'add item to purchase order')->todo();
 
 test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)

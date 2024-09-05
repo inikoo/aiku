@@ -8,6 +8,7 @@
 namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
+use App\Models\Procurement\PurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraAdjustment;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
@@ -412,6 +413,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchAdjustment($id): ?array
     {
         return (new FetchAuroraAdjustment($this))->fetch($id);
+    }
+
+    public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder): ?array
+    {
+        return (new fetchAuroraPurchaseOrderTransaction($this))->fetchAuroraPurchaseOrderTransaction($id, $purchaseOrder);
     }
 
 }

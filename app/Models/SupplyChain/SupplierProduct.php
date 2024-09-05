@@ -72,7 +72,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $gross_weight
  * @property-read Group $group
- * @property-read Collection<int, HistoricSupplierProduct> $historicAssets
+ * @property-read HistoricSupplierProduct|null $historicSupplierProduct
+ * @property-read Collection<int, HistoricSupplierProduct> $historicSupplierProducts
  * @property-read mixed $net_weight
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
@@ -147,9 +148,14 @@ class SupplierProduct extends Model implements Auditable
         'units_per_carton',
     ];
 
-    public function historicAssets(): HasMany
+    public function historicSupplierProducts(): HasMany
     {
         return $this->hasMany(HistoricSupplierProduct::class);
+    }
+
+    public function historicSupplierProduct(): BelongsTo
+    {
+        return $this->belongsTo(HistoricSupplierProduct::class, 'current_historic_supplier_product_id');
     }
 
     public function stats(): HasOne
