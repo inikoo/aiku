@@ -142,7 +142,7 @@ const props = defineProps<{
     }
 }>()
 
-// console.log(props.box_stats.customer.addresses)
+// console.log(props.notes?.note_list)
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -378,7 +378,7 @@ const onSubmitNote = async (closePopup: Function) => {
 
         <template #otherBefore>
             <!-- Section: Add notes -->
-            <Popover v-if="!notes?.note_list?.some(item => !!(item.note.trim()))">
+            <Popover v-if="!notes?.note_list?.some(item => !!(item?.note?.trim()))">
                 <template #button="{open}">
                     <Button
                         icon="fal fa-sticky-note"
@@ -444,13 +444,17 @@ const onSubmitNote = async (closePopup: Function) => {
     </div>
     
     <!-- Section: Box Note -->
-    <div v-if="notes?.note_list?.some(item => !!(item.note.trim()))" class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
-        <BoxNote
-            v-for="(note, index) in notes.note_list"
-            :key="index+note.label"
-            :noteData="note"
-            :updateRoute="routes.updateOrderRoute"
-        />
+    <div class="relative">
+        <Transition name="headlessui">
+            <div v-if="notes?.note_list?.some(item => !!(item?.note?.trim()))" class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
+                <BoxNote
+                    v-for="(note, index) in notes.note_list"
+                    :key="index+note.label"
+                    :noteData="note"
+                    :updateRoute="routes.updateOrderRoute"
+                />
+            </div>
+        </Transition>
     </div>
 
     <!-- Section: Timeline -->

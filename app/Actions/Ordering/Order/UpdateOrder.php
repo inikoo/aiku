@@ -118,9 +118,9 @@ class UpdateOrder extends OrgAction
             'last_fetched_at'     => ['sometimes', 'date'],
             'payment_amount'      => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
-            'public_notes'   => ['sometimes', 'string', 'max:4000'],
-            'internal_notes' => ['sometimes', 'string', 'max:4000'],
-            'customer_notes' => ['sometimes', 'string', 'max:4000'],
+            'public_notes'        => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'internal_notes'      => ['sometimes', 'nullable', 'string', 'max:4000'],
+            // 'customer_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
         ];
 
         if (!$this->strict) {

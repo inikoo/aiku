@@ -216,9 +216,27 @@ class ShowOrder extends OrgAction
                 // ],
                 'notes' => [  // TODO
                     "note_list"  => [
-                        [ "label" => __("Customer"), "note" => "", "editable" => false, "bgColor" => "#FF7DBD", "field" => "customer_notes" ],
-                        [ "label" => __("Public"), "note" => "", "editable" => true, "bgColor" => "#94DB84", "field" => "public_notes" ],
-                        [ "label" => __("Private"), "note" => "", "editable" => true, "bgColor" => "#FCF4A3", "field" => "internal_notes" ]
+                        [
+                            "label"    => __("Customer"),
+                            "note"     => $order->customer_notes ?? '',
+                            "editable" => false,
+                            "bgColor"  => "#FF7DBD",
+                            "field"    => "customer_notes"
+                        ],
+                        [
+                            "label"    => __("Public"),
+                            "note"     => $order->public_notes ?? '',
+                            "editable" => true,
+                            "bgColor"  => "#94DB84",
+                            "field"    => "public_notes"
+                        ],
+                        [
+                            "label"    => __("Private"),
+                            "note"     => $order->internal_notes ?? '',
+                            "editable" => true,
+                            "bgColor"  => "#FCF4A3",
+                            "field"    => "internal_notes"
+                        ]
                     ]
                 ],
                 'timelines'      => $finalTimeline,
