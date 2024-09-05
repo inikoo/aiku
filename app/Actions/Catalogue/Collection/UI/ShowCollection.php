@@ -111,6 +111,12 @@ class ShowCollection extends OrgAction
                             'parameters'    => [
                                 'collection' => $collection->id
                             ]
+                        ],
+                        'detach'        => [
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
                         ]
                     ],
                     'families' => [
@@ -125,6 +131,12 @@ class ShowCollection extends OrgAction
                             'name'          => 'grp.models.collection.attach-models',
                             'parameters'    => [
                                 'collection' => $collection->id
+                            ]
+                        ],
+                        'detach'        => [
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
                             ]
                         ]
                     ],
@@ -141,6 +153,12 @@ class ShowCollection extends OrgAction
                             'parameters'    => [
                                 'collection' => $collection->id
                             ]
+                        ],
+                        'detach'        => [
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
+                            ]
                         ]
                     ],
                     'collections' => [
@@ -155,6 +173,12 @@ class ShowCollection extends OrgAction
                             'name'          => 'grp.models.collection.attach-models',
                             'parameters'    => [
                                 'collection' => $collection->id
+                            ]
+                        ],
+                        'detach'        => [
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $this->parent->id
                             ]
                         ]
                     ]
