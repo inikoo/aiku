@@ -274,7 +274,8 @@ class IndexDepartments extends OrgAction
                             'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $this->parent->id
-                            ]
+                            ],
+                            'method'    => 'delete'
                         ]
                     ];
         }

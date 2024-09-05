@@ -42,18 +42,22 @@ const props = defineProps<{
         departments: {
             dataList: routeType
             submitAttach: routeType
+            detach: routeType
         }
         families: {
             dataList: routeType
             submitAttach: routeType
+            detach: routeType
         }
         products: {
             dataList: routeType
             submitAttach: routeType
+            detach: routeType
         }
         collections: {
             dataList: routeType
             submitAttach: routeType
+            detach: routeType
         }
     }
     
@@ -124,6 +128,7 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #other>
+            <!-- Button: Departments -->
             <Popover v-if="currentTab == 'departments'">
                 <template #button="{ open }">
                     <Button
@@ -167,6 +172,7 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
                 </template>
             </Popover>
 
+            <!-- Button: Families -->
             <Popover v-if="currentTab == 'families'">
                 <template #button="{ open }">
                     <Button
@@ -205,6 +211,7 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
                 </template>
             </Popover>
 
+            <!-- Button: Products -->
             <Popover v-if="currentTab == 'products'">
                 <template #button="{ open }">
                     <Button
@@ -216,7 +223,7 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
                 </template>
                 <template #content="{ close: closed }">
                     <div class="w-[350px] px-1 pb-2">
-                        <div class="text-sm px-1 my-2 block tabular-nums">{{ trans('Select family') }}: {{ selectedProductsId.length }} {{ trans('selected') }} </div>
+                        <div class="text-sm px-1 my-2 block tabular-nums">{{ trans('Select products') }}: {{ selectedProductsId.length }} {{ trans('selected') }} </div>
                         <div class="">
                             <PureMultiselectInfiniteScroll
                                 v-model="selectedProductsId"
@@ -243,6 +250,7 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
                 </template>
             </Popover>
             
+            <!-- Button: collections -->
             <Popover v-if="currentTab == 'collections'">
                 <template #button="{ open }">
                     <Button
@@ -282,7 +290,13 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
             </Popover>
         </template>
     </PageHeading>
+
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
     
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <component
+        :is="component"
+        :data="props[currentTab as keyof typeof props]"
+        :tab="currentTab"
+        :routes="props.routes[currentTab]"
+    />
 </template>
