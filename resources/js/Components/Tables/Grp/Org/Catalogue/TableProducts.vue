@@ -106,8 +106,13 @@ const isLoadingDetach = ref<string[]>([])
         <template #cell(actions)="{ item }">
             <Link
                 v-if="routes?.detach?.name"
+                as="button"
                 :href="route(routes.detach.name, routes.detach.parameters)"
                 :method="routes.detach.method"
+                :data="{
+                    product: item.id
+                }"
+                preserve-scroll
                 @start="() => isLoadingDetach.push('detach' + item.id)"
                 @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'detach' + item.id)"
             >
@@ -118,7 +123,6 @@ const isLoadingDetach = ref<string[]>([])
                     :loading="isLoadingDetach.includes('detach' + item.id)"
                 />
             </Link>
-            
         </template>
     </Table>
 </template>

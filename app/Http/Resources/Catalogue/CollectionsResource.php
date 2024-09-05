@@ -25,6 +25,7 @@ class CollectionsResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'id'                => $this->id,
             'slug'              => $this->slug,
             'shop_slug'         => $this->shop_slug,
             'shop_code'         => $this->shop_code,

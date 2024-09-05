@@ -32,6 +32,7 @@ class UpdateOrder extends OrgAction
 
     public function handle(Order $order, array $modelData): Order
     {
+        // dd($modelData);
         /** @var Address $billingAddressData */
         $billingAddressData = Arr::get($modelData, 'billing_address');
         data_forget($modelData, 'billing_address');
@@ -91,7 +92,6 @@ class UpdateOrder extends OrgAction
 
 
         OrderHydrateUniversalSearch::dispatch($order);
-
         return $order;
     }
 
@@ -118,6 +118,9 @@ class UpdateOrder extends OrgAction
             'last_fetched_at'     => ['sometimes', 'date'],
             'payment_amount'      => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
+            'public_notes'   => ['sometimes', 'string', 'max:4000'],
+            'internal_notes' => ['sometimes', 'string', 'max:4000'],
+            'customer_notes' => ['sometimes', 'string', 'max:4000'],
         ];
 
         if (!$this->strict) {

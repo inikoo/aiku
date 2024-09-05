@@ -262,7 +262,7 @@ const onSubmitDepartments = async (closedPopover: Function, scope: string, route
                 </template>
                 <template #content="{ close: closed }">
                     <div class="w-[350px] px-1 pb-2">
-                        <div class="text-sm px-1 my-2 block tabular-nums">{{ trans('Select collections') }}: {{ selectedFamiliesId.length }} {{ trans('selected') }} </div>
+                        <div class="text-sm px-1 my-2 block tabular-nums">{{ trans('Select collections') }}: {{ selectedCollectionsId.length }} {{ trans('selected') }} </div>
                         <div class="">
                             <PureMultiselectInfiniteScroll
                                 v-model="selectedCollectionsId"
