@@ -86,16 +86,16 @@ const isLoading = ref<string | boolean>(false)
         :class="[layout ? layout.leftSidebar.show ? 'pr-0 md:pr-48' : 'pr-0 md:pr-12' : '']"
     >
         <!-- Breadcrumb -->
-        <ol role="list" class="w-full mx-auto px-4 flex">
+        <TransitionGroup name="list-to-down" tag="ol" class="w-full mx-auto px-4 flex">
             <li v-for="(breadcrumb, breadcrumbIdx) in breadcrumbs" :key="breadcrumbIdx"
                 class="hidden first:flex last:flex md:flex">
+        
                 <div class="flex items-center">
                     <!-- Shorter Breadcrumb on Mobile size -->
                     <div v-if="breadcrumbs.length > 2 && breadcrumbIdx != 0" class="md:hidden">
                         <FontAwesomeIcon v-if="breadcrumbIdx !== 0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50" icon="fa-regular fa-chevron-right" aria-hidden="true" />
                         <span>...</span>
                     </div>
-
                     <template v-if="breadcrumb.type === 'simple'">
                         <FontAwesomeIcon v-if="breadcrumbIdx !== 0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50" icon="fa-regular fa-chevron-right" aria-hidden="true" />
                         <component
@@ -107,18 +107,17 @@ const isLoading = ref<string | boolean>(false)
                             <Transition name="spin-to-down">
                                 <FontAwesomeIcon v-if="breadcrumb.simple?.icon" :class="breadcrumb.simple.label ? 'mr-1' : ''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
                             </Transition>
+        
                             <Transition name="spin-to-down">
                                 <div :key="breadcrumb.simple.label" class="inline-block">{{ breadcrumb.simple.label }}</div>
                             </Transition>
                         </component>
                     </template>
-
                     <!-- Section: Create Model -->
                     <template v-else-if="breadcrumb.type === 'creatingModel'">
                         <FontAwesomeIcon class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-yellow-500 ml-2" icon="fas fa-sparkles" aria-hidden="true" />
                         <span class="text-yellow-600 opacity-75"> {{ breadcrumb.creatingModel.label }}</span>
                     </template>
-
                     <template v-else-if="breadcrumb.type === 'modelWithIndex'">
                         <div class="hidden md:inline-flex">
                             <FontAwesomeIcon v-if="breadcrumbIdx !== 0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50 place-self-center" icon="fa-regular fa-chevron-right" aria-hidden="true" />
@@ -135,7 +134,7 @@ const isLoading = ref<string | boolean>(false)
                     <span v-if="breadcrumb.suffix" :class="breadcrumb.type ? 'ml-1' : ''" class="italic">{{ breadcrumb.suffix }}</span>
                 </div>
             </li>
-        </ol>
+        </TransitionGroup>
 
         <!-- Popup for Breadcrumb List on Mobile -->
         <Menu as="div" class="z-10 w-fit h-8 absolute top-0 md:hidden">

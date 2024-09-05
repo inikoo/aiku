@@ -222,6 +222,7 @@ class GetWarehouseNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-tasks-alt'],
+                            'root'  => 'grp.org.warehouses.show.dispatching.backlog',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.dispatching.backlog",
                                 "parameters" => [
@@ -234,6 +235,7 @@ class GetWarehouseNavigation
                         [
                             'label' => __('delivery notes'),
                             'icon'  => ['fal', 'fa-truck'],
+                            'root'  => 'grp.org.warehouses.show.dispatching.delivery-notes',
                             'route' => [
                                 "name"       => "grp.org.warehouses.show.dispatching.delivery-notes",
                                 "parameters" => [

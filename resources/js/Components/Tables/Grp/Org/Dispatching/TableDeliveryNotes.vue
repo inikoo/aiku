@@ -5,20 +5,21 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import Table from "@/Components/Table/Table.vue";
-import { DeliveryNote } from "@/types/delivery-note";
-import { Tab } from "@headlessui/vue";
-import type {Links, Meta} from "@/types/Table";
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import { DeliveryNote } from "@/types/delivery-note"
+import { Tab } from "@headlessui/vue"
+import type { Table as TableTS } from "@/types/Table"
+import { inject } from "vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 const props = defineProps<{
-    data: {
-    data: {}[]
-    links: Links
-    meta: Meta
-  },
-  tab?: string
-}>();
+    data: TableTS,
+    tab?: string
+}>()
+
+const layout = inject('layout', layoutStructure)
 
 
 function deliveryNoteRoute(deliveryNote: DeliveryNote) {
@@ -26,36 +27,38 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
         case "shops.show.orders.show":
             return route(
                 "shops.show.orders.show.delivery-notes.show",
-                [route().params["shop"], route().params["order"], deliveryNote.slug]);
+                [route().params["shop"], route().params["order"], deliveryNote.slug])
         case "orders.show":
             return route(
                 "orders.show,delivery-notes.show",
-                [route().params["order"], deliveryNote.slug]);
+                [route().params["order"], deliveryNote.slug])
         case "shops.show.delivery-notes.index":
             return route(
                 "shops.show.delivery-notes.show",
-                [deliveryNote.shop_id, deliveryNote.slug]);
+                [deliveryNote.shop_id, deliveryNote.slug])
         case "grp.org.warehouses.show.dispatching.delivery-notes":
             return route(
                 "grp.org.warehouses.show.dispatching.delivery-notes.show",
-                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug]);
+                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug])
         default:
             return route(
                 "grp.org.warehouses.show.dispatching.delivery-notes.show",
-                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug]);
+                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug])
     }
 }
 
 </script>
 
-<template> 
+<template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: deliveryNote }">
-            <Link :href="deliveryNoteRoute(deliveryNote)">
+            <Link :href="deliveryNoteRoute(deliveryNote)" class="primaryLink">
                 {{ deliveryNote["reference"] }}
             </Link>
         </template>
+
+        <template #cell(date)="{ item: deliveryNote }">
+            {{ useFormatTime(deliveryNote.date) }}
+        </template>
     </Table>
 </template>
-
-
