@@ -8,11 +8,20 @@
 import { Link } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import { Family } from "@/types/family"
+import { routeType } from "@/types/route"
+import { remove as loRemove } from 'lodash'
+import { ref } from "vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
 
 
 const props = defineProps<{
     data: {}
     tab?: string
+    routes: {
+        dataList: routeType
+        submitAttach: routeType
+        detach: routeType
+    }
 }>()
 
 // TODO: FIX TS
@@ -51,6 +60,7 @@ function departmentRoute(family: Family) {
     }
 }
 
+const isLoadingDetach = ref<string[]>([])
 </script>
 
 <template>
@@ -68,6 +78,28 @@ function departmentRoute(family: Family) {
         <template #cell(department_code)="{ item: collection }">
             <Link :href="departmentRoute(collection)" class="secondaryLink">
                 {{ collection["department_code"] }}
+            </Link>
+        </template>
+
+        <template #cell(actions)="{ item }">
+            <Link
+                v-if="routes?.detach?.name"
+                as="button"
+                :href="route(routes.detach.name, routes.detach.parameters)"
+                :method="routes.detach.method"
+                :data="{
+                    collection: item.id
+                }"
+                preserve-scroll
+                @start="() => isLoadingDetach.push('detach' + item.id)"
+                @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'detach' + item.id)"
+            >
+                <Button
+                    icon="fal fa-times"
+                    type="negative"
+                    size="xs"
+                    :loading="isLoadingDetach.includes('detach' + item.id)"
+                />
             </Link>
         </template>
     </Table>
