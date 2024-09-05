@@ -113,6 +113,7 @@ class ShowCollection extends OrgAction
                             ]
                         ],
                         'detach'        => [
+                            'method'        => 'delete',
                             'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $this->parent->id
@@ -134,6 +135,7 @@ class ShowCollection extends OrgAction
                             ]
                         ],
                         'detach'        => [
+                            'method'        => 'delete',
                             'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $this->parent->id
@@ -155,6 +157,7 @@ class ShowCollection extends OrgAction
                             ]
                         ],
                         'detach'        => [
+                            'method'        => 'delete',
                             'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $this->parent->id
@@ -176,6 +179,7 @@ class ShowCollection extends OrgAction
                             ]
                         ],
                         'detach'        => [
+                            'method'        => 'delete',
                             'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $this->parent->id
