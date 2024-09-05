@@ -82,6 +82,7 @@ class UpdateLocationOrgStock extends OrgAction
 
     public function asController(LocationOrgStock $locationOrgStock, ActionRequest $request): LocationOrgStock
     {
+        $this->asAction = true;
         $this->initialisation($locationOrgStock->organisation, $request);
 
         return $this->handle($locationOrgStock, $this->validatedData);
