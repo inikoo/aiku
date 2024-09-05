@@ -52,6 +52,7 @@ const SendEditLocation = (item : Datum) =>{
             onBefore: () => { loading.value = true },
             onSuccess: () => {
                     loading.value = false
+                    editNotes.value = false
             },
             onError: () => {
                 notify({

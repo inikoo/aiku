@@ -54,16 +54,16 @@ class StoreLocationOrgStock extends OrgAction
             'data'               => ['sometimes', 'array'],
             'settings'           => ['sometimes', 'array'],
             'notes'              => ['sometimes', 'nullable', 'string', 'max:255'],
-            'source_stock_id'    => ['sometimes', 'string', 'max:255'],
-            'source_location_id' => ['sometimes', 'string', 'max:255'],
             'picking_priority'   => ['sometimes', 'integer'],
             'type'               => ['sometimes', Rule::enum(LocationStockTypeEnum::class)],
-            'fetched_at'         => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
             $rules['audited_at'] = ['date'];
             $rules['quantity']   = ['required', 'numeric'];
+            $rules['fetched_at'] = ['required', 'date'];
+            $rules['source_stock_id'] = ['sometimes', 'string', 'max:255'];
+            $rules['source_location_id'] = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
@@ -81,12 +81,14 @@ class StoreLocationOrgStock extends OrgAction
             $validator->errors()->add('location_org_stock', __('This stock is already assigned to this location'));
         }
 
-        if($this->strict) {
-            if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
-                    ->count() > 0) {
-                $validator->errors()->add('location_org_stock_type', __('This stock can have one picking only'));
-            }
-        }
+
+       if($this->strict and $this->has('type') and $this->get('type') == LocationStockTypeEnum::PICKING->value) {
+           if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
+                   ->count() > 0) {
+               $validator->errors()->add('type', __('This stock can have one picking only'));
+           }
+       }
+
     }
 
     public function asController(OrgStock $orgStock, Location $location, ActionRequest $request, int $hydratorsDelay = 0, bool $strict = true): void
