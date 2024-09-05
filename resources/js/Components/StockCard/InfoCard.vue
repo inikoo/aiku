@@ -88,12 +88,12 @@ const hideOther = (id : Number) => {
                         :ref="el => (disclosure[index] = close)">
                         <FontAwesomeIcon v-tooltip="'Notes'" :icon="location.notes ? fasStickyNote : faStickyNote" />
                     </DisclosureButton>
-
-                    <div class="relative">
+    
+                    <div v-if="location.type != 'picking'" class="relative">
                         <Popover position="left-0 top-[-120px]">
                             <template #button>
-                                <FontAwesomeIcon :class="location.type == 'picking' && 'text-indigo-500'"
-                                    class="h-5 w-5 flex-none rounded-full bg-gray-50" :icon="faShoppingBasket" />
+                                <FontAwesomeIcon v-tooltip="location.type"
+                                    class="h-5 w-5 flex-none rounded-full bg-gray-50 cursor-pointer" :icon="faShoppingBasket" />
                             </template>
                             <template #content="{ close: closed }">
                                 <div class="w-[250px]">
@@ -109,6 +109,8 @@ const hideOther = (id : Number) => {
                             </template>
                         </Popover>
                     </div>
+                    <FontAwesomeIcon v-else :class="'text-indigo-500'" v-tooltip="location.type"
+                    class="h-5 w-5 flex-none rounded-full bg-gray-50 cursor-pointer" :icon="faShoppingBasket" />
 
                     <div class="px-2">
                         <div class="text-sm font-semibold leading-6 text-gray-900">
