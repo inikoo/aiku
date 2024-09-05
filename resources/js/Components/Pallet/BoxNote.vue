@@ -127,11 +127,11 @@ const fallbackColor = '#374151'  // Color
     <Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = noteData.note)">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
             <div class="text-xl font-semibold mb-2">{{ noteData.label }}'s note</div>
-			<div class="relative">
-                <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
+			<div class="relative isolate">
+                <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
                     Clear
                 </div>
-                <PureTextarea v-model="noteModalValue" counter rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
+                <PureTextarea v-model="noteModalValue" counter :rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
             </div>
 
             <div class="flex justify-end gap-x-2 mt-3">

@@ -17,6 +17,7 @@ use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Subscription;
 use App\Models\Fulfilment\Rental;
 use App\Models\Ordering\ShippingZone;
@@ -27,7 +28,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = []): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone|Shipping $assetModel, array $modelData = []): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),

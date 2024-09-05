@@ -123,6 +123,7 @@ class IndexDepartments extends OrgAction
         return $queryBuilder
             ->defaultSort('product_categories.code')
             ->select([
+                'product_categories.id',
                 'product_categories.slug',
                 'product_categories.code',
                 'product_categories.name',
@@ -274,7 +275,8 @@ class IndexDepartments extends OrgAction
                             'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $this->parent->id
-                            ]
+                            ],
+                            'method'    => 'delete'
                         ]
                     ];
         }

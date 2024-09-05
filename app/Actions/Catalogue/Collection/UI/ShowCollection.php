@@ -111,6 +111,13 @@ class ShowCollection extends OrgAction
                             'parameters'    => [
                                 'collection' => $collection->id
                             ]
+                        ],
+                        'detach'        => [
+                            'method'        => 'delete',
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
                         ]
                     ],
                     'families' => [
@@ -123,6 +130,13 @@ class ShowCollection extends OrgAction
                         ],
                         'submitAttach'  => [
                             'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
+                        ],
+                        'detach'        => [
+                            'method'        => 'delete',
+                            'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $collection->id
                             ]
@@ -141,6 +155,13 @@ class ShowCollection extends OrgAction
                             'parameters'    => [
                                 'collection' => $collection->id
                             ]
+                        ],
+                        'detach'        => [
+                            'method'        => 'delete',
+                            'name'          => 'grp.models.collection.detach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
                         ]
                     ],
                     'collections' => [
@@ -153,6 +174,13 @@ class ShowCollection extends OrgAction
                         ],
                         'submitAttach'  => [
                             'name'          => 'grp.models.collection.attach-models',
+                            'parameters'    => [
+                                'collection' => $collection->id
+                            ]
+                        ],
+                        'detach'        => [
+                            'method'        => 'delete',
+                            'name'          => 'grp.models.collection.detach-models',
                             'parameters'    => [
                                 'collection' => $collection->id
                             ]

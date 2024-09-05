@@ -44,7 +44,7 @@ class GroupHydrateCharges
                 enum: ChargeStateEnum::class,
                 models: Charge::class,
                 where: function ($q) use ($group) {
-                    $q->where('is_main', true)->where('group_id', $group->id);
+                    $q->where('group_id', $group->id);
                 }
             )
         );

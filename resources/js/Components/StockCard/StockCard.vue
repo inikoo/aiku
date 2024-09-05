@@ -33,6 +33,7 @@ const props = defineProps<{
     disassociateLocationRoute : routeType,
     auditRoute : routeType,
     moveLocationRoute : routeType
+    updateLocationRoute :  routeType
 }>();
 
 const activeMenu = ref(null)
@@ -133,6 +134,7 @@ watch(() => props.data.locations.data.length, (newLength) => {
             :disassociateLocationRoute="disassociateLocationRoute"
             :auditRoute="auditRoute"
             :moveLocationRoute="moveLocationRoute"
+            :updateLocationRoute="updateLocationRoute"
         />
     </div>
 </template>

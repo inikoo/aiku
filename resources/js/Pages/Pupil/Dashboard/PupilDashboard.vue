@@ -14,7 +14,7 @@ import { useLocaleStore } from '@/Stores/locale'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { routeType } from '@/types/route'
 import axios from 'axios'
-import { router } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -24,22 +24,27 @@ import Select from 'primevue/select'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Image from '@/Components/Image.vue'
 import { notify } from '@kyvg/vue3-notification'
+import Modal from '@/Components/Utils/Modal.vue'
 library.add(faSearch, faThLarge, faListUl, faStar, falStar)
 
 const props = defineProps<{
     user: {}
     shop: string
+    showIntro: boolean
     routes: {
         products: routeType
         store_product: routeType
+        get_started: routeType
     }
     // token: string
     token_request: string
 }>()
 
-console.log('token', props.user)
+console.log('token', props)
 // const xxToken = Object.keys(props.token)[1].match(/login_pupil_([a-f0-9]+)/)?.[1]
 const locale = useLocaleStore()
+
+const isModalGetStarted = ref(props.showIntro)
 
 const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
@@ -342,7 +347,31 @@ const onSortChange = (event) => {
                 </template>
             </DataView>
         </div>
-
-
     </div>
+
+    <Modal :isOpen="isModalGetStarted" @onClose="isModalGetStarted = false">
+        <div class="relative isolate overflow-hidden px-6 py-16 text-center sm:rounded-3xl sm:px-12">
+            <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
+                {{ trans(`Let's get started.`) }}
+            </h2>
+            <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-500">
+                It's looks like this is the first time you integrate Shopify, let's have a look what you can do.
+            </p>
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+                <Link
+                    as="button"
+                    :href="route(routes.get_started.name, routes.get_started.parameters)"
+                    :method="routes.get_started.method"
+                    @error="(error) => console.log('aaa', error)"
+                    :headers="{ Authorization: `Bearer ${props.token_request}` }"
+                    @click="() => isModalGetStarted = false"
+                >
+                    <Button type="black" size="l">
+                        Get started
+                    </Button>
+                </Link>
+            </div>
+        </div>
+    
+    </Modal>
 </template>

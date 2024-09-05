@@ -9,15 +9,26 @@ import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { Product } from "@/types/product"
 import Icon from "@/Components/Icon.vue"
+
+import { remove as loRemove } from 'lodash'
+
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faConciergeBell, faGarage, faExclamationTriangle } from '@fal'
+import { routeType } from '@/types/route'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { ref } from 'vue'
 
 library.add(faConciergeBell, faGarage, faExclamationTriangle)
 
 
 const props = defineProps<{
-    data: object
+    data: {}
     tab?: string,
+    routes: {
+        dataList: routeType
+        submitAttach: routeType
+        detach: routeType
+    }
 }>()
 
 function productRoute(product: Product) {
@@ -64,6 +75,9 @@ function productRoute(product: Product) {
 }
 
 
+const isLoadingDetach = ref<string[]>([])
+
+
 </script>
 
 <template>
@@ -87,6 +101,28 @@ function productRoute(product: Product) {
         <template #cell(type)="{ item: product }">
             <Icon :data="product['type_icon']" />
             <Icon :data="product['state_icon']" />
+        </template>
+
+        <template #cell(actions)="{ item }">
+            <Link
+                v-if="routes?.detach?.name"
+                as="button"
+                :href="route(routes.detach.name, routes.detach.parameters)"
+                :method="routes.detach.method"
+                :data="{
+                    product: item.id
+                }"
+                preserve-scroll
+                @start="() => isLoadingDetach.push('detach' + item.id)"
+                @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'detach' + item.id)"
+            >
+                <Button
+                    icon="fal fa-times"
+                    type="negative"
+                    size="xs"
+                    :loading="isLoadingDetach.includes('detach' + item.id)"
+                />
+            </Link>
         </template>
     </Table>
 </template>

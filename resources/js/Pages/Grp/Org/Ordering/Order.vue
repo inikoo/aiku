@@ -92,7 +92,7 @@ const props = defineProps<{
             lockMessage?: string
             field: string  // customer_notes, public_notes, internal_notes
         }[]
-        updateRoute: routeType
+        // updateRoute: routeType
     }
     timelines: {
         [key: string]: TSTimeline
@@ -142,7 +142,7 @@ const props = defineProps<{
     }
 }>()
 
-// console.log(props.box_stats.customer.addresses)
+// console.log(props.notes?.note_list)
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -270,7 +270,7 @@ const noteToSubmit = ref({
 const onSubmitNote = async (closePopup: Function) => {
     
     try {
-        router.patch(route(props.notes.updateRoute.name, props.notes.updateRoute.parameters), {
+        router.patch(route(props.routes.updateOrderRoute.name, props.routes.updateOrderRoute.parameters), {
             [noteToSubmit.value.selectedNote]: noteToSubmit.value.value
         },
         {
@@ -378,7 +378,7 @@ const onSubmitNote = async (closePopup: Function) => {
 
         <template #otherBefore>
             <!-- Section: Add notes -->
-            <Popover v-if="!notes?.note_list?.some(item => !!(item.note.trim()))">
+            <Popover v-if="!notes?.note_list?.some(item => !!(item?.note?.trim()))">
                 <template #button="{open}">
                     <Button
                         icon="fal fa-sticky-note"
@@ -392,6 +392,7 @@ const onSubmitNote = async (closePopup: Function) => {
                         <div class="">
                             <PureMultiselect
                                 v-model="noteToSubmit.selectedNote"
+                                @update:modelValue="() => errorNote = ''"
                                 :placeholder="trans('Select type note')"
                                 required
                                 :options="[{label: 'Public note', value: 'public_notes'}, {label: 'Private note', value: 'internal_notes'}]"
@@ -413,7 +414,7 @@ const onSubmitNote = async (closePopup: Function) => {
                         </div>
 
                         <p v-if="errorNote" class="mt-2 text-sm text-red-600">
-                            *{{ errorNote }}sssssssssssssssssssssss
+                            *{{ errorNote }}
                         </p>
 
                         <div class="flex justify-end mt-3">
@@ -443,13 +444,17 @@ const onSubmitNote = async (closePopup: Function) => {
     </div>
     
     <!-- Section: Box Note -->
-    <div v-if="notes?.note_list?.some(item => !!(item.note.trim()))" class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
-        <BoxNote
-            v-for="(note, index) in notes.note_list"
-            :key="index+note.label"
-            :noteData="note"
-            :updateRoute="notes.updateRoute"
-        />
+    <div class="relative">
+        <Transition name="headlessui">
+            <div v-if="notes?.note_list?.some(item => !!(item?.note?.trim()))" class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
+                <BoxNote
+                    v-for="(note, index) in notes.note_list"
+                    :key="index+note.label"
+                    :noteData="note"
+                    :updateRoute="routes.updateOrderRoute"
+                />
+            </div>
+        </Transition>
     </div>
 
     <!-- Section: Timeline -->
@@ -575,8 +580,11 @@ const onSubmitNote = async (closePopup: Function) => {
     </div>
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
-        <ModalAddress :addresses="box_stats?.customer.addresses" :updateRoute="routes.updateOrderRoute"
-            keyPayloadEdit="delivery_address" />
+        <ModalAddress
+            :addresses="box_stats?.customer.addresses"
+            :updateRoute="routes.updateOrderRoute"
+            keyPayloadEdit="delivery_address"
+        />
     </Modal>
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">

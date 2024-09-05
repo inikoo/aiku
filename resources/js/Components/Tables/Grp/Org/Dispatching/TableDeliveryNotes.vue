@@ -48,8 +48,7 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
 
 </script>
 
-<template>
-{{ data }} 
+<template> 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: deliveryNote }">
             <Link :href="deliveryNoteRoute(deliveryNote)">
