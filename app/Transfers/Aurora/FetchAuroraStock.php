@@ -49,6 +49,24 @@ class FetchAuroraStock extends FetchAurora
         }
 
 
+        $state= match ($this->auroraModelData->{'Part Status'}) {
+            'In Use' => StockStateEnum::ACTIVE,
+            'Discontinuing', 'Not In Use' => StockStateEnum::DISCONTINUED,
+            'In Process' => StockStateEnum::IN_PROCESS,
+        };
+
+        if($state==StockStateEnum::IN_PROCESS){
+            if(DB::connection('aurora')
+                ->table('Inventory Transaction Fact')
+                ->leftJoin('Part Dimension', 'Part Dimension.Part SKU', 'Inventory Transaction Fact.Part SKU')
+                ->whereIn('Inventory Transaction Section',['In','Out'])
+                ->where('Inventory Transaction Fact.Part SKU', $this->auroraModelData->{'Part SKU'})->count()>0){
+                $state=StockStateEnum::ACTIVE;
+            }
+        }
+
+
+
         $this->parsedData['stock_family'] = $this->parseStockFamily($this->auroraModelData->{'Part SKU'});
 
         $this->parsedData['stock'] = [
@@ -63,11 +81,7 @@ class FetchAuroraStock extends FetchAurora
                     ? $this->parseDate($this->auroraModelData->{'Part Valid To'})
                     :
                     null,
-            'state'           => match ($this->auroraModelData->{'Part Status'}) {
-                'In Use' => StockStateEnum::ACTIVE,
-                'Discontinuing', 'Not In Use' => StockStateEnum::DISCONTINUED,
-                'In Process' => StockStateEnum::IN_PROCESS,
-            },
+            'state'           => $state,
 
 
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
