@@ -22,7 +22,7 @@ class DetachModelFromCollection extends OrgAction
     {
         $modelTypes = [
             'product'    => Product::class,
-            'family'    => ProductCategory::class,
+            'family'     => ProductCategory::class,
             'department' => ProductCategory::class,
             'collection' => Collection::class,
         ];
@@ -30,10 +30,10 @@ class DetachModelFromCollection extends OrgAction
         foreach ($modelTypes as $key => $modelClass) {
             $id = Arr::get($modelData, $key);
 
-                $model = $modelClass::find($id);
-                if ($model) {
-                    $this->detachModel($collection, $model);
-                }
+            $model = $modelClass::find($id);
+            if ($model) {
+                $this->detachModel($collection, $model);
+            }
         }
 
         CollectionHydrateItems::dispatch($collection);

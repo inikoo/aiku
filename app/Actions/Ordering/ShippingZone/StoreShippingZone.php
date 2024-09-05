@@ -102,7 +102,7 @@ class StoreShippingZone extends OrgAction
         if (!$this->strict) {
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['created_at'] = ['sometimes', 'date'];
-            $rules['source_id'] = ['sometimes', 'string','max:255'];
+            $rules['source_id']  = ['sometimes', 'string','max:255'];
         }
 
         return $rules;
