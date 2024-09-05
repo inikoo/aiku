@@ -44,7 +44,7 @@ class ShopHydrateCharges
                 enum: ChargeStateEnum::class,
                 models: Charge::class,
                 where: function ($q) use ($shop) {
-                    $q->where('is_main', true)->where('shop_id', $shop->id);
+                    $q->where('shop_id', $shop->id);
                 }
             )
         );

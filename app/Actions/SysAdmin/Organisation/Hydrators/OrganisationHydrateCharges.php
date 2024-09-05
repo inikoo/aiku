@@ -45,7 +45,7 @@ class OrganisationHydrateCharges
                 enum: ChargeStateEnum::class,
                 models: Charge::class,
                 where: function ($q) use ($organisation) {
-                    $q->where('is_main', true)->where('organisation_id', $organisation->id);
+                    $q->where('organisation_id', $organisation->id);
                 }
             )
         );
