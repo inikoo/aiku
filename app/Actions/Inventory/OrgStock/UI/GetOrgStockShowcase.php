@@ -37,6 +37,13 @@ class GetOrgStockShowcase
                         'orgStock' => $orgStock->id
                     ]
                 ],
+                'updateLocationRoute'  => [
+                    'method'     => 'patch',
+                    'name'       => 'grp.models.org_stock.location.update',
+                    'parameters' => [
+                        'orgStock' => $orgStock->id
+                    ]
+                ],
                 'disassociateLocationRoute' => [
                     'method'    => 'delete',
                     'name'      => 'grp.models.location_org_stock.delete',
