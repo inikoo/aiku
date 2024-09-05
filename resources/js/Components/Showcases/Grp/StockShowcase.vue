@@ -19,7 +19,6 @@ const props = defineProps<{
         disassociateLocationRoute : routeType,
         auditRoute : routeType,
         moveLocationRoute : routeType
-        updateLocationRoute:routeType
     }
 }>();
 
@@ -39,7 +38,6 @@ const props = defineProps<{
                 :disassociateLocationRoute="data.disassociateLocationRoute" 
                 :auditRoute="data.auditRoute" 
                 :moveLocationRoute="data.moveLocationRoute"
-                :updateLocationRoute="data.updateLocationRoute"
             />
         </div>
     </div>

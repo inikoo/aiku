@@ -25,7 +25,6 @@ const props = defineProps<{
     disassociateLocationRoute: routeType;
     auditRoute: routeType;
     moveLocationRoute: routeType;
-    updateLocationRoute :  routeType
 }>();
 
 const disclosure = ref([])
@@ -44,8 +43,8 @@ return(differenceDay)
 
 const SendEditLocation = (item : Datum) =>{
     router.patch(route(
-        props.updateLocationRoute.name,
-        { ...props.updateLocationRoute.parameters, location: item.id }),
+        'grp.models.location_org_stock.update',
+        { locationOrgStock: item.id }),
         { notes : item.notes,
           type : item.type
         },

@@ -29,7 +29,6 @@ const props = defineProps<{
     disassociateLocationRoute: routeType,
     auditRoute: routeType,
     moveLocationRoute: routeType
-    updateLocationRoute :  routeType
 }>();
 
 const cloneData = ref(cloneDeep(props.data))

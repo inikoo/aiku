@@ -33,7 +33,6 @@ const props = defineProps<{
     disassociateLocationRoute: routeType,
     auditRoute: routeType,
     moveLocationRoute: routeType
-    updateLocationRoute :  routeType
 }>();
 
 

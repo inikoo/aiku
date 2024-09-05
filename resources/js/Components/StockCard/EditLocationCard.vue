@@ -27,7 +27,6 @@ const props = defineProps<{
     associateLocationRoute: routeType,
     disassociateLocationRoute: routeType,
     auditRoute: routeType,
-    moveLocationRoute: routeType
 }>();
 
 const loading = ref(false)
