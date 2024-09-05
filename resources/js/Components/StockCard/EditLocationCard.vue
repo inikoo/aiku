@@ -41,7 +41,7 @@ const typeOptions = [{
 ]
 const form = useForm({
     location_org_stock: null,
-    location_org_stock_type : 'storing'
+    type : 'storing'
 })
 
 const AssociateLocation = () => {
@@ -116,12 +116,12 @@ const AssociateLocation = () => {
                     </div>
                     <div class="flex-1">
                         <span class="text-xs py-2 block">Type</span>
-                        <Select :form="form" :fieldName="'location_org_stock_type'" :options="typeOptions" :fieldData="{
+                        <Select :form="form" :fieldName="'type'" :options="typeOptions" :fieldData="{
                             placeholder: 'select type',
                             searchable: true,
                             required : true,
                         }" />
-                        <p class="text-xs text-red-500">{{ form.errors.type_org_stock }}</p>
+                        <p class="text-xs text-red-500">{{ form.errors.type }}</p>
                     </div>
                     <Button type="create" label="Add Location" @click="AssociateLocation" class="self-end" />
                 </div>
