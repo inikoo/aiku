@@ -43,11 +43,12 @@ class ShowDashboard
                         'shopifyUser' => $shopifyUser->id
                     ]
                 ],
-                'get_stared' => [
+                'get_started' => [
                     'name'       => 'pupil.shopify_user.get_started.store',
                     'parameters' => [
                         'shopifyUser' => $shopifyUser->id
-                    ]
+                    ],
+                    'method'    => 'post'
                 ]
             ]
         ]);
