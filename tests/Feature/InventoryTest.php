@@ -413,6 +413,7 @@ test('attach stock to location', function (Location $location) {
             'type'=> LocationStockTypeEnum::PICKING
         ]);
     }
+
     expect($location->stats->number_org_stock_slots)->toBe(2)
         ->and($locationOrgStocks[0])->toBeInstanceOf(LocationOrgStock::class);
 
