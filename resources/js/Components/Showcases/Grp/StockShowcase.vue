@@ -7,17 +7,19 @@
 <script setup lang="ts">
 import StockCard from '@/Components/StockCard/StockCard.vue'
 import { routeType } from "@/types/route"
+import { stockLocation,  } from "@/types/StockLocation"
 
 
 
 const props = defineProps<{
     data: {
-        contactCard : object,
+        contactCard : stockLocation,
         locationRoute : routeType,
         associateLocationRoute : routeType,
         disassociateLocationRoute : routeType,
         auditRoute : routeType,
         moveLocationRoute : routeType
+        updateLocationRoute:routeType
     }
 }>();
 
@@ -37,6 +39,7 @@ const props = defineProps<{
                 :disassociateLocationRoute="data.disassociateLocationRoute" 
                 :auditRoute="data.auditRoute" 
                 :moveLocationRoute="data.moveLocationRoute"
+                :updateLocationRoute="data.updateLocationRoute"
             />
         </div>
     </div>
