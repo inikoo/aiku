@@ -11,6 +11,7 @@ import { notify } from "@kyvg/vue3-notification"
 import { Link, useForm } from '@inertiajs/vue3'
 import { routeType } from "@/types/route"
 import { ref } from 'vue'
+import {Datum, stockLocation} from "@/types/StockLocation"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket } from '@far'
@@ -21,7 +22,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faShoppingBasket, faUnlink)
 
 const props = defineProps<{
-    data: object
+    data: stockLocation
     locationRoute: routeType
     associateLocationRoute: routeType,
     disassociateLocationRoute: routeType,
