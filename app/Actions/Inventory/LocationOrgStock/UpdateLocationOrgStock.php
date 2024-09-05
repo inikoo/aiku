@@ -27,15 +27,13 @@ class UpdateLocationOrgStock extends OrgAction
 
     public function handle(LocationOrgStock $locationOrgStock, array $modelData): LocationOrgStock
     {
-        $locationOrgStock= $this->update($locationOrgStock, $modelData, ['data']);
+        $locationOrgStock = $this->update($locationOrgStock, $modelData, ['data']);
 
-        if($locationOrgStock->wasChanged('quantity')) {
-
+        if ($locationOrgStock->wasChanged('quantity')) {
             OrgStockHydrateQuantityInLocations::dispatch($locationOrgStock->orgStock);
         }
 
         return $locationOrgStock;
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -45,6 +43,18 @@ class UpdateLocationOrgStock extends OrgAction
         }
 
         return $request->user()->hasPermissionTo("inventory.locations.edit");
+    }
+
+    public function prepareForValidation(): void
+    {
+        if ($this->has('type') and $this->get('type') == LocationStockTypeEnum::PICKING->value) {
+            foreach (
+                LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->locationOrgStock->org_stock_id)
+                    ->where('id', '!=', $this->locationOrgStock->id)->get() as $locationOrgStock
+            ) {
+                UpdateLocationOrgStock::make()->action($locationOrgStock, ['type' => LocationStockTypeEnum::STORING->value]);
+            }
+        }
     }
 
     public function rules(): array
@@ -60,29 +70,32 @@ class UpdateLocationOrgStock extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['audited_at']        = ['date'];
-            $rules['quantity']          = ['sometimes', 'numeric'];
-            $rules['last_fetched_at']   = ['sometimes', 'date'];
+            $rules['audited_at']      = ['date'];
+            $rules['quantity']        = ['sometimes', 'numeric'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
 
         return $rules;
     }
 
-    public function action(LocationOrgStock $locationOrgStock, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit=true): LocationOrgStock
+    public function action(LocationOrgStock $locationOrgStock, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): LocationOrgStock
     {
-        if(!$audit) {
+        if (!$audit) {
             LocationOrgStock::disableAuditing();
         }
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->strict         = $strict;
-        $this->asAction       = true;
+        $this->hydratorsDelay   = $hydratorsDelay;
+        $this->strict           = $strict;
+        $this->asAction         = true;
+        $this->locationOrgStock = $locationOrgStock;
         $this->initialisation($locationOrgStock->organisation, $modelData);
+
         return $this->handle($locationOrgStock, $this->validatedData);
     }
 
     public function asController(LocationOrgStock $locationOrgStock, ActionRequest $request): LocationOrgStock
     {
-        $this->asAction = true;
+        $this->asAction         = true;
+        $this->locationOrgStock = $locationOrgStock;
         $this->initialisation($locationOrgStock->organisation, $request);
 
         return $this->handle($locationOrgStock, $this->validatedData);
