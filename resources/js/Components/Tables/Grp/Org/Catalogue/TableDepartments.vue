@@ -5,33 +5,42 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Department} from "@/types/department";
+import { Link } from '@inertiajs/vue3'
+import Table from '@/Components/Table/Table.vue'
+import { Department } from "@/types/department"
 import Icon from "@/Components/Icon.vue"
+import { remove as loRemove } from 'lodash'
+import { routeType } from '@/types/route'
+import { ref } from 'vue'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 
 defineProps<{
     data: object,
-    tab?:string
-}>();
+    tab?: string
+    routes: {
+        dataList: routeType
+        submitAttach: routeType
+        detach: routeType
+    }
+}>()
 
 // console.log(route().current())
 function departmentRoute(department: Department) {
     switch (route().current()) {
-      case "grp.org.shops.show.catalogue.departments.index":
-      case "grp.org.shops.show.catalogue.collections.show":
-      case 'grp.org.shops.show.catalogue.dashboard':
-        return route(
-          'grp.org.shops.show.catalogue.departments.show',
-          [route().params['organisation'],route().params['shop'], department.slug]);
+        case "grp.org.shops.show.catalogue.departments.index":
+        case "grp.org.shops.show.catalogue.collections.show":
+        case 'grp.org.shops.show.catalogue.dashboard':
+            return route(
+                'grp.org.shops.show.catalogue.departments.show',
+                [route().params['organisation'], route().params['shop'], department.slug])
         case 'grp.org.shops.index':
             return route(
                 'grp.org.shops.show.catalogue.departments.show',
-                [route().params['organisation'],department.shop_slug, department.slug]);
+                [route().params['organisation'], department.shop_slug, department.slug])
 
 
         default:
-            return null;
+            return null
     }
 }
 
@@ -40,7 +49,7 @@ function shopRoute(department: Department) {
         case 'grp.org.shops.index':
             return route(
                 "grp.org.shops.show.catalogue.dashboard",
-                [route().params["organisation"], department.shop_slug]);
+                [route().params["organisation"], department.shop_slug])
     }
 }
 
@@ -49,7 +58,7 @@ function familyRoute(department: Department) {
         case 'grp.org.shops.show.catalogue.departments.index':
             return route(
                 "grp.org.shops.show.catalogue.departments.show.families.index",
-                [route().params["organisation"], route().params['shop'], department.slug]);
+                [route().params["organisation"], route().params['shop'], department.slug])
     }
 }
 
@@ -58,9 +67,11 @@ function productRoute(department: Department) {
         case 'grp.org.shops.show.catalogue.departments.index':
             return route(
                 "grp.org.shops.show.catalogue.departments.show.products.index",
-                [route().params["organisation"], route().params['shop'], department.slug]);
+                [route().params["organisation"], route().params['shop'], department.slug])
     }
 }
+
+const isLoadingDetach = ref<string[]>([])
 
 </script>
 
@@ -90,7 +101,27 @@ function productRoute(department: Department) {
                 {{ department["shop_code"] }}
             </Link>
         </template>
+
+        <template #cell(actions)="{ item }">
+            <Link
+                v-if="routes?.detach?.name"
+                as="button"
+                :href="route(routes.detach.name, routes.detach.parameters)"
+                :method="routes.detach.method"
+                :data="{
+                    family: item.id
+                }"
+                preserve-scroll
+                @start="() => isLoadingDetach.push('detach' + item.id)"
+                @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'detach' + item.id)"
+            >
+                <Button
+                    icon="fal fa-times"
+                    type="negative"
+                    size="xs"
+                    :loading="isLoadingDetach.includes('detach' + item.id)"
+                />
+            </Link>
+        </template>
     </Table>
 </template>
-
-
