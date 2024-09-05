@@ -31,6 +31,7 @@ class OrdersResource extends JsonResource
             'date'              => $this->date,
             'name'              => $this->name,
             'state'             => $this->state,
+            'net_amount'        => $this->net_amount,
             'total_amount'      => $this->total_amount,
             'customer_name'     => $this->customer_name,
             'customer_slug'     => $this->customer_slug,

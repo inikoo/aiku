@@ -28,9 +28,12 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            $table->unsignedInteger('asset_id')->index();
+            $table->string('model_type')->index()->nullable();
+            $table->unsignedInteger('model_id')->index()->nullable();
+
+            $table->unsignedInteger('asset_id')->index()->nullable();
             $table->foreign('asset_id')->references('id')->on('assets');
-            $table->unsignedInteger('historic_asset_id')->index();
+            $table->unsignedInteger('historic_asset_id')->index()->nullable();
             $table->foreign('historic_asset_id')->references('id')->on('historic_assets');
 
             $table->unsignedInteger('family_id')->nullable();
@@ -61,10 +64,12 @@ return new class () extends Migration {
             $table->jsonb('data');
 
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
 
             $table->string('source_id')->nullable()->index();
-            $table->unsignedInteger('source_alt_id')->nullable();
+            $table->string('source_alt_id')->nullable()->comment('to be used in no products transactions');
 
         });
     }

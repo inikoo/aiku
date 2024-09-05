@@ -1,19 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 02 Sept 2024 23:18:04 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 04 Sept 2024 15:22:41 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Transfers\Aurora;
 
-use App\Models\Ordering\Order;
+use App\Models\Accounting\Invoice;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraNoProductTransaction extends FetchAurora
+class FetchAuroraNoProductInvoiceTransaction extends FetchAurora
 {
-    protected function parseNoProductTransaction(Order $order): void
+    protected function parseNoProductInvoiceTransaction(Invoice $invoice): void
     {
         $shippingZone = null;
         $charge       = null;
@@ -56,7 +56,7 @@ class FetchAuroraNoProductTransaction extends FetchAurora
         $taxCategoryID = $this->auroraModelData->{'Order No Product Transaction Tax Category Key'};
 
         if (!$taxCategoryID) {
-            $taxCategoryID = $order->tax_category_id;
+            $taxCategoryID = $invoice->tax_category_id;
         } else {
             $taxCategory   = $this->parseTaxCategory($taxCategoryID);
             $taxCategoryID = $taxCategory->id;
@@ -72,10 +72,10 @@ class FetchAuroraNoProductTransaction extends FetchAurora
             'source_alt_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'},
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
+            'quantity'        => 1,
         ];
 
-
-        if ($shippingZone and $shippingZone->shop_id==$order->shop_id) {
+        if ($shippingZone and $shippingZone->shop_id==$invoice->shop_id) {
 
             $this->parsedData['transaction']['shipping_zone_id'] = $shippingZone->id;
         }
@@ -85,12 +85,12 @@ class FetchAuroraNoProductTransaction extends FetchAurora
         }
     }
 
-    public function fetchNoProductTransaction(int $id, Order $order): ?array
+    public function fetchNoProductInvoiceTransaction(int $id, Invoice $invoice): ?array
     {
         $this->auroraModelData = $this->fetchData($id);
 
         if ($this->auroraModelData) {
-            $this->parseNoProductTransaction($order);
+            $this->parseNoProductInvoiceTransaction($invoice);
         }
 
         return $this->parsedData;

@@ -11,6 +11,7 @@ use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrderExchanges;
+use App\Actions\Traits\WithStoreNoProductTransaction;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Adjustment;
@@ -21,34 +22,15 @@ use Illuminate\Validation\Rule;
 class StoreTransactionFromAdjustment extends OrgAction
 {
     use WithOrderExchanges;
+    use WithNoProductStoreTransaction;
+    use WithStoreNoProductTransaction;
 
 
     public function handle(Order $order, Adjustment $adjustment, array $modelData): Transaction
     {
 
-        data_set($modelData, 'tax_category_id', $order->tax_category_id, overwrite: false);
-
-        data_set($modelData, 'asset_type', 'Adjustment');
-        data_set($modelData, 'asset_id', $adjustment->id);
-
-
-        $net   = $adjustment->amount;
-        $gross = $net;
-
-        data_set($modelData, 'shop_id', $order->shop_id);
-        data_set($modelData, 'customer_id', $order->customer_id);
-        data_set($modelData, 'group_id', $order->group_id);
-        data_set($modelData, 'organisation_id', $order->organisation_id);
-        data_set($modelData, 'date', now(), overwrite: false);
-        data_set($modelData, 'gross_amount', $gross, overwrite: false);
-        data_set($modelData, 'net_amount', $net, overwrite: false);
-        data_set($modelData, 'state', TransactionStateEnum::CREATING, overwrite: false);
-        data_set($modelData, 'status', TransactionStatusEnum::CREATING, overwrite: false);
-
-        data_set($modelData, 'quantity_ordered', 0);
-
-
-        $modelData = $this->processExchanges($modelData, $order->shop);
+        $modelData = $this->prepareAdjustmentTransaction($adjustment, $modelData);
+        $modelData =$this->transactionFieldProcess($order, $modelData);
 
 
         /** @var Transaction $transaction */
@@ -80,7 +62,7 @@ class StoreTransactionFromAdjustment extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['alt_source_id'] =['sometimes', 'string','max:255'];
+            $rules['source_alt_id'] =['sometimes', 'string','max:255'];
             $rules['fetched_at']    = ['sometimes', 'required', 'date'];
             $rules['created_at']    = ['sometimes', 'required', 'date'];
         }

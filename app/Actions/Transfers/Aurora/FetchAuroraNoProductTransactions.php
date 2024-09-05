@@ -55,7 +55,7 @@ class FetchAuroraNoProductTransactions
 
     public function processAdjustmentTransaction(Order $order, array $transactionData): Transaction
     {
-        if ($transaction = Transaction::where('alt_source_id', $transactionData['transaction']['alt_source_id'])->first()) {
+        if ($transaction = Transaction::where('source_alt_id', $transactionData['transaction']['source_alt_id'])->first()) {
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
@@ -68,7 +68,7 @@ class FetchAuroraNoProductTransactions
                 strict: false
             );
 
-            $sourceData = explode(':', $transaction->alt_source_id);
+            $sourceData = explode(':', $transaction->source_alt_id);
             DB::connection('aurora')->table('Order Transaction Fact')
                 ->where('Order Transaction Fact Key', $sourceData[1])
                 ->update(['aiku_id' => $transaction->id]);
@@ -79,7 +79,7 @@ class FetchAuroraNoProductTransactions
 
     public function processShippingTransaction(Order $order, array $transactionData): Transaction
     {
-        if ($transaction = Transaction::where('alt_source_id', $transactionData['transaction']['alt_source_id'])->first()) {
+        if ($transaction = Transaction::where('source_alt_id', $transactionData['transaction']['source_alt_id'])->first()) {
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
@@ -91,7 +91,7 @@ class FetchAuroraNoProductTransactions
                 strict: false
             );
 
-            $sourceData = explode(':', $transaction->alt_source_id);
+            $sourceData = explode(':', $transaction->source_alt_id);
             DB::connection('aurora')->table('Order Transaction Fact')
                 ->where('Order Transaction Fact Key', $sourceData[1])
                 ->update(['aiku_id' => $transaction->id]);
@@ -102,7 +102,7 @@ class FetchAuroraNoProductTransactions
 
     public function processChargeTransaction(Order $order, array $transactionData): Transaction
     {
-        if ($transaction = Transaction::where('alt_source_id', $transactionData['transaction']['alt_source_id'])->first()) {
+        if ($transaction = Transaction::where('source_alt_id', $transactionData['transaction']['source_alt_id'])->first()) {
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
@@ -114,7 +114,7 @@ class FetchAuroraNoProductTransactions
                 strict: false
             );
 
-            $sourceData = explode(':', $transaction->alt_source_id);
+            $sourceData = explode(':', $transaction->source_alt_id);
             DB::connection('aurora')->table('Order Transaction Fact')
                 ->where('Order Transaction Fact Key', $sourceData[1])
                 ->update(['aiku_id' => $transaction->id]);

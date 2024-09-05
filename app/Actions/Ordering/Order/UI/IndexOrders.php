@@ -78,6 +78,7 @@ class IndexOrders extends OrgAction
                 'orders.created_at',
                 'orders.updated_at',
                 'orders.slug',
+                'orders.net_amount',
                 'orders.total_amount',
                 'orders.state',
                 'customers.name as customer_name',
@@ -123,7 +124,7 @@ class IndexOrders extends OrgAction
             }
             $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, sortable: false, searchable: true);
-            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: false, searchable: true, type: 'currency');
+            $table->column(key: 'net_amount', label: __('net'), canBeHidden: false, sortable: false, searchable: true, type: 'currency');
         };
     }
 
@@ -219,8 +220,7 @@ class IndexOrders extends OrgAction
             ];
         }
 
-        if ($this->parent instanceof Shop)
-        {
+        if ($this->parent instanceof Shop) {
             $shop = $this->parent;
         } else {
             $shop = $this->parent->shop;

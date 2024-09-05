@@ -23,6 +23,15 @@ class StoreInvoiceTransaction extends OrgAction
     {
         data_set($modelData, 'date', now(), overwrite: false);
 
+        if($model instanceof Transaction) {
+            data_set($modelData, 'model_type', $model->model_type);
+            data_set($modelData, 'model_id', $model->model_id);
+        } else {
+            data_set($modelData, 'model_type', $model->asset->model_type);
+            data_set($modelData, 'model_id', $model->asset->model_id);
+        }
+
+
         $modelData['shop_id']         = $invoice->shop_id;
         $modelData['customer_id']     = $invoice->customer_id;
         $modelData['group_id']        = $invoice->group_id;

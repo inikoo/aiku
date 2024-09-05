@@ -28,8 +28,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $shop_id
  * @property int|null $invoice_id
  * @property int $customer_id
- * @property int $asset_id
- * @property int $historic_asset_id
+ * @property string|null $model_type
+ * @property int|null $model_id
+ * @property int|null $asset_id
+ * @property int|null $historic_asset_id
  * @property int|null $family_id
  * @property int|null $department_id
  * @property int|null $order_id
@@ -46,10 +48,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property int|null $source_alt_id
- * @property-read Asset $asset
+ * @property string|null $source_alt_id to be used in no products transactions
+ * @property-read Asset|null $asset
  * @property-read Currency|null $currency
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group

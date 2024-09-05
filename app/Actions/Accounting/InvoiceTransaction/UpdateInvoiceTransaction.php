@@ -1,27 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:32 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 04 Sept 2024 15:22:41 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Ordering\Transaction;
+namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionStateEnum;
-use App\Enums\Ordering\Transaction\TransactionStatusEnum;
-use App\Models\Ordering\Transaction;
-use Illuminate\Validation\Rule;
 
-class UpdateTransaction extends OrgAction
+use App\Models\Accounting\InvoiceTransaction;
+
+class UpdateInvoiceTransaction extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Transaction $transaction, array $modelData): Transaction
+    public function handle(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
-        return $this->update($transaction, $modelData, ['data']);
+        return $this->update($invoiceTransaction, $modelData, ['data']);
     }
 
     public function rules(): array
@@ -32,10 +29,6 @@ class UpdateTransaction extends OrgAction
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_fail'       => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_cancelled'  => ['sometimes', 'sometimes', 'numeric', 'min:0'],
-            'source_id'           => ['sometimes', 'string'],
-            'state'               => ['sometimes', Rule::enum(TransactionStateEnum::class)],
-            'status'              => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
-            'fail_status'         => ['sometimes', 'nullable', Rule::enum(TransactionFailStatusEnum::class)],
             'gross_amount'        => ['sometimes', 'required', 'numeric'],
             'net_amount'          => ['sometimes', 'required', 'numeric'],
             'org_exchange'        => ['sometimes', 'numeric'],
@@ -50,10 +43,10 @@ class UpdateTransaction extends OrgAction
         ];
     }
 
-    public function action(Transaction $transaction, array $modelData): Transaction
+    public function action(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
-        $this->initialisationFromShop($transaction->shop, $modelData);
+        $this->initialisationFromShop($invoiceTransaction->shop, $modelData);
 
-        return $this->handle($transaction, $this->validatedData);
+        return $this->handle($invoiceTransaction, $this->validatedData);
     }
 }

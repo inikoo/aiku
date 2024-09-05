@@ -78,6 +78,13 @@ class StoreLocationOrgStock extends OrgAction
                 ->count() > 0) {
             $validator->errors()->add('location_org_stock', __('This stock is already assigned to this location'));
         }
+
+        if($this->strict) {
+            if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
+                    ->count() > 0) {
+                $validator->errors()->add('location_org_stock_type', __('This stock can have one picking only'));
+            }
+        }
     }
 
     public function asController(OrgStock $orgStock, Location $location, ActionRequest $request, int $hydratorsDelay = 0, bool $strict = true): void
