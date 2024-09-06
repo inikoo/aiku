@@ -14,8 +14,8 @@ use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 
 Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(function () {
     Route::get('', [IndexWarehouseAreas::class, 'inOrganisation'])->name('index');
-    Route::scopeBindings()->prefix('{warehouseArea}')->group(function () {
-        Route::get('', ShowWarehouseArea::class)->name('show');
+    Route::scopeBindings()->prefix('{warehouseArea:id}')->group(function () {
+        Route::get('', ShowWarehouseArea::class)->name('showx');
         Route::scopeBindings()->prefix('locations')->name('show.locations.')->group(function () {
             Route::get('', IndexLocations::class)->name('index');
             Route::scopeBindings()->prefix('{location:id}')->group(function () {

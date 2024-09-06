@@ -52,12 +52,28 @@ class IndexDeliveryNotes extends OrgAction
             abort(419);
         }
 
+        $query->leftjoin('customers', 'delivery_notes.customer_id', '=', 'customers.id');
 
         return $query->defaultSort('delivery_notes.reference')
-            ->select(['delivery_notes.reference', 'delivery_notes.date', 'delivery_notes.state', 'delivery_notes.created_at', 'delivery_notes.updated_at', 'delivery_notes.slug', 'shops.slug as shop_slug'])
+            ->select([
+                'delivery_notes.reference', 
+                'delivery_notes.date', 
+                'delivery_notes.state', 
+                'delivery_notes.created_at', 
+                'delivery_notes.updated_at', 
+                'delivery_notes.slug', 
+                'delivery_notes.type', 
+                'delivery_notes.state', 
+                'delivery_notes.status', 
+                'delivery_notes.weight', 
+                'shops.slug as shop_slug',
+                'customers.slug as customer_slug',
+                'customers.name as customer_name',
+                'delivery_note_stats.number_items as number_items'
+                ])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
-            ->allowedSorts(['reference', 'date'])
+            ->allowedSorts(['reference', 'date', 'number_items', 'customer_name', 'type', 'status', 'weight'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -77,6 +93,12 @@ class IndexDeliveryNotes extends OrgAction
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'weight', label: __('weight'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'number_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: '', label: __('export'), canBeHidden: false, sortable: false, searchable: true);
         };
     }
 
@@ -123,21 +145,21 @@ class IndexDeliveryNotes extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($warehouse);
     }
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($shop);
     }
 
     public function inOrder(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
 
         return $this->handle($shop);
     }
