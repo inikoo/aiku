@@ -22,4 +22,19 @@ enum DeliveryNoteStateEnum: string
     case PACKED          = 'packed';
     case FINALISED       = 'finalised';
     case SETTLED         = 'settled';
+
+    public static function labels($forElements = false): array
+    {
+        return [
+            'submitted'            => __('Submitted'),
+            'in-queue'             => __('In Queue'),
+            'picker-assigned'      => __('Picker Assigned'),
+            'picking'              => __('Picking'),
+            'picked'               => __('Picked'),
+            'packing'              => __('Packing'),
+            'packed'               => __('Packed'),
+            'finalised'            => __('Finalised'),
+            'settled'              => __('Settled'),
+        ];
+    }
 }
