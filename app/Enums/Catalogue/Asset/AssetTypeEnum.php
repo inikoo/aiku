@@ -9,32 +9,31 @@ namespace App\Enums\Catalogue\Asset;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum AssetTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case PRODUCT      = 'product';
-    case SERVICE      = 'service';
-    case SUBSCRIPTION = 'subscription';
-    case RENTAL       = 'rental';
-    case CHARGE       = 'charge';
-    case SHIPPING     = 'shipping';
-    case ADJUSTMENT   = 'adjustment';
+    case PRODUCT       = 'product';
+    case SERVICE       = 'service';
+    case SUBSCRIPTION  = 'subscription';
+    case RENTAL        = 'rental';
+    case CHARGE        = 'charge';
+    case SHIPPING_ZONE = 'shipping_zone';
 
-    public static function labels(Shop|Organisation|ProductCategory|Collection $parent = null): array
+
+    public static function labels(Shop|Organisation|Group $parent = null): array
     {
         $labels = [
-            'product'      => __('Product'),
-            'service'      => __('Services'),
-            'subscription' => __('Subscriptions'),
-            'rental'       => __('Rentals'),
-            'charge'       => __('Charges'),
-            'shipping'     => __('Shipping'),
+            'product'       => __('Product'),
+            'service'       => __('Services'),
+            'subscription'  => __('Subscriptions'),
+            'rental'        => __('Rentals'),
+            'charge'        => __('Charges'),
+            'shipping_zone' => __('Shipping zones'),
         ];
 
         if ($parent instanceof Shop) {
@@ -45,27 +44,13 @@ enum AssetTypeEnum: string
         }
 
         return $labels;
-        // return $this->filter($parent,$labels);
-
     }
 
-    /*
-    private function filter($parent, $cases): Array
-    {
-        if($parent instanceof Shop) {
-            unset($cases['subscription']);
-            if($parent->type!=ShopTypeEnum::FULFILMENT) {
-                unset($cases['rental']);
-            }
-        }
-        return $cases;
-    }
-    */
 
     public static function typeIcon(): array
     {
         return [
-            'product'      => [
+            'product'       => [
                 'tooltip' => __('Physical good'),
                 'icon'    => 'fal fa-cube',
                 'app'     => [
@@ -73,7 +58,7 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'subscription' => [
+            'subscription'  => [
                 'tooltip' => __('Subscription'),
                 'icon'    => 'fal fa-bell',
                 'app'     => [
@@ -81,7 +66,7 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'service'      => [
+            'service'       => [
                 'tooltip' => __('Service'),
                 'icon'    => 'fal fa-concierge-bell',
                 'app'     => [
@@ -89,7 +74,7 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'rental'       => [
+            'rental'        => [
                 'tooltip' => __('Rental'),
                 'icon'    => 'fal fa-garage',
                 'app'     => [
@@ -97,15 +82,15 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'shipping'       => [
-                'tooltip' => __('Shipping'),
+            'shipping_zone' => [
+                'tooltip' => __('Shipping zone'),
                 'icon'    => 'fal fa-shipping-fast',
                 'app'     => [
                     'name' => 'shipping-fast',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'charge'       => [
+            'charge'        => [
                 'tooltip' => __('Charges'),
                 'icon'    => 'fal fa-charging-station',
                 'app'     => [
@@ -113,28 +98,26 @@ enum AssetTypeEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'adjustment'       => [
-                'tooltip' => __('Adjustments'),
-                'icon'    => 'fal fa-house-damage',
-                'app'     => [
-                    'name' => 'house-damage',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
+
         ];
     }
 
-    public static function count(Shop|Organisation|ProductCategory|Collection $parent): array
+    public static function count(Shop|Organisation|Group $parent): array
     {
-        $stats  = $parent->stats;
+        if ($parent instanceof Shop) {
+            $stats = $parent->stats;
+        } else {
+            $stats = $parent->catalogueStats;
+        }
+
+
         $counts = [
-            'product'      => $stats->number_assets_type_products,
-            'subscription' => $stats->number_assetd_type_subscription,
-            'service'      => $stats->number_assets_type_service,
-            'rental'       => $stats->number_assets_type_rental,
-            'charge'       => $stats->number_assets_type_charge,
-            'shipping'     => $stats->number_assets_type_shipping,
-            'adjustment'   => $stats->number_assets_type_adjustment,
+            'product'       => $stats->number_assets_type_products,
+            'subscription'  => $stats->number_assetd_type_subscription,
+            'service'       => $stats->number_assets_type_service,
+            'rental'        => $stats->number_assets_type_rental,
+            'charge'        => $stats->number_assets_type_charge,
+            'shipping_zone' => $stats->number_assets_type_shipping_zone,
         ];
 
         if ($parent instanceof Shop) {

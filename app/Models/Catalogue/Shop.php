@@ -42,6 +42,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use App\Models\SysAdmin\Group;
@@ -161,7 +162,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
- * @property-read LaravelCollection<int, \App\Models\Catalogue\Shipping> $shippings
+ * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
@@ -401,6 +402,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(ShippingZoneSchema::class);
     }
 
+    public function shippingZones(): HasMany
+    {
+        return $this->hasMany(ShippingZone::class);
+    }
+
     public function serialReferences(): MorphMany
     {
         return $this->morphMany(SerialReference::class, 'container');
@@ -484,12 +490,6 @@ class Shop extends Model implements HasMedia, Auditable
     public function charges(): HasMany
     {
         return $this->hasMany(Charge::class);
-    }
-
-
-    public function shippings(): HasMany
-    {
-        return $this->hasMany(Shipping::class);
     }
 
     public function adjustments(): HasMany
