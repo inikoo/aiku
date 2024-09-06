@@ -148,7 +148,6 @@ const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-
 const component = computed(() => {
     const components: Component = {
         products: OrderProductTable
@@ -579,13 +578,13 @@ const onSubmitNote = async (closePopup: Function) => {
         <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
     </div>
 
-    <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+    <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
             :addresses="box_stats?.customer.addresses"
             :updateRoute="routes.updateOrderRoute"
             keyPayloadEdit="delivery_address"
         />
-    </Modal>
+    </Modal> -->
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
         <div class="isolate bg-white px-6 lg:px-8">
