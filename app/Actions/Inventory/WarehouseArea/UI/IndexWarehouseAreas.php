@@ -107,6 +107,10 @@ class IndexWarehouseAreas extends OrgAction
                 if (class_basename($parent) == 'Warehouse') {
                     $query->where('warehouse_areas.warehouse_id', $parent->id);
                 }
+
+                if (class_basename($parent) == 'Organisation') {
+                    $query->where('warehouse_areas.organisation_id', $parent->id);
+                }
             })
             ->allowedSorts(['code', 'name', 'number_locations'])
             ->allowedFilters([$globalSearch])
