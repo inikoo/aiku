@@ -27,6 +27,7 @@ class UpdateStateToDispatchedOrder
         $this->update($order, $data);
         $this->orderHydrators($order);
 
+        // Still dummy data, ignore this
         UpdateFulfilmentShopify::run($order, [
             'company' => 'DHL',
             'number'  => 'DHL0001'
