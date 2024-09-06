@@ -18,8 +18,13 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
     protected function parseDeliveryNoteTransaction(DeliveryNote $deliveryNote): void
     {
 
+
         if ($this->auroraModelData->{'Part SKU'}) {
-            if ($orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Part SKU'})) {
+
+            $orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Part SKU'});
+
+
+            if ($orgStock) {
                 $auroraTransaction = $this->organisation->id.':'.$this->auroraModelData->{'Map To Order Transaction Fact Key'};
 
                 $transaction = $this->parseTransaction($auroraTransaction);

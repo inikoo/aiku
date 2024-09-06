@@ -22,7 +22,7 @@ const emits = defineEmits<{
 }>()
 
 const loading = ref(false)
-console.log(props.data)
+
 const form = useForm({
     settings : {
         min_stock: props.data.settings.min_stock,
@@ -37,6 +37,22 @@ watch(() => props.data, (newData) => {
   form.id = newData.id
 }, { deep: true })
 
+const submitForm = () => {
+    if (form.settings.min_stock > form.settings.max_stock) {
+        form.errors.settings = {
+            ...form.errors.settings,
+            min_stock: 'Min stock cannot be greater than Max stock.'
+        }
+        return
+    }
+
+    // Clear error messages if validation passes
+    form.errors.settings = {
+        ...form.errors.settings,
+        min_stock: ''
+    }
+    emits('submitSetting', { settingForm: form, loading: loading, close: props.close() })
+}
 </script>
 
 <template>
@@ -44,18 +60,18 @@ watch(() => props.data, (newData) => {
         <div class="grid grid-cols-2 gap-4 pb-2">
             <div>
                 <span>Min</span>
-                <PureInputNumber v-model="form.settings.min_stock" autofocus placeholder="Min" :maxValue="100" :minValue="0" />
+                <PureInputNumber v-model="form.settings.min_stock" autofocus placeholder="Min" :minValue="0" />
                 <p class="text-xs text-red-500">{{ form.errors.settings?.min_stock }}</p>
             </div>
             <div>
                 <span>Max</span>
-                <PureInputNumber v-model="form.settings.max_stock" autofocus placeholder="Max" :maxValue="100" :minValue="0" />
+                <PureInputNumber v-model="form.settings.max_stock" autofocus placeholder="Max" :minValue="0" />
                 <p class="text-xs text-red-500">{{ form.errors.settings?.max_stock }}</p>
             </div>
         </div>
         <div class="flex justify-end gap-2">
             <Button size="xs" type="gray" label="Cancel" @click="close()" />
-            <Button size="xs" type="save" :loading="loading" label="Save" @click="() => emits('submitSetting', {settingForm : form, loading : loading, close : close() })" />
+            <Button size="xs" type="save" :loading="loading" label="Save" @click="submitForm" />
         </div>
     </div>
 </template>

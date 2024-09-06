@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -28,20 +29,31 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowStoredItem extends OrgAction
 {
+    private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
+            return
+                (
+                    $request->user()->tokenCan('root') or
+                    $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                );
+        } elseif ($this->parent instanceof Warehouse) {
+            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
+            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+        }
+
+        return false;
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItem $storedItem, ActionRequest $request): StoredItem
+    public function asController(Organisation $organisation, Warehouse $warehouse, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(StoredItemTabsEnum::values());
 
         return $this->handle($storedItem);
     }
@@ -49,6 +61,7 @@ class ShowStoredItem extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(StoredItemTabsEnum::values());
 
         return $this->handle($storedItem);
@@ -65,7 +78,11 @@ class ShowStoredItem extends OrgAction
             'Org/Fulfilment/StoredItem',
             [
                 'title'       => __('stored item'),
-                'breadcrumbs' => $this->getBreadcrumbs($storedItem),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
+                    request()->route()->getName(),
+                    request()->route()->originalParameters()
+                ),
                 'pageHead'    => [
                     'icon'          =>
                         [
@@ -147,7 +164,16 @@ class ShowStoredItem extends OrgAction
         return new StoredItemResource($storedItem);
     }
 
-    public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
+    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment|FulfilmentCustomer $parent, string $routeName, array $routeParameters, string $suffix = ''): array
+    {
+        $storedItem = StoredItem::where('slug', $routeParameters['storedItem'])->first();
+
+        return match (class_basename($parent)) {
+            'Warehouse'    => $this->getBreadcrumbsFromWarehouse($storedItem, $routeName, $suffix),
+            default        => $this->getBreadcrumbsFromFulfilmentCustomer($storedItem, $routeName, $suffix),
+        };
+    }
+    public function getBreadcrumbsFromFulfilmentCustomer(StoredItem $storedItem, $routeName, $suffix = null): array
     {
         return array_merge(
             ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
@@ -171,6 +197,35 @@ class ShowStoredItem extends OrgAction
                         ],
                     ],
                     'suffix' => $suffix,
+                ],
+            ]
+        );
+    }
+
+    public function getBreadcrumbsFromWarehouse(StoredItem $storedItem, $routeName, $suffix = null): array
+    {
+        return array_merge(
+            ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.inventory.stored_items.current.index',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => __('Stored Item')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.inventory.stored_items.current.show',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => $storedItem->reference,
+                        ],
+                    ],
+                    'suffix'         => $suffix,
                 ],
             ]
         );

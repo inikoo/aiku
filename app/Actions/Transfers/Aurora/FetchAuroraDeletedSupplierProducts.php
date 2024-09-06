@@ -28,7 +28,8 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                     $supplierProduct = UpdateSupplierProduct::run(
                         supplierProduct: $supplierProduct,
                         modelData:       $supplierDeletedProductData['supplierProduct'],
-                        skipHistoric:    true
+                        skipHistoric:    true,
+                        strict: false
                     );
                 } else {
                     $supplierProduct = StoreSupplierProduct::make()->action(

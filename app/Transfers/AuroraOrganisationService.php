@@ -8,6 +8,7 @@
 namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
+use App\Models\Procurement\PurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraAdjustment;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
@@ -33,6 +34,7 @@ use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
 use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
+use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
@@ -52,6 +54,7 @@ use App\Transfers\Aurora\FetchAuroraProduct;
 use App\Transfers\Aurora\FetchAuroraProductStocks;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrder;
+use App\Transfers\Aurora\FetchAuroraPurchaseOrderTransaction;
 use App\Transfers\Aurora\FetchAuroraService;
 use App\Transfers\Aurora\FetchAuroraShipper;
 use App\Transfers\Aurora\FetchAuroraShippingZone;
@@ -222,6 +225,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchHistoricAsset($id): ?array
     {
         return (new FetchAuroraHistoricAsset($this))->fetch($id);
+    }
+
+    public function fetchHistoricSupplierProduct($id): ?array
+    {
+        return (new FetchAuroraHistoricSupplierProduct($this))->fetch($id);
     }
 
     public function fetchHistoricService($id): ?array
@@ -412,6 +420,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchAdjustment($id): ?array
     {
         return (new FetchAuroraAdjustment($this))->fetch($id);
+    }
+
+    public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder): ?array
+    {
+        return (new fetchAuroraPurchaseOrderTransaction($this))->fetchAuroraPurchaseOrderTransaction($id, $purchaseOrder);
     }
 
 }

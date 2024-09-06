@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\HydrateModel;
-use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateItems;
+use App\Actions\Procurement\PurchaseOrder\Hydrators\PurchaseOrderHydrateTransactions;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Support\Collection;
 
@@ -18,7 +18,7 @@ class HydratePurchaseOrder extends HydrateModel
 
     public function handle(PurchaseOrder $purchaseOrder): void
     {
-        PurchaseOrderHydrateItems::run($purchaseOrder);
+        PurchaseOrderHydrateTransactions::run($purchaseOrder);
     }
 
     protected function getModel(string $slug): PurchaseOrder

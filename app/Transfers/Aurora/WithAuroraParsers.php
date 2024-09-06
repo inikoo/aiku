@@ -20,6 +20,8 @@ use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
 use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
+use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
+use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
@@ -36,11 +38,11 @@ use App\Actions\Transfers\Aurora\FetchAuroraShippingZones;
 use App\Actions\Transfers\Aurora\FetchAuroraShippingZoneSchemas;
 use App\Actions\Transfers\Aurora\FetchAuroraShops;
 use App\Actions\Transfers\Aurora\FetchAuroraStocks;
+use App\Actions\Transfers\Aurora\FetchAuroraSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraTradeUnits;
 use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
 use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
-use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -77,8 +79,10 @@ use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Arr;
@@ -277,6 +281,18 @@ trait WithAuroraParsers
         return FetchAuroraHistoricAssets::run($this->organisationSource, $productKey);
     }
 
+    public function parseHistoricSupplierProduct($organisationID, $productKey): HistoricSupplierProduct|null
+    {
+        $historicSupplierProduct = HistoricSupplierProduct::where('source_id', $organisationID.':'.$productKey)->first();
+
+        if ($historicSupplierProduct) {
+            return $historicSupplierProduct;
+        }
+
+
+        return FetchAuroraHistoricSupplierProducts::run($this->organisationSource, $productKey);
+    }
+
     public function parsePallet(string $sourceId): Pallet
     {
         $pallet = Pallet::where('source_id', $sourceId)->first();
@@ -286,6 +302,17 @@ trait WithAuroraParsers
         }
 
         return $pallet;
+    }
+
+    public function parseSupplierProduct(string $sourceId): ?SupplierProduct
+    {
+        $supplierProduct = SupplierProduct::where('source_id', $sourceId)->first();
+        if (!$supplierProduct) {
+            $sourceData      = explode(':', $sourceId);
+            $supplierProduct = FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $supplierProduct;
     }
 
     public function parseAsset(string $sourceId): Product
@@ -395,8 +422,10 @@ trait WithAuroraParsers
     {
         $orgStock   = OrgStock::withTrashed()->where('source_id', $sourceId)->first();
         $sourceData = explode(':', $sourceId);
+
         if (!$orgStock) {
             $res      = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
+
             $orgStock = $res['orgStock'];
         }
 

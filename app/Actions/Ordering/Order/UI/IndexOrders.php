@@ -151,7 +151,7 @@ class IndexOrders extends OrgAction
             $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
         }
         $title = __('Orders');
-        $model = __('order');
+        $model = '';
         $icon  = [
             'icon'  => ['fal', 'fa-shopping-cart'],
             'title' => __('orders')

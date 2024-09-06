@@ -8,8 +8,8 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStatusEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
@@ -112,12 +112,12 @@ trait HasProcurementStats
         $table->unsignedInteger('number_open_purchase_orders')->default(0)->comment('Number purchase orders (except creating, settled)');
 
 
-        foreach (PurchaseOrderItemStateEnum::cases() as $purchaseOrderState) {
+        foreach (PurchaseOrderTransactionStateEnum::cases() as $purchaseOrderState) {
             $table->unsignedInteger('number_purchase_orders_state_'.$purchaseOrderState->snake())->default(0);
         }
 
 
-        foreach (PurchaseOrderItemStatusEnum::cases() as $purchaseOrderStatus) {
+        foreach (PurchaseOrderTransactionStatusEnum::cases() as $purchaseOrderStatus) {
             $table->unsignedInteger('number_purchase_orders_status_'.$purchaseOrderStatus->snake())->default(0);
         }
 

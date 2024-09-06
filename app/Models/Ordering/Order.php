@@ -82,6 +82,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_invoiced
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
+ * @property string|null $customer_notes
+ * @property string|null $public_notes
+ * @property string|null $internal_notes
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange

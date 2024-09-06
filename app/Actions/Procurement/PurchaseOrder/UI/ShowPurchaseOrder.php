@@ -9,11 +9,11 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
+use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Procurement\PurchaseOrderItemResource;
+use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
@@ -92,14 +92,14 @@ class ShowPurchaseOrder extends OrgAction
                     : Inertia::lazy(fn () => new PurchaseOrderResource(($purchaseOrder))),
 
                 PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
-                    fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))
-                    : Inertia::lazy(fn () => PurchaseOrderItemResource::collection(IndexPurchaseOrderItems::run($purchaseOrder))),
+                    fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder))
+                    : Inertia::lazy(fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder))),
 
                 PurchaseOrderTabsEnum::HISTORY->value => $this->tab == PurchaseOrderTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder)))
             ]
-        )->table(IndexPurchaseOrderItems::make()->tableStructure())
+        )->table(IndexPurchaseOrderTransactions::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
     }
 

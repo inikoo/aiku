@@ -8,6 +8,7 @@
 namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
+use App\Models\Procurement\PurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraShop;
@@ -113,7 +114,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchInvoice($id, $forceWithTransactions=true): ?array
+    public function fetchInvoice($id, $forceWithTransactions = true): ?array
     {
         return null;
     }
@@ -354,6 +355,16 @@ class WowsbarOrganisationService implements SourceOrganisationService
     }
 
     public function fetchNoProductInvoiceTransaction($id, Invoice $invoice): ?array
+    {
+        return null;
+    }
+
+    public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder): ?array
+    {
+        return null;
+    }
+
+    public function fetchHistoricSupplierProduct($id): ?array
     {
         return null;
     }

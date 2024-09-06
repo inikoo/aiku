@@ -15,10 +15,10 @@ enum OrdersTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case STATS     = 'stats';
+
     case ORDERS    = 'orders';
+    case STATS     = 'stats';
     case HISTORY   = 'history';
-    case TAGS      = 'tags';
 
 
     public function blueprint(): array
@@ -27,17 +27,11 @@ enum OrdersTabsEnum: string
 
             OrdersTabsEnum::ORDERS => [
                 'title' => __('orders'),
-                'icon'  => 'fal fa-shopping-cart',
+                'icon'  => 'fal fa-bars',
             ],
             OrdersTabsEnum::STATS => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-pie',
-            ],
-            OrdersTabsEnum::TAGS => [
-                'title' => __('tags'),
-                'icon'  => 'fal fa-tags',
-                'type'  => 'icon',
-                'align' => 'right'
             ],
             OrdersTabsEnum::HISTORY => [
                 'title' => __('history'),

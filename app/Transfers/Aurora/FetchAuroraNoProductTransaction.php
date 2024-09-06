@@ -19,7 +19,10 @@ class FetchAuroraNoProductTransaction extends FetchAurora
         $charge       = null;
 
         if (in_array($this->auroraModelData->{'Transaction Type'}, ['Adjust', 'Credit'])) {
-            $adjust                         = $this->parseAdjustment($this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'});
+
+            $adjust                         = $this->parseAdjustment(
+                $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'}
+            );
             $this->parsedData['adjustment'] = $adjust;
 
             $net                      = $this->auroraModelData->{'Transaction Invoice Net Amount'};

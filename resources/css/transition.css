@@ -122,7 +122,7 @@
     transform: translateY(100%);
 }
 
-/* Transition for <li> vertical */
+/* TransitionGroup for <li> vertical */
 .list-move,
 .list-enter-active,
 .list-leave-active {
@@ -137,6 +137,23 @@
 
 .list-leave-active {
     position: absolute;
+}
+
+
+/* TransitionGroup name="list-to-down" */
+.list-to-down-move,
+.list-to-down-enter-active,
+.list-to-down-leave-active {
+    transition: all 0.2s ease-in-out;
+}
+
+.list-to-down-enter-from {
+    transform: translateY(-100%);
+}
+
+.list-to-down-leave-to {
+    /* transform: translateY(10px); */
+    transform: translateY(100%);
 }
 
 

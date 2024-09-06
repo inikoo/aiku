@@ -148,7 +148,6 @@ const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-
 const component = computed(() => {
     const components: Component = {
         products: OrderProductTable
@@ -470,34 +469,37 @@ const onSubmitNote = async (closePopup: Function) => {
     <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
             <!-- Field: Reference Number -->
-            <Link as="a" v-if="box_stats?.customer.reference"
+            <Link
+                as="a"
+                v-if="box_stats?.customer.reference"
+                v-tooltip="trans('Reference')"
                 :href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
                 class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
-            <dt v-tooltip="'Company name'" class="flex-none">
-                <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width aria-hidden='true' />
-            </dt>
-            <dd class="text-sm text-gray-500" v-tooltip="'Reference'">#{{ box_stats?.customer.reference }}</dd>
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-sm text-gray-500">#{{ box_stats?.customer.reference }}</dd>
             </Link>
 
             <!-- Field: Contact name -->
-            <div v-if="box_stats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
+            <div v-if="box_stats?.customer.contact_name" v-tooltip="trans('Contact name')" class="pl-1 flex items-center w-full flex-none gap-x-2">
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-sm text-gray-500" v-tooltip="'Contact name'">{{ box_stats?.customer.contact_name }}</dd>
+                <dd class="text-sm text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
-            <div v-if="box_stats?.customer.company_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
+            <div v-if="box_stats?.customer.company_name" v-tooltip="trans('Company name')" class="pl-1 flex items-center w-full flex-none gap-x-2">
+                <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-sm text-gray-500" v-tooltip="'Company name'">{{ box_stats?.customer.company_name }}</dd>
+                <dd class="text-sm text-gray-500">{{ box_stats?.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
             <div v-if="box_stats?.customer.email" class="pl-1 flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
+                <dt v-tooltip="trans('Email')" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'"
@@ -506,7 +508,7 @@ const onSubmitNote = async (closePopup: Function) => {
 
             <!-- Field: Phone -->
             <div v-if="box_stats?.customer.phone" class="pl-1 flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
+                <dt v-tooltip="trans('Phone')" class="flex-none">
                     <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`tel:${box_stats?.customer.phone}`" v-tooltip="'Click to make a phone call'"
@@ -579,13 +581,13 @@ const onSubmitNote = async (closePopup: Function) => {
         <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
     </div>
 
-    <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
+    <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
             :addresses="box_stats?.customer.addresses"
             :updateRoute="routes.updateOrderRoute"
             keyPayloadEdit="delivery_address"
         />
-    </Modal>
+    </Modal> -->
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
         <div class="isolate bg-white px-6 lg:px-8">
