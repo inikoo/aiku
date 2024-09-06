@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
@@ -17,6 +18,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
@@ -73,12 +75,16 @@ class ShowDeliveryNote extends OrgAction
         return Inertia::render(
             'Org/Dispatching/DeliveryNote',
             [
-                'title'                                 => __('delivery_note'),
-                // 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters(), $deliveryNote),
-                // 'navigation'                            => [
-                //     'previous' => $this->getPrevious($deliveryNote, $request),
-                //     'next'     => $this->getNext($deliveryNote, $request),
-                // ],
+                'title'                                 => __('delivery note'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $deliveryNote,
+                    $request->route()->getName(),
+                    $request->route()->originalParameters(),
+                ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($deliveryNote, $request),
+                    'next'     => $this->getNext($deliveryNote, $request),
+                ],
                 'pageHead'      => [
                     'title' => $deliveryNote->reference,
 
@@ -107,57 +113,56 @@ class ShowDeliveryNote extends OrgAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, DeliveryNote $deliveryNote): array
+    public function getBreadcrumbs(DeliveryNote $deliveryNote, string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($deliveryNote, $routeName) {
+        $headCrumb = function (DeliveryNote $deliveryNote, array $routeParameters, string $suffix) {
             return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'name'            => $deliveryNote->reference,
-                    'index'           =>
-                        match ($routeName) {
-                            'shops.show.orders.show.delivery-notes.show', 'orders.show.delivery-notes.show' => null,
+                [
 
-                            default=> [
-                                'route'           => preg_replace('/(show|edit)$/', 'index', $routeName),
-                                'routeParameters' => array_pop($routeParameters),
-                                'overlay'         => __('delivery notes list')
-                            ],
-                        },
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Delivery Note')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $deliveryNote->reference,
+                        ],
 
+                    ],
+                    'suffix'         => $suffix
 
-                    'modelLabel'      => [
-                        'label' => __('delivery note')
-                    ]
                 ],
             ];
         };
 
-        return match ($routeName) {
-            'shops.show.orders.show.delivery-notes.show' =>
-            array_merge(
-                ShowOrder::make()->getBreadcrumbs(
-                    'shops.show.orders.show',
-                    [
-                        'shop' => $routeParameters['shop'],
-                        'order'=> $routeParameters['order']
-                    ]
+        return match ($routeName) 
+        {
+            'grp.org.warehouses.show.dispatching.delivery-notes.show',
+            => array_merge(
+                ShowWarehouse::make()->getBreadcrumbs(
+                    Arr::only($routeParameters, ['organisation', 'warehouse'])
                 ),
-                $headCrumb([$routeParameters['shop']->slug, $routeParameters['order']->slug,$routeParameters['deliveryNote']->slug])
-            ),
-            'orders.show.delivery-notes.show' =>
-            array_merge(
-                ShowOrder::make()->getBreadcrumbs(
-                    'shops.show',
+                $headCrumb(
+                    $deliveryNote,
                     [
-                        'order'=> $routeParameters['order']
+                        'index' => [
+                            'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'deliveryNote'])
+                        ]
                     ],
+                    $suffix
                 ),
-                $headCrumb([$routeParameters['order']->slug,$routeParameters['deliveryNote']->slug])
             ),
+            default => []
         };
     }
+
 
     public function getPrevious(DeliveryNote $deliveryNote, ActionRequest $request): ?array
     {
@@ -208,6 +213,18 @@ class ShowDeliveryNote extends OrgAction
                     'parameters'=> [
                         'shop'        => $deliveryNote->shop->slug,
                         'deliveryNote'=> $deliveryNote->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.warehouses.show.dispatching.delivery-notes.show'=> [
+                'label'=> $deliveryNote->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'  => $deliveryNote->organisation->slug,
+                        'warehouse'     => $deliveryNote->warehouse->slug,
+                        'deliveryNote'  => $deliveryNote->slug
                     ]
 
                 ]
