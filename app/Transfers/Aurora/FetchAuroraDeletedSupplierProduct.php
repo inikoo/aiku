@@ -89,6 +89,9 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
                 'created_at'  => $created_at,
                 'source_id'   => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Part Key'}
             ];
+
+        $this->parsedData['historicSupplierProductSourceID'] = $this->$auroraDeletedData->{'Supplier Part Historic Key'};
+
     }
 
 

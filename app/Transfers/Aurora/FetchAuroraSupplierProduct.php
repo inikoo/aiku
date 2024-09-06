@@ -138,6 +138,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'fetched_at'            => now(),
                 'last_fetched_at'       => now()
             ];
+
+        $this->parsedData['historicSupplierProductSourceID'] = $this->auroraModelData->{'Supplier Part Historic Key'};
     }
 
 
