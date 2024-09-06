@@ -23,8 +23,6 @@ use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
-use App\Actions\Catalogue\Shipping\StoreShipping;
-use App\Actions\Catalogue\Shipping\UpdateShipping;
 use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -35,7 +33,6 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
-use App\Enums\Catalogue\Shipping\ShippingStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Asset;
@@ -46,7 +43,6 @@ use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
-use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -622,7 +618,7 @@ test('update charge', function ($charge) {
     expect($updatedCharge)->toBeInstanceOf(Charge::class)
         ->and($updatedCharge->name)->toBe('Charge1')
         ->and($updatedCharge->state)->toBe(ChargeStateEnum::ACTIVE)
-        ->and($updatedCharge->status)->toBe(true)
+        ->and($updatedCharge->status)->toBeTrue()
         ->and($updatedCharge->shop->stats->number_assets_type_charge)->toBe(1)
         ->and($updatedCharge->organisation->catalogueStats->number_assets_type_charge)->toBe(1)
         ->and($updatedCharge->group->catalogueStats->number_assets_type_charge)->toBe(1);
@@ -633,52 +629,6 @@ test('update charge', function ($charge) {
 
 
 
-
-test('create shipping', function ($shop) {
-    $shipping = StoreShipping::make()->action(
-        $shop,
-        [
-            'code'       => 'Shipping',
-            'name'       => 'Shippingers',
-            'price'      => fake()->numberBetween(100, 2000),
-            'unit'       => 'shipping',
-            'structural' => false
-        ]
-    );
-    $shop->refresh();
-    expect($shipping)->toBeInstanceOf(Shipping::class)
-        ->and($shop->stats->number_assets_type_shipping)->toBe(1)
-        ->and($shop->organisation->catalogueStats->number_assets_type_shipping)->toBe(1)
-        ->and($shop->group->catalogueStats->number_assets_type_shipping)->toBe(1);
-
-
-    return $shipping;
-})->depends('create shop');
-
-test('update shipping', function ($shipping) {
-    $updatedShipping = UpdateShipping::make()->action(
-        $shipping,
-        [
-            'code'       => 'Shipping2',
-            'name'       => 'shippingers2',
-            'price'      => fake()->numberBetween(100, 2000),
-            'unit'       => 'shipping',
-            'state'      => ShippingStateEnum::ACTIVE,
-            'structural' => true
-        ]
-    );
-    $updatedShipping->refresh();
-    expect($updatedShipping)->toBeInstanceOf(Shipping::class)
-        ->and($updatedShipping->name)->toBe('shippingers2')
-        ->and($updatedShipping->state)->toBe(ShippingStateEnum::ACTIVE)
-        ->and($updatedShipping->status)->toBe(true)
-        ->and($updatedShipping->shop->stats->number_assets_type_shipping)->toBe(1)
-        ->and($updatedShipping->organisation->catalogueStats->number_assets_type_shipping)->toBe(1)
-        ->and($updatedShipping->group->catalogueStats->number_assets_type_shipping)->toBe(1);
-
-
-    return $updatedShipping;
-})->depends('create shipping');
 
 test('add items to collection', function (Collection $collection) {
     $data = [

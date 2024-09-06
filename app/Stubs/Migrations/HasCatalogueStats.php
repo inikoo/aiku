@@ -48,12 +48,8 @@ trait HasCatalogueStats
 
         $table->unsignedInteger('number_collection_categories')->default(0);
         $table->unsignedInteger('number_collections')->default(0);
-
         $table= $this->catalogueFamilyStats($table);
-
         $table= $this->assetStats($table);
-
-
         $table= $this->catalogueProductsStats($table);
 
         return $this->productVariantFields($table);
@@ -82,6 +78,14 @@ trait HasCatalogueStats
 
         $table->unsignedInteger('number_assets')->default(0);
         $table->unsignedInteger('number_current_assets')->default(0)->comment('state: active+discontinuing');
+        $table->unsignedInteger('number_historic_assets')->default(0);
+
+        return $this->assetStatsBis($table);
+    }
+
+    public function assetStatsBis(Blueprint $table): Blueprint
+    {
+
 
         foreach (AssetStateEnum::cases() as $case) {
             $table->unsignedInteger('number_assets_state_'.$case->snake())->default(0);
@@ -92,6 +96,8 @@ trait HasCatalogueStats
         $table->unsignedInteger('number_assets_type_service')->default(0);
         $table->unsignedInteger('number_assets_type_subscription')->default(0);
         $table->unsignedInteger('number_assets_type_rental')->default(0);
+        $table->unsignedInteger('number_assets_type_charge')->default(0);
+        $table->unsignedInteger('number_assets_type_shipping_zone')->default(0);
 
         return $table;
     }

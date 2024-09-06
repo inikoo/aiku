@@ -6,12 +6,14 @@
  */
 
 use App\Stubs\Migrations\HasCatalogueStats;
+use App\Stubs\Migrations\HasOrderingStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasCatalogueStats;
+    use HasOrderingStats;
 
     public function up(): void
     {
@@ -23,7 +25,7 @@ return new class () extends Migration {
 
             $table =$this->shopsStats($table);
             $table = $this->catalogueStats($table);
-
+            $table = $this->billableFields($table);
             $table->timestampsTz();
         });
     }
