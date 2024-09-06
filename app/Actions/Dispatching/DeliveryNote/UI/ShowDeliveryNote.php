@@ -8,13 +8,16 @@
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
+use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
@@ -72,11 +75,33 @@ class ShowDeliveryNote extends OrgAction
 
     public function htmlResponse(DeliveryNote $deliveryNote, ActionRequest $request): Response
     {
+
+        $timeline       = [];
+        foreach (DeliveryNoteStateEnum::cases() as $state) {
+
+            $timestamp = $deliveryNote->{$state->snake() . '_at'}
+            ? $deliveryNote->{$state->snake() . '_at'}
+            : null;
+
+            $timestamp = $timestamp ?: null;
+
+            $timeline[$state->value] = [
+                'label'     => $state->labels()[$state->value],
+                'tooltip'   => $state->labels()[$state->value],
+                'key'       => $state->value,
+                'timestamp' => $timestamp
+            ];
+        }
+
+        $finalTimeline = $timeline;
+
+        $estWeight = ($deliveryNote->estimated_weight ?? 0) / 1000;
+
         return Inertia::render(
             'Org/Dispatching/DeliveryNote',
             [
                 'title'                                 => __('delivery note'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'breadcrumbs'                           => $this->getBreadcrumbs(
                     $deliveryNote,
                     $request->route()->getName(),
                     $request->route()->originalParameters(),
@@ -86,16 +111,50 @@ class ShowDeliveryNote extends OrgAction
                     'next'     => $this->getNext($deliveryNote, $request),
                 ],
                 'pageHead'      => [
-                    'title' => $deliveryNote->reference,
-
-
+                    'title'     => $deliveryNote->reference,
+                    'model'     => __('Delivery Note'),
+                    'icon'      => [
+                        'icon'  => 'fal fa-truck',
+                        'title' => __('delivery note')
+                    ],
                 ],
-                'delivery_note' => new DeliveryNoteResource($deliveryNote),
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => DeliveryNoteTabsEnum::navigation()
+                ],
+                'data' => new DeliveryNoteResource($deliveryNote),
 
                 'alert'     => 'zzzzzzzzzz',
                 'notes'     => 'zzzzzzzzz',
-                'timelines' => 'zzzzzzz',
-                'box_stats' => null,
+                'timelines' => $finalTimeline,
+                // 'box_stats' => [
+                //     'customer'          => array_merge(
+                //         CustomerResource::make($deliveryNote->customer)->getArray(),
+                //         [
+                //             'addresses'      => [
+                //                 'delivery'   => AddressResource::make($deliveryNote->deliveryAddress ?? new Address()),
+                //             ],
+                //         ]
+                //     ),
+                //     'products'  => [
+                //         'estimated_weight' => $estWeight
+                //     ],
+                //     'order_summary'   => [
+                //         [
+                //             [
+                //                 'label'       => 'Items',
+                //                 'quantity'    => $order->stats->number_transactions,
+                //                 'price_base'  => 'Multiple',
+                //                 'price_total' => $order->net_amount
+                //             ],
+                //         ],
+                //         [
+                //             [
+                //                 'label'       => 'Total',
+                //                 'price_total' => $deliveryNote->total_amount
+                //             ]
+                //         ],
+                // ],
                 'routes'    => [
                     'update'    => [
                         'name'          => 'xxxxxxxxxxxxx',
@@ -152,8 +211,7 @@ class ShowDeliveryNote extends OrgAction
             ];
         };
 
-        return match ($routeName) 
-        {
+        return match ($routeName) {
             'grp.org.warehouses.show.dispatching.delivery-notes.show',
             => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(

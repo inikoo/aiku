@@ -22,7 +22,6 @@ use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
-use App\Models\Catalogue\Shipping;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
@@ -48,6 +47,8 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZone;
+use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
@@ -153,7 +154,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Service> $services
- * @property-read LaravelCollection<int, Shipping> $shippings
+ * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read LaravelCollection<int, Shop> $shops
  * @property-read LaravelCollection<int, StockFamily> $stockFamilies
  * @property-read LaravelCollection<int, Stock> $stocks
@@ -606,11 +608,6 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Charge::class);
     }
 
-    public function shippings(): HasMany
-    {
-        return $this->hasMany(Shipping::class);
-    }
-
     public function topUps(): HasMany
     {
         return $this->hasMany(TopUp::class);
@@ -619,6 +616,16 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function creditTransactions(): HasMany
     {
         return $this->hasMany(CreditTransaction::class);
+    }
+
+    public function shippingZoneSchemas(): HasMany
+    {
+        return $this->hasMany(ShippingZoneSchema::class);
+    }
+
+    public function shippingZones(): HasMany
+    {
+        return $this->hasMany(ShippingZone::class);
     }
 
 

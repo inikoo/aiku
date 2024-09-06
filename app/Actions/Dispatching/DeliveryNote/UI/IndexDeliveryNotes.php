@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
+use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
@@ -56,16 +57,16 @@ class IndexDeliveryNotes extends OrgAction
 
         return $query->defaultSort('delivery_notes.reference')
             ->select([
-                'delivery_notes.reference', 
-                'delivery_notes.date', 
-                'delivery_notes.state', 
-                'delivery_notes.created_at', 
-                'delivery_notes.updated_at', 
-                'delivery_notes.slug', 
-                'delivery_notes.type', 
-                'delivery_notes.state', 
-                'delivery_notes.status', 
-                'delivery_notes.weight', 
+                'delivery_notes.reference',
+                'delivery_notes.date',
+                'delivery_notes.state',
+                'delivery_notes.created_at',
+                'delivery_notes.updated_at',
+                'delivery_notes.slug',
+                'delivery_notes.type',
+                'delivery_notes.state',
+                'delivery_notes.status',
+                'delivery_notes.weight',
                 'shops.slug as shop_slug',
                 'customers.slug as customer_slug',
                 'customers.name as customer_name',
@@ -110,7 +111,7 @@ class IndexDeliveryNotes extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $deliveryNotes): AnonymousResourceCollection
     {
-        return DeliveryNoteResource::collection($deliveryNotes);
+        return DeliveryNotesResource::collection($deliveryNotes);
     }
 
 
@@ -127,14 +128,14 @@ class IndexDeliveryNotes extends OrgAction
                 'pageHead'       => [
                     'title' => __('delivery notes'),
                 ],
-                'data'        => DeliveryNoteResource::collection($deliveryNotes),
+                'data'        => DeliveryNotesResource::collection($deliveryNotes),
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => DeliveryNotesTabsEnum::navigation(),
                 ],
                 DeliveryNotesTabsEnum::DELIVERY_NOTES->value => $this->tab == DeliveryNotesTabsEnum::DELIVERY_NOTES->value ?
-                    fn () => DeliveryNoteResource::collection($deliveryNotes)
-                    : Inertia::lazy(fn () => DeliveryNoteResource::collection($deliveryNotes)),
+                    fn () => DeliveryNotesResource::collection($deliveryNotes)
+                    : Inertia::lazy(fn () => DeliveryNotesResource::collection($deliveryNotes)),
 
 
             ]

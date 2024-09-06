@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 10 Jun 2024 11:47:26 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Fri, 06 Sept 2024 12:47:29 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shipping\UI;
+namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
@@ -17,7 +17,6 @@ use App\Enums\UI\Catalogue\ShippingTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Catalogue\ShippingZoneSchemasResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\SysAdmin\Organisation;

@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_orphan_families
  * @property int $number_assets
  * @property int $number_current_assets state: active+discontinuing
+ * @property int $number_historic_assets
  * @property int $number_assets_state_in_process
  * @property int $number_assets_state_active
  * @property int $number_assets_state_discontinuing
@@ -55,6 +56,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_assets_type_service
  * @property int $number_assets_type_subscription
  * @property int $number_assets_type_rental
+ * @property int $number_assets_type_charge
+ * @property int $number_assets_type_shipping_zone
  * @property int $number_products
  * @property int $number_current_products state: active+discontinuing
  * @property int $number_products_state_in_process
@@ -74,19 +77,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_subscriptions_state_active
  * @property int $number_subscriptions_state_discontinued
  * @property int $number_product_variants
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $number_assets_type_charge
- * @property int $number_assets_type_shipping
- * @property int $number_assets_type_adjustment
  * @property int $number_charges
  * @property int $number_charges_state_in_process
  * @property int $number_charges_state_active
  * @property int $number_charges_state_discontinued
- * @property int $number_shippings
- * @property int $number_shippings_state_in_process
- * @property int $number_shippings_state_active
- * @property int $number_shippings_state_discontinued
+ * @property int $number_shipping_zone_schemas
+ * @property int $number_shipping_zone_schemas_type_current
+ * @property int $number_shipping_zone_schemas_type_deal
+ * @property int $number_shipping_zone_schemas_type_in_reserve
+ * @property int $number_shipping_zones
+ * @property int $number_adjustments
+ * @property int $number_adjustments_type_error_net
+ * @property int $number_adjustments_type_error_tax
+ * @property int $number_adjustments_type_credit
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
  * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats newQuery()
