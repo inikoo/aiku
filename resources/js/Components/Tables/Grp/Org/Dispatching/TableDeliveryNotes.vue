@@ -46,13 +46,31 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
     }
 }
 
+function customerRoute(deliveryNote: DeliveryNote) {
+    switch (route().current()) {
+        case "grp.org.warehouses.show.dispatching.delivery-notes":
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [route().params["organisation"], deliveryNote.shop_slug, deliveryNote.customer_slug])
+        default:
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [route().params["organisation"], deliveryNote.shop_slug, deliveryNote.customer_slug])
+    }
+}
+
 </script>
 
 <template> 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: deliveryNote }">
-            <Link :href="deliveryNoteRoute(deliveryNote)">
+            <Link :href="deliveryNoteRoute(deliveryNote)" class="primaryLink">
                 {{ deliveryNote["reference"] }}
+            </Link>
+        </template>
+        <template #cell(customer_name)="{ item: deliveryNote }">
+            <Link :href="customerRoute(deliveryNote)" class="secondaryLink">
+                {{ deliveryNote["customer_name"] }}
             </Link>
         </template>
     </Table>
