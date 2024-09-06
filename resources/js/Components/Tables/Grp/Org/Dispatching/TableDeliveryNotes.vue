@@ -69,6 +69,11 @@ function customerRoute(deliveryNote: DeliveryNote) {
                 {{ deliveryNote["reference"] }}
             </Link>
         </template>
+
+        <template #cell(date)="{ item }">
+            {{ useFormatTime(item.date) }}
+        </template>
+        
         <template #cell(customer_name)="{ item: deliveryNote }">
             <Link :href="customerRoute(deliveryNote)" class="secondaryLink">
                 {{ deliveryNote["customer_name"] }}

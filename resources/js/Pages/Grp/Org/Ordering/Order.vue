@@ -113,7 +113,10 @@ const props = defineProps<{
             company_name: string
             email: string
             phone: string
-            addresses: AddressManagement
+            addresses: {
+                delivery: Address
+                billing: Address
+            }
         }
         products: {
             payment: {
@@ -142,7 +145,7 @@ const props = defineProps<{
     }
 }>()
 
-// console.log(props.notes?.note_list)
+console.log(props.box_stats)
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -515,22 +518,23 @@ const onSubmitNote = async (closePopup: Function) => {
                     class="text-sm text-gray-500 hover:text-gray-700">{{ box_stats?.customer.phone }}</a>
             </div>
 
-            <!-- Field: Address -->
-            <div v-if="false && box_stats?.customer?.addresses" class="pl-1 flex items w-full flex-none gap-x-2"
+            <!-- Field: Billing Address -->
+            <div v-if="box_stats?.customer?.addresses?.billing?.formatted_address" class="pl-1 flex items w-full flex-none gap-x-2"
+                v-tooltip="trans('Billing address')">
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-dollar-sign' class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50" v-html="box_stats?.customer.addresses.billing.formatted_address">
+                </dd>
+            </div>
+
+            <!-- Field: Shipping Address -->
+            <div v-if="box_stats?.customer?.addresses?.delivery?.formatted_address" class="mt-2 pl-1 flex items w-full flex-none gap-x-2"
                 v-tooltip="trans('Shipping address')">
-                <dt v-tooltip="'Address'" class="text-smflex-none">
+                <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="w-full text-gray-500 text-xs">
-                    <div class="relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50">
-                        <span class="" v-html="box_stats?.customer.addresses.value.formatted_address" />
-
-                        <div @click="() => isModalAddress = true"
-                            class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
-                            <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
-                            <span>{{ trans('Edit') }}</span>
-                        </div>
-                    </div>
+                <dd class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50" v-html="box_stats?.customer.addresses.delivery.formatted_address">
                 </dd>
             </div>
         </BoxStatPallet>
