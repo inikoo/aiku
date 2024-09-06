@@ -108,9 +108,9 @@ enum AssetTypeEnum: string
     {
         if ($parent instanceof Shop) {
             $stats = $parent->stats;
-        } elseif ($parent instanceof ProductCategory){
+        } elseif ($parent instanceof ProductCategory) {
             $stats = $parent->shop->stats;
-        } elseif ($parent instanceof Collection){
+        } elseif ($parent instanceof Collection) {
             $stats = $parent->shop->stats;
         } else {
             $stats = $parent->catalogueStats;

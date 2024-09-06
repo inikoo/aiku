@@ -44,8 +44,18 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
             default => null
         };
 
+
+        if($state==PurchaseOrderTransactionStateEnum::CREATING) {
+            $quantityOrdered=$this->auroraModelData->{'Purchase Order Ordering Units'};
+
+        } else {
+            $quantityOrdered=$this->auroraModelData->{'Purchase Order Submitted Units'};
+
+        }
+
+
         $this->parsedData['purchase_order_transaction'] = [
-            'quantity_ordered'    => $this->auroraModelData->{'Purchase Order Submitted Units'},
+            'quantity_ordered'    => $quantityOrdered,
             'state'               => $state,
             'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Fact Key'},
             'created_at'          => $this->auroraModelData->{'Creation Date'},
