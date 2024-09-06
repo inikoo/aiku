@@ -13,7 +13,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faChartNetwork } from '@fal'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, defineAsyncComponent, ref } from "vue"
-import WarehouseDashboard from "@/Components/Dashboards/WarehouseDashboard.vue"
+import WarehouseShowcase from "@/Components/Warehouse/WarehouseShowcase.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
@@ -43,7 +43,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components = {
-        dashboard: WarehouseDashboard,
+        dashboard: WarehouseShowcase,
         details: ModelDetails,
         history: TableHistories
     }

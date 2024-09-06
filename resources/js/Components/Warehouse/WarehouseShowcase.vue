@@ -5,14 +5,18 @@
   -->
 
 <script setup lang="ts">
+import SimpleBox from "@/Components/DataDisplay/SimpleBox.vue"
 const props = defineProps<{
-    data?: object,
+    data?: {}
 }>()
 </script>
 
 
 <template>
-    Dash
+    <SimpleBox v-if="data" :data="data"/>
+    <div v-else>
+        Warehouse Showcase
+    </div>
 </template>
 
 
