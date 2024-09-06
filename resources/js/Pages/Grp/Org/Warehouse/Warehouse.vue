@@ -12,7 +12,7 @@ import { faInventory, faWarehouse, faMapSigns, faChartLine } from '@fal'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, defineAsyncComponent, ref } from "vue"
 import type { Component } from 'vue'
-import WarehouseDashboard from "@/Components/Dashboards/WarehouseDashboard.vue"
+import WarehouseShowcase from "@/Components/Warehouse/WarehouseShowcase.vue"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -28,6 +28,7 @@ library.add(faInventory, faWarehouse, faMapSigns, faChartLine)
 const props = defineProps<{
     pageHead: TSPageHeading
     tabs: TSTabs
+    showcase: {}
     tagsList: {
         data: {}[]
     }
@@ -46,7 +47,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
     const components: Component = {
-        dashboard: WarehouseDashboard,
+        showcase: WarehouseShowcase,
         warehouse_areas: TableWarehouseAreas,
         locations: TableLocations,
         details: ModelDetails,

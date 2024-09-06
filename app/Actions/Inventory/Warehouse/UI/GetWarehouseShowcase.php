@@ -18,7 +18,16 @@ class GetWarehouseShowcase
     public function handle(Warehouse $warehouse): array
     {
         return [
-
+            [
+                'label'     => __('Warehouse Areas'),
+                'icon'      => 'fal fa-map-signs',
+                'value'     => $warehouse->stats->number_warehouse_areas
+            ],
+            [
+                'label'     => __('Locations'),
+                'icon'      => 'fal fa-inventory',
+                'value'     => $warehouse->stats->number_locations
+            ],
         ];
     }
 }

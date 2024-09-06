@@ -14,6 +14,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
@@ -200,6 +201,16 @@ class DeliveryNote extends Model implements Auditable
     public function deliveryAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'address_id');
+    }
+
+    public function picker(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'picker_id');
+    }
+
+    public function packer(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'packer_id');
     }
 
     public function fixedAddresses(): MorphToMany

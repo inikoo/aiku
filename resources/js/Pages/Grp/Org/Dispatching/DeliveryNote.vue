@@ -20,7 +20,7 @@ import { Timeline as TSTimeline } from '@/types/Timeline'
 import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 import { useTabChange } from '@/Composables/tab-change'
-import BoxStatsDeliveryNotes from '@/Components/Warehouse/DeliveryNotes/BoxStatsDeliveryNotes.vue'
+import BoxStatsDeliveryNote from '@/Components/Warehouse/DeliveryNotes/BoxStatsDeliveryNote.vue'
 import DeliveryNotesShowcase from '@/Components/Warehouse/DeliveryNotes/DeliveryNotesShowcase.vue'
 import { routeType } from '@/types/route'
 
@@ -101,16 +101,16 @@ const component = computed(() => {
     </div>
 
     <!-- Section: Timeline -->
-    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+    <div class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
         <Timeline
             v-if="timelines"
             :options="timelines"
-            :state="props.data?.data?.state"
+            :state="null"
             :slidesPerView="6"
         />
     </div>
 
-    <BoxStatsDeliveryNotes v-if="box_stats" :boxStats="box_stats"/>
+    <BoxStatsDeliveryNote v-if="box_stats" :boxStats="box_stats"/>
 
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
@@ -118,5 +118,5 @@ const component = computed(() => {
         <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
     </div>
 
-    <pre>{{ props }}</pre>
+    <!-- <pre>{{ props }}</pre> -->
 </template>
