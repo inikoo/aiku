@@ -43,7 +43,20 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
         default:
             return route(
                 "grp.org.warehouses.show.dispatching.delivery-notes.show",
-                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug])
+                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug]);
+    }
+}
+
+function customerRoute(deliveryNote: DeliveryNote) {
+    switch (route().current()) {
+        case "grp.org.warehouses.show.dispatching.delivery-notes":
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [route().params["organisation"], deliveryNote.shop_slug, deliveryNote.customer_slug])
+        default:
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [route().params["organisation"], deliveryNote.shop_slug, deliveryNote.customer_slug])
     }
 }
 
@@ -56,9 +69,10 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
                 {{ deliveryNote["reference"] }}
             </Link>
         </template>
-
-        <template #cell(date)="{ item: deliveryNote }">
-            {{ useFormatTime(deliveryNote.date) }}
+        <template #cell(customer_name)="{ item: deliveryNote }">
+            <Link :href="customerRoute(deliveryNote)" class="secondaryLink">
+                {{ deliveryNote["customer_name"] }}
+            </Link>
         </template>
     </Table>
 </template>
