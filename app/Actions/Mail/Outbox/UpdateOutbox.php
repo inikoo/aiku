@@ -7,51 +7,73 @@
 
 namespace App\Actions\Mail\Outbox;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Mail\Outbox;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateOutbox
+class UpdateOutbox extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
+    /**
+     * @var \App\Models\Mail\Outbox
+     */
+    private Outbox $outbox;
 
     public function handle(Outbox $outbox, array $modelData): Outbox
     {
         return $this->update($outbox, $modelData, ['data']);
     }
+
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
         return $request->user()->hasPermissionTo("mail.edit");
     }
+
     public function rules(): array
     {
         return [
-            'username' => ['sometimes', 'required', 'unique:outboxes', 'between:2,64', 'alpha_dash'],
-            'about'    => ['sometimes', 'required', 'max:250', 'string'],
+            'name' => [
+                'sometimes',
+                'required',
+                new IUnique(
+                    table: 'outboxes',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                        ['column' => 'id', 'value' => $this->outbox->id, 'operator' => '!=']
+                    ]
+                ),
+                'string',
+                'max:255'
+            ],
         ];
     }
 
-    public function action(Outbox $outbox, $modelData): Outbox
+    public function action(Outbox $outbox, array $modelData): Outbox
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction = true;
+        $this->outbox   = $outbox;
+        $this->initialisation($outbox->organisation, $modelData);
 
-        return $this->handle($outbox, $validatedData);
+        return $this->handle($outbox, $this->validatedData);
     }
 
 
-    public function asController(Outbox $outbox, ActionRequest $request): Outbox
+    public function asController(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
     {
-        $request->validate();
-        return $this->handle($outbox, $request->all());
+        $this->outbox = $outbox;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($outbox, $this->validatedData);
     }
 
 
