@@ -5,9 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Procurement;
+namespace App\Models\SupplyChain;
 
-use App\Models\SupplyChain\Supplier;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Supplier|null $supplier
+ * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @method static Builder|SupplierProductTradeUnit newModelQuery()
  * @method static Builder|SupplierProductTradeUnit newQuery()
  * @method static Builder|SupplierProductTradeUnit query()

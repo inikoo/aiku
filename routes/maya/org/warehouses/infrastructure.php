@@ -13,7 +13,7 @@ use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 
 Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(function () {
-    Route::get('', [IndexWarehouseAreas::class, 'inOrganisation'])->name('index');
+    Route::get('', IndexWarehouseAreas::class)->name('index');
     Route::scopeBindings()->prefix('{warehouseArea:id}')->group(function () {
         Route::get('', ShowWarehouseArea::class)->name('showx');
         Route::scopeBindings()->prefix('locations')->name('show.locations.')->group(function () {
@@ -24,7 +24,6 @@ Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(functio
         });
     });
 });
-
 
 Route::scopeBindings()->prefix('locations')->name('locations.')->group(function () {
     Route::get('', [IndexLocations::class, 'inWarehouse'])->name('index');

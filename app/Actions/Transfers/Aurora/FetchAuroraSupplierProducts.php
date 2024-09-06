@@ -77,6 +77,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         modelData: $supplierProductData['supplierProduct'],
                         skipHistoric: true,
                         hydratorsDelay: $this->hydrateDelay,
+                        strict: false,
                         audit: false
                     );
                     $this->recordChange($organisationSource, $supplierProduct->wasChanged());
@@ -86,9 +87,8 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 if (!$supplierProduct) {
                     $sourceData = explode(':', $baseSupplierProduct->source_id);
                     if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
+                        $this->recordFetchError($organisationSource, $supplierProductData, 'SupplierProduct', 'fetching', ['msg' => "Error supplier product has same code in same org"]);
 
-
-                        $this->recordFetchError($organisationSource, $supplierProductData, 'SupplierProduct', 'fetching', ['msg'=>"Error supplier product has same code in same org"]);
                         return null;
                     }
                 }
@@ -135,6 +135,9 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         'package_quantity' => $supplierProductData['supplierProduct']['units_per_pack']
                     ]
                 ]);
+
+
+
 
                 $sourceData = explode(':', $supplierProduct->source_id);
                 DB::connection('aurora')->table('Supplier Part Dimension')

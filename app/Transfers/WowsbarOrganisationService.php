@@ -364,5 +364,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchHistoricSupplierProduct($id): ?array
+    {
+        return null;
+    }
+
 
 }

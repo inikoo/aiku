@@ -12,7 +12,6 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class FetchDeliveryNoteTransactions
@@ -20,7 +19,7 @@ class FetchDeliveryNoteTransactions
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id, DeliveryNote $deliveryNote): ?DeliveryNoteItem
+    public function handle(SourceOrganisationService $organisationSource, int $source_id, DeliveryNote $deliveryNote): ?DeliveryNoteItem
     {
         if ($transactionData = $organisationSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
             if (!DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])
