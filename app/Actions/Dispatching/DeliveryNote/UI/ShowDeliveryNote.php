@@ -147,8 +147,8 @@ class ShowDeliveryNote extends OrgAction
                         ],
                     ],
                     'warehouse' => [
-                        'picker' => $deliveryNote->picker->alias,
-                        'packer' => $deliveryNote->packer->alias
+                        'picker' => $deliveryNote->picker->alias ?? null,
+                        'packer' => $deliveryNote->packer->alias ?? null
                     ]
                     // 'order_summary'   => [
                     //     [
