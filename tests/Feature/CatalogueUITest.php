@@ -195,6 +195,7 @@ test('UI Create catalogue family inside department', function () {
 });
 
 test('UI show family in department', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.shops.show.catalogue.departments.show.families.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->family->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

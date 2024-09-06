@@ -9,6 +9,8 @@ namespace App\Enums\Catalogue\Asset;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Collection;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -25,7 +27,7 @@ enum AssetTypeEnum: string
     case SHIPPING_ZONE = 'shipping_zone';
 
 
-    public static function labels(Shop|Organisation|Group $parent = null): array
+    public static function labels(Shop|Organisation|Group|ProductCategory|Collection $parent = null): array
     {
         $labels = [
             'product'       => __('Product'),
@@ -102,10 +104,14 @@ enum AssetTypeEnum: string
         ];
     }
 
-    public static function count(Shop|Organisation|Group $parent): array
+    public static function count(Shop|Organisation|Group|ProductCategory|Collection $parent): array
     {
         if ($parent instanceof Shop) {
             $stats = $parent->stats;
+        } elseif ($parent instanceof ProductCategory){
+            $stats = $parent->shop->stats;
+        } elseif ($parent instanceof Collection){
+            $stats = $parent->shop->stats;
         } else {
             $stats = $parent->catalogueStats;
         }
