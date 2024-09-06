@@ -138,11 +138,16 @@ class ShowDeliveryNote extends OrgAction
                     ),
                     'products'  => [
                         'estimated_weight' => $estWeight,
+                        'number_items'     => $deliveryNote->stats->number_items,
                         'payment'          => [
                             'total_amount'=> 11111111,
                             'isPaidOff'   => true,
                         ],
                     ],
+                    'warehouse' => [
+                        'picker' => $deliveryNote->picker->alias,
+                        'packer' => $deliveryNote->packer->alias
+                    ]
                     // 'order_summary'   => [
                     //     [
                     //         [
