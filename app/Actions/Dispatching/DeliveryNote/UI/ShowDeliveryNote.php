@@ -86,6 +86,21 @@ class ShowDeliveryNote extends OrgAction
                 ],
                 'delivery_note' => new DeliveryNoteResource($deliveryNote),
 
+                'alert'     => 'zzzzzzzzzz',
+                'notes'     => 'zzzzzzzzz',
+                'timelines' => 'zzzzzzz',
+                'box_stats' => null,
+                'routes'    => [
+                    'update'    => [
+                        'name'          => 'xxxxxxxxxxxxx',
+                        'parameters'    => 'xxxxxxx'
+                    ],
+                    'products_list'    => [
+                        'name'          => 'xxxxxxxxxxxxx',
+                        'parameters'    => 'xxxxxxx'
+                    ],
+                ],
+
                 DeliveryNoteTabsEnum::SHOWCASE->value => $this->tab == DeliveryNoteTabsEnum::SHOWCASE->value ?
                     fn () => GetDeliveryNoteShowcase::run($deliveryNote)
                     : Inertia::lazy(fn () => GetDeliveryNoteShowcase::run($deliveryNote)),
