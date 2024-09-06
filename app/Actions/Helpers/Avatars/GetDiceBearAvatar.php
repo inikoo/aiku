@@ -20,12 +20,12 @@ class GetDiceBearAvatar
     {
 
 
-        if(!config('app.use_dice_bear_api')) {
+        if(config('app.dice_bear.mock')) {
             return Storage::disk('art')->get('icons/'.$style->value.'.svg');
         }
 
         try {
-            $svg = file_get_contents("https://api.dicebear.com/8.x/".$style->value."/svg?seed=$seed");
+            $svg = file_get_contents(config('app.dice_bear.url') ."/".$style->value."/svg?seed=$seed");
         } catch (Exception) {
             return Storage::disk('art')->get('icons/'.$style->value.'.svg');
         }
