@@ -28,7 +28,14 @@ class StorePurchaseOrderTransaction extends OrgAction
 
         data_set($modelData, 'supplier_product_id', $historicSupplierProduct->supplier_product_id);
         data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
-        data_set($modelData, 'unit_cost', $historicSupplierProduct->cost);
+
+        $status = match ($modelData['state']) {
+            PurchaseOrderTransactionStateEnum::SETTLED     => PurchaseOrderTransactionStatusEnum::PLACED,
+            PurchaseOrderTransactionStateEnum::NO_RECEIVED => PurchaseOrderTransactionStatusEnum::FAIL,
+            PurchaseOrderTransactionStateEnum::CANCELLED   => PurchaseOrderTransactionStatusEnum::CANCELLED,
+            default                                        => PurchaseOrderTransactionStatusEnum::PROCESSING,
+        };
+        data_set($modelData, 'status', $status);
 
         /** @var PurchaseOrderTransaction $purchaseOrderTransaction */
         $purchaseOrderTransaction = $purchaseOrder->purchaseOrderTransactions()->create($modelData);
