@@ -87,8 +87,15 @@ class ShowDeliveryNote extends OrgAction
                 ],
                 'pageHead'      => [
                     'title' => $deliveryNote->reference,
-
-
+                    'model'     => __('Delivery Note'),
+                    'icon'      => [
+                        'icon'  => 'fal fa-truck',
+                        'title' => __('delivery note')
+                    ],
+                ],
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => DeliveryNoteTabsEnum::navigation()
                 ],
                 'delivery_note' => new DeliveryNoteResource($deliveryNote),
 
