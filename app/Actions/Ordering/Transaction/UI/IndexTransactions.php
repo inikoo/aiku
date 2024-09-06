@@ -64,6 +64,8 @@ class IndexTransactions extends OrgAction
             $query->where('transactions.asset_id', $parent->id);
         }
 
+        $query->whereIn('transactions.model_type', ['Product', 'Service']);
+
         $query->leftjoin('assets', 'transactions.asset_id', '=', 'assets.id');
         $query->leftjoin('products', 'assets.model_id', '=', 'products.id');
         $query->leftjoin('orders', 'transactions.order_id', '=', 'orders.id');

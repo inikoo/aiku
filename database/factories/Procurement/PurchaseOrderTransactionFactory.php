@@ -10,17 +10,9 @@ namespace Database\Factories\Procurement;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Procurement\PurchaseOrder>
- */
-class PurchaseOrderItemFactory extends Factory
+class PurchaseOrderTransactionFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         $supplierProduct = SupplierProduct::latest()->first();
 

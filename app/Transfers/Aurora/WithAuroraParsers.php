@@ -395,8 +395,10 @@ trait WithAuroraParsers
     {
         $orgStock   = OrgStock::withTrashed()->where('source_id', $sourceId)->first();
         $sourceData = explode(':', $sourceId);
+
         if (!$orgStock) {
             $res      = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
+
             $orgStock = $res['orgStock'];
         }
 

@@ -5,20 +5,20 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\PurchaseOrderItem;
+namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePurchaseOrderItem
+class UpdatePurchaseOrderTransaction
 {
     use WithActionUpdate;
 
-    public function handle(PurchaseOrderItem $purchaseOrderItem, array $modelData): PurchaseOrderItem
+    public function handle(PurchaseOrderTransaction $purchaseOrderTransaction, array $modelData): PurchaseOrderTransaction
     {
-        return $this->update($purchaseOrderItem, $modelData, ['data']);
+        return $this->update($purchaseOrderTransaction, $modelData, ['data']);
     }
 
     //    public function authorize(ActionRequest $request): bool
@@ -34,14 +34,14 @@ class UpdatePurchaseOrderItem
         ];
     }
 
-    public function asController(PurchaseOrderItem $purchaseOrderItem, ActionRequest $request): PurchaseOrderItem
+    public function asController(PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
     {
         $request->validate();
-        return $this->handle($purchaseOrderItem, $request->all());
+        return $this->handle($purchaseOrderTransaction, $request->all());
     }
 
-    public function jsonResponse(PurchaseOrderItem $purchaseOrderItem): PurchaseOrderResource
+    public function jsonResponse(PurchaseOrderTransaction $purchaseOrderTransaction): PurchaseOrderResource
     {
-        return new PurchaseOrderResource($purchaseOrderItem);
+        return new PurchaseOrderResource($purchaseOrderTransaction);
     }
 }

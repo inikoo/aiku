@@ -71,10 +71,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address
@@ -83,10 +83,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
+ * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderTransaction> $purchaseOrderTransactions
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
@@ -161,9 +161,9 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
         return $this->morphTo();
     }
 
-    public function items(): HasMany
+    public function purchaseOrderTransactions(): HasMany
     {
-        return $this->hasMany(PurchaseOrderItem::class);
+        return $this->hasMany(PurchaseOrderTransaction::class);
     }
 
     public function currency(): BelongsTo

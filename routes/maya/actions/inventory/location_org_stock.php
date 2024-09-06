@@ -9,6 +9,7 @@ use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\MoveOrgStockToOtherLocation;
 use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock;
 use Illuminate\Support\Facades\Route;
 
 Route::name('org_stock.')->prefix('org-stock/{orgStock:id}')->group(function () {
@@ -19,4 +20,6 @@ Route::name('location_org_stock.')->prefix('location-org-stock/{locationOrgStock
     Route::delete('', DeleteLocationOrgStock::class)->name('delete');
     Route::patch('audit', AuditLocationOrgStock::class)->name('audit');
     Route::patch('move/{targetLocationOrgStock:id}', MoveOrgStockToOtherLocation::class)->name('move')->withoutScopedBindings();
+    Route::patch('', UpdateLocationOrgStock::class)->name('update');
+
 });

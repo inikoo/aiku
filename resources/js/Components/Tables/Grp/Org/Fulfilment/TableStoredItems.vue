@@ -29,6 +29,10 @@ function storedItemRoute(storedItem) {
             return route(
                 'grp.org.fulfilments.show.crm.customers.show.stored-items.show',
                 [route().params['organisation'], route().params['fulfilment'], route().params['fulfilmentCustomer'], storedItem.slug]);
+        case 'grp.org.warehouses.show.inventory.stored_items.current.index':
+            return route(
+                'grp.org.warehouses.show.inventory.stored_items.current.show',
+                [route().params['organisation'], route().params['warehouse'], storedItem.slug]);
         default:
             null
     }

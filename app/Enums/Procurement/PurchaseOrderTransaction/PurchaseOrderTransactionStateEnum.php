@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Procurement\PurchaseOrderItem;
+namespace App\Enums\Procurement\PurchaseOrderTransaction;
 
 use App\Enums\EnumHelperTrait;
 
-enum PurchaseOrderItemStateEnum: string
+enum PurchaseOrderTransactionStateEnum: string
 {
     use EnumHelperTrait;
 

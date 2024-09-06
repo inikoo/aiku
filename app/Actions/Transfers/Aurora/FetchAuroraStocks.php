@@ -34,6 +34,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         $stock    = null;
         $orgStock = null;
 
+
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
                 if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
@@ -57,6 +58,7 @@ class FetchAuroraStocks extends FetchAuroraAction
                 );
             }
 
+
             if ($stock) {
                 $tradeUnit = $stockData['trade_unit'];
 
@@ -77,6 +79,18 @@ class FetchAuroraStocks extends FetchAuroraAction
             $effectiveStock = $stock ?? $baseStock;
 
             $organisation = $organisationSource->getOrganisation();
+
+
+            if ($effectiveStock and $effectiveStock->state == StockStateEnum::IN_PROCESS  and  $stockData['org_stock']['state']!=StockStateEnum::IN_PROCESS) {
+
+                $effectiveStock=UpdateStock::make()->action(
+                    stock: $effectiveStock,
+                    modelData: [
+                        'state' => StockStateEnum::ACTIVE
+                    ],
+                    audit:false
+                );
+            }
 
             if ($effectiveStock and $effectiveStock->state != StockStateEnum::IN_PROCESS) {
                 /** @var OrgStock $orgStock */

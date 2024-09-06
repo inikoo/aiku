@@ -32,7 +32,7 @@ class UpdateStateToCheckedPurchaseOrder
 
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::RECEIVED, PurchaseOrderStateEnum::SETTLED])) {
 
-            $purchaseOrder->items()->update($data);
+            $purchaseOrder->purchaseOrderTransactions()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
             $data['checked_at']                         = now();

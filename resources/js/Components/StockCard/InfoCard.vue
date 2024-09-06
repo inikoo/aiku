@@ -5,10 +5,11 @@ import { stockLocation, Datum } from "@/types/StockLocation"
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { useFormatTime } from "@/Composables/useFormatTime"
-import { router } from '@inertiajs/vue3'
+import { router, useForm } from '@inertiajs/vue3'
 import { notify } from "@kyvg/vue3-notification"
 import Popover from '@/Components/Popover.vue'
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import SetSetting from '@/Components/StockCard/StockLocationComponents/SetSettings.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faShoppingBasket, faClock, faPencil, faSave, faTimes } from '@far'
@@ -32,19 +33,23 @@ const editNotes = ref(false)
 const loading = ref(false)
 
 
+
 const daysAudit = (day : Date) =>{
-const audited_at = new Date(day);
-const today = new Date();
-const difference = today - audited_at;
-const differenceDay = Math.floor(difference / (1000 * 60 * 60 * 24));
-return(differenceDay)
+    if(day){
+    const audited_at = new Date(day);
+    const today = new Date();
+    const difference = today - audited_at;
+    const differenceDay = Math.floor(difference / (1000 * 60 * 60 * 24));
+    return(differenceDay)
+    } return 0
+   
 }
 
 
 const SendEditLocation = (item : Datum) =>{
     router.patch(route(
-        props.associateLocationRoute.name,
-        { ...props.associateLocationRoute.parameters, location: item.id }),
+        'grp.models.location_org_stock.update',
+        { locationOrgStock: item.id }),
         { notes : item.notes,
           type : item.type
         },
@@ -52,6 +57,7 @@ const SendEditLocation = (item : Datum) =>{
             onBefore: () => { loading.value = true },
             onSuccess: () => {
                     loading.value = false
+                    editNotes.value = false
             },
             onError: () => {
                 notify({
@@ -74,6 +80,27 @@ const hideOther = (id : Number) => {
   disclosure.value.filter((d, i) => i !== id).forEach(c => c())
 }
 
+const sendSetting = ({settingForm = {} , loading = false, close = ()=>null }) => {
+    settingForm.patch(route(
+       'grp.models.location_org_stock.update',
+       { locationOrgStock: settingForm.id }
+    ),
+        {
+            onBefore: () => { loading = true },
+            onSuccess: () => { loading = false , close()},
+            onError: () => {
+                notify({
+                    title: "Failed",
+                    text: "failed to add location",
+                    type: "error"
+                })
+                loading = false
+            }
+        })
+}
+
+console.log(props.data)
+
 </script>
 
 <template>
@@ -88,12 +115,13 @@ const hideOther = (id : Number) => {
                         :ref="el => (disclosure[index] = close)">
                         <FontAwesomeIcon v-tooltip="'Notes'" :icon="location.notes ? fasStickyNote : faStickyNote" />
                     </DisclosureButton>
-    
+
                     <div v-if="location.type != 'picking'" class="relative">
                         <Popover position="left-0 top-[-120px]">
                             <template #button>
                                 <FontAwesomeIcon v-tooltip="location.type"
-                                    class="h-5 w-5 flex-none rounded-full bg-gray-50 cursor-pointer" :icon="faShoppingBasket" />
+                                    class="h-5 w-5 flex-none rounded-full bg-gray-50 cursor-pointer"
+                                    :icon="faShoppingBasket" />
                             </template>
                             <template #content="{ close: closed }">
                                 <div class="w-[250px]">
@@ -103,24 +131,38 @@ const hideOther = (id : Number) => {
                                     </p>
                                     <div class="flex justify-end gap-2">
                                         <Button type="gray" size="xs" label="NO" @click="closed()"></Button>
-                                        <Button type="save" size="xs" label="Yes" @click="()=>onSetPickingLocation(location)"></Button>
+                                        <Button type="save" size="xs" label="Yes"
+                                            @click="()=>onSetPickingLocation(location)"></Button>
                                     </div>
                                 </div>
                             </template>
                         </Popover>
                     </div>
                     <FontAwesomeIcon v-else :class="'text-indigo-500'" v-tooltip="location.type"
-                    class="h-5 w-5 flex-none rounded-full bg-gray-50 cursor-pointer" :icon="faShoppingBasket" />
+                        class="h-5 w-5 flex-none rounded-full bg-gray-50 cursor-pointer" :icon="faShoppingBasket" />
 
                     <div class="px-2">
                         <div class="text-sm font-semibold leading-6 text-gray-900">
-                            <span v-tooltip="'location'">{{ location.location.code }} {{ " " }}</span>
-                            <span v-if="location.settings.min_stock || location.settings.max_stock"
-                                class="text-gray-400">
-                                (<span v-tooltip="'minimum stock'">{{ location?.settings?.min_stock }}</span>,
-                                <span v-tooltip="'maximum stock'">{{ location?.settings?.max_stock }}</span>)
-                            </span>
-                            <span v-else class="text-gray-400">( ? )</span>
+                        <div class="flex gap-1">
+                            <div v-tooltip="'location'">{{ location.location.code }} {{ "   " }}</div>
+                                <div v-if="location.type == 'picking'">
+                                    <Popover position="left-0 top-[-140px]">
+                                            <template #button>
+                                            <div v-if="location.settings.min_stock || location.settings.max_stock" class="text-gray-400 relative">
+                                                (<span v-tooltip="'minimum stock'">{{ location?.settings?.min_stock }}</span>,
+                                                <span v-tooltip="'maximum stock'">{{ location?.settings?.max_stock }}</span>)
+                                            </div>
+                                            <div v-else class="text-gray-400">( ? )</div>
+                                            </template>
+                                            <template #content="{ close: closed }">
+                                                <div class="w-[300px]">
+                                                    <SetSetting :data="location" :close="closed" @submitSetting="sendSetting"/>
+                                                </div>
+                                            </template>
+                                        </Popover>
+                                </div>
+                                <div v-else class="text-gray-400">( ? )</div>
+                        </div>
                         </div>
                     </div>
                 </div>

@@ -46,7 +46,8 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
         $order = StoreOrder::make()->action($shopifyUser->customer, [
             'reference'        => Str::random(8),
             'date'             => $modelData['created_at'],
-            'delivery_address' => new Address($deliveryAddress)
+            'delivery_address' => new Address($deliveryAddress),
+            'billing_address'  => new Address($deliveryAddress),
         ]);
 
         $productIds     = collect($modelData['line_items'])->pluck('product_id');

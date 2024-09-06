@@ -30,9 +30,15 @@ class DeliveryNoteResource extends JsonResource
             'reference'  => $this->reference,
             'date'       => $this->date,
             'state'      => $this->state,
+            'type'       => $this->type,
+            'status'     => $this->status,
+            'weight'     => $this->weight,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'shop_slug'  => $this->shop_slug
+            'shop_slug'  => $this->shop_slug,
+            'customer_slug'  => $this->customer_slug,
+            'customer_name'  => $this->customer_name,
+            'number_items'  => $this->number_items,
         ];
     }
 }

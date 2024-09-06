@@ -17,7 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $created_at
  * @property string $updated_at
  */
-class PurchaseOrderItemResource extends JsonResource
+class PurchaseOrderTransactionResource extends JsonResource
 {
     public function toArray($request): array
     {

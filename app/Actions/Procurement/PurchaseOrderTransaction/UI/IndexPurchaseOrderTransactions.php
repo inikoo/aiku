@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\PurchaseOrderItem\UI;
+namespace App\Actions\Procurement\PurchaseOrderTransaction\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
-use App\Http\Resources\Procurement\PurchaseOrderItemResource;
+use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -19,7 +19,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPurchaseOrderItems extends InertiaAction
+class IndexPurchaseOrderTransactions extends InertiaAction
 {
     public function handle($prefix=null): LengthAwarePaginator
     {
@@ -34,7 +34,7 @@ class IndexPurchaseOrderItems extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(PurchaseOrderItem::class)
+        return QueryBuilder::for(PurchaseOrderTransaction::class)
             ->defaultSort('purchase_order_items.id')
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -82,7 +82,7 @@ class IndexPurchaseOrderItems extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
     {
-        return PurchaseOrderItemResource::collection($purchaseOrders);
+        return PurchaseOrderTransactionResource::collection($purchaseOrders);
     }
 
 

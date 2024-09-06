@@ -152,6 +152,11 @@ class ShowOrder extends OrgAction
 
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 
+        $noProductItems = $order->transactions()
+                                ->whereNotIn('model_type', ['Product', 'Service'])
+                                ->get()
+                                ->toArray();
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -320,7 +325,8 @@ class ShowOrder extends OrgAction
 
                     ],
                 ],
-                'data'       => OrderResource::make($order),
+                'data'          => OrderResource::make($order),
+                'noProductItems'=> $noProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 
 

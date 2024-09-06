@@ -10,7 +10,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TablePurchaseOrderItems from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderItems.vue";
+import TablePurchaseOrderTransactions from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderTransactions.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -59,7 +59,7 @@ const component = computed(() => {
     const components = {
         showcase: ModelDetails,
         history: TableHistories,
-        items: TablePurchaseOrderItems
+        items: TablePurchaseOrderTransactions
     };
 
     return components[currentTab.value];
