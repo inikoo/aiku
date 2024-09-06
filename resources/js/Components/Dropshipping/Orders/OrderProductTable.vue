@@ -14,9 +14,12 @@ function productRoute(product) {
     switch (route().current()) {
         case 'grp.org.shops.show.crm.customers.show.orders.show':
         case 'grp.org.shops.show.ordering.orders.show':
-            return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], route().params['shop'], product.product_slug])
+            if(product.product_slug) {
+                return route(
+                    'grp.org.shops.show.catalogue.products.show',
+                    [route().params['organisation'], route().params['shop'], product.product_slug])
+            }
+            return ''
         default:
             return ''
     }
