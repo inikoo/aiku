@@ -7,12 +7,14 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
+use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItems;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
 use App\Http\Resources\CRM\CustomerResource;
+use App\Http\Resources\Dispatching\DeliveryNoteItemsResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Catalogue\Shop;
@@ -176,11 +178,12 @@ class ShowDeliveryNote extends OrgAction
                     ],
                 ],
 
-                DeliveryNoteTabsEnum::SHOWCASE->value => $this->tab == DeliveryNoteTabsEnum::SHOWCASE->value ?
-                    fn () => GetDeliveryNoteShowcase::run($deliveryNote)
-                    : Inertia::lazy(fn () => GetDeliveryNoteShowcase::run($deliveryNote)),
+                DeliveryNoteTabsEnum::SKOS_ORDERED->value => $this->tab == DeliveryNoteTabsEnum::SKOS_ORDERED->value ?
+                fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))
+                : Inertia::lazy(fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))),
             ]
-        );
+        )
+        ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::SKOS_ORDERED->value));
     }
 
     public function prepareForValidation(ActionRequest $request): void
