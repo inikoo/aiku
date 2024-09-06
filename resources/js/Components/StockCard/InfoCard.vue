@@ -35,11 +35,14 @@ const loading = ref(false)
 
 
 const daysAudit = (day : Date) =>{
+    if(day){
     const audited_at = new Date(day);
     const today = new Date();
     const difference = today - audited_at;
     const differenceDay = Math.floor(difference / (1000 * 60 * 60 * 24));
     return(differenceDay)
+    } return 0
+   
 }
 
 
@@ -95,6 +98,8 @@ const sendSetting = ({settingForm = {} , loading = false, close = ()=>null }) =>
             }
         })
 }
+
+console.log(props.data)
 
 </script>
 

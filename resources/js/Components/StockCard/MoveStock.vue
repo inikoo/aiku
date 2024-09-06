@@ -55,7 +55,7 @@ const sendMoveStock = (location : Datum, realQty = 0, close = () => null) => {
             onError: () => {
                 notify({
                     title: "Failed",
-                    text: "failed to add location",
+                    text: "failed move stock",
                     type: "error"
                 })
                 loading.value = false
