@@ -19,10 +19,6 @@ class UpdateOutbox extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
-    /**
-     * @var \App\Models\Mail\Outbox
-     */
     private Outbox $outbox;
 
     public function handle(Outbox $outbox, array $modelData): Outbox
