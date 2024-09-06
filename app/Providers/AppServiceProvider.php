@@ -171,7 +171,7 @@ class AppServiceProvider extends ServiceProvider
                 'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
 
                 // Procurement
-                'HistoricSupplierProduct'              => 'App\Models\Procurement\HistoricSupplierProduct',
+                'HistoricSupplierProduct'              => 'App\Models\SupplyChain\HistoricSupplierProduct',
                 'OrgAgent'                             => 'App\Models\Procurement\OrgAgent',
                 'OrgSupplier'                          => 'App\Models\Procurement\OrgSupplier',
                 'OrgSupplierProduct'                   => 'App\Models\Procurement\OrgSupplierProduct',
@@ -179,7 +179,7 @@ class AppServiceProvider extends ServiceProvider
                 'PurchaseOrderTransaction'             => 'App\Models\Procurement\PurchaseOrderTransaction',
                 'StockDelivery'                        => 'App\Models\Procurement\StockDelivery',
                 'StockDeliveryItem'                    => 'App\Models\Procurement\StockDeliveryItem',
-                'SupplierProductTradeUnit'             => 'App\Models\Procurement\SupplierProductTradeUnit',
+                'SupplierProductTradeUnit'             => 'App\Models\SupplyChain\SupplierProductTradeUnit',
 
                 // Search
                 'UniversalSearch'               => 'App\Models\Helpers\UniversalSearch',

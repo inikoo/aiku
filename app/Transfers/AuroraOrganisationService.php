@@ -34,6 +34,7 @@ use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
 use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
+use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
@@ -53,6 +54,7 @@ use App\Transfers\Aurora\FetchAuroraProduct;
 use App\Transfers\Aurora\FetchAuroraProductStocks;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrder;
+use App\Transfers\Aurora\FetchAuroraPurchaseOrderTransaction;
 use App\Transfers\Aurora\FetchAuroraService;
 use App\Transfers\Aurora\FetchAuroraShipper;
 use App\Transfers\Aurora\FetchAuroraShippingZone;
@@ -223,6 +225,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchHistoricAsset($id): ?array
     {
         return (new FetchAuroraHistoricAsset($this))->fetch($id);
+    }
+
+    public function fetchHistoricSupplierProduct($id): ?array
+    {
+        return (new FetchAuroraHistoricSupplierProduct($this))->fetch($id);
     }
 
     public function fetchHistoricService($id): ?array

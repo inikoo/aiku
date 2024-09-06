@@ -79,7 +79,7 @@ class UpdateSupplierProduct extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'code'         => [
                 'sometimes',
                 'required',
@@ -102,16 +102,24 @@ class UpdateSupplierProduct extends GrpAction
             'cost'            => ['sometimes', 'required'],
             'state'           => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
             'is_available'    => ['sometimes', 'required', 'boolean'],
-            'last_fetched_at' => ['sometimes', 'date'],
 
         ];
+
+
+        if(!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
-    public function action(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $audit=true): SupplierProduct
+    public function action(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict=true, bool $audit=true): SupplierProduct
     {
         if(!$audit) {
             SupplierProduct::disableAuditing();
         }
+        $this->strict          = $strict;
         $this->asAction        = true;
         $this->hydratorsDelay  = $hydratorsDelay;
         $this->skipHistoric    = $skipHistoric;

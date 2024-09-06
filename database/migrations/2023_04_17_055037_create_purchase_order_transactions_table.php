@@ -31,8 +31,12 @@ return new class () extends Migration {
             $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::CREATING->value);
             $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
-            $table->decimal('unit_quantity');
-            $table->decimal('unit_cost');
+
+            $table->decimal('quantity_ordered', 16, 3)->nullable();
+            $table->decimal('quantity_dispatched', 16, 3)->default(0)->nullable();
+            $table->decimal('quantity_fail', 16, 3)->default(0)->nullable();
+            $table->decimal('quantity_cancelled', 16, 3)->default(0)->nullable();
+
             $table->decimal('net_amount', 16)->default(0);
             $table->decimal('grp_net_amount', 16)->nullable();
             $table->decimal('org_net_amount', 16)->nullable();

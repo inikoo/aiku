@@ -46,6 +46,8 @@ class ShowStoredItem extends OrgAction
             $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
+
+        return false;
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, StoredItem $storedItem, ActionRequest $request): StoredItem

@@ -28,5 +28,3 @@ Route::prefix('stored-items')->as('stored-items.')->group(function () {
     Route::get('/', IndexStoredItemsInWarehouse::class)->name('inde');
     Route::get('{storedItem:id}', ShowStoredItem::class)->name('show')->withoutScopedBindings();
 });
-
-

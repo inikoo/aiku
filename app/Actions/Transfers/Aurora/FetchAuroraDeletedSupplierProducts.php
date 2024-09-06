@@ -28,7 +28,8 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                     $supplierProduct = UpdateSupplierProduct::run(
                         supplierProduct: $supplierProduct,
                         modelData:       $supplierDeletedProductData['supplierProduct'],
-                        skipHistoric:    true
+                        skipHistoric:    true,
+                        strict: false
                     );
                 } else {
                     $supplierProduct = StoreSupplierProduct::make()->action(
@@ -38,6 +39,9 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay,
                         strict: false
                     );
+                    $historicSupplierProduct=FetchAuroraHistoricSupplierProducts::run($organisationSource->getOrganisation()->id, $supplierDeletedProductData['historicSupplierProductSourceID']);
+                    $supplierProduct->updateQuietly(['current_historic_supplier_product_id'=>$historicSupplierProduct->id]);
+
                 }
 
                 return $supplierProduct;

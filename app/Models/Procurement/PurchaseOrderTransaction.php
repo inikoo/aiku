@@ -27,8 +27,10 @@ use Illuminate\Support\Carbon;
  * @property int $historic_supplier_product_id
  * @property string $state
  * @property string $status
- * @property string $unit_quantity
- * @property string $unit_cost
+ * @property string|null $quantity_ordered
+ * @property string|null $quantity_dispatched
+ * @property string|null $quantity_fail
+ * @property string|null $quantity_cancelled
  * @property string $net_amount
  * @property string|null $grp_net_amount
  * @property string|null $org_net_amount

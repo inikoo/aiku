@@ -14,6 +14,9 @@ return new class () extends Migration {
     {
         Schema::create('historic_supplier_products', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
             $table->string('slug')->unique()->collation('und_ns');
 
             $table->unsignedInteger('supplier_product_id')->nullable()->index();

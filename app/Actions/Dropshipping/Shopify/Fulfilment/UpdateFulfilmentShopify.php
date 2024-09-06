@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Ordering\Order;
 use App\Models\ShopifyUserHasFulfilment;
+use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -20,6 +21,8 @@ class UpdateFulfilmentShopify extends OrgAction
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
+
+    public string $commandSignature = 'shopify:fulfilment {order}';
 
     /**
      * @throws \Exception
@@ -41,6 +44,17 @@ class UpdateFulfilmentShopify extends OrgAction
             ]
         ];
 
-        $shopifyUser->api()->getRestClient()->request('POST', "admin/api/2024-07/fulfillments/$fulfilmentId/update_tracking.json", $body);
+        $result = $shopifyUser->api()->getRestClient()->request('POST', "admin/api/2024-07/fulfillments/$fulfilmentId/update_tracking.json", $body);
+        dd($result);
+    }
+
+    public function asCommand(Command $command)
+    {
+        $order = Order::where('slug', $command->argument('order'))->first();
+
+        $this->handle($order, [
+            'company' => 'DHL',
+            'number'  => 'DHL0001'
+        ]);
     }
 }

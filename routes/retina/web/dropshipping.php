@@ -22,6 +22,5 @@ Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store')
 Route::delete('shopify-user', DeleteShopifyUser::class)->name('shopify_user.delete');
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');
-// Route::get('/users/create', CreateUser::class)->name('web-users.create');
 // Route::get('/users/{user}', ShowUser::class)->name('web-users.show');
 // Route::get('/users/{user}/edit', EditUser::class)->name('web-users.edit');
