@@ -34,13 +34,13 @@ class ShowStoredItem extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof FulfilmentCustomer) {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
+            return
+                (
+                    $request->user()->tokenCan('root') or
+                    $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                );
         } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
             $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");

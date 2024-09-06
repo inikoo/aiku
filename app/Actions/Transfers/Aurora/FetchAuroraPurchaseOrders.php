@@ -35,7 +35,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 );
 
 
-                //  $this->fetchTransactions($organisationSource, $purchaseOrder);
+                $this->fetchTransactions($organisationSource, $purchaseOrder);
                 $this->updateAurora($purchaseOrder);
                 $this->setAttachments($purchaseOrder);
 
@@ -54,6 +54,8 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
                         return null;
                     }
+
+                    $this->fetchTransactions($organisationSource, $purchaseOrder);
 
                     $this->updateAurora($purchaseOrder);
 
@@ -96,24 +98,30 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
         return $attachments->toArray();
     }
 
-    /*
 
-    private function fetchTransactions($organisationSource, $purchaseOrder): void
+
+    private function fetchTransactions($organisationSource, PurchaseOrder $purchaseOrder): void
     {
-        $transactionsToDelete = $purchaseOrder->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
+
+        $transactionsToDelete = $purchaseOrder->purchaseOrderTransactions()->pluck('source_id', 'id')->all();
+
+        $sourceData = explode(':', $purchaseOrder->source_id);
+
+
         foreach (
             DB::connection('aurora')
-                ->table('Order Transaction Fact')
-                ->select('Order Transaction Fact Key')
-                ->where('Order Key', $purchaseOrder->source_id)
+                ->table('Purchase Order Transaction Fact')
+                ->select('Purchase Order Transaction Fact Key')
+                ->whereIn('Purchase Order Transaction Type', ['Parcel', 'Container'])
+                ->where('Purchase Order Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
-            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchAuroraTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $purchaseOrder);
+            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Purchase Order Transaction Fact Key'}]);
+            FetchPurchaseOrderTransactions::run($organisationSource, $auroraData->{'Purchase Order Transaction Fact Key'}, $purchaseOrder);
         }
-        $purchaseOrder->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
+        $purchaseOrder->purchaseOrderTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
-    */
+
 
     public function updateAurora(PurchaseOrder $purchaseOrder): void
     {

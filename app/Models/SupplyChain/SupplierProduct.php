@@ -11,9 +11,7 @@ use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\UniversalSearch;
-use App\Models\Procurement\HistoricSupplierProduct;
 use App\Models\Procurement\OrgSupplierProduct;
-use App\Models\Procurement\SupplierProductTradeUnit;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -72,13 +70,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $gross_weight
  * @property-read Group $group
- * @property-read HistoricSupplierProduct|null $historicSupplierProduct
- * @property-read Collection<int, HistoricSupplierProduct> $historicSupplierProducts
+ * @property-read \App\Models\SupplyChain\HistoricSupplierProduct|null $historicSupplierProduct
+ * @property-read Collection<int, \App\Models\SupplyChain\HistoricSupplierProduct> $historicSupplierProducts
  * @property-read mixed $net_weight
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
- * @property-read SupplierProductTradeUnit $pivot
+ * @property-read \App\Models\SupplyChain\SupplierProductTradeUnit $pivot
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierProductFactory factory($count = null, $state = [])

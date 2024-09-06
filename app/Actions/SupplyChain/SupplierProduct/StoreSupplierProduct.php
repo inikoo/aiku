@@ -8,8 +8,8 @@
 namespace App\Actions\SupplyChain\SupplierProduct;
 
 use App\Actions\GrpAction;
-use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
+use App\Actions\SupplyChain\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;

@@ -71,6 +71,8 @@ interface SourceOrganisationService
 
     public function fetchHistoricAsset($id);
 
+    public function fetchHistoricSupplierProduct($id);
+
     public function fetchHistoricService($id);
 
     public function fetchDepartment($id);

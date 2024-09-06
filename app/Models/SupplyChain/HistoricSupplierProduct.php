@@ -5,9 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Procurement;
+namespace App\Models\SupplyChain;
 
-use App\Models\SupplyChain\SupplierProduct;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\HistoricSupplierProduct
  *
  * @property int $id
+ * @property int $group_id
  * @property string $slug
  * @property int|null $supplier_product_id
  * @property bool $status
@@ -36,8 +37,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read \App\Models\Procurement\HistoricSupplierProductStats|null $stats
- * @property-read SupplierProduct|null $supplierProduct
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SupplyChain\HistoricSupplierProductStats|null $stats
+ * @property-read \App\Models\SupplyChain\SupplierProduct|null $supplierProduct
  * @method static Builder|HistoricSupplierProduct newModelQuery()
  * @method static Builder|HistoricSupplierProduct newQuery()
  * @method static Builder|HistoricSupplierProduct onlyTrashed()
@@ -50,6 +52,7 @@ class HistoricSupplierProduct extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use InGroup;
 
     protected $casts = [
         'status' => 'boolean',

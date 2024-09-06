@@ -39,9 +39,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purchase_orders_state_confirmed
  * @property int $number_purchase_orders_state_manufactured
  * @property int $number_purchase_orders_state_dispatched
- * @property int $number_purchase_orders_state_received
- * @property int $number_purchase_orders_state_checked
+ * @property int $number_purchase_orders_state_processing
  * @property int $number_purchase_orders_state_settled
+ * @property int $number_purchase_orders_state_cancelled
+ * @property int $number_purchase_orders_state_no_received
  * @property int $number_purchase_orders_status_processing
  * @property int $number_purchase_orders_status_settled_placed
  * @property int $number_purchase_orders_status_settled_no_received

@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Procurement;
+namespace App\Models\SupplyChain;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

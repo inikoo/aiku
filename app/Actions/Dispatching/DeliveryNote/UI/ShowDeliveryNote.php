@@ -8,7 +8,6 @@
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
@@ -76,7 +75,7 @@ class ShowDeliveryNote extends OrgAction
             'Org/Dispatching/DeliveryNote',
             [
                 'title'                                 => __('delivery note'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'breadcrumbs'                           => $this->getBreadcrumbs(
                     $deliveryNote,
                     $request->route()->getName(),
                     $request->route()->originalParameters(),
@@ -86,7 +85,7 @@ class ShowDeliveryNote extends OrgAction
                     'next'     => $this->getNext($deliveryNote, $request),
                 ],
                 'pageHead'      => [
-                    'title' => $deliveryNote->reference,
+                    'title'     => $deliveryNote->reference,
                     'model'     => __('Delivery Note'),
                     'icon'      => [
                         'icon'  => 'fal fa-truck',
@@ -159,8 +158,7 @@ class ShowDeliveryNote extends OrgAction
             ];
         };
 
-        return match ($routeName) 
-        {
+        return match ($routeName) {
             'grp.org.warehouses.show.dispatching.delivery-notes.show',
             => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(

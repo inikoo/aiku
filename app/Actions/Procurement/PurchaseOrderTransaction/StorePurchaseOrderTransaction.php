@@ -10,9 +10,9 @@ namespace App\Actions\Procurement\PurchaseOrderTransaction;
 use App\Actions\OrgAction;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStatusEnum;
-use App\Models\Procurement\HistoricSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
+use App\Models\SupplyChain\HistoricSupplierProduct;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -46,24 +46,24 @@ class StorePurchaseOrderTransaction extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'unit_quantity'    => ['required', 'numeric', 'min:0'],
+            'quantity_ordered' => ['required', 'numeric', 'min:0'],
 
-            'state'               => ['sometimes', Rule::enum(PurchaseOrderTransactionStateEnum::class)],
-            'status'              => ['sometimes', Rule::enum(PurchaseOrderTransactionStatusEnum::class)],
-            'gross_amount'        => ['sometimes', 'numeric'],
-            'net_amount'          => ['sometimes', 'numeric'],
-            'org_exchange'        => ['sometimes', 'numeric'],
-            'grp_exchange'        => ['sometimes', 'numeric'],
-            'org_net_amount'      => ['sometimes', 'numeric'],
-            'grp_net_amount'      => ['sometimes', 'numeric'],
-            'date'                => ['sometimes', 'required', 'date'],
-            'submitted_at'        => ['sometimes', 'required', 'date'],
+            'state'          => ['sometimes', Rule::enum(PurchaseOrderTransactionStateEnum::class)],
+            'status'         => ['sometimes', Rule::enum(PurchaseOrderTransactionStatusEnum::class)],
+            'gross_amount'   => ['sometimes', 'numeric'],
+            'net_amount'     => ['sometimes', 'numeric'],
+            'org_exchange'   => ['sometimes', 'numeric'],
+            'grp_exchange'   => ['sometimes', 'numeric'],
+            'org_net_amount' => ['sometimes', 'numeric'],
+            'grp_net_amount' => ['sometimes', 'numeric'],
+            'date'           => ['sometimes', 'required', 'date'],
+            'submitted_at'   => ['sometimes', 'required', 'date'],
         ];
 
         if (!$this->strict) {
-            $rules['created_at']      =['sometimes', 'required', 'date'];
-            $rules['fetched_at']      =['sometimes', 'required', 'date'];
-            $rules['source_id']       =['sometimes', 'string','max:255'];
+            $rules['created_at'] = ['sometimes', 'required', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'required', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
         }
 
 
@@ -73,9 +73,9 @@ class StorePurchaseOrderTransaction extends OrgAction
 
     public function action(PurchaseOrder $purchaseOrder, HistoricSupplierProduct $historicSupplierProduct, array $modelData, bool $strict = true): PurchaseOrderTransaction
     {
-
         $this->strict = $strict;
         $this->initialisation($purchaseOrder->organisation, $modelData);
+
         return $this->handle($purchaseOrder, $historicSupplierProduct, $this->validatedData);
     }
 
