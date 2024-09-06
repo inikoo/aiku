@@ -127,34 +127,39 @@ class ShowDeliveryNote extends OrgAction
                 'alert'     => 'zzzzzzzzzz',
                 'notes'     => 'zzzzzzzzz',
                 'timelines' => $finalTimeline,
-                // 'box_stats' => [
-                //     'customer'          => array_merge(
-                //         CustomerResource::make($deliveryNote->customer)->getArray(),
-                //         [
-                //             'addresses'      => [
-                //                 'delivery'   => AddressResource::make($deliveryNote->deliveryAddress ?? new Address()),
-                //             ],
-                //         ]
-                //     ),
-                //     'products'  => [
-                //         'estimated_weight' => $estWeight
-                //     ],
-                //     'order_summary'   => [
-                //         [
-                //             [
-                //                 'label'       => 'Items',
-                //                 'quantity'    => $order->stats->number_transactions,
-                //                 'price_base'  => 'Multiple',
-                //                 'price_total' => $order->net_amount
-                //             ],
-                //         ],
-                //         [
-                //             [
-                //                 'label'       => 'Total',
-                //                 'price_total' => $deliveryNote->total_amount
-                //             ]
-                //         ],
-                // ],
+                'box_stats' => [
+                    'customer'          => array_merge(
+                        CustomerResource::make($deliveryNote->customer)->getArray(),
+                        [
+                            'addresses'      => [
+                                'delivery'   => AddressResource::make($deliveryNote->deliveryAddress ?? new Address()),
+                            ],
+                        ]
+                    ),
+                    'products'  => [
+                        'estimated_weight' => $estWeight,
+                        'payment'          => [
+                            'total_amount'=> 11111111,
+                            'isPaidOff'   => true,
+                        ],
+                    ],
+                    // 'order_summary'   => [
+                    //     [
+                    //         [
+                    //             'label'       => 'Items',
+                    //             'quantity'    => $order->stats->number_transactions,
+                    //             'price_base'  => 'Multiple',
+                    //             'price_total' => $order->net_amount
+                    //         ],
+                    //     ],
+                    //     [
+                    //         [
+                    //             'label'       => 'Total',
+                    //             'price_total' => $deliveryNote->total_amount
+                    //         ]
+                    //     ],
+                    // ]
+                ],
                 'routes'    => [
                     'update'    => [
                         'name'          => 'xxxxxxxxxxxxx',
