@@ -11,7 +11,7 @@ use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class PurchaseOrderHydrateItems implements ShouldBeUnique
+class PurchaseOrderHydrateTransactions implements ShouldBeUnique
 {
     use AsAction;
 
@@ -19,7 +19,7 @@ class PurchaseOrderHydrateItems implements ShouldBeUnique
     public function handle(PurchaseOrder $purchaseOrder): void
     {
         $stats = [
-            'number_of_items' => $purchaseOrder->items()->count(),
+            'number_of_items' => $purchaseOrder->purchaseOrderTransactions()->count(),
             'cost_items'      => $this->getTotalCostItem($purchaseOrder),
             'gross_weight'    => $this->getGrossWeight($purchaseOrder),
             'net_weight'      => $this->getNetWeight($purchaseOrder)
@@ -32,7 +32,7 @@ class PurchaseOrderHydrateItems implements ShouldBeUnique
     {
         $grossWeight = 0;
 
-        foreach ($purchaseOrder->items as $item) {
+        foreach ($purchaseOrder->purchaseOrderTransactions as $item) {
             foreach ($item->supplierProduct['tradeUnits'] as $tradeUnit) {
                 $grossWeight += $item->supplierProduct['grossWeight'] * $tradeUnit->pivot->package_quantity;
             }
@@ -45,7 +45,7 @@ class PurchaseOrderHydrateItems implements ShouldBeUnique
     {
         $netWeight = 0;
 
-        foreach ($purchaseOrder->items as $item) {
+        foreach ($purchaseOrder->purchaseOrderTransactions as $item) {
             foreach ($item->supplierProduct['tradeUnits'] as $tradeUnit) {
                 $netWeight += $item->supplierProduct['netWeight'] * $tradeUnit->pivot->package_quantity;
             }
@@ -58,7 +58,7 @@ class PurchaseOrderHydrateItems implements ShouldBeUnique
     {
         $costItems = 0;
 
-        foreach ($purchaseOrder->items as $item) {
+        foreach ($purchaseOrder->purchaseOrderTransactions as $item) {
             $costItems += $item->unit_price * $item->supplierProduct['cost'];
         }
 

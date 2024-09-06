@@ -2,9 +2,11 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\SupplyChain\SupplierProduct;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -16,19 +18,21 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string $slug
- * @property bool $status
- * @property Carbon|null $created_at
- * @property Carbon|null $deleted_at
  * @property int|null $supplier_product_id
- * @property string $cost unit cost
+ * @property bool $status
  * @property string|null $code
  * @property string|null $name
+ * @property string $cost unit cost
  * @property int|null $units_per_pack
  * @property int|null $units_per_carton
  * @property string|null $cbm
  * @property int|null $currency_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\Procurement\HistoricSupplierProductStats|null $stats
+ * @property-read SupplierProduct|null $supplierProduct
  * @method static Builder|HistoricSupplierProduct newModelQuery()
  * @method static Builder|HistoricSupplierProduct newQuery()
  * @method static Builder|HistoricSupplierProduct onlyTrashed()
@@ -46,8 +50,6 @@ class HistoricSupplierProduct extends Model
         'status' => 'boolean',
     ];
 
-    public $timestamps      = ["created_at"];
-    public const UPDATED_AT = null;
 
     protected $guarded = [];
 
@@ -60,12 +62,12 @@ class HistoricSupplierProduct extends Model
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    /*
+
     public function supplierProduct(): BelongsTo
     {
         return $this->belongsTo(SupplierProduct::class);
     }
-    */
+
 
     public function stats(): HasOne
     {

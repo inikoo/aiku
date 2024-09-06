@@ -171,15 +171,15 @@ class AppServiceProvider extends ServiceProvider
                 'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
 
                 // Procurement
-                'HistoricSupplierProduct'       => 'App\Models\Procurement\HistoricSupplierProduct',
-                'OrgAgent'                      => 'App\Models\Procurement\OrgAgent',
-                'OrgSupplier'                   => 'App\Models\Procurement\OrgSupplier',
-                'OrgSupplierProduct'            => 'App\Models\Procurement\OrgSupplierProduct',
-                'PurchaseOrder'                 => 'App\Models\Procurement\PurchaseOrder',
-                'PurchaseOrderItem'             => 'App\Models\Procurement\PurchaseOrderItem',
-                'StockDelivery'                 => 'App\Models\Procurement\StockDelivery',
-                'StockDeliveryItem'             => 'App\Models\Procurement\StockDeliveryItem',
-                'SupplierProductTradeUnit'      => 'App\Models\Procurement\SupplierProductTradeUnit',
+                'HistoricSupplierProduct'              => 'App\Models\Procurement\HistoricSupplierProduct',
+                'OrgAgent'                             => 'App\Models\Procurement\OrgAgent',
+                'OrgSupplier'                          => 'App\Models\Procurement\OrgSupplier',
+                'OrgSupplierProduct'                   => 'App\Models\Procurement\OrgSupplierProduct',
+                'PurchaseOrder'                        => 'App\Models\Procurement\PurchaseOrder',
+                'PurchaseOrderTransaction'             => 'App\Models\Procurement\PurchaseOrderTransaction',
+                'StockDelivery'                        => 'App\Models\Procurement\StockDelivery',
+                'StockDeliveryItem'                    => 'App\Models\Procurement\StockDeliveryItem',
+                'SupplierProductTradeUnit'             => 'App\Models\Procurement\SupplierProductTradeUnit',
 
                 // Search
                 'UniversalSearch'               => 'App\Models\Helpers\UniversalSearch',

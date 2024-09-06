@@ -31,7 +31,7 @@ class UpdateStateToDispatchedPurchaseOrder
         ];
 
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::MANUFACTURED, PurchaseOrderStateEnum::RECEIVED])) {
-            $purchaseOrder->items()->update($data);
+            $purchaseOrder->purchaseOrderTransactions()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
             $data['dispatched_at']                      = now();

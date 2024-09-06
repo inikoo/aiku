@@ -38,7 +38,7 @@ class DeletePurchaseOrder
             /** @var OrgSupplier|OrgAgent|OrgPartner $parent */
             $parent = $purchaseOrder->parent;
 
-            $purchaseOrder->items()->delete();
+            $purchaseOrder->purchaseOrderTransactions()->delete();
             $purchaseOrderDeleted = $purchaseOrder->delete();
 
             if (class_basename($parent) == 'OrgSupplier') {

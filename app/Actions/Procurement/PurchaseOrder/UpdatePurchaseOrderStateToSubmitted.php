@@ -35,7 +35,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
             'state' => PurchaseOrderStateEnum::SUBMITTED
         ];
 
-        $purchaseOrder->items()->update($data);
+        $purchaseOrder->purchaseOrderTransactions()->update($data);
 
         if ($purchaseOrder->state !== PurchaseOrderStateEnum::CREATING) {
             $data[$purchaseOrder->state->value.'_at'] = null;

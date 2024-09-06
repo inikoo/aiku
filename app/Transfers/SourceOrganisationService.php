@@ -10,6 +10,7 @@ namespace App\Transfers;
 use App\Models\Accounting\Invoice;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 
 interface SourceOrganisationService
@@ -139,5 +140,7 @@ interface SourceOrganisationService
     public function fetchShippingZone($id);
 
     public function fetchAdjustment($id);
+
+    public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder);
 
 }

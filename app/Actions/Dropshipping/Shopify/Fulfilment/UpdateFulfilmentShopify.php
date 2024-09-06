@@ -24,7 +24,7 @@ class UpdateFulfilmentShopify extends OrgAction
     /**
      * @throws \Exception
      */
-    public function handle(Order $order, array $modelData): \GuzzleHttp\Promise\PromiseInterface
+    public function handle(Order $order, array $modelData): void
     {
         $fulfilment = ShopifyUserHasFulfilment::where('order_id', $order->id)->first();
 
@@ -41,6 +41,6 @@ class UpdateFulfilmentShopify extends OrgAction
             ]
         ];
 
-        return $shopifyUser->api()->getRestClient()->request('POST', "admin/api/2024-07/fulfillments/$fulfilmentId/update_tracking.json", $body);
+        $shopifyUser->api()->getRestClient()->request('POST', "admin/api/2024-07/fulfillments/$fulfilmentId/update_tracking.json", $body);
     }
 }

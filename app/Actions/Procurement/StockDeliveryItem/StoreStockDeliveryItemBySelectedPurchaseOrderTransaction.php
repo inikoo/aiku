@@ -7,20 +7,20 @@
 
 namespace App\Actions\Procurement\StockDeliveryItem;
 
-use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Models\Procurement\StockDelivery;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreStockDeliveryItemBySelectedPurchaseOrderItem
+class StoreStockDeliveryItemBySelectedPurchaseOrderTransaction
 {
     use AsAction;
 
     public function handle(StockDelivery $stockDelivery, array $purchaseOrderIds): array
     {
-        $items              = [];
-        $purchaseOrderItems = PurchaseOrderItem::whereIn('purchase_order_id', $purchaseOrderIds)->get();
+        $items                     = [];
+        $purchaseOrderTransactions = PurchaseOrderTransaction::whereIn('purchase_order_id', $purchaseOrderIds)->get();
 
-        foreach ($purchaseOrderItems as $item) {
+        foreach ($purchaseOrderTransactions as $item) {
             $items[] = StoreStockDeliveryItem::run($stockDelivery, [
                 'supplier_product_id' => $item->supplier_product_id,
                 'unit_price'          => $item->unit_price,

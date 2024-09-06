@@ -59,10 +59,10 @@ class StoreLocationOrgStock extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['audited_at'] = ['date'];
-            $rules['quantity']   = ['required', 'numeric'];
-            $rules['fetched_at'] = ['required', 'date'];
-            $rules['source_stock_id'] = ['sometimes', 'string', 'max:255'];
+            $rules['audited_at']         = ['date'];
+            $rules['quantity']           = ['required', 'numeric'];
+            $rules['fetched_at']         = ['required', 'date'];
+            $rules['source_stock_id']    = ['sometimes', 'string', 'max:255'];
             $rules['source_location_id'] = ['sometimes', 'string', 'max:255'];
         }
 
@@ -82,12 +82,12 @@ class StoreLocationOrgStock extends OrgAction
         }
 
 
-       if($this->strict and $this->has('type') and $this->get('type') == LocationStockTypeEnum::PICKING->value) {
-           if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
-                   ->count() > 0) {
-               $validator->errors()->add('type', __('This stock can have one picking only'));
-           }
-       }
+        if($this->strict and $this->has('type') and $this->get('type') == LocationStockTypeEnum::PICKING->value) {
+            if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
+                    ->count() > 0) {
+                $validator->errors()->add('type', __('This stock can have one picking only'));
+            }
+        }
 
     }
 
