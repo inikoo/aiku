@@ -45,13 +45,6 @@ class UpdateDispatchedEmail
         return $this->handle($dispatchedEmail, $validatedData);
     }
 
-    public function asController(DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
-    {
-        $request->validate();
-        return $this->handle($dispatchedEmail, $request->all());
-    }
-
-
     public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
     {
         return new DispatchedEmailResource($dispatchedEmail);

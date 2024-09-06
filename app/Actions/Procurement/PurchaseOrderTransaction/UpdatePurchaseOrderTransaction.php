@@ -7,12 +7,13 @@
 
 namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePurchaseOrderTransaction
+class UpdatePurchaseOrderTransaction extends OrgAction
 {
     use WithActionUpdate;
 
@@ -21,10 +22,12 @@ class UpdatePurchaseOrderTransaction
         return $this->update($purchaseOrderTransaction, $modelData, ['data']);
     }
 
-    //    public function authorize(ActionRequest $request): bool
-    //    {
-    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-    //    }
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+    }
 
     public function rules(): array
     {
@@ -36,8 +39,8 @@ class UpdatePurchaseOrderTransaction
 
     public function asController(PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
     {
-        $request->validate();
-        return $this->handle($purchaseOrderTransaction, $request->all());
+        $this->initialisation($purchaseOrderTransaction->organisation, $request);
+        return $this->handle($purchaseOrderTransaction, $this->validatedData);
     }
 
     public function jsonResponse(PurchaseOrderTransaction $purchaseOrderTransaction): PurchaseOrderResource

@@ -8,9 +8,7 @@
 namespace App\Actions\Helpers\CurrencyExchange;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Helpers\CurrencyExchange\CurrencyExchangeResource;
 use App\Models\Helpers\CurrencyExchange as CurrencyExchangeModel;
-use Lorisleiva\Actions\ActionRequest;
 
 class UpdateCurrencyExchange
 {
@@ -21,11 +19,6 @@ class UpdateCurrencyExchange
         return $this->update($currencyExchange, $modelData);
     }
 
-    //    public function authorize(ActionRequest $request): bool
-    //    {
-    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-    //    }
-
     public function rules(): array
     {
         return [
@@ -34,16 +27,5 @@ class UpdateCurrencyExchange
     }
 
 
-    public function asController(CurrencyExchangeModel $currencyExchange, ActionRequest $request): CurrencyExchangeModel
-    {
-        $request->validate();
 
-        return $this->handle($currencyExchange, $request->all());
-    }
-
-
-    public function jsonResponse(CurrencyExchangeModel $currencyExchange): CurrencyExchangeResource
-    {
-        return new CurrencyExchangeResource($currencyExchange);
-    }
 }

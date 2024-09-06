@@ -26,7 +26,7 @@ class UpdatePaymentAccount extends OrgAction
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
-        $paymentAccount=$this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
+        $paymentAccount = $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
 
         return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
     }
@@ -79,7 +79,7 @@ class UpdatePaymentAccount extends OrgAction
         $this->paymentAccount = $paymentAccount;
         $this->initialisation($paymentAccount->organisation, $request);
 
-        return $this->handle($paymentAccount, $request->all());
+        return $this->handle($paymentAccount, $this->validatedData);
     }
 
 

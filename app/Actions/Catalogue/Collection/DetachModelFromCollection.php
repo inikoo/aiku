@@ -40,7 +40,7 @@ class DetachModelFromCollection extends OrgAction
         return $collection;
     }
 
-    private function detachModel(Collection $collection, Product|ProductCategory|Collection $model)
+    private function detachModel(Collection $collection, Product|ProductCategory|Collection $model): void
     {
         if ($model instanceof ProductCategory) {
             if ($model->type == ProductCategoryTypeEnum::DEPARTMENT) {
@@ -62,12 +62,12 @@ class DetachModelFromCollection extends OrgAction
         $this->asAction       = true;
         $this->initialisationFromShop($collection->shop, $modelData);
 
-        return $this->handle($collection, $modelData);
+        return $this->handle($collection, $this->validatedData);
     }
 
-    public function asController(Collection $collection, ActionRequest $request)
+    public function asController(Collection $collection, ActionRequest $request): Collection
     {
         $this->initialisationFromShop($collection->shop, $request);
-        $this->handle($collection, $request->all());
+        return $this->handle($collection, $this->validatedData);
     }
 }

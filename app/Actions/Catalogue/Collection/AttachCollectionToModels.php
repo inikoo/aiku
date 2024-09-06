@@ -44,12 +44,12 @@ class AttachCollectionToModels extends OrgAction
         $this->asAction       = true;
         $this->initialisationFromShop($collection->shop, $modelData);
 
-        return $this->handle($collection, $modelData);
+        return $this->handle($collection, $this->validatedData);
     }
 
     public function asController(Collection $collection, ActionRequest $request)
     {
         $this->initialisationFromShop($collection->shop, $request);
-        $this->handle($collection, $request->all());
+        $this->handle($collection, $this->validatedData);
     }
 }

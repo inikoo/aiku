@@ -188,15 +188,19 @@ class StoreProduct extends OrgAction
             ],
             'name'               => ['required', 'max:250', 'string'],
             'state'              => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
-            'family_id'          => ['sometimes', 'required',
-                                     Rule::exists('product_categories', 'id')
-                                         ->where('shop_id', $this->shop->id)
-                                         ->where('type', ProductCategoryTypeEnum::FAMILY)
-                ],
-            'department_id'          => ['sometimes', 'required',
-                                     Rule::exists('product_categories', 'id')
-                                         ->where('shop_id', $this->shop->id)
-                                         ->where('type', ProductCategoryTypeEnum::DEPARTMENT)
+            'family_id'          => [
+                'sometimes',
+                'required',
+                Rule::exists('product_categories', 'id')
+                    ->where('shop_id', $this->shop->id)
+                    ->where('type', ProductCategoryTypeEnum::FAMILY)
+            ],
+            'department_id'      => [
+                'sometimes',
+                'required',
+                Rule::exists('product_categories', 'id')
+                    ->where('shop_id', $this->shop->id)
+                    ->where('type', ProductCategoryTypeEnum::DEPARTMENT)
             ],
             'image_id'           => ['sometimes', 'required', 'exists:media,id'],
             'price'              => ['required', 'numeric', 'min:0'],
@@ -241,8 +245,8 @@ class StoreProduct extends OrgAction
 
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {
-        $request->validate();
-        $this->handle($shop, $request->all());
+        $this->initialisationFromShop($shop, $request);
+        $this->handle($shop, $this->validatedData);
 
         return Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
     }
@@ -250,8 +254,7 @@ class StoreProduct extends OrgAction
     public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): RedirectResponse
     {
         $this->initialisationFromShop($shop, $request);
-        $request->validate();
-        $this->handle($family, $request->all());
+        $this->handle($family, $this->validatedData);
 
         return Redirect::route('grp.org.shops.show.catalogue.families.show.products.index', [$organisation->slug, $shop->slug, $family->slug]);
     }

@@ -122,14 +122,9 @@ class StoreStoredItemsToReturn extends OrgAction
         ];
     }
 
-    // public function afterValidator($validator)
-    // {
-    //     dd($validator);
-    // }
 
     public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        //         dd($request->all());
         $this->parent = $palletReturn;
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $request);
 

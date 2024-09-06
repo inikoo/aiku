@@ -57,9 +57,9 @@ class UpdatePayment extends OrgAction
 
     public function asController(Payment $payment, ActionRequest $request): Payment
     {
-        $request->validate();
+        $this->initialisationFromShop($payment->shop, $request);
 
-        return $this->handle($payment, $request->all());
+        return $this->handle($payment, $this->validatedData);
     }
 
     public function jsonResponse(Payment $payment): PaymentsResource
