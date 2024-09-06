@@ -121,7 +121,6 @@ const AssociateLocation = () => {
                             searchable: true,
                             required : true,
                         }" />
-                        <p class="text-xs text-red-500">{{ form.errors.type }}</p>
                     </div>
                     <Button type="create" label="Add Location" @click="AssociateLocation" class="self-end" />
                 </div>
