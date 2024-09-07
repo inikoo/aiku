@@ -27,6 +27,8 @@ use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Stubs\UIDummies\IndexDummies;
+use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowProcurementDashboard::class)->name('dashboard');
@@ -56,8 +58,8 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
 });
 
 Route::prefix('partners')->as('org_partners.')->group(function () {
-    Route::get('', IndexOrgSuppliers::class)->name('index');
-    Route::get('{orgPartner}', ShowOrgSupplier::class)->name('show');
+    Route::get('', IndexDummies::class)->name('index');
+    Route::get('{orgPartner}', ShowDummy::class)->name('show');
 
 });
 
