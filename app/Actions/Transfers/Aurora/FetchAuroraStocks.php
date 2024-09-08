@@ -31,9 +31,9 @@ class FetchAuroraStocks extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
-        $stock    = null;
-        $orgStock = null;
-
+        $stock         = null;
+        $orgStock      = null;
+        $effectiveStock=null;
 
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
@@ -137,10 +137,8 @@ class FetchAuroraStocks extends FetchAuroraAction
                 $attachmentData['temporaryDirectory']->delete();
             }
         }
-
-
         return [
-            'stock'    => $stock,
+            'stock'    => $effectiveStock,
             'orgStock' => $orgStock
         ];
     }

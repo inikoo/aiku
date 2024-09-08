@@ -7,6 +7,7 @@
 
 namespace App\Models\Procurement;
 
+use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
@@ -38,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read \App\Models\Procurement\OrgAgent|null $orgAgent
+ * @property-read OrgStock|null $orgStock
  * @property-read \App\Models\Procurement\OrgSupplier|null $orgSupplier
  * @property-read Organisation $organisation
  * @property-read \App\Models\Procurement\OrgSupplierProductStats|null $stats
@@ -90,6 +92,11 @@ class OrgSupplierProduct extends Model
     public function supplierProduct(): BelongsTo
     {
         return $this->belongsTo(SupplierProduct::class);
+    }
+
+    public function orgStock(): BelongsTo
+    {
+        return $this->belongsTo(OrgStock::class);
     }
 
 

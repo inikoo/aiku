@@ -54,6 +54,8 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
         }
 
 
+
+
         $this->parsedData['purchase_order_transaction'] = [
             'quantity_ordered'    => $quantityOrdered,
             'state'               => $state,

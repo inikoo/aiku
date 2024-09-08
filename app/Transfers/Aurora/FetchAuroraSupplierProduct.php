@@ -28,6 +28,11 @@ class FetchAuroraSupplierProduct extends FetchAurora
             ->first();
 
 
+        if ($auroraSupplierData->aiku_ignore == 'Yes') {
+            return;
+        }
+
+
         $supplierDeletedAt = $this->parseDate($auroraSupplierData->{'Supplier Valid To'});
         if ($auroraSupplierData->{'Supplier Type'} != 'Archived') {
             $supplierDeletedAt = null;
@@ -115,6 +120,9 @@ class FetchAuroraSupplierProduct extends FetchAurora
         // $code = str_replace('&', 'and', $code);
         // $code =$this->cleanTradeUnitReference($code);
 
+
+        $stock=$this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
+
         $this->parsedData['supplierProduct'] =
             [
                 'code' => $code,
@@ -128,6 +136,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'is_available'          => $isAvailable,
                 'state'                 => $state,
                 'stock_quantity_status' => $stock_quantity_status,
+                'stock_id'              => $stock->id,
 
                 'data'                  => $data,
                 'settings'              => $settings,

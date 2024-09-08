@@ -43,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $supplier_id
  * @property int|null $agent_id
+ * @property int|null $stock_id
  * @property SupplierProductStateEnum $state
  * @property bool $is_available
  * @property string $code
@@ -75,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read mixed $net_weight
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
+ * @property-read \App\Models\SupplyChain\Stock|null $stock
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read \App\Models\SupplyChain\SupplierProductTradeUnit $pivot
  * @property-read Collection<int, TradeUnit> $tradeUnits
@@ -197,5 +199,10 @@ class SupplierProduct extends Model implements Auditable
     public function orgSupplierProducts(): HasMany
     {
         return $this->hasMany(OrgSupplierProduct::class);
+    }
+
+    public function stock(): BelongsTo
+    {
+        return $this->belongsTo(Stock::class);
     }
 }

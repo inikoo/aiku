@@ -26,8 +26,18 @@ class StorePurchaseOrderTransaction extends OrgAction
         data_set($modelData, 'group_id', $purchaseOrder->group_id);
         data_set($modelData, 'organisation_id', $purchaseOrder->organisation_id);
 
-        data_set($modelData, 'supplier_product_id', $historicSupplierProduct->supplier_product_id);
+        $supplierProduct= $historicSupplierProduct->supplierProduct;
+        data_set($modelData, 'supplier_product_id', $supplierProduct->id);
         data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
+
+        data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
+
+        $orgSupplierProduct= $supplierProduct->orgSupplierProducts()->where('organisation_id', $purchaseOrder->organisation_id)->first();
+
+        data_set($modelData, 'org_supplier_product_id', $orgSupplierProduct->id);
+
+        $orgStock =$supplierProduct->stock->orgStocks()->where('organisation_id', $purchaseOrder->organisation_id)->first();
+        data_set($modelData, 'org_stock_id', $orgStock->id);
 
         $status = match ($modelData['state']) {
             PurchaseOrderTransactionStateEnum::SETTLED     => PurchaseOrderTransactionStatusEnum::PLACED,
@@ -36,6 +46,7 @@ class StorePurchaseOrderTransaction extends OrgAction
             default                                        => PurchaseOrderTransactionStatusEnum::PROCESSING,
         };
         data_set($modelData, 'status', $status);
+
 
         /** @var PurchaseOrderTransaction $purchaseOrderTransaction */
         $purchaseOrderTransaction = $purchaseOrder->purchaseOrderTransactions()->create($modelData);
@@ -69,7 +80,6 @@ class StorePurchaseOrderTransaction extends OrgAction
 
         return $rules;
     }
-
 
     public function action(PurchaseOrder $purchaseOrder, HistoricSupplierProduct $historicSupplierProduct, array $modelData, bool $strict = true): PurchaseOrderTransaction
     {

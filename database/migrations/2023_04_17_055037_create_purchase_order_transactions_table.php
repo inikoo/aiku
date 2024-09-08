@@ -29,6 +29,11 @@ return new class () extends Migration {
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->unsignedInteger('historic_supplier_product_id')->index();
             $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');
+
+            $table->unsignedInteger('org_supplier_product_id')->index();
+
+            $table->unsignedInteger('org_stock_id')->index();
+
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::CREATING->value);
             $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
 

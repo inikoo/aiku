@@ -21,6 +21,7 @@ use App\Rules\AlphaDashDotSpaceSlashParenthesisPlus;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Database\Query\Builder;
 
 class StoreSupplierProduct extends GrpAction
 {
@@ -85,6 +86,13 @@ class StoreSupplierProduct extends GrpAction
                         ['column' => 'supplier_id', 'value' => $this->supplier_id],
                     ]
                 ),
+
+            ],
+            'stock_id'                   => [
+                'required',
+                Rule::exists('stocks', 'id')->where(function (Builder $query) {
+                    return $query->where('group_id', $this->group->id);
+                }),
 
             ],
             'name'                   => ['required', 'string', 'max:255'],

@@ -13,6 +13,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -47,34 +48,10 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
                 ->where('agent_id', $parent->id)->first();
         } else {
-            $supplierData = DB::connection("aurora")
-                ->table("Supplier Dimension")
-                ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
-                ->first();
-
-
-            if ($supplierData) {
-                if ($supplierData->aiku_ignore == 'Yes') {
-                    return;
-                }
-
-                $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
-
-
-                $parent = $this->parseSupplier(
-                    $supplierSourceSlug,
-                    $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
-                );
-            } else {
-                $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
-            }
-
-            if (!$parent) {
+            $orgParent = $this->getOrgParent();
+            if (!$orgParent) {
                 return;
             }
-
-            $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)
-                ->where('supplier_id', $parent->id)->first();
         }
 
 
@@ -159,4 +136,46 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             ->where("Purchase Order Key", $id)
             ->first();
     }
+
+    protected function getOrgParent(): null|OrgSupplier|OrgPartner
+    {
+        $supplierData = DB::connection("aurora")
+            ->table("Supplier Dimension")
+            ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
+            ->first();
+
+
+        if ($supplierData) {
+            if ($supplierData->partner_code != '') {
+                /** @var OrgPartner $orgPartner */
+                $orgPartner = OrgPartner::leftJoin('organisations', 'org_partners.partner_id', 'organisations.id')
+                    ->where('org_partners.organisation_id', $this->organisation->id)
+                    ->where('organisations.slug', $supplierData->partner_code)->firstOrFail();
+
+                return $orgPartner;
+            }
+
+
+            if ($supplierData->aiku_ignore == 'Yes') {
+                return null;
+            }
+
+            $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
+
+
+            $parent = $this->parseSupplier(
+                $supplierSourceSlug,
+                $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
+            );
+        } else {
+            $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
+        }
+
+        if (!$parent) {
+            return null;
+        }
+
+        return OrgSupplier::where('organisation_id', $this->organisation->id)->where('supplier_id', $parent->id)->first();
+    }
+
 }

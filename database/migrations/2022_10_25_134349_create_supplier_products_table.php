@@ -26,10 +26,14 @@ return new class () extends Migration {
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media');
-            $table->unsignedInteger('supplier_id')->nullable();
+            $table->unsignedInteger('supplier_id')->nullable()->index();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
-            $table->unsignedSmallInteger('agent_id')->nullable();
+            $table->unsignedSmallInteger('agent_id')->nullable()->index();
             $table->foreign('agent_id')->references('id')->on('agents');
+
+            $table->unsignedSmallInteger('stock_id')->nullable()->nullable();
+            $table->foreign('stock_id')->references('id')->on('stocks');
+
             $table->string('state')->index()->default(SupplierProductStateEnum::IN_PROCESS->value);
             $table->boolean('is_available')->index()->default(true);
             $table = $this->assertCodeDescription($table);

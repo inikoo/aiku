@@ -171,15 +171,16 @@ class AppServiceProvider extends ServiceProvider
                 'ShippingZoneSchema'            => 'App\Models\Ordering\ShippingZoneSchema',
 
                 // Procurement
-                'HistoricSupplierProduct'              => 'App\Models\SupplyChain\HistoricSupplierProduct',
-                'OrgAgent'                             => 'App\Models\Procurement\OrgAgent',
-                'OrgSupplier'                          => 'App\Models\Procurement\OrgSupplier',
-                'OrgSupplierProduct'                   => 'App\Models\Procurement\OrgSupplierProduct',
-                'PurchaseOrder'                        => 'App\Models\Procurement\PurchaseOrder',
-                'PurchaseOrderTransaction'             => 'App\Models\Procurement\PurchaseOrderTransaction',
-                'StockDelivery'                        => 'App\Models\Procurement\StockDelivery',
-                'StockDeliveryItem'                    => 'App\Models\Procurement\StockDeliveryItem',
-                'SupplierProductTradeUnit'             => 'App\Models\SupplyChain\SupplierProductTradeUnit',
+                'HistoricSupplierProduct'       => 'App\Models\SupplyChain\HistoricSupplierProduct',
+                'OrgAgent'                      => 'App\Models\Procurement\OrgAgent',
+                'OrgSupplier'                   => 'App\Models\Procurement\OrgSupplier',
+                'OrgSupplierProduct'            => 'App\Models\Procurement\OrgSupplierProduct',
+                'PurchaseOrder'                 => 'App\Models\Procurement\PurchaseOrder',
+                'PurchaseOrderTransaction'      => 'App\Models\Procurement\PurchaseOrderTransaction',
+                'StockDelivery'                 => 'App\Models\Procurement\StockDelivery',
+                'StockDeliveryItem'             => 'App\Models\Procurement\StockDeliveryItem',
+                'SupplierProductTradeUnit'      => 'App\Models\SupplyChain\SupplierProductTradeUnit',
+                'OrgPartner'                    => 'App\Models\Procurement\OrgPartner',
 
                 // Search
                 'UniversalSearch'               => 'App\Models\Helpers\UniversalSearch',

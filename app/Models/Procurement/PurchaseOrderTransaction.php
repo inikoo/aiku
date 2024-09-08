@@ -25,6 +25,8 @@ use Illuminate\Support\Carbon;
  * @property int $purchase_order_id
  * @property int $supplier_product_id
  * @property int $historic_supplier_product_id
+ * @property int $org_supplier_product_id
+ * @property int $org_stock_id
  * @property string $state
  * @property string $status
  * @property string|null $quantity_ordered
