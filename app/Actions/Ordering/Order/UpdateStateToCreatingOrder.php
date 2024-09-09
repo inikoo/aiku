@@ -38,7 +38,7 @@ class UpdateStateToCreatingOrder extends OrgAction
                 'status' => TransactionStatusEnum::CREATING
             ]);
 
-            $data[$order->state->value . '_at'] = null;
+            // $data[$order->state->value . '_at'] = null;
 
             $this->update($order, $data);
 

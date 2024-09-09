@@ -9,10 +9,11 @@ namespace App\Actions\Ordering\Order;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
 
-class UpdateStateToSettledOrder
+class UpdateStatusToSettledOrder
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -23,13 +24,12 @@ class UpdateStateToSettledOrder
     public function handle(Order $order): Order
     {
         $data = [
-            'state' => OrderStateEnum::SETTLED
+            'status' => OrderStatusEnum::SETTLED
         ];
 
         if ($order->state === OrderStateEnum::FINALISED) {
             $order->transactions()->update($data);
 
-            $data[$order->state->value . '_at'] = null;
             $data['settled_at']                 = now();
 
             $this->update($order, $data);
