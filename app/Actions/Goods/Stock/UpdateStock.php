@@ -37,20 +37,23 @@ class UpdateStock extends GrpAction
         $stock   = $this->update($stock, $modelData, ['data', 'settings']);
         $changes = $stock->getChanges();
         if (Arr::hasAny($changes, ['code', 'name', 'stock_family_id', 'unit_value', 'state'])) {
-            foreach ($stock->orgStocks as $orgStock) {
-                $orgStock->update(
-                    [
-                        'code'       => $stock->code,
-                        'name'       => $stock->name,
-                        'unit_value' => $stock->unit_value,
-                        'state'      => match ($stock->state) {
-                            StockStateEnum::ACTIVE        => OrgStockStateEnum::ACTIVE,
-                            StockStateEnum::DISCONTINUING => OrgStockStateEnum::DISCONTINUING,
-                            StockStateEnum::DISCONTINUED  => OrgStockStateEnum::DISCONTINUED,
-                            StockStateEnum::SUSPENDED     => OrgStockStateEnum::SUSPENDED,
-                        }
-                    ]
-                );
+
+            if($stock->state!=StockStateEnum::IN_PROCESS) {
+                foreach ($stock->orgStocks as $orgStock) {
+                    $orgStock->update(
+                        [
+                            'code'       => $stock->code,
+                            'name'       => $stock->name,
+                            'unit_value' => $stock->unit_value,
+                            'state'      => match ($stock->state) {
+                                StockStateEnum::ACTIVE => OrgStockStateEnum::ACTIVE,
+                                StockStateEnum::DISCONTINUING => OrgStockStateEnum::DISCONTINUING,
+                                StockStateEnum::DISCONTINUED => OrgStockStateEnum::DISCONTINUED,
+                                StockStateEnum::SUSPENDED => OrgStockStateEnum::SUSPENDED,
+                            }
+                        ]
+                    );
+                }
             }
         }
 

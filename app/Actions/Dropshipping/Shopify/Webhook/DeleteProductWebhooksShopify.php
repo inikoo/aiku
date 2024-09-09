@@ -11,6 +11,7 @@ use App\Actions\Dropshipping\Shopify\Product\DeleteProductFromShopify;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -21,8 +22,10 @@ class DeleteProductWebhooksShopify extends OrgAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(ShopifyUser $shopifyUser, int $productId): void
+    public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
+        $productId = Arr::get($modelData, 'product_id');
+
         $product = $shopifyUser->products()
             ->where("shopify_product_id", $productId)
             ->firstOrFail();
@@ -32,8 +35,8 @@ class DeleteProductWebhooksShopify extends OrgAction
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
     {
-        $productId = $request->input("id");
+        $this->initialisation($shopifyUser->organisation, $request);
 
-        $this->handle($shopifyUser, $productId);
+        $this->handle($shopifyUser, $this->validatedData);
     }
 }

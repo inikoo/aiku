@@ -72,6 +72,8 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
     {
-        $this->handle($shopifyUser, $request->all());
+        $this->initialisation($shopifyUser->organisation, $request);
+
+        $this->handle($shopifyUser, $this->validatedData);
     }
 }
