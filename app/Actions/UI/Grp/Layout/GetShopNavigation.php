@@ -390,12 +390,12 @@ class GetShopNavigation
 
         if ($user->hasPermissionTo("orders.$shop->id.view")) {
             $navigation["ordering"] = [
-                "root"  => "grp.org.shops.show.ordering.",
-                "scope" => "shops",
-                "label" => __("orders"),
-                "icon"  => ["fal", "fa-shopping-cart"],
-                "route" => [
-                    "name"       => 'grp.org.shops.show.ordering.backlog',
+                "root"    => "grp.org.shops.show.ordering.",
+                "scope"   => "shops",
+                "label"   => __("orders"),
+                "icon"    => ["fal", "fa-shopping-cart"],
+                "route"   => [
+                    "name"       => "grp.org.shops.show.ordering.orders.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
