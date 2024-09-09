@@ -130,7 +130,7 @@ const isModalAddress = ref(false)
                                     <span class="" v-html="data?.customer?.address.formatted_address" />
 
                                     <div @click="() => isModalAddress = true"
-                                        class="whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                                        class="w-fit pr-4 whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                                         <!-- <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' /> -->
                                         <span>{{ trans('Edit') }}</span>
                                     </div>

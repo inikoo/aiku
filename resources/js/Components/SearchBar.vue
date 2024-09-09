@@ -118,7 +118,7 @@ function countModelTypes(data) {
                         <!-- Section: Search result -->
                         <TabGroup v-else-if="searchValue">
                             <!-- Section: Tabs -->
-                            <TabList v-if="isLoadingSearch || resultsSearch?.length" class="flex gap-x-2 rounded-xl px-4 py-2 overflow-x-auto w-full" v-slot="{ selectedIndex }">
+                            <TabList v-if="isLoadingSearch || resultsSearch?.length" class="flex gap-x-2 px-4 py-2 overflow-x-auto w-full" v-slot="{ selectedIndex }">
                                 <!-- Tabs: Skeleton -->
                                 <div v-if="isLoadingSearch" class="flex gap-x-2">
                                     <div v-for=" of 3" class="h-10 skeleton min-w-28 w-min rounded-lg" />
@@ -137,17 +137,19 @@ function countModelTypes(data) {
                                     {{ trans('Show all') }} (<span class="font-bold">{{ resultsSearch?.length || 0}}</span>)
                                 </button>
 
-                                <button v-if="!isLoadingSearch && resultsSearch" v-for="(tabCount, tabName, tabIdx) in countModelTypes(resultsSearch)" as="button"
-                                    @click="() => selectedTab = tabName"
-                                    :key="tabName+tabIdx"
-                                    class="min-w-28 w-fit rounded py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
-                                    :class="[
-                                        tabName == selectedTab
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'text-slate-500 hover:bg-slate-50',
-                                        ]">
-                                    {{tabName}} (<span class="font-bold">{{ tabCount }}</span>)
-                                </button>
+                                <template v-if="!isLoadingSearch && resultsSearch">
+                                    <button v-for="(tabCount, tabName, tabIdx) in countModelTypes(resultsSearch)" as="button"
+                                        @click="() => selectedTab = tabName"
+                                        :key="tabName+tabIdx"
+                                        class="w-fit w rounded py-2.5 px-8 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
+                                        :class="[
+                                            tabName == selectedTab
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'text-slate-500 hover:bg-slate-50',
+                                            ]">
+                                        {{tabName}} (<span class="font-bold">{{ tabCount }}</span>)
+                                    </button>
+                                </template>
                             </TabList>
 
                             
