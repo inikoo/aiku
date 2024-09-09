@@ -25,6 +25,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Goods\TradeUnit;
+use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
@@ -47,16 +48,21 @@ class StoreProduct extends OrgAction
         data_set($modelData, 'status', $status);
 
 
-        $tradeUnits = $modelData['trade_units'];
-        data_forget($modelData, 'trade_units');
+        $orgStocks = $modelData['org_stocks'];
+        data_forget($modelData, 'org_stocks');
 
-        if (count($tradeUnits) == 1) {
-            $units = $tradeUnits[array_key_first($tradeUnits)]['units'];
+
+
+
+        if (count($orgStocks) == 1) {
+            $units = $orgStocks[array_key_first($orgStocks)]['quantity'];
         } else {
             $units = 1;
         }
+
+
         data_set($modelData, 'units', $units);
-        data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
+        //data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($orgStocks));
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
 
@@ -115,13 +121,32 @@ class StoreProduct extends OrgAction
         );
 
 
+        foreach ($orgStocks as $orgStocksId => $orgStockData) {
+            $tradeUnit = OrgStock::find($orgStocksId);
+            $product->orgStocks()->attach(
+                $tradeUnit,
+                [
+                    'quantity' => $orgStockData['quantity'],
+                    'notes'    => Arr::get($orgStockData, 'notes'),
+                ]
+            );
+        }
+        $tradeUnits = [];
+        foreach ($product->orgStocks as $orgStock) {
+            foreach ($orgStock->stock->tradeUnits  as $tradeUnit) {
+                $tradeUnits[$tradeUnit->id] = [
+                    'quantity' => $orgStock->pivot->quantity * $tradeUnit->pivot->quantity,
+                ];
+            }
+        }
+
         foreach ($tradeUnits as $tradeUnitId => $tradeUnitData) {
             $tradeUnit = TradeUnit::find($tradeUnitId);
             $product->tradeUnits()->attach(
                 $tradeUnit,
                 [
-                    'units' => $tradeUnitData['units'],
-                    'notes' => Arr::get($tradeUnitData, 'notes'),
+                    'quantity' => $tradeUnitData['quantity'],
+                    'notes'    => Arr::get($tradeUnitData, 'notes'),
                 ]
             );
         }
@@ -233,9 +258,9 @@ class StoreProduct extends OrgAction
         }
 
         if ($this->state == ProductStateEnum::DISCONTINUED or !$this->strict) {
-            $rules['trade_units'] = ['sometimes', 'nullable', 'array'];
+            $rules['org_stocks'] = ['sometimes', 'nullable', 'array'];
         } else {
-            $rules['trade_units'] = ['required', 'array'];
+            $rules['org_stocks'] = ['required', 'array'];
         }
 
 

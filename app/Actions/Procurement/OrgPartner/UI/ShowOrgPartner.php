@@ -21,7 +21,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgPartner extends OrgAction
 {
-
     public function handle(OrgPartner $orgPartner): OrgPartner
     {
         return $orgPartner;

@@ -15,23 +15,18 @@ class FetchAuroraProductStocks extends FetchAurora
     {
         $productStocks = [];
         foreach ($this->auroraModelData as $modelData) {
-            $orgStock   = $this->parseOrgStock($this->organisation->id.':'.$modelData->{'Product Part Part SKU'});
+            $orgStock = $this->parseOrgStock($this->organisation->id.':'.$modelData->{'Product Part Part SKU'});
 
             if ($orgStock) {
-                foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
-                    $productStocks[$tradeUnit->id]=[
-                        'units'                     => $modelData->{'Product Part Ratio'} * $tradeUnit->pivot->quantity,
-                        'notes'                     => $modelData->{'Product Part Note'} ?? null
-                    ];
-
-
-                }
+                $productStocks[$orgStock->id] = [
+                    'quantity' => $modelData->{'Product Part Ratio'},
+                    'notes'    => $modelData->{'Product Part Note'} ?? null
+                ];
             }
-            //else {
-            //print "Warning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Asset Part Bridge`\n";
-            //}
+
         }
-        $this->parsedData['trade_units'] = $productStocks;
+        $this->parsedData['org_stocks'] = $productStocks;
+
     }
 
 

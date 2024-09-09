@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->unsignedInteger('org_stock_id')->nullable();
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
 
-            $table->decimal('units', 12, 3);
+            $table->decimal('quantity', 12, 3);
             $table->string('notes')->nullable();
 
             $table->timestampsTz();

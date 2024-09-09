@@ -24,12 +24,14 @@ class FetchAuroraProducts extends FetchAuroraAction
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
             $sourceData = explode(':', $productData['product']['source_id']);
-            $tradeUnits = $organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
+
+
+            $orgStocks  = $organisationSource->fetchProductStocks($sourceData[1])['org_stocks'];
 
             data_set(
                 $productData,
-                'product.trade_units',
-                $tradeUnits
+                'product.org_stocks',
+                $orgStocks
             );
 
             /** @var Product $product */

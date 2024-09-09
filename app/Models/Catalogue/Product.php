@@ -10,6 +10,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\Goods\TradeUnit;
+use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -80,6 +81,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read Product|null $mainProduct
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
@@ -177,12 +179,28 @@ class Product extends Model implements Auditable, HasMedia
         return $this->hasOne(ProductSalesIntervals::class);
     }
 
-    public function tradeUnits(): BelongsToMany
+    public function orgStocks(): BelongsToMany
     {
         return $this->belongsToMany(
+            OrgStock::class,
+            'product_has_org_stocks',
+        )->withPivot(['quantity', 'notes'])->withTimestamps();
+    }
+
+    public function tradeUnits(): MorphToMany
+    {
+        return $this->morphToMany(
             TradeUnit::class,
-            'product_trade_unit',
-        )->withPivot(['units', 'notes'])->withTimestamps();
+            'model',
+            'model_has_trade_units',
+            'model_id',
+            null,
+            null,
+            null,
+            'trade_units',
+        )
+            ->withPivot(['quantity','notes'])
+            ->withTimestamps();
     }
 
     public function productVariants(): HasMany
