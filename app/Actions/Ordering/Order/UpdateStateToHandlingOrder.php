@@ -31,7 +31,7 @@ class UpdateStateToHandlingOrder extends OrgAction
         if (in_array($order->state, [OrderStateEnum::SUBMITTED, OrderStateEnum::IN_WAREHOUSE])) {
             $order->transactions()->update($data);
 
-            $data[$order->state->value . '_at'] = null;
+            // $data[$order->state->value . '_at'] = null;
             $data['handling_at']                = now();
 
             $this->update($order, $data);

@@ -31,7 +31,7 @@ class UpdateStateToPackedOrder extends OrgAction
         if (in_array($order->state, [\App\Enums\Ordering\Order\OrderStateEnum::HANDLING, \App\Enums\Ordering\Order\OrderStateEnum::FINALISED])) {
             $order->transactions()->update($data);
 
-            $data[$order->state->value . '_at'] = null;
+            // $data[$order->state->value . '_at'] = null;
             $data['packed_at']                  = now();
 
             $this->update($order, $data);

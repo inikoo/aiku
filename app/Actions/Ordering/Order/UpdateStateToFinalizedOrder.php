@@ -91,8 +91,8 @@ class UpdateStateToFinalizedOrder extends OrgAction
         if (in_array($order->state, [OrderStateEnum::HANDLING, OrderStateEnum::PACKED])) {
             $order->transactions()->update($data);
 
-            $data[$order->state->value . '_at'] = null;
-            $data['packed_at']                  = now();
+            // $data[$order->state->value . '_at'] = null;
+            $data['finalised_at']                  = now();
 
             $this->update($order, $data);
 
