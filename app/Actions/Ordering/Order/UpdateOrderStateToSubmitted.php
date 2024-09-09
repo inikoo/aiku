@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
@@ -33,7 +34,10 @@ class UpdateOrderStateToSubmitted extends OrgAction
 
     public function handle(Order $order): Order
     {
-        $modelData = ['state' => OrderStateEnum::SUBMITTED];
+        $modelData = [
+            'state' => OrderStateEnum::SUBMITTED,
+            'status' => OrderStatusEnum::PROCESSING,
+        ];
 
         $date = now();
 
