@@ -11,6 +11,7 @@ use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Models\SupplyChain\StockFamily;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateStockFamily
@@ -35,12 +36,21 @@ class HydrateStockFamily
                 return 1;
             }
         } else {
-            $command->withProgressBar(StockFamily::withTrashed()->get(), function ($stockFamily) {
-                if ($stockFamily) {
-                    $this->handle($stockFamily);
+
+
+            $count = StockFamily::count();
+            $bar   = $command->getOutput()->createProgressBar($count);
+            $bar->setFormat('debug');
+            $bar->start();
+            StockFamily::chunk(250, function (Collection $models) use ($bar) {
+                foreach ($models as $model) {
+                    $this->handle($model);
+                    $bar->advance();
                 }
             });
-            $command->info("");
+            $bar->finish();
+
+
         }
 
         return 0;

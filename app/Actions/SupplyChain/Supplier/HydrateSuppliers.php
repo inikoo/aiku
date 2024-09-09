@@ -14,8 +14,9 @@ use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateStockDeliveries;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
-class HydrateSupplier extends HydrateModel
+class HydrateSuppliers extends HydrateModel
 {
     public string $commandSignature = 'hydrate:suppliers';
 
@@ -29,11 +30,18 @@ class HydrateSupplier extends HydrateModel
     public function asCommand(Command $command): int
     {
 
-        $command->withProgressBar(Supplier::all(), function ($supplier) {
-            $this->handle($supplier);
 
+        $count = Supplier::count();
+        $bar   = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        Supplier::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
         });
-        $command->info("");
+        $bar->finish();
 
         return 0;
     }

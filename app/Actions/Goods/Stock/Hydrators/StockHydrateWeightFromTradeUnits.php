@@ -32,9 +32,7 @@ class StockHydrateWeightFromTradeUnits
         $changed = false;
         $weight  = 0;
 
-
         foreach($stock->tradeUnits as $tradeUnit) {
-
             if(is_numeric($tradeUnit->gross_weight) and is_numeric($tradeUnit->pivot->quantity)) {
                 $changed = true;
                 $weight += $tradeUnit->gross_weight * $tradeUnit->pivot->quantity;
@@ -45,11 +43,13 @@ class StockHydrateWeightFromTradeUnits
             $weight = null;
         }
 
+
         $stock->updateQuietly(
             [
                 'weight' => $weight
             ]
         );
+
     }
 
 

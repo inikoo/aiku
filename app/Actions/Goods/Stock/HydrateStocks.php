@@ -11,6 +11,7 @@ use App\Actions\Goods\Stock\Hydrators\StockHydrateWeightFromTradeUnits;
 use App\Actions\HydrateModel;
 use App\Models\SupplyChain\Stock;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 class HydrateStocks extends HydrateModel
 {
@@ -24,12 +25,18 @@ class HydrateStocks extends HydrateModel
 
     public function asCommand(Command $command): int
     {
-
-
-        $command->withProgressBar(Stock::all(), function ($supplier) {
-            $this->handle($supplier);
+        $count = Stock::count();
+        $bar   = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        Stock::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
         });
-        $command->info("");
+        $bar->finish();
+
 
         return 0;
     }

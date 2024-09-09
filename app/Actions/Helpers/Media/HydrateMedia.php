@@ -12,6 +12,7 @@ use App\Actions\Helpers\Media\Hydrators\MediaHydrateUsage;
 use App\Actions\HydrateModel;
 use App\Models\Helpers\Media;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 class HydrateMedia extends HydrateModel
 {
@@ -27,15 +28,23 @@ class HydrateMedia extends HydrateModel
     {
         $exitCode = 0;
         if ($command->option('id')) {
+            /** @var Media $media */
             $media = Media::find($command->option('id'));
             $this->handle($media);
         } else {
-            $command->withProgressBar(Media::all(), function ($media) {
-                if ($media) {
-                    $this->handle($media);
+
+            $count = Media::count();
+            $bar   = $command->getOutput()->createProgressBar($count);
+            $bar->setFormat('debug');
+            $bar->start();
+            Media::chunk(1000, function (Collection $models) use ($bar) {
+                foreach ($models as $model) {
+                    $this->handle($model);
+                    $bar->advance();
                 }
             });
-            $command->info("");
+            $bar->finish();
+
         }
 
         return $exitCode;
