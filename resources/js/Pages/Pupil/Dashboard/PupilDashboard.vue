@@ -349,7 +349,7 @@ const onSortChange = (event) => {
         </div>
     </div>
 
-    <Modal :isOpen="isModalGetStarted" @onClose="isModalGetStarted = false">
+    <Modal :isOpen="isModalGetStarted" width="w-[700px]">
         <div class="relative isolate overflow-hidden px-6 py-16 text-center sm:rounded-3xl sm:px-12">
             <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
                 {{ trans(`Let's get started.`) }}
