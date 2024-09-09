@@ -156,6 +156,126 @@ class ShowOrder extends OrgAction
                                 ->whereNotIn('model_type', ['Product', 'Service'])
                                 ->get()
                                 ->toArray();
+                            
+        // dd($order->state);
+        // dd($order);
+        $actions = [];
+        if ($this->canEdit) {
+            $actions = match ($order->state) {
+                OrderStateEnum::CREATING => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'secondary',
+                        'icon'    => 'fal fa-plus',
+                        'key'     => 'add-products',
+                        'label'   => __('add products'),
+                        'tooltip' => __('Add products'),
+                        'route'   => [
+                            'name'       => 'grp.models.order.transaction.store',
+                            'parameters' => [
+                                'order' => $order->id,
+                            ]
+                        ]
+                    ],
+                    ($order->transactions()->count() > 0) ?
+                        [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('submit'),
+                            'label'   => __('submit'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'patch',
+                                'name'       => 'grp.models.order.state.submitted',
+                                'parameters' => [
+                                    'order' => $order->id
+                                ]
+                            ]
+                        ] : [],
+                ],
+                OrderStateEnum::SUBMITTED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('In Warehouse'),
+                        'label'   => __('in warehouse'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.order.state.in-warehouse',
+                            'parameters' => [
+                                'order' => $order->id
+                            ]
+                        ]
+                    ]
+                ],
+                OrderStateEnum::IN_WAREHOUSE => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Handle'),
+                        'label'   => __('Handle'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.order.state.handling',
+                            'parameters' => [
+                                'order' => $order->id
+                            ]
+                        ]
+                    ]
+                ],
+                OrderStateEnum::HANDLING => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Pack'),
+                        'label'   => __('Pack'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.order.state.packed',
+                            'parameters' => [
+                                'order' => $order->id
+                            ]
+                        ]
+                    ]
+                ],
+                OrderStateEnum::PACKED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Finalize'),
+                        'label'   => __('Finalize'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.order.state.finalized',
+                            'parameters' => [
+                                'order' => $order->id
+                            ]
+                        ]
+                    ]
+                ],
+                OrderStateEnum::FINALISED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Dispatch'),
+                        'label'   => __('Dispatch'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.order.state.dispatched',
+                            'parameters' => [
+                                'order' => $order->id
+                            ]
+                        ]
+                    ]
+                ],
+                default => []
+            };
+        }
 
         return Inertia::render(
             'Org/Ordering/Order',
@@ -177,22 +297,7 @@ class ShowOrder extends OrgAction
                         'icon'  => 'fal fa-shopping-cart',
                         'title' => __('customer client')
                     ],
-                    'actions'   => [
-                        $order->state->value == OrderStateEnum::CREATING->value ? [
-                            'type'    => 'button',
-                            'style'   => 'secondary',
-                            'icon'    => 'fal fa-plus',
-                            'key'     => 'add-products',
-                            'label'   => __('add products'),
-                            'tooltip' => __('Add products'),
-                            'route'   => [
-                                'name'       => 'grp.models.order.transaction.store',
-                                'parameters' => [
-                                    'order' => $order->id,
-                                ]
-                            ]
-                        ] : []
-                    ]
+                    'actions'   => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

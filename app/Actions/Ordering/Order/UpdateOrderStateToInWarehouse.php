@@ -14,6 +14,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\Validator;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrderStateToInWarehouse extends OrgAction
 {
@@ -80,6 +81,14 @@ class UpdateOrderStateToInWarehouse extends OrgAction
         $this->order    = $order;
         $this->initialisationFromShop($order->shop, []);
 
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->scope = $order->shop;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }

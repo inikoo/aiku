@@ -29,6 +29,8 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                     $tradeUnit = UpdateTradeUnit::make()->action(
                         tradeUnit: $tradeUnit,
                         modelData: $tradeUnitData['trade_unit'],
+                        hydratorDelay: 30,
+                        strict: false
                     );
                 }
                 $baseTradeUnit = TradeUnit::withTrashed()->where('source_slug', $tradeUnitData['trade_unit']['source_slug'])->first();
@@ -36,7 +38,8 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                 $tradeUnit = StoreTradeUnit::make()->action(
                     group: $organisationSource->getOrganisation()->group,
                     modelData: $tradeUnitData['trade_unit'],
-                    hydratorDelay: 30
+                    hydratorDelay: 30,
+                    strict: false
                 );
             }
 

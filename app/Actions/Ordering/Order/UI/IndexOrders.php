@@ -12,6 +12,7 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
 use App\Http\Resources\Ordering\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -36,6 +37,25 @@ class IndexOrders extends OrgAction
     use WithCustomerSubNavigation;
     private Organisation|Shop|Customer|CustomerClient|Asset $parent;
 
+    protected function getElementGroups(Organisation|Shop|Customer|CustomerClient|Asset $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    OrderStateEnum::labels(forElements: true),
+                    OrderStateEnum::count($parent, forElements: true)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('orders.state', $elements);
+                }
+            ],
+
+
+        ];
+    }
+
     public function handle(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -48,6 +68,7 @@ class IndexOrders extends OrgAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
+        
 
         $query=QueryBuilder::for(Order::class);
 
@@ -69,6 +90,15 @@ class IndexOrders extends OrgAction
         ->leftJoin('payments', 'model_has_payments.payment_id', '=', 'payments.id');
 
         $query->leftJoin('currencies', 'orders.currency_id', '=', 'currencies.id');
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $query->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
         return $query->defaultSort('orders.reference')
             ->select([
@@ -108,7 +138,11 @@ class IndexOrders extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            if ($prefix) {
+                InertiaTable::updateQueryBuilderParameters($prefix);
+            }
 
+            
             $table
                 ->withEmptyState(
                     [
@@ -117,6 +151,14 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
+    
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
             if($parent instanceof Shop) {
@@ -268,7 +310,7 @@ class IndexOrders extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(OrdersTabsEnum::values());
 
-        return $this->handle(parent: $organisation);
+        return $this->handle(parent: $organisation, prefix: OrdersTabsEnum::ORDERS->value);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
@@ -276,7 +318,7 @@ class IndexOrders extends OrgAction
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
-        return $this->handle(parent: $shop);
+        return $this->handle(parent: $shop, prefix: OrdersTabsEnum::ORDERS->value);
     }
 
     public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
@@ -284,7 +326,7 @@ class IndexOrders extends OrgAction
         $this->parent = $customer;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
-        return $this->handle(parent: $customer);
+        return $this->handle(parent: $customer, prefix: OrdersTabsEnum::ORDERS->value);
     }
 
     public function inCustomerClient(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, ActionRequest $request): LengthAwarePaginator
@@ -292,7 +334,7 @@ class IndexOrders extends OrgAction
         $this->parent = $customerClient;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
-        return $this->handle(parent: $customerClient);
+        return $this->handle(parent: $customerClient, prefix: OrdersTabsEnum::ORDERS->value);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

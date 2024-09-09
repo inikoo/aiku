@@ -7,12 +7,17 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStateToCreatingOrder
+class UpdateStateToCreatingOrder extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -23,11 +28,15 @@ class UpdateStateToCreatingOrder
     public function handle(Order $order): Order
     {
         $data = [
-            'state' => OrderStateEnum::CREATING
+            'state' => OrderStateEnum::CREATING,
+            'status' => OrderStatusEnum::CREATING
         ];
 
         if ($order->state === OrderStateEnum::SUBMITTED) {
-            $order->transactions()->update($data);
+            $order->transactions()->update([
+                'state' => TransactionStateEnum::CREATING,
+                'status' => TransactionStatusEnum::CREATING
+            ]);
 
             $data[$order->state->value . '_at'] = null;
 
@@ -46,6 +55,13 @@ class UpdateStateToCreatingOrder
      */
     public function action(Order $order): Order
     {
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }

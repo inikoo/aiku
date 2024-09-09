@@ -12,8 +12,10 @@ use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\Validator;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOrderStateToSubmitted extends OrgAction
 {
@@ -44,6 +46,7 @@ class UpdateOrderStateToSubmitted extends OrgAction
             $transactionDate = ['state' => TransactionStateEnum::SUBMITTED];
             if ($transaction->submitted_at == null) {
                 data_set($transactionDate, 'submitted_at', $date);
+                data_set($transactionDate, 'status', TransactionStatusEnum::PROCESSING);
             }
 
             $transaction->update($transactionDate);
@@ -80,6 +83,14 @@ class UpdateOrderStateToSubmitted extends OrgAction
         $this->order    = $order;
         $this->initialisationFromShop($order->shop, []);
 
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->scope = $order->shop;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }

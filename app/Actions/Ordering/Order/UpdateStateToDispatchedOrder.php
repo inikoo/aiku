@@ -8,11 +8,13 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\Dropshipping\Shopify\Fulfilment\UpdateFulfilmentShopify;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
+use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStateToDispatchedOrder
+class UpdateStateToDispatchedOrder extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -28,16 +30,23 @@ class UpdateStateToDispatchedOrder
         $this->orderHydrators($order);
 
         // Still dummy data, ignore this
-        UpdateFulfilmentShopify::run($order, [
-            'company' => 'DHL',
-            'number'  => 'DHL0001'
-        ]);
+        // UpdateFulfilmentShopify::run($order, [
+        //     'company' => 'DHL',
+        //     'number'  => 'DHL0001'
+        // ]);
 
         return $order;
     }
 
     public function action(Order $order): Order
     {
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }

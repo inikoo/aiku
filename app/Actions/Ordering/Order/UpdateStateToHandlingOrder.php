@@ -7,12 +7,14 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStateToHandlingOrder
+class UpdateStateToHandlingOrder extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -26,10 +28,10 @@ class UpdateStateToHandlingOrder
             'state' => OrderStateEnum::HANDLING
         ];
 
-        if (in_array($order->state, [OrderStateEnum::SUBMITTED, OrderStateEnum::PACKED])) {
+        if (in_array($order->state, [OrderStateEnum::SUBMITTED, OrderStateEnum::IN_WAREHOUSE])) {
             $order->transactions()->update($data);
 
-            $data[$order->state->value . '_at'] = null;
+            // $data[$order->state->value . '_at'] = null;
             $data['handling_at']                = now();
 
             $this->update($order, $data);
@@ -47,6 +49,13 @@ class UpdateStateToHandlingOrder
      */
     public function action(Order $order): Order
     {
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }

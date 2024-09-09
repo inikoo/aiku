@@ -7,8 +7,6 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\Pallet\Hydrators\HydrateMovementPallet;
-use App\Actions\Fulfilment\Pallet\Search\PalletRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\Pallet;
@@ -30,16 +28,9 @@ class UpdatePalletLocation extends OrgAction
 
     public function handle(Location $location, Pallet $pallet): Pallet
     {
-        $lastLocationId = $pallet->location_id;
-
-        $pallet = $this->update($pallet, [
+        return BookInPallet::make()->action($pallet, [
             'location_id' => $location->id
         ]);
-
-        HydrateMovementPallet::dispatch($pallet, $lastLocationId);
-        PalletRecordSearch::dispatch($pallet);
-
-        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool
