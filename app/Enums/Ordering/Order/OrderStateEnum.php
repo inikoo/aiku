@@ -141,14 +141,14 @@ enum OrderStateEnum: string
         }
 
         return [
-            'creating'     => $stats->number_orders_state_creating,
-            'submitted'    => $stats->number_orders_state_submitted,
+            'creating'        => $stats->number_orders_state_creating,
+            'submitted'       => $stats->number_orders_state_submitted,
             'in_warehouse'    => $stats->number_orders_state_in_warehouse,
-            'handling'     => $stats->number_orders_state_handling,
-            'packed' => $stats->number_orders_state_packed,
-            'finalised'   => $stats->number_orders_state_finalised,
-            'dispatched'    => $stats->number_orders_state_dispatched,
-            'cancelled'    => $stats->number_orders_state_cancelled,
+            'handling'        => $stats->number_orders_state_handling,
+            'packed'          => $stats->number_orders_state_packed,
+            'finalised'       => $stats->number_orders_state_finalised,
+            'dispatched'      => $stats->number_orders_state_dispatched,
+            'cancelled'       => $stats->number_orders_state_cancelled,
         ];
     }
 }

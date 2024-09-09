@@ -10,6 +10,8 @@ namespace App\Actions\Ordering\Order;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,7 +31,9 @@ class UpdateStateToPackedOrder extends OrgAction
         ];
 
         if (in_array($order->state, [\App\Enums\Ordering\Order\OrderStateEnum::HANDLING, \App\Enums\Ordering\Order\OrderStateEnum::FINALISED])) {
-            $order->transactions()->update($data);
+            $order->transactions()->update([
+                'state' => TransactionStateEnum::PACKED,
+            ]);
 
             // $data[$order->state->value . '_at'] = null;
             $data['packed_at']                  = now();

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -12,12 +12,11 @@ use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransactionFromAdjustment;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransactionFromCharge;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransactionFromShipping;
-use App\Actions\Ordering\Transaction\StoreTransactionFromAdjustment;
-use App\Actions\Ordering\Transaction\StoreTransactionFromCharge;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
@@ -35,7 +34,7 @@ class UpdateStateToFinalizedOrder extends OrgAction
     public function handle(Order $order): Order
     {
         $billingAddress     = $order->billingAddress;
-        $invoiceData = [
+        $invoiceData        = [
             'reference'        => $order->reference,
             'currency_id'      => $order->currency_id,
             'billing_address'  => Arr::except($billingAddress, 'id'),
@@ -65,7 +64,8 @@ class UpdateStateToFinalizedOrder extends OrgAction
                 'net_amount'      => $transaction->net_amount,
             ];
 
-            if($transaction->model_type == 'Adjustment'){
+            if($transaction->model_type == 'Adjustment') {
+                /** @var Adjustment $adjustment */
                 $adjustment = Adjustment::find($transaction->model_id);
                 StoreInvoiceTransactionFromAdjustment::make()->action($invoice, $adjustment, []);
             } elseif ($transaction->model_type == 'Charge') {
@@ -89,7 +89,9 @@ class UpdateStateToFinalizedOrder extends OrgAction
         ];
 
         if (in_array($order->state, [OrderStateEnum::HANDLING, OrderStateEnum::PACKED])) {
-            $order->transactions()->update($data);
+            $order->transactions()->update([
+                'state' => TransactionStateEnum::FINALISED
+            ]);
 
             // $data[$order->state->value . '_at'] = null;
             $data['finalised_at']                  = now();

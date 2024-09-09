@@ -7,6 +7,7 @@
 
 namespace App\Actions\Goods\TradeUnit;
 
+use App\Actions\Goods\Stock\Hydrators\StockHydrateWeightFromTradeUnits;
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Goods\TradeUnit;
@@ -23,7 +24,15 @@ class UpdateTradeUnit extends GrpAction
 
     public function handle(TradeUnit $tradeUnit, array $modelData): TradeUnit
     {
-        return $this->update($tradeUnit, $modelData, ['data', 'dimensions']);
+        $tradeUnit= $this->update($tradeUnit, $modelData, ['data', 'dimensions']);
+        if($tradeUnit->wasChanged('gross_weight')) {
+            foreach($tradeUnit->stocks as $stock) {
+                StockHydrateWeightFromTradeUnits::dispatch($stock);
+            }
+
+        }
+
+        return $tradeUnit;
     }
 
     public function rules(): array

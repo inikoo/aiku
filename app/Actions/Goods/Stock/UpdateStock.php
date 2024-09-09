@@ -46,10 +46,10 @@ class UpdateStock extends GrpAction
                             'name'       => $stock->name,
                             'unit_value' => $stock->unit_value,
                             'state'      => match ($stock->state) {
-                                StockStateEnum::ACTIVE => OrgStockStateEnum::ACTIVE,
+                                StockStateEnum::ACTIVE        => OrgStockStateEnum::ACTIVE,
                                 StockStateEnum::DISCONTINUING => OrgStockStateEnum::DISCONTINUING,
-                                StockStateEnum::DISCONTINUED => OrgStockStateEnum::DISCONTINUED,
-                                StockStateEnum::SUSPENDED => OrgStockStateEnum::SUSPENDED,
+                                StockStateEnum::DISCONTINUED  => OrgStockStateEnum::DISCONTINUED,
+                                StockStateEnum::SUSPENDED     => OrgStockStateEnum::SUSPENDED,
                             }
                         ]
                     );

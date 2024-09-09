@@ -11,6 +11,7 @@ use App\Actions\Dropshipping\Shopify\Fulfilment\UpdateFulfilmentShopify;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Ordering\Order;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -25,6 +26,10 @@ class UpdateStateToDispatchedOrder extends OrgAction
             'state'         => OrderStateEnum::DISPATCHED,
             'dispatched_at' => now()
         ];
+
+        $order->transactions()->update([
+            'state' => TransactionStateEnum::DISPATCHED
+        ]);
 
         $this->update($order, $data);
         $this->orderHydrators($order);

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Goods\Stock;
 
+use App\Actions\Goods\Stock\Hydrators\StockHydrateWeightFromTradeUnits;
 use App\Models\SupplyChain\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -17,7 +18,9 @@ class SyncStockTradeUnits
     public function handle(Stock $stock, array $tradeUnitsData): Stock
     {
         $stock->tradeUnits()->sync($tradeUnitsData);
-        // todo run over all OrfStock and hydrate that stuff
+
+        StockHydrateWeightFromTradeUnits::dispatch($stock);
+
 
         return $stock;
     }
