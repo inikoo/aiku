@@ -34,6 +34,7 @@ class UpdateOrderWebhooksShopify extends OrgAction
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
     {
         $this->initialisation($shopifyUser->organisation, $request);
+
         $this->handle($shopifyUser, $this->validatedData);
     }
 }
