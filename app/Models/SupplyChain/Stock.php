@@ -55,7 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $units_per_carton units per carton
  * @property string|null $unit_value
  * @property int|null $image_id
- * @property int|null $weight grams
+ * @property int|null $gross_weight package weight grams
  * @property array $settings
  * @property array $data
  * @property Carbon|null $activated_at
@@ -154,13 +154,20 @@ class Stock extends Model implements HasMedia, Auditable
             ->saveSlugsTo('slug');
     }
 
-
-    public function tradeUnits(): BelongsToMany
+    public function tradeUnits(): MorphToMany
     {
-        return $this->belongsToMany(
+        return $this->morphToMany(
             TradeUnit::class,
-            'stock_trade_unit',
-        )->withPivot(['quantity', 'notes'])->withTimestamps();
+            'model',
+            'model_has_trade_units',
+            'model_id',
+            null,
+            null,
+            null,
+            'trade_units',
+        )
+            ->withPivot(['quantity','notes'])
+            ->withTimestamps();
     }
 
     public function orgStocks(): HasMany

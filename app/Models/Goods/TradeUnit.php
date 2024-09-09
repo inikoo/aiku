@@ -10,6 +10,7 @@ namespace App\Models\Goods;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Barcode;
 use App\Models\SupplyChain\Stock;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -40,8 +41,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $barcode_id
  * @property Collection<int, Barcode> $barcode
- * @property int|null $gross_weight grams
- * @property int|null $net_weight grams
+ * @property int|null $net_weight (grams)
+ * @property int|null $gross_weight incl packing (grams)
+ * @property int|null $marketing_weight to be shown in website (grams)
  * @property array|null $dimensions
  * @property float|null $volume in cubic meters
  * @property string|null $type unit type
@@ -59,6 +61,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, Product> $outers
  * @property-read Collection<int, Stock> $stocks
+ * @property-read Collection<int, SupplierProduct> $supplierProducts
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
  * @method static Builder|TradeUnit newQuery()
@@ -128,6 +131,11 @@ class TradeUnit extends Model implements HasMedia, Auditable
     public function outers(): BelongsToMany
     {
         return $this->belongsToMany(Product::class);
+    }
+
+    public function supplierProducts(): MorphToMany
+    {
+        return $this->morphedByMany(SupplierProduct::class, 'model_has_trade_units');
     }
 
     public function barcode(): MorphToMany

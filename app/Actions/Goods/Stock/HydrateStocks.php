@@ -7,7 +7,7 @@
 
 namespace App\Actions\Goods\Stock;
 
-use App\Actions\Goods\Stock\Hydrators\StockHydrateWeightFromTradeUnits;
+use App\Actions\Goods\Stock\Hydrators\StockHydrateGrossWeightFromTradeUnits;
 use App\Actions\HydrateModel;
 use App\Models\SupplyChain\Stock;
 use Illuminate\Console\Command;
@@ -20,7 +20,7 @@ class HydrateStocks extends HydrateModel
 
     public function handle(Stock $stock): void
     {
-        StockHydrateWeightFromTradeUnits::run($stock);
+        StockHydrateGrossWeightFromTradeUnits::run($stock);
     }
 
     public function asCommand(Command $command): int

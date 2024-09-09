@@ -136,7 +136,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             if ($supplierProduct) {
                 SyncSupplierProductTradeUnits::run($supplierProduct, [
                     $tradeUnit->id => [
-                        'package_quantity' => $supplierProductData['supplierProduct']['units_per_pack']
+                        'quantity' => $supplierProductData['supplierProduct']['units_per_pack']
                     ]
                 ]);
 

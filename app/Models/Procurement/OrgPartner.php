@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Organisation $organisation
+ * @property-read Organisation $partner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgPartnerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries

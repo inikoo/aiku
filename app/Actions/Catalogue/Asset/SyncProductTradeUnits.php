@@ -7,18 +7,19 @@
 
 namespace App\Actions\Catalogue\Asset;
 
-use App\Models\Catalogue\Asset;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateGrossWeightFromTradeUnits;
+use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncProductTradeUnits
 {
     use AsAction;
 
-    public function handle(Asset $product, array $tradeUnitsData): Asset
+    public function handle(Product $product, array $tradeUnitsData): Product
     {
         $product->tradeUnits()->sync($tradeUnitsData);
 
-        //SyncProductTradeUnitImages::run($product);
+        ProductHydrateGrossWeightFromTradeUnits::run($product);
 
 
         return $product;

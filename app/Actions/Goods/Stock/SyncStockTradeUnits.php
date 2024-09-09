@@ -7,7 +7,7 @@
 
 namespace App\Actions\Goods\Stock;
 
-use App\Actions\Goods\Stock\Hydrators\StockHydrateWeightFromTradeUnits;
+use App\Actions\Goods\Stock\Hydrators\StockHydrateGrossWeightFromTradeUnits;
 use App\Models\SupplyChain\Stock;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,7 +19,7 @@ class SyncStockTradeUnits
     {
         $stock->tradeUnits()->sync($tradeUnitsData);
 
-        StockHydrateWeightFromTradeUnits::dispatch($stock);
+        StockHydrateGrossWeightFromTradeUnits::dispatch($stock);
 
 
         return $stock;

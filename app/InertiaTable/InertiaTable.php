@@ -11,8 +11,8 @@ use Inertia\Response;
 
 class InertiaTable
 {
-    private string $name = 'default';
-    private string $pageName = 'page';
+    private string $name          = 'default';
+    private string $pageName      = 'page';
     private array $perPageOptions = [10, 25, 50, 100, 250];
     private Request $request;
     private Collection $columns;
@@ -128,7 +128,7 @@ class InertiaTable
             'filters'                         => $this->transformFilters(),
             'hasFilters'                      => $this->filters->isNotEmpty(),
             'hasEnabledFilters'               => $this->filters->filter->value->isNotEmpty(),
-            'searchInputs'                    => $searchInputs = $this->transformSearchInputs(),
+            'searchInputs'                    => $searchInputs              = $this->transformSearchInputs(),
             'searchInputsWithoutGlobal'       => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
             'hasSearchInputs'                 => $searchInputsWithoutGlobal->isNotEmpty(),
             'hasSearchInputsWithValue'        => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),

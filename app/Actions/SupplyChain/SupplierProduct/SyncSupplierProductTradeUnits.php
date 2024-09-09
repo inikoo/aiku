@@ -16,9 +16,8 @@ class SyncSupplierProductTradeUnits
 
     public function handle(SupplierProduct $supplierProduct, array $tradeUnitsData): SupplierProduct
     {
+
         $supplierProduct->tradeUnits()->sync($tradeUnitsData);
-
-
         return $supplierProduct;
     }
 }

@@ -1,38 +1,38 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 09 Sept 2024 14:46:47 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Mon, 09 Sept 2024 17:15:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Goods\Stock\Hydrators;
+namespace App\Actions\Catalogue\Product\Hydrators;
 
-use App\Models\SupplyChain\Stock;
+use App\Models\Catalogue\Product;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StockHydrateWeightFromTradeUnits
+class ProductHydrateGrossWeightFromTradeUnits
 {
     use AsAction;
 
-    private Stock $stock;
+    private Product $product;
 
-    public function __construct(Stock $stock)
+    public function __construct(Product $product)
     {
-        $this->stock = $stock;
+        $this->product = $product;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->stock->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->product->id))->dontRelease()];
     }
 
-    public function handle(Stock $stock): void
+    public function handle(Product $product): void
     {
         $changed = false;
         $weight  = 0;
 
-        foreach($stock->tradeUnits as $tradeUnit) {
+        foreach($product->tradeUnits as $tradeUnit) {
             if(is_numeric($tradeUnit->gross_weight) and is_numeric($tradeUnit->pivot->quantity)) {
                 $changed = true;
                 $weight += $tradeUnit->gross_weight * $tradeUnit->pivot->quantity;
@@ -44,7 +44,7 @@ class StockHydrateWeightFromTradeUnits
         }
 
 
-        $stock->updateQuietly(
+        $product->updateQuietly(
             [
                 'weight' => $weight
             ]

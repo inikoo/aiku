@@ -27,7 +27,7 @@ return new class () extends Migration {
 
             $table=$this->assetModelFields($table);
 
-            $table->unsignedInteger('weight')->nullable()->comment('including packing, grams');
+            $table->unsignedInteger('gross_weight')->nullable()->comment('outer weight including packing, grams');
             $table->unsignedInteger('marketing_weight')->nullable()->comment('to be shown in website, grams');
 
             $table->string('barcode')->index()->nullable()->comment('mirror from trade_unit');

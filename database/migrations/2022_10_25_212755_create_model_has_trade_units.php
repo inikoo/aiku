@@ -12,21 +12,21 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('supplier_product_trade_unit', function (Blueprint $table) {
+        Schema::create('model_has_trade_units', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('supplier_product_id')->nullable();
-            $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
+            $table->string('model_type');
+            $table->unsignedInteger('model_id')->nullable();
             $table->unsignedInteger('trade_unit_id')->nullable();
             $table->foreign('trade_unit_id')->references('id')->on('trade_units');
-            $table->double('package_quantity')->default(1);
-            $table->double('carton_quantity')->nullable();
+            $table->decimal('quantity', 12, 3)->default(1);
             $table->string('notes')->nullable();
             $table->timestampsTz();
+            $table->unique(['model_type','model_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('supplier_product_trade_unit');
+        Schema::dropIfExists('model_has_trade_units');
     }
 };

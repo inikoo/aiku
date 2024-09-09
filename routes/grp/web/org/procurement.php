@@ -29,7 +29,6 @@ use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
-use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowProcurementDashboard::class)->name('dashboard');

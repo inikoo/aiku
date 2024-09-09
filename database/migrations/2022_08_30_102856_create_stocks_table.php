@@ -33,7 +33,7 @@ return new class () extends Migration {
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->decimal('unit_value', 16)->nullable();
             $table->unsignedInteger('image_id')->nullable();
-            $table->unsignedInteger('weight')->nullable()->comment('grams');
+            $table->unsignedInteger('gross_weight')->nullable()->comment('package weight grams');
 
             $table->jsonb('settings');
             $table->jsonb('data');

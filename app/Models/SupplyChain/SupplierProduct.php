@@ -18,14 +18,13 @@ use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -69,16 +68,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read mixed $gross_weight
  * @property-read Group $group
  * @property-read \App\Models\SupplyChain\HistoricSupplierProduct|null $historicSupplierProduct
  * @property-read Collection<int, \App\Models\SupplyChain\HistoricSupplierProduct> $historicSupplierProducts
- * @property-read mixed $net_weight
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Stock|null $stock
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
- * @property-read \App\Models\SupplyChain\SupplierProductTradeUnit $pivot
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierProductFactory factory($count = null, $state = [])
@@ -174,25 +170,19 @@ class SupplierProduct extends Model implements Auditable
     }
 
 
-    protected function grossWeight(): Attribute
+    public function tradeUnits(): MorphToMany
     {
-        return new Attribute(
-            get: fn () => $this->tradeUnits()->sum('gross_weight')
-        );
-    }
-
-    protected function netWeight(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->tradeUnits()->sum('net_weight')
-        );
-    }
-
-    public function tradeUnits(): BelongsToMany
-    {
-        return $this->belongsToMany(TradeUnit::class)
-            ->using(SupplierProductTradeUnit::class)
-            ->withPivot('package_quantity')
+        return $this->morphToMany(
+            TradeUnit::class,
+            'model',
+            'model_has_trade_units',
+            'model_id',
+            null,
+            null,
+            null,
+            'trade_units',
+        )
+           ->withPivot(['quantity','notes'])
             ->withTimestamps();
     }
 

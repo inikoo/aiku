@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('product_trade_unit', function (Blueprint $table) {
+        Schema::create('product_has_org_stocks', function (Blueprint $table) {
             $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
-            $table->unsignedInteger('trade_unit_id')->nullable();
+            $table->unsignedInteger('org_stock_id')->nullable();
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
+
             $table->decimal('units', 12, 3);
             $table->string('notes')->nullable();
 
@@ -26,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('product_trade_unit');
+        Schema::dropIfExists('product_has_org_stocks');
     }
 };

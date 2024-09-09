@@ -8,14 +8,10 @@
 namespace App\Actions\Procurement\OrgPartner\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgPartnerTabsEnum;
-use App\Enums\UI\Procurement\OrgSupplierProductTabsEnum;
-use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\Procurement\OrgPartner;
-use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;

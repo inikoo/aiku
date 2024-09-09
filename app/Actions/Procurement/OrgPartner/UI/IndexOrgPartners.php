@@ -119,8 +119,8 @@ class IndexOrgPartners extends OrgAction
                 'title'       => __('partners'),
                 'pageHead'    => [
                     'model'       => __('procurement'),
-                    'icon'  => ['fal', 'fa-users-class'],
-                    'title' => __('partners'),
+                    'icon'        => ['fal', 'fa-users-class'],
+                    'title'       => __('partners'),
                 ],
                 'data'        => OrgPartnersResource::collection($partners),
 
