@@ -11,6 +11,7 @@ use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydrateOrgSupplierP
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateOrgSupplier
@@ -29,9 +30,18 @@ class HydrateOrgSupplier
     public function asCommand(Command $command): int
     {
 
-        $command->withProgressBar(OrgSupplier::all(), function (OrgSupplier $orgSupplier) {
-            $this->handle($orgSupplier);
+
+        $count = OrgSupplier::count();
+        $bar   = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        OrgSupplier::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
         });
+        $bar->finish();
 
         return 0;
     }

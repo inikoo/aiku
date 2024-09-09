@@ -13,6 +13,7 @@ use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Actions\HydrateModel;
 use App\Models\Helpers\Address;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 class HydrateAddress extends HydrateModel
 {
@@ -29,15 +30,24 @@ class HydrateAddress extends HydrateModel
     {
         $exitCode = 0;
         if ($command->option('id')) {
+            /** @var Address $address */
             $address = Address::find($command->option('id'));
             $this->handle($address);
         } else {
-            $command->withProgressBar(Address::all(), function ($address) {
-                if ($address) {
-                    $this->handle($address);
+
+
+            $count = Address::count();
+            $bar   = $command->getOutput()->createProgressBar($count);
+            $bar->setFormat('debug');
+            $bar->start();
+            Address::chunk(1000, function (Collection $models) use ($bar) {
+                foreach ($models as $model) {
+                    $this->handle($model);
+                    $bar->advance();
                 }
             });
-            $command->info("");
+            $bar->finish();
+
         }
 
         return $exitCode;

@@ -11,6 +11,7 @@ use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStock
 use App\Models\Inventory\OrgStockFamily;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class HydrateOrgStockFamily
@@ -35,12 +36,20 @@ class HydrateOrgStockFamily
                 return 1;
             }
         } else {
-            $command->withProgressBar(OrgStockFamily::withTrashed()->get(), function ($orgStockFamily) {
-                if ($orgStockFamily) {
-                    $this->handle($orgStockFamily);
+
+
+            $count = OrgStockFamily::withTrashed()->count();
+            $bar   = $command->getOutput()->createProgressBar($count);
+            $bar->setFormat('debug');
+            $bar->start();
+            OrgStockFamily::withTrashed()->chunk(1000, function (Collection $models) use ($bar) {
+                foreach ($models as $model) {
+                    $this->handle($model);
+                    $bar->advance();
                 }
             });
-            $command->info("");
+            $bar->finish();
+
         }
 
         return 0;
