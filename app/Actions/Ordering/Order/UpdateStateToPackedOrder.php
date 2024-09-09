@@ -7,12 +7,14 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStateToPackedOrder
+class UpdateStateToPackedOrder extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -47,6 +49,13 @@ class UpdateStateToPackedOrder
      */
     public function action(Order $order): Order
     {
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }
