@@ -8,6 +8,11 @@
 namespace App\Enums\Ordering\Order;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\SysAdmin\Organisation;
 
 enum OrderStateEnum: string
 {
@@ -120,6 +125,30 @@ enum OrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
+        ];
+    }
+
+    public static function count(
+        Organisation|Shop|Customer|CustomerClient|Asset $parent,
+        $forElements = false
+    ): array {
+        if ($parent instanceof Organisation || $parent instanceof Shop) {
+            $stats = $parent->salesStats;
+        } elseif ($parent instanceof CustomerClient) {
+            $stats = $parent->customer->stats;
+        } else {
+            $stats = $parent->stats;
+        }
+
+        return [
+            'creating'     => $stats->number_orders_state_creating,
+            'submitted'    => $stats->number_orders_state_submitted,
+            'in_warehouse'    => $stats->number_orders_state_in_warehouse,
+            'handling'     => $stats->number_orders_state_handling,
+            'packed' => $stats->number_orders_state_packed,
+            'finalised'   => $stats->number_orders_state_finalised,
+            'dispatched'    => $stats->number_orders_state_dispatched,
+            'cancelled'    => $stats->number_orders_state_cancelled,
         ];
     }
 }
