@@ -21,7 +21,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgPartner extends OrgAction
 {
-    private Organisation $parent;
 
     public function handle(OrgPartner $orgPartner): OrgPartner
     {
@@ -37,7 +36,6 @@ class ShowOrgPartner extends OrgAction
 
     public function asController(Organisation $organisation, OrgPartner $orgPartner, ActionRequest $request): OrgPartner
     {
-        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(OrgPartnerTabsEnum::values());
 
         return $this->handle($orgPartner);
