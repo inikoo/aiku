@@ -22,15 +22,14 @@ class StoreTradeUnit extends GrpAction
         /** @var TradeUnit $tradeUnit */
         $tradeUnit = $group->tradeUnits()->create($modelData);
         GroupHydrateTradeUnits::dispatch($group)->delay($this->hydratorsDelay);
-        ;
 
         return $tradeUnit;
     }
 
     public function rules(): array
     {
-        return [
-            'code'         => [
+        $rules =  [
+            'code'             => [
                 'required',
                 'max:64',
                 new AlphaDashDot(),
@@ -43,23 +42,33 @@ class StoreTradeUnit extends GrpAction
                 ),
 
             ],
-            'name'         => ['required', 'string', 'max:255'],
-            'description'  => ['sometimes', 'required', 'string', 'max:1024'],
-            'barcode'      => ['sometimes', 'required'],
-            'gross_weight' => ['sometimes', 'required', 'numeric'],
-            'net_weight'   => ['sometimes', 'required', 'numeric'],
-            'dimensions'   => ['sometimes', 'required'],
-            'type'         => ['sometimes', 'required'],
-            'image_id'     => ['sometimes', 'required', 'exists:media,id'],
-            'data'         => ['sometimes', 'required'],
-            'source_id'    => ['sometimes', 'nullable', 'string'],
-            'source_slug'  => ['sometimes', 'nullable', 'string'],
+            'name'             => ['required', 'string', 'max:255'],
+            'description'      => ['sometimes', 'required', 'string', 'max:1024'],
+            'barcode'          => ['sometimes', 'required'],
+            'gross_weight'     => ['sometimes', 'required', 'numeric'],
+            'net_weight'       => ['sometimes', 'required', 'numeric'],
+            'marketing_weight' => ['sometimes', 'required', 'numeric'],
+            'dimensions'       => ['sometimes', 'required'],
+            'type'             => ['sometimes', 'required'],
+            'image_id'         => ['sometimes', 'required', 'exists:media,id'],
+            'data'             => ['sometimes', 'required'],
+
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']    = ['sometimes', 'nullable', 'string'];
+            $rules['source_slug']  = ['sometimes', 'nullable', 'string'];
+            $rules['gross_weight'] = ['sometimes',  'nullable', 'numeric'];
+            $rules['net_weight']   = ['sometimes',  'nullable', 'numeric'];
+        }
+
+        return $rules;
     }
 
-    public function action(Group $group, array $modelData, int $hydratorDelay = 0): TradeUnit
+    public function action(Group $group, array $modelData, int $hydratorDelay = 0, bool $strict = true): TradeUnit
     {
         $this->hydratorsDelay = $hydratorDelay;
+        $this->strict    = $strict;
         $this->initialisation($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
