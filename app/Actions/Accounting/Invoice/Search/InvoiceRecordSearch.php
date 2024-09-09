@@ -38,7 +38,7 @@ class InvoiceRecordSearch
                     $invoice->slug
                 ]
             ];
-        }else{
+        } else {
             $route=[
                 'name'          => 'grp.org.accounting.invoices.show',
                 'parameters'    => [

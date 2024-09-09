@@ -67,7 +67,7 @@ class IndexOrders extends OrgAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-        
+
 
         $query=QueryBuilder::for(Order::class);
 
@@ -141,7 +141,7 @@ class IndexOrders extends OrgAction
                 InertiaTable::updateQueryBuilderParameters($prefix);
             }
 
-            
+
             $table
                 ->withGlobalSearch()
                 ->withEmptyState(
@@ -151,14 +151,14 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
-                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
-    
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
             if($parent instanceof Shop) {

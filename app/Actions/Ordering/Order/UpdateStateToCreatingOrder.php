@@ -28,13 +28,13 @@ class UpdateStateToCreatingOrder extends OrgAction
     public function handle(Order $order): Order
     {
         $data = [
-            'state' => OrderStateEnum::CREATING,
+            'state'  => OrderStateEnum::CREATING,
             'status' => OrderStatusEnum::CREATING
         ];
 
         if ($order->state === OrderStateEnum::SUBMITTED) {
             $order->transactions()->update([
-                'state' => TransactionStateEnum::CREATING,
+                'state'  => TransactionStateEnum::CREATING,
                 'status' => TransactionStatusEnum::CREATING
             ]);
 
