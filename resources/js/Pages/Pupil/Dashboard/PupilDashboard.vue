@@ -27,6 +27,12 @@ import { notify } from '@kyvg/vue3-notification'
 import Modal from '@/Components/Utils/Modal.vue'
 library.add(faSearch, faThLarge, faListUl, faStar, falStar)
 
+declare global {
+    interface Window {
+        sessionToken: string; // or the correct type if it's not a string
+    }
+}
+
 const props = defineProps<{
     user: {}
     shop: string
@@ -37,7 +43,7 @@ const props = defineProps<{
         get_started: routeType
     }
     // token: string
-    token_request: string
+    // token_request: string
 }>()
 
 console.log('token', props)
@@ -50,7 +56,7 @@ const filters = ref({
     'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 })
 
-const getStatusLabel = (status) => {
+const getStatusLabel = (status: string) => {
     switch (status) {
         case 'INSTOCK':
             return 'success';
@@ -74,25 +80,30 @@ onMounted(async () => {
         listen('.action-progress', (e) => {
             console.log('xxxxxxxxxxxxxx', e)
 
-    });
+    })
+    console.log('Websocket:', xxx)
 
-    console.log('xxx', xxx)
 
-    try {
-        const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
-            {
-                headers: {
-                    Authorization: `Bearer ${props.token_request}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
+    setTimeout(async () => {
+        console.log('500 window sessionToken', window.sessionToken)
+        try {
+            const { data } = await axios.get(route(props.routes.products.name, props.routes.products.parameters),
+                {
+                    headers: {
+                        Authorization: `Bearer ${window.sessionToken}`,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
                 }
-            }
-        )
+            )
 
-        realProducts.value = data.data
-        console.log('aaa', realProducts.value)
-    } catch (error) {
-        console.log('error', error)
-    }
+            realProducts.value = data.data
+            // console.log('aaa', realProducts.value)
+        } catch (error) {
+            console.error('error', error)
+        }
+    }, 500)
+
+    
 
 })
 
@@ -111,7 +122,7 @@ const onSubmitProduct = () => {
         },
         {
             headers: {
-                Authorization: `Bearer ${props.token_request}`,
+                Authorization: `Bearer ${window.sessionToken}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             onStart: () => {
@@ -199,6 +210,22 @@ const onSortChange = (event) => {
     }
 }
 
+
+const onClickGetStarted = () => {
+    isModalGetStarted.value = false
+
+    router[props.routes.get_started.method || 'post'](route(props.routes.get_started.name, props.routes.get_started.parameters), {
+
+    }, {
+        headers: {
+            Authorization: `Bearer ${window.sessionToken}`
+        },
+        preserveState: true,
+        onError: () => {
+            console.error('error get started: ', error)
+        }
+    })
+}
 
 </script>
 
@@ -349,8 +376,8 @@ const onSortChange = (event) => {
         </div>
     </div>
 
-    <Modal :isOpen="isModalGetStarted" @onClose="isModalGetStarted = false">
-        <div class="relative isolate overflow-hidden px-6 py-16 text-center sm:rounded-3xl sm:px-12">
+    <Modal :isOpen="isModalGetStarted" width="w-[700px]">
+        <div class="relative isolate overflow-hidden px-6 py-8 text-center sm:rounded-3xl sm:px-12">
             <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
                 {{ trans(`Let's get started.`) }}
             </h2>
@@ -358,18 +385,7 @@ const onSortChange = (event) => {
                 It's looks like this is the first time you integrate Shopify, let's have a look what you can do.
             </p>
             <div class="mt-10 flex items-center justify-center gap-x-6">
-                <Link
-                    as="button"
-                    :href="route(routes.get_started.name, routes.get_started.parameters)"
-                    :method="routes.get_started.method"
-                    @error="(error) => console.log('aaa', error)"
-                    :headers="{ Authorization: `Bearer ${props.token_request}` }"
-                    @click="() => isModalGetStarted = false"
-                >
-                    <Button type="black" size="l">
-                        Get started
-                    </Button>
-                </Link>
+                <Button @click="() => onClickGetStarted()" type="black" size="l" label="Get started" />
             </div>
         </div>
     

@@ -7,12 +7,14 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStateToPackedOrder
+class UpdateStateToPackedOrder extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -29,7 +31,7 @@ class UpdateStateToPackedOrder
         if (in_array($order->state, [\App\Enums\Ordering\Order\OrderStateEnum::HANDLING, \App\Enums\Ordering\Order\OrderStateEnum::FINALISED])) {
             $order->transactions()->update($data);
 
-            $data[$order->state->value . '_at'] = null;
+            // $data[$order->state->value . '_at'] = null;
             $data['packed_at']                  = now();
 
             $this->update($order, $data);
@@ -47,6 +49,13 @@ class UpdateStateToPackedOrder
      */
     public function action(Order $order): Order
     {
+        return $this->handle($order);
+    }
+
+    public function asController(Order $order, ActionRequest $request)
+    {
+        $this->order = $order;
+        $this->initialisationFromShop($order->shop, $request);
         return $this->handle($order);
     }
 }

@@ -32,9 +32,9 @@ const props = defineProps<{
 
 }>()
 
+
 const isModalOpen = ref<string | boolean>(false)
 const websiteInput = ref<string | null>(null)
-
 const isLoading = ref<string | boolean>(false)
 const onCreateStore = () => {
     router[props.createRoute.method || 'post'](
@@ -53,6 +53,7 @@ const onCreateStore = () => {
             },
             onSuccess: () => {
                 isModalOpen.value = false
+                websiteInput.value = null
             },
             onFinish: () => isLoading.value = false
         }

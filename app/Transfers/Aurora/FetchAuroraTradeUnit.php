@@ -17,25 +17,51 @@ class FetchAuroraTradeUnit extends FetchAurora
 
     protected function parseModel(): void
     {
-
-        $reference  = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $reference = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
 
 
         $sourceSlug = Str::lower($reference);
 
 
-        $name=$this->auroraModelData->{'Part Recommended Product Unit Name'};
-        if($name=='') {
-            $name=$reference;
+        $name = $this->auroraModelData->{'Part Recommended Product Unit Name'};
+        if ($name == '') {
+            $name = $reference;
         }
+
+        $grossWeight = null;
+        $netWeight   = null;
+
+        if ($this->auroraModelData->{'Part Package Weight'} > 0) {
+            $grossWeight = round(1000 * $this->auroraModelData->{'Part Package Weight'} / $this->auroraModelData->{'Part Units Per Package'});
+        }
+
+        if ($this->auroraModelData->{'Part Unit Weight'} > 0) {
+            $netWeight = round(1000 * $this->auroraModelData->{'Part Unit Weight'});
+        }
+
+//        if($grossWeight && $netWeight){
+//            print_r([
+//                'name'         => $name,
+//                'code'         => $reference,
+//                'gross_weight' => $grossWeight,
+//                'net_weight'   => $netWeight,
+//            ]);
+//            $ratio = $grossWeight / $netWeight;
+//            dd($ratio);
+//        }
 
 
         $this->parsedData['trade_unit'] = [
-            'name'        => $name,
-            'code'        => $reference,
-            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
-            'source_slug' => $sourceSlug
+            'name'         => $name,
+            'code'         => $reference,
+            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug'  => $sourceSlug,
+            'gross_weight' => $grossWeight,
+            'net_weight'   => $netWeight,
         ];
+
+        //dd($this->auroraModelData);
+
     }
 
 
@@ -45,9 +71,6 @@ class FetchAuroraTradeUnit extends FetchAurora
             ->table('Part Dimension')
             ->where('Part SKU', $id)->first();
     }
-
-
-
 
 
 }

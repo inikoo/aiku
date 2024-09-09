@@ -27,7 +27,7 @@ class ShowDashboard
         return Inertia::render('Dashboard/PupilDashboard', [
             // 'shop'                  => $shopifyUser,
             // 'token'                 => session()->all(),
-            'token_request'         => $request->get('token'),
+            // 'token_request'         => $request->get('token'),
             'user'                  => $shopifyUser,
             'showIntro'             => !Arr::get($shopifyUser->settings, 'webhooks'),
             'routes'                => [
