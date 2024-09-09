@@ -35,6 +35,42 @@ class ServiceRecordSearch
                 'shop_slug'         => $service->shop->slug,
                 'sections'          => ['catalogue'],
                 'haystack_tier_1'   => $service->name,
+                'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.fulfilments.show.billables.services.show',
+                        'parameters'    => [
+                            $service->organisation->slug,
+                            $service->shop->slug,
+                            $service->slug
+                        ]
+                    ],
+                    // 'container'     => [
+                    //     'key'     => 'address',
+                    //     'label'   => $service->customer->location
+                    // ],
+                    'title'         => $service->name,
+                    'afterTitle'    => [
+                        'label'     => '(' . $service->code . ')',
+                    ],
+                    'icon'          => [
+                        'icon'  => 'fal fa-concierge-bell',
+                    ],
+                    'meta'          => [
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $service->created_at,
+                            'tooltip'   => __('Created at')
+                        ],
+                        [
+                            'key'       => 'price',
+                            'type'      => 'amount',
+                            'label'     => __('Price'),
+                            'amount'    => $service->price,
+                            'tooltip'   => __('Price')
+                        ],
+                    ],
+                ]
             ];
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {

@@ -10,6 +10,7 @@ import LoadingText from '@/Components/Utils/LoadingText.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useTruncate } from '@/Composables/useTruncate'
 
 const props = defineProps<{
     data?: {
@@ -101,7 +102,7 @@ const isLoading = ref(false)
                 <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 font-semibold">
                     <h2 :class="data?.noCapitalise ? '' : 'capitalize'" class="text-xl">
                         <span v-if="data?.model" class="text-gray-400 mr-2 font-medium block sm:inline">{{ data?.model }}</span>
-                        <span class="inline-block whitespace-nowrap">{{ data?.title }}</span>
+                        <span class="inline-block whitespace-nowrap">{{ useTruncate(data?.title || '', 30) }}</span>
                     </h2>
 
                     <!-- Section: After Title -->
@@ -121,7 +122,7 @@ const isLoading = ref(false)
                             <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400">
                                 <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' :class='meta.class' size="sm" fixed-width aria-hidden='true' />
                                 <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
-                                <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code, meta.amount) }}</template>
+                                <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code || 'usd', meta.amount) }}</template>
                                 <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
                                 <template v-else>{{ meta.label }}</template>
                             </div>
