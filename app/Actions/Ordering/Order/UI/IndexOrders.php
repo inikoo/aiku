@@ -60,8 +60,7 @@ class IndexOrders extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('orders.reference', '~*', "\y$value\y")
-                    ->orWhere('orders.date', '=', $value);
+                $query->whereStartWith('orders.reference', $value);
             });
         });
 
@@ -144,6 +143,7 @@ class IndexOrders extends OrgAction
 
             
             $table
+                ->withGlobalSearch()
                 ->withEmptyState(
                     [
                         'title' => __("No orders found"),
