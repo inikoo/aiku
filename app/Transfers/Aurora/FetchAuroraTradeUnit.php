@@ -39,16 +39,16 @@ class FetchAuroraTradeUnit extends FetchAurora
             $netWeight = round(1000 * $this->auroraModelData->{'Part Unit Weight'});
         }
 
-//        if($grossWeight && $netWeight){
-//            print_r([
-//                'name'         => $name,
-//                'code'         => $reference,
-//                'gross_weight' => $grossWeight,
-//                'net_weight'   => $netWeight,
-//            ]);
-//            $ratio = $grossWeight / $netWeight;
-//            dd($ratio);
-//        }
+        //        if($grossWeight && $netWeight){
+        //            print_r([
+        //                'name'         => $name,
+        //                'code'         => $reference,
+        //                'gross_weight' => $grossWeight,
+        //                'net_weight'   => $netWeight,
+        //            ]);
+        //            $ratio = $grossWeight / $netWeight;
+        //            dd($ratio);
+        //        }
 
 
         $this->parsedData['trade_unit'] = [

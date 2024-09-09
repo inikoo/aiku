@@ -29,6 +29,26 @@ class InvoiceRecordSearch
 
         $shop = $invoice->shop;
 
+        if($shop->type==ShopTypeEnum::FULFILMENT) {
+            $route=[
+                'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
+                'parameters'    => [
+                    $invoice->organisation->slug,
+                    $invoice->shop->slug,
+                    $invoice->slug
+                ]
+            ];
+        } else {
+            $route=[
+                'name'          => 'grp.org.accounting.invoices.show',
+                'parameters'    => [
+                    $invoice->organisation->slug,
+                    $invoice->slug
+                ]
+            ];
+        }
+
+
         $universalSearchData = [
             'group_id'          => $invoice->group_id,
             'organisation_id'   => $invoice->organisation_id,
@@ -41,17 +61,7 @@ class InvoiceRecordSearch
             'haystack_tier_1'   => $invoice->reference,
             'keyword'           => $invoice->reference,
             'result'            => [
-                'route'     => [
-                    'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
-                    'parameters'    => [
-                        $invoice->organisation->slug,
-                        $invoice->shop->slug,
-                        $invoice->slug
-                        // 'organisation'=> $invoice->organisation->slug,
-                        // 'fulfilment'  => $invoice->shop->fulfilment->slug,
-                        // 'invoice'     => $invoice->slug
-                    ]
-                ],
+                'route'     => $route,
                 'container' => [
                     'label' => $invoice->shop->name,
                 ],

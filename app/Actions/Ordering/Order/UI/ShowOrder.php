@@ -1,24 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Ordering\Order\UI;
 
-// use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-// use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
-use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
-// use App\Http\Resources\Accounting\InvoicesResource;
-// // use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
@@ -40,6 +35,7 @@ use Illuminate\Support\Facades\DB;
 class ShowOrder extends OrgAction
 {
     use HasOrderingAuthorisation;
+
     private Shop|Customer|CustomerClient $parent;
 
     public function handle(Order $order): Order
@@ -61,35 +57,38 @@ class ShowOrder extends OrgAction
         $this->parent = $shop;
         $this->scope  = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
+
         return $this->handle($order);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inCustomerInShop(Organisation $organisation, Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
     {
         $this->parent = $customer;
         $this->scope  = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
+
         return $this->handle($order);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inCustomerClient(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, Order $order, ActionRequest $request): Order
     {
         $this->parent = $customerClient;
         $this->scope  = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
+
         return $this->handle($order);
     }
 
 
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
-
-        $timeline       = [];
+        $timeline = [];
         foreach (OrderStateEnum::cases() as $state) {
-
-            $timestamp = $order->{$state->snake() . '_at'}
-            ? $order->{$state->snake() . '_at'}
-            : null;
+            $timestamp = $order->{$state->snake().'_at'}
+                ? $order->{$state->snake().'_at'}
+                : null;
 
             // If all possible values are null, set the timestamp to null explicitly
             $timestamp = $timestamp ?: null;
@@ -105,33 +104,32 @@ class ShowOrder extends OrgAction
 
         $finalTimeline = Arr::except(
             $timeline,
-            [$order->state->value == OrderStateEnum::CANCELLED->value
-                ? OrderStateEnum::DISPATCHED->value
-                : OrderStateEnum::CANCELLED->value]
+            [
+                $order->state->value == OrderStateEnum::CANCELLED->value
+                    ? OrderStateEnum::DISPATCHED->value
+                    : OrderStateEnum::CANCELLED->value
+            ]
         );
 
         $addresses = $order->customer->addresses;
 
         $processedAddresses = $addresses->map(function ($address) {
-
-
-            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
-
+            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);
             }
 
 
             return $address->setAttribute('can_delete', true)
-                            ->setAttribute('can_edit', true);
+                ->setAttribute('can_edit', true);
         });
 
-        $customerAddressId              = $order->customer->address->id;
-        $customerDeliveryAddressId      = $order->customer->deliveryAddress->id;
-        $orderDeliveryAddressIds        = Order::where('customer_id', $order->customer_id)
-                                            ->pluck('delivery_address_id')
-                                            ->unique()
-                                            ->toArray();
+        $customerAddressId         = $order->customer->address->id;
+        $customerDeliveryAddressId = $order->customer->deliveryAddress->id;
+        $orderDeliveryAddressIds   = Order::where('customer_id', $order->customer_id)
+            ->pluck('delivery_address_id')
+            ->unique()
+            ->toArray();
 
         $forbiddenAddressIds = array_merge(
             $orderDeliveryAddressIds,
@@ -141,7 +139,7 @@ class ShowOrder extends OrgAction
         $processedAddresses->each(function ($address) use ($forbiddenAddressIds) {
             if (in_array($address->id, $forbiddenAddressIds, true)) {
                 $address->setAttribute('can_delete', false)
-                        ->setAttribute('can_edit', true);
+                    ->setAttribute('can_edit', true);
             }
         });
 
@@ -153,12 +151,10 @@ class ShowOrder extends OrgAction
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 
         $noProductItems = $order->transactions()
-                                ->whereNotIn('model_type', ['Product', 'Service'])
-                                ->get()
-                                ->toArray();
-                            
-        // dd($order->state);
-        // dd($order);
+            ->whereNotIn('model_type', ['Product', 'Service'])
+            ->get()
+            ->toArray();
+
         $actions = [];
         if ($this->canEdit) {
             $actions = match ($order->state) {
@@ -291,19 +287,19 @@ class ShowOrder extends OrgAction
                     'next'     => $this->getNext($order, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $order->reference,
-                    'model'     => __('Order'),
-                    'icon'      => [
+                    'title'   => $order->reference,
+                    'model'   => __('Order'),
+                    'icon'    => [
                         'icon'  => 'fal fa-shopping-cart',
                         'title' => __('customer client')
                     ],
-                    'actions'   => $actions
+                    'actions' => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => OrderTabsEnum::navigation()
                 ],
-                'routes'    => [
+                'routes'      => [
                     'updateOrderRoute' => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.order.update',
@@ -311,7 +307,7 @@ class ShowOrder extends OrgAction
                             'order' => $order->id,
                         ]
                     ],
-                    'products_list' => [
+                    'products_list'    => [
                         'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
                             'shop'  => $order->shop->slug,
@@ -324,53 +320,53 @@ class ShowOrder extends OrgAction
                 //     'title'         => 'Dummy Alert from BE',
                 //     'description'   => 'Dummy description'
                 // ],
-                'notes' => [  // TODO
-                    "note_list"  => [
-                        [
-                            "label"    => __("Customer"),
-                            "note"     => $order->customer_notes ?? '',
-                            "editable" => false,
-                            "bgColor"  => "#FF7DBD",
-                            "field"    => "customer_notes"
-                        ],
-                        [
-                            "label"    => __("Public"),
-                            "note"     => $order->public_notes ?? '',
-                            "editable" => true,
-                            "bgColor"  => "#94DB84",
-                            "field"    => "public_notes"
-                        ],
-                        [
-                            "label"    => __("Private"),
-                            "note"     => $order->internal_notes ?? '',
-                            "editable" => true,
-                            "bgColor"  => "#FCF4A3",
-                            "field"    => "internal_notes"
-                        ]
-                    ]
+                'notes'       => [  // TODO
+                                    "note_list" => [
+                                        [
+                                            "label"    => __("Customer"),
+                                            "note"     => $order->customer_notes ?? '',
+                                            "editable" => false,
+                                            "bgColor"  => "#FF7DBD",
+                                            "field"    => "customer_notes"
+                                        ],
+                                        [
+                                            "label"    => __("Public"),
+                                            "note"     => $order->public_notes ?? '',
+                                            "editable" => true,
+                                            "bgColor"  => "#94DB84",
+                                            "field"    => "public_notes"
+                                        ],
+                                        [
+                                            "label"    => __("Private"),
+                                            "note"     => $order->internal_notes ?? '',
+                                            "editable" => true,
+                                            "bgColor"  => "#FCF4A3",
+                                            "field"    => "internal_notes"
+                                        ]
+                                    ]
                 ],
-                'timelines'      => $finalTimeline,
+                'timelines'   => $finalTimeline,
 
-                'box_stats'     => [
-                    'customer'          => array_merge(
+                'box_stats'      => [
+                    'customer'      => array_merge(
                         CustomerResource::make($order->customer)->getArray(),
                         [
-                            'addresses'      => [
-                                'delivery'   => AddressResource::make($order->deliveryAddress ?? new Address()),
-                                'billing'    => AddressResource::make($order->billingAddress ?? new Address())
+                            'addresses' => [
+                                'delivery' => AddressResource::make($order->deliveryAddress ?? new Address()),
+                                'billing'  => AddressResource::make($order->billingAddress ?? new Address())
                             ],
                         ]
                     ),
-                    'products'  => [
-                        'payment'  => [
-                            'routes' => [
+                    'products'      => [
+                        'payment'          => [
+                            'routes'       => [
                                 'fetch_payment_accounts' => [
                                     'name'       => 'grp.json.shop.payment-accounts',
                                     'parameters' => [
                                         'shop' => $order->shop->slug
                                     ]
                                 ],
-                                'submit_payment' => [
+                                'submit_payment'         => [
                                     'name'       => 'grp.models.customer.payment.order.store',
                                     'parameters' => [
                                         'customer' => $order->customer_id,
@@ -379,15 +375,15 @@ class ShowOrder extends OrgAction
                                 ]
 
                             ],
-                            'total_amount'=> $order->total_amount,
-                            'paid_amount' => $order->payment_amount,
-                            'pay_amount'  => $roundedDiff,
+                            'total_amount' => $order->total_amount,
+                            'paid_amount'  => $order->payment_amount,
+                            'pay_amount'   => $roundedDiff,
                         ],
                         'estimated_weight' => $estWeight
                     ],
 
                     // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
-                    'order_summary'   => [
+                    'order_summary' => [
                         [
                             [
                                 'label'       => 'Items',
@@ -430,10 +426,9 @@ class ShowOrder extends OrgAction
 
                     ],
                 ],
-                'data'          => OrderResource::make($order),
-                'noProductItems'=> $noProductItems,
+                'data'           => OrderResource::make($order),
+                'noProductItems' => $noProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
-
 
 
                 OrderTabsEnum::PRODUCTS->value => $this->tab == OrderTabsEnum::PRODUCTS->value ?
@@ -450,7 +445,7 @@ class ShowOrder extends OrgAction
 
             ]
         )
-        ->table(IndexTransactions::make()->tableStructure($order));
+            ->table(IndexTransactions::make()->tableStructure($order));
         //     ->table(IndexInvoices::make()->tableStructure($order))
         //     ->table(IndexDeliveryNotes::make()->tableStructure($order));
     }
@@ -493,9 +488,6 @@ class ShowOrder extends OrgAction
         };
 
         return match ($routeName) {
-
-
-
             'grp.org.shops.show.ordering.orders.show',
             'grp.org.shops.show.ordering.orders.edit'
             => array_merge(
@@ -590,9 +582,9 @@ class ShowOrder extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'  => $this->organisation->slug,
-                        'shop'          => $order->shop->slug,
-                        'order'         => $order->slug
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $order->shop->slug,
+                        'order'        => $order->slug
                     ]
 
                 ]
@@ -602,10 +594,10 @@ class ShowOrder extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'  => $this->organisation->slug,
-                        'shop'          => $order->shop->slug,
-                        'customer'      => $this->parent->slug,
-                        'order'         => $order->slug
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $order->shop->slug,
+                        'customer'     => $this->parent->slug,
+                        'order'        => $order->slug
                     ]
 
                 ]
