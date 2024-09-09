@@ -10,6 +10,8 @@ use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgPartner\UI\IndexOrgPartners;
+use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
@@ -27,7 +29,6 @@ use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
-use App\Stubs\UIDummies\IndexDummies;
 use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
@@ -58,8 +59,8 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
 });
 
 Route::prefix('partners')->as('org_partners.')->group(function () {
-    Route::get('', IndexDummies::class)->name('index');
-    Route::get('{orgPartner}', ShowDummy::class)->name('show');
+    Route::get('', IndexOrgPartners::class)->name('index');
+    Route::get('{orgPartner}', ShowOrgPartner::class)->name('show');
 
 });
 

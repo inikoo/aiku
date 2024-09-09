@@ -56,5 +56,10 @@ class OrgPartner extends Model
         return $this->morphMany(StockDelivery::class, 'parent');
     }
 
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class, 'partner_id');
+    }
+
 
 }
