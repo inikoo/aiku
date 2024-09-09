@@ -33,7 +33,35 @@ class WarehouseRecordSearch
                 'sections'          => ['inventory'],
                 'haystack_tier_1'   => trim($warehouse->name.' '.$warehouse->code),
                 'keyword'           => $warehouse->code,
-
+                'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.warehouses.show.infrastructure.dashboard',
+                        'parameters'    => [
+                            $warehouse->organisation->slug,
+                            $warehouse->slug,
+                        ]
+                    ],
+                    'container'     => [
+                        'key'     => 'address',
+                        'label'   => $warehouse->location,
+                    ],
+                    'title'     => $warehouse->name,
+                    'icon'      => [
+                        'icon' => 'fal fa-warehouse',
+                    ],
+                    'meta'      => [
+                        [
+                            'key'   => 'state',
+                            'label' => $warehouse->state
+                        ],
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $warehouse->created_at,
+                            'tooltip'   => 'Created at'
+                        ],
+                    ],
+                ]
             ]
         );
     }
