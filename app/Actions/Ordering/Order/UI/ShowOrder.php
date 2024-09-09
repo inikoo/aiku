@@ -151,12 +151,10 @@ class ShowOrder extends OrgAction
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 
         $noProductItems = $order->transactions()
-                                ->whereNotIn('model_type', ['Product', 'Service'])
-                                ->get()
-                                ->toArray();
-                            
-        // dd($order->state);
-        // dd($order);
+            ->whereNotIn('model_type', ['Product', 'Service'])
+            ->get()
+            ->toArray();
+
         $actions = [];
         if ($this->canEdit) {
             $actions = match ($order->state) {
@@ -434,8 +432,8 @@ class ShowOrder extends OrgAction
 
 
                 OrderTabsEnum::PRODUCTS->value => $this->tab == OrderTabsEnum::PRODUCTS->value ?
-                    fn() => TransactionsResource::collection(IndexTransactions::run($order))
-                    : Inertia::lazy(fn() => TransactionsResource::collection(IndexTransactions::run($order))),
+                    fn () => TransactionsResource::collection(IndexTransactions::run($order))
+                    : Inertia::lazy(fn () => TransactionsResource::collection(IndexTransactions::run($order))),
 
                 // OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
                 //     fn () => InvoicesResource::collection(IndexInvoices::run($order))

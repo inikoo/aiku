@@ -68,7 +68,7 @@ class StoreTradeUnit extends GrpAction
     public function action(Group $group, array $modelData, int $hydratorDelay = 0, bool $strict = true): TradeUnit
     {
         $this->hydratorsDelay = $hydratorDelay;
-        $this->strict    = $strict;
+        $this->strict         = $strict;
         $this->initialisation($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
