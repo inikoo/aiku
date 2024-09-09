@@ -16,6 +16,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
@@ -88,7 +89,9 @@ class UpdateStateToFinalizedOrder extends OrgAction
         ];
 
         if (in_array($order->state, [OrderStateEnum::HANDLING, OrderStateEnum::PACKED])) {
-            $order->transactions()->update($data);
+            $order->transactions()->update([
+                'state' => TransactionStateEnum::FINALISED
+            ]);
 
             // $data[$order->state->value . '_at'] = null;
             $data['finalised_at']                  = now();

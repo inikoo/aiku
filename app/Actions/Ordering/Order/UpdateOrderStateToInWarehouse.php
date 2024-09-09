@@ -44,9 +44,9 @@ class UpdateOrderStateToInWarehouse extends OrgAction
         foreach ($transactions as $transaction) {
             $transactionDate = ['state' => TransactionStateEnum::IN_WAREHOUSE];
             if ($transaction->submitted_at == null) {
-                data_set($transactionDate, 'in_warehouse_at', $date);
+                data_set($transactionData, 'in_warehouse_at', $date);
             }
-            $transaction->update($transactionDate);
+            $transaction->update($transactionData);
         }
 
         $this->update($order, $modelData);

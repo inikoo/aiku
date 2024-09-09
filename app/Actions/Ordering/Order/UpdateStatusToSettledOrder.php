@@ -10,6 +10,8 @@ namespace App\Actions\Ordering\Order;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
 
@@ -28,7 +30,13 @@ class UpdateStatusToSettledOrder
         ];
 
         if ($order->state === OrderStateEnum::FINALISED) {
-            $order->transactions()->update($data);
+            $transactions = $order->transactions()->where('status', TransactionStatusEnum::PROCESSING);
+            foreach ($transactions as $transaction) {
+                data_set($transactionData, 'settled_at', now());
+                data_set($transactionData, 'status', TransactionStatusEnum::SETTLED);
+    
+                $transaction->update($transactionData);
+            }
 
             $data['settled_at']                 = now();
 

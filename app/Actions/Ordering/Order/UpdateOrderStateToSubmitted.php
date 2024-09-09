@@ -43,13 +43,13 @@ class UpdateOrderStateToSubmitted extends OrgAction
 
         $transactions = $order->transactions()->where('state', TransactionStateEnum::CREATING);
         foreach ($transactions as $transaction) {
-            $transactionDate = ['state' => TransactionStateEnum::SUBMITTED];
+            $transactionData = ['state' => TransactionStateEnum::SUBMITTED];
             if ($transaction->submitted_at == null) {
-                data_set($transactionDate, 'submitted_at', $date);
-                data_set($transactionDate, 'status', TransactionStatusEnum::PROCESSING);
+                data_set($transactionData, 'submitted_at', $date);
+                data_set($transactionData, 'status', TransactionStatusEnum::PROCESSING);
             }
 
-            $transaction->update($transactionDate);
+            $transaction->update($transactionData);
         }
 
         $this->update($order, $modelData);
