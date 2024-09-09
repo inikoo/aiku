@@ -35,7 +35,7 @@ class UpdateOrderStateToSubmitted extends OrgAction
     public function handle(Order $order): Order
     {
         $modelData = [
-            'state' => OrderStateEnum::SUBMITTED,
+            'state'  => OrderStateEnum::SUBMITTED,
             'status' => OrderStatusEnum::PROCESSING,
         ];
 
