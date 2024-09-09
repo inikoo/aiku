@@ -48,7 +48,7 @@ class IndexTransactions extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query=QueryBuilder::for(Transaction::class);
+        $query = QueryBuilder::for(Transaction::class);
 
         if (class_basename($parent) == 'Organisation') {
             $query->where('transactions.organisation_', $parent->id);
@@ -90,22 +90,23 @@ class IndexTransactions extends OrgAction
                 'products.slug as product_slug',
                 'currencies.code as currency_code'
             ])
-            ->allowedSorts(['asset_code', 'asset_name', 'net_amount', 'quantity_ordered' ])
+            ->allowedSorts(['asset_code', 'asset_name', 'net_amount', 'quantity_ordered'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Customer|Order|Invoice|Asset $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop|Customer|Order|Invoice|Asset $parent, $tableRows = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($parent, $prefix, $tableRows) {
+
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-
+            $table->withFooterRows($tableRows);
             $table
                 ->withEmptyState(
                     [
@@ -136,44 +137,44 @@ class IndexTransactions extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $transactions, ActionRequest $request): Response
     {
-
-        $title = __('Transactions');
-        $model = __('transaction');
-        $icon  = [
+        $title      = __('Transactions');
+        $model      = __('transaction');
+        $icon       = [
             'icon'  => ['fal', 'fa-shopping-cart'],
             'title' => __('transaction')
         ];
-        $afterTitle=null;
-        $iconRight =null;
-        $actions   = null;
+        $afterTitle = null;
+        $iconRight  = null;
+        $actions    = null;
 
         if ($this->parent instanceof Shop) {
-            $title = $this->parent->name;
-            $model = __('shop');
-            $icon  = [
+            $title      = $this->parent->name;
+            $model      = __('shop');
+            $icon       = [
                 'icon'  => ['fal', 'fa-folder'],
                 'title' => __('shop')
             ];
-            $iconRight    =[
+            $iconRight  = [
                 'icon' => 'fal fa-shopping-cart',
             ];
-            $afterTitle= [
-                'label'     => __('Transactions')
+            $afterTitle = [
+                'label' => __('Transactions')
             ];
         } elseif ($this->parent instanceof Customer) {
-            $title = $this->parent->name;
-            $model = __('customer');
-            $icon  = [
+            $title      = $this->parent->name;
+            $model      = __('customer');
+            $icon       = [
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
             ];
-            $iconRight    =[
+            $iconRight  = [
                 'icon' => 'fal fa-shopping-cart',
             ];
-            $afterTitle= [
-                'label'     => __('Transactions')
+            $afterTitle = [
+                'label' => __('Transactions')
             ];
         }
+
         return Inertia::render(
             'Ordering/Orders',
             [
@@ -183,12 +184,12 @@ class IndexTransactions extends OrgAction
                 ),
                 'title'       => __('orders'),
                 'pageHead'    => [
-                    'title'         => $title,
-                    'icon'          => $icon,
-                    'model'         => $model,
-                    'afterTitle'    => $afterTitle,
-                    'iconRight'     => $iconRight,
-                    'actions'       => $actions
+                    'title'      => $title,
+                    'icon'       => $icon,
+                    'model'      => $model,
+                    'afterTitle' => $afterTitle,
+                    'iconRight'  => $iconRight,
+                    'actions'    => $actions
                 ],
                 'data'        => TransactionsResource::collection($transactions),
 

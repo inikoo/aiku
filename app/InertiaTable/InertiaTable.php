@@ -11,8 +11,8 @@ use Inertia\Response;
 
 class InertiaTable
 {
-    private string $name          = 'default';
-    private string $pageName      = 'page';
+    private string $name = 'default';
+    private string $pageName = 'page';
     private array $perPageOptions = [10, 25, 50, 100, 250];
     private Request $request;
     private Collection $columns;
@@ -31,20 +31,22 @@ class InertiaTable
     private static bool|string $defaultGlobalSearch = false;
     private static array $defaultQueryBuilderConfig = [];
 
-    private array $labelRecord          = [];
+    private array $labelRecord = [];
+    private $footerRows;
 
     public function __construct(Request $request)
     {
-        $this->request          = $request;
-        $this->periodFilters    = [];
-        $this->columns          = new Collection();
-        $this->searchInputs     = new Collection();
-        $this->elementGroups    = new Collection();
-        $this->filters          = new Collection();
-        $this->modelOperations  = new Collection();
-        $this->exportLinks      = new Collection();
-        $this->emptyState       = new Collection();
-        $this->labelRecord      = [];
+        $this->request         = $request;
+        $this->periodFilters   = [];
+        $this->columns         = new Collection();
+        $this->searchInputs    = new Collection();
+        $this->elementGroups   = new Collection();
+        $this->filters         = new Collection();
+        $this->modelOperations = new Collection();
+        $this->exportLinks     = new Collection();
+        $this->emptyState      = new Collection();
+        $this->labelRecord     = [];
+        $this->footerRows      = null;
 
         if (static::$defaultGlobalSearch !== false) {
             $this->withGlobalSearch(static::$defaultGlobalSearch);
@@ -53,9 +55,8 @@ class InertiaTable
 
     public static function defaultGlobalSearch(bool|string $label = 'default'): void
     {
-
-        if($label==='default') {
-            $label=__('Search on table...');
+        if ($label === 'default') {
+            $label = __('Search on table...');
         }
 
         static::$defaultGlobalSearch = $label !== false ? $label : false;
@@ -120,32 +121,33 @@ class InertiaTable
     protected function getQueryBuilderProps(): array
     {
         return [
-            'defaultVisibleToggleableColumns'  => $this->columns->reject->hidden->map->key->sort()->values(),
-            'columns'                          => $this->transformColumns(),
-            'hasHiddenColumns'                 => $this->columns->filter->hidden->isNotEmpty(),
-            'hasToggleableColumns'             => $this->columns->filter->canBeHidden->isNotEmpty(),
-            'filters'                          => $this->transformFilters(),
-            'hasFilters'                       => $this->filters->isNotEmpty(),
-            'hasEnabledFilters'                => $this->filters->filter->value->isNotEmpty(),
-            'searchInputs'                     => $searchInputs              = $this->transformSearchInputs(),
-            'searchInputsWithoutGlobal'        => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
-            'hasSearchInputs'                  => $searchInputsWithoutGlobal->isNotEmpty(),
-            'hasSearchInputsWithValue'         => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
-            'hasSearchInputsWithoutValue'      => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
-            'globalSearch'                     => $this->searchInputs->firstWhere('key', 'global'),
-            'cursor'                           => $this->query('cursor'),
-            'sort'                             => $this->query('sort', $this->defaultSort) ?: null,
-            'defaultSort'                      => $this->defaultSort,
-            'page'                             => Paginator::resolveCurrentPage($this->pageName),
-            'pageName'                         => $this->pageName,
-            'perPageOptions'                   => $this->perPageOptions,
-            'elementGroups'                    => $this->transformElementGroups(),
-            'period_filter'                    => $this->transformPeriodFilters(),
-            'modelOperations'                  => $this->modelOperations,
-            'exportLinks'                      => $this->exportLinks,
-            'emptyState'                       => $this->emptyState,
-            'labelRecord'                      => $this->labelRecord,
-            'title'                            => $this->title
+            'defaultVisibleToggleableColumns' => $this->columns->reject->hidden->map->key->sort()->values(),
+            'columns'                         => $this->transformColumns(),
+            'hasHiddenColumns'                => $this->columns->filter->hidden->isNotEmpty(),
+            'hasToggleableColumns'            => $this->columns->filter->canBeHidden->isNotEmpty(),
+            'filters'                         => $this->transformFilters(),
+            'hasFilters'                      => $this->filters->isNotEmpty(),
+            'hasEnabledFilters'               => $this->filters->filter->value->isNotEmpty(),
+            'searchInputs'                    => $searchInputs = $this->transformSearchInputs(),
+            'searchInputsWithoutGlobal'       => $searchInputsWithoutGlobal = $searchInputs->where('key', '!=', 'global'),
+            'hasSearchInputs'                 => $searchInputsWithoutGlobal->isNotEmpty(),
+            'hasSearchInputsWithValue'        => $searchInputsWithoutGlobal->whereNotNull('value')->isNotEmpty(),
+            'hasSearchInputsWithoutValue'     => $searchInputsWithoutGlobal->whereNull('value')->isNotEmpty(),
+            'globalSearch'                    => $this->searchInputs->firstWhere('key', 'global'),
+            'cursor'                          => $this->query('cursor'),
+            'sort'                            => $this->query('sort', $this->defaultSort) ?: null,
+            'defaultSort'                     => $this->defaultSort,
+            'page'                            => Paginator::resolveCurrentPage($this->pageName),
+            'pageName'                        => $this->pageName,
+            'perPageOptions'                  => $this->perPageOptions,
+            'elementGroups'                   => $this->transformElementGroups(),
+            'period_filter'                   => $this->transformPeriodFilters(),
+            'modelOperations'                 => $this->modelOperations,
+            'exportLinks'                     => $this->exportLinks,
+            'emptyState'                      => $this->emptyState,
+            'labelRecord'                     => $this->labelRecord,
+            'title'                           => $this->title,
+            'footerRows'                      => $this->footerRows
         ];
     }
 
@@ -301,9 +303,6 @@ class InertiaTable
         string $type = null,
         string $className = null,
     ): self {
-
-
-
         $this->columns = $this->columns->reject(function (Column $column) use ($key) {
             return $column->key === $key;
         })->push(
@@ -323,15 +322,12 @@ class InertiaTable
         )->values();
 
         if ($searchable) {
-
-            if(is_array($column->label)) {
-
-                if(is_array($column->label['data'])) {
+            if (is_array($column->label)) {
+                if (is_array($column->label['data'])) {
                     $column->label = $column->label['search'];
                 } else {
                     $column->label = $column->label['data'];
                 }
-
             }
 
             $this->searchInput($column->key, $column->label);
@@ -364,6 +360,13 @@ class InertiaTable
     public function withEmptyState(array $emptyState = null): self
     {
         $this->emptyState = collect($emptyState);
+
+        return $this;
+    }
+
+    public function withFooterRows(array $footerRows = null): self
+    {
+        $this->footerRows = $footerRows;
 
         return $this;
     }

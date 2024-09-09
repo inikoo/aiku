@@ -20,30 +20,27 @@ const props = defineProps<{
 const locale = useLocaleStore()
 
 
-// function customerRoute(customer: FulfilmentCustomer) {
-//     switch (route().current()) {
-//         case "shops.show.customers.index":
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show",
-//                 [customer.shop_slug, customer.slug])
-//         case "grp.fulfilment.customers.index":
-//             return route(
-//                 "grp.fulfilment.customers.show",
-//                 [customer.slug])
-//         default:
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show",
-//                 [
-//                     route().params["organisation"],
-//                     route().params["shop"],
-//                     customer.slug
-//                 ])
-//     }
-// }
+function partnerRoute(partner: {}) {
+    switch (route().current()) {
+        case "grp.org.procurement.org_partners.index":
+            return route(
+                "grp.org.procurement.org_partners.show",
+                [ route().params["organisation"], partner.id])
+        default:
+            return route(
+                "grp.org.procurement.org_partners.index",
+                [ route().params["organisation"], partner.id])
+    }
+}
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(code)="{ item: partner }">
+            <Link :href="partnerRoute(partner)" class="primaryLink">
+            {{ partner["code"] }}
+            </Link>
+        </template>
         <!-- <template #cell(reference)="{ item: customer }">
             <Link :href="customerRoute(customer)" class="primaryLink">
             {{ customer["reference"] }}

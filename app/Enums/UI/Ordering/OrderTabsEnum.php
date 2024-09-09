@@ -15,11 +15,11 @@ enum OrderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case PRODUCTS                       = 'products';
+    case TRANSACTIONS                       = 'transactions';
     // case PAYMENTS                    = 'payments';
     // case DISCOUNTS                   = 'discounts';
-    // case INVOICES                    = 'invoices';
-    // case DELIVERY_NOTES              = 'delivery_notes';
+     case INVOICES                    = 'invoices';
+     case DELIVERY_NOTES              = 'delivery_notes';
 
     // case HISTORY                     = 'history';
 
@@ -36,8 +36,8 @@ enum OrderTabsEnum: string
     {
         return match ($this) {
 
-            OrderTabsEnum::PRODUCTS => [
-                'title' => __('products'),
+            OrderTabsEnum::TRANSACTIONS => [
+                'title' => __('transactions'),
                 'icon'  => 'fal fa-bars',
             ],
             // OrderTabsEnum::PAYMENTS => [
@@ -61,19 +61,19 @@ enum OrderTabsEnum: string
             //     'align' => 'right',
 
             // ],
-            // OrderTabsEnum::INVOICES => [
-            //     'title' => __('invoices'),
-            //     'icon'  => 'fal fa-file-invoice-dollar',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
+             OrderTabsEnum::INVOICES => [
+                 'title' => __('invoices'),
+                 'icon'  => 'fal fa-file-invoice-dollar',
+                 'type'  => 'icon',
+                 'align' => 'right',
 
-            // ],
-            // OrderTabsEnum::DELIVERY_NOTES => [
-            //     'title' => __('delivery notes'),
-            //     'icon'  => 'fal fa-truck',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
-            // ],
+             ],
+             OrderTabsEnum::DELIVERY_NOTES => [
+                 'title' => __('delivery notes'),
+                 'icon'  => 'fal fa-truck',
+                 'type'  => 'icon',
+                 'align' => 'right',
+             ],
             // OrderTabsEnum::ATTACHMENTS => [
             //     'title' => __('attachments'),
             //     'icon'  => 'fal fa-paperclip',

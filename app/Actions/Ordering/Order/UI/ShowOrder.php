@@ -7,13 +7,17 @@
 
 namespace App\Actions\Ordering\Order\UI;
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Enums\UI\Ordering\OrderTabsEnum;
+use App\Http\Resources\Accounting\InvoicesResource;
+use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Ordering\TransactionsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
@@ -431,23 +435,35 @@ class ShowOrder extends OrgAction
                 // 'showcase'=> GetOrderShowcase::run($order),
 
 
-                OrderTabsEnum::PRODUCTS->value => $this->tab == OrderTabsEnum::PRODUCTS->value ?
-                    fn () => TransactionsResource::collection(IndexTransactions::run($order))
-                    : Inertia::lazy(fn () => TransactionsResource::collection(IndexTransactions::run($order))),
+                OrderTabsEnum::TRANSACTIONS->value => $this->tab == OrderTabsEnum::TRANSACTIONS->value ?
+                    fn() => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))
+                    : Inertia::lazy(fn() => TransactionsResource::collection(IndexTransactions::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))),
 
-                // OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
-                //     fn () => InvoicesResource::collection(IndexInvoices::run($order))
-                //     : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($order))),
+                 OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
+                     fn () => InvoicesResource::collection(IndexInvoices::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))
+                     : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))),
 
-                // OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
-                //     fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))
-                //     : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($order))),
+                 OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
+                     fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))
+                     : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))),
 
             ]
         )
-            ->table(IndexTransactions::make()->tableStructure($order));
-        //     ->table(IndexInvoices::make()->tableStructure($order))
-        //     ->table(IndexDeliveryNotes::make()->tableStructure($order));
+            ->table(
+                IndexTransactions::make()->tableStructure(
+                    parent: $order,
+                    tableRows: $noProductItems,
+                    prefix: OrderTabsEnum::TRANSACTIONS->value
+                )
+            )
+             ->table(IndexInvoices::make()->tableStructure(
+                 parent: $order,
+                 prefix: OrderTabsEnum::INVOICES->value
+             ))
+             ->table(IndexDeliveryNotes::make()->tableStructure(
+                 parent: $order,
+                 prefix: OrderTabsEnum::DELIVERY_NOTES->value
+             ));
     }
 
     public function prepareForValidation(ActionRequest $request): void

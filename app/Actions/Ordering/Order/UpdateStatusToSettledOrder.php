@@ -10,7 +10,6 @@ namespace App\Actions\Ordering\Order;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
-use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
@@ -34,7 +33,7 @@ class UpdateStatusToSettledOrder
             foreach ($transactions as $transaction) {
                 data_set($transactionData, 'settled_at', now());
                 data_set($transactionData, 'status', TransactionStatusEnum::SETTLED);
-    
+
                 $transaction->update($transactionData);
             }
 
