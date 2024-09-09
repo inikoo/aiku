@@ -153,7 +153,7 @@ const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
-        products: OrderProductTable
+        transactions: OrderProductTable
     }
 
     return components[currentTab.value]
