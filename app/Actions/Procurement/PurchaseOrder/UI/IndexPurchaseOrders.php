@@ -58,7 +58,6 @@ class IndexPurchaseOrders extends OrgAction
             $query->with('parent');
         }
 
-
         return $query->defaultSort('purchase_orders.reference')
 
             ->allowedFilters([$globalSearch])
@@ -79,10 +78,10 @@ class IndexPurchaseOrders extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent_name', label: __('supplier'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'parent_name', label: __('supplier/agents'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->defaultSort('reference');
         };
     }
@@ -138,8 +137,9 @@ class IndexPurchaseOrders extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('purchase orders'),
                 'pageHead'    => [
-                    'icon'  => ['fal', 'fa-clipboard-list'],
-                    'title' => __('purchase orders'),
+                    'model'   => __('Procurement'),
+                    'icon'    => ['fal', 'fa-clipboard-list'],
+                    'title'   => __('purchase orders'),
                 ],
                 'data'        => PurchaseOrdersResource::collection($purchaseOrders),
             ]
