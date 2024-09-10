@@ -30,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @method static \Database\Factories\Discounts\OfferFactory factory($count = null, $state = [])
  * @method static Builder|Offer newModelQuery()
  * @method static Builder|Offer newQuery()
  * @method static Builder|Offer onlyTrashed()

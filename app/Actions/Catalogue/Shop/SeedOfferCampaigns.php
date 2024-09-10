@@ -9,6 +9,7 @@ namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
 use App\Actions\GrpAction;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
 use App\Models\Catalogue\Shop;
 use Exception;
@@ -21,18 +22,22 @@ class SeedOfferCampaigns extends GrpAction
 
     public function handle(Shop $shop): void
     {
+
+        if($shop->type!=ShopTypeEnum::B2B) {
+            return;
+        }
+
         foreach (OfferCampaignTypeEnum::cases() as $case) {
-            $code = $case->value;
+            $code =$case->codes()[$case->value];
 
             if ($shop->offerCampaigns()->where('code', $code)->exists()) {
                 continue;
             }
 
-
             StoreOfferCampaign::make()->action(
                 $shop,
                 [
-                    'code' => $case->codes()[$case->value],
+                    'code' => $code,
                     'name' => $case->labels()[$case->value],
                     'type' => $case
                 ]
@@ -40,20 +45,29 @@ class SeedOfferCampaigns extends GrpAction
         }
     }
 
-    public string $commandSignature = 'shop:seed-offer-campaigns {shop : shop slug}';
+    public string $commandSignature = 'shop:seed-offer-campaigns {shop? : shop slug}';
 
     public function asCommand(Command $command): int
     {
-        try {
-            $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
+        if($command->argument('shop')) {
+            try {
+                $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
 
-            return 1;
+                return 1;
+            }
+            $this->handle($shop);
+            echo "Success seed shop offer campaigns ✅ \n";
+        } else {
+            foreach (Shop::all() as $shop) {
+                $this->handle($shop);
+            }
+            echo "Success seed all shops offer campaigns ✅ \n";
         }
 
-        $this->handle($shop);
-        echo "Success seed the offer campaigns ✅ \n";
+
+
 
         return 0;
     }

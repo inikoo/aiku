@@ -5,19 +5,17 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\SupplyChain;
+namespace Database\Factories\Inventory;
 
-use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class StockFactory extends Factory
+class OrgStockFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'code'     => fake()->lexify(),
-            'name'     => fake()->name(),
-            'state'    => StockStateEnum::ACTIVE->value
+            'state'     => OrgStockStateEnum::ACTIVE
         ];
     }
 }

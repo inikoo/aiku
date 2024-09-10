@@ -245,7 +245,9 @@ test('update stock family state', function (StockFamily $stockFamily) {
 test('create stock in group', function () {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
-    $stock = StoreStock::make()->action($this->group, Stock::factory()->definition());
+    $stockData=Stock::factory()->definition();
+    data_forget($stockData, 'state');
+    $stock = StoreStock::make()->action($this->group, $stockData);
 
     SyncStockTradeUnits::run($stock, [
         $tradeUnit->id => [
@@ -291,7 +293,10 @@ test('create stock family', function () {
 test('create stock in stock family', function (StockFamily $stockFamily) {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
-    $stock = StoreStock::make()->action($stockFamily, Stock::factory()->definition());
+    $stockData=Stock::factory()->definition();
+    data_forget($stockData, 'state');
+
+    $stock = StoreStock::make()->action($stockFamily, $stockData);
     SyncStockTradeUnits::run($stock, [
         $tradeUnit->id => [
             'quantity' => 1
@@ -387,7 +392,11 @@ test('create org stock from 2nd stock (within stock family)', function (Stock $s
 
 test('fail to create another stock if state in process', function () {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
-    $stock     = StoreStock::make()->action($this->group, Stock::factory()->definition());
+
+    $stockData=Stock::factory()->definition();
+    data_forget($stockData, 'state');
+
+    $stock     = StoreStock::make()->action($this->group, $stockData);
 
     SyncStockTradeUnits::run($stock, [
         $tradeUnit->id => [

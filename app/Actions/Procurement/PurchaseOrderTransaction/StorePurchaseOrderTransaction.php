@@ -59,8 +59,7 @@ class StorePurchaseOrderTransaction extends OrgAction
         $rules = [
             'quantity_ordered' => ['required', 'numeric', 'min:0'],
 
-            'state'          => ['sometimes', Rule::enum(PurchaseOrderTransactionStateEnum::class)],
-            'status'         => ['sometimes', Rule::enum(PurchaseOrderTransactionStatusEnum::class)],
+            'state'          => ['required', Rule::enum(PurchaseOrderTransactionStateEnum::class)],
             'gross_amount'   => ['sometimes', 'numeric'],
             'net_amount'     => ['sometimes', 'numeric'],
             'org_exchange'   => ['sometimes', 'numeric'],
@@ -79,6 +78,13 @@ class StorePurchaseOrderTransaction extends OrgAction
 
 
         return $rules;
+    }
+
+    public function prepareForValidation(): void
+    {
+        if(!$this->has('state')) {
+            $this->set('state', PurchaseOrderTransactionStateEnum::PROCESSING);
+        }
     }
 
     public function action(PurchaseOrder $purchaseOrder, HistoricSupplierProduct $historicSupplierProduct, array $modelData, bool $strict = true): PurchaseOrderTransaction

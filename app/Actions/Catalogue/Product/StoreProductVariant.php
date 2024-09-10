@@ -23,15 +23,15 @@ class StoreProductVariant extends OrgAction
     {
 
 
-        $tradeUnitsData = [];
-        foreach ($product->tradeUnits as $tradeUnit) {
-            $tradeUnitsData[$tradeUnit->id] =
+        $orgStocksData = [];
+        foreach ($product->orgStocks as $orgStock) {
+            $orgStocksData[$orgStock->id] =
                 [
-                    'units' => $tradeUnit->pivot->units * $modelData['ratio'],
-                    'notes' => Arr::get($modelData, 'is_main') ? $tradeUnit->pivot->notes : null
+                    'quantity' => $orgStock->pivot->units * $modelData['ratio'],
+                    'notes'    => Arr::get($modelData, 'is_main') ? $orgStock->pivot->notes : null
                 ];
         }
-        data_set($modelData, 'trade_units', $tradeUnitsData);
+        data_set($modelData, 'org_stocks', $orgStocksData);
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);

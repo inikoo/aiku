@@ -35,9 +35,9 @@ class UpdateOfferCampaign extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'name'   => ['required', 'max:250', 'string'],
-            'status' => ['required', 'boolean'],
-            'state'  => ['required', Rule::enum(OfferCampaignStateEnum::class)],
+            'name'   => ['sometimes','required', 'max:250', 'string'],
+            'status' => ['sometimes','required', 'boolean'],
+            'state'  => ['sometimes','required', Rule::enum(OfferCampaignStateEnum::class)],
         ];
 
         if (!$this->strict) {

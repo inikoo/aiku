@@ -59,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Inventory\OrgStockFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStock onlyTrashed()

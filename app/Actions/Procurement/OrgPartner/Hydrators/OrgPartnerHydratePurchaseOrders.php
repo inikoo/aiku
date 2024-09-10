@@ -1,42 +1,42 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Jan 2024 17:14:23 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 10 Sept 2024 20:16:47 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\OrgAgent\Hydrators;
+namespace App\Actions\Procurement\OrgPartner\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
-use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrgAgentHydratePurchaseOrders
+class OrgPartnerHydratePurchaseOrders
 {
     use AsAction;
     use WithEnumStats;
 
-    private OrgAgent $orgAgent;
+    private OrgPartner $orgPartner;
 
 
-    public function __construct(OrgAgent $orgAgent)
+    public function __construct(OrgPartner $orgPartner)
     {
-        $this->orgAgent = $orgAgent;
+        $this->orgPartner = $orgPartner;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->orgAgent->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->orgPartner->id))->dontRelease()];
     }
 
-    public function handle(OrgAgent $orgAgent): void
+    public function handle(OrgPartner $orgPartner): void
     {
         $stats = [
-            'number_purchase_orders' => $orgAgent->purchaseOrders()->count(),
+            'number_purchase_orders' => $orgPartner->purchaseOrders()->count(),
         ];
 
         $stats=array_merge($stats, $this->getEnumStats(
@@ -44,8 +44,8 @@ class OrgAgentHydratePurchaseOrders
             field: 'state',
             enum: PurchaseOrderStateEnum::class,
             models: PurchaseOrder::class,
-            where: function ($q) use ($orgAgent) {
-                $q->where('parent_id', $orgAgent->id)->where('parent_type', 'OrgAgent');
+            where: function ($q) use ($orgPartner) {
+                $q->where('parent_id', $orgPartner->id)->where('parent_type', 'OrgPartner');
             }
         ));
 
@@ -54,12 +54,12 @@ class OrgAgentHydratePurchaseOrders
             field: 'status',
             enum: PurchaseOrderStatusEnum::class,
             models: PurchaseOrder::class,
-            where: function ($q) use ($orgAgent) {
-                $q->where('parent_id', $orgAgent->id)->where('parent_type', 'OrgAgent');
+            where: function ($q) use ($orgPartner) {
+                $q->where('parent_id', $orgPartner->id)->where('parent_type', 'OrgPartner');
             }
         ));
 
-        $orgAgent->stats()->update($stats);
+        $orgPartner->stats()->update($stats);
     }
 
 

@@ -27,8 +27,10 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $this->organisation = createOrganisation();
-    $this->group        = group();
+    $this->organisation    = createOrganisation();
+    $this->group           = group();
+    $this->stocks          = createStocks($this->group);
+
 });
 
 test('create agent', function () {
@@ -108,21 +110,28 @@ test('create supplier in agent', function ($agent) {
 })->depends('create agent');
 
 test('create supplier product independent supplier', function ($supplier) {
-    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+
+    $supplierProductData= SupplierProduct::factory()->definition();
+    data_set($supplierProductData, 'stock_id', $this->stocks[0]->id);
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     $this->assertModelExists($supplierProduct);
 
     return $supplierProduct;
 })->depends('create independent supplier');
 
 test('create supplier product independent supplier 2', function ($supplier) {
-    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $supplierProductData= SupplierProduct::factory()->definition();
+    data_set($supplierProductData, 'stock_id', $this->stocks[1]->id);
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     $this->assertModelExists($supplierProduct);
 
     return $supplierProduct;
 })->depends('create independent supplier');
 
 test('create supplier product in agent supplier', function ($supplier) {
-    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $supplierProductData= SupplierProduct::factory()->definition();
+    data_set($supplierProductData, 'stock_id', $this->stocks[2]->id);
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     expect($supplierProduct)->toBeInstanceOf(SupplierProduct::class);
 })->depends('create supplier in agent');
 

@@ -53,7 +53,9 @@ class StoreSupplierProduct extends GrpAction
         $supplierProduct->stats()->create();
 
         if (!$this->skipHistoric) {
-            $historicProduct = StoreHistoricSupplierProduct::run($supplierProduct);
+            $historicProduct = StoreHistoricSupplierProduct::make()->action($supplierProduct, [
+                'status' => true,
+            ]);
             $supplierProduct->update(
                 [
                     'current_historic_supplier_product_id' => $historicProduct->id

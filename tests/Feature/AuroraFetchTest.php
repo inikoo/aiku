@@ -68,8 +68,8 @@ test('can fetch 1 location from aurora', function () {
     $fetch = Fetch::where('type', FetchTypeEnum::LOCATIONS)->first();
     expect($fetch->number_items)->toBe(1)->and($fetch->number_stores)->toBe(1)
         ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_locations)->toBe(1);
+        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(3)
+        ->and($this->organisation->inventoryStats->number_locations)->toBe(3);
 });
 
 test('can fetch 1 stock from aurora', function () {
@@ -89,8 +89,8 @@ test('can fetch 1 stock from aurora', function () {
 
     expect($fetch->number_items)->toBe(1)
         ->and($fetch->number_stores)->toBe(1)
-        ->and($group->inventoryStats->number_stocks)->toBe(1)
-        ->and($group->inventoryStats->number_stock_families)->toBe(1);
+        ->and($group->inventoryStats->number_stocks)->toBe(2)
+        ->and($group->inventoryStats->number_stock_families)->toBe(2);
 });
 
 test('can fetch 1 prospect from aurora', function () {

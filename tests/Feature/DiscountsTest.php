@@ -6,10 +6,10 @@
  */
 
 
+use App\Actions\Catalogue\Shop\SeedOfferCampaigns;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Discounts\Offer\StoreOffer;
 use App\Actions\Discounts\Offer\UpdateOffer;
-use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
 use App\Actions\Discounts\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Discounts\OfferComponent\StoreOfferComponent;
 use App\Actions\Discounts\OfferComponent\UpdateOfferComponent;
@@ -36,36 +36,40 @@ test('create shop', function () {
 });
 
 
-test('create offer campaign', function ($shop) {
-    $offerCampaign = StoreOfferCampaign::make()->action($shop, OfferCampaign::factory()->definition());
-    $this->assertModelExists($offerCampaign);
-
-    return $offerCampaign;
+test('seed offer campaigns', function ($shop) {
+    SeedOfferCampaigns::run($shop);
+    $this->artisan('shop:seed-offer-campaigns', [
+        'shop' => $shop->slug,
+    ])->assertSuccessful();
+    expect($shop->offerCampaigns()->count())->toBe(7);
 })->depends('create shop');
 
-test('update offer campaign', function ($offerCampaign) {
+test('update offer campaign', function (Shop $shop) {
+    $offerCampaign = $shop->offerCampaigns()->first();
     $offerCampaign = UpdateOfferCampaign::make()->action($offerCampaign, OfferCampaign::factory()->definition());
     $this->assertModelExists($offerCampaign);
-})->depends('create offer campaign');
+})->depends('create shop');
 
-test('create offer', function ($offerCampaign) {
-    $offer = StoreOffer::make()->action($offerCampaign, Offer::factory()->definition());
+test('create offer', function (Shop $shop) {
+    $offerCampaign = $shop->offerCampaigns()->first();
+    $offer         = StoreOffer::make()->action($offerCampaign, Offer::factory()->definition());
     $this->assertModelExists($offer);
 
     return $offer;
-})->depends('create offer campaign');
+})->depends('create shop');
 
 test('update offer', function ($offer) {
     $offer = UpdateOffer::make()->action($offer, Offer::factory()->definition());
     $this->assertModelExists($offer);
 })->depends('create offer');
 
-test('create offer component', function ($offerCampaign) {
+test('create offer component', function (Shop $shop) {
+    $offerCampaign  = $shop->offerCampaigns()->first();
     $offerComponent = StoreOfferComponent::make()->action($offerCampaign, OfferComponent::factory()->definition());
     $this->assertModelExists($offerComponent);
 
     return $offerComponent;
-})->depends('create offer campaign');
+})->depends('create shop');
 
 test('update offer component', function ($offerComponent) {
     $offerComponent = UpdateOfferComponent::make()->action($offerComponent, OfferComponent::factory()->definition());

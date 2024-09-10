@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\Deals;
+namespace Database\Factories\Discounts;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
