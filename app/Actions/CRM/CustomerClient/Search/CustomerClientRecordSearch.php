@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Tue, 10 Sept 2024 22:50:11 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient\Hydrators;
+namespace App\Actions\CRM\CustomerClient\Search;
 
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerClientHydrateUniversalSearch
+class CustomerClientRecordSearch
 {
     use AsAction;
 
@@ -20,6 +20,7 @@ class CustomerClientHydrateUniversalSearch
     {
 
         if($customerClient->trashed()) {
+            $customerClient->universalSearch()->delete();
             return;
         }
 
