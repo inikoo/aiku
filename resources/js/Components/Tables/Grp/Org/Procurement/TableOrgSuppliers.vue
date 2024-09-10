@@ -38,8 +38,6 @@ function supplierRoute(supplier: Supplier) {
 
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
-
-xx
     <template #cell(code)="{ item: supplier }">
       <Link :href="supplierRoute(supplier)" class="primaryLink">
         {{ supplier["code"] }}
