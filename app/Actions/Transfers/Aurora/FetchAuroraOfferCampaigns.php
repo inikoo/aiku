@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOfferCampaigns extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:offer-campaigns {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:offer_campaigns {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?OfferCampaign
     {

@@ -27,6 +27,7 @@ class StoreOfferCampaign extends OrgAction
         data_set($modelData, 'organisation_id', $shop->organisation_id);
         /** @var OfferCampaign $offerCampaign */
         $offerCampaign = $shop->offerCampaigns()->create($modelData);
+        $offerCampaign->stats()->create();
 
         return $offerCampaign;
     }

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 15 Jul 2024 13:35:36 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 10 Sept 2024 17:36:25 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -12,17 +12,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasUsageStats;
+
     public function up(): void
     {
-        Schema::create('charge_stats', function (Blueprint $table) {
+        Schema::create('offer_campaign_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('charge_id')->index();
-            $table->foreign('charge_id')->references('id')->on('charges');
+            $table->unsignedSmallInteger('offer_campaign_id')->index();
+            $table->foreign('offer_campaign_id')->references('id')->on('offer_campaigns');
 
-
-            $table->unsignedInteger('number_historic_assets')->default(0);
-
-            $table=$this->usageStats($table);
+            $table->unsignedInteger('number_offers')->default(0);
+            $table = $this->usageStats($table);
             $table->timestampsTz();
         });
     }
@@ -30,6 +29,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('charge_stats');
+        Schema::dropIfExists('offer_campaign_stats');
     }
 };
