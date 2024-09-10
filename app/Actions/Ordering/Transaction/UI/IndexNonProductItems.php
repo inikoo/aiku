@@ -42,12 +42,12 @@ class IndexNonProductItems extends OrgAction
             $join->on('transactions.model_id', '=', 'charges.id')
                     ->where('transactions.model_type', '=', 'Charge');
         });
-        
+
         $query->leftJoin('adjustments', function ($join) {
             $join->on('transactions.model_id', '=', 'adjustments.id')
                     ->where('transactions.model_type', '=', 'Adjustment');
         });
-        
+
         $query->leftJoin('shipping_zones', function ($join) {
             $join->on('transactions.model_id', '=', 'shipping_zones.id')
                     ->where('transactions.model_type', '=', 'ShippingZone');
