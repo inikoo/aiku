@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Ordering\Transaction\UI\IndexNonProductItems;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
@@ -33,6 +34,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Helpers\CurrencyResource;
+use App\Http\Resources\Ordering\NonProductItemsResource;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
@@ -154,10 +156,7 @@ class ShowOrder extends OrgAction
 
         $estWeight = ($order->estimated_weight ?? 0) / 1000;
 
-        $noProductItems = $order->transactions()
-            ->whereNotIn('model_type', ['Product', 'Service'])
-            ->get()
-            ->toArray();
+        $nonProductItems = NonProductItemsResource::collection(IndexNonProductItems::run($order));
 
         $actions = [];
         if ($this->canEdit) {
@@ -431,7 +430,7 @@ class ShowOrder extends OrgAction
                     ],
                 ],
                 'data'           => OrderResource::make($order),
-                'noProductItems' => $noProductItems,
+                'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 
 
@@ -452,18 +451,18 @@ class ShowOrder extends OrgAction
             ->table(
                 IndexTransactions::make()->tableStructure(
                     parent: $order,
-                    tableRows: $noProductItems,
+                    tableRows: $nonProductItems,
                     prefix: OrderTabsEnum::TRANSACTIONS->value
                 )
             )
-             ->table(IndexInvoices::make()->tableStructure(
-                 parent: $order,
-                 prefix: OrderTabsEnum::INVOICES->value
-             ))
-             ->table(IndexDeliveryNotes::make()->tableStructure(
-                 parent: $order,
-                 prefix: OrderTabsEnum::DELIVERY_NOTES->value
-             ));
+            ->table(IndexInvoices::make()->tableStructure(
+                    parent: $order,
+                    prefix: OrderTabsEnum::INVOICES->value
+            ))
+            ->table(IndexDeliveryNotes::make()->tableStructure(
+                    parent: $order,
+                    prefix: OrderTabsEnum::DELIVERY_NOTES->value
+            ));
     }
 
     public function prepareForValidation(ActionRequest $request): void
