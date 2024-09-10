@@ -45,7 +45,7 @@ const props = defineProps<{
             type?: string // 'date', 'amount'
             code?: string // 'GBP',
             amount?: number  // 30.40, 85
-            label?: string
+            label?: string | string[]
             number?: number | string
             icon?: Icon
             leftIcon?: Icon
@@ -124,6 +124,9 @@ const isLoading = ref(false)
                                 <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
                                 <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code || 'usd', meta.amount) }}</template>
                                 <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
+                                <template v-else-if="meta.type === 'address'">
+                                    <AddressLocation :data="meta.label" />
+                                </template>
                                 <template v-else>{{ meta.label }}</template>
                             </div>
                             <div class="last:hidden px-2">
