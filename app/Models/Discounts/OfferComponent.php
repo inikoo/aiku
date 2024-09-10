@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Deals;
+namespace App\Models\Discounts;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

@@ -160,7 +160,7 @@ class GetShopNavigation
                 ],
             ];
         }
-        if ($user->hasPermissionTo("offers.$shop->id.view")) {
+        if ($user->hasPermissionTo("discounts.$shop->id.view")) {
             $navigation["offers"] = [
                 "root"  => "grp.org.shops.show.offers.",
                 "icon"  => ["fal", "fa-badge-percent"],
@@ -208,7 +208,7 @@ class GetShopNavigation
             $navigation["marketing"] = [
                 "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
-                "label" => __("Marketing"),
+                "label" => __("Discounts"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.marketing.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],

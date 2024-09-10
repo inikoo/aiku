@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Offer;
+namespace App\Actions\Discounts\Offer;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\OfferResource;
-use App\Models\Deals\Offer;
+use App\Models\Discounts\Offer;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOffer

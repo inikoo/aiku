@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\OfferComponent;
+namespace App\Actions\Discounts\OfferComponent;
 
-use App\Models\Deals\OfferCampaign;
-use App\Models\Deals\OfferComponent;
+use App\Models\Discounts\OfferCampaign;
+use App\Models\Discounts\OfferComponent;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

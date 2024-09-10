@@ -24,7 +24,7 @@ use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\Deals\OfferCampaign;
+use App\Models\Discounts\OfferCampaign;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;

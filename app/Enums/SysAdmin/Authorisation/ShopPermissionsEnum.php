@@ -34,20 +34,20 @@ enum ShopPermissionsEnum: string
     case ORDERS_EDIT = 'orders.edit';
     case ORDERS_VIEW = 'orders.view';
 
-    case OFFERS      = 'offers';
-    case OFFERS_EDIT = 'offers.edit';
-    case OFFERS_VIEW = 'offers.view';
+    case DISCOUNTS      = 'discounts';
+    case DISCOUNTS_EDIT = 'discounts.edit';
+    case DISCOUNTS_VIEW = 'discounts.view';
 
     case MARKETING      = 'marketing';
     case MARKETING_EDIT = 'marketing.edit';
     case MARKETING_VIEW = 'marketing.view';
 
-    case SUPERVISOR_PRODUCTS  = 'supervisor-products';
-    case SUPERVISOR_CRM       = 'supervisor-crm';
-    case SUPERVISOR_WEB       = 'supervisor-web';
-    case SUPERVISOR_ORDERS    = 'supervisor-orders';
-    case SUPERVISOR_OFFERS    = 'supervisor-offers';
-    case SUPERVISOR_MARKETING = 'supervisor-marketing';
+    case SUPERVISOR_PRODUCTS     = 'supervisor-products';
+    case SUPERVISOR_CRM          = 'supervisor-crm';
+    case SUPERVISOR_WEB          = 'supervisor-web';
+    case SUPERVISOR_ORDERS       = 'supervisor-orders';
+    case SUPERVISOR_DISCOUNTS    = 'supervisor-discounts';
+    case SUPERVISOR_MARKETING    = 'supervisor-marketing';
 
     public static function getAllValues(Shop $shop): array
     {

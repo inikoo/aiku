@@ -7,16 +7,16 @@
 
 
 use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Marketing\Offer\StoreOffer;
-use App\Actions\Marketing\Offer\UpdateOffer;
-use App\Actions\Marketing\OfferCampaign\StoreOfferCampaign;
-use App\Actions\Marketing\OfferCampaign\UpdateOfferCampaign;
-use App\Actions\Marketing\OfferComponent\StoreOfferComponent;
-use App\Actions\Marketing\OfferComponent\UpdateOfferComponent;
+use App\Actions\Discounts\Offer\StoreOffer;
+use App\Actions\Discounts\Offer\UpdateOffer;
+use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
+use App\Actions\Discounts\OfferCampaign\UpdateOfferCampaign;
+use App\Actions\Discounts\OfferComponent\StoreOfferComponent;
+use App\Actions\Discounts\OfferComponent\UpdateOfferComponent;
 use App\Models\Catalogue\Shop;
-use App\Models\Deals\Offer;
-use App\Models\Deals\OfferCampaign;
-use App\Models\Deals\OfferComponent;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
+use App\Models\Discounts\OfferComponent;
 
 beforeAll(function () {
     loadDB();

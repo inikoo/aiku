@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Deals;
+namespace App\Models\Discounts;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,8 +27,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Deals\OfferComponent> $offerComponent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Deals\Offer> $offers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\OfferComponent> $offerComponent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\Offer> $offers
  * @method static \Database\Factories\Deals\OfferCampaignFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newQuery()

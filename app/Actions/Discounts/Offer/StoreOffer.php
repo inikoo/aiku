@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Marketing\Offer;
+namespace App\Actions\Discounts\Offer;
 
-use App\Models\Deals\Offer;
-use App\Models\Deals\OfferCampaign;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -20,7 +20,7 @@ class StoreOffer
     public function handle(OfferCampaign $offerCampaign, array $modelData): Offer
     {
         $modelData['shop_id'] = $offerCampaign->shop_id;
-        /** @var \App\Models\Deals\Offer $offer */
+        /** @var \App\Models\Discounts\Offer $offer */
         $offer = $offerCampaign->offers()->create($modelData);
 
         return $offer;
