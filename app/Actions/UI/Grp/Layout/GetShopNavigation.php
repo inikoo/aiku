@@ -160,13 +160,14 @@ class GetShopNavigation
                 ],
             ];
         }
+
         if ($user->hasPermissionTo("discounts.$shop->id.view")) {
-            $navigation["offers"] = [
-                "root"  => "grp.org.shops.show.offers.",
+            $navigation["discounts"] = [
+                "root"  => "grp.org.shops.show.discounts.",
                 "icon"  => ["fal", "fa-badge-percent"],
                 "label" => __("Offers"),
                 "route" => [
-                    "name"       => 'grp.org.shops.show.offers.dashboard',
+                    "name"       => 'grp.org.shops.show.discounts.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
@@ -174,9 +175,9 @@ class GetShopNavigation
                         [
                             "tooltip" => __("offers dashboard"),
                             "icon"    => ["fal", "fa-chart-network"],
-                            'root'    => 'grp.org.shops.show.offers.dashboard',
+                            'root'    => 'grp.org.shops.show.discounts.dashboard',
                             "route"   => [
-                                "name"       => 'grp.org.shops.show.offers.dashboard',
+                                "name"       => 'grp.org.shops.show.discounts.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -184,9 +185,9 @@ class GetShopNavigation
                             "label"   => __("campaigns"),
                             "tooltip" => __("campaigns"),
                             "icon"    => ["fal", "fa-comment-dollar"],
-                            'root'    => 'grp.org.shops.show.offers.campaigns.',
+                            'root'    => 'grp.org.shops.show.discounts.campaigns.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.offers.campaigns.index",
+                                "name"       => "grp.org.shops.show.discounts.campaigns.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -194,9 +195,9 @@ class GetShopNavigation
                             "label"   => __("offers"),
                             "tooltip" => __("offers"),
                             "icon"    => ["fal", "fa-badge-percent"],
-                            'root'    => 'grp.org.shops.show.offers.offers.',
+                            'root'    => 'grp.org.shops.show.discounts.offers.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.offers.offers.index",
+                                "name"       => "grp.org.shops.show.discounts.offers.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -204,11 +205,12 @@ class GetShopNavigation
                 ],
             ];
         }
-        if ($user->hasPermissionTo("products.$shop->id.view")) {
+
+        if ($user->hasPermissionTo("marketing.$shop->id.view")) {
             $navigation["marketing"] = [
                 "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
-                "label" => __("Discounts"),
+                "label" => __("Marketing"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.marketing.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -342,7 +344,7 @@ class GetShopNavigation
         if ($user->hasPermissionTo("marketing.view")) {
             $navigation["marketing"] = [
                 "root"    => "grp.org.shops.show.marketing.",
-                "label"   => __("Deals"),
+                "label"   => __("Marketing"),
                 "icon"    => ["fal", "fa-bullhorn"],
                 "route"   => "grp.marketing.hub",
                 "topMenu" => [
@@ -444,6 +446,7 @@ class GetShopNavigation
                 ],
             ];
         }
+
         if ($user->hasPermissionTo("supervisor-products.$shop->id")) {
             $navigation['setting'] = [
                 "root"    => "grp.org.shops.show.settings.",

@@ -70,7 +70,7 @@ class ShowOfferDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.offers.dashboard',
+                                'name'       => 'grp.org.shops.show.discounts.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Offers')

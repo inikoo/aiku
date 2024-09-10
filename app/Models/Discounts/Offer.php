@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:02:55 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 10 Sept 2024 21:54:57 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\Discounts;

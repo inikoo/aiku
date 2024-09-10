@@ -16,9 +16,8 @@ Route::get('', ShowOfferDashboard::class)->name('dashboard');
 Route::name("campaigns.")->prefix('campaigns')
     ->group(function () {
         Route::get('', IndexDummies::class)->name('index');
-        Route::get('create', CreateDummy::class)->name('create');
-        Route::get('{marketingCampaign}', ShowDummy::class)->name('show');
-        Route::get('{marketingCampaign}/edit', EditDummy::class)->name('edit');
+        Route::get('{offerCampaign}', ShowDummy::class)->name('show');
+        Route::get('{offerCampaign}/edit', EditDummy::class)->name('edit');
     });
 
 Route::name("offers.")->prefix('offers')

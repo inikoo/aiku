@@ -46,8 +46,8 @@ Route::prefix('{shop}')->name('show.')
         Route::name("ordering.")->prefix('ordering')
             ->group(__DIR__."/ordering.php");
 
-        Route::name("offers.")->prefix('offers')
-            ->group(__DIR__."/offers.php");
+        Route::name("discounts.")->prefix('offers')
+            ->group(__DIR__."/discounts.php");
 
         Route::name("marketing.")->prefix('marketing')
             ->group(__DIR__."/marketing.php");
