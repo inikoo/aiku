@@ -42,7 +42,15 @@ class TransactionsResource extends JsonResource
             'asset_type'             => $transaction->asset_type,
             'product_slug'           => $transaction->product_slug,
             'created_at'             => $transaction->created_at,
-            'currency_code'          => $transaction->currency_code
+            'currency_code'          => $transaction->currency_code,
+
+            'deleteRoute'            => [
+                'name'       => 'grp.models.order.transaction.delete',
+                'parameters' => [
+                    'order'       => $transaction->order_id,
+                    'transaction' => $transaction->id
+                    ]
+            ]
         ];
     }
 }

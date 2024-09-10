@@ -13,14 +13,17 @@ use App\Actions\Ordering\Order\UpdateStateToDispatchedOrder;
 use App\Actions\Ordering\Order\UpdateStateToFinalizedOrder;
 use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
+use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use Illuminate\Support\Facades\Route;
 
 Route::name('order.')->prefix('order/{order:id}')->group(function () {
     Route::patch('update', UpdateOrder::class)->name('update');
     Route::name('transaction.')->prefix('transaction')->group(function () {
+        Route::delete('{transaction:id}', DeleteTransaction::class)->name('delete')->withoutScopedBindings();
         Route::post('{historicAsset:id}', StoreTransaction::class)->name('store')->withoutScopedBindings();
     });
+    
     Route::name('state.')->prefix('state')->group(function () {
         Route::patch('creating', UpdateStateToCreatingOrder::class)->name('creating');
         Route::patch('submitted', UpdateOrderStateToSubmitted::class)->name('submitted');
