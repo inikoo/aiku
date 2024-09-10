@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
@@ -32,7 +33,7 @@ use App\Services\QueryBuilder;
 class IndexStoredItemPallets extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
-    private StoredItem $parent;
+    private Warehouse|Fulfilment|Customer $parent;
     /**
      * @var true
      */
@@ -207,12 +208,12 @@ class IndexStoredItemPallets extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, StoredItem $storedItem, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($warehouse, 'pallets');
+        return $this->handle($storedItem, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */

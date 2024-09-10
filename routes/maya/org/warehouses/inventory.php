@@ -8,6 +8,7 @@
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemPallets;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemsInWarehouse;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
@@ -27,4 +28,5 @@ Route::prefix('pallets')->as('pallets.')->group(function () {
 Route::prefix('stored-items')->as('stored-items.')->group(function () {
     Route::get('/', IndexStoredItemsInWarehouse::class)->name('inde');
     Route::get('{storedItem:id}', ShowStoredItem::class)->name('show')->withoutScopedBindings();
+    Route::get('{storedItem:id}/pallets', [IndexStoredItemPallets::class, 'inWarehouse'])->name('pallets.index')->withoutScopedBindings();
 });
