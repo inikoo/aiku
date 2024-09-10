@@ -27,6 +27,7 @@ use App\Actions\HydrateModel;
 use App\Actions\Inventory\Location\Search\ReindexLocationSearch;
 use App\Actions\Inventory\Warehouse\Search\ReindexWarehouseSearch;
 use App\Actions\Inventory\WarehouseArea\Search\ReindexWarehouseAreaSearch;
+use App\Actions\Ordering\Order\Search\ReindexOrdersSearch;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
@@ -49,6 +50,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
@@ -68,6 +70,7 @@ class ReindexSearch extends HydrateModel
         $this->reindexWeb();
         $this->reindexCrm();
         $this->reindexCatalogue();
+        $this->reindexOrdering();
     }
 
     public function reindexFulfilment(): void
@@ -170,6 +173,14 @@ class ReindexSearch extends HydrateModel
         foreach (Service::withTrashed()->get() as $model) {
             ReindexServiceSearch::run($model);
         }
+    }
+
+    public function reindexOrdering(): void
+    {
+        foreach (Order::withTrashed()->get() as $model) {
+            ReindexOrdersSearch::run($model);
+        }
+
     }
 
     public string $commandSignature = 'search:reindex';

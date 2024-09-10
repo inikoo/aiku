@@ -8,7 +8,7 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\Helpers\Address\UpdateAddress;
-use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
@@ -91,7 +91,7 @@ class UpdateOrder extends OrgAction
         }
 
 
-        OrderHydrateUniversalSearch::dispatch($order);
+        OrderRecordSearch::dispatch($order);
         return $order;
     }
 

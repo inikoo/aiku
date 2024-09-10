@@ -1,18 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 06 Apr 2024 17:46:46 Central Indonesia Time, Sanur , Indonesia
+ * Created: Tue, 10 Sept 2024 23:04:24 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Ordering\Order\UI;
+namespace App\Actions\Ordering\Order\Search;
 
 use App\Actions\HydrateModel;
-use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Collection;
 
-class UpdateOrderUniversalSearch extends HydrateModel
+class ReindexOrdersSearch extends HydrateModel
 {
     public string $commandSignature = 'order:search {organisations?*} {--s|slugs=}';
 
@@ -22,14 +21,13 @@ class UpdateOrderUniversalSearch extends HydrateModel
         OrderRecordSearch::run($order);
     }
 
-
     protected function getModel(string $slug): Order
     {
-        return Order::where('slug', $slug)->first();
+        return Order::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
     {
-        return Order::get();
+        return Order::withTrashed()->get();
     }
 }

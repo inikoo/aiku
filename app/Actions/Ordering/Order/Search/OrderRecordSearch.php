@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:11 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 10 Sept 2024 23:00:24 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Ordering\Order\Hydrators;
+namespace App\Actions\Ordering\Order\Search;
 
 use App\Models\Ordering\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrderHydrateUniversalSearch
+class OrderRecordSearch
 {
     use AsAction;
 
@@ -18,6 +18,11 @@ class OrderHydrateUniversalSearch
 
     public function handle(Order $order): void
     {
+        if ($order->trashed()) {
+            $order->universalSearch()->delete();
+            return;
+        }
+
         $order->universalSearch()->updateOrCreate(
             [],
             [
