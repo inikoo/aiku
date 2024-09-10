@@ -24,6 +24,7 @@ use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
+use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
@@ -35,6 +36,10 @@ Route::patch('pallet/{pallet:id}/undo-not-received', UndoBookedInPallet::class)-
 Route::patch('pallet/{pallet:id}/damaged', SetPalletAsDamaged::class)->name('pallet.damaged');
 Route::patch('pallet/{pallet:id}/lost', SetPalletAsLost::class)->name('pallet.lost');
 Route::patch('pallet/{pallet:id}/set-rental', SetPalletRental::class)->name('pallet.set-rental');
+
+Route::prefix('pallet/{pallet:id}')->group(function () {
+    Route::patch('stored-item/{storedItem:id}/sync', SyncStoredItemToPallet::class)->name('pallet.sync');
+});
 
 Route::post('profile', UpdateProfile::class)->name('profile.update');
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
