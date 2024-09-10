@@ -28,7 +28,7 @@ function supplierRoute(supplier: Supplier) {
                 'grp.org.procurement.org_suppliers.show',
                 [
                   route().params['organisation'],
-                  supplier.slug
+                  supplier.org_supplier_slug
                 ]);
 
     }
@@ -38,9 +38,7 @@ function supplierRoute(supplier: Supplier) {
 
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
-
-
-    <template #cell(codez)="{ item: supplier }">
+    <template #cell(code)="{ item: supplier }">
       <Link :href="supplierRoute(supplier)" class="primaryLink">
         {{ supplier["code"] }}
       </Link>
