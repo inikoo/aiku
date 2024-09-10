@@ -169,7 +169,6 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
 }
 
 // Tabs: Services
-// const dataServiceList = ref([])
 // const onOpenModalAddService = async () => {
 //     isLoadingData.value = 'addService'
 //     try {
@@ -186,9 +185,10 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
 //     }
 //     isLoadingData.value = false
 // }
+const dataServiceList = ref([])
 const onSubmitAddService = (data: Action, closedPopover: Function) => {
-    const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0].historic_asset_id
-    
+    const selectedHistoricAssetId = dataServiceList.value.filter(service => service.id == formAddService.service_id)[0]?.historic_asset_id
+    // console.log('hhh', dataServiceList.value)
     formAddService.historic_asset_id = selectedHistoricAssetId
     isLoadingButton.value = 'addService'
 
@@ -453,6 +453,7 @@ const changePalletType=(form,fieldName,value)=>{
                                     :fetchRoute="props.service_list_route"
                                     :placeholder="trans('Select Services')"
                                     valueProp="id"
+                                    @optionsList="(options) => dataServiceList = options"
                                 />
 
                                 <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">

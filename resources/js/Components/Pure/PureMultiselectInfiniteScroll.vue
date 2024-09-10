@@ -25,6 +25,9 @@ const props = defineProps<{
     required?: boolean
     placeholder?: string
 }>()
+const emits = defineEmits<{
+    (e: 'optionsList', value: any[]): void
+}>()
 
 
 
@@ -54,6 +57,7 @@ const fetchProductList = async (url?: string) => {
         optionsList.value = optionsList.value.concat(xxx?.data?.data)
         optionsMeta.value = xxx?.data.meta || null
         optionsLinks.value = xxx?.data.links || null
+        emits('optionsList', optionsList.value)
     } catch (error) {
         // console.log(error)
         notify({
@@ -108,6 +112,7 @@ onUnmounted(() => {
                 placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1',
                 ...classes,
             }"
+            @change="(e) => console.log('aaa', e)"
             :canClear="!required"
             :mode="mode || 'single'"
             :closeOnSelect="mode == 'multiple' ? false : true"
