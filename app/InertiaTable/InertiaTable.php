@@ -364,7 +364,7 @@ class InertiaTable
         return $this;
     }
 
-    public function withFooterRows(array $footerRows = null): self
+    public function withFooterRows(mixed $footerRows = null): self
     {
         $this->footerRows = $footerRows;
 

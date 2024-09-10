@@ -49,7 +49,8 @@ class TransactionsResource extends JsonResource
                 'parameters' => [
                     'order'       => $transaction->order_id,
                     'transaction' => $transaction->id
-                    ]
+                ],
+                'method'    => 'delete'
             ]
         ];
     }

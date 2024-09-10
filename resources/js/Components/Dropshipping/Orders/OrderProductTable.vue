@@ -1,8 +1,10 @@
 <script setup lang='ts'>
+import Button from '@/Components/Elements/Buttons/Button.vue'
 import Table from '@/Components/Table/Table.vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import { Link } from '@inertiajs/vue3'
-import { inject } from 'vue'
+import { trans } from 'laravel-vue-i18n'
+import { inject, ref } from 'vue'
 
 const props = defineProps<{
     data: any[]
@@ -27,6 +29,8 @@ function productRoute(product) {
 
 const locale = inject('locale', aikuLocaleStructure)
 
+const isLoading = ref<string | boolean>('false')
+
 </script>
 
 
@@ -42,6 +46,20 @@ const locale = inject('locale', aikuLocaleStructure)
         <!-- Column: Net -->
         <template #cell(net_amount)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.net_amount) }}
+        </template>
+
+        <!-- Column: Action -->
+        <template #cell(actions)="{ item }">
+            <Link
+                :href="route(item.deleteRoute.name, item.deleteRoute.parameters)"
+                :method="item.deleteRoute.method"
+                @start="() => isLoading = 'unselect' + item.id"
+                @finish="() => isLoading = false"
+                v-tooltip="trans('Unselect this product')"
+            >
+                <Button icon="fal fa-times" type="negative" size="xs" :loading="isLoading === 'unselect' + item.id" />
+            </Link>
+            <!-- {{ locale.currencyFormat(item.currency_code, item.net_amount) }} -->
         </template>
     </Table>
 </template>
