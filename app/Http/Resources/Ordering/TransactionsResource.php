@@ -51,7 +51,15 @@ class TransactionsResource extends JsonResource
                     'transaction' => $transaction->id
                 ],
                 'method'    => 'delete'
-            ]
+            ],
+            'updateRoute'            => [
+                'name'       => 'grp.models.order.transaction.update',
+                'parameters' => [
+                    'order'       => $transaction->order_id,
+                    'transaction' => $transaction->id
+                ],
+                'method'    => 'patch'
+            ],
         ];
     }
 }

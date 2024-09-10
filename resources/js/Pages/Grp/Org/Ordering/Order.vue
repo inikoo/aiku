@@ -143,7 +143,7 @@ const props = defineProps<{
         updateOrderRoute: routeType
         products_list: routeType
     }
-    noProductItems: {}
+    // nonProductItems: {}
     transactions: {}
 }>()
 
@@ -594,6 +594,7 @@ const onSubmitNote = async (closePopup: Function) => {
             keyPayloadEdit="delivery_address"
         />
     </Modal> -->
+    
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
         <div class="isolate bg-white px-6 lg:px-8">

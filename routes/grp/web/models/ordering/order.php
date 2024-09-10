@@ -15,11 +15,13 @@ use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
+use App\Actions\Ordering\Transaction\UpdateTransaction;
 use Illuminate\Support\Facades\Route;
 
 Route::name('order.')->prefix('order/{order:id}')->group(function () {
     Route::patch('update', UpdateOrder::class)->name('update');
     Route::name('transaction.')->prefix('transaction')->group(function () {
+        Route::patch('{transaction:id}', UpdateTransaction::class)->name('update')->withoutScopedBindings();
         Route::delete('{transaction:id}', DeleteTransaction::class)->name('delete')->withoutScopedBindings();
         Route::post('{historicAsset:id}', StoreTransaction::class)->name('store')->withoutScopedBindings();
     });

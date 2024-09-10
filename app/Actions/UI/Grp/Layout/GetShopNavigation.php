@@ -160,7 +160,7 @@ class GetShopNavigation
                 ],
             ];
         }
-        if ($user->hasPermissionTo("products.$shop->id.view")) {
+        if ($user->hasPermissionTo("offers.$shop->id.view")) {
             $navigation["offers"] = [
                 "root"  => "grp.org.shops.show.offers.",
                 "icon"  => ["fal", "fa-badge-percent"],

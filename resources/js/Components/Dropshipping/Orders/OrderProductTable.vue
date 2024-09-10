@@ -44,9 +44,9 @@ const isLoading = ref<string | boolean>('false')
         </template>
 
         <!-- Column: Net -->
-        <template #cell(net_amount)="{ item }">
+        <!-- <template #cell(net_amount)="{ item }">
             {{ locale.currencyFormat(item.currency_code, item.net_amount) }}
-        </template>
+        </template> -->
 
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">

@@ -429,8 +429,8 @@ class ShowOrder extends OrgAction
 
                     ],
                 ],
-                'data'            => OrderResource::make($order),
-                'nonProductItems' => $nonProductItems,
+                'data'           => OrderResource::make($order),
+                // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 
 
