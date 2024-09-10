@@ -9,12 +9,14 @@ namespace App\Models\Discounts;
 
 use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -52,12 +54,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withoutTrashed()
  * @mixin \Eloquent
  */
-class OfferCampaign extends Model
+class OfferCampaign extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use HasFactory;
     use InShop;
+    use HasHistory;
 
 
     protected $casts = [
@@ -74,12 +77,23 @@ class OfferCampaign extends Model
 
     protected $guarded = [];
 
+    public function generateTags(): array
+    {
+        return ['discounts'];
+    }
+
+    protected array $auditInclude = [
+        'name',
+        'type',
+        'status',
+        'state',
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $slug = $this->code.' '.$this->shop->code;
-                return $slug;
+                return $this->code.' '.$this->shop->code;
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')

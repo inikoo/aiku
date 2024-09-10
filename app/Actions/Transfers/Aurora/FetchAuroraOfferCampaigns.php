@@ -7,14 +7,13 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
 use App\Actions\Discounts\OfferCampaign\UpdateOfferCampaign;
 use App\Models\Discounts\OfferCampaign;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraOfferCampaign extends FetchAuroraAction
+class FetchAuroraOfferCampaigns extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:offer-campaigns {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
@@ -22,21 +21,22 @@ class FetchAuroraOfferCampaign extends FetchAuroraAction
     {
         if ($offerCampaignData = $organisationSource->fetchOfferCampaign($organisationSourceId)) {
 
-            if ($offerCampaign = OfferCampaign::where('source_id', $offerCampaignData['offer-campaign']['source_id'])->first()) {
-                $offerCampaign = UpdateOfferCampaign::make()->action(
-                    offerCampaign: $offerCampaign,
-                    modelData: $offerCampaignData['offer-campaign']
-                );
+            $shop         =$offerCampaignData['shop'];
+            $offerCampaign=$shop->offerCampaigns()->where('source_id', $offerCampaignData['offer-campaign']['source_id'])->first();
+            if(!$offerCampaign) {
+                $offerCampaign=$shop->offerCampaigns()->where('type', $offerCampaignData['type'])->first();
+                unset($offerCampaignData['offer-campaign']['last_fetched_at']);
             } else {
-                $offerCampaign = StoreOfferCampaign::make()->action(
-                    shop: $offerCampaignData['workplace'],
-                    modelData: $offerCampaignData['offer-campaign'],
-                );
-
-
+                unset($offerCampaignData['offer-campaign']['fetched_at']);
             }
 
-            return $offerCampaign;
+            if($offerCampaign) {
+                return UpdateOfferCampaign::make()->action(
+                    offerCampaign: $offerCampaign,
+                    modelData: $offerCampaignData['offer-campaign'],
+                    strict: false
+                );
+            }
         }
 
         return null;

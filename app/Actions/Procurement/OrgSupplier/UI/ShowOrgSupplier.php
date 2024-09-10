@@ -9,7 +9,6 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
@@ -22,7 +21,6 @@ use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -242,7 +240,7 @@ class ShowOrgSupplier extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $orgSupplier->organisation->slug,
+                        'organisation'    => $orgSupplier->organisation->slug,
                         'orgSupplier'     => $orgSupplier->slug
                     ]
 

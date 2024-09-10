@@ -145,4 +145,6 @@ interface SourceOrganisationService
 
     public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder);
 
+    public function fetchOfferCampaign($id);
+
 }

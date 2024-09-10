@@ -1,18 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:04:01 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 10 Sept 2024 15:55:48 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Discounts\OfferCampaign;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Catalogue\OfferCampaignResource;
+use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Models\Discounts\OfferCampaign;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateOfferCampaign
+class UpdateOfferCampaign extends OrgAction
 {
     use WithActionUpdate;
 
@@ -21,38 +23,51 @@ class UpdateOfferCampaign
         return $this->update($offerCampaign, $modelData);
     }
 
-    //    public function authorize(ActionRequest $request): bool
-    //    {
-    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-    //    }
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.edit");
+    }
 
     public function rules(): array
     {
-        return [
-            'code' => ['required', 'unique:offer_campaigns', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
-            'data' => ['sometimes', 'required']
+        $rules = [
+            'name'   => ['required', 'max:250', 'string'],
+            'status' => ['required', 'boolean'],
+            'state'  => ['required', Rule::enum(OfferCampaignStateEnum::class)],
         ];
+
+        if (!$this->strict) {
+            $rules['fetched_at']      = ['sometimes', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules['created_at']      = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(OfferCampaign $offerCampaign, array $modelData): OfferCampaign
+    public function action(OfferCampaign $offerCampaign, array $modelData, bool $strict = true, bool $audit = true): OfferCampaign
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        if (!$audit) {
+            OfferCampaign::disableAuditing();
+        }
+        $this->asAction = true;
+        $this->strict   = $strict;
+        $this->initialisationFromShop($offerCampaign->shop, $modelData);
 
-        return $this->handle($offerCampaign, $validatedData);
+        return $this->handle($offerCampaign, $this->validatedData);
     }
 
     public function asController(OfferCampaign $offerCampaign, ActionRequest $request): OfferCampaign
     {
-        $request->validate();
+        $this->initialisationFromShop($offerCampaign->shop, $request);
 
-        return $this->handle($offerCampaign, $request->all());
+        return $this->handle($offerCampaign, $this->validatedData);
     }
 
 
-    public function jsonResponse(OfferCampaign $offerCampaign): OfferCampaignResource
-    {
-        return new OfferCampaignResource($offerCampaign);
-    }
 }

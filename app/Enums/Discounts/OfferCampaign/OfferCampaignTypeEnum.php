@@ -39,7 +39,7 @@ enum OfferCampaignTypeEnum: string
     {
         return [
             'order-recursion'   => 'OR',
-            'volume-discount'   => 'VD',
+            'volume-discount'   => 'VL',
             'first-order'       => 'FO',
             'customer-offers'   => 'CU',
             'shop-offers'       => 'SO',
