@@ -24,7 +24,7 @@ use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\NotPickedPalletFromReturn;
 use App\Actions\Fulfilment\PalletReturnItem\UndoPickingPalletFromReturn;
-use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItem\UpdateQuantityStoredItemPalletApp;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
@@ -38,7 +38,7 @@ Route::patch('pallet/{pallet:id}/lost', SetPalletAsLost::class)->name('pallet.lo
 Route::patch('pallet/{pallet:id}/set-rental', SetPalletRental::class)->name('pallet.set-rental');
 
 Route::prefix('pallet/{pallet:id}')->group(function () {
-    Route::patch('stored-item/{storedItem:id}', [SyncStoredItemToPallet::class, 'fromMaya'])->name('pallet.sync')->withoutScopedBindings();
+    Route::patch('stored-item/{storedItem:id}', UpdateQuantityStoredItemPalletApp::class)->name('pallet.sync')->withoutScopedBindings();
 });
 
 Route::post('profile', UpdateProfile::class)->name('profile.update');
