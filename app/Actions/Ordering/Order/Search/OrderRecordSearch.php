@@ -20,6 +20,7 @@ class OrderRecordSearch
     {
         if ($order->trashed()) {
             $order->universalSearch()->delete();
+
             return;
         }
 
@@ -35,6 +36,30 @@ class OrderRecordSearch
                 'customer_slug'     => $order->customer->slug,
                 'sections'          => ['ordering'],
                 'haystack_tier_1'   => $order->reference,
+                'result'            => [
+                    'title' => $order->reference,
+                    'icon'  => [
+                        'icon' => 'fal fa-shopping-cart',
+                    ],
+                    'meta'  => [
+                        [
+                            'key'   => 'state',
+                            'label' => $order->state
+                        ],
+                        [
+                            'key'     => 'created_date',
+                            'type'    => 'date',
+                            'label'   => $order->created_at,
+                            'tooltip' => __('Created at')
+                        ],
+                        [
+                            'key'     => 'updated_date',
+                            'type'    => 'date',
+                            'label'   => $order->updated_at,
+                            'tooltip' => __('Updated at')
+                        ],
+                    ]
+                ]
             ]
         );
     }

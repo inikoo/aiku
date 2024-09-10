@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNote;
 
-use App\Actions\Dispatching\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
+use App\Actions\Dispatching\DeliveryNote\Search\DeliveryNoteRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -64,7 +64,7 @@ class UpdateDeliveryNote extends OrgAction
             }
         }
 
-        DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
+        DeliveryNoteRecordSearch::dispatch($deliveryNote);
 
         return $deliveryNote;
     }

@@ -42,14 +42,6 @@ class ShowCustomerClient extends OrgAction
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
 
-    // public function inOrganisation(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
-    // {
-    //     $this->parent = $organisation;
-    //     $this->initialisation($organisation, $request)->withTab(CustomerTabsEnum::values());
-
-    //     return $this->handle($customer);
-    // }
-
 
     public function asController(
         Organisation $organisation,
@@ -114,7 +106,7 @@ class ShowCustomerClient extends OrgAction
                             'type'    => 'button',
                             'style'   => 'create',
                             'label'   => 'Add order',
-                            'key'     => 'addorder',
+                            'key'     => 'add_order',
                             'route'   => [
                                 'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                                 'parameters' => [

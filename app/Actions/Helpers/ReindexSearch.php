@@ -14,6 +14,7 @@ use App\Actions\Catalogue\Service\Search\ReindexServiceSearch;
 use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
 use App\Actions\CRM\CustomerClient\Search\ReindexCustomerClientSearch;
 use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
+use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
@@ -37,6 +38,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -71,6 +73,7 @@ class ReindexSearch extends HydrateModel
         $this->reindexCrm();
         $this->reindexCatalogue();
         $this->reindexOrdering();
+        $this->reindexDispatching();
     }
 
     public function reindexFulfilment(): void
@@ -179,6 +182,14 @@ class ReindexSearch extends HydrateModel
     {
         foreach (Order::withTrashed()->get() as $model) {
             ReindexOrdersSearch::run($model);
+        }
+
+    }
+
+    public function reindexDispatching(): void
+    {
+        foreach (DeliveryNote::withTrashed()->get() as $model) {
+            ReindexDeliveryNotesSearch::run($model);
         }
 
     }
