@@ -38,7 +38,7 @@ Route::patch('pallet/{pallet:id}/lost', SetPalletAsLost::class)->name('pallet.lo
 Route::patch('pallet/{pallet:id}/set-rental', SetPalletRental::class)->name('pallet.set-rental');
 
 Route::prefix('pallet/{pallet:id}')->group(function () {
-    Route::patch('stored-item/{storedItem:id}/sync', [SyncStoredItemToPallet::class, 'fromMaya'])->name('pallet.sync')->withoutScopedBindings();
+    Route::patch('stored-item/{storedItem:id}', [SyncStoredItemToPallet::class, 'fromMaya'])->name('pallet.sync')->withoutScopedBindings();
 });
 
 Route::post('profile', UpdateProfile::class)->name('profile.update');
