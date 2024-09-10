@@ -378,8 +378,8 @@ class ShowOrder extends OrgAction
                                 ]
 
                             ],
-                            'total_amount' => $order->total_amount,
-                            'paid_amount'  => $order->payment_amount,
+                            'total_amount' => (float) $order->total_amount,
+                            'paid_amount'  => (float) $order->payment_amount,
                             'pay_amount'   => $roundedDiff,
                         ],
                         'estimated_weight' => $estWeight

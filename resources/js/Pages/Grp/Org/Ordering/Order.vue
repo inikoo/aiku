@@ -76,7 +76,7 @@ const props = defineProps<{
     }
 
     pageHead: PageHeadingTypes
-    alert: {
+    alert?: {
         status: string
         title?: string
         description?: string

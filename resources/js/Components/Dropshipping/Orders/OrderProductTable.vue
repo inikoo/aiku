@@ -52,6 +52,7 @@ const isLoading = ref<string | boolean>('false')
         <template #cell(actions)="{ item }">
             <Link
                 :href="route(item.deleteRoute.name, item.deleteRoute.parameters)"
+                as="button"
                 :method="item.deleteRoute.method"
                 @start="() => isLoading = 'unselect' + item.id"
                 @finish="() => isLoading = false"
