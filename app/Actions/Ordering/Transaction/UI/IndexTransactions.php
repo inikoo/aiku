@@ -88,7 +88,8 @@ class IndexTransactions extends OrgAction
                 'assets.name as asset_name',
                 'assets.type as asset_type',
                 'products.slug as product_slug',
-                'currencies.code as currency_code'
+                'currencies.code as currency_code',
+                'orders.id as order_id',
             ])
             ->allowedSorts(['asset_code', 'asset_name', 'net_amount', 'quantity_ordered'])
             ->allowedFilters([$globalSearch])
@@ -118,6 +119,9 @@ class IndexTransactions extends OrgAction
             $table->column(key: 'asset_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_ordered', label: __('Quantity'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'net_amount', label: __('Net'), canBeHidden: false, sortable: true, searchable: true, type: 'number');
+            if($parent instanceof Order) {
+                $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
+            }
         };
     }
 
