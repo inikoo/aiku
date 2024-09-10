@@ -25,9 +25,8 @@ class NonProductItemsResource extends JsonResource
             'quantity_cancelled'             => intVal($transaction->quantity_cancelled),
             'gross_amount'                   => $transaction->gross_amount,
             'net_amount'                     => $transaction->net_amount,
-            'charge_name'                    => $transaction->charge_name        ?? null,
-            'shipping_zone_name'             => $transaction->shipping_zone_name ?? null,
-            'adjustment_type'                => $transaction->adjustment_type    ?? null,
+            'asset_name'                     => $transaction->asset_name,
+            'model_type'                     => $transaction->model_type,
             'created_at'                     => $transaction->created_at,
             'currency_code'                  => $transaction->currency_code,
 
