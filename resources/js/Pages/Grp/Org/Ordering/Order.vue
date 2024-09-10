@@ -143,9 +143,11 @@ const props = defineProps<{
         updateOrderRoute: routeType
         products_list: routeType
     }
+    noProductItems: {}
+    transactions: {}
 }>()
 
-console.log(props.box_stats)
+// console.log(props.box_stats)
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -162,7 +164,7 @@ const component = computed(() => {
 
 const isLoadingButton = ref<string | boolean>(false)
 // const isLoadingData = ref<string | boolean>(false)
-const isModalAddress = ref<boolean>(false)
+// const isModalAddress = ref<boolean>(false)
 
 // Tabs: Products
 const formProducts = useForm({ historicAssetId : null, quantity_ordered: 1,  })

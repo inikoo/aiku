@@ -35,6 +35,39 @@ class WarehouseAreaRecordSearch
                 'sections'          => ['inventory'],
                 'haystack_tier_1'   => trim($warehouseArea->code.' '.$warehouseArea->name),
                 'keyword'           => $warehouseArea->code,
+                'result'            => [
+                    'route'     => [
+                        'name'          => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
+                        'parameters'    => [
+                            $warehouseArea->organisation->slug,
+                            $warehouseArea->warehouse->slug,
+                            $warehouseArea->slug
+                        ]
+                    ],
+                    'container' => [
+                        'label' => $warehouseArea->warehouse->name,
+                    ],
+                    'title'     => $warehouseArea->name,
+                    'icon'      => [
+                        'icon' => 'fal fa-map-signs',
+                    ],
+                    // 'aaa'       => $warehouseArea,
+                    'meta'      => [
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $warehouseArea->created_at,
+                            'tooltip'   => __('Created at')
+                        ],
+                        [
+                            'key'    => 'unit_quantity',
+                            'type'   => 'number',
+                            'label'  => __('Unit quantity') . ': ',
+                            'number' => $warehouseArea->unit_quantity
+                        ],
+
+                    ],
+                ]
             ]
         );
     }

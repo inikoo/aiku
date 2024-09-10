@@ -31,7 +31,7 @@ const locale = inject('locale', aikuLocaleStructure)
 
 
 <template>
-    <Table :resource="data">
+    <Table :resource="data" :name="tab">
         <!-- Column: Code -->
         <template #cell(asset_code)="{ item }">
             <Link :href="productRoute(item)" class="primaryLink">

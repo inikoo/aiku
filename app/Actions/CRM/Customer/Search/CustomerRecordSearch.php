@@ -33,6 +33,57 @@ class CustomerRecordSearch
                 'shop_slug'         => $customer->shop->slug,
                 'sections'          => ['crm'],
                 'haystack_tier_1'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
+                'result'            => [
+                    // 'route'     => $route,
+                    'container' => [
+                        'label' => $customer->shop->name,
+                    ],
+                    'title'        => $customer->name,
+                    'afterTitle'   => [
+                        'label'     => '(#' . $customer->reference . ')',
+                        'tooltip'   => __('reference')
+                    ],
+                    'icon'      => [
+                        'icon' => 'fal fa-file-invoice-dollar',
+                    ],
+                    'meta'      => [
+                        [
+                            'key'   => 'state',
+                            'label' => $customer->state
+                        ],
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $customer->created_at,
+                            'tooltip'   => __('Created at')
+                        ],
+                        [
+                            'key'       => 'address',
+                            'type'      => 'address',
+                            'label'     => $customer->location,
+                            'tooltip'   => __('Location')
+                        ],
+                        [
+                            'key'   => 'contact_name',
+                            // 'type'  => 'address',
+                            'label'     => $customer->contact_name,
+                            'tooltip'   => __('Contact name')
+                        ],
+                        [
+                            'key'   => 'email',
+                            // 'type'  => 'address',
+                            'label'     => $customer->email,
+                            'tooltip'   => __('Email')
+                        ],
+                        // [
+                        //     'key'    => 'total',
+                        //     'type'   => 'amount',
+                        //     'code'   => $customer->currency->code,
+                        //     'label'  => 'Total: ',
+                        //     'amount' => $customer->total_amount
+                        // ],
+                    ],
+                ]
             ]
         );
     }
