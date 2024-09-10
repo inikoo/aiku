@@ -34,9 +34,9 @@ function productRoute(product) {
 
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
-const onUpdateQuantity = (idTransaction: number, value: number) => {
+const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: number) => {
     router.patch(
-        route(props.updateRoute.name, props.updateRoute.parameters),
+        route(routeUpdate.name, routeUpdate.parameters),
         {
             quantity_ordered: Number(value)
         },
@@ -69,8 +69,8 @@ const onUpdateQuantity = (idTransaction: number, value: number) => {
                 <div class="w-32">
                     <PureInput
                         :modelValue="item.quantity_ordered"
-                        @onEnter="(e: number) => onUpdateQuantity(item.id, e)"
-                        @blur="(e: string) => e == item.quantity_ordered ? false : onUpdateQuantity(item.id, e)"
+                        @onEnter="(e: number) => onUpdateQuantity(item.updateRoute, item.id, e)"
+                        @blur="(e: string) => e == item.quantity_ordered ? false : onUpdateQuantity(item.updateRoute, item.id, e)"
                         :isLoading="isLoading === 'quantity' + item.id"
                         type="number"
                         align="right"
