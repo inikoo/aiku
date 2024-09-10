@@ -50,16 +50,16 @@ const emits = defineEmits<{
 // Section: Quantity
 const isLoading = ref<string | boolean>(false)
 const onUpdateQuantity = (idFulfilmentTransaction: number, value: number) => {
-    const routeDelete = <routeType>{}
+    const routeUpdate = <routeType>{}
     if (layout.app.name === 'Aiku') {
-        routeDelete.name = 'grp.models.fulfilment-transaction.update'
-        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
+        routeUpdate.name = 'grp.models.fulfilment-transaction.update'
+        routeUpdate.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
     } else {
-        routeDelete.name = 'retina.models.fulfilment-transaction.update'
-        routeDelete.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
+        routeUpdate.name = 'retina.models.fulfilment-transaction.update'
+        routeUpdate.parameters = {fulfilmentTransaction: idFulfilmentTransaction}
     }
     router.patch(
-        route(routeDelete.name, routeDelete.parameters),
+        route(routeUpdate.name, routeUpdate.parameters),
         {
             quantity: value
         },

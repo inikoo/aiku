@@ -100,12 +100,6 @@ const props = defineProps<{
 
     upload_spreadsheet: UploadPallet
 
-    // locationRoute: routeType
-    // rentalRoute: routeType
-    // storedItemsRoute: {
-    //     index: routeType
-    //     store: routeType
-    // }
     box_stats: {
         customer: {
             reference: string
@@ -584,7 +578,12 @@ const onSubmitNote = async (closePopup: Function) => {
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
     <div class="pb-12">
-        <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+        <component
+            :is="component"
+            :data="props[currentTab as keyof typeof props]"
+            :tab="currentTab"
+            :updateRoute="routes.updateOrderRoute"
+        />
     </div>
 
     <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
