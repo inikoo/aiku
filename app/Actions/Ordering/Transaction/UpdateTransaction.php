@@ -7,12 +7,14 @@
 
 namespace App\Actions\Ordering\Transaction;
 
+use App\Actions\Ordering\Order\CalculateOrderTotalAmounts;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Ordering\Transaction;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class UpdateTransaction extends OrgAction
@@ -21,7 +23,20 @@ class UpdateTransaction extends OrgAction
 
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
-        return $this->update($transaction, $modelData, ['data']);
+
+        if(Arr::exists($modelData, 'quantity_ordered'))
+        {
+            $net   = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+            $gross = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+
+            data_set($modelData, 'gross_amount', $gross);
+            data_set($modelData, 'net_amount', $net);
+        }
+        $this->update($transaction, $modelData, ['data']);
+        $transaction->order->refresh();
+        CalculateOrderTotalAmounts::run($transaction->order);
+
+        return $transaction;
     }
 
     public function rules(): array

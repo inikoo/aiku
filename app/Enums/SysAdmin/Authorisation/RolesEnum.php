@@ -60,6 +60,9 @@ enum RolesEnum: string
     case SHOPKEEPER_SUPERVISOR = 'shopkeeper-supervisor';
 
 
+    case OFFERS_CLERK      = 'offers-clerk';
+    case OFFERS_SUPERVISOR = 'offers-supervisor';
+
     case MARKETING_CLERK      = 'marketing-clerk';
     case MARKETING_SUPERVISOR = 'marketing-supervisor';
 
@@ -136,8 +139,10 @@ enum RolesEnum: string
             RolesEnum::WEBMASTER_SUPERVISOR            => __('Webmaster supervisor'),
             RolesEnum::SHOPKEEPER_CLERK                => __('Shopkeeper clerk'),
             RolesEnum::SHOPKEEPER_SUPERVISOR           => __('Shopkeeper supervisor'),
-            RolesEnum::MARKETING_CLERK                 => __('Deals clerk'),
-            RolesEnum::MARKETING_SUPERVISOR            => __('Deals supervisor'),
+            RolesEnum::OFFERS_CLERK                    => __('Offers clerk'),
+            RolesEnum::OFFERS_SUPERVISOR               => __('Offers supervisor'),
+            RolesEnum::MARKETING_CLERK                 => __('Marketing clerk'),
+            RolesEnum::MARKETING_SUPERVISOR            => __('Marketing supervisor'),
             RolesEnum::MANUFACTURING_ADMIN             => __('Manufacturing admin'),
             RolesEnum::MANUFACTURING_ORCHESTRATOR      => __('Manufacturing orchestrator'),
             RolesEnum::MANUFACTURING_LINE_MANAGER      => __('Manufacturing line manager'),
@@ -241,12 +246,14 @@ enum RolesEnum: string
                 ShopPermissionsEnum::WEB,
                 ShopPermissionsEnum::CRM,
                 ShopPermissionsEnum::ORDERS,
+                ShopPermissionsEnum::OFFERS,
                 ShopPermissionsEnum::MARKETING,
                 ShopPermissionsEnum::SUPERVISOR_PRODUCTS,
                 ShopPermissionsEnum::SUPERVISOR_CRM,
                 ShopPermissionsEnum::SUPERVISOR_CRM,
                 ShopPermissionsEnum::SUPERVISOR_WEB,
                 ShopPermissionsEnum::SUPERVISOR_ORDERS,
+                ShopPermissionsEnum::SUPERVISOR_OFFERS,
                 ShopPermissionsEnum::SUPERVISOR_MARKETING
             ],
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR => [
@@ -320,6 +327,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::WEB,
                 ShopPermissionsEnum::ORDERS,
                 ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::OFFERS_VIEW,
                 ShopPermissionsEnum::MARKETING_VIEW,
 
             ],
@@ -332,8 +340,27 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_ORDERS,
                 ShopPermissionsEnum::ORDERS,
                 ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::OFFERS_VIEW,
                 ShopPermissionsEnum::MARKETING_VIEW,
             ],
+            RolesEnum::OFFERS_CLERK => [
+                ShopPermissionsEnum::OFFERS,
+                ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::CRM_PROSPECTS,
+                ShopPermissionsEnum::PRODUCTS_VIEW,
+                ShopPermissionsEnum::ORDERS,
+
+            ],
+            RolesEnum::OFFERS_SUPERVISOR => [
+                ShopPermissionsEnum::OFFERS,
+                ShopPermissionsEnum::SUPERVISOR_OFFERS,
+                ShopPermissionsEnum::CRM_VIEW,
+                ShopPermissionsEnum::CRM_PROSPECTS,
+                ShopPermissionsEnum::PRODUCTS_VIEW,
+                ShopPermissionsEnum::WEB_EDIT,
+                ShopPermissionsEnum::SUPERVISOR_WEB,
+            ],
+
             RolesEnum::MARKETING_CLERK => [
                 ShopPermissionsEnum::MARKETING,
                 ShopPermissionsEnum::CRM_VIEW,
@@ -356,6 +383,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::ORDERS,
                 ShopPermissionsEnum::PRODUCTS_VIEW,
                 ShopPermissionsEnum::WEB_VIEW,
+                ShopPermissionsEnum::OFFERS_VIEW,
                 ShopPermissionsEnum::MARKETING_VIEW,
 
             ],
@@ -366,6 +394,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_ORDERS,
                 ShopPermissionsEnum::PRODUCTS_VIEW,
                 ShopPermissionsEnum::WEB_VIEW,
+                ShopPermissionsEnum::OFFERS_VIEW,
                 ShopPermissionsEnum::MARKETING_VIEW,
 
             ],
@@ -412,6 +441,9 @@ enum RolesEnum: string
 
             RolesEnum::SHOPKEEPER_CLERK,
             RolesEnum::SHOPKEEPER_SUPERVISOR,
+
+            RolesEnum::OFFERS_CLERK,
+            RolesEnum::OFFERS_SUPERVISOR,
 
             RolesEnum::MARKETING_CLERK,
             RolesEnum::MARKETING_SUPERVISOR,
