@@ -426,7 +426,6 @@ class ShowOrder extends OrgAction
                             ]
                         ],
                         'currency' => CurrencyResource::make($order->currency),
-
                     ],
                 ],
                 'data'           => OrderResource::make($order),
