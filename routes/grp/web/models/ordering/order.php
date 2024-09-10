@@ -23,7 +23,7 @@ Route::name('order.')->prefix('order/{order:id}')->group(function () {
         Route::delete('{transaction:id}', DeleteTransaction::class)->name('delete')->withoutScopedBindings();
         Route::post('{historicAsset:id}', StoreTransaction::class)->name('store')->withoutScopedBindings();
     });
-    
+
     Route::name('state.')->prefix('state')->group(function () {
         Route::patch('creating', UpdateStateToCreatingOrder::class)->name('creating');
         Route::patch('submitted', UpdateOrderStateToSubmitted::class)->name('submitted');
