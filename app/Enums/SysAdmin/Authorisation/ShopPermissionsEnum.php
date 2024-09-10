@@ -11,7 +11,7 @@ use App\Models\Catalogue\Shop;
 
 enum ShopPermissionsEnum: string
 {
-    case SHOP_ADMIN      = 'shop-admin';
+    case SHOP_ADMIN = 'shop-admin';
 
     case PRODUCTS      = 'products';
     case PRODUCTS_EDIT = 'products.edit';
@@ -34,22 +34,26 @@ enum ShopPermissionsEnum: string
     case ORDERS_EDIT = 'orders.edit';
     case ORDERS_VIEW = 'orders.view';
 
+    case OFFERS      = 'offers';
+    case OFFERS_EDIT = 'offers.edit';
+    case OFFERS_VIEW = 'offers.view';
+
     case MARKETING      = 'marketing';
     case MARKETING_EDIT = 'marketing.edit';
     case MARKETING_VIEW = 'marketing.view';
 
-    case SUPERVISOR_PRODUCTS       = 'supervisor-products';
-    case SUPERVISOR_CRM            = 'supervisor-crm';
-    case SUPERVISOR_WEB            = 'supervisor-web';
-    case SUPERVISOR_ORDERS         = 'supervisor-orders';
-    case SUPERVISOR_MARKETING      = 'supervisor-marketing';
+    case SUPERVISOR_PRODUCTS  = 'supervisor-products';
+    case SUPERVISOR_CRM       = 'supervisor-crm';
+    case SUPERVISOR_WEB       = 'supervisor-web';
+    case SUPERVISOR_ORDERS    = 'supervisor-orders';
+    case SUPERVISOR_OFFERS    = 'supervisor-offers';
+    case SUPERVISOR_MARKETING = 'supervisor-marketing';
 
     public static function getAllValues(Shop $shop): array
     {
-
         $rawPermissionsNames = array_column(ShopPermissionsEnum::cases(), 'value');
 
-        $permissionsNames    = [];
+        $permissionsNames = [];
         foreach ($rawPermissionsNames as $rawPermissionsName) {
             $permissionsNames[] = self::getPermissionName($rawPermissionsName, $shop);
         }
