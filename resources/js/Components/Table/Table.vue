@@ -206,7 +206,7 @@ const hasOnlyData = computed(() => {
     return !queryBuilderProps.value.globalSearch;
 });
 
-// Data of list users
+// Data of list rows table
 const compResourceData = computed(() => {
     if (Object.keys(props.resource || {}).length === 0) {
         return props.data;
@@ -215,8 +215,9 @@ const compResourceData = computed(() => {
     if ('data' in props.resource) {
         return props.resource.data;
     }
+
     return props.resource;
-});
+})
 
 // Meta Page (Previous/next link, current page, data per page)
 const compResourceMeta = computed(() => {
@@ -920,10 +921,63 @@ const isLoading = ref<string | boolean>(false)
 
                                     </template>
                                 </slot>
+
+                                <!-- Section: FooterRows -->
+                                <slot name="footerRows" :show="show">
+                                    <template v-for="(item, key) in queryBuilderProps.footerRows?.data" :key="`footerRows-rows-${key}`">
+                                        <tr class="bg-gray-100">
+                                            <!-- Column: Check box -->
+                                            <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
+                                                <!-- <div v-if="selectRow[item[checkboxKey]]" class="absolute inset-0 bg-lime-500/10 -z-10" />
+                                                <FontAwesomeIcon v-if="selectRow[item[checkboxKey]] === true" @click="onSelectCheckbox(item)" icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
+                                                <FontAwesomeIcon v-else @click="onSelectCheckbox(item)" icon='fal fa-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' /> -->
+                                            </td>
+
+                                            <td v-for="(column, index) in queryBuilderProps.columns"
+                                                v-show="show(column.key)"
+                                                :key="`footerRows-rows-${key}-column-${column.key}`"
+                                                class="text-sm py-2 text-gray-500 whitespace-normal h-full" :class="[
+                                                    column.type === 'avatar' || column.type === 'icon'
+                                                        ? 'text-center min-w-fit px-3'  // if type = icon
+                                                        : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency'
+                                                            ? 'text-right pl-3 pr-9 tabular-nums'  // if the value is number
+                                                            : 'px-6',
+                                                    { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item[checkboxKey]) },
+                                                    column.className
+                                                ]"
+                                            >
+                                                <slot :name="`footerRows-cell(${column.key})`"
+                                                    :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false, editMode: false }, data : item }"
+                                                    :tabName="name" class=""
+                                                >
+                                                    <template v-if="typeof item[column.key] == 'number' || column.type === 'number'">
+                                                        {{  locale.number(item[column.key]) }}
+                                                    </template>
+                                                    <template v-else-if="column.type === 'currency'">
+                                                        {{  locale.currencyFormat(item.currency_code || 'usd', item[column.key]) }}
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ item[column.key] }}
+                                                    </template>
+                                                </slot>
+                                            </td>
+                                        </tr>
+
+                                        <tr v-if="useExpandTable">
+                                            <td :colspan="queryBuilderProps.columns?.length + (isCheckBox ? 1 : 0)" style="padding: 0;">
+                                                <slot name="expandRow" :item="{ rowIndex: key }">
+
+                                                </slot>
+                                            </td>
+                                        </tr>
+
+
+                                    </template>
+                                </slot>
                             </tbody>
                         </table>
                     </slot>
-
+                    
                     <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
                         :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">

@@ -430,7 +430,7 @@ class ShowOrder extends OrgAction
                     ],
                 ],
                 'data'           => OrderResource::make($order),
-                'nonProductItems' => $nonProductItems,
+                // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 
 
@@ -456,12 +456,12 @@ class ShowOrder extends OrgAction
                 )
             )
             ->table(IndexInvoices::make()->tableStructure(
-                    parent: $order,
-                    prefix: OrderTabsEnum::INVOICES->value
+                parent: $order,
+                prefix: OrderTabsEnum::INVOICES->value
             ))
             ->table(IndexDeliveryNotes::make()->tableStructure(
-                    parent: $order,
-                    prefix: OrderTabsEnum::DELIVERY_NOTES->value
+                parent: $order,
+                prefix: OrderTabsEnum::DELIVERY_NOTES->value
             ));
     }
 

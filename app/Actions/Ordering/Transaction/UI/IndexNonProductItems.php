@@ -12,13 +12,14 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Services\QueryBuilder;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexNonProductItems extends OrgAction
 {
-    public function handle(Order $order, $prefix = null): LengthAwarePaginator
+    public static $wrap = null;
+
+    public function handle(Order $order, $prefix = null)
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -42,12 +43,12 @@ class IndexNonProductItems extends OrgAction
             $join->on('transactions.model_id', '=', 'charges.id')
                     ->where('transactions.model_type', '=', 'Charge');
         });
-        
+
         $query->leftJoin('adjustments', function ($join) {
             $join->on('transactions.model_id', '=', 'adjustments.id')
                     ->where('transactions.model_type', '=', 'Adjustment');
         });
-        
+
         $query->leftJoin('shipping_zones', function ($join) {
             $join->on('transactions.model_id', '=', 'shipping_zones.id')
                     ->where('transactions.model_type', '=', 'ShippingZone');
@@ -77,9 +78,6 @@ class IndexNonProductItems extends OrgAction
             END as asset_name")
         ]);
 
-        return $query->allowedSorts(['net_amount', 'quantity_ordered'])
-            ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
-            ->withQueryString();
+        return $query->get();
     }
 }
