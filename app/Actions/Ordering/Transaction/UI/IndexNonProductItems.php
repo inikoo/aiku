@@ -13,6 +13,7 @@ use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexNonProductItems extends OrgAction
@@ -37,17 +38,20 @@ class IndexNonProductItems extends OrgAction
 
         $query->whereNotIn('transactions.model_type', ['Product', 'Service']);
 
-        if ($order->model_type == 'Charge') {
-            $query->leftJoin('charges', 'transactions.model_id', '=', 'charges.id');
-        }
-
-        if ($order->model_type == 'Adjustment') {
-            $query->leftJoin('adjustments', 'transactions.model_id', '=', 'adjustments.id');
-        }
-
-        if ($order->model_type == 'ShippingZone') {
-            $query->leftJoin('shipping_zones', 'transactions.model_id', '=', 'shipping_zones.id');
-        }
+        $query->leftJoin('charges', function ($join) {
+            $join->on('transactions.model_id', '=', 'charges.id')
+                    ->where('transactions.model_type', '=', 'Charge');
+        });
+        
+        $query->leftJoin('adjustments', function ($join) {
+            $join->on('transactions.model_id', '=', 'adjustments.id')
+                    ->where('transactions.model_type', '=', 'Adjustment');
+        });
+        
+        $query->leftJoin('shipping_zones', function ($join) {
+            $join->on('transactions.model_id', '=', 'shipping_zones.id')
+                    ->where('transactions.model_type', '=', 'ShippingZone');
+        });
 
         $query->defaultSort('transactions.id')
         ->select([
@@ -62,27 +66,16 @@ class IndexNonProductItems extends OrgAction
             'transactions.gross_amount',
             'transactions.net_amount',
             'transactions.created_at',
+            'transactions.model_type',
             'currencies.code as currency_code',
             'orders.id as order_id',
+            DB::raw("CASE 
+                WHEN transactions.model_type = 'Charge' THEN charges.name
+                WHEN transactions.model_type = 'Adjustment' THEN adjustments.type
+                WHEN transactions.model_type = 'ShippingZone' THEN shipping_zones.name
+                ELSE null
+            END as asset_name")
         ]);
-
-        if ($order->model_type == 'Charge') {
-            $query->addSelect([
-                'charges.name as charge_name',
-            ]);
-        }
-
-        if ($order->model_type == 'Adjustment') {
-            $query->addSelect([
-                'adjustments.type as adjustment_type',
-            ]);
-        }
-
-        if ($order->model_type == 'ShippingZone') {
-            $query->addSelect([
-                'shipping_zones.name as shipping_zone_name',
-            ]);
-        }
 
         return $query->allowedSorts(['net_amount', 'quantity_ordered'])
             ->allowedFilters([$globalSearch])
