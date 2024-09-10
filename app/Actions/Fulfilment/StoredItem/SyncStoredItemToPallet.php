@@ -13,6 +13,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\StoredItem;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
@@ -88,6 +89,27 @@ class SyncStoredItemToPallet extends OrgAction
         $this->initialisation($pallet->organisation, $modelData);
 
         $this->handle($pallet, $this->validatedData);
+    }
+
+    public function fromMaya(Pallet $pallet, StoredItem $storedItem, ActionRequest $request): Pallet
+    {
+        $this->asAction           = true;
+        $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
+        $this->fulfilment         = $pallet->fulfilment;
+
+        $request->merge([
+            'stored_item_ids' => [
+                $storedItem->id => [
+                    'quantity' => $request->input('quantity')
+                ]
+            ]
+        ]);
+
+        $this->initialisation($pallet->organisation, $request);
+
+        $this->handle($pallet, $this->validatedData);
+
+        return $pallet;
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource
