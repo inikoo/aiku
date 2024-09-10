@@ -13,9 +13,11 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateTransaction extends OrgAction
 {
@@ -23,7 +25,6 @@ class UpdateTransaction extends OrgAction
 
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
-
         if(Arr::exists($modelData, 'quantity_ordered'))
         {
             $net   = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
@@ -42,25 +43,25 @@ class UpdateTransaction extends OrgAction
     public function rules(): array
     {
         return [
-            'quantity_ordered'    => ['sometimes', 'required', 'numeric', 'min:0'],
-            'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
-            'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
-            'quantity_fail'       => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_ordered'    => ['sometimes', 'numeric', 'min:0'],
+            'quantity_bonus'      => ['sometimes', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['sometimes', 'numeric', 'min:0'],
+            'quantity_fail'       => ['sometimes', 'numeric', 'min:0'],
             'quantity_cancelled'  => ['sometimes', 'sometimes', 'numeric', 'min:0'],
             'source_id'           => ['sometimes', 'string'],
             'state'               => ['sometimes', Rule::enum(TransactionStateEnum::class)],
             'status'              => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
             'fail_status'         => ['sometimes', 'nullable', Rule::enum(TransactionFailStatusEnum::class)],
-            'gross_amount'        => ['sometimes', 'required', 'numeric'],
-            'net_amount'          => ['sometimes', 'required', 'numeric'],
+            'gross_amount'        => ['sometimes', 'numeric'],
+            'net_amount'          => ['sometimes', 'numeric'],
             'org_exchange'        => ['sometimes', 'numeric'],
             'grp_exchange'        => ['sometimes', 'numeric'],
             'org_net_amount'      => ['sometimes', 'numeric'],
             'grp_net_amount'      => ['sometimes', 'numeric'],
-            'created_at'          => ['sometimes', 'required', 'date'],
-            'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'date'                => ['sometimes', 'required', 'date'],
-            'submitted_at'        => ['sometimes', 'required', 'date'],
+            'created_at'          => ['sometimes', 'date'],
+            'tax_category_id'     => ['sometimes', 'exists:tax_categories,id'],
+            'date'                => ['sometimes', 'date'],
+            'submitted_at'        => ['sometimes', 'date'],
             'last_fetched_at'     => ['sometimes', 'date'],
         ];
     }
@@ -69,6 +70,13 @@ class UpdateTransaction extends OrgAction
     {
         $this->initialisationFromShop($transaction->shop, $modelData);
 
+        return $this->handle($transaction, $this->validatedData);
+    }
+
+    public function asController(Order $order, Transaction $transaction, ActionRequest $request): Transaction
+    {
+        $this->initialisationFromShop($order->shop, $request);
+        
         return $this->handle($transaction, $this->validatedData);
     }
 }
