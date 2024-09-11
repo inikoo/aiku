@@ -8,6 +8,7 @@
 namespace App\Enums\Discounts\OfferCampaign;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\Shop;
 
 enum OfferCampaignStateEnum: string
 {
@@ -17,5 +18,14 @@ enum OfferCampaignStateEnum: string
     case ACTIVE     = 'active';
     case FINISHED   = 'finished';
 
+    public static function labels(Shop $shop): array
+    {
+        $labels = [
+            'in-process'   => __('In process'),
+            'active'       => __('Active'),
+            'finished'     => __('Finished'),
+        ];
 
+        return $labels;
+    }
 }
