@@ -97,6 +97,12 @@ class IndexOfferCampaigns extends OrgAction
         };
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo("discounts.{$this->shop->id}.edit");
+
+        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.view");
+    }
 
     public function jsonResponse(LengthAwarePaginator $campaigns): AnonymousResourceCollection
     {
