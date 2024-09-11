@@ -37,6 +37,7 @@ class OrderRecordSearch
                 'sections'          => ['ordering'],
                 'haystack_tier_1'   => $order->reference,
                 'result'            => [
+                    'aa'    => $order,
                     'title' => $order->reference,
                     'icon'  => [
                         'icon' => 'fal fa-shopping-cart',

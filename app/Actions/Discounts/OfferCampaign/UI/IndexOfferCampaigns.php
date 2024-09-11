@@ -8,15 +8,8 @@
 namespace App\Actions\Discounts\OfferCampaign\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Catalogue\OfferCampaignsResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\Pallet;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,13 +20,11 @@ use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\OfferCampaign;
-use App\Models\Inventory\Location;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
 class IndexOfferCampaigns extends OrgAction
 {
-
     protected Shop $shop;
 
     public function handle(Shop $shop, $prefix = null): LengthAwarePaginator
@@ -122,7 +113,7 @@ class IndexOfferCampaigns extends OrgAction
         $iconRight  = null;
 
         return Inertia::render(
-            'Org/Procurement/Partners',
+            'Org/Shop/B2b/Offers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
