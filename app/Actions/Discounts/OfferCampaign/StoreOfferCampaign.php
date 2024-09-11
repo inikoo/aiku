@@ -45,7 +45,7 @@ class StoreOfferCampaign extends OrgAction
                 ),
 
                 'max:64',
-                'alpha'
+                'alpha_dash'
             ],
             'name' => ['required', 'max:250', 'string'],
             'data' => ['sometimes', 'required'],

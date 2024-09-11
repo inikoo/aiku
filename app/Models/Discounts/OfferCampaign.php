@@ -36,6 +36,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property OfferCampaignTypeEnum $type
  * @property array $data
  * @property array $settings
+ * @property string|null $start_at
+ * @property string|null $finish_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

@@ -147,4 +147,6 @@ interface SourceOrganisationService
 
     public function fetchOfferCampaign($id);
 
+    public function fetchOffer($id);
+
 }

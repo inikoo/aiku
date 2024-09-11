@@ -20,14 +20,17 @@ return new class () extends Migration {
             $table=$this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->string('state')->default(OfferCampaignStateEnum::IN_PROCESS->value);
-            $table->boolean('status')->default(false);
+            $table->string('state')->default(OfferCampaignStateEnum::IN_PROCESS->value)->index();
+            $table->boolean('status')->default(false)->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->string('name');
-            $table->string('type');
+            $table->string('type')->index();
             $table->jsonb('data');
             $table->jsonb('settings');
+            $table->datetimeTz('start_at')->nullable()->index();
+            $table->datetimeTz('finish_at')->nullable()->index();
+
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
