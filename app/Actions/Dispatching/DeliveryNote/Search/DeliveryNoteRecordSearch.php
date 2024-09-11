@@ -37,8 +37,9 @@ class DeliveryNoteRecordSearch
                 'haystack_tier_1'   => $deliveryNote->reference,
                 'haystack_tier_2'   => $deliveryNote->email,
                 'result'            => [
-                    'title'        => $deliveryNote->reference,
-                    'icon'         => [
+                    'aa'            => $deliveryNote,
+                    'title'         => $deliveryNote->reference,
+                    'icon'          => [
                         'icon' => 'fal fa-truck',
                     ],
                     'meta'      => [
