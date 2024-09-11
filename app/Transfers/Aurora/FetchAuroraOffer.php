@@ -63,7 +63,7 @@ class FetchAuroraOffer extends FetchAurora
                 $trigger = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Deal Trigger Key'});
                 break;
             case 'Order':
-                $trigger_type = 'Order';
+                $trigger = $offerCampaign->shop;
                 break;
             case 'Customer List':
                 return;

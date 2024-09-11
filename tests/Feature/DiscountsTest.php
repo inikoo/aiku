@@ -52,8 +52,10 @@ test('update offer campaign', function (Shop $shop) {
 
 test('create offer', function (Shop $shop) {
     $offerCampaign = $shop->offerCampaigns()->first();
-    $offer         = StoreOffer::make()->action($offerCampaign, Offer::factory()->definition());
-    $this->assertModelExists($offer);
+    $offer         = StoreOffer::make()->action($offerCampaign, $shop, Offer::factory()->definition());
+    $offerCampaign->refresh();
+    expect($offer)->toBeInstanceOf(Offer::class)
+        ->and($offerCampaign->stats->number_offers)->toBe(1);
 
     return $offer;
 })->depends('create shop');

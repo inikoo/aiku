@@ -7,10 +7,12 @@
 
 namespace App\Actions\Discounts\Offer;
 
+use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
 use App\Actions\OrgAction;
 use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
@@ -24,7 +26,7 @@ class StoreOffer extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    public function handle(OfferCampaign $offerCampaign, null|Product|ProductCategory|Customer $trigger, array $modelData): Offer
+    public function handle(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData): Offer
     {
         data_set($modelData, 'group_id', $offerCampaign->group_id);
         data_set($modelData, 'organisation_id', $offerCampaign->organisation_id);
@@ -37,6 +39,10 @@ class StoreOffer extends OrgAction
 
         /** @var Offer $offer */
         $offer = $offerCampaign->offers()->create($modelData);
+        $offer->stats()->create();
+
+        OfferCampaignHydrateOffers::dispatch($offerCampaign)->delay($this->hydratorsDelay);
+
 
         return $offer;
     }
@@ -68,7 +74,7 @@ class StoreOffer extends OrgAction
             'status'       => ['sometimes', 'boolean'],
         ];
         if (!$this->strict) {
-            $rules['start_at']   = ['sometimes', 'nullable','date'];
+            $rules['start_at']   = ['sometimes', 'nullable', 'date'];
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['source_id']  = ['sometimes', 'string', 'max:255'];
             $rules['created_at'] = ['sometimes', 'date'];
@@ -77,9 +83,10 @@ class StoreOffer extends OrgAction
         return $rules;
     }
 
-    public function action(OfferCampaign $offerCampaign, null|Product|ProductCategory|Customer $trigger, array $modelData, bool $strict = true): Offer
+    public function action(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Offer
     {
-        $this->strict = $strict;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         $this->initialisationFromShop($offerCampaign->shop, $modelData);
 

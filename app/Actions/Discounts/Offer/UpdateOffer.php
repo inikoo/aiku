@@ -7,6 +7,7 @@
 
 namespace App\Actions\Discounts\Offer;
 
+use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\OfferResource;
@@ -23,7 +24,14 @@ class UpdateOffer extends OrgAction
 
     public function handle(Offer $offer, array $modelData): Offer
     {
-        return $this->update($offer, $modelData);
+        $offer= $this->update($offer, $modelData);
+
+        if($offer->wasChanged(['state','status'])) {
+            OfferCampaignHydrateOffers::dispatch($offer->offerCampaign)->delay($this->hydratorsDelay);
+        }
+
+        return $offer;
+
     }
 
     public function authorize(ActionRequest $request): bool
@@ -77,14 +85,15 @@ class UpdateOffer extends OrgAction
     }
 
 
-    public function action(Offer $offer, array $modelData, bool $strict = true, bool $audit = true): Offer
+    public function action(Offer $offer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Offer
     {
         if (!$audit) {
             Offer::disableAuditing();
         }
-        $this->asAction = true;
-        $this->strict   = $strict;
-        $this->offer    = $offer;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
+        $this->offer          = $offer;
         $this->initialisationFromShop($offer->shop, $modelData);
 
         return $this->handle($offer, $this->validatedData);

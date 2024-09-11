@@ -34,7 +34,7 @@ class SeedOfferCampaigns extends GrpAction
                 continue;
             }
 
-            StoreOfferCampaign::make()->action(
+            $offerCampaign=StoreOfferCampaign::make()->action(
                 $shop,
                 [
                     'code' => $code,
@@ -42,6 +42,7 @@ class SeedOfferCampaigns extends GrpAction
                     'type' => $case
                 ]
             );
+
         }
     }
 

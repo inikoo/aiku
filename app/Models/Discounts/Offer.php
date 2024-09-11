@@ -14,6 +14,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -52,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read \App\Models\Discounts\OfferStats|null $stats
  * @method static \Database\Factories\Discounts\OfferFactory factory($count = null, $state = [])
  * @method static Builder|Offer newModelQuery()
  * @method static Builder|Offer newQuery()
@@ -115,5 +117,10 @@ class Offer extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(OfferStats::class);
     }
 }
