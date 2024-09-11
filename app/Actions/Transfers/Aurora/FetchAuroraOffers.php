@@ -22,39 +22,38 @@ class FetchAuroraOffers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Offer
     {
         if ($offerData = $organisationSource->fetchOffer($organisationSourceId)) {
-
             if ($offer = Offer::withTrashed()->where('source_id', $offerData['offer']['source_id'])
                 ->first()) {
-                // try {
-                $offer = UpdateOffer::make()->action(
-                    offer: $offer,
-                    modelData: $offerData['offer'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-                $this->recordChange($organisationSource, $offer->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'update');
-                //
-                //                    return null;
-                //                }
+                try {
+                    $offer = UpdateOffer::make()->action(
+                        offer: $offer,
+                        modelData: $offerData['offer'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $offer->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'update');
+
+                    return null;
+                }
             } else {
-                //  try {
-                $offer = StoreOffer::make()->action(
-                    offerCampaign: $offerData['offer_campaign'],
-                    trigger: $offerData['trigger'],
-                    modelData: $offerData['offer'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                //
-                //                    $this->recordNew($organisationSource);
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
-                //
-                //                    return null;
-                //                }
+                try {
+                    $offer = StoreOffer::make()->action(
+                        offerCampaign: $offerData['offer_campaign'],
+                        trigger: $offerData['trigger'],
+                        modelData: $offerData['offer'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+
+                    $this->recordNew($organisationSource);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
+
+                    return null;
+                }
             }
 
 

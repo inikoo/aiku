@@ -28,6 +28,8 @@ use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\Shipper;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
@@ -129,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read \App\Models\SysAdmin\OrganisationDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\OrganisationDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
@@ -149,6 +152,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
+ * @property-read LaravelCollection<int, Offer> $offers
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\OrganisationOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
@@ -344,6 +349,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function accountingStats(): HasOne
     {
         return $this->hasOne(OrganisationAccountingStats::class);
+    }
+
+    public function discountsStats(): HasOne
+    {
+        return $this->hasOne(OrganisationDiscountsStats::class);
     }
 
     public function currency(): BelongsTo
@@ -655,5 +665,15 @@ class Organisation extends Model implements HasMedia, Auditable
     public function shippingZones(): HasMany
     {
         return $this->hasMany(ShippingZone::class);
+    }
+
+    public function offerCampaigns(): HasMany
+    {
+        return $this->hasMany(OfferCampaign::class);
+    }
+
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
     }
 }

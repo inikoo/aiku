@@ -7,8 +7,11 @@
 
 namespace App\Actions\Discounts\Offer;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOffers;
 use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOffers;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOffers;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\OfferResource;
 use App\Models\Discounts\Offer;
@@ -27,6 +30,9 @@ class UpdateOffer extends OrgAction
         $offer= $this->update($offer, $modelData);
 
         if($offer->wasChanged(['state','status'])) {
+            GroupHydrateOffers::dispatch($offer->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateOffers::dispatch($offer->organisation)->delay($this->hydratorsDelay);
+            ShopHydrateOffers::dispatch($offer->shop)->delay($this->hydratorsDelay);
             OfferCampaignHydrateOffers::dispatch($offer->offerCampaign)->delay($this->hydratorsDelay);
         }
 

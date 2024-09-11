@@ -7,7 +7,10 @@
 
 namespace App\Actions\Discounts\OfferCampaign;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOfferCampaigns;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOfferCampaigns;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOfferCampaigns;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Models\Discounts\OfferCampaign;
@@ -20,7 +23,17 @@ class UpdateOfferCampaign extends OrgAction
 
     public function handle(OfferCampaign $offerCampaign, array $modelData): OfferCampaign
     {
-        return $this->update($offerCampaign, $modelData);
+        $offerCampaign= $this->update($offerCampaign, $modelData);
+
+        if($offerCampaign->wasChanged(['state','status'])) {
+            GroupHydrateOfferCampaigns::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateOfferCampaigns::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
+            ShopHydrateOfferCampaigns::dispatch($offerCampaign->$offerCampaign)->delay($this->hydratorsDelay);
+        }
+
+        return $offerCampaign;
+
+
     }
 
     public function authorize(ActionRequest $request): bool

@@ -7,8 +7,11 @@
 
 namespace App\Actions\Discounts\Offer;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOffers;
 use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOffers;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOffers;
 use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -41,8 +44,10 @@ class StoreOffer extends OrgAction
         $offer = $offerCampaign->offers()->create($modelData);
         $offer->stats()->create();
 
+        GroupHydrateOffers::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateOffers::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
+        ShopHydrateOffers::dispatch($offerCampaign->shop)->delay($this->hydratorsDelay);
         OfferCampaignHydrateOffers::dispatch($offerCampaign)->delay($this->hydratorsDelay);
-
 
         return $offer;
     }
