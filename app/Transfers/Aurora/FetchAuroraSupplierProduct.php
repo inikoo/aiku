@@ -17,6 +17,9 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
     protected function parseModel(): void
     {
+
+
+
         if ($this->auroraModelData->aiku_ignore == 'Yes') {
             return;
         }
@@ -32,6 +35,10 @@ class FetchAuroraSupplierProduct extends FetchAurora
             return;
         }
 
+        $stock=$this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
+        if (!$stock) {
+            return;
+        }
 
         $supplierDeletedAt = $this->parseDate($auroraSupplierData->{'Supplier Valid To'});
         if ($auroraSupplierData->{'Supplier Type'} != 'Archived') {
@@ -121,7 +128,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
         // $code =$this->cleanTradeUnitReference($code);
 
 
-        $stock=$this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
 
         $this->parsedData['supplierProduct'] =
             [
