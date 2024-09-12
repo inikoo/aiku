@@ -44,7 +44,8 @@ class StoreDeliveryNoteItem extends OrgAction
     {
         $rules= [
             'org_stock_id'          => ['required', 'exists:org_stocks,id'],
-            'transaction_id'        => ['required', 'exists:transactions,id']
+            'transaction_id'        => ['required', 'exists:transactions,id'],
+            'quantity_required'     => ['required', 'numeric']
         ];
 
         if(!$this->strict) {

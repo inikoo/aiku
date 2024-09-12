@@ -7,16 +7,20 @@
 
 namespace App\Actions\Ordering\Order;
 
+use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
+use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Ordering\Order;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateOrderStateToInWarehouse extends OrgAction
+class SendOrderToWarehouse extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;
@@ -40,13 +44,41 @@ class UpdateOrderStateToInWarehouse extends OrgAction
             data_set($modelData, 'in_warehouse_at', $date);
         }
 
-        $transactions = $order->transactions()->where('state', TransactionStateEnum::SUBMITTED);
+        $transactions = $order->transactions()->where('state', TransactionStateEnum::SUBMITTED)->get();
         foreach ($transactions as $transaction) {
-            $transactionDate = ['state' => TransactionStateEnum::IN_WAREHOUSE];
+            $transactionData = ['state' => TransactionStateEnum::IN_WAREHOUSE];
             if ($transaction->submitted_at == null) {
                 data_set($transactionData, 'in_warehouse_at', $date);
             }
             $transaction->update($transactionData);
+        }
+
+        $deliveryAddress = $order->deliveryAddress;
+        $deliverynoteAddress = Arr::except($deliveryAddress->toArray(), ['id']);
+
+        $deliveryNoteData   = [
+            'delivery_address' => $deliverynoteAddress,
+            'date'             => $date,
+            'reference'        => $order->reference
+        ];
+
+        $deliveryNote = StoreDeliveryNote::make()->action($order, $deliveryNoteData);
+        
+        $transactionProducts = $order->transactions()->where('model_type', 'Product')->where('state', TransactionStateEnum::SUBMITTED)->get();
+
+        foreach ($transactionProducts as $transactionProduct)
+        {
+            $product = Product::find($transactionProduct->model_id);
+            foreach($product->orgStocks as $orgStock)
+            {
+                $quantity = $orgStock->pivot->quantity * $transactionProduct->ordered_quantity;
+                $deliveryNoteItemData = [
+                    'org_stock_id' => $orgStock->id,
+                    'transaction_id' => $transactionProduct->id,
+                    'quantity_required' => $quantity
+                ];
+                StoreDeliveryNoteItem::make()->action($deliveryNote, $deliveryNoteItemData);
+            }
         }
 
         $this->update($order, $modelData);
