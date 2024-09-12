@@ -78,7 +78,7 @@ class UpdateProduct extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.products.edit");
+        return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
     }
 
     public function rules(): array

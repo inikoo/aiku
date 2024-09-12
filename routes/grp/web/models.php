@@ -278,10 +278,6 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::delete('shop/{shop:id}/customer/{customer:id}/portfolio/{portfolio:id}', DeletePortfolio::class)->name('shop.customer.portfolio.delete')->withoutScopedBindings();
     Route::post('shop/{shop:id}/customer/{customer:id}/portfolio', StorePortfolio::class)->name('shop.customer.portfolio.store')->withoutScopedBindings();
 
-    Route::post('/product/', StoreProduct::class)->name('product.store');
-    Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
-    Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
-
     Route::post('product/{product:id}/images', UploadImagesToProduct::class)->name('product.images.store')->withoutScopedBindings();
     Route::delete('product/{product:id}/images/{media:id}/media', DeleteImagesFromProduct::class)->name('product.images.delete')->withoutScopedBindings();
 
@@ -301,6 +297,15 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
     Route::patch('', UpdateRecurringBilling::class)->name('update');
     Route::patch('consolidate', ConsolidateRecurringBill::class)->name('consolidate');
 });
+
+Route::name('product.')->prefix('product')->group(function () {
+    Route::post('/product/', StoreProduct::class)->name('store');
+    Route::patch('/{product:id}/update', UpdateProduct::class)->name('update');
+    Route::delete('/{product:id}/delete', DeleteProduct::class)->name('delete');
+});
+
+    
+
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
     Route::patch('/', UpdatePalletDelivery::class)->name('update');
@@ -552,6 +557,7 @@ Route::name('collection.')->prefix('collection/{collection:id}')->group(function
 
 require __DIR__."/models/inventory/location_org_stock.php";
 require __DIR__."/models/ordering/order.php";
+require __DIR__."/models/stock/stock.php";
 
 
 /*
