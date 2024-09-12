@@ -16,13 +16,11 @@ use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
-use App\Actions\Ordering\Order\UpdateOrderStateToInWarehouse;
 use App\Actions\Ordering\Order\UpdateOrderStateToSubmitted;
 use App\Actions\Ordering\Order\UpdateStateToCreatingOrder;
 use App\Actions\Ordering\Order\UpdateStateToFinalizedOrder;
 use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
-use App\Actions\Ordering\Order\UpdateStatusToSettledOrder;
 use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
@@ -190,13 +188,6 @@ test('update state to finalized from handling', function ($order) {
     expect($order->state)->toBe(OrderStateEnum::FINALISED);
 })->depends('create order')->todo();
 
-test('update state to settled from finalized', function ($order) {
-    try {
-        $order = UpdateStatusToSettledOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
-    //expect($order->state)->toBe(OrderStateEnum::SETTLED);
-})->depends('create order')->todo();
 
 test('update state to finalized from settled', function ($order) {
     try {
