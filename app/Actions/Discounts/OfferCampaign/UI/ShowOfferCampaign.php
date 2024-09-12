@@ -140,13 +140,13 @@ class ShowOfferCampaign extends OrgAction
 
     public function getPrevious(OfferCampaign $offerCampaign, ActionRequest $request): ?array
     {
-        $previous = OfferCampaign::where('slug', '<', $offerCampaign->slug)->orderBy('slug', 'desc')->first();
+        $previous = OfferCampaign::where('slug', '<', $offerCampaign->slug)->where('shop_id', $offerCampaign->shop_id)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(OfferCampaign $offerCampaign, ActionRequest $request): ?array
     {
-        $next = OfferCampaign::where('slug', '>', $offerCampaign->slug)->orderBy('slug')->first();
+        $next = OfferCampaign::where('slug', '>', $offerCampaign->slug)->where('shop_id', $offerCampaign->shop_id)->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
