@@ -71,6 +71,9 @@ class ShowOfferCampaign extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => OfferCampaignTabsEnum::navigation()
                 ],
+                OfferCampaignTabsEnum::OVERVIEW->value => $this->tab == OfferCampaignTabsEnum::OVERVIEW->value ?
+                    fn () => GetOfferCampaignOverview::run($offerCampaign)
+                    : Inertia::lazy(fn () => GetOfferCampaignOverview::run($offerCampaign)),
                 OfferCampaignTabsEnum::OFFERS->value => $this->tab == OfferCampaignTabsEnum::OFFERS->value ?
                     fn () => OffersResource::collection(IndexOffers::run($offerCampaign, OfferCampaignTabsEnum::OFFERS->value))
                     : Inertia::lazy(fn () => OffersResource::collection(IndexOffers::run($offerCampaign, OfferCampaignTabsEnum::OFFERS->value))),
