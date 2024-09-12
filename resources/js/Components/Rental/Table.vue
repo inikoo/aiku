@@ -26,6 +26,7 @@ library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash,
 
 const props = defineProps<{
     form: any
+    initalForm : any
     bluprint: any
     fieldName: string
     options?: any
@@ -79,19 +80,18 @@ const showEdited = () => {
 }
 
 const showAll = () => {
-    const edited = [...props.form[props.fieldName][props.bluprint.key]];
-    // Iterate over each item in the source data array
-    props.fieldData[props.bluprint.key].data.map((item) => {
-        // Check if the current item is already present in the edited array
-        const exists = edited.find((e) => e.slug == item.slug);
+    // Create a map of initial items keyed by their unique identifier (e.g., slug)
+    const initialMap = new Map(props.fieldData[props.bluprint.key].data.map(item => [item.slug, item]));
 
-        // If the item is not present, add it to the edited array
-        if (!exists) {
-            edited.push(item);
-        }
+    // Update the initial map with edited items
+    props.form[props.fieldName][props.bluprint.key].forEach(item => {
+        initialMap.set(item.slug, item);
     });
 
-    // Update the form field with the new edited array
+    // Convert the map back to an array to maintain the original order
+    const edited = Array.from(initialMap.values());
+
+    // Update the form field with the sorted array that retains the initial order
     props.form[props.fieldName][props.bluprint.key] = edited;
 };
 
@@ -177,7 +177,8 @@ const showAll = () => {
                     </thead>
 
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        <tr v-for="(itemData, index) in form[fieldName][bluprint.key]" :key="itemData.email">
+                        <tr v-for="(itemData, index) in form[fieldName][bluprint.key]" :key="itemData.email"
+                        :class="[itemData.agreed_price == initalForm[fieldName][bluprint.key][index]['agreed_price'] ? 'bg-white' : 'bg-indigo-100']">                      
                             <!-- Column: Selector -->
                             <td  v-if="bluprint.checkbox" class="whitespace-nowrap px-3 py-4 text-sm  text-center w-20">
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"

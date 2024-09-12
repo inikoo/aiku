@@ -66,6 +66,7 @@ const props = withDefaults(defineProps<{
     ]
 })
 
+const cloneData = ref(cloneDeep(props.form))
 
 
 
@@ -118,6 +119,7 @@ onBeforeMount(() => {
         [props.fieldName]: clonedData,
     });
     props.form.reset(props.fieldName);
+    cloneData.value = cloneDeep(props.form)
 });
 
 // Section: Replace the button from fieldform
@@ -193,7 +195,7 @@ const onSavedAgreement = (updateAll: boolean) => {
             <TabPanels class="mt-2">
                 <TabPanel v-for="(tab, idx) in tabs" :key="idx" class="p-3 focus:outline-none">
                     <slot name="table" :data="{ p: props, tab: tab }">
-                        <RentalTable v-bind="props" :bluprint="tab.tableBluprint" />
+                        <RentalTable v-bind="props" :bluprint="tab.tableBluprint" :initalForm="cloneData" />
                     </slot>
 
                 </TabPanel>
