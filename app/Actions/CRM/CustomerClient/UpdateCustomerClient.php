@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\CustomerClient;
 
-use App\Actions\CRM\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
+use App\Actions\CRM\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -39,7 +39,7 @@ class UpdateCustomerClient extends OrgAction
         }
 
         $customerClient = $this->update($customerClient, $modelData, ['data']);
-        CustomerClientHydrateUniversalSearch::dispatch($customerClient);
+        CustomerClientRecordSearch::dispatch($customerClient);
 
         return $customerClient;
     }

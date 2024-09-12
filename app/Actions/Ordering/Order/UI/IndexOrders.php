@@ -220,7 +220,7 @@ class IndexOrders extends OrgAction
                             'type'          => 'button',
                             'style'         => 'create',
                             'label'         => 'Add order',
-                            'key'           => 'addorder',
+                            'key'           => 'add_order',
                             'fullLoading'   => true,
                             'route'         => [
                                 'method'     => 'post',
@@ -249,7 +249,7 @@ class IndexOrders extends OrgAction
                     'type'          => 'button',
                     'style'         => 'create',
                     'label'         => 'Add order',
-                    'key'           => 'addorder',
+                    'key'           => 'add_order',
                     'fullLoading'   => true,
                     'route'         => [
                         'method'     => 'post',

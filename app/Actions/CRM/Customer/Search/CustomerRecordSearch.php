@@ -77,7 +77,7 @@ class CustomerRecordSearch
                         ],
                         // [
                         //     'key'    => 'total',
-                        //     'type'   => 'amount',
+                        //     'type'   => 'currency',
                         //     'code'   => $customer->currency->code,
                         //     'label'  => 'Total: ',
                         //     'amount' => $customer->total_amount

@@ -12,7 +12,9 @@ use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Catalogue\Product\Search\ReindexProductSearch;
 use App\Actions\Catalogue\Service\Search\ReindexServiceSearch;
 use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
+use App\Actions\CRM\CustomerClient\Search\ReindexCustomerClientSearch;
 use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
+use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
@@ -26,6 +28,7 @@ use App\Actions\HydrateModel;
 use App\Actions\Inventory\Location\Search\ReindexLocationSearch;
 use App\Actions\Inventory\Warehouse\Search\ReindexWarehouseSearch;
 use App\Actions\Inventory\WarehouseArea\Search\ReindexWarehouseAreaSearch;
+use App\Actions\Ordering\Order\Search\ReindexOrdersSearch;
 use App\Actions\SysAdmin\User\Search\ReindexUserSearch;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
@@ -35,6 +38,8 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -47,6 +52,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;
 use Illuminate\Console\Command;
@@ -66,6 +72,8 @@ class ReindexSearch extends HydrateModel
         $this->reindexWeb();
         $this->reindexCrm();
         $this->reindexCatalogue();
+        $this->reindexOrdering();
+        $this->reindexDispatching();
     }
 
     public function reindexFulfilment(): void
@@ -155,6 +163,9 @@ class ReindexSearch extends HydrateModel
         foreach (Prospect::withTrashed()->get() as $model) {
             ReindexProspectSearch::run($model);
         }
+        foreach (CustomerClient::withTrashed()->get() as $model) {
+            ReindexCustomerClientSearch::run($model);
+        }
     }
 
     public function reindexCatalogue(): void
@@ -165,6 +176,22 @@ class ReindexSearch extends HydrateModel
         foreach (Service::withTrashed()->get() as $model) {
             ReindexServiceSearch::run($model);
         }
+    }
+
+    public function reindexOrdering(): void
+    {
+        foreach (Order::withTrashed()->get() as $model) {
+            ReindexOrdersSearch::run($model);
+        }
+
+    }
+
+    public function reindexDispatching(): void
+    {
+        foreach (DeliveryNote::withTrashed()->get() as $model) {
+            ReindexDeliveryNotesSearch::run($model);
+        }
+
     }
 
     public string $commandSignature = 'search:reindex';

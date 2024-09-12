@@ -38,11 +38,12 @@ return new class () extends Migration {
             $table->unsignedInteger('transaction_id')->index()->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions');
 
-            $table->unsignedInteger('picking_id')->nullable()->index();
-            $table->foreign('picking_id')->references('id')->on('pickings');
+            $table->string('notes')->nullable();
 
             $table->string('state')->default(DeliveryNoteItemStateEnum::ON_HOLD->value)->index();
             $table->string('status')->default(DeliveryNoteItemStatusEnum::HANDLING->value)->index();
+
+            $table->decimal('weight', 16, 3)->nullable();
 
             $table->decimal('quantity_required', 16, 3)->default(0);
             $table->decimal('quantity_picked', 16, 3)->nullable();
@@ -51,6 +52,8 @@ return new class () extends Migration {
 
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
         });

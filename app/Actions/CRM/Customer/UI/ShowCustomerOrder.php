@@ -119,7 +119,7 @@ class ShowCustomerOrder extends OrgAction
                     //         'type'    => 'button',
                     //         'style'   => 'create',
                     //         'label'   => 'Add order',
-                    //         'key'     => 'addorder',
+                    //         'key'     => 'add_order',
                     //         'route'   => [
                     //             'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                     //             'parameters' => [

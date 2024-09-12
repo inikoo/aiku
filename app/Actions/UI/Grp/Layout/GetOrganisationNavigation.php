@@ -165,7 +165,7 @@ class GetOrganisationNavigation
                     'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-chart-network'],
-                            'root'  => 'grp.procurement.dashboard',
+                            'root'  => 'grp.org.procurement.dashboard',
                             'route' => [
                                 'name'       => 'grp.org.procurement.dashboard',
                                 'parameters' => [$organisation->slug],

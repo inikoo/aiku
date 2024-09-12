@@ -7,7 +7,7 @@
 
 namespace App\Actions\Ordering\Transaction;
 
-use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Ordering\Order;
@@ -26,7 +26,7 @@ class DeleteTransaction extends OrgAction
 
         $transaction->delete();
 
-        OrderHydrateUniversalSearch::dispatch($order);
+        OrderRecordSearch::dispatch($order);
 
         return true;
     }

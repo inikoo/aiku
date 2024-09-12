@@ -42,7 +42,6 @@ class ShowDeliveryNote extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        //
         return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
     }
 

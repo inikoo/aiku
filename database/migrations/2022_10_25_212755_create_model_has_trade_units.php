@@ -16,12 +16,13 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('model_type');
             $table->unsignedInteger('model_id')->nullable();
-            $table->unsignedInteger('trade_unit_id')->nullable();
+            $table->unsignedInteger('trade_unit_id')->nullable()->index();
             $table->foreign('trade_unit_id')->references('id')->on('trade_units');
             $table->decimal('quantity', 12, 3)->default(1);
             $table->string('notes')->nullable();
             $table->timestampsTz();
-            $table->unique(['model_type','model_id']);
+            $table->index(['model_type','model_id']);
+            $table->unique(['model_type','model_id','trade_unit_id']);
         });
     }
 

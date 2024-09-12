@@ -190,7 +190,9 @@ class EditProduct extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.product.update',
-                            'parameters' => $product->id
+                            'parameters' => [
+                                'product'      => $product->id
+                            ]
 
                         ],
                     ]

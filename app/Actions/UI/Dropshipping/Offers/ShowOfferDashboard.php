@@ -20,7 +20,7 @@ class ShowOfferDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("offers.{$this->shop->id}.view");
+        return $request->user()->hasPermissionTo("discounts.{$this->shop->id}.view");
     }
 
 
@@ -70,7 +70,7 @@ class ShowOfferDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.offers.dashboard',
+                                'name'       => 'grp.org.shops.show.discounts.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Offers')

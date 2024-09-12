@@ -8,7 +8,7 @@
 namespace App\Actions\Ordering\Order\UI;
 
 use App\Actions\HydrateModel;
-use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Collection;
 
@@ -19,7 +19,7 @@ class UpdateOrderUniversalSearch extends HydrateModel
 
     public function handle(Order $order): void
     {
-        OrderHydrateUniversalSearch::run($order);
+        OrderRecordSearch::run($order);
     }
 
 

@@ -84,8 +84,7 @@ class StoreShop extends OrgAction
         $shop->salesIntervals()->create();
         $shop->orderIntervals()->create();
         $shop->mailshotsIntervals()->create();
-
-
+        $shop->discountsStats()->create();
 
         if($shop->type === ShopTypeEnum::DROPSHIPPING) {
             $shop->dropshippingStats()->create();
@@ -148,6 +147,11 @@ class StoreShop extends OrgAction
         SeedShopOutboxes::run($shop);
         SeedJobPositions::run($organisation);
         SetIconAsShopLogo::run($shop);
+
+        if ($shop->type == ShopTypeEnum::B2B) {
+            SeedOfferCampaigns::run($shop);
+        }
+
 
         return $shop;
     }

@@ -14,6 +14,7 @@ use App\Models\Goods\TradeUnit;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateTradeUnit extends GrpAction
 {
@@ -84,6 +85,13 @@ class UpdateTradeUnit extends GrpAction
         $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($tradeUnit->group, $modelData);
 
+        return $this->handle($tradeUnit, $this->validatedData);
+    }
+
+    public function asController(TradeUnit $tradeUnit, ActionRequest $request): TradeUnit
+    {
+        $this->tradeUnit      = $tradeUnit;
+        $this->initialisation($tradeUnit->group, $request);
         return $this->handle($tradeUnit, $this->validatedData);
     }
 }

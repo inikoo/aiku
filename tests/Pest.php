@@ -9,8 +9,11 @@ use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
+use App\Actions\Goods\Stock\StoreStock;
+use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
+use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Ordering\Order\StoreOrder;
@@ -29,10 +32,12 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
+use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
@@ -199,7 +204,7 @@ function createCustomer(Shop $shop): Customer
 function createTradeUnits(Group $group): array
 {
     $numberTradeUnits=$group->tradeUnits()->count();
-    if($numberTradeUnits<2) {
+    if($numberTradeUnits<3) {
         $tradeUnit = StoreTradeUnit::make()->action(
             $group,
             TradeUnit::factory()->definition()
@@ -208,23 +213,98 @@ function createTradeUnits(Group $group): array
             $group,
             TradeUnit::factory()->definition()
         );
+        $tradeUnit3=StoreTradeUnit::make()->action(
+            $group,
+            TradeUnit::factory()->definition()
+        );
     } else {
         $tradeUnit =$group->tradeUnits()->first();
         $tradeUnit2=$group->tradeUnits()->skip(1)->first();
+        $tradeUnit3=$group->tradeUnits()->skip(2)->first();
     }
 
     return [
         $tradeUnit,
-        $tradeUnit2
+        $tradeUnit2,
+        $tradeUnit3
     ];
 
 }
 
+function createStocks(Group $group): array
+{
+    $tradeUnits  =createTradeUnits($group);
+    $numberStocks=$group->stocks()->count();
+    if($numberStocks<3) {
+        $stock = StoreStock::make()->action(
+            $group,
+            Stock::factory()->definition()
+        );
+        SyncStockTradeUnits::run($stock, [
+            $tradeUnits[0]->id => [
+                'quantity' => 1
+            ]
+        ]);
+
+        $stock2=StoreStock::make()->action(
+            $group,
+            Stock::factory()->definition()
+        );
+        SyncStockTradeUnits::run($stock2, [
+            $tradeUnits[1]->id => [
+                'quantity' => 1
+            ]
+        ]);
+
+        $stock3=StoreStock::make()->action(
+            $group,
+            Stock::factory()->definition()
+        );
+        SyncStockTradeUnits::run($stock3, [
+            $tradeUnits[2]->id => [
+                'quantity' => 1
+            ]
+        ]);
+
+    } else {
+        $stock =$group->stocks()->first();
+        $stock2=$group->stocks()->skip(1)->first();
+        $stock3=$group->stocks()->skip(2)->first();
+    }
+
+    return [
+        $stock,
+        $stock2,
+        $stock3
+    ];
+
+}
+
+function createOrgStocks(Organisation $organisation, array $stocks): array
+{
+
+    $orgStocks=[];
+    foreach ($stocks as $stock) {
+        $orgStock=$organisation->orgStocks()->where('stock_id', $stock->id)->first();
+        if(!$orgStock) {
+            $orgStock=StoreOrgStock::make()->action(
+                $organisation,
+                $stock,
+                OrgStock::factory()->definition()
+            );
+        }
+        $orgStocks[]=$orgStock;
+    }
+
+    return $orgStocks;
+
+}
 
 function createProduct(Shop $shop): array
 {
 
-    $tradeUnits=createTradeUnits($shop->group);
+    $stocks   =createStocks($shop->group);
+    $orgStocks=createOrgStocks($shop->organisation, $stocks);
 
     $department = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
     if (!$department) {
@@ -253,8 +333,8 @@ function createProduct(Shop $shop): array
         $productData = array_merge(
             Product::factory()->definition(),
             [
-                'trade_units' => [
-                    $tradeUnits[0]->id => ['units' => 1]
+                'org_stocks' => [
+                    $orgStocks[0]->id => ['quantity' => 1]
                 ],
                 'price'       => 100,
             ]
@@ -266,7 +346,7 @@ function createProduct(Shop $shop): array
     }
 
     return [
-        $tradeUnits,
+        $orgStocks,
         $product
     ];
 }

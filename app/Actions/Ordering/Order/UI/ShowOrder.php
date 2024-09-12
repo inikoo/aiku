@@ -323,30 +323,30 @@ class ShowOrder extends OrgAction
                 //     'title'         => 'Dummy Alert from BE',
                 //     'description'   => 'Dummy description'
                 // ],
-                'notes'       => [  // TODO
-                                    "note_list" => [
-                                        [
-                                            "label"    => __("Customer"),
-                                            "note"     => $order->customer_notes ?? '',
-                                            "editable" => false,
-                                            "bgColor"  => "#FF7DBD",
-                                            "field"    => "customer_notes"
-                                        ],
-                                        [
-                                            "label"    => __("Public"),
-                                            "note"     => $order->public_notes ?? '',
-                                            "editable" => true,
-                                            "bgColor"  => "#94DB84",
-                                            "field"    => "public_notes"
-                                        ],
-                                        [
-                                            "label"    => __("Private"),
-                                            "note"     => $order->internal_notes ?? '',
-                                            "editable" => true,
-                                            "bgColor"  => "#FCF4A3",
-                                            "field"    => "internal_notes"
-                                        ]
-                                    ]
+                'notes'       => [
+                    "note_list" => [
+                        [
+                            "label"    => __("Customer"),
+                            "note"     => $order->customer_notes ?? '',
+                            "editable" => false,
+                            "bgColor"  => "#FF7DBD",
+                            "field"    => "customer_notes"
+                        ],
+                        [
+                            "label"    => __("Public"),
+                            "note"     => $order->public_notes ?? '',
+                            "editable" => true,
+                            "bgColor"  => "#94DB84",
+                            "field"    => "public_notes"
+                        ],
+                        [
+                            "label"    => __("Private"),
+                            "note"     => $order->internal_notes ?? '',
+                            "editable" => true,
+                            "bgColor"  => "#FCF4A3",
+                            "field"    => "internal_notes"
+                        ]
+                    ]
                 ],
                 'timelines'   => $finalTimeline,
 
@@ -378,8 +378,8 @@ class ShowOrder extends OrgAction
                                 ]
 
                             ],
-                            'total_amount' => $order->total_amount,
-                            'paid_amount'  => $order->payment_amount,
+                            'total_amount' => (float) $order->total_amount,
+                            'paid_amount'  => (float) $order->payment_amount,
                             'pay_amount'   => $roundedDiff,
                         ],
                         'estimated_weight' => $estWeight
@@ -426,7 +426,6 @@ class ShowOrder extends OrgAction
                             ]
                         ],
                         'currency' => CurrencyResource::make($order->currency),
-
                     ],
                 ],
                 'data'           => OrderResource::make($order),

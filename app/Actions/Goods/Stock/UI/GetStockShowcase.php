@@ -7,7 +7,6 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
-use App\Http\Resources\Goods\StocksResource;
 use App\Models\SupplyChain\Stock;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -15,38 +14,30 @@ class GetStockShowcase
 {
     use AsObject;
 
-    public function handle(Stock $stock): \Illuminate\Support\Collection
+    public function handle(Stock $stock): array
     {
-        return collect(
-            [
-                'contactCard'              => StocksResource::make($stock)->getArray(),
-                'locationRoute'            => [
-                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                    'parameters' => [
-                        'organisation' => null,
-                        'warehouse'    => null
-                    ]
-                ],
-                'associateLocationRoute'  => [
-                    'method'     => 'post',
-                    'name'       => 'grp.models.org_stock.location.store',
-                    'parameters' => [
-                        'orgStock' => null
-                    ]
-                ],
-                'disassociateLocationRoute' => [
-                    'method'    => 'delete',
-                    'name'      => 'grp.models.location_org_stock.delete',
-                ],
-                'auditRoute' => [
-                    'method'    => 'patch',
-                    'name'      => 'grp.models.location_org_stock.audit',
-                ],
-                'moveLocationRoute' => [
-                    'method'    => 'patch',
-                    'name'      => 'grp.models.location_org_stock.move',
-                ]
-            ]
-        );
+        // $numberLocations = 0;
+        // $quantityLocations = 0;
+        // foreach ($stock->orgStocks as $orgStock)
+        // {
+        //     $num = $orgStock->locationOrgStocks()->count();
+        //     $quant = $orgStock->quantity_in_locations;
+        //     $quantityLocations = $quantityLocations + $quant;
+        //     $numberLocations = $numberLocations + $num;
+        // }
+
+        return [
+            // 'contactCard' => [
+            //     'id' => $stock->id,
+            //     'slug'  => $stock->slug,
+            //     'code'  => $stock->slug,
+            //     'unit_value' => $stock->unit_value,
+            //     'description' => $stock->description,
+            //     'number_locations' => $numberLocations,
+            //     'quantity_locations' => $quantityLocations,
+            //     'photo' => $stock->imageSources(),
+
+            // ]
+        ];
     }
 }

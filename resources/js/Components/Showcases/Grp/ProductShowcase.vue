@@ -33,7 +33,7 @@ library.add(faCircle, faTrash, falTrash, faEdit)
 
 const props = defineProps<{
     data: {
-        product
+        product: {}
     }
 }>()
 
@@ -52,11 +52,11 @@ const stats = [
 ]
 
 const product = ref({
-    images: props.data.product.data.images,
+    images: props.data?.product?.data?.images,
 })
 
 const deleteImage = async (data, index) => {
-    isLoading.value.push(data.id)
+    isLoading.value.push(data?.id)
 
     try {
         const response = await axios.delete(route(props.data.deleteImageRoute.name, {
@@ -103,10 +103,10 @@ const isModalGallery = ref(false)
                                 <TabPanel v-for="image in product.images" :key="image.id">
                                     <div class="relative flex items-center border border-gray-200 rounded-lg aspect-square w-auto h-auto overflow-hidden">
                                         <div class="absolute top-1 right-3 flex items-center gap-2 capitalize"
-                                            :class="data.product.data.state === 'active' ? 'text-green-500' : ''"
+                                            :class="data.product?.data?.state === 'active' ? 'text-green-500' : ''"
                                         >
-                                            <FontAwesomeIcon v-if="data.product.data.state === 'active'" icon='fas fa-circle' class='text-xs animate-pulse' fixed-width aria-hidden='true' />
-                                            {{ data.product.data.state }}
+                                            <FontAwesomeIcon v-if="data.product?.data?.state === 'active'" icon='fas fa-circle' class='text-xs animate-pulse' fixed-width aria-hidden='true' />
+                                            {{ data.product?.data?.state }}
                                         </div>
                                         <Image :src="image.source" :alt="image.name" class="" />
                                     </div>
@@ -168,7 +168,7 @@ const isModalGallery = ref(false)
                 <dl class="mt-6 space-y-4">
                     <div class="flex items-center justify-between">
                         <dt class="text-sm">{{ trans('Added date') }}</dt>
-                        <dd class="text-sm font-medium">{{ useFormatTime(data.product.data.created_at) }}</dd>
+                        <dd class="text-sm font-medium">{{ useFormatTime(data.product?.data?.created_at) }}</dd>
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -184,7 +184,7 @@ const isModalGallery = ref(false)
                     <div class="flex items-center justify-between">
                         <dt class="text-sm">{{ trans('Price') }}</dt>
                         <dd class="text-sm font-medium text-right">
-                            {{ locale.currencyFormat('usd', data.product.data.price) }}
+                            {{ locale.currencyFormat('usd', data.product?.data?.price) }}
                             <span class="font-light">margin (--)</span>
                         </dd>
                     </div>

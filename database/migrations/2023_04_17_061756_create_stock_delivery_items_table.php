@@ -15,6 +15,8 @@ return new class () extends Migration {
     {
         Schema::create('stock_delivery_items', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('stock_delivery_id')->index();
             $table->foreign('stock_delivery_id')->references('id')->on('stock_deliveries');
             $table->unsignedInteger('supplier_product_id')->index();
@@ -26,6 +28,8 @@ return new class () extends Migration {
             $table->decimal('unit_quantity_checked')->default(0);
             $table->decimal('unit_price');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
         });
     }

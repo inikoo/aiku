@@ -95,7 +95,7 @@ class FetchAuroraShops extends FetchAuroraAction
                     'invite-full-mailshot'       => $auroraOutboxes['Invite Full Mailshot'],
                     'invite-mailshot'            => $auroraOutboxes['Invite Mailshot'],
                     'invoice-deleted'            => $auroraOutboxes['Invoice Deleted'],
-                    'marketing'                  => $auroraOutboxes['Marketing'],
+                    'marketing'                  => $auroraOutboxes['Discounts'],
                     'new-order'                  => $auroraOutboxes['New Order'],
                     'newsletter'                 => $auroraOutboxes['Newsletter'],
                     'oos-notification'           => $auroraOutboxes['OOS Notification'],

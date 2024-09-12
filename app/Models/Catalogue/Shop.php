@@ -24,7 +24,8 @@ use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\Deals\OfferCampaign;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
@@ -130,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read \App\Models\Catalogue\ShopDiscountsStats|null $discountsStats
  * @property-read \App\Models\Catalogue\ShopDropshippingStat|null $dropshippingStats
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
@@ -142,6 +144,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
+ * @property-read LaravelCollection<int, Offer> $offers
  * @property-read ShopOrdersIntervals|null $orderIntervals
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read PaymentAccountShop $pivot
@@ -382,6 +385,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(OfferCampaign::class);
     }
 
+    public function offers(): HasMany
+    {
+        return $this->hasMany(Offer::class);
+    }
+
     public function taxNumber(): MorphOne
     {
         return $this->morphOne(TaxNumber::class, 'owner');
@@ -390,6 +398,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function mailStats(): HasOne
     {
         return $this->hasOne(ShopMailStats::class);
+    }
+
+    public function discountsStats(): HasOne
+    {
+        return $this->hasOne(ShopDiscountsStats::class);
     }
 
     public function issues(): MorphToMany

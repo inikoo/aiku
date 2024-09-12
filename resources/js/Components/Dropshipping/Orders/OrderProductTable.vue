@@ -1,14 +1,18 @@
 <script setup lang='ts'>
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import PureInput from '@/Components/Pure/PureInput.vue'
 import Table from '@/Components/Table/Table.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
-import { Link } from '@inertiajs/vue3'
+import { routeType } from '@/types/route'
+import { Link, router } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
 import { inject, ref } from 'vue'
 
 const props = defineProps<{
     data: any[]
     tab: string
+    updateRoute: routeType
 }>()
     
 function productRoute(product) {
@@ -27,10 +31,21 @@ function productRoute(product) {
     }
 }
 
-const locale = inject('locale', aikuLocaleStructure)
 
-const isLoading = ref<string | boolean>('false')
-
+// Section: Quantity
+const isLoading = ref<string | boolean>(false)
+const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: number) => {
+    router.patch(
+        route(routeUpdate.name, routeUpdate.parameters),
+        {
+            quantity_ordered: Number(value)
+        },
+        {
+            onStart: () => isLoading.value = 'quantity' + idTransaction,
+            onFinish: () => isLoading.value = false
+        }
+    )
+}
 </script>
 
 
@@ -48,10 +63,29 @@ const isLoading = ref<string | boolean>('false')
             {{ locale.currencyFormat(item.currency_code, item.net_amount) }}
         </template> -->
 
+        <!-- Column: Quantity -->
+        <template #cell(quantity_ordered)="{ item }">
+            <div class="flex justify-end">
+                <div class="w-32">
+                    <PureInput
+                        :modelValue="item.quantity_ordered"
+                        @onEnter="(e: number) => onUpdateQuantity(item.updateRoute, item.id, e)"
+                        @blur="(e: string) => e == item.quantity_ordered ? false : onUpdateQuantity(item.updateRoute, item.id, e)"
+                        :isLoading="isLoading === 'quantity' + item.id"
+                        type="number"
+                        align="right"
+                    />
+                </div>
+            </div>
+
+            <!-- <div v-else>{{ item.quantity }}</div> -->
+        </template>
+
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">
             <Link
                 :href="route(item.deleteRoute.name, item.deleteRoute.parameters)"
+                as="button"
                 :method="item.deleteRoute.method"
                 @start="() => isLoading = 'unselect' + item.id"
                 @finish="() => isLoading = false"

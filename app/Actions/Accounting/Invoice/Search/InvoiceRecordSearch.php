@@ -82,10 +82,11 @@ class InvoiceRecordSearch
                     ],
                     [
                         'key'    => 'total',
-                        'type'   => 'amount',
+                        'type'   => 'currency',
                         'code'   => $invoice->currency->code,
                         'label'  => 'Total: ',
-                        'amount' => $invoice->total_amount
+                        'amount' => $invoice->total_amount,
+                        'tooltip'=> __('Total amount')
                     ],
                 ],
             ]

@@ -62,7 +62,7 @@ class StoreProduct extends OrgAction
 
 
         data_set($modelData, 'units', $units);
-        //data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($orgStocks));
+        data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($orgStocks));
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
 
@@ -184,11 +184,11 @@ class StoreProduct extends OrgAction
         return $product;
     }
 
-    public function getUnitRelationshipType(array $tradeUnits): ?ProductUnitRelationshipType
+    public function getUnitRelationshipType(array $orgStocks): ?ProductUnitRelationshipType
     {
-        if (count($tradeUnits) == 1) {
+        if (count($orgStocks) == 1) {
             return ProductUnitRelationshipType::SINGLE;
-        } elseif (count($tradeUnits) > 1) {
+        } elseif (count($orgStocks) > 1) {
             return ProductUnitRelationshipType::MULTIPLE;
         }
 

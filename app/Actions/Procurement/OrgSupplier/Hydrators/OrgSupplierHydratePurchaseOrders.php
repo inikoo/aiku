@@ -7,16 +7,18 @@
 
 namespace App\Actions\Procurement\OrgSupplier\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrgSupplierHydratePurchaseOrders
 {
     use AsAction;
+    use WithEnumStats;
     private OrgSupplier $orgSupplier;
 
 
@@ -36,23 +38,25 @@ class OrgSupplierHydratePurchaseOrders
             'number_purchase_orders' => $orgSupplier->purchaseOrders()->count(),
         ];
 
-        $purchaseOrderStateCounts = $orgSupplier->purchaseOrders()
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats=array_merge($stats, $this->getEnumStats(
+            model:'purchase_orders',
+            field: 'state',
+            enum: PurchaseOrderStateEnum::class,
+            models: PurchaseOrder::class,
+            where: function ($q) use ($orgSupplier) {
+                $q->where('parent_id', $orgSupplier->id)->where('parent_type', 'OrgSupplier');
+            }
+        ));
 
-        foreach (PurchaseOrderStateEnum::cases() as $productState) {
-            $stats['number_purchase_orders_state_'.$productState->snake()] = Arr::get($purchaseOrderStateCounts, $productState->value, 0);
-        }
-
-        $purchaseOrderStatusCounts =  $orgSupplier->purchaseOrders()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status')->all();
-
-        foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatusEnum) {
-            $stats['number_purchase_orders_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
-        }
+        $stats=array_merge($stats, $this->getEnumStats(
+            model:'purchase_orders',
+            field: 'status',
+            enum: PurchaseOrderStatusEnum::class,
+            models: PurchaseOrder::class,
+            where: function ($q) use ($orgSupplier) {
+                $q->where('parent_id', $orgSupplier->id)->where('parent_type', 'OrgSupplier');
+            }
+        ));
 
         $orgSupplier->stats()->update($stats);
     }

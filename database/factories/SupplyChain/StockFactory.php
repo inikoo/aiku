@@ -7,6 +7,7 @@
 
 namespace Database\Factories\SupplyChain;
 
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StockFactory extends Factory
@@ -16,6 +17,7 @@ class StockFactory extends Factory
         return [
             'code'     => fake()->lexify(),
             'name'     => fake()->name(),
+            'state'    => StockStateEnum::ACTIVE->value
         ];
     }
 }

@@ -83,8 +83,8 @@ class UpdateSupplierProduct extends GrpAction
             'code'         => [
                 'sometimes',
                 'required',
-                'max:64',
-                new AlphaDashDotSpaceSlashParenthesisPlus(),
+                $this->strict ? 'max:64' : 'max:255',
+                $this->strict ? new AlphaDashDotSpaceSlashParenthesisPlus() : 'string',
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'supplier_products',

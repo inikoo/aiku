@@ -87,7 +87,7 @@ class IndexOrgSuppliers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products', 'number_purchase_orders'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products', 'number_purchase_orders', 'org_suppliers.slug as org_supplier_slug'])
             ->leftJoin('suppliers', 'org_suppliers.supplier_id', 'suppliers.id')
 
             ->leftJoin('org_supplier_stats', 'org_supplier_stats.org_supplier_id', 'org_suppliers.id')
@@ -190,8 +190,9 @@ class IndexOrgSuppliers extends OrgAction
                 ),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
-                    'icon'  => ['fal', 'fa-person-dolly'],
-                    'title' => __('suppliers'),
+                    'model'   => __('Procurement'),
+                    'icon'    => ['fal', 'fa-person-dolly'],
+                    'title'   => __('suppliers'),
                 ],
                 'data'        => OrgSuppliersResource::collection($suppliers),
 

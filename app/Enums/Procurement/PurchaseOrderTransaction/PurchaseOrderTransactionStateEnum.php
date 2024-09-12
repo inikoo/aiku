@@ -13,16 +13,13 @@ enum PurchaseOrderTransactionStateEnum: string
 {
     use EnumHelperTrait;
 
-    case CREATING     = 'creating';
-    case SUBMITTED    = 'submitted';
-    case CONFIRMED    = 'confirmed';
-    case MANUFACTURED ='manufactured';
-    case DISPATCHED   = 'dispatched';
-
-    case PROCESSING     = 'processing';
-
-    case  SETTLED     = 'settled';
-
+    case CREATING         = 'creating';
+    case SUBMITTED        = 'submitted';
+    case CONFIRMED        = 'confirmed';
+    case MANUFACTURED     ='manufactured';
+    case DISPATCHED       = 'dispatched';
+    case PROCESSING       = 'processing';
+    case  SETTLED         = 'settled';
     case  CANCELLED       = 'cancelled';
     case  NO_RECEIVED     = 'no-received';
 

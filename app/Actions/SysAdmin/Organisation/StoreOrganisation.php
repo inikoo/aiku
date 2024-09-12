@@ -102,6 +102,7 @@ class StoreOrganisation
             $organisation->fulfilmentStats()->create();
             $organisation->catalogueStats()->create();
             $organisation->manufactureStats()->create();
+            $organisation->discountsStats()->create();
 
             $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
 

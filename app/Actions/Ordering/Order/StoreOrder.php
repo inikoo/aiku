@@ -9,7 +9,7 @@ namespace App\Actions\Ordering\Order;
 
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
-use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
@@ -175,7 +175,7 @@ class StoreOrder extends OrgAction
 
         $this->orderHydrators($order);
 
-        OrderHydrateUniversalSearch::dispatch($order);
+        OrderRecordSearch::dispatch($order);
 
         return $order->fresh();
     }

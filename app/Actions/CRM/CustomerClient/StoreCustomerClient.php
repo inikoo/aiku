@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
-use App\Actions\CRM\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
+use App\Actions\CRM\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
@@ -47,7 +47,7 @@ class StoreCustomerClient extends OrgAction
             canShip: true
         );
 
-        CustomerClientHydrateUniversalSearch::dispatch($customerClient);
+        CustomerClientRecordSearch::dispatch($customerClient);
         CustomerHydrateClients::dispatch($customer);
 
         return $customerClient;

@@ -28,6 +28,7 @@ class OrgSuppliersResource extends JsonResource
     {
         return [
             'org_slug'                     => $this->org_slug,
+            'org_supplier_slug'            => $this->org_supplier_slug,
             'org_agent_slug'               => $this->agent_slug,
             'code'                         => $this->code,
             'name'                         => $this->name,

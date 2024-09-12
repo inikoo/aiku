@@ -104,7 +104,7 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             v-if="tab.align === 'right'"
                             @click="onChangeTab(tabSlug)"
                             :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation',
-                                'group inline-flex justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
+                                'group inline-flex gap-x-1.5 justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined"
                             v-tooltip="capitalize(tab.title)"
                         >
