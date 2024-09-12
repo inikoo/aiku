@@ -90,8 +90,9 @@ class SendOrderToWarehouse extends OrgAction
             }
         }
 
-        $this->update($order, $modelData);
-        $this->orderHydrators($order);
+
+        UpdateOrder::make()->action($order, $modelData);
+
 
         return $deliveryNote;
     }
@@ -107,6 +108,13 @@ class SendOrderToWarehouse extends OrgAction
         ];
     }
 
+    public function prepareForValidation(): void
+    {
+        if (!$this->has('warehouse_id')) {
+            $warehouse = $this->shop->organisation->warehouses()->first();
+            $this->set('warehouse_id', $warehouse->id);
+        }
+    }
 
     public function afterValidator(Validator $validator): void
     {
@@ -125,14 +133,14 @@ class SendOrderToWarehouse extends OrgAction
         }
     }
 
-    public function action(Order $order, $modelData): DeliveryNote
+    public function action(Order $order, array $modelData): DeliveryNote
     {
         $this->asAction = true;
         $this->scope    = $order->shop;
         $this->order    = $order;
-        $this->initialisationFromShop($order->shop, []);
+        $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $modelData);
+        return $this->handle($order, $this->validatedData);
     }
 
     public function asController(Order $order, ActionRequest $request): DeliveryNote
@@ -143,14 +151,5 @@ class SendOrderToWarehouse extends OrgAction
 
         return $this->handle($order, $this->validatedData);
     }
-
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        if (!$this->has('warehouse_id')) {
-            $warehouse = $this->shop->organisation->warehouses()->first();
-            $this->set('warehouse_id', $warehouse->id);
-        }
-    }
-
 
 }

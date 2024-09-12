@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Ordering\Order;
@@ -27,6 +28,7 @@ class UpdateOrder extends OrgAction
     use WithActionUpdate;
     use WithFixedAddressActions;
     use WithModelAddressActions;
+    use HasOrderHydrators;
 
     private Order $order;
 
@@ -40,7 +42,10 @@ class UpdateOrder extends OrgAction
         $deliveryAddressData = Arr::get($modelData, 'delivery_address');
         data_forget($modelData, 'delivery_address');
 
-        $order = $this->update($order, $modelData, ['data']);
+
+
+        $order         = $this->update($order, $modelData, ['data']);
+        $changedFields = $order->getChanges();
 
         if ($billingAddressData) {
             if ($order->billing_locked) {
@@ -62,14 +67,14 @@ class UpdateOrder extends OrgAction
             }
         }
         if ($deliveryAddressData) {
-            $groupId     = $order->group_id;
+            $groupId = $order->group_id;
 
             data_set($deliveryAddressData, 'group_id', $groupId);
 
             if (Arr::exists($deliveryAddressData, 'id')) {
                 $countryCode = Country::find(Arr::get($deliveryAddressData, 'country_id'))->code;
                 data_set($deliveryAddressData, 'country_code', $countryCode);
-                $label = isset($deliveryAddressData['label']) ? $deliveryAddressData['label'] : null;
+                $label = $deliveryAddressData['label'] ?? null;
                 unset($deliveryAddressData['label']);
                 unset($deliveryAddressData['can_edit']);
                 unset($deliveryAddressData['can_delete']);
@@ -91,14 +96,21 @@ class UpdateOrder extends OrgAction
         }
 
 
+
         OrderRecordSearch::dispatch($order);
+
+        if (array_key_exists('state', $changedFields)) {
+            $this->orderHydrators($order);
+        }
+
+
         return $order;
     }
 
     public function rules(): array
     {
         $rules = [
-            'reference'        => [
+            'reference'           => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -115,16 +127,18 @@ class UpdateOrder extends OrgAction
             'delivery_address'    => ['sometimes', 'required', new ValidAddress()],
             'billing_locked'      => ['sometimes', 'boolean'],
             'delivery_locked'     => ['sometimes', 'boolean'],
-            'last_fetched_at'     => ['sometimes', 'date'],
+            'in_warehouse_at'     => ['sometimes', 'date'],
             'payment_amount'      => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
             'public_notes'        => ['sometimes', 'nullable', 'string', 'max:4000'],
             'internal_notes'      => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'state'               => ['sometimes', Rule::enum(OrderStateEnum::class)],
             // 'customer_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
         ];
 
         if (!$this->strict) {
-            $rules['reference'] = ['sometimes', 'string', 'max:64'];
+            $rules['reference']       = ['sometimes', 'string', 'max:64'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
 
         return $rules;
@@ -140,15 +154,18 @@ class UpdateOrder extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
         $this->order          = $order;
 
+
+
         $this->initialisationFromShop($order->shop, $modelData);
 
         return $this->handle($order, $this->validatedData);
     }
 
-    public function asController(Order $order, ActionRequest $request)
+    public function asController(Order $order, ActionRequest $request): Order
     {
         $this->order = $order;
         $this->initialisationFromShop($order->shop, $request);
+
         return $this->handle($order, $this->validatedData);
     }
 }

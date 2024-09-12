@@ -13,6 +13,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Ordering\Order\DeleteOrder;
+use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\UpdateOrderStateToInWarehouse;
@@ -33,6 +34,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
@@ -50,16 +52,18 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-    ) = createShop();
+        ) = createShop();
 
     $this->group = $this->organisation->group;
 
     list(
         $this->tradeUnit,
         $this->product
-    ) = createProduct($this->shop);
+        ) = createProduct($this->shop);
 
     $this->customer = createCustomer($this->shop);
+
+    createWarehouse();
 });
 
 
@@ -122,8 +126,8 @@ test('create order', function () {
 
 
 test('create transaction', function ($order) {
-    $transactionData          = Transaction::factory()->definition();
-    $historicAsset            = $this->product->historicAsset;
+    $transactionData = Transaction::factory()->definition();
+    $historicAsset   = $this->product->historicAsset;
     expect($historicAsset)->toBeInstanceOf(HistoricAsset::class);
     $transaction = StoreTransaction::make()->action($order, $historicAsset, $transactionData);
 
@@ -131,8 +135,7 @@ test('create transaction', function ($order) {
 
     expect($transaction)->toBeInstanceOf(Transaction::class)
         ->and($transaction->order->stats->number_transactions_at_creation)->toBe(1)
-    ->and($order->stats->number_transactions)->toBe(1)
-    ;
+        ->and($order->stats->number_transactions)->toBe(1);
 
     return $transaction;
 })->depends('create order');
@@ -163,9 +166,10 @@ test('update order state to submitted', function (Order $order) {
 
 
 test('update order state to in warehouse', function (Order $order) {
-    $order = UpdateOrderStateToInWarehouse::make()->action($order);
-
-    expect($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
+    $deliveryNote = SendOrderToWarehouse::make()->action($order, []);
+    $order->refresh();
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
+        ->and($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
 })->depends('update order state to submitted');
 
 test('update state to packed from handling', function ($order) {
