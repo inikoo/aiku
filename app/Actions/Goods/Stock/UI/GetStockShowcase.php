@@ -16,8 +16,28 @@ class GetStockShowcase
 
     public function handle(Stock $stock): array
     {
+        // $numberLocations = 0;
+        // $quantityLocations = 0;
+        // foreach ($stock->orgStocks as $orgStock)
+        // {
+        //     $num = $orgStock->locationOrgStocks()->count();
+        //     $quant = $orgStock->quantity_in_locations;
+        //     $quantityLocations = $quantityLocations + $quant;
+        //     $numberLocations = $numberLocations + $num;
+        // }
+
         return [
-            []
+            // 'contactCard' => [
+            //     'id' => $stock->id,
+            //     'slug'  => $stock->slug,
+            //     'code'  => $stock->slug,
+            //     'unit_value' => $stock->unit_value,
+            //     'description' => $stock->description,
+            //     'number_locations' => $numberLocations,
+            //     'quantity_locations' => $quantityLocations,
+            //     'photo' => $stock->imageSources(),
+
+            // ]
         ];
     }
 }
