@@ -64,8 +64,9 @@ class ServiceRecordSearch
                         ],
                         [
                             'key'       => 'price',
-                            'type'      => 'amount',
-                            'label'     => __('Price'),
+                            'type'      => 'currency',
+                            'code'      => $service->currency->code,
+                            // 'label'     => __('Price'),
                             'amount'    => $service->price,
                             'tooltip'   => __('Price')
                         ],

@@ -37,15 +37,20 @@ class OrderRecordSearch
                 'sections'          => ['ordering'],
                 'haystack_tier_1'   => $order->reference,
                 'result'            => [
-                    'aa'    => $order,
+                    'aa'        => $order,
+                    'container' => [
+                        'label'     => $order->customer->name,
+                        'tooltip'   => __('Customer name')
+                    ],
                     'title' => $order->reference,
                     'icon'  => [
                         'icon' => 'fal fa-shopping-cart',
                     ],
                     'meta'  => [
                         [
-                            'key'   => 'state',
-                            'label' => $order->state
+                            'key'     => 'status',
+                            'label'   => $order->status,
+                            'tooltip' => __('Status')
                         ],
                         [
                             'key'     => 'created_date',
@@ -54,10 +59,11 @@ class OrderRecordSearch
                             'tooltip' => __('Created at')
                         ],
                         [
-                            'key'     => 'updated_date',
-                            'type'    => 'date',
-                            'label'   => $order->updated_at,
-                            'tooltip' => __('Updated at')
+                            'key'       => 'total_amount',
+                            'type'      => 'currency',
+                            'code'      => $order->currency->code,
+                            'amount'    => $order->total_amount,
+                            'tooltip'   => __('Total amount')
                         ],
                     ]
                 ]

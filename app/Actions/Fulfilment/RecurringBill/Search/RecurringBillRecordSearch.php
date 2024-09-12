@@ -54,15 +54,15 @@ class RecurringBillRecordSearch
                     'key'       => 'created_date',
                     'type'      => 'date',
                     'label'     => $recurringBill->created_at,
-                    'tooltip'   => 'Created date'
+                    'tooltip'   => __('Created date')
                 ],
                 [
                     'key'       => 'total',
-                    'type'      => 'amount',
+                    'type'      => 'currency',
                     'code'      => $recurringBill->currency->code,
-                    'label'     => 'Total: ',
+                    'label'     => __('Total') . ': ',
                     'amount'    => $recurringBill->total_amount,
-                    'tooltip'   => 'Total'
+                    'tooltip'   => __('Total')
                 ],
             ],
         ];

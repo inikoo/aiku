@@ -173,7 +173,7 @@ function countModelTypes(data) {
                             <!-- Section: Results -->
                             <TransitionGroup name="list" tag="ul" v-if="resultsSearch?.length" class="border-t-2 border-slate-300">
                                 <li v-for="(result, resultIdx) in (selectedTab ? resultsSearch.filter(resultSearch => resultSearch.model_type == selectedTab) : resultsSearch)"
-                                    :key="result.model_type + resultIdx"
+                                    :key="result.model_type + result.model_id"
                                     class="bg-white hover:bg-slate-50 py-3 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
                                 >
                                     <!-- <SearchResultPallet v-if="result.model_type == 'Pallet'" :data="result.model" /> -->
