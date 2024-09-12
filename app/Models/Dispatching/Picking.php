@@ -16,21 +16,26 @@ use Illuminate\Support\Carbon;
  * App\Models\Dispatching\Picking
  *
  * @property int $id
- * @property bool $fulfilled
- * @property string $state
- * @property string $status
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int $shop_id
  * @property int $delivery_note_id
+ * @property int $delivery_note_item_id
+ * @property bool $status
+ * @property string $state
+ * @property string $outcome
  * @property int|null $org_stock_movement_id
- * @property int $stock_id
+ * @property int $org_stock_id
  * @property int|null $picker_id
  * @property int|null $packer_id
- * @property string $required
- * @property string|null $picked
- * @property string|null $weight
+ * @property string|null $vessel_picking
+ * @property string|null $vessel_packing
+ * @property int|null $location_id
  * @property string $data
- * @property string|null $assigned_at
+ * @property string|null $picker_assigned_at
  * @property string|null $picking_at
  * @property string|null $picked_at
+ * @property string|null $packer_assigned_at
  * @property string|null $packing_at
  * @property string|null $packed_at
  * @property Carbon|null $created_at

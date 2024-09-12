@@ -26,6 +26,7 @@ class StoreDeliveryNoteItem extends OrgAction
     {
         data_set($modelData, 'group_id', $deliveryNote->group_id);
         data_set($modelData, 'organisation_id', $deliveryNote->organisation_id);
+        data_set($modelData, 'shop_id', $deliveryNote->shop_id);
 
 
         $orgStock = OrgStock::find($modelData['org_stock_id']);
@@ -38,7 +39,9 @@ class StoreDeliveryNoteItem extends OrgAction
 
         /** @var DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
-        $deliveryNoteItem->pickings()->create();
+        if($this->strict) {
+            $deliveryNoteItem->pickings()->create();
+        }
         return $deliveryNoteItem;
     }
 
@@ -63,15 +66,15 @@ class StoreDeliveryNoteItem extends OrgAction
                 'nullable',
                 Rule::Exists('transactions', 'id')->where('shop_id', $this->shop->id)
             ];
-            $rules['state']= ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStateEnum::class)];
-            $rules['status']= ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStatusEnum::class)];
-            $rules['quantity_required']= ['sometimes', 'numeric'];
-            $rules['quantity_picked']= ['sometimes', 'numeric'];
-            $rules['quantity_packed']= ['sometimes', 'numeric'];
+            $rules['state']              = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStateEnum::class)];
+            $rules['status']             = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStatusEnum::class)];
+            $rules['quantity_required']  = ['sometimes', 'numeric'];
+            $rules['quantity_picked']    = ['sometimes', 'numeric'];
+            $rules['quantity_packed']    = ['sometimes', 'numeric'];
             $rules['quantity_dispatched']= ['sometimes', 'numeric'];
-            $rules['source_id']= ['sometimes', 'string','max:255'];
-            $rules['fetched_at']= ['sometimes', 'date'];
-            $rules['created_at']= ['sometimes', 'date'];
+            $rules['source_id']          = ['sometimes', 'string','max:255'];
+            $rules['fetched_at']         = ['sometimes', 'date'];
+            $rules['created_at']         = ['sometimes', 'date'];
 
         }
 

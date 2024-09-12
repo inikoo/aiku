@@ -8,6 +8,7 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
+use App\Actions\Dispatching\DeliveryNoteItem\UpdateDeliveryNoteItem;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Transfers\SourceOrganisationService;
@@ -22,20 +23,35 @@ class FetchDeliveryNoteTransactions
     public function handle(SourceOrganisationService $organisationSource, int $source_id, DeliveryNote $deliveryNote): ?DeliveryNoteItem
     {
         if ($transactionData = $organisationSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
-            if (!DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])
-                ->first()) {
-                $transaction = StoreDeliveryNoteItem::make()->action(
+
+
+            if ($deliveryNoteItem=DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])->first()) {
+
+
+                $deliveryNoteItem = UpdateDeliveryNoteItem::make()->action(
+                    deliveryNoteItem: $deliveryNoteItem,
+                    modelData: $transactionData['delivery_note_item'],
+                    hydratorsDelay: 60,
+                    strict: false
+                );
+            } else {
+
+
+                $deliveryNoteItem = StoreDeliveryNoteItem::make()->action(
                     deliveryNote: $deliveryNote,
                     modelData:    $transactionData['delivery_note_item'],
+                    hydratorsDelay: 60,
                     strict: false
                 );
 
+                $sourceData = explode(':', $deliveryNoteItem->source_id);
                 DB::connection('aurora')->table('Inventory Transaction Fact')
-                    ->where('Inventory Transaction Key', $transaction->source_id)
-                    ->update(['aiku_id' => $transaction->id]);
+                    ->where('Inventory Transaction Key', $sourceData[1])
+                    ->update(['aiku_id' => $deliveryNoteItem->id]);
 
-                return $transaction;
+
             }
+            return $deliveryNoteItem;
         }
 
 

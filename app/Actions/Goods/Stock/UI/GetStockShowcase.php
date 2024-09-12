@@ -22,7 +22,7 @@ class GetStockShowcase
         foreach ($stock->orgStocks as $orgStock) {
             $num               = $orgStock->locationOrgStocks()->count();
             $quantity          = $orgStock->quantity_in_locations;
-            $quantityLocations = $quantityLocations + $quantity;
+            $quantityLocations = $quantityLocations   + $quantity;
             $numberLocations   = $numberLocations     + $num;
         }
 

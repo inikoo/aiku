@@ -304,7 +304,7 @@ Route::name('product.')->prefix('product')->group(function () {
     Route::delete('/{product:id}/delete', DeleteProduct::class)->name('delete');
 });
 
-    
+
 
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {

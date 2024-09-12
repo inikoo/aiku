@@ -11,4 +11,3 @@ use Illuminate\Support\Facades\Route;
 Route::name('trade-unit.')->prefix('trade-unit/{tradeUnit:id}')->group(function () {
     Route::patch('update', UpdateTradeUnit::class)->name('update')->withoutScopedBindings();
 });
-

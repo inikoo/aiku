@@ -40,9 +40,9 @@ class SendOrderToWarehouse extends OrgAction
     public function handle(Order $order, array $modelData): Order
     {
         $modelData = ['state' => OrderStateEnum::IN_WAREHOUSE];
-        $date = now();
+        $date      = now();
 
-        if (Arr::exists($modelData, 'warehouse_id')){
+        if (Arr::exists($modelData, 'warehouse_id')) {
             $warehouseId = Arr::pull($modelData, 'warehouse_id');
         } else {
             $warehouseId = $this->warehouse_id;
@@ -61,7 +61,7 @@ class SendOrderToWarehouse extends OrgAction
             $transaction->update($transactionData);
         }
 
-        $deliveryAddress = $order->deliveryAddress;
+        $deliveryAddress     = $order->deliveryAddress;
         $deliverynoteAddress = Arr::except($deliveryAddress, 'id');
         // $warehouse = $order->organisation->warehouses()->first();
         $deliveryNoteData   = [
@@ -74,18 +74,16 @@ class SendOrderToWarehouse extends OrgAction
         ];
 
         $deliveryNote = StoreDeliveryNote::make()->action($order, $deliveryNoteData);
-        
+
         $transactionProducts = $order->transactions()->where('model_type', 'Product')->where('state', TransactionStateEnum::SUBMITTED)->get();
 
-        foreach ($transactionProducts as $transactionProduct)
-        {
+        foreach ($transactionProducts as $transactionProduct) {
             $product = Product::find($transactionProduct->model_id);
-            foreach($product->orgStocks as $orgStock)
-            {
-                $quantity = $orgStock->pivot->quantity * $transactionProduct->ordered_quantity;
+            foreach($product->orgStocks as $orgStock) {
+                $quantity             = $orgStock->pivot->quantity * $transactionProduct->ordered_quantity;
                 $deliveryNoteItemData = [
-                    'org_stock_id' => $orgStock->id,
-                    'transaction_id' => $transactionProduct->id,
+                    'org_stock_id'      => $orgStock->id,
+                    'transaction_id'    => $transactionProduct->id,
                     'quantity_required' => $quantity
                 ];
                 StoreDeliveryNoteItem::make()->action($deliveryNote, $deliveryNoteItemData);
