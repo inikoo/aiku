@@ -7,7 +7,6 @@
 
 use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
-use App\Enums\Dispatching\Picking\PickingStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +19,6 @@ return new class () extends Migration {
 
             $table->unsignedInteger('delivery_note_item_id')->index();
             $table->foreign('delivery_note_item_id')->references('id')->on('delivery_note_items');
-
 
             $table->boolean('status')->default(false)->index();
 
