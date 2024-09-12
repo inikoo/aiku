@@ -19,11 +19,13 @@ use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeOtherOrganisationJobPositions;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
+use App\Actions\SysAdmin\Group\HydrateGroup;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Group\UpdateGroup;
 use App\Actions\SysAdmin\Guest\DeleteGuest;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
+use App\Actions\SysAdmin\Organisation\HydrateOrganisations;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
@@ -476,11 +478,15 @@ test('can show hr dashboard', function (Guest $guest) {
     return $guest;
 })->depends('create guest');
 
-test('Hydrate group via command', function (Group $group) {
+test('Hydrate group', function (Group $group) {
+
+    HydrateGroup::run($group);
+
     $this->artisan('hydrate:groups '.$group->slug)->assertSuccessful();
 })->depends('create group');
 
-test('Hydrate organisations via command', function (Organisation $organisation) {
+test('Hydrate organisations', function (Organisation $organisation) {
+    HydrateOrganisations::run($organisation);
     $this->artisan('hydrate:organisations '.$organisation->slug)->assertSuccessful();
 })->depends('create organisation type shop');
 

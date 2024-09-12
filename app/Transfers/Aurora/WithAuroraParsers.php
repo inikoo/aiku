@@ -24,6 +24,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
+use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
 use App\Actions\Transfers\Aurora\FetchAuroraOutboxes;
 use App\Actions\Transfers\Aurora\FetchAuroraPallets;
@@ -56,6 +57,7 @@ use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
@@ -673,6 +675,21 @@ trait WithAuroraParsers
         }
 
         return $adjustment;
+    }
+
+    public function parseOfferCampaign($sourceId): ?OfferCampaign
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $offerCampaign = OfferCampaign::where('source_id', $sourceId)->first();
+        if (!$offerCampaign) {
+            $sourceData    = explode(':', $sourceId);
+            $offerCampaign = FetchAuroraOfferCampaigns::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $offerCampaign;
     }
 
     public function cleanTradeUnitReference(string $reference): string

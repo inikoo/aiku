@@ -15,7 +15,6 @@ use App\Actions\Discounts\OfferComponent\StoreOfferComponent;
 use App\Actions\Discounts\OfferComponent\UpdateOfferComponent;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\Offer;
-use App\Models\Discounts\OfferCampaign;
 use App\Models\Discounts\OfferComponent;
 
 beforeAll(function () {
@@ -25,6 +24,7 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
+    $this->group        = $this->organisation->group;
 });
 
 test('create shop', function () {
@@ -41,26 +41,48 @@ test('seed offer campaigns', function ($shop) {
     $this->artisan('shop:seed-offer-campaigns', [
         'shop' => $shop->slug,
     ])->assertSuccessful();
-    expect($shop->offerCampaigns()->count())->toBe(7);
+
+    $this->group->refresh();
+    $this->organisation->refresh();
+
+    expect($this->group->discountsStats->number_offer_campaigns)->toBe(7)
+        ->and($this->group->discountsStats->number_current_offer_campaigns)->toBe(0)
+        ->and($this->group->discountsStats->number_offer_campaigns_state_in_process)->toBe(7)
+        ->and($this->organisation->discountsStats->number_offer_campaigns)->toBe(7)
+        ->and($this->organisation->discountsStats->number_current_offer_campaigns)->toBe(0)
+        ->and($this->organisation->discountsStats->number_offer_campaigns_state_in_process)->toBe(7)
+        ->and($shop->discountsStats->number_offer_campaigns)->toBe(7)
+        ->and($shop->discountsStats->number_current_offer_campaigns)->toBe(0)
+        ->and($shop->discountsStats->number_offer_campaigns_state_in_process)->toBe(7);
 })->depends('create shop');
 
 test('update offer campaign', function (Shop $shop) {
     $offerCampaign = $shop->offerCampaigns()->first();
-    $offerCampaign = UpdateOfferCampaign::make()->action($offerCampaign, OfferCampaign::factory()->definition());
-    $this->assertModelExists($offerCampaign);
+    $offerCampaign = UpdateOfferCampaign::make()->action($offerCampaign, [
+        'name' => 'New Name',
+    ]);
+    expect($offerCampaign->name)->toBe('New Name');
 })->depends('create shop');
 
 test('create offer', function (Shop $shop) {
     $offerCampaign = $shop->offerCampaigns()->first();
-    $offer         = StoreOffer::make()->action($offerCampaign, Offer::factory()->definition());
-    $this->assertModelExists($offer);
+    $offer         = StoreOffer::make()->action($offerCampaign, $shop, Offer::factory()->definition());
+    $offerCampaign->refresh();
+    $this->group->refresh();
+    $this->organisation->refresh();
+
+    expect($offer)->toBeInstanceOf(Offer::class)
+        ->and($offerCampaign->stats->number_offers)->toBe(1)
+        ->and($this->group->discountsStats->number_offers)->toBe(1)
+        ->and($this->organisation->discountsStats->number_offers)->toBe(1)
+        ->and($offerCampaign->shop->discountsStats->number_offers)->toBe(1);
 
     return $offer;
 })->depends('create shop');
 
 test('update offer', function ($offer) {
-    $offer = UpdateOffer::make()->action($offer, Offer::factory()->definition());
-    $this->assertModelExists($offer);
+    $offer = UpdateOffer::make()->action($offer, ['name' => 'New Name A']);
+    expect($offer->name)->toBe('New Name A');
 })->depends('create offer');
 
 test('create offer component', function (Shop $shop) {

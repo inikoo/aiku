@@ -41,6 +41,7 @@ use App\Transfers\Aurora\FetchAuroraLocation;
 use App\Transfers\Aurora\FetchAuroraMailshot;
 use App\Transfers\Aurora\FetchAuroraNoProductInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraNoProductTransaction;
+use App\Transfers\Aurora\FetchAuroraOffer;
 use App\Transfers\Aurora\FetchAuroraOfferCampaign;
 use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
@@ -431,6 +432,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchOfferCampaign($id): ?array
     {
         return (new FetchAuroraOfferCampaign($this))->fetch($id);
+    }
+
+    public function fetchOffer($id): ?array
+    {
+        return (new FetchAuroraOffer($this))->fetch($id);
     }
 
 }

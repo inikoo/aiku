@@ -15,12 +15,24 @@ trait HasUsageStats
     {
         $table->timestampTz('first_used_at')->nullable();
         $table->timestampTz('last_used_at')->nullable();
+
+        return $this->usageBaseStats($table);
+    }
+
+    public function usageBaseStats(Blueprint $table): Blueprint
+    {
         $table->unsignedInteger('number_customers')->default(0);
         $table->unsignedInteger('number_orders')->default(0);
         $table->decimal('amount')->default(0);
-        $table->decimal('org_amount')->default(0);
-        $table->decimal('group_amount')->default(0);
+        if (!in_array($table->getTable(), ['group_discounts_stats', 'organisation_discounts_stats'])) {
+            $table->decimal('org_amount')->default(0);
+        }
+
+        if ($table->getTable() != 'group_discounts_stats') {
+            $table->decimal('group_amount')->default(0);
+        }
 
         return $table;
     }
+
 }

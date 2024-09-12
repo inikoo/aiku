@@ -7,7 +7,10 @@
 
 namespace App\Actions\Discounts\OfferCampaign;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOfferCampaigns;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOfferCampaigns;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOfferCampaigns;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\OfferCampaign;
@@ -29,6 +32,10 @@ class StoreOfferCampaign extends OrgAction
         $offerCampaign = $shop->offerCampaigns()->create($modelData);
         $offerCampaign->stats()->create();
 
+        GroupHydrateOfferCampaigns::dispatch($offerCampaign->group);
+        OrganisationHydrateOfferCampaigns::dispatch($offerCampaign->organisation);
+        ShopHydrateOfferCampaigns::dispatch($shop);
+
         return $offerCampaign;
     }
 
@@ -45,7 +52,7 @@ class StoreOfferCampaign extends OrgAction
                 ),
 
                 'max:64',
-                'alpha'
+                'alpha_dash'
             ],
             'name' => ['required', 'max:250', 'string'],
             'data' => ['sometimes', 'required'],

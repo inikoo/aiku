@@ -59,6 +59,7 @@ class StoreGroup
         $group->webStats()->create();
         $group->dropshippingStats()->create();
         $group->mailStats()->create();
+        $group->discountsStats()->create();
 
         SetGroupLogo::run($group);
 
@@ -106,6 +107,7 @@ class StoreGroup
     {
         if ($command->option('language_code')) {
             try {
+                /** @var Language $language */
                 $language = Language::where('code', $command->option('language_code'))->firstOrFail();
             } catch (Exception $e) {
                 $command->error($e->getMessage());
@@ -117,6 +119,7 @@ class StoreGroup
         }
 
         try {
+            /** @var Currency $currency */
             $currency = Currency::where('code', $command->argument('currency_code'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
@@ -125,6 +128,7 @@ class StoreGroup
         }
 
         try {
+            /** @var Country $country */
             $country = Country::where('code', $command->argument('country_code'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
@@ -134,6 +138,7 @@ class StoreGroup
 
         if ($command->option('timezone')) {
             try {
+                /** @var Timezone $timezone */
                 $timezone = Timezone::where('name', $command->option('timezone'))->firstOrFail();
             } catch (Exception $e) {
                 $command->error($e->getMessage());

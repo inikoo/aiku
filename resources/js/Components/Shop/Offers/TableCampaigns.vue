@@ -18,13 +18,13 @@ defineProps<{
 }>()
 
 
-function offerRoute(offer: Order) {
+function campaignRoute(campaign: {}) {
     // console.log(route().current())
     switch (route().current()) {
         case "grp.org.shops.show.discounts.campaigns.index":
-            // return route(
-            //     "grp.org.shops.show.discounts.campaigns.show",
-            //     [route().params["organisation"], , route().params["shop"], route().params["customer"], offer.slug])
+            return route(
+                "grp.org.shops.show.discounts.campaigns.show",
+                [route().params["organisation"], route().params["shop"],  campaign.slug])
         default:
             return ''
     }
@@ -36,9 +36,9 @@ function offerRoute(offer: Order) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
-        <template #cell(code)="{ item: offer }">
-            <Link :href="offerRoute(offer)" class="primaryLink">
-                {{ offer.code }}
+        <template #cell(code)="{ item: campaign }">
+            <Link :href="campaignRoute(campaign)" class="primaryLink">
+                {{ campaign.code }}
             </Link>
         </template>
 

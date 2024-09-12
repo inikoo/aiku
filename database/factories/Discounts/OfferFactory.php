@@ -1,24 +1,22 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 11 Sept 2024 21:08:05 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace Database\Factories\Discounts;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Discounts\Offer>
- */
 class OfferFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         return [
             'code' => fake()->lexify,
-            'name' => fake()->name
+            'name' => fake()->name,
+            'type' => fake()->randomElement(['percentage','fixed']),
         ];
     }
 }

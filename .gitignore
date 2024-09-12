@@ -84,3 +84,4 @@ aurora_*
 wowsbar_*
 create_aurora_*
 create_wowsbar_*
+/pull_currency_exchange_db_from_staging.sh

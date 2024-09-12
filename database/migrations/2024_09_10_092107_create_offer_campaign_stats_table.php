@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasDiscountsStats;
 use App\Stubs\Migrations\HasUsageStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasUsageStats;
+    use HasDiscountsStats;
 
     public function up(): void
     {
@@ -20,7 +22,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('offer_campaign_id')->index();
             $table->foreign('offer_campaign_id')->references('id')->on('offer_campaigns');
 
-            $table->unsignedInteger('number_offers')->default(0);
+            $table=$this->offersStats($table);
+
             $table = $this->usageStats($table);
             $table->timestampsTz();
         });
