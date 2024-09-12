@@ -24,8 +24,7 @@ class UpdateTransaction extends OrgAction
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
 
-        if(Arr::exists($modelData, 'quantity_ordered'))
-        {
+        if(Arr::exists($modelData, 'quantity_ordered')) {
             $net   = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
             $gross = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
