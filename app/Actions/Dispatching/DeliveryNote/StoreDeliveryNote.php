@@ -19,6 +19,7 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -128,5 +129,15 @@ class StoreDeliveryNote extends OrgAction
         $this->initialisationFromShop($order->shop, $modelData);
 
         return $this->handle($order, $this->validatedData);
+    }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+
+        if(!$this->has('warehouse_id')) {
+            $warehouse = $this->shop->organisation->warehouses()->first();
+            $this->set('warehouse_id', $warehouse->id);
+        }
+
     }
 }

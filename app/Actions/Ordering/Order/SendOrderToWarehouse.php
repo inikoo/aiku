@@ -12,11 +12,14 @@ use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -34,11 +37,16 @@ class SendOrderToWarehouse extends OrgAction
         $this->authorisationType = 'update';
     }
 
-    public function handle(Order $order): Order
+    public function handle(Order $order, array $modelData): Order
     {
         $modelData = ['state' => OrderStateEnum::IN_WAREHOUSE];
-
         $date = now();
+
+        if (Arr::exists($modelData, 'warehouse_id')){
+            $warehouseId = Arr::pull($modelData, 'warehouse_id');
+        } else {
+            $warehouseId = $this->warehouse_id;
+        }
 
         if ($order->state == OrderStateEnum::SUBMITTED || $order->in_warehouse_at == null) {
             data_set($modelData, 'in_warehouse_at', $date);
@@ -47,19 +55,22 @@ class SendOrderToWarehouse extends OrgAction
         $transactions = $order->transactions()->where('state', TransactionStateEnum::SUBMITTED)->get();
         foreach ($transactions as $transaction) {
             $transactionData = ['state' => TransactionStateEnum::IN_WAREHOUSE];
-            if ($transaction->submitted_at == null) {
+            if ($transaction->in_warehouse_at == null) {
                 data_set($transactionData, 'in_warehouse_at', $date);
             }
             $transaction->update($transactionData);
         }
 
         $deliveryAddress = $order->deliveryAddress;
-        $deliverynoteAddress = Arr::except($deliveryAddress->toArray(), ['id']);
-
+        $deliverynoteAddress = Arr::except($deliveryAddress, 'id');
+        // $warehouse = $order->organisation->warehouses()->first();
         $deliveryNoteData   = [
             'delivery_address' => $deliverynoteAddress,
             'date'             => $date,
-            'reference'        => $order->reference
+            'reference'        => $order->reference,
+            'state'            => DeliveryNoteStateEnum::SUBMITTED,
+            'status'           => DeliveryNoteStatusEnum::HANDLING,
+            'warehouse_id'     => $warehouseId
         ];
 
         $deliveryNote = StoreDeliveryNote::make()->action($order, $deliveryNoteData);
@@ -85,6 +96,17 @@ class SendOrderToWarehouse extends OrgAction
         $this->orderHydrators($order);
 
         return $order;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'warehouse_id'     => [
+                'required',
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
+        ];
     }
 
 
@@ -121,6 +143,18 @@ class SendOrderToWarehouse extends OrgAction
         $this->order = $order;
         $this->scope = $order->shop;
         $this->initialisationFromShop($order->shop, $request);
-        return $this->handle($order);
+        return $this->handle($order, $this->validatedData);
     }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+
+        if(!$this->has('warehouse_id')) {
+            $warehouse = $this->shop->organisation->warehouses()->first();
+            $this->set('warehouse_id', $warehouse->id);
+        }
+
+    }
+
+
 }
