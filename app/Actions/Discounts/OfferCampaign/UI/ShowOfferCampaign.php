@@ -11,19 +11,13 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Deals\OfferCampaignTabsEnum;
-use App\Enums\UI\Procurement\OrgPartnerTabsEnum;
 use App\Http\Resources\Catalogue\OfferCampaignResource;
 use App\Http\Resources\Catalogue\OffersResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\OfferCampaign;
-use App\Models\Procurement\OrgPartner;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -52,21 +46,21 @@ class ShowOfferCampaign extends OrgAction
     public function htmlResponse(OfferCampaign $offerCampaign, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Procurement/Partner',
+            'Org/Shop/B2b/Campaigns/Campaign',
             [
                 'title'                                              => __('Offer Campaign'),
                 'breadcrumbs'                                        => $this->getBreadcrumbs($offerCampaign, $request->route()->getName(), $request->route()->originalParameters()),
-                'navigation'                            => [
+                'navigation'                                         => [
                     'previous' => $this->getPrevious($offerCampaign, $request),
                     'next'     => $this->getNext($offerCampaign, $request),
                 ],
                 'pageHead'                                           => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'box-comment-dollar'],
+                            'icon'  => ['fal', 'comment-dollar'],
                             'title' => __('offer campaign')
                         ],
-                    'title' => $offerCampaign->name,
+                    'title'         => $offerCampaign->name,
                     'model'         => __('Offer Campaign'),
                 ],
                 'tabs'                                               => [
@@ -164,8 +158,8 @@ class ShowOfferCampaign extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $offerCampaign->organisation->slug,
-                        'shop'         => $offerCampaign->shop->slug,
+                        'organisation'        => $offerCampaign->organisation->slug,
+                        'shop'                => $offerCampaign->shop->slug,
                         'offerCampaign'       => $offerCampaign->slug
                     ]
                 ]
