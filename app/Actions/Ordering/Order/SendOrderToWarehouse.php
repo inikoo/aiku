@@ -128,14 +128,14 @@ class SendOrderToWarehouse extends OrgAction
         }
     }
 
-    public function action(Order $order): Order
+    public function action(Order $order, $modelData): Order
     {
         $this->asAction = true;
         $this->scope    = $order->shop;
         $this->order    = $order;
         $this->initialisationFromShop($order->shop, []);
 
-        return $this->handle($order);
+        return $this->handle($order, $modelData);
     }
 
     public function asController(Order $order, ActionRequest $request)
