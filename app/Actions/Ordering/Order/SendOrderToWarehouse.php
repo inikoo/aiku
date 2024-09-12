@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:11 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:11 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -17,7 +17,9 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Catalogue\Product;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -37,21 +39,20 @@ class SendOrderToWarehouse extends OrgAction
         $this->authorisationType = 'update';
     }
 
-    public function handle(Order $order, array $modelData): Order
+    public function handle(Order $order, array $modelData): DeliveryNote
     {
-        $modelData = ['state' => OrderStateEnum::IN_WAREHOUSE];
-        $date      = now();
+        data_set($modelData, 'state', OrderStateEnum::IN_WAREHOUSE);
+        $date = now();
 
-        if (Arr::exists($modelData, 'warehouse_id')) {
-            $warehouseId = Arr::pull($modelData, 'warehouse_id');
-        } else {
-            $warehouseId = $this->warehouse_id;
-        }
+
+        $warehouseId = Arr::pull($modelData, 'warehouse_id');
+        data_forget($modelData, 'warehouse_id');
 
         if ($order->state == OrderStateEnum::SUBMITTED || $order->in_warehouse_at == null) {
             data_set($modelData, 'in_warehouse_at', $date);
         }
 
+        /** @var Transaction $transactions */
         $transactions = $order->transactions()->where('state', TransactionStateEnum::SUBMITTED)->get();
         foreach ($transactions as $transaction) {
             $transactionData = ['state' => TransactionStateEnum::IN_WAREHOUSE];
@@ -61,11 +62,9 @@ class SendOrderToWarehouse extends OrgAction
             $transaction->update($transactionData);
         }
 
-        $deliveryAddress     = $order->deliveryAddress;
-        $deliverynoteAddress = Arr::except($deliveryAddress, 'id');
-        // $warehouse = $order->organisation->warehouses()->first();
-        $deliveryNoteData   = [
-            'delivery_address' => $deliverynoteAddress,
+
+        $deliveryNoteData = [
+            'delivery_address' => $order->deliveryAddress,
             'date'             => $date,
             'reference'        => $order->reference,
             'state'            => DeliveryNoteStateEnum::SUBMITTED,
@@ -75,15 +74,16 @@ class SendOrderToWarehouse extends OrgAction
 
         $deliveryNote = StoreDeliveryNote::make()->action($order, $deliveryNoteData);
 
-        $transactionProducts = $order->transactions()->where('model_type', 'Product')->where('state', TransactionStateEnum::SUBMITTED)->get();
+        $transactions = $order->transactions()->where('model_type', 'Product')->where('state', TransactionStateEnum::SUBMITTED)->get();
 
-        foreach ($transactionProducts as $transactionProduct) {
-            $product = Product::find($transactionProduct->model_id);
-            foreach($product->orgStocks as $orgStock) {
-                $quantity             = $orgStock->pivot->quantity * $transactionProduct->ordered_quantity;
+        /** @var Transaction $transaction */
+        foreach ($transactions as $transaction) {
+            $product = Product::find($transaction->model_id);
+            foreach ($product->orgStocks as $orgStock) {
+                $quantity             = $orgStock->pivot->quantity * $transaction->ordered_quantity;
                 $deliveryNoteItemData = [
                     'org_stock_id'      => $orgStock->id,
-                    'transaction_id'    => $transactionProduct->id,
+                    'transaction_id'    => $transaction->id,
                     'quantity_required' => $quantity
                 ];
                 StoreDeliveryNoteItem::make()->action($deliveryNote, $deliveryNoteItemData);
@@ -93,13 +93,13 @@ class SendOrderToWarehouse extends OrgAction
         $this->update($order, $modelData);
         $this->orderHydrators($order);
 
-        return $order;
+        return $deliveryNote;
     }
 
     public function rules(): array
     {
         return [
-            'warehouse_id'     => [
+            'warehouse_id' => [
                 'required',
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
@@ -110,14 +110,13 @@ class SendOrderToWarehouse extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-
         if ($this->order->state == OrderStateEnum::CREATING) {
             $validator->errors()->add('state', __('Only submitted orders can be send to warehouse'));
         } elseif ($this->order->state == OrderStateEnum::SUBMITTED && !$this->order->transactions->count()) {
             $validator->errors()->add('state', __('Order dont have any transactions to be send to warehouse'));
         } elseif ($this->order->state == OrderStateEnum::IN_WAREHOUSE || $this->order->state == OrderStateEnum::HANDLING || $this->order->state == OrderStateEnum::PACKED) {
             $validator->errors()->add('state', __('Order already in warehouse'));
-        } elseif($this->order->state == OrderStateEnum::FINALISED) {
+        } elseif ($this->order->state == OrderStateEnum::FINALISED) {
             $validator->errors()->add('state', __('Order is already finalised'));
         } elseif ($this->order->state == OrderStateEnum::DISPATCHED) {
             $validator->errors()->add('state', __('Order is already dispatched'));
@@ -126,7 +125,7 @@ class SendOrderToWarehouse extends OrgAction
         }
     }
 
-    public function action(Order $order, $modelData): Order
+    public function action(Order $order, $modelData): DeliveryNote
     {
         $this->asAction = true;
         $this->scope    = $order->shop;
@@ -136,22 +135,21 @@ class SendOrderToWarehouse extends OrgAction
         return $this->handle($order, $modelData);
     }
 
-    public function asController(Order $order, ActionRequest $request)
+    public function asController(Order $order, ActionRequest $request): DeliveryNote
     {
         $this->order = $order;
         $this->scope = $order->shop;
         $this->initialisationFromShop($order->shop, $request);
+
         return $this->handle($order, $this->validatedData);
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
-
-        if(!$this->has('warehouse_id')) {
+        if (!$this->has('warehouse_id')) {
             $warehouse = $this->shop->organisation->warehouses()->first();
             $this->set('warehouse_id', $warehouse->id);
         }
-
     }
 
 
