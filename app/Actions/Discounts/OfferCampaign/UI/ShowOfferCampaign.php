@@ -9,12 +9,14 @@ namespace App\Actions\Discounts\OfferCampaign\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Deals\OfferCampaignTabsEnum;
 use App\Enums\UI\Procurement\OrgPartnerTabsEnum;
 use App\Http\Resources\Catalogue\OfferCampaignResource;
 use App\Http\Resources\Catalogue\OffersResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\OfferCampaign;
@@ -77,8 +79,12 @@ class ShowOfferCampaign extends OrgAction
                 OfferCampaignTabsEnum::OFFERS->value => $this->tab == OfferCampaignTabsEnum::OFFERS->value ?
                     fn () => OffersResource::collection(IndexOffers::run($offerCampaign, OfferCampaignTabsEnum::OFFERS->value))
                     : Inertia::lazy(fn () => OffersResource::collection(IndexOffers::run($offerCampaign, OfferCampaignTabsEnum::OFFERS->value))),
+                OfferCampaignTabsEnum::HISTORY->value => $this->tab == OfferCampaignTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($offerCampaign, OfferCampaignTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($offerCampaign, OfferCampaignTabsEnum::HISTORY->value))),
             ]
-        )->table(IndexOffers::make()->tableStructure(parent: $offerCampaign, prefix: OfferCampaignTabsEnum::OFFERS->value));
+        )->table(IndexOffers::make()->tableStructure(parent: $offerCampaign, prefix: OfferCampaignTabsEnum::OFFERS->value))
+        ->table(IndexHistory::make()->tableStructure(prefix:OfferCampaignTabsEnum::HISTORY->value));
     }
 
 
