@@ -12,6 +12,9 @@ use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -66,8 +69,8 @@ class DeliveryNoteItem extends Model
 
     protected $guarded = [];
 
-    //    public function pickings(): BelongsToMany
-    //    {
-    //        return $this->belongsToMany(Picking::class)->withTimestamps();
-    //    }
+    public function pickings(): HasOne
+    {
+        return $this->hasOne(Picking::class);
+    }
 }
