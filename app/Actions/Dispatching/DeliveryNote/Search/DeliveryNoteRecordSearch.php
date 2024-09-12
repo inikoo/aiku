@@ -38,14 +38,18 @@ class DeliveryNoteRecordSearch
                 'haystack_tier_2'   => $deliveryNote->email,
                 'result'            => [
                     'aa'            => $deliveryNote,
+                    'container'     => [
+                        'label'     => $deliveryNote->customer->name,
+                        'tooltip'   => __('Customer name')
+                    ],
                     'title'         => $deliveryNote->reference,
                     'icon'          => [
                         'icon' => 'fal fa-truck',
                     ],
                     'meta'      => [
                         [
-                            'key'   => 'state',
-                            'label' => $deliveryNote->state
+                            'key'   => 'status',
+                            'label' => $deliveryNote->status->name
                         ],
                         [
                             'key'       => 'created_date',
@@ -53,12 +57,12 @@ class DeliveryNoteRecordSearch
                             'label'     => $deliveryNote->created_at,
                             'tooltip'   => __('Created at')
                         ],
-                        [
-                            'key'       => 'updated_date',
-                            'type'      => 'date',
-                            'label'     => $deliveryNote->updated_at,
-                            'tooltip'   => __('Updated at')
-                        ],
+                        // [
+                        //     'key'       => 'updated_date',
+                        //     'type'      => 'date',
+                        //     'label'     => $deliveryNote->updated_at,
+                        //     'tooltip'   => __('Updated at')
+                        // ],
                     ]
                 ]
             ]

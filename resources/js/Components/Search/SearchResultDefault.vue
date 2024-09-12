@@ -118,21 +118,20 @@ const isLoading = ref(false)
                 <!-- Section: mini Tabs -->
                 <div v-if="data?.meta?.length" class="flex sm:flex-wrap sm:gap-y-0.5 text-sm">
                     <template v-for="meta in data?.meta">
-                        <template v-if="meta.label">
-                            <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400">
-                                <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' :class='meta.class' size="sm" fixed-width aria-hidden='true' />
-                                <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
-                                <template v-else-if="meta.type === 'amount'">{{ meta.label }} {{ locale.currencyFormat(meta.code || 'usd', meta.amount) }}</template>
-                                <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
-                                <template v-else-if="meta.type === 'address'">
-                                    <AddressLocation :data="meta.label" />
-                                </template>
-                                <template v-else>{{ meta.label }}</template>
-                            </div>
-                            <div class="last:hidden px-2">
-                                •
-                            </div>
-                        </template>
+                        <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400">
+                            <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' :class='meta.class' size="sm" fixed-width aria-hidden='true' />
+                            <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
+                            <template v-else-if="meta.type === 'currency'">{{ meta.label }} {{ locale.currencyFormat(meta.code || 'usd', meta.amount) }}</template>
+                            <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
+                            <template v-else-if="meta.type === 'address'">
+                                <AddressLocation :data="meta.label" />
+                            </template>
+                            <template v-else>{{ meta.label }}</template>
+                        </div>
+                        
+                        <div class="last:hidden px-2">
+                            •
+                        </div>
                     </template>
                 </div>
             </div>
