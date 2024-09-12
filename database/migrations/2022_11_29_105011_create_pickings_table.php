@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingStatusEnum;
 use Illuminate\Database\Migrations\Migration;
@@ -21,13 +22,10 @@ return new class () extends Migration {
             $table->foreign('delivery_note_item_id')->references('id')->on('delivery_note_items');
 
 
-            $table->boolean('done')->default(false)->index();
-
-           // $table->enum('state', ['on-hold', 'assigned', 'picking', 'queried', 'waiting', 'picked', 'packing', 'done'])->index()->default('created');
-           // $table->enum('status', ['handling', 'packed', 'partially_packed', 'out_of_stock', 'cancelled'])->index()->default('processing'); <-???
+            $table->boolean('status')->default(false)->index();
 
             $table->string('state')->default(PickingStateEnum::ASSIGNED->value)->index();
-            $table->string('status')->default(PickingStatusEnum::HANDLING->value)->index();
+            $table->string('outcome')->default(PickingOutcomeEnum::HANDLING->value)->index();
 
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
@@ -43,6 +41,9 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('packer_id')->nullable()->index();
             $table->foreign('packer_id')->references('id')->on('users');
+
+            $table->string('vessel_picking')->default(null)->nullable()->index();
+            $table->string('vessel_packing')->default(null)->nullable()->index();
 
             $table->unsignedSmallInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');

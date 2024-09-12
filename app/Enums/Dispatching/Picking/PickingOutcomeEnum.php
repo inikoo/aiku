@@ -9,7 +9,7 @@ namespace App\Enums\Dispatching\Picking;
 
 use App\Enums\EnumHelperTrait;
 
-enum PickingStatusEnum: string
+enum PickingOutcomeEnum: string
 {
     use EnumHelperTrait;
 
