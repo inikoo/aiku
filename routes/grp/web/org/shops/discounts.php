@@ -7,6 +7,7 @@
 
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Discounts\OfferCampaign\UI\IndexOfferCampaigns;
+use App\Actions\Discounts\OfferCampaign\UI\ShowOfferCampaign;
 use App\Actions\UI\Dropshipping\Offers\ShowOfferDashboard;
 use App\Stubs\UIDummies\CreateDummy;
 use App\Stubs\UIDummies\EditDummy;
@@ -17,7 +18,7 @@ Route::get('', ShowOfferDashboard::class)->name('dashboard');
 Route::name("campaigns.")->prefix('campaigns')
     ->group(function () {
         Route::get('', IndexOfferCampaigns::class)->name('index');
-        Route::get('{offerCampaign}', ShowDummy::class)->name('show');
+        Route::get('{offerCampaign}', ShowOfferCampaign::class)->name('show');
         Route::get('{offerCampaign}/edit', EditDummy::class)->name('edit');
     });
 

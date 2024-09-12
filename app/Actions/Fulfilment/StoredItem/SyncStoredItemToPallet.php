@@ -58,7 +58,6 @@ class SyncStoredItemToPallet extends OrgAction
         return [
             'stored_item_ids'             => ['sometimes', 'array'],
             'stored_item_ids.*.quantity'  => ['required', 'integer', 'min:1'],
-            'stored_item_ids.*.pallet_id' => ['required', 'integer', 'exists:pallets,id']
         ];
     }
 
