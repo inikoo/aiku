@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNoteItem;
 
+use App\Actions\Dispatching\Picking\StorePicking;
 use App\Actions\OrgAction;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
@@ -26,6 +27,7 @@ class StoreDeliveryNoteItem extends OrgAction
     {
         data_set($modelData, 'group_id', $deliveryNote->group_id);
         data_set($modelData, 'organisation_id', $deliveryNote->organisation_id);
+        data_set($modelData, 'shop_id', $deliveryNote->shop_id);
 
 
         $orgStock = OrgStock::find($modelData['org_stock_id']);
@@ -38,7 +40,9 @@ class StoreDeliveryNoteItem extends OrgAction
 
         /** @var DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
-        $deliveryNoteItem->pickings()->create();
+        if($this->strict) {
+            StorePicking::make()->action($deliveryNoteItem, []);
+        }
         return $deliveryNoteItem;
     }
 

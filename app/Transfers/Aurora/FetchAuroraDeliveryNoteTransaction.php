@@ -8,6 +8,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Models\Dispatching\DeliveryNote;
@@ -17,10 +18,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
 {
     protected function parseDeliveryNoteTransaction(DeliveryNote $deliveryNote): void
     {
-
-
         if ($this->auroraModelData->{'Part SKU'}) {
-
             $orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Part SKU'});
 
 
@@ -34,10 +32,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
 
                 $state = match ($deliveryNote->state) {
                     DeliveryNoteStateEnum::SUBMITTED, DeliveryNoteStateEnum::IN_QUEUE, DeliveryNoteStateEnum::PICKER_ASSIGNED => DeliveryNoteItemStateEnum::ON_HOLD,
-                    DeliveryNoteStateEnum::PICKING => DeliveryNoteItemStateEnum::PICKING,
-                    DeliveryNoteStateEnum::PICKED  => DeliveryNoteItemStateEnum::PICKED,
-
-                    DeliveryNoteStateEnum::PACKING => DeliveryNoteItemStateEnum::PACKING,
+                    DeliveryNoteStateEnum::PICKING, DeliveryNoteStateEnum::PICKED, DeliveryNoteStateEnum::PACKING => DeliveryNoteItemStateEnum::HANDLING,
 
                     DeliveryNoteStateEnum::PACKED    => DeliveryNoteItemStateEnum::PACKED,
                     DeliveryNoteStateEnum::FINALISED => DeliveryNoteItemStateEnum::FINALISED,
@@ -48,7 +43,16 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                 $quantity_required   = $this->auroraModelData->{'Required'};
                 $quantity_dispatched = -$this->auroraModelData->{'Inventory Transaction Quantity'};
 
-                $status = $deliveryNote->status;
+                $status = match($deliveryNote->status) {
+                    DeliveryNoteStatusEnum::HANDLING                => DeliveryNoteItemStatusEnum::HANDLING,
+                    DeliveryNoteStatusEnum::DISPATCHED              => DeliveryNoteItemStatusEnum::DISPATCHED,
+                    DeliveryNoteStatusEnum::DISPATCHED_WITH_MISSING => DeliveryNoteItemStatusEnum::DISPATCHED_WITH_MISSING,
+                    DeliveryNoteStatusEnum::FAIL                    => DeliveryNoteItemStatusEnum::FAIL,
+                    DeliveryNoteStatusEnum::CANCELLED               => DeliveryNoteItemStatusEnum::CANCELLED,
+                };
+
+
+
 
                 if ($status == DeliveryNoteItemStatusEnum::DISPATCHED) {
                     if ($quantity_dispatched < $quantity_required) {
@@ -61,12 +65,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                 }
 
 
-                if (!$transaction) {
-                    //  print "Warning Transaction ID  ".$this->auroraModelData->{'Map To Order Transaction Fact Key'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
-                    $transactionID = null;
-                } else {
-                    $transactionID = $transaction->id;
-                }
+                $transactionID = $transaction?->id;
 
                 $this->parsedData['delivery_note_item'] = [
                     'transaction_id'      => $transactionID,
@@ -79,12 +78,12 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                     'org_stock_id'        => $orgStock->id,
                     'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Inventory Transaction Key'},
                     'created_at'          => $this->auroraModelData->{'Date Created'},
-
+                    'fetched_at'          => now(),
+                    'last_fetched_at'     => now()
                 ];
             } else {
                 print "Warning Part SKU  ".$this->auroraModelData->{'Part SKU'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
                 dd('xx');
-
             }
         } else {
             print "Warning Part SKU missing in inventory transaction >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";

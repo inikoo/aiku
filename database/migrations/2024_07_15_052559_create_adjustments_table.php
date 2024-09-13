@@ -16,7 +16,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('adjustments', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
