@@ -27,7 +27,6 @@ trait WithCustomerSubNavigation
                     'tooltip' => __('Customer')
                 ]
             ],
-
             [
                 'href' => [
                     'name'      => 'grp.org.shops.show.crm.customers.show.web-users.index',
@@ -42,8 +41,6 @@ trait WithCustomerSubNavigation
                 ],
                 'number'=> $customer->stats->number_web_users
             ],
-
-
             [
                 'label'    => __('Clients'),
                 'number'   => $customer->stats->number_clients,
@@ -111,5 +108,50 @@ trait WithCustomerSubNavigation
             ],
         ];
     }
+
+    protected function getShopCustomerSubNavigation(Customer $customer, ActionRequest $request): array
+    {
+        return [
+            [
+                'label'    => $customer->name,
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show',
+                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-user'],
+                    'tooltip' => __('Customer')
+                ]
+            ],
+
+            [
+                'href' => [
+                    'name'      => 'grp.org.shops.show.crm.customers.show.web-users.index',
+                    'parameters'=> $request->route()->originalParameters()
+
+                ],
+
+                'label'     => __('Web users'),
+                'leftIcon'  => [
+                    'icon'    => 'fal fa-terminal',
+                    'tooltip' => __('Web users'),
+                ],
+                'number'=> $customer->stats->number_web_users
+            ],
+            [
+                'label'    => __('Orders'),
+                'number'   => $customer->orders()->count(),
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
+                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-shopping-cart'],
+                    'tooltip' => __('orders')
+                ]
+            ],
+        ];
+    }
+
 
 }
