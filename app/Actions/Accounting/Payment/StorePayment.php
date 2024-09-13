@@ -59,9 +59,9 @@ class StorePayment extends OrgAction
         if($this->strict) {
             match ($paymentAccount->type->value) {
                 PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
-                PaymentAccountTypeEnum::XENDIT->value => MakePaymentUsingXendit::run($payment),
-                PaymentAccountTypeEnum::PAYPAL->value => MakePaymentUsingPaypal::run($payment, $modelData),
-                default => null
+                PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
+                PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $modelData),
+                default                                 => null
             };
         }
 
@@ -127,14 +127,5 @@ class StorePayment extends OrgAction
 
         $this->handle($customer, $paymentAccount, $this->validatedData);
     }
-
-    public function inOrder(Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request, int $hydratorsDelay = 0): void
-    {
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromShop($customer->shop, $request);
-
-        $this->handle($customer, $paymentAccount, $this->validatedData);
-    }
-
 
 }
