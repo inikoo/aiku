@@ -502,7 +502,7 @@ const onSubmitNote = async (closePopup: Function) => {
                     <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`mailto:${box_stats?.customer.email}`" v-tooltip="'Click to send email'"
-                    class="text-sm text-gray-500 hover:text-gray-700">{{ box_stats?.customer.email }}</a>
+                    class="text-sm text-gray-500 hover:text-gray-700 truncate">{{ box_stats?.customer.email }}</a>
             </div>
 
             <!-- Field: Phone -->

@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Catalogue\Service\StoreService;
@@ -2342,7 +2343,7 @@ test('check invoice transactions length', function ($fulfilmentCustomer) {
 test('pay invoice (full)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 382,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2389,7 +2390,7 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
 test('pay invoice (half)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2409,7 +2410,7 @@ test('pay invoice (half)', function ($invoice) {
 test('pay invoice (other half)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value
@@ -2457,7 +2458,7 @@ test('pay invoice (exceed)', function ($invoice) {
     $customer           = $invoice->customer;
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
     $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
-    $payment            = StorePayment::make()->action($invoice->customer, $paymentAccount, $invoice, [
+    $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 200,
         'status' => PaymentStatusEnum::SUCCESS->value,
         'state'  => PaymentStateEnum::COMPLETED->value

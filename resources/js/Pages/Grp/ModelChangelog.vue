@@ -5,16 +5,14 @@
   -->
 
 <script setup lang="ts">
-import Table from '@/Components/Table/Table.vue';
+import Table from '@/Components/Table/Table.vue'
 const props = defineProps<{
-    data: object,
+    data: {}
 }>()
 
 
 </script>
 
 <template>
-    <Table v-if="data.records"  :resource="data.records" class="mt-5"></Table>
+    <Table v-if="data?.records" :resource="data.records" class="mt-5"></Table>
 </template>
-
-

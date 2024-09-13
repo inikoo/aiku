@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Ordering\Order\PayOrder;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\UpdateOrderStateToSubmitted;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::name('order.')->prefix('order/{order:id}')->group(function () {
     Route::patch('update', UpdateOrder::class)->name('update');
-    Route::post('payment', ShowDummy::class)->name('payment.store');
+    Route::post('customer/{customer:id}/payment/{paymentAccount:id}', PayOrder::class)->name('payment.store')->withoutScopedBindings();
 
 
     Route::name('transaction.')->prefix('transaction')->group(function () {
