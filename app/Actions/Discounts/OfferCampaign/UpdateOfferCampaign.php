@@ -23,12 +23,12 @@ class UpdateOfferCampaign extends OrgAction
 
     public function handle(OfferCampaign $offerCampaign, array $modelData): OfferCampaign
     {
-        $offerCampaign= $this->update($offerCampaign, $modelData);
+        $offerCampaign = $this->update($offerCampaign, $modelData);
 
         if($offerCampaign->wasChanged(['state','status'])) {
             GroupHydrateOfferCampaigns::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
             OrganisationHydrateOfferCampaigns::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
-            ShopHydrateOfferCampaigns::dispatch($offerCampaign->$offerCampaign)->delay($this->hydratorsDelay);
+            ShopHydrateOfferCampaigns::dispatch($offerCampaign->shop)->delay($this->hydratorsDelay);
         }
 
         return $offerCampaign;

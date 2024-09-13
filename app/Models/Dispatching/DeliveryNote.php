@@ -172,7 +172,7 @@ class DeliveryNote extends Model implements Auditable
 
     public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class)->withTimestamps();
+        return $this->belongsToMany(Order::class, 'delivery_note_order')->withTimestamps();
     }
 
     public function stats(): HasOne

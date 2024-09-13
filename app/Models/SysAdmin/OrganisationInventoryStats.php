@@ -56,16 +56,12 @@ use Illuminate\Support\Carbon;
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
  * @property int $number_deliveries_state_on_hold
- * @property int $number_deliveries_state_picking
- * @property int $number_deliveries_state_picked
- * @property int $number_deliveries_state_packing
+ * @property int $number_deliveries_state_handling
  * @property int $number_deliveries_state_packed
  * @property int $number_deliveries_state_finalised
  * @property int $number_deliveries_state_settled
  * @property int $number_deliveries_cancelled_at_state_on_hold
- * @property int $number_deliveries_cancelled_at_state_picking
- * @property int $number_deliveries_cancelled_at_state_picked
- * @property int $number_deliveries_cancelled_at_state_packing
+ * @property int $number_deliveries_cancelled_at_state_handling
  * @property int $number_deliveries_cancelled_at_state_packed
  * @property int $number_deliveries_cancelled_at_state_finalised
  * @property int $number_deliveries_cancelled_at_state_settled

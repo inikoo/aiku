@@ -17,46 +17,46 @@ class GetOfferCampaignOverview
 
     public function handle(OfferCampaign $offerCampaign): array
     {
+        $stats = $offerCampaign->stats;
         return [
             'offerCampaign' => OfferCampaignResource::make($offerCampaign),
             // 'stats'   => $offerCampaign->stats,
             'stats'   => [
                 [
-                    "label" => "Department",
-                    "icon"  => "fal fa-folder-tree",
-                    "value" => 16,
-                    "meta"  => [
-                        "value" => "+4",
-                        "label" => "from last month"
-                    ]
-                ],
-                [
-                    "label" => "Families",
-                    "icon"  => "fal fa-folder",
-                    "value" => 2350,
-                    "meta"  => [
-                        "value" => "+4",
-                        "label" => "from last month"
-                    ]
-                ],
-                [
-                    "label" => "Products",
+                    "label" => "Offers",
                     "icon"  => "fal fa-cube",
-                    "value" => 23102,
-                    "meta"  => [
-                        "value" => "+4",
-                        "label" => "from last month"
-                    ]
+                    "value" => $stats->number_offers,
                 ],
                 [
-                    "label" => "Collections",
+                    "label" => "Current Offers",
                     "icon"  => "fal fa-cube",
-                    "value" => 0,
-                    "meta"  => [
-                        "value" => "+4",
-                        "label" => "from last month"
-                    ]
-                ]
+                    "value" => $stats->number_current_offers,
+                ],
+                [
+                    "label" => "Offers in Process",
+                    "icon"  => "fal fa-cube",
+                    "value" => $stats->number_offers_state_in_process,
+                ],
+                [
+                    "label" => "Active Offers",
+                    "icon"  => "fal fa-cube",
+                    "value" => $stats->number_offers_state_active,
+                ],
+                [
+                    "label" => "Finished Offers",
+                    "icon"  => "fal fa-cube",
+                    "value" => $stats->number_offers_state_finished,
+                ],
+                [
+                    "label" => "Customers",
+                    "icon"  => "fal fa-users",
+                    "value" => $stats->number_customers,
+                ],
+                [
+                    "label" => "Orders",
+                    "icon"  => "fal fa-shopping-cart",
+                    "value" => $stats->number_orders,
+                ],
             ]
         ];
     }

@@ -28,9 +28,7 @@ class UpdatePalletLocation extends OrgAction
 
     public function handle(Location $location, Pallet $pallet): Pallet
     {
-        return BookInPallet::make()->action($pallet, [
-            'location_id' => $location->id
-        ]);
+        return $this->update($pallet, ['location_id' => $location->id]);
     }
 
     public function authorize(ActionRequest $request): bool

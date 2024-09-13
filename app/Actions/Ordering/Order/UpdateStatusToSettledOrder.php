@@ -29,7 +29,7 @@ class UpdateStatusToSettledOrder
         ];
 
         if ($order->state === OrderStateEnum::FINALISED) {
-            $transactions = $order->transactions()->where('status', TransactionStatusEnum::PROCESSING);
+            $transactions = $order->transactions()->where('status', TransactionStatusEnum::PROCESSING)->get();
             foreach ($transactions as $transaction) {
                 data_set($transactionData, 'settled_at', now());
                 data_set($transactionData, 'status', TransactionStatusEnum::SETTLED);

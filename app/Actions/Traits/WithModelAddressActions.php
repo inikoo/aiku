@@ -72,6 +72,9 @@ trait WithModelAddressActions
 
         unset($addressData['label']);
 
+
+        data_forget($addressData, 'id');
+
         $address = Address::create($addressData);
 
 

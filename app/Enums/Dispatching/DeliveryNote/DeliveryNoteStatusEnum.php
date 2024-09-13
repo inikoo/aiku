@@ -13,8 +13,9 @@ enum DeliveryNoteStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case HANDLING   = 'handling';
-    case DISPATCHED = 'settled-dispatched';
-    case FAIL       = 'settled-fail';
-    case CANCELLED  = 'settled-cancelled';
+    case HANDLING                = 'handling';
+    case DISPATCHED              = 'settled-dispatched';
+    case DISPATCHED_WITH_MISSING = 'settled-with-missing';
+    case FAIL                    = 'settled-fail';
+    case CANCELLED               = 'settled-cancelled';
 }

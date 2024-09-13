@@ -15,9 +15,7 @@ enum DeliveryNoteItemStateEnum: string
 
 
     case ON_HOLD   = 'on-hold';
-    case PICKING   = 'picking';
-    case PICKED    = 'picked';
-    case PACKING   = 'packing';
+    case HANDLING  = 'handling';
     case PACKED    = 'packed';
     case FINALISED = 'finalised';
     case SETTLED   = 'settled';

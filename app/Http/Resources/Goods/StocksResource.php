@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Goods;
 
+use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -22,6 +23,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class StocksResource extends JsonResource
 {
+    use HasSelfCall;
+
     public function toArray($request): array
     {
 

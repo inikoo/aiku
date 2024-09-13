@@ -63,7 +63,7 @@ const getComponent = (componentName: any) => {
     return components[componentName?.key] ?? InfoCard
 };
 
-watch(() => props.data.locations.data.length, (newLength) => {
+watch(() => props.data?.locations?.data?.length, (newLength) => {
     if (newLength <= 1) menu.value = menu.value.filter(item => item.key !== 'moveStock');
     else if (!menu.value.find(item => item.key === 'moveStock')) {
         menu.value.push({
@@ -81,7 +81,7 @@ watch(() => props.data.locations.data.length, (newLength) => {
 <template>
     <div class="flex justify-between border-b border-gray-300 p-2">
         <div class="font-semibold flex gap-3">
-            <span v-if="!activeMenu">{{ trans("Total Quantity : ") }} {{ parseInt(data.quantity_locations) }}</span>
+            <span v-if="!activeMenu">{{ trans("Total Quantity : ") }} {{ parseInt(data?.quantity_locations) }}</span>
             <div class="text-xs my-auto" v-if="activeMenu">
                 <FontAwesomeIcon :icon="activeMenu.icon" class="mr-2" aria-hidden="true" />
                 <span>{{ activeMenu.label }}</span>
@@ -125,10 +125,10 @@ watch(() => props.data.locations.data.length, (newLength) => {
     </div>
 
     <div class="mt-2 flow-root">
-        <component 
-            :is="getComponent(activeMenu)" 
-            :data="data" 
-            :locationRoute="locationRoute" 
+        <component
+            :is="getComponent(activeMenu)"
+            :data="data"
+            :locationRoute="locationRoute"
             :associateLocationRoute="associateLocationRoute"
             :disassociateLocationRoute="disassociateLocationRoute"
             :auditRoute="auditRoute"

@@ -201,7 +201,7 @@ class Order extends Model implements HasMedia, Auditable
 
     public function deliveryNotes(): BelongsToMany
     {
-        return $this->belongsToMany(DeliveryNote::class)->withTimestamps();
+        return $this->belongsToMany(DeliveryNote::class, 'delivery_note_order')->withTimestamps();
     }
 
     public function payments(): MorphToMany

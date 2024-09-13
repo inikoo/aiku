@@ -19,6 +19,8 @@ return new class () extends Migration {
         Schema::create('delivery_note_items', function (Blueprint $table) {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
+            $table->unsignedInteger('shop_id')->index();
+            $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
@@ -38,11 +40,12 @@ return new class () extends Migration {
             $table->unsignedInteger('transaction_id')->index()->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions');
 
-            $table->unsignedInteger('picking_id')->nullable()->index();
-            $table->foreign('picking_id')->references('id')->on('pickings');
+            $table->string('notes')->nullable();
 
             $table->string('state')->default(DeliveryNoteItemStateEnum::ON_HOLD->value)->index();
             $table->string('status')->default(DeliveryNoteItemStatusEnum::HANDLING->value)->index();
+
+            $table->decimal('weight', 16, 3)->nullable();
 
             $table->decimal('quantity_required', 16, 3)->default(0);
             $table->decimal('quantity_picked', 16, 3)->nullable();
@@ -51,7 +54,8 @@ return new class () extends Migration {
 
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
         });
     }

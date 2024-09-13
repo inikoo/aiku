@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  *
  *
  * @property int $id
+ * @property int $group_id
  * @property int $stock_delivery_id
  * @property int $supplier_product_id
  * @property string $state
@@ -29,6 +30,8 @@ use Illuminate\Support\Carbon;
  * @property string $unit_price
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property string|null $deleted_at
  * @property-read \App\Models\Procurement\StockDelivery $stockDelivery
  * @property-read SupplierProduct $supplierProduct
