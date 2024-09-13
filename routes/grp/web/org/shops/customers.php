@@ -6,6 +6,8 @@
  */
 
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\CreateCustomerClient;
 use App\Actions\CRM\Customer\UI\EditCustomer;
@@ -19,6 +21,8 @@ use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 
@@ -29,6 +33,10 @@ Route::prefix('{customer}')->as('show')->group(function () {
     Route::get('', ShowCustomer::class);
     Route::get('/orders', [IndexOrders::class, 'inCustomer'])->name('.orders.index');
     Route::get('/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
+    Route::get('/delivery_notes', [IndexDeliveryNotes::class, 'inCustomer'])->name('.delivery_notes.index');
+    Route::get('/delivery_notes/{deliveryNote}', [ShowDeliveryNote::class, 'inCustomerInShop'])->name('.delivery_notes.show');
+    Route::get('/invoices', [IndexInvoices::class, 'inCustomer'])->name('.invoices.index');
+    Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inCustomerInShop'])->name('.invoices.show');
     Route::prefix('web-users')->as('.web-users')->group(function () {
         Route::get('', IndexWebUsers::class)->name('.index');
         Route::get('create', CreateWebUser::class)->name('.create');

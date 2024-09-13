@@ -115,7 +115,7 @@ class IndexWebUsers extends OrgAction
             ];
         } elseif($this->parent instanceof Customer) {
             if($this->parent->is_dropshipping == true) {
-                $subNavigation=$this->getCustomerSubNavigation($this->parent, $request);
+                $subNavigation=$this->getCustomerDropshippingSubNavigation($this->parent, $request);
                 $icon         =['fal', 'fa-user'];
                 $title        =$this->parent->name;
                 $iconRight    =[
@@ -126,7 +126,7 @@ class IndexWebUsers extends OrgAction
                     'label'     => __('Web users')
                 ];
             } else {
-                $subNavigation=$this->getShopCustomerSubNavigation($this->parent, $request);
+                $subNavigation=$this->getCustomerSubNavigation($this->parent, $request);
                 $icon         =['fal', 'fa-user'];
                 $title        =$this->parent->name;
                 $iconRight    =[
