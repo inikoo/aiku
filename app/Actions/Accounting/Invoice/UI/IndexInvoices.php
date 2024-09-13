@@ -160,6 +160,7 @@ class IndexInvoices extends OrgAction
         $title     =__('invoices');
         $afterTitle=null;
         $iconRight =null;
+        $model = null;
 
         if($this->parent instanceof FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
@@ -172,6 +173,8 @@ class IndexInvoices extends OrgAction
 
                 'label'     => __('invoices')
             ];
+        } elseif ($this->parent instanceof Fulfilment) {
+            $model = __('Operations');
         }
 
         $routeName       = $request->route()->getName();
@@ -189,6 +192,7 @@ class IndexInvoices extends OrgAction
                 'pageHead'    => [
 
                     'title'         => $title,
+                    'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,

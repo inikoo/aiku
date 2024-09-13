@@ -142,6 +142,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('physical goods')
                     ],
+                    'model'         => __('Billables'),
                     'title'   => __('Physical goods'),
                     'actions' => [
                         [
