@@ -163,7 +163,7 @@ class ShowProduct extends OrgAction
 
 
             ]
-        )->table(IndexOrders::make()->tableStructure($product->asset))
+        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value))
             ->table(IndexCustomers::make()->tableStructure($product))
             ->table(IndexMailshots::make()->tableStructure($product));
     }
