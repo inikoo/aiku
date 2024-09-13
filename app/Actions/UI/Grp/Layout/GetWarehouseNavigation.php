@@ -77,7 +77,7 @@ class GetWarehouseNavigation
                                 "label"   => __("Stored pallets"),
                                 "tooltip" => __("Fulfillment: Stored pallets"),
                                 "icon"    => ["fal", "fa-pallet"],
-                                "root"    => "grp.org.warehouses.show.inventory.pallets.",
+                                "root"    => "grp.org.warehouses.show.inventory.pallets.current",
                                 "route"   => [
                                     "name"       => "grp.org.warehouses.show.inventory.pallets.current.index",
                                     "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
@@ -89,7 +89,7 @@ class GetWarehouseNavigation
                                 "label"   => __("Stored items"),
                                 "tooltip" => __("Fulfillment: Stored items"),
                                 "icon"    => ["fal", "fa-narwhal"],
-                                "root"    => "grp.org.warehouses.show.inventory.pallets.",
+                                "root"    => "grp.org.warehouses.show.inventory.stored_items.current",
                                 "route"   => [
                                     "name"       => "grp.org.warehouses.show.inventory.stored_items.current.index",
                                     "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
