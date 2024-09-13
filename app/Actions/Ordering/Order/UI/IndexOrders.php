@@ -190,7 +190,11 @@ class IndexOrders extends OrgAction
         if ($this->parent instanceof CustomerClient) {
             $subNavigation = $this->getCustomerClientSubNavigation($this->parent, $request);
         } elseif ($this->parent instanceof Customer) {
-            $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+            if ($this->parent->is_dropshipping == true) {
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+            } else {
+                $subNavigation = $this->getShopCustomerSubNavigation($this->parent, $request);
+            }
         }
         $title = __('Orders');
         $model = '';
