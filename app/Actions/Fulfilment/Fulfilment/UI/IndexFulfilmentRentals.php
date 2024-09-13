@@ -117,6 +117,7 @@ class IndexFulfilmentRentals extends OrgAction
         return $this->handle($fulfilment, RentalsTabsEnum::RENTALS->value);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function maya(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -196,13 +197,10 @@ class IndexFulfilmentRentals extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    match (class_basename($parent)) {
-                        'Fulfilment' => [
-                            'title' => __("No rentals found"),
-                            'count' => $parent->shop->stats->number_assets_type_rental,
-                        ],
-                        default => null
-                    }
+                    [
+                        'title' => __("No rentals found"),
+                        'count' => $parent->shop->stats->number_assets_type_rental
+                    ]
                 );
 
             $table
