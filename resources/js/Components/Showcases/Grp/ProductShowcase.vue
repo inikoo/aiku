@@ -99,7 +99,7 @@ const isModalGallery = ref(false)
                     <TabGroup as="div" class="flex flex-col p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
                         <!-- Section: Main image (big) -->
                         <TabPanels class="overflow-hidden duration-300">
-                            <template v-if="product.images.length > 0">
+                            <template v-if="product?.images?.length > 0">
                                 <TabPanel v-for="image in product.images" :key="image.id">
                                     <div class="relative flex items-center border border-gray-200 rounded-lg aspect-square w-auto h-auto overflow-hidden">
                                         <div class="absolute top-1 right-3 flex items-center gap-2 capitalize"

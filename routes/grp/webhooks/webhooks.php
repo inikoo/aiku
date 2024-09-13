@@ -6,7 +6,10 @@
  */
 
 use App\Actions\Dropshipping\Shopify\Webhook\CreateFulfilmentWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\CustomerDataRedactWebhookShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\CustomerDataRequestWebhookShopify;
 use App\Actions\Dropshipping\Shopify\Webhook\DeleteProductWebhooksShopify;
+use App\Actions\Dropshipping\Shopify\Webhook\ShopRedactWebhookShopify;
 use App\Actions\Mail\Notifications\GetSnsNotification;
 
 Route::name('webhooks.')->group(function () {
@@ -21,4 +24,13 @@ Route::prefix('shopify-user/{shopifyUser:id}')->name('webhooks.shopify.')->group
     Route::prefix('fulfillments')->as('fulfillments.')->group(function () {
         Route::post('create', CreateFulfilmentWebhooksShopify::class)->name('create');
     });
+});
+
+Route::prefix('customers')->as('customers.')->group(function () {
+    Route::post('data_request', CustomerDataRequestWebhookShopify::class)->name('data_request');
+    Route::post('redact', CustomerDataRedactWebhookShopify::class)->name('redact');
+});
+
+Route::prefix('shop')->as('shop.')->group(function () {
+    Route::post('redact', ShopRedactWebhookShopify::class)->name('redact');
 });
