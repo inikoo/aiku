@@ -202,7 +202,7 @@ class IndexPalletReturns extends OrgAction
         $title     =__('returns');
         $afterTitle=null;
         $iconRight =null;
-        $model = null;
+        $model     = null;
 
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);

@@ -143,8 +143,8 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                         'title' => __('physical goods')
                     ],
                     'model'         => __('Billables'),
-                    'title'   => __('Physical goods'),
-                    'actions' => [
+                    'title'         => __('Physical goods'),
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'primary',

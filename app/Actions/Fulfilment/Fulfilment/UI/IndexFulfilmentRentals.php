@@ -139,8 +139,8 @@ class IndexFulfilmentRentals extends OrgAction
                         'title' => __('rentals')
                     ],
                     'model'         => __('Billables'),
-                    'title'   => __('rentals'),
-                    'actions' => [
+                    'title'         => __('rentals'),
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'primary',

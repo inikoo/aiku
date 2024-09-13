@@ -150,8 +150,8 @@ class IndexFulfilmentServices extends OrgAction
                         'title' => __('services')
                     ],
                     'model'         => __('Billables'),
-                    'title'   => __('services'),
-                    'actions' => [
+                    'title'         => __('services'),
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'primary',

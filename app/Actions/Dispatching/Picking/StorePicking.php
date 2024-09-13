@@ -8,15 +8,11 @@
 namespace App\Actions\Dispatching\Picking;
 
 use App\Actions\OrgAction;
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingVesselEnum;
-use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
-use App\Models\Inventory\OrgStock;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -44,8 +40,8 @@ class StorePicking extends OrgAction
     public function rules(): array
     {
         return [
-            'state'        => ['sometimes', Rule::enum(PickingStateEnum::class)],
-            'outcome'        => ['sometimes', Rule::enum(PickingOutcomeEnum::class)],
+            'state'                 => ['sometimes', Rule::enum(PickingStateEnum::class)],
+            'outcome'               => ['sometimes', Rule::enum(PickingOutcomeEnum::class)],
             'vessel_picking'        => ['sometimes', Rule::enum(PickingVesselEnum::class)],
             'vessel_packing'        => ['sometimes', Rule::enum(PickingVesselEnum::class)],
             'location_id'           => [
