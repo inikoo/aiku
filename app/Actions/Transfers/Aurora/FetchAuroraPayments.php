@@ -49,7 +49,8 @@ class FetchAuroraPayments extends FetchAuroraAction
                         customer: $paymentData['customer'],
                         paymentAccount: $paymentData['paymentAccount'],
                         modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydrateDelay
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict: false
                     );
                     $this->markAuroraModel($payment);
                 } catch (Exception $e) {
