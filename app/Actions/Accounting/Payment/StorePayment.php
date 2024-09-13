@@ -7,7 +7,6 @@
 
 namespace App\Actions\Accounting\Payment;
 
-use App\Actions\Accounting\Invoice\AttachPaymentToInvoice;
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentGateway\Checkout\Channels\MakePaymentUsingCheckout;
@@ -16,19 +15,15 @@ use App\Actions\Accounting\PaymentGateway\Xendit\Channels\Invoice\MakePaymentUsi
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePayments;
-use App\Actions\Ordering\Order\AttachPaymentToOrder;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
-use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
-use App\Models\Ordering\Order;
-use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -40,7 +35,7 @@ class StorePayment extends OrgAction
 
     public string $commandSignature = 'payment:create {customer} {paymentAccount} {scope}';
 
-    public function handle(Customer $customer, PaymentAccount $paymentAccount, Invoice|Order $scope = null, array $modelData): Payment
+    public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
 
@@ -60,27 +55,16 @@ class StorePayment extends OrgAction
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
-        // todo: move this to a separate action
-        /*
-        match ($paymentAccount->type->value) {
-            PaymentAccountTypeEnum::CHECKOUT->value         => MakePaymentUsingCheckout::run($payment, $modelData),
-            PaymentAccountTypeEnum::XENDIT->value           => MakePaymentUsingXendit::run($payment),
-            PaymentAccountTypeEnum::PAYPAL->value           => MakePaymentUsingPaypal::run($payment, $modelData),
-            default                                         => null
-        };
-        */
 
-        if($scope instanceof Invoice) {
-            AttachPaymentToInvoice::make()->action($scope, $payment, [
-                'amount'    => Arr::get($modelData, 'amount'),
-                'reference' => Arr::get($modelData, 'reference')
-            ]);
-        } elseif ($scope instanceof Order) {
-            AttachPaymentToOrder::make()->action($scope, $payment, [
-                'amount'    => Arr::get($modelData, 'amount'),
-                'reference' => Arr::get($modelData, 'reference')
-            ]);
-        }
+        // if($this->strict) {
+        //     match ($paymentAccount->type->value) {
+        //         PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
+        //         PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
+        //         PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $modelData),
+        //         default                                 => null
+        //     };
+        // }
+
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
@@ -105,74 +89,43 @@ class StorePayment extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'reference'    => ['nullable', 'string', 'max:255'],
             'amount'       => ['required', 'decimal:0,2'],
             'org_amount'   => ['sometimes', 'numeric'],
             'group_amount' => ['sometimes', 'numeric'],
             'data'         => ['sometimes', 'array'],
-            // 'currency_id'  => ['required', 'exists:currencies,id'],
             'date'         => ['sometimes', 'date'],
             'created_at'   => ['sometimes', 'date'],
             'completed_at' => ['sometimes', 'nullable', 'date'],
-            'cancelled_at' => ['sometimes', 'nullable', 'date'],
             'status'       => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
             'state'        => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
-            'source_id'    => ['sometimes', 'string']
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']    = ['sometimes', 'string'];
+            $rules['cancelled_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Customer $customer, PaymentAccount $paymentAccount, Invoice $invoice = null, array $modelData, int $hydratorsDelay = 0): Payment
+    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Payment
     {
         $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($customer, $paymentAccount, $invoice, $this->validatedData);
+        return $this->handle($customer, $paymentAccount, $this->validatedData);
     }
 
-    public function asController(Customer $customer, PaymentAccount $paymentAccount, Invoice $scope = null, ActionRequest $request, int $hydratorsDelay = 0)
+    public function asController(Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request, int $hydratorsDelay = 0): void
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $request);
 
-        $this->handle($customer, $paymentAccount, $scope, $this->validatedData);
+        $this->handle($customer, $paymentAccount, $this->validatedData);
     }
 
-    public function inOrder(Customer $customer, PaymentAccount $paymentAccount, Order $scope = null, ActionRequest $request, int $hydratorsDelay = 0)
-    {
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromShop($customer->shop, $request);
-
-        $this->handle($customer, $paymentAccount, $scope, $this->validatedData);
-    }
-
-    public function asCommand(Command $command): int
-    {
-        $customer       = Customer::where('slug', $command->argument('customer'))->first();
-        $paymentAccount = PaymentAccount::where('slug', $command->argument('paymentAccount'))->first();
-        $scope          = Invoice::where('slug', $slug)->first() ?? Order::where('slug', $slug)->first() ?? null;
-
-        $modelData = [
-            'reference'   => rand(),
-            'currency_id' => 1,
-            'amount'      => 100,
-            'data'        => [
-                'card_name'         => 'Raul Inikoo',
-                'card_number'       => '4485040371536584',
-                'card_expiry_year'  => '2045',
-                'card_expiry_month' => '02',
-                'card_cvv'          => '000',
-            ]
-        ];
-
-        $this->handle($customer, $paymentAccount, $scope, $modelData);
-
-        return 0;
-    }
-
-    // public function afterValidator($validator)
-    // {
-    //     dd($validator);
-    // }
 }

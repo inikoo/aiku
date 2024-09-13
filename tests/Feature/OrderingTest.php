@@ -50,14 +50,14 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-        ) = createShop();
+    ) = createShop();
 
     $this->group = $this->organisation->group;
 
     list(
         $this->tradeUnit,
         $this->product
-        ) = createProduct($this->shop);
+    ) = createProduct($this->shop);
 
     $this->customer = createCustomer($this->shop);
 

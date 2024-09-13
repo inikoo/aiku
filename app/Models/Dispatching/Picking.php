@@ -52,11 +52,11 @@ use Illuminate\Support\Carbon;
 class Picking extends Model
 {
     use InShop;
-    
+
     protected $casts = [
-        'data'   => 'array',
-        'state'  => PickingStateEnum::class,
-        'outcome'   => PickingOutcomeEnum::class,
+        'data'              => 'array',
+        'state'             => PickingStateEnum::class,
+        'outcome'           => PickingOutcomeEnum::class,
         'vessel_picking'    => PickingVesselEnum::class,
         'vessel_packing'    => PickingVesselEnum::class
     ];
