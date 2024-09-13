@@ -60,31 +60,17 @@ class ShowOrgStockFamily extends OrgAction
                     'next'     => $this->getNext($orgStockFamily, $request),
                 ],
                 'pageHead'    => [
-                    'model'   => __('stock family'),
+                   // 'model'   => __('stock family'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-boxes-alt'],
                             'title' => __('stock family')
                         ],
-                    'title'   => $orgStockFamily->name,
-                    'actions' => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false
-                    ],
+                    'title'       => $orgStockFamily->name,
+                   'afterTitle'   => [
+                       'label'     => $orgStockFamily->code,
+                       'tooltip'   => __('reference')
+                   ],
                     'meta'    => [
                         [
                             'name'     => trans_choice('stock | stocks', $orgStockFamily->stats->number_org_stocks),

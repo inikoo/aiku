@@ -21,7 +21,6 @@ use App\Actions\Goods\StockFamily\UI\CreateStockFamily;
 use App\Actions\Goods\StockFamily\UI\EditStockFamily;
 use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Inventory\OrgStock\ExportOrgStocks;
-use App\Actions\Inventory\OrgStock\UI\EditOrgStock;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\ShowOrgStock;
 use App\Actions\Inventory\OrgStockFamily\UI\IndexOrgStockFamilies;
@@ -39,7 +38,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
 
         Route::prefix('{orgStock}')->group(function () {
             Route::get('', ShowOrgStock::class)->name('show');
-            Route::get('edit', EditOrgStock::class)->name('edit');
         });
     });
 
@@ -47,7 +45,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
         Route::get('/', [IndexOrgStocks::class, 'current'])->name('index');
         Route::prefix('{orgStock}')->group(function () {
             Route::get('', [ShowOrgStock::class, 'current'])->name('show');
-            Route::get('edit', [EditOrgStock::class, 'current'])->name('edit');
         });
     });
 
@@ -55,7 +52,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
         Route::get('/', [IndexOrgStocks::class, 'active'])->name('index');
         Route::prefix('{orgStock}')->group(function () {
             Route::get('', [ShowOrgStock::class, 'active'])->name('show');
-            Route::get('edit', [EditOrgStock::class, 'active'])->name('edit');
         });
     });
 
@@ -63,7 +59,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
         Route::get('/', [IndexOrgStocks::class, 'inProcess'])->name('index');
         Route::prefix('{orgStock}')->group(function () {
             Route::get('', [ShowOrgStock::class, 'inProcess'])->name('show');
-            Route::get('edit', [EditOrgStock::class, 'inProcess'])->name('edit');
         });
     });
 
@@ -71,7 +66,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
         Route::get('/', [IndexOrgStocks::class, 'discontinuing'])->name('index');
         Route::prefix('{orgStock}')->group(function () {
             Route::get('', [ShowOrgStock::class, 'discontinuing'])->name('show');
-            Route::get('edit', [EditOrgStock::class, 'discontinuing'])->name('edit');
         });
     });
 
@@ -79,7 +73,6 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
         Route::get('/', [IndexOrgStocks::class, 'discontinued'])->name('index');
         Route::prefix('{orgStock}')->group(function () {
             Route::get('', [ShowOrgStock::class, 'discontinued'])->name('show');
-            Route::get('edit', [EditOrgStock::class, 'discontinued'])->name('edit');
         });
     });
 });
