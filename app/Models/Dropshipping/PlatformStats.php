@@ -26,6 +26,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
+ * @property int|null $currency_id
+ * @property string|null $last_submitted_order_at
+ * @property string|null $last_dispatched_order_at
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -40,12 +43,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_orders_status_settled
  * @property int $number_orders_handing_type_collection
  * @property int $number_orders_handing_type_shipping
+ * @property string $invoiced_net_amount
+ * @property string $invoiced_org_net_amount
+ * @property string $invoiced_grp_net_amount
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
+ * @property string|null $last_invoiced_at
  * @property int $number_delivery_notes
  * @property int $number_delivery_notes_type_order
  * @property int $number_delivery_notes_type_replacement
+ * @property string|null $last_dispatched_delivery_note_at
  * @property int $number_delivery_notes_state_submitted
  * @property int $number_delivery_notes_state_in_queue
  * @property int $number_delivery_notes_state_picker_assigned
@@ -64,7 +72,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_delivery_notes_cancelled_at_state_packed
  * @property int $number_delivery_notes_cancelled_at_state_finalised
  * @property int $number_delivery_notes_cancelled_at_state_settled
- * @property int|null $currency_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|PlatformStats newModelQuery()

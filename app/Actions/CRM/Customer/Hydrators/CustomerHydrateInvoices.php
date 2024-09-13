@@ -36,8 +36,15 @@ class CustomerHydrateInvoices
 
         $numberInvoices = $customer->invoices()->count();
         $stats          = [
-            'number_invoices' => $numberInvoices,
+            'number_invoices'              => $numberInvoices,
+            'number_invoices_type_invoice' => $customer->invoices()->where('type', InvoiceTypeEnum::INVOICE)->count(),
+            'last_invoiced_at'             => $customer->invoices()->max('date'),
+            'invoiced_net_amount'          => $customer->invoices()->sum('net_amount'),
+            'invoiced_org_net_amount'      => $customer->invoices()->sum('org_net_amount'),
+            'invoiced_grp_net_amount'      => $customer->invoices()->sum('grp_net_amount'),
         ];
+        $stats['number_invoices_type_refund'] = $stats['number_invoices'] - $stats['number_invoices_type_invoice'];
+
 
         $updateData['trade_state']= match ($numberInvoices) {
             0       => CustomerTradeStateEnum::NONE,
