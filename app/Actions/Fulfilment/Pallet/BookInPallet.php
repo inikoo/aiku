@@ -35,7 +35,10 @@ class BookInPallet extends OrgAction
 
         $pallet             = $this->update($pallet, $modelData, ['data']);
         $pallet->refresh();
-        UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
+
+        if($pallet->palletDelivery) {
+            UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
+        }
 
         LocationHydratePallets::dispatch($pallet->location);
         PalletRecordSearch::dispatch($pallet);
@@ -66,6 +69,13 @@ class BookInPallet extends OrgAction
     public function asController(Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
+        return $this->handle($pallet, $this->validatedData);
+    }
+
+    public function fromApi(Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->initialisationFromWarehouse($pallet->warehouse, $request);
+
         return $this->handle($pallet, $this->validatedData);
     }
 

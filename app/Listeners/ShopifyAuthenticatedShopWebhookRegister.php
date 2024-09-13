@@ -2,9 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Actions\Dropshipping\Shopify\Webhook\StoreWebhooksToShopify;
 use App\Models\Dropshipping\ShopifyUser;
-use Arr;
 use Osiset\ShopifyApp\Messaging\Events\ShopAuthenticatedEvent;
 
 class ShopifyAuthenticatedShopWebhookRegister
@@ -23,9 +21,5 @@ class ShopifyAuthenticatedShopWebhookRegister
     public function handle(ShopAuthenticatedEvent $event): void
     {
         $shopifyUser = ShopifyUser::find($event->shopId->toNative());
-
-        if(!Arr::exists($shopifyUser->data, 'webhooks')) {
-            StoreWebhooksToShopify::run($shopifyUser);
-        }
     }
 }

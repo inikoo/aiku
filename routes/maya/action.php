@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
@@ -29,12 +30,15 @@ use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\UpdateProfile;
 
 Route::patch('location/{location:id}/pallet/{pallet:id}', UpdatePalletLocation::class)->name('pallet.location.update')->withoutScopedBindings();
+Route::patch('pallet/{pallet:id}/booked-in', [BookInPallet::class, 'fromApi'])->name('pallet.booked-in');
 Route::patch('pallet/{pallet:id}/return', ReturnPalletToCustomer::class)->name('pallet.return');
 Route::patch('pallet/{pallet:id}', [UpdatePallet::class, 'fromApi'])->name('pallet.update');
 Route::patch('pallet/{pallet:id}/not-received', SetPalletAsNotReceived::class)->name('pallet.not-received');
 Route::patch('pallet/{pallet:id}/undo-not-received', UndoBookedInPallet::class)->name('pallet.undo-not-received');
+
 Route::patch('pallet/{pallet:id}/damaged', SetPalletAsDamaged::class)->name('pallet.damaged');
 Route::patch('pallet/{pallet:id}/lost', SetPalletAsLost::class)->name('pallet.lost');
+
 Route::patch('pallet/{pallet:id}/set-rental', SetPalletRental::class)->name('pallet.set-rental');
 
 Route::prefix('pallet/{pallet:id}')->group(function () {

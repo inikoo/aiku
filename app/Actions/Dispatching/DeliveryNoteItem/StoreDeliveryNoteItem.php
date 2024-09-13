@@ -63,15 +63,15 @@ class StoreDeliveryNoteItem extends OrgAction
                 'nullable',
                 Rule::Exists('transactions', 'id')->where('shop_id', $this->shop->id)
             ];
-            $rules['state']= ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStateEnum::class)];
-            $rules['status']= ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStatusEnum::class)];
-            $rules['quantity_required']= ['sometimes', 'numeric'];
-            $rules['quantity_picked']= ['sometimes', 'numeric'];
-            $rules['quantity_packed']= ['sometimes', 'numeric'];
+            $rules['state']              = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStateEnum::class)];
+            $rules['status']             = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStatusEnum::class)];
+            $rules['quantity_required']  = ['sometimes', 'numeric'];
+            $rules['quantity_picked']    = ['sometimes', 'numeric'];
+            $rules['quantity_packed']    = ['sometimes', 'numeric'];
             $rules['quantity_dispatched']= ['sometimes', 'numeric'];
-            $rules['source_id']= ['sometimes', 'string','max:255'];
-            $rules['fetched_at']= ['sometimes', 'date'];
-            $rules['created_at']= ['sometimes', 'date'];
+            $rules['source_id']          = ['sometimes', 'string','max:255'];
+            $rules['fetched_at']         = ['sometimes', 'date'];
+            $rules['created_at']         = ['sometimes', 'date'];
 
         }
 
