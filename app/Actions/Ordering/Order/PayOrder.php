@@ -7,13 +7,10 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Accounting\CreditTransaction\StoreCreditTransaction;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\OrgAction;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
-use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
@@ -50,7 +47,7 @@ class PayOrder extends OrgAction
     {
         $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($order, $customer, $paymentAccount,  $this->validatedData);
+        return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
     }
 
     public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): void

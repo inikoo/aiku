@@ -84,7 +84,7 @@ class IndexFulfilmentRentals extends OrgAction
                 'rentals.auto_assign_asset',
                 'rentals.auto_assign_asset_type',
                 'rentals.created_at',
-                'rentals.price',
+                'rentals.price as rental_price',
                 'rentals.unit',
                 'assets.name',
                 'assets.code',
@@ -95,7 +95,7 @@ class IndexFulfilmentRentals extends OrgAction
             ]);
 
 
-        return $queryBuilder->allowedSorts(['id'])
+        return $queryBuilder->allowedSorts(['code','name','rental_price'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -209,8 +209,8 @@ class IndexFulfilmentRentals extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
+                ->column(key: 'rental_price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, searchable: true, className: 'hello')
                 ->defaultSort('code');
         };
     }
