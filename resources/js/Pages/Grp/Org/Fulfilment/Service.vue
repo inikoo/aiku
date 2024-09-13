@@ -17,7 +17,7 @@
   import Tabs from "@/Components/Navigation/Tabs.vue"
   import TableMailshots from "@/Components/Tables/TableMailshots.vue"
   import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
-  import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue"
+  import DummyTabComponent from "@/Components/DummyTabComponent.vue"
   import ProductService from "@/Components/Showcases/Grp/ProductService.vue"
   import ProductRental from "@/Components/Showcases/Grp/ProductRental.vue"
   
@@ -57,7 +57,7 @@
   
   const component = computed(() => {
       const components: {[key: string]: Component} = {
-          showcase: ProductShowcase,
+          showcase: DummyTabComponent,
           history: ModelChangelog,
       }
   

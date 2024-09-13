@@ -14,5 +14,6 @@ defineProps(['title','pageHead','stats'])
 <template>
     <Head />
     <PageHeading :data="pageHead"></PageHeading>
+    Dummy page for BE, FE will changes
 </template>
 
