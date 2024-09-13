@@ -56,14 +56,14 @@ class StorePayment extends OrgAction
         $payment = $paymentAccount->payments()->create($modelData);
 
 
-        if($this->strict) {
-            match ($paymentAccount->type->value) {
-                PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
-                PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
-                PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $modelData),
-                default                                 => null
-            };
-        }
+        // if($this->strict) {
+        //     match ($paymentAccount->type->value) {
+        //         PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
+        //         PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
+        //         PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $modelData),
+        //         default                                 => null
+        //     };
+        // }
 
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);

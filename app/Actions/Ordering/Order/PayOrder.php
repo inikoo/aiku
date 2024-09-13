@@ -46,6 +46,13 @@ class PayOrder extends OrgAction
         ];
     }
 
+    public function action(Order $order, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    {
+        $this->initialisationFromShop($customer->shop, $modelData);
+
+        return $this->handle($order, $customer, $paymentAccount,  $this->validatedData);
+    }
+
     public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): void
     {
         $this->initialisationFromShop($customer->shop, $request);
