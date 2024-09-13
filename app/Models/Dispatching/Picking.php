@@ -7,6 +7,10 @@
 
 namespace App\Models\Dispatching;
 
+use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
+use App\Enums\Dispatching\Picking\PickingStateEnum;
+use App\Enums\Dispatching\Picking\PickingVesselEnum;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -47,4 +51,19 @@ use Illuminate\Support\Carbon;
  */
 class Picking extends Model
 {
+    use InShop;
+    
+    protected $casts = [
+        'data'   => 'array',
+        'state'  => PickingStateEnum::class,
+        'outcome'   => PickingOutcomeEnum::class,
+        'vessel_picking'    => PickingVesselEnum::class,
+        'vessel_packing'    => PickingVesselEnum::class
+    ];
+
+    protected $guarded = [];
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
 }

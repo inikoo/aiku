@@ -13,6 +13,7 @@ use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -77,5 +78,10 @@ class DeliveryNoteItem extends Model
     public function pickings(): HasOne
     {
         return $this->hasOne(Picking::class);
+    }
+
+    public function deliveryNote(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryNote::class);
     }
 }

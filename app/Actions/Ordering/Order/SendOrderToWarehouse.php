@@ -74,13 +74,13 @@ class SendOrderToWarehouse extends OrgAction
 
         $deliveryNote = StoreDeliveryNote::make()->action($order, $deliveryNoteData);
 
-        $transactions = $order->transactions()->where('model_type', 'Product')->where('state', TransactionStateEnum::SUBMITTED)->get();
+        $transactions = $order->transactions()->where('model_type', 'Product')->get();
 
         /** @var Transaction $transaction */
         foreach ($transactions as $transaction) {
             $product = Product::find($transaction->model_id);
             foreach ($product->orgStocks as $orgStock) {
-                $quantity             = $orgStock->pivot->quantity * $transaction->ordered_quantity;
+                $quantity             = $orgStock->pivot->quantity * $transaction->quantity_ordered;
                 $deliveryNoteItemData = [
                     'org_stock_id'      => $orgStock->id,
                     'transaction_id'    => $transaction->id,
