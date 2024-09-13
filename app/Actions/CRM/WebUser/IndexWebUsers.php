@@ -114,29 +114,29 @@ class IndexWebUsers extends OrgAction
                 'label'     => __('Web users')
             ];
         } elseif($this->parent instanceof Customer) {
-                if($this->parent->is_dropshipping == true) {
-                    $subNavigation=$this->getCustomerSubNavigation($this->parent, $request);
-                    $icon         =['fal', 'fa-user'];
-                    $title        =$this->parent->name;
-                    $iconRight    =[
-                        'icon' => 'fal fa-terminal',
-                    ];
-                    $afterTitle= [
-        
-                        'label'     => __('Web users')
-                    ];
-                } else {
-                    $subNavigation=$this->getShopCustomerSubNavigation($this->parent, $request);
-                    $icon         =['fal', 'fa-user'];
-                    $title        =$this->parent->name;
-                    $iconRight    =[
-                        'icon' => 'fal fa-terminal',
-                    ];
-                    $afterTitle= [
-        
-                        'label'     => __('Web users')
-                    ];
-                }
+            if($this->parent->is_dropshipping == true) {
+                $subNavigation=$this->getCustomerSubNavigation($this->parent, $request);
+                $icon         =['fal', 'fa-user'];
+                $title        =$this->parent->name;
+                $iconRight    =[
+                    'icon' => 'fal fa-terminal',
+                ];
+                $afterTitle= [
+
+                    'label'     => __('Web users')
+                ];
+            } else {
+                $subNavigation=$this->getShopCustomerSubNavigation($this->parent, $request);
+                $icon         =['fal', 'fa-user'];
+                $title        =$this->parent->name;
+                $iconRight    =[
+                    'icon' => 'fal fa-terminal',
+                ];
+                $afterTitle= [
+
+                    'label'     => __('Web users')
+                ];
+            }
 
         }
 

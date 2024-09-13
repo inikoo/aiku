@@ -8,8 +8,9 @@
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
-use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Actions\SupplyChain\Agent\UI\ShowAgent;
+use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
+use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -27,6 +28,34 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexSupplierProducts extends GrpAction
 {
+    private Group|Agent|Supplier $scope;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
+
+        return $request->user()->hasPermissionTo('supply-chain.view');
+    }
+
+    protected function getElementGroups(Group|Agent|Supplier $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    SupplierProductStateEnum::labels(),
+                    SupplierProductStateEnum::count($parent)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('supplier_products.state', $elements);
+                }
+            ],
+
+
+        ];
+    }
+
     public function handle(Group|Agent|Supplier $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -40,7 +69,9 @@ class IndexSupplierProducts extends GrpAction
         }
 
         $queryBuilder = QueryBuilder::for(SupplierProduct::class);
-        foreach ($this->elementGroups as $key => $elementGroup) {
+
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -65,7 +96,7 @@ class IndexSupplierProducts extends GrpAction
                 } elseif (class_basename($parent) == 'Supplier') {
                     $query->where('supplier_products.supplier_id', $parent->id);
                 } else {
-                    $query->where('supplier_products.group_id', $this->group->if);
+                    $query->where('supplier_products.group_id', $this->group->id);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -91,23 +122,9 @@ class IndexSupplierProducts extends GrpAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
-            );
-    }
-
-    public function inGroup(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation(app('group'), $request);
-        return $this->handle($this->group);
-    }
-
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope = $agent;
         $this->initialisation(app('group'), $request);
 
         return $this->handle($agent);
@@ -115,33 +132,43 @@ class IndexSupplierProducts extends GrpAction
 
     public function inSupplier(Supplier $supplier, ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope = $supplier;
         $this->initialisation(app('group'), $request);
 
         return $this->handle($supplier);
     }
 
-    public function asController(Agent $agent, Supplier $supplier, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inSupplierInAgent(Agent $agent, Supplier $supplier, ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope = $supplier;
         $this->initialisation(app('group'), $request);
 
         return $this->handle($supplier);
     }
 
+    public function asController(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->scope = app('group');
+        $this->initialisation(app('group'), $request);
+
+        return $this->handle($this->group);
+    }
 
     public function jsonResponse(LengthAwarePaginator $supplier_products): AnonymousResourceCollection
     {
         return SupplierProductsResource::collection($supplier_products);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Procurement/SupplierProducts',
+            'SupplyChain/SupplierProducts',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $request->route()->originalParameters()
+                    $request->route()->originalParameters(),
+                    $this->scope
                 ),
                 'title'       => __('supplier_products'),
                 'pageHead'    => [
@@ -155,7 +182,7 @@ class IndexSupplierProducts extends GrpAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, Group|Agent|Supplier $scope): array
     {
         $headCrumb = function (array $routeParameters = []) {
             return [
@@ -173,7 +200,7 @@ class IndexSupplierProducts extends GrpAction
         return match ($routeName) {
             'grp.supply-chain.supplier_products.index' =>
             array_merge(
-                ShowProcurementDashboard::make()->getBreadcrumbs(),
+                ShowSupplyChainDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'grp.supply-chain.supplier_products.index',
@@ -185,7 +212,7 @@ class IndexSupplierProducts extends GrpAction
 
             'grp.supply-chain.agents.show.supplier_products.index' =>
             array_merge(
-                (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
+                ShowAgent::make()->getBreadcrumbs($scope, $routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.supply-chain.agents.show.supplier_products.index',

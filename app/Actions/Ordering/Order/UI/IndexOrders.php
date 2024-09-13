@@ -43,8 +43,8 @@ class IndexOrders extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    OrderStateEnum::labels(forElements: true),
-                    OrderStateEnum::count($parent, forElements: true)
+                    OrderStateEnum::labels(),
+                    OrderStateEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {

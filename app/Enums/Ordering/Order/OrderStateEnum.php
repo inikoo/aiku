@@ -27,7 +27,7 @@ enum OrderStateEnum: string
     case DISPATCHED   = 'dispatched';
     case CANCELLED    = 'cancelled';
 
-    public static function labels($forElements = false): array
+    public static function labels(): array
     {
         return [
             'creating'          => __('Creating'),
@@ -43,7 +43,6 @@ enum OrderStateEnum: string
 
     public static function stateIcon(): array
     {
-        // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
             'creating'   => [
                 'tooltip' => __('Creating'),
@@ -128,10 +127,8 @@ enum OrderStateEnum: string
         ];
     }
 
-    public static function count(
-        Organisation|Shop|Customer|CustomerClient|Asset $parent,
-        $forElements = false
-    ): array {
+    public static function count(Organisation|Shop|Customer|CustomerClient|Asset $parent): array
+    {
         if ($parent instanceof Organisation || $parent instanceof Shop) {
             $stats = $parent->salesStats;
         } elseif ($parent instanceof CustomerClient) {
