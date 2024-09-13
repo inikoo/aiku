@@ -153,6 +153,7 @@ class IndexRecurringBills extends OrgAction
         $title     =__('recurring bills');
         $afterTitle=null;
         $iconRight =null;
+        $model = null;
 
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
@@ -165,6 +166,8 @@ class IndexRecurringBills extends OrgAction
 
                 'label'     => __('recurring bills')
             ];
+        } elseif ($this->parent instanceof Fulfilment) {
+            $model = __('Operations');
         }
 
         return Inertia::render(
@@ -177,6 +180,7 @@ class IndexRecurringBills extends OrgAction
                 'title'       => __('recurring bills'),
                 'pageHead'    => [
                     'title'         => $title,
+                    'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,

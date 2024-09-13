@@ -149,6 +149,7 @@ class IndexFulfilmentServices extends OrgAction
                         'icon'  => ['fal', 'fa-concierge-bell'],
                         'title' => __('services')
                     ],
+                    'model'         => __('Billables'),
                     'title'   => __('services'),
                     'actions' => [
                         [

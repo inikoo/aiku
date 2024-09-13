@@ -138,6 +138,7 @@ class IndexFulfilmentRentals extends OrgAction
                         'icon'  => ['fal', 'fa-garage'],
                         'title' => __('rentals')
                     ],
+                    'model'         => __('Billables'),
                     'title'   => __('rentals'),
                     'actions' => [
                         [

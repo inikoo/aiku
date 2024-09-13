@@ -202,6 +202,7 @@ class IndexPalletReturns extends OrgAction
         $title     =__('returns');
         $afterTitle=null;
         $iconRight =null;
+        $model = null;
 
         if($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
@@ -214,6 +215,8 @@ class IndexPalletReturns extends OrgAction
 
                 'label'     => __('returns')
             ];
+        } elseif ($this->parent instanceof Fulfilment) {
+            $model = __('Operations');
         }
 
         return Inertia::render(
@@ -226,6 +229,7 @@ class IndexPalletReturns extends OrgAction
                 'title'       => __('pallet returns'),
                 'pageHead'    => [
                     'title'         => $title,
+                    'model'         => $model,
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
