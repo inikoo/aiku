@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faEnvelope, faPhone, faDollarSign, faWeight } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
+import { Link } from '@inertiajs/vue3'
 library.add(faIdCardAlt, faEnvelope, faPhone, faDollarSign, faWeight)
 
 const props = defineProps<{
@@ -70,7 +71,7 @@ const props = defineProps<{
                     <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <a :href="`mailto:${boxStats?.customer.email}`" v-tooltip="'Click to send email'"
-                    class="text-sm text-gray-500 hover:text-gray-700">{{ boxStats?.customer.email }}</a>
+                    class="text-sm text-gray-500 hover:text-gray-700 truncate">{{ boxStats?.customer.email }}</a>
             </div>
 
             <!-- Field: Phone -->

@@ -86,12 +86,12 @@ class IndexDeliveryNoteItems extends OrgAction
                     ]
                 );
 
+            $table->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'org_stock_code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'org_stock_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_required', label: __('Quantity Required'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_picked', label: __('Quantity Picked'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_packed', label: __('Quantity Packed'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

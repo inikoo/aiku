@@ -22,7 +22,10 @@ import type { Component } from 'vue'
 import { useTabChange } from '@/Composables/tab-change'
 import BoxStatsDeliveryNote from '@/Components/Warehouse/DeliveryNotes/BoxStatsDeliveryNote.vue'
 import DeliveryNotesShowcase from '@/Components/Warehouse/DeliveryNotes/DeliveryNotesShowcase.vue'
+import DeliveryNoteSKOSOrdered from '@/Components/Warehouse/DeliveryNotes/DeliveryNoteSKOSOrdered.vue'
+import TableSKOSOrdered from '@/Pages/Grp/Org/Dispatching/TableSKOSOrdered.vue'
 import { routeType } from '@/types/route'
+import Tabs from '@/Components/Navigation/Tabs.vue'
 
 
 library.add(faFolder, faCube)
@@ -34,6 +37,7 @@ const props = defineProps<{
     showcase: {
         
     }
+    skos_ordered: {}
     delivery_note: {}
     alert?: {
         status: string
@@ -67,7 +71,8 @@ const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
-        showcase: DeliveryNotesShowcase
+        showcase: DeliveryNotesShowcase,
+        skos_ordered: TableSKOSOrdered,
     }
 
     return components[currentTab.value]
