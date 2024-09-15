@@ -59,6 +59,7 @@ class FetchAuroraNoProductTransactions
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
+                strict: false
             );
         } else {
             $transaction = StoreTransactionFromAdjustment::make()->action(
@@ -83,6 +84,7 @@ class FetchAuroraNoProductTransactions
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
+                strict: false
             );
         } else {
             $transaction = StoreTransactionFromShipping::make()->action(
@@ -106,6 +108,7 @@ class FetchAuroraNoProductTransactions
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
+                strict: false
             );
         } else {
             $transaction = StoreTransactionFromCharge::make()->action(
