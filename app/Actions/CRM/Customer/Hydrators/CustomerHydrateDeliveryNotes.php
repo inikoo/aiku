@@ -37,7 +37,6 @@ class CustomerHydrateDeliveryNotes
 
     public function handle(Customer $customer): void
     {
-        dd('aaaa');
 
         $stats=$this->getDeliveryNotesStats($customer);
 
@@ -79,8 +78,6 @@ class CustomerHydrateDeliveryNotes
                 }
             )
         );
-
-        dd($stats);
 
         $customer->stats()->update($stats);
     }
