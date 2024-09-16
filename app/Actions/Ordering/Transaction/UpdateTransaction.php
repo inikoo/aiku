@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
@@ -25,15 +26,17 @@ class UpdateTransaction extends OrgAction
 
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
+
         if(Arr::exists($modelData, 'quantity_ordered')) {
 
             if($this->strict) {
                 $historicAsset=$transaction->historicAsset;
             } else {
-                $historicAsset=Transaction::withTrashed()->find($transaction->historic_asset_id);
+                $historicAsset=HistoricAsset::withTrashed()->find($transaction->historic_asset_id);
             }
 
             $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+            // todo deal with discounts
             $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
             data_set($modelData, 'gross_amount', $gross);

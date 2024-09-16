@@ -26,6 +26,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\Fulfilment;
@@ -298,6 +299,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function deliveryNotes(): HasMany
+    {
+        return $this->hasMany(DeliveryNote::class);
     }
 
     public function products(): HasMany

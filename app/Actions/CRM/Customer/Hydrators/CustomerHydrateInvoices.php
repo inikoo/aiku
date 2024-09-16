@@ -36,7 +36,6 @@ class CustomerHydrateInvoices
 
     public function handle(Customer $customer): void
     {
-
         $stats=$this->getInvoicesStats($customer);
 
         $updateData['trade_state']= match ($stats['number_invoices']) {

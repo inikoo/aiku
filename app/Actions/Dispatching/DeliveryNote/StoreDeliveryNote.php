@@ -7,8 +7,12 @@
 
 namespace App\Actions\Dispatching\DeliveryNote;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDeliveryNotes;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\Search\DeliveryNoteRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDeliveryNotes;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
@@ -30,10 +34,9 @@ class StoreDeliveryNote extends OrgAction
     use WithFixedAddressActions;
     use WithModelAddressActions;
 
-    public function handle(
-        Order $order,
-        array $modelData,
-    ): DeliveryNote {
+    public function handle(Order $order, array $modelData): DeliveryNote
+    {
+
         $deliveryAddress = $modelData['delivery_address'];
         data_forget($modelData, 'delivery_address');
 
@@ -69,7 +72,12 @@ class StoreDeliveryNote extends OrgAction
             ]
         );
 
-        DeliveryNoteRecordSearch::dispatch($deliveryNote);
+        DeliveryNoteRecordSearch::dispatch($deliveryNote)->delay($this->hydratorsDelay);
+        GroupHydrateDeliveryNotes::dispatch($deliveryNote->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateDeliveryNotes::dispatch($deliveryNote->organisataion)->delay($this->hydratorsDelay);
+        ShopHydrateDeliveryNotes::dispatch($deliveryNote->shop)->delay($this->hydratorsDelay);
+        CustomerHydrateDeliveryNotes::dispatch($deliveryNote->customer)->delay($this->hydratorsDelay);
+
 
         return $deliveryNote;
     }
@@ -77,7 +85,7 @@ class StoreDeliveryNote extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'           => [
+            'reference'        => [
                 'required',
                 'max:64',
                 'string',
@@ -133,11 +141,9 @@ class StoreDeliveryNote extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-
-        if(!$this->has('warehouse_id')) {
+        if (!$this->has('warehouse_id')) {
             $warehouse = $this->shop->organisation->warehouses()->first();
             $this->set('warehouse_id', $warehouse->id);
         }
-
     }
 }

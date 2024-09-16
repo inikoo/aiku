@@ -8,6 +8,7 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
@@ -28,8 +29,9 @@ trait HasSalesStats
 
     public function ordersStatsFields(Blueprint $table): Blueprint
     {
-        $table->dateTimeTz('last_submitted_order_at')->nullable();
-        $table->dateTimeTz('last_dispatched_order_at')->nullable();
+        $table->dateTimeTz('last_order_created_at')->nullable();
+        $table->dateTimeTz('last_order_submitted_at')->nullable();
+        $table->dateTimeTz('last_order_dispatched_at')->nullable();
         $table->unsignedInteger('number_orders')->default(0);
 
         foreach (OrderStateEnum::cases() as $case) {
@@ -62,10 +64,21 @@ trait HasSalesStats
 
     public function deliveryNotesStatsFields(Blueprint $table): Blueprint
     {
+        $table->dateTimeTz('last_delivery_note_created_at')->nullable();
+        $table->dateTimeTz('last_delivery_note_dispatched_at')->nullable();
+
+        $table->dateTimeTz('last_delivery_note_type_order_created_at')->nullable();
+        $table->dateTimeTz('last_delivery_note_type_order_dispatched_at')->nullable();
+
+        $table->dateTimeTz('last_delivery_note_type_replacement_created_at')->nullable();
+        $table->dateTimeTz('last_delivery_note_type_replacement_dispatched_at')->nullable();
+
+
         $table->unsignedInteger('number_delivery_notes')->default(0);
-        $table->unsignedInteger('number_delivery_notes_type_order')->default(0);
-        $table->unsignedInteger('number_delivery_notes_type_replacement')->default(0);
-        $table->dateTimeTz('last_dispatched_delivery_note_at')->nullable();
+
+        foreach (DeliveryNoteTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_delivery_notes_type_'.$case->snake())->default(0);
+        }
 
         foreach (DeliveryNoteStateEnum::cases() as $case) {
             $table->unsignedInteger('number_delivery_notes_state_'.$case->snake())->default(0);
