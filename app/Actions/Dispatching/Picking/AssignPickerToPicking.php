@@ -9,15 +9,18 @@ namespace App\Actions\Dispatching\Picking;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class UpdatePickingStateToPicking extends OrgAction
+class AssignPickerToPicking extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -27,25 +30,14 @@ class UpdatePickingStateToPicking extends OrgAction
 
     public function handle(Picking $picking, array $modelData): Picking
     {
-        if(!$picking->picker_id)
-        {
-            data_set($modelData, 'picker_id', Arr::get($modelData, 'picker'));
-        } 
-        if(!$picking->picker_assigned_at)
-        {
-            data_set($modelData, 'picker_assigned_at', now());
-        }
-        data_set($modelData, 'picking_at', now());
-        data_set($modelData, 'state', PickingStateEnum::PICKING->value);
-        data_set($modelData, 'vessel_picking', PickingVesselEnum::AIKU->value);
-
+        data_set($modelData, 'picker_assigned_at', now());
         return $this->update($picking, $modelData);
     }
 
     public function rules(): array
     {
         return [
-            'picker' => ['sometimes', 'exists:users,id'],
+            'picker_id' => ['sometimes', 'exists:users,id'],
         ];
     }
 
