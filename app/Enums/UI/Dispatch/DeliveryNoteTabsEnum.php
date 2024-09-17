@@ -45,7 +45,7 @@ enum DeliveryNoteTabsEnum: string
             // ],
             DeliveryNoteTabsEnum::PICKINGS => [
                 'title' => __('pickings '),
-                'icon'  => 'fal fa-bars',
+                'icon'  => 'fal fa-box-full',
                 'type'  => 'icon',
                 'align' => 'right',
             ],

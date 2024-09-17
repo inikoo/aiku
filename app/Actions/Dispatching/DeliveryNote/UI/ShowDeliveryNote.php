@@ -47,8 +47,7 @@ class ShowDeliveryNote extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Order)
-        {
+        if ($this->parent instanceof Order) {
             return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
         }
         return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
@@ -152,10 +151,24 @@ class ShowDeliveryNote extends OrgAction
                     'products'  => [
                         'estimated_weight' => $estWeight,
                         'number_items'     => $deliveryNote->stats->number_items,
-                        'payment'          => [
-                            'total_amount'=> 11111111,
-                            'isPaidOff'   => true,
-                        ],
+                        'routes'           => [
+                            'picker_list' => [
+                                'name'       => 'grp.profile.show',
+                                'parameters' => null
+                            ],
+                            'submit_picker' => [
+                                'name'       => 'grp.profile.show',
+                                'parameters' => null
+                            ],
+                            'packer_list' => [
+                                'name'       => 'grp.profile.show',
+                                'parameters' => null
+                            ],
+                            'submit_packer' => [
+                                'name'       => 'grp.profile.show',
+                                'parameters' => null
+                            ],
+                        ]
                     ],
                     'warehouse' => [
                         'picker' => $deliveryNote->picker->alias ?? null,
@@ -210,7 +223,8 @@ class ShowDeliveryNote extends OrgAction
                 : Inertia::lazy(fn () => PickingsResource::collection(IndexPickings::run($deliveryNote))),
             ]
         )
-        ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::SKOS_ORDERED->value));
+        ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::SKOS_ORDERED->value))
+        ->table(IndexPickings::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::PICKINGS->value));
     }
 
     public function prepareForValidation(ActionRequest $request): void

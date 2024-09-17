@@ -10,6 +10,7 @@ import { Link } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import { Order } from "@/types/order"
 import type { Links, Meta, Table as TableTS } from "@/types/Table"
+import Icon from "@/Components/Icon.vue"
 // import { useFormatTime } from '@/Composables/useFormatTime'
 
 defineProps<{
@@ -35,6 +36,11 @@ function deliveryNoteRoute(deliveryNote: Order) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: state -->
+        <template #cell(state)="{ item }">
+            <Icon :data="item.state_icon" />
+        </template>
+
         <!-- Column: Reference -->
         <template #cell(org_stock_code)="{ item: deliveryNote }">
             <Link :href="deliveryNoteRoute(deliveryNote)" class="primaryLink">

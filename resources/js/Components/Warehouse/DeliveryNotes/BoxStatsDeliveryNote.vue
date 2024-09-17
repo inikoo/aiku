@@ -6,11 +6,14 @@ import { Address } from '@/types/PureComponent/Address'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faIdCardAlt, faEnvelope, faPhone, faDollarSign, faWeight } from '@fal'
+import { faIdCardAlt, faEnvelope, faPhone, faGift, faBoxFull, faWeight } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import OrderSummary from '@/Components/Summary/OrderSummary.vue'
 import { Link } from '@inertiajs/vue3'
-library.add(faIdCardAlt, faEnvelope, faPhone, faDollarSign, faWeight)
+import PureMultiselectInfiniteScroll from '@/Components/Pure/PureMultiselectInfiniteScroll.vue'
+import { ref } from 'vue'
+import { routeType } from '@/types/route'
+library.add(faIdCardAlt, faEnvelope, faPhone, faGift, faBoxFull, faWeight)
 
 const props = defineProps<{
     boxStats: {
@@ -30,13 +33,34 @@ const props = defineProps<{
                 pay_amount?: number
                 isPaidOff?: boolean
             }
+            routes: {
+                picker_list: routeType
+                submit_picker: routeType
+                packer_list: routeType
+                submit_packer: routeType
+            }
+        }
+        warehouse: {
+            picker: string
+            packer: string
         }
     }
 }>()
 
+
+// Section: Picker
+const selectedPicker = ref<number>(0)
+const onSelectPicker = () => {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 </script>
 
 <template>
+    {{ boxStats.warehouse }}
     <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
             <!-- Field: Reference Number -->
@@ -50,19 +74,19 @@ const props = defineProps<{
             </Link>
 
             <!-- Field: Contact name -->
-            <div v-if="boxStats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
+            <div v-if="boxStats?.customer.contact_name" class="pl-1 flex items-center w-full flex-none gap-x-2" v-tooltip="trans('Contact name')">
+                <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-sm text-gray-500" v-tooltip="'Contact name'">{{ boxStats?.customer.contact_name }}</dd>
+                <dd class="text-sm text-gray-500">{{ boxStats?.customer.contact_name }}</dd>
             </div>
 
             <!-- Field: Company name -->
-            <div v-if="boxStats?.customer.company_name" class="pl-1 flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
+            <div v-if="boxStats?.customer.company_name" class="pl-1 flex items-center w-full flex-none gap-x-2" v-tooltip="trans('Company name')">
+                <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-sm text-gray-500" v-tooltip="'Company name'">{{ boxStats?.customer.company_name }}</dd>
+                <dd class="text-sm text-gray-500">{{ boxStats?.customer.company_name }}</dd>
             </div>
 
             <!-- Field: Email -->
@@ -94,44 +118,46 @@ const props = defineProps<{
             </div>
         </BoxStatPallet>
 
+
         <!-- Box: Product stats -->
         <BoxStatPallet class="py-4 pl-1.5 pr-3" icon="fal fa-user">
-            <div class="relative flex items-start w-full flex-none gap-x-1">
-                <dt class="flex-none pt-0.5">
-                    <FontAwesomeIcon icon='fal fa-dollar-sign' fixed-width aria-hidden='true' class="text-gray-500" />
+            <div v-tooltip="trans('Picker name')" class="mt-1 flex items-center w-full pr-3 flex-none gap-x-1.5">
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-box-full' fixed-width aria-hidden='true' class="text-gray-500" />
                 </dt>
-
-                <NeedToPay
-                    v-if="boxStats.products?.payment"
-                    :totalAmount="boxStats.products.payment.total_amount"
-                    :paidAmount="boxStats.products.payment.paid_amount"
-                    :payAmount="boxStats.products.payment.pay_amount"
-                    :isPaidOff="boxStats.products.payment.isPaidOff"
-                />
+                <dd class="text-gray-500 w-full">
+                    <PureMultiselectInfiniteScroll
+                        v-model="boxStats.warehouse.picker"
+                        :fetchRoute="boxStats.products.routes.picker_list"
+                        :placeholder="trans('Select picker name')"
+                        valueProp="id"
+                    />
+                </dd>
             </div>
-
-            <div class="mt-1 flex items-center w-full flex-none gap-x-1.5">
+            
+            <div v-tooltip="trans('Packer name')" class="mt-1 flex items-center pr-3 flex-none gap-x-1.5">
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-gift' fixed-width aria-hidden='true' class="text-gray-500" />
+                </dt>
+                <dd class="text-gray-500 w-full">
+                    <PureMultiselectInfiniteScroll
+                        v-model="boxStats.warehouse.packer"
+                        :fetchRoute="boxStats.products.routes.picker_list"
+                        :placeholder="trans('Select packer name')"
+                        valueProp="id"
+                    />
+                </dd>
+            </div>
+            
+            <div v-tooltip="trans('Estimated weight of all products')" class="mt-1 flex items-center w-fit pr-3 flex-none gap-x-1.5">
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-weight' fixed-width aria-hidden='true' class="text-gray-500" />
                 </dt>
-                <dd class="text-gray-500" v-tooltip="trans('Estimated weight of all products')">
+                <dd class="text-gray-500">
                     {{ boxStats?.products.estimated_weight || 0 }} kilograms
                 </dd>
             </div>
         </BoxStatPallet>
 
-        <!-- Box: Order summary -->
-        <BoxStatPallet v-if="boxStats.order_summary" class="col-span-2 border-t lg:border-t-0 border-gray-300">
-            <section aria-labelledby="summary-heading" class="rounded-lg px-4 py-4 sm:px-6 lg:mt-0">
-                <!-- <h2 id="summary-heading" class="text-lg font-medium">Order summary</h2> -->
-
-                <OrderSummary :order_summary="boxStats.order_summary" />
-
-                <!-- <div class="mt-6">
-                    <button type="submit"
-                        class="w-full rounded-md border border-transparent bg-indigo-600 px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50">Checkout</button>
-                </div> -->
-            </section>
-        </BoxStatPallet>
     </div>
 </template>

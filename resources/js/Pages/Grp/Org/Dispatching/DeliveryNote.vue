@@ -21,9 +21,8 @@ import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 import { useTabChange } from '@/Composables/tab-change'
 import BoxStatsDeliveryNote from '@/Components/Warehouse/DeliveryNotes/BoxStatsDeliveryNote.vue'
-import DeliveryNotesShowcase from '@/Components/Warehouse/DeliveryNotes/DeliveryNotesShowcase.vue'
-import DeliveryNoteSKOSOrdered from '@/Components/Warehouse/DeliveryNotes/DeliveryNoteSKOSOrdered.vue'
-import TableSKOSOrdered from '@/Pages/Grp/Org/Dispatching/TableSKOSOrdered.vue'
+import TableSKOSOrdered from '@/Components/Warehouse/DeliveryNotes/TableSKOSOrdered.vue'
+import TablePickings from '@/Components/Warehouse/DeliveryNotes/TablePickings.vue'
 import { routeType } from '@/types/route'
 import Tabs from '@/Components/Navigation/Tabs.vue'
 
@@ -38,6 +37,7 @@ const props = defineProps<{
         
     }
     skos_ordered: {}
+    pickings: {}
     delivery_note: {}
     alert?: {
         status: string
@@ -64,6 +64,8 @@ const props = defineProps<{
     routes: {
         update: routeType
         products_list: routeType
+        pickers_list: routeType
+        packers_list: routeType
     }
 }>()
 
@@ -71,8 +73,8 @@ const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
-        showcase: DeliveryNotesShowcase,
         skos_ordered: TableSKOSOrdered,
+        pickings: TablePickings,
     }
 
     return components[currentTab.value]
@@ -106,11 +108,11 @@ const component = computed(() => {
     </div>
 
     <!-- Section: Timeline -->
-    <div class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+    <div class="mt-4 sm:mt-1 border-b border-gray-200 pb-2">
         <Timeline
             v-if="timelines"
             :options="timelines"
-            :state="null"
+            :state="undefined"
             :slidesPerView="6"
         />
     </div>
@@ -120,7 +122,7 @@ const component = computed(() => {
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
     <div class="pb-12">
-        <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+        <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :routes />
     </div>
 
     <!-- <pre>{{ props }}</pre> -->
