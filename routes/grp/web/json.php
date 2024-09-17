@@ -10,6 +10,8 @@ use App\Actions\Catalogue\Collection\Json\GetCollections;
 use App\Actions\Catalogue\Product\Json\GetProducts;
 use App\Actions\Catalogue\ProductCategory\Json\GetDepartments;
 use App\Actions\Catalogue\ProductCategory\Json\GetFamilies;
+use App\Actions\Dispatching\Picking\Packer\Json\GetPackers;
+use App\Actions\Dispatching\Picking\Picker\Json\GetPickers;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\PalletDelivery\Json\GetFulfilmentServices;
 use App\Actions\Fulfilment\PalletReturn\Json\GetReturnPallets;
@@ -46,3 +48,6 @@ Route::get('shop/{shop}/catalogue/order/{scope}/products', [GetProducts::class, 
 Route::get('shop/{shop}/catalogue/{scope}/departments', GetDepartments::class)->name('shop.catalogue.departments');
 Route::get('shop/{shop}/catalogue/{scope}/families', GetFamilies::class)->name('shop.catalogue.families');
 Route::get('shop/{shop}/catalogue/{scope}/collections', GetCollections::class)->name('shop.catalogue.collections');
+
+Route::get('organisation/{organisation}/employees/packers', GetPackers::class)->name('employees.packers');
+Route::get('organisation/{organisation}/employees/pickers', GetPickers::class)->name('employees.pickers');

@@ -20,7 +20,7 @@ enum DeliveryNoteTabsEnum: string
     // case UNITS                  = 'units';
     // case TARIFF_CODES_ORIGIN    = 'tariff_codes_origin';
 
-    case DATA                   = 'data';
+    case PICKINGS                   = 'pickings';
 
     // case CHANGELOG              = 'changelog';
 
@@ -43,9 +43,11 @@ enum DeliveryNoteTabsEnum: string
             //     'title' => __('Tariff codes / Origin'),
             //     'icon'  => 'fal fa-compress-arrows-alt',
             // ],
-            DeliveryNoteTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
+            DeliveryNoteTabsEnum::PICKINGS => [
+                'title' => __('pickings '),
+                'icon'  => 'fal fa-bars',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             // DeliveryNoteTabsEnum::CHANGELOG     => [
             //     'title' => __('changelog'),
