@@ -15,14 +15,14 @@ enum DeliveryNoteTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE               = 'showcase';
+    // case SHOWCASE               = 'showcase';
     case SKOS_ORDERED           = 'skos_ordered';
-    case UNITS                  = 'units';
-    case TARIFF_CODES_ORIGIN    = 'tariff_codes_origin';
+    // case UNITS                  = 'units';
+    // case TARIFF_CODES_ORIGIN    = 'tariff_codes_origin';
 
     case DATA                   = 'data';
 
-    case CHANGELOG              = 'changelog';
+    // case CHANGELOG              = 'changelog';
 
 
 
@@ -35,26 +35,26 @@ enum DeliveryNoteTabsEnum: string
                 'title' => __('SKOs ordered'),
                 'icon'  => 'fal fa-bars',
             ],
-            DeliveryNoteTabsEnum::UNITS     => [
-                'title' => __('units'),
-                'icon'  => 'fal fa-dot-circle',
-            ],
-            DeliveryNoteTabsEnum::TARIFF_CODES_ORIGIN             => [
-                'title' => __('Tariff codes / Origin'),
-                'icon'  => 'fal fa-compress-arrows-alt',
-            ],
+            // DeliveryNoteTabsEnum::UNITS     => [
+            //     'title' => __('units'),
+            //     'icon'  => 'fal fa-dot-circle',
+            // ],
+            // DeliveryNoteTabsEnum::TARIFF_CODES_ORIGIN             => [
+            //     'title' => __('Tariff codes / Origin'),
+            //     'icon'  => 'fal fa-compress-arrows-alt',
+            // ],
             DeliveryNoteTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            DeliveryNoteTabsEnum::CHANGELOG     => [
-                'title' => __('changelog'),
-                'icon'  => 'fal fa-road',
-            ],
-            DeliveryNoteTabsEnum::SHOWCASE => [
-                'title' => __('agent'),
-                'icon'  => 'fas fa-info-circle',
-            ],
+            // DeliveryNoteTabsEnum::CHANGELOG     => [
+            //     'title' => __('changelog'),
+            //     'icon'  => 'fal fa-road',
+            // ],
+            // DeliveryNoteTabsEnum::SHOWCASE => [
+            //     'title' => __('agent'),
+            //     'icon'  => 'fas fa-info-circle',
+            // ],
         };
     }
 }
