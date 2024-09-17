@@ -6,7 +6,12 @@
  */
 
 
-use App\Actions\Dispatching\Picking\UpdatePicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToDone;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPacking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToQueried;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToWaiting;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
@@ -63,6 +68,11 @@ Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnA
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
 
-Route::patch('pickings/{picking:id}', UpdatePicking::class)->name('pickings.update');
+Route::patch('pickings/{picking:id}/picking', UpdatePickingStateToPicking::class)->name('pickings.picking');
+Route::patch('pickings/{picking:id}/queried', UpdatePickingStateToQueried::class)->name('pickings.queried');
+Route::patch('pickings/{picking:id}/waiting', UpdatePickingStateToWaiting::class)->name('pickings.waiting');
+Route::patch('pickings/{picking:id}/picked', UpdatePickingStateToPicked::class)->name('pickings.picked');
+Route::patch('pickings/{picking:id}/packing', UpdatePickingStateToPacking::class)->name('pickings.packing');
+Route::patch('pickings/{picking:id}/done', UpdatePickingStateToDone::class)->name('pickings.done');
 
 require __DIR__."/actions/inventory/location_org_stock.php";
