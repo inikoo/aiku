@@ -14,12 +14,13 @@ use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class UpdatePicking extends OrgAction
+class UpdatePickingStateToPicked extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -27,29 +28,18 @@ class UpdatePicking extends OrgAction
 
     protected DeliveryNoteItem $deliveryNoteItem;
 
-    public function handle(Picking $picking, array $modelData): Picking
+    public function handle(Picking $picking): Picking
     {
-        data_set($modelData, 'picker_id', request()->user()->id);
         data_set($modelData, 'picked_at', now());
         data_set($modelData, 'state', PickingStateEnum::PICKED->value);
 
         return $this->update($picking, $modelData);
     }
 
-    public function rules(): array
-    {
-        return [
-            'state'                 => ['sometimes', Rule::enum(PickingStateEnum::class)],
-            'outcome'               => ['sometimes', Rule::enum(PickingOutcomeEnum::class)],
-            'vessel_picking'        => ['sometimes', Rule::enum(PickingVesselEnum::class)],
-            'vessel_packing'        => ['sometimes', Rule::enum(PickingVesselEnum::class)]
-        ];
-    }
-
     public function asController(Picking $picking, ActionRequest $request): Picking
     {
         $this->initialisationFromShop($picking->shop, $request);
 
-        return $this->handle($picking, $this->validatedData);
+        return $this->handle($picking);
     }
 }
