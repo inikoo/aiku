@@ -40,6 +40,7 @@ import { Timeline as TSTimeline } from "@/types/Timeline"
 import axios from 'axios'
 import { Action } from '@/types/Action'
 import TableFulfilmentTransactions from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilmentTransactions.vue";
+import TableDeliveryNotes from "@/Components/Tables/Grp/Org/Dispatching/TableDeliveryNotes.vue";
 import { notify } from '@kyvg/vue3-notification'
 import OrderProductTable from '@/Components/Dropshipping/Orders/OrderProductTable.vue'
 import { Button as TSButton } from '@/types/Button'
@@ -141,6 +142,7 @@ const props = defineProps<{
     // nonProductItems: {}
     transactions: {}
     currency: Currency
+    delivery_notes: {}
 }>()
 
 // console.log(props.box_stats)
@@ -151,7 +153,8 @@ const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
-        transactions: OrderProductTable
+        transactions: OrderProductTable,
+        delivery_notes: TableDeliveryNotes
     }
 
     return components[currentTab.value]
