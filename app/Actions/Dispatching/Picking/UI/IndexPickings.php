@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatching\DeliveryNoteItem\UI;
+namespace App\Actions\Dispatching\Picking\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
@@ -13,10 +13,12 @@ use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\OrgAction;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteItemsResource;
+use App\Http\Resources\Dispatching\PickingsResource;
 use App\Http\Resources\Ordering\OrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\DeliveryNoteItem;
+use App\Models\Dispatching\Picking;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -28,7 +30,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexDeliveryNoteItems extends OrgAction
+class IndexPickings extends OrgAction
 {
     private DeliveryNote $parent;
 
@@ -45,25 +47,36 @@ class IndexDeliveryNoteItems extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query=QueryBuilder::for(DeliveryNoteItem::class);
+        $query=QueryBuilder::for(Picking::class);
 
-        $query->where('delivery_note_items.delivery_note_id', $parent->id);
+        $query->where('pickings.delivery_note_id', $parent->id);
 
+        $query->leftjoin('delivery_note_items', 'pickings.delivery_note_item_id', '=', 'delivery_note_items.id');
         $query->leftjoin('org_stocks', 'delivery_note_items.org_stock_id', '=', 'org_stocks.id');
+        $query->leftJoin('users as picker_users', 'pickings.picker_id', '=', 'picker_users.id')
+        ->leftJoin('employees as picker_employees', function($join) {
+            $join->on('picker_users.parent_id', '=', 'picker_employees.id')
+                    ->where('picker_users.parent_type', 'Employee');
+        });
+        
+        $query->leftJoin('users as packer_users', 'pickings.packer_id', '=', 'packer_users.id')
+        ->leftJoin('employees as packer_employees', function($join) {
+            $join->on('packer_users.parent_id', '=', 'packer_employees.id')
+                    ->where('packer_users.parent_type', 'Employee');
+        });
 
-        return $query->defaultSort('delivery_note_items.id')
+        return $query->defaultSort('pickings.id')
             ->select([
-                'delivery_note_items.id',
-                'delivery_note_items.state',
-                'delivery_note_items.status',
+                'pickings.id',
                 'delivery_note_items.quantity_required',
-                'delivery_note_items.quantity_picked',
-                'delivery_note_items.quantity_packed',
-                'delivery_note_items.quantity_dispatched',
                 'org_stocks.code as org_stock_code',
-                'org_stocks.name as org_stock_name'
+                'org_stocks.name as org_stock_name',
+                'picker_employees.contact_name as picker_name',
+                'packer_employees.contact_name as packer_name',
+                'pickings.vessel_picking',
+                'pickings.vessel_packing',
             ])
-            ->allowedSorts(['id', 'org_stock_name', 'org_stock_code', 'quantity_required', 'quantity_picked', 'quantity_packed', 'state' ])
+            ->allowedSorts(['id', 'org_stock_code', 'org_stock_name', 'picker_name', 'packer_name', 'vessel_picking', 'vessel_packing' ])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -86,39 +99,29 @@ class IndexDeliveryNoteItems extends OrgAction
                     ]
                 );
 
-            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'org_stock_code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'org_stock_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_required', label: __('Quantity Required'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'quantity_picked', label: __('Quantity Picked'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'quantity_packed', label: __('Quantity Packed'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'picker_name', label: __('Picker'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'packer_name', label: __('Packer'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'vessel_picking', label: __('Picking Vessel'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'vessel_packing', label: __('Packing Vessel'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
-    public function prepareForValidation(ActionRequest $request): void
+    public function jsonResponse(LengthAwarePaginator $pickings): AnonymousResourceCollection
     {
-        $this->fillFromRequest($request);
-
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
+        return PickingsResource::collection($pickings);
     }
 
-
-
-    public function jsonResponse(LengthAwarePaginator $deliveryNoteItems): AnonymousResourceCollection
-    {
-        return DeliveryNoteItemsResource::collection($deliveryNoteItems);
-    }
-
-
-    public function htmlResponse(LengthAwarePaginator $deliveryNoteItems, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $pickings, ActionRequest $request): Response
     {
 
-        $title = __('Delivery Note Items');
-        $model = __('delivery note items');
+        $title = __('Pickings');
+        $model = __('Picking');
         $icon  = [
             'icon'  => ['fal', 'fa-shopping-cart'],
-            'title' => __('delivery note items')
+            'title' => __('pickings')
         ];
         $afterTitle=null;
         $iconRight =null;
@@ -130,7 +133,7 @@ class IndexDeliveryNoteItems extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('orders'),
+                'title'       => __('pickings'),
                 'pageHead'    => [
                     'title'         => $title,
                     'icon'          => $icon,
@@ -139,7 +142,7 @@ class IndexDeliveryNoteItems extends OrgAction
                     'iconRight'     => $iconRight,
                     'actions'       => $actions
                 ],
-                'data'        => DeliveryNoteItemsResource::collection($deliveryNoteItems),
+                'data'        => PickingsResource::collection($pickings),
 
                 // 'tabs'        => [
                 //     'current'    => $this->tab,

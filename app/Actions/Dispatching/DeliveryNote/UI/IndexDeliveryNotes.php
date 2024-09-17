@@ -57,6 +57,7 @@ class IndexDeliveryNotes extends OrgAction
 
         return $query->defaultSort('delivery_notes.reference')
             ->select([
+                'delivery_notes.id',
                 'delivery_notes.reference',
                 'delivery_notes.date',
                 'delivery_notes.state',

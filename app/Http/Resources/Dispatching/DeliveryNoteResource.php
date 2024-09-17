@@ -23,11 +23,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class DeliveryNoteResource extends JsonResource
 {
-    public static $wrap = null;
-
     public function toArray($request): array
     {
         return [
+            'id'             => $this->id,
             'slug'           => $this->slug,
             'reference'      => $this->reference,
             'date'           => $this->date,

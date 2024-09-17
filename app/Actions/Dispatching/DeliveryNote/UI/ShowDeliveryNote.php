@@ -8,6 +8,7 @@
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItems;
+use App\Actions\Dispatching\Picking\UI\IndexPickings;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
@@ -16,6 +17,7 @@ use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
 use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Dispatching\DeliveryNoteItemsResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
+use App\Http\Resources\Dispatching\PickingsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
@@ -97,7 +99,7 @@ class ShowDeliveryNote extends OrgAction
         $finalTimeline = $timeline;
 
         $estWeight = ($deliveryNote->estimated_weight ?? 0) / 1000;
-
+        
         return Inertia::render(
             'Org/Dispatching/DeliveryNote',
             [
@@ -180,6 +182,10 @@ class ShowDeliveryNote extends OrgAction
                 DeliveryNoteTabsEnum::SKOS_ORDERED->value => $this->tab == DeliveryNoteTabsEnum::SKOS_ORDERED->value ?
                 fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))
                 : Inertia::lazy(fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))),
+
+                DeliveryNoteTabsEnum::PICKINGS->value => $this->tab == DeliveryNoteTabsEnum::PICKINGS->value ?
+                fn () => PickingsResource::collection(IndexPickings::run($deliveryNote))
+                : Inertia::lazy(fn () => PickingsResource::collection(IndexPickings::run($deliveryNote))),
             ]
         )
         ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::SKOS_ORDERED->value));
