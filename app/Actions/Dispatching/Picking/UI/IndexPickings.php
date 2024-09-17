@@ -12,12 +12,10 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\OrgAction;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
-use App\Http\Resources\Dispatching\DeliveryNoteItemsResource;
 use App\Http\Resources\Dispatching\PickingsResource;
 use App\Http\Resources\Ordering\OrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -54,13 +52,13 @@ class IndexPickings extends OrgAction
         $query->leftjoin('delivery_note_items', 'pickings.delivery_note_item_id', '=', 'delivery_note_items.id');
         $query->leftjoin('org_stocks', 'delivery_note_items.org_stock_id', '=', 'org_stocks.id');
         $query->leftJoin('users as picker_users', 'pickings.picker_id', '=', 'picker_users.id')
-        ->leftJoin('employees as picker_employees', function($join) {
+        ->leftJoin('employees as picker_employees', function ($join) {
             $join->on('picker_users.parent_id', '=', 'picker_employees.id')
                     ->where('picker_users.parent_type', 'Employee');
         });
-        
+
         $query->leftJoin('users as packer_users', 'pickings.packer_id', '=', 'packer_users.id')
-        ->leftJoin('employees as packer_employees', function($join) {
+        ->leftJoin('employees as packer_employees', function ($join) {
             $join->on('packer_users.parent_id', '=', 'packer_employees.id')
                     ->where('packer_users.parent_type', 'Employee');
         });

@@ -20,7 +20,7 @@ enum DeliveryNoteItemStateEnum: string
     case FINALISED = 'finalised';
     case SETTLED   = 'settled';
 
-    
+
     public static function stateIcon(): array
     {
         return [

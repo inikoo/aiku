@@ -13,6 +13,7 @@ use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDeliveryNoteItem extends OrgAction
 {
@@ -20,7 +21,21 @@ class UpdateDeliveryNoteItem extends OrgAction
 
     public function handle(DeliveryNoteItem $deliveryNoteItem, array $modelData): DeliveryNoteItem
     {
-        return $this->update($deliveryNoteItem, $modelData, ['data']);
+        $deliveryNoteItem = $this->update($deliveryNoteItem, $modelData, ['data']);
+
+        if($deliveryNoteItem->wasChanged('quantity_picked') && $deliveryNoteItem->quantity_picked === $deliveryNoteItem->quantity_required) {
+            UpdateDeliveryNoteItem::run($deliveryNoteItem, [
+                'state' => DeliveryNoteItemStateEnum::HANDLING->value
+            ]);
+        }
+
+        if($deliveryNoteItem->wasChanged('quantity_packed') && $deliveryNoteItem->quantity_packed === $deliveryNoteItem->quantity_required) {
+            UpdateDeliveryNoteItem::run($deliveryNoteItem, [
+                'state' => DeliveryNoteItemStateEnum::PACKED->value
+            ]);
+        }
+
+        return $deliveryNoteItem;
     }
 
     public function rules(): array
@@ -55,6 +70,13 @@ class UpdateDeliveryNoteItem extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($deliveryNoteItem->shop, $modelData);
 
+
+        return $this->handle($deliveryNoteItem, $this->validatedData);
+    }
+
+    public function asController(DeliveryNoteItem $deliveryNoteItem, ActionRequest $request): DeliveryNoteItem
+    {
+        $this->initialisationFromShop($deliveryNoteItem->shop, $request);
 
         return $this->handle($deliveryNoteItem, $this->validatedData);
     }
