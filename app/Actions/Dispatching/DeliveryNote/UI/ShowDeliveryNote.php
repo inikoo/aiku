@@ -67,6 +67,7 @@ class ShowDeliveryNote extends OrgAction
 
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
+        $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNoteTabsEnum::values());
 
         return $this->handle($deliveryNote);
