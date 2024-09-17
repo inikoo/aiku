@@ -92,9 +92,11 @@ class ShowOrder extends OrgAction
     {
         $timeline = [];
         foreach (OrderStateEnum::cases() as $state) {
-            $timestamp = $order->{$state->snake().'_at'}
-                ? $order->{$state->snake().'_at'}
-                : null;
+            if ($state === OrderStateEnum::CREATING) {
+                $timestamp = $order->created_at;
+            } else {
+                $timestamp = $order->{$state->snake().'_at'} ? $order->{$state->snake().'_at'} : null;
+            }
 
             // If all possible values are null, set the timestamp to null explicitly
             $timestamp = $timestamp ?: null;
