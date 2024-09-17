@@ -32,6 +32,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\CRM\CustomerResource;
+use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\Ordering\NonProductItemsResource;
@@ -277,7 +278,6 @@ class ShowOrder extends OrgAction
                 default => []
             };
         }
-
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -444,8 +444,8 @@ class ShowOrder extends OrgAction
                      : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))),
 
                  OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
-                     fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))
-                     : Inertia::lazy(fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::TRANSACTIONS->value))),
+                     fn () => DeliveryNotesResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::DELIVERY_NOTES->value))
+                     : Inertia::lazy(fn () => DeliveryNotesResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::DELIVERY_NOTES->value))),
 
             ]
         )

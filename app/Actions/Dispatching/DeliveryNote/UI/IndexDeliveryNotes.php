@@ -49,6 +49,9 @@ class IndexDeliveryNotes extends OrgAction
 
         if ($parent instanceof Warehouse) {
             $query->where('delivery_notes.warehouse_id', $parent->id);
+        } elseif ($parent instanceof Order) {
+            $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
+            $query->where('delivery_note_order.order_id', $parent->id);
         } else {
             abort(419);
         }

@@ -8,7 +8,9 @@
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItems;
+use App\Actions\Dispatching\Picking\UI\IndexPickings;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
@@ -16,6 +18,7 @@ use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
 use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Dispatching\DeliveryNoteItemsResource;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
+use App\Http\Resources\Dispatching\PickingsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
@@ -35,6 +38,8 @@ class ShowDeliveryNote extends OrgAction
     use AsAction;
     use WithInertia;
 
+    private Order|Shop|Warehouse $parent;
+
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
         return $deliveryNote;
@@ -42,6 +47,10 @@ class ShowDeliveryNote extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->parent instanceof Order)
+        {
+            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        }
         return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
     }
 
@@ -58,19 +67,22 @@ class ShowDeliveryNote extends OrgAction
 
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
+        $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNoteTabsEnum::values());
 
         return $this->handle($deliveryNote);
     }
     /** @noinspection PhpUnusedParameterInspection */
-    public function inOrder(Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
+    public function inOrder(Organisation $organisation, Shop $shop, Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
         return $this->handle($deliveryNote);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inOrderInShop(Shop $shop, Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
+    public function inOrderInShop(Organisation $organisation, Shop $shop, Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
+        $this->parent = $order;
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($deliveryNote);
     }
 
@@ -175,11 +187,27 @@ class ShowDeliveryNote extends OrgAction
                         'name'          => 'xxxxxxxxxxxxx',
                         'parameters'    => 'xxxxxxx'
                     ],
+                    'pickers_list'  => [
+                        'name'          => 'grp.json.employees.pickers',
+                        'parameters'    => [
+                            'organisation' => $deliveryNote->organisation->slug
+                        ]
+                        ],
+                    'packers_list'  => [
+                        'name'          => 'grp.json.employees.packers',
+                        'parameters'    => [
+                            'organisation' => $deliveryNote->organisation->slug
+                        ]
+                    ]
                 ],
 
                 DeliveryNoteTabsEnum::SKOS_ORDERED->value => $this->tab == DeliveryNoteTabsEnum::SKOS_ORDERED->value ?
                 fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))
                 : Inertia::lazy(fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))),
+
+                DeliveryNoteTabsEnum::PICKINGS->value => $this->tab == DeliveryNoteTabsEnum::PICKINGS->value ?
+                fn () => PickingsResource::collection(IndexPickings::run($deliveryNote))
+                : Inertia::lazy(fn () => PickingsResource::collection(IndexPickings::run($deliveryNote))),
             ]
         )
         ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::SKOS_ORDERED->value));
@@ -244,6 +272,28 @@ class ShowDeliveryNote extends OrgAction
                     $suffix
                 ),
             ),
+            'grp.org.shops.show.ordering.orders.show.delivery-note',
+            => array_merge(
+                ShowOrder::make()->getBreadcrumbs(
+                    $this->parent,
+                    $routeName,
+                    $routeParameters
+                ),
+                $headCrumb(
+                    $deliveryNote,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.ordering.orders.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'order'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.ordering.orders.show.delivery-note',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'order', 'deliveryNote'])
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
             default => []
         };
     }
@@ -255,10 +305,13 @@ class ShowDeliveryNote extends OrgAction
         $previous = DeliveryNote::where('reference', '<', $deliveryNote->reference)->when(true, function ($query) use ($deliveryNote, $request) {
             if ($request->route()->getName() == 'shops.show.delivery-notes.show') {
                 $query->where('delivery_notes.shop_id', $deliveryNote->shop_id);
+            } elseif ($request->route()->getName() == 'grp.org.shops.show.ordering.orders.show.delivery-note') {
+                $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
+                $query->where('delivery_note_order.order_id', $this->parent->id);
             }
         })->orderBy('reference', 'desc')->first();
 
-        return $this->getNavigation($previous, $request->route()->getName());
+        return $this->getNavigation($previous, $request->route()->getName(), $request->route()->originalParameters());
 
     }
 
@@ -267,13 +320,16 @@ class ShowDeliveryNote extends OrgAction
         $next = DeliveryNote::where('reference', '>', $deliveryNote->reference)->when(true, function ($query) use ($deliveryNote, $request) {
             if ($request->route()->getName() == 'shops.show.delivery-notes.show') {
                 $query->where('delivery_notes.shop_id', $deliveryNote->shop_id);
+            } elseif ($request->route()->getName() == 'grp.org.shops.show.ordering.orders.show.delivery-note') {
+                $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
+                $query->where('delivery_note_order.order_id', $this->parent->id);
             }
         })->orderBy('reference')->first();
 
-        return $this->getNavigation($next, $request->route()->getName());
+        return $this->getNavigation($next, $request->route()->getName(), $request->route()->originalParameters());
     }
 
-    private function getNavigation(?DeliveryNote $deliveryNote, string $routeName): ?array
+    private function getNavigation(?DeliveryNote $deliveryNote, string $routeName, $routeParameters): ?array
     {
         if(!$deliveryNote) {
             return null;
@@ -311,6 +367,14 @@ class ShowDeliveryNote extends OrgAction
                         'warehouse'     => $deliveryNote->warehouse->slug,
                         'deliveryNote'  => $deliveryNote->slug
                     ]
+
+                ]
+                    ],
+            'grp.org.shops.show.ordering.orders.show.delivery-note'=> [
+                'label'=> $deliveryNote->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> Arr::only($routeParameters, ['organisation', 'shop', 'order', 'deliveryNote'])
 
                 ]
             ]

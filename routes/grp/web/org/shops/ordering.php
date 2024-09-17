@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Ordering\UI\ShowOrdersBacklog;
@@ -13,9 +13,11 @@ use App\Actions\Ordering\UI\ShowOrdersBacklog;
 Route::get('/backlog', ShowOrdersBacklog::class)->name('backlog');
 
 Route::get('/orders/', IndexOrders::class)->name('orders.index');
-Route::get('/orders/{order}', ShowOrder::class)->name('orders.show');
 
-
+Route::prefix('orders/{order}')->group(function () {
+    Route::get('', ShowOrder::class)->name('orders.show');
+    Route::get('delivery-note/{deliveryNote}', [ShowDeliveryNote::class, 'inOrderInShop'])->name('orders.show.delivery-note');
+});
 
 /*
 
