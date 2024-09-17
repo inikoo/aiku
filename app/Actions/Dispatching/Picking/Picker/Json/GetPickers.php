@@ -36,7 +36,7 @@ class GetPickers extends OrgAction
         ->where('employees.organisation_id', $organisation->id)
         ->leftJoin('employee_has_job_positions', 'employee_has_job_positions.employee_id', '=', 'employees.id')
         ->leftJoin('job_positions', 'employee_has_job_positions.job_position_id', '=', 'job_positions.id')
-        ->leftJoin('users', function($join) {
+        ->leftJoin('users', function ($join) {
             $join->on('users.parent_id', '=', 'employees.id')
                 ->where('users.parent_type', 'Employee');
         })

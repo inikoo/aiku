@@ -47,8 +47,7 @@ class ShowDeliveryNote extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Order)
-        {
+        if ($this->parent instanceof Order) {
             return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
         }
         return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");

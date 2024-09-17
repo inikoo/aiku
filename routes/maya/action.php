@@ -63,6 +63,6 @@ Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnA
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
 
-Route::patch('delivery-notes/{deliveryNote:id}/items', UpdateDeliveryNoteItem::class)->name('delivery-items.items.index');
+Route::patch('delivery-notes/{deliveryNote:id}/items', UpdateDeliveryNoteItem::class)->name('delivery-items.items.update');
 
 require __DIR__."/actions/inventory/location_org_stock.php";
