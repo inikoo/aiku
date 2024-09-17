@@ -170,25 +170,9 @@ class ShowDeliveryNote extends OrgAction
                             ],
                         ]
                     ],
-                    'warehouse' => [
-                        'picker' => $deliveryNote->picker->alias ?? null,
-                        'packer' => $deliveryNote->packer->alias ?? null
-                    ]
-                    // 'order_summary'   => [
-                    //     [
-                    //         [
-                    //             'label'       => 'Items',
-                    //             'quantity'    => $order->stats->number_transactions,
-                    //             'price_base'  => 'Multiple',
-                    //             'price_total' => $order->net_amount
-                    //         ],
-                    //     ],
-                    //     [
-                    //         [
-                    //             'label'       => 'Total',
-                    //             'price_total' => $deliveryNote->total_amount
-                    //         ]
-                    //     ],
+                    // 'warehouse' => [
+                    //     'picker' => $deliveryNote->picker->alias ?? null,
+                    //     'packer' => $deliveryNote->packer->alias ?? null
                     // ]
                 ],
                 'routes'    => [

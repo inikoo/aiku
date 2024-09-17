@@ -60,7 +60,6 @@ const onSelectPicker = () => {
 </script>
 
 <template>
-    {{ boxStats.warehouse }}
     <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
             <!-- Field: Reference Number -->
@@ -120,35 +119,7 @@ const onSelectPicker = () => {
 
 
         <!-- Box: Product stats -->
-        <BoxStatPallet class="py-4 pl-1.5 pr-3" icon="fal fa-user">
-            <div v-tooltip="trans('Picker name')" class="mt-1 flex items-center w-full pr-3 flex-none gap-x-1.5">
-                <dt class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-box-full' fixed-width aria-hidden='true' class="text-gray-500" />
-                </dt>
-                <dd class="text-gray-500 w-full">
-                    <PureMultiselectInfiniteScroll
-                        v-model="boxStats.warehouse.picker"
-                        :fetchRoute="boxStats.products.routes.picker_list"
-                        :placeholder="trans('Select picker name')"
-                        valueProp="id"
-                    />
-                </dd>
-            </div>
-            
-            <div v-tooltip="trans('Packer name')" class="mt-1 flex items-center pr-3 flex-none gap-x-1.5">
-                <dt class="flex-none">
-                    <FontAwesomeIcon icon='fal fa-gift' fixed-width aria-hidden='true' class="text-gray-500" />
-                </dt>
-                <dd class="text-gray-500 w-full">
-                    <PureMultiselectInfiniteScroll
-                        v-model="boxStats.warehouse.packer"
-                        :fetchRoute="boxStats.products.routes.picker_list"
-                        :placeholder="trans('Select packer name')"
-                        valueProp="id"
-                    />
-                </dd>
-            </div>
-            
+        <BoxStatPallet class="py-4 pl-1.5 pr-3" icon="fal fa-user">            
             <div v-tooltip="trans('Estimated weight of all products')" class="mt-1 flex items-center w-fit pr-3 flex-none gap-x-1.5">
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-weight' fixed-width aria-hidden='true' class="text-gray-500" />
