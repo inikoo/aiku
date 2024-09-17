@@ -24,7 +24,8 @@ class PickingsResource extends JsonResource
             'picking_at'          => $this->picking_at     ?? null,
             'picked_at'           => $this->picked_at      ?? null,
             'packing_at'          => $this->packing_at     ?? null,
-            'packed_at'           => $this->packed_at      ?? null
+            'packed_at'           => $this->packed_at      ?? null,
+            'quantity_required'   => intval($this->quantity_required) ?? 0
         ];
     }
 }
