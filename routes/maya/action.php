@@ -6,7 +6,7 @@
  */
 
 
-use App\Actions\Dispatching\DeliveryNoteItem\UpdateDeliveryNoteItem;
+use App\Actions\Dispatching\Picking\UpdatePicking;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
@@ -63,6 +63,6 @@ Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnA
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
 
-Route::patch('delivery-notes/{deliveryNote:id}/items', UpdateDeliveryNoteItem::class)->name('delivery-items.items.update');
+Route::patch('pickings/{picking:id}', UpdatePicking::class)->name('pickings.update');
 
 require __DIR__."/actions/inventory/location_org_stock.php";
