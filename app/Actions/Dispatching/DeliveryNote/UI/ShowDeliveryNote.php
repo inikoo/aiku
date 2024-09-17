@@ -151,24 +151,6 @@ class ShowDeliveryNote extends OrgAction
                     'products'  => [
                         'estimated_weight' => $estWeight,
                         'number_items'     => $deliveryNote->stats->number_items,
-                        'routes'           => [
-                            'picker_list' => [
-                                'name'       => 'grp.profile.show',
-                                'parameters' => null
-                            ],
-                            'submit_picker' => [
-                                'name'       => 'grp.profile.show',
-                                'parameters' => null
-                            ],
-                            'packer_list' => [
-                                'name'       => 'grp.profile.show',
-                                'parameters' => null
-                            ],
-                            'submit_packer' => [
-                                'name'       => 'grp.profile.show',
-                                'parameters' => null
-                            ],
-                        ]
                     ],
                     'warehouse' => [
                         'picker' => $deliveryNote->picker->alias ?? null,

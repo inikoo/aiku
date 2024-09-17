@@ -5,6 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dispatching\Picking\AssignPackerToPicking;
+use App\Actions\Dispatching\Picking\AssignPickerToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToDone;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPacking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToQueried;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToWaiting;
 use App\Actions\Ordering\Order\PayOrder;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -38,5 +46,25 @@ Route::name('order.')->prefix('order/{order:id}')->group(function () {
         Route::patch('packed', UpdateStateToPackedOrder::class)->name('packed');
         Route::patch('finalized', UpdateStateToFinalizedOrder::class)->name('finalized');
         Route::patch('dispatched', UpdateStateToDispatchedOrder::class)->name('dispatched');
+    });
+});
+
+Route::name('delivery-note.')->prefix('delivery-note/{deliveryNote:id}')->group(function () {
+});
+
+Route::name('picking.')->prefix('picking/{picking:id}')->group(function () {
+
+    Route::name('assign.')->prefix('assign')->group(function () {
+        Route::patch('picker', AssignPickerToPicking::class)->name('picker');
+        Route::patch('packer', AssignPackerToPicking::class)->name('packer');
+    });
+    
+    Route::name('state.')->prefix('state')->group(function () {
+        Route::patch('picking', UpdatePickingStateToPicking::class)->name('picking');
+        Route::patch('queried', UpdatePickingStateToQueried::class)->name('queried');
+        Route::patch('waiting', UpdatePickingStateToWaiting::class)->name('waiting');
+        Route::patch('picked', UpdatePickingStateToPicked::class)->name('picked');
+        Route::patch('packed', UpdatePickingStateToPacking::class)->name('packing');
+        Route::patch('done', UpdatePickingStateToDone::class)->name('done');
     });
 });

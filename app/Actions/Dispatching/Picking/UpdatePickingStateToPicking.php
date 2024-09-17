@@ -30,8 +30,15 @@ class UpdatePickingStateToPicking extends OrgAction
 
     public function handle(Picking $picking, array $modelData): Picking
     {
+        if(!$picking->picker_id)
+        {
+            data_set($modelData, 'picker_id', Arr::get($modelData, 'picker'));
+        } 
+        if(!$picking->picker_assigned_at)
+        {
+            data_set($modelData, 'picker_assigned_at', now());
+        }
         data_set($modelData, 'picking_at', now());
-        data_set($modelData, 'picker_assigned_at', now());
         data_set($modelData, 'state', PickingStateEnum::PICKING->value);
         data_set($modelData, 'vessel_picking', PickingVesselEnum::AIKU->value);
 
@@ -41,7 +48,7 @@ class UpdatePickingStateToPicking extends OrgAction
     public function rules(): array
     {
         return [
-            'picker_id'             => ['sometimes'],
+            'picker' => ['sometimes', 'exists:users,id'],
         ];
     }
 

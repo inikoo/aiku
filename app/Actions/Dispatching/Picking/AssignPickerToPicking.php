@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class UpdatePickingStateToPacking extends OrgAction
+class AssignPickerToPicking extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -30,25 +30,14 @@ class UpdatePickingStateToPacking extends OrgAction
 
     public function handle(Picking $picking, array $modelData): Picking
     {
-        if(!$picking->packer_id)
-        {
-            data_set($modelData, 'picker_id', Arr::get($modelData, 'packer'));
-        }
-        if(!$picking->packer_assigned_at)
-        {
-            data_set($modelData, 'packer_assigned_at', now());
-        }
-        data_set($modelData, 'packing_at', now());
-        data_set($modelData, 'state', PickingStateEnum::PACKING->value);
-        data_set($modelData, 'vessel_packing', PickingVesselEnum::AIKU->value);
-
+        data_set($modelData, 'picker_assigned_at', now());
         return $this->update($picking, $modelData);
     }
 
     public function rules(): array
     {
         return [
-            'packer' => ['sometimes', 'exists:users,id'],
+            'picker_id' => ['sometimes', 'exists:users,id'],
         ];
     }
 
