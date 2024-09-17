@@ -43,8 +43,8 @@ enum OrgStockFamilyTabsEnum: string
                 'type'  => 'icon',
             ],
             OrgStockFamilyTabsEnum::SHOWCASE => [
-                'title' => __('stock family'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

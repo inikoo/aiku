@@ -32,6 +32,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_delivery_notes
  * @property int $number_delivery_notes_type_order
  * @property int $number_delivery_notes_type_replacement
+ * @property string|null $last_dispatched_delivery_note_at
  * @property int $number_delivery_notes_state_submitted
  * @property int $number_delivery_notes_state_in_queue
  * @property int $number_delivery_notes_state_picker_assigned

@@ -43,16 +43,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property-read \App\Models\Dispatching\DeliveryNote $deliveryNote
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Dispatching\Picking|null $pickings
  * @property-read \App\Models\Catalogue\Shop $shop
  * @method static Builder|DeliveryNoteItem newModelQuery()
  * @method static Builder|DeliveryNoteItem newQuery()
- * @method static Builder|DeliveryNoteItem onlyTrashed()
  * @method static Builder|DeliveryNoteItem query()
- * @method static Builder|DeliveryNoteItem withTrashed()
- * @method static Builder|DeliveryNoteItem withoutTrashed()
  * @mixin Eloquent
  */
 class DeliveryNoteItem extends Model

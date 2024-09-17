@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateInvoices;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -18,6 +19,7 @@ class ShopHydrateInvoices
 {
     use AsAction;
     use WithEnumStats;
+    use WithHydrateInvoices;
 
     private Shop $shop;
 
@@ -33,10 +35,8 @@ class ShopHydrateInvoices
 
     public function handle(Shop $shop): void
     {
-        $stats = [
-            'number_invoices' => $shop->invoices->count(),
-        ];
 
+        $stats=$this->getInvoicesStats($shop);
 
         $stats = array_merge(
             $stats,

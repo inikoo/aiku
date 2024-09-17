@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $id
  * @property string $slug
  * @property string $name
- * @property string $price
+ * @property string $rental_price
  * @property string $description
  * @property mixed $type
  * @property mixed $auto_assign_asset
@@ -27,14 +27,12 @@ class RentalsResource extends JsonResource
 {
     public function toArray($request): array
     {
-
-
         return [
             'id'                     => $this->id,
             'slug'                   => $this->slug,
             'code'                   => $this->code,
             'name'                   => $this->name,
-            'price'                  => $this->price,
+            'rental_price'           => $this->rental_price,
             'currency_code'          => $this->currency_code,
             'unit'                   => $this->unit,
             'unit_abbreviation'      => $this->unit->abbreviations()[$this->unit->value],

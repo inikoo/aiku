@@ -48,6 +48,7 @@ class FetchAuroraTransactions
                 $transaction = UpdateTransaction::make()->action(
                     transaction: $transaction,
                     modelData: $transactionData['transaction'],
+                    strict: false
                 );
             } else {
 

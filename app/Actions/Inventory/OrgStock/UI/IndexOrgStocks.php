@@ -151,7 +151,6 @@ class IndexOrgStocks extends OrgAction
 
         if ($parent instanceof OrgStockFamily) {
             $queryBuilder->where('org_stock_family_id', $parent->id);
-            $queryBuilder->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stocks.org_stock_family_id');
             $queryBuilder->addSelect([
                 'org_stock_families.slug as family_slug',
                 'org_stock_families.code as family_code',
