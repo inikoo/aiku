@@ -81,7 +81,7 @@ class ShowDeliveryNote extends OrgAction
     public function inOrderInShop(Organisation $organisation, Shop $shop, Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
         $this->parent = $order;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(DeliveryNoteTabsEnum::values());
         return $this->handle($deliveryNote);
     }
 
