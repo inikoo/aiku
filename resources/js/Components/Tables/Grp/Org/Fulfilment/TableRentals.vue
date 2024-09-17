@@ -58,9 +58,8 @@ function rentalRoute(rental: {}) {
             <Icon :data="rental['state_icon']" />
         </template>
 
-        <!-- Column: Price -->
-        <template #cell(price)="{ item: rental }">
-            {{ useLocaleStore().currencyFormat(rental['currency_code'], rental['price']) }} /{{
+        <template #cell(rental_price)="{ item: rental }">
+            {{ useLocaleStore().currencyFormat(rental['currency_code'], rental['rental_price']) }} /{{
                 rental['unit_abbreviation'] }}
         </template>
 

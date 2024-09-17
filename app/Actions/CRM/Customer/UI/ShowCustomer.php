@@ -8,7 +8,6 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
@@ -16,11 +15,10 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\UI\CRM\CustomerDropshippingTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
@@ -64,36 +62,35 @@ class ShowCustomer extends OrgAction
     public function inOrganisation(Organisation $organisation, Customer $customer, ActionRequest $request): Customer
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(CustomerTabsEnum::values());
+        $this->initialisation($organisation, $request)
+            ->withTab($customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::values() : CustomerTabsEnum::values());
 
         return $this->handle($customer);
     }
 
 
-    public function asController(
-        Organisation $organisation,
-        Shop $shop,
-        Customer $customer,
-        ActionRequest $request
-    ): Customer {
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Customer
+    {
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(CustomerTabsEnum::values());
-
+        $this->initialisationFromShop($shop, $request)
+            ->withTab($customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::values() : CustomerTabsEnum::values());
         return $this->handle($customer);
     }
-
 
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
+
+        $tabs=$customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::class : CustomerTabsEnum::class;
+
         $webUsersMeta = $this->getWebUserMeta($customer, $request);
 
         $shopMeta      = [];
         $subNavigation = null;
         if ($this->parent instanceof Shop) {
             if ($this->parent->type == ShopTypeEnum::DROPSHIPPING) {
-                $subNavigation = $this->getCustomerSubNavigation($customer, $request);
+                $subNavigation = $this->getCustomerDropshippingSubNavigation($customer, $request);
             } else {
-                $subNavigation = $this->getShopCustomerSubNavigation($customer, $request);
+                $subNavigation = $this->getCustomerSubNavigation($customer, $request);
             }
         }
 
@@ -117,22 +114,21 @@ class ShowCustomer extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($customer, $request),
                     'next'     => $this->getNext($customer, $request),
                 ],
-                'pageHead' => [
-                    'title'     => $customer->name,
-                    'model'     => __('customer'),
-                    'icon'      => [
+                'pageHead'    => [
+                    'title'         => $customer->name,
+                    'icon'          => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
-                    'meta' => array_filter([
+                    'meta'          => array_filter([
                         $shopMeta,
                         $webUsersMeta
                     ]),
-                    'actions' => [
+                    'actions'       => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         [
                             'type'    => 'button',
@@ -173,69 +169,38 @@ class ShowCustomer extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => CustomerTabsEnum::navigation()
+                    'navigation' => $tabs::navigation()
 
                 ],
-                'accounting' => [
+                'accounting'  => [
                     'balance'             => $customer->balance,
                     'credit_transactions' => $customer->stats->number_credit_transactions
                 ],
 
-                CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
+                $tabs::SHOWCASE->value => $this->tab == $tabs::SHOWCASE->value ?
                     fn () => GetCustomerShowcase::run($customer)
                     : Inertia::lazy(fn () => GetCustomerShowcase::run($customer)),
 
-                // CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
-                //     fn () => OrderResource::collection(IndexOrders::run($customer))
-                //     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($customer))),
+
 
                 /*
-                CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
+                $tabs::PRODUCTS->value => $this->tab == $tabs::PRODUCTS->value ?
                     fn () => ProductsResource::collection(IndexProducts::run($customer))
                     : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($customer))),
                 */
 
-                CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
+                $tabs::DISPATCHED_EMAILS->value => $this->tab == $tabs::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
-                CustomerTabsEnum::WEB_USERS->value => $this->tab == CustomerTabsEnum::WEB_USERS->value ?
-                    fn () => WebUsersResource::collection(IndexWebUsers::run($customer))
-                    : Inertia::lazy(
-                        fn () => WebUsersResource::collection(IndexWebUsers::run($customer))
-                    ),
+
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
             //    ->table(IndexProducts::make()->tableStructure($customer))
-            ->table(IndexDispatchedEmails::make()->tableStructure($customer))
-            ->table(
-                IndexWebUsers::make()->tableStructure(
-                    parent: $customer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new web user'),
-                                'label'   => __('Create Web User'),
-                                'route'   => [
-                                    'method'     => 'get',
-                                    'name'       => 'grp.org.shops.show.crm.customers.show.web-users.create',
-                                    'parameters' => [
-                                        $customer->organisation->slug,
-                                        $customer->shop->slug,
-                                        $customer->slug
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ],
-                    prefix: CustomerTabsEnum::WEB_USERS->value,
-                    canEdit: $this->canEdit
-                )
-            );
+            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
+
     }
 
 
@@ -262,7 +227,7 @@ class ShowCustomer extends OrgAction
                         ],
 
                     ],
-                    'suffix' => $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];

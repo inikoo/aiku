@@ -10,7 +10,7 @@ namespace App\Enums\UI\CRM;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum CustomerTabsEnum: string
+enum CustomerDropshippingTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -26,34 +26,33 @@ enum CustomerTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            CustomerTabsEnum::SHOWCASE => [
+            CustomerDropshippingTabsEnum::SHOWCASE => [
                 'title' => __('overview'),
                 'icon'  => 'fal fa-tachometer-alt-fast',
             ],
-            CustomerTabsEnum::TIMELINE => [
+            CustomerDropshippingTabsEnum::TIMELINE => [
                 'title' => __('timeline'),
                 'icon'  => 'fal fa-code-branch',
             ],
-
-            CustomerTabsEnum::ATTACHMENTS => [
+            CustomerDropshippingTabsEnum::ATTACHMENTS => [
                 'align' => 'right',
                 'title' => __('attachments'),
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon'
             ],
-            CustomerTabsEnum::DISPATCHED_EMAILS => [
+            CustomerDropshippingTabsEnum::DISPATCHED_EMAILS => [
                 'align' => 'right',
                 'title' => __('dispatched emails'),
                 'icon'  => 'fal fa-paper-plane',
                 'type'  => 'icon',
             ],
-            CustomerTabsEnum::CREDIT_TRANSACTIONS => [
+            CustomerDropshippingTabsEnum::CREDIT_TRANSACTIONS => [
                 'align' => 'right',
                 'title' => __('credit transactions'),
                 'icon'  => 'fal fa-piggy-bank',
                 'type'  => 'icon',
             ],
-            CustomerTabsEnum::HISTORY => [
+            CustomerDropshippingTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

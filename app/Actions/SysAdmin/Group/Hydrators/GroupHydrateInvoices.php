@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateInvoices;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -18,6 +19,7 @@ class GroupHydrateInvoices
 {
     use AsAction;
     use WithEnumStats;
+    use WithHydrateInvoices;
 
     private Group $group;
 
@@ -33,10 +35,7 @@ class GroupHydrateInvoices
 
     public function handle(Group $group): void
     {
-        $stats = [
-            'number_invoices' => $group->invoices->count(),
-        ];
-
+        $stats = $this->getInvoicesStats($group);
 
         $stats = array_merge(
             $stats,

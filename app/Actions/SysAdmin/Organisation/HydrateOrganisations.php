@@ -11,6 +11,7 @@ use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollectionCategories;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCreditTransactions;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
@@ -70,6 +71,7 @@ class HydrateOrganisations extends HydrateModel
         OrganisationHydrateOrgPaymentServiceProviders::run($organisation);
         OrganisationHydrateCustomers::run($organisation);
         OrganisationHydrateOrders::run($organisation);
+        OrganisationHydrateDeliveryNotes::run($organisation);
         OrganisationHydratePurchaseOrders::run($organisation);
         OrganisationHydrateWebsites::run($organisation);
         OrganisationHydrateWebpages::run($organisation);

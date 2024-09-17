@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateInvoices;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
@@ -19,6 +20,8 @@ class CustomerHydrateInvoices
 {
     use AsAction;
     use WithEnumStats;
+    use WithHydrateInvoices;
+
     private Customer $customer;
 
     public function __construct(Customer $customer)
@@ -33,13 +36,9 @@ class CustomerHydrateInvoices
 
     public function handle(Customer $customer): void
     {
+        $stats=$this->getInvoicesStats($customer);
 
-        $numberInvoices = $customer->invoices()->count();
-        $stats          = [
-            'number_invoices' => $numberInvoices,
-        ];
-
-        $updateData['trade_state']= match ($numberInvoices) {
+        $updateData['trade_state']= match ($stats['number_invoices']) {
             0       => CustomerTradeStateEnum::NONE,
             1       => CustomerTradeStateEnum::ONE,
             default => CustomerTradeStateEnum::MANY

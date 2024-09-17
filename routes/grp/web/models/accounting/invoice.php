@@ -8,7 +8,6 @@
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 
-use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::name('invoice.')->prefix('invoice/{invoice:id}')->group(function () {

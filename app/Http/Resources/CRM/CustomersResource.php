@@ -8,12 +8,23 @@
 namespace App\Http\Resources\CRM;
 
 use App\Http\Resources\HasSelfCall;
-use App\Http\Resources\Helpers\AddressResource;
-use App\Models\CRM\Customer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int $number_current_clients
+ * @property mixed $slug
+ * @property mixed $reference
+ * @property mixed $name
+ * @property mixed $contact_name
+ * @property mixed $company_name
+ * @property mixed $location
+ * @property mixed $email
+ * @property mixed $created_at
+ * @property mixed $last_invoiced_at
+ * @property mixed $invoiced_net_amount
+ * @property mixed $invoiced_org_net_amount
+ * @property mixed $invoiced_grp_net_amount
+ * @property mixed $number_invoices_type_invoice
  */
 class CustomersResource extends JsonResource
 {
@@ -21,21 +32,20 @@ class CustomersResource extends JsonResource
 
     public function toArray($request): array
     {
-        /** @var Customer $customer */
-        $customer = $this;
-
         return [
-            'slug'                   => $customer->slug,
-            'reference'              => $customer->reference,
-            'name'                   => $customer->name,
-            'contact_name'           => $customer->contact_name,
-            'company_name'           => $customer->company_name,
-            'location'               => $customer->location,
-            'address'                => AddressResource::make($customer->address),
-            'email'                  => $customer->email,
-            'phone'                  => $customer->phone,
-            'created_at'             => $customer->created_at,
-            'number_current_clients' => $this->number_current_clients
+            'slug'                         => $this->slug,
+            'reference'                    => $this->reference,
+            'name'                         => $this->name,
+            'contact_name'                 => $this->contact_name,
+            'company_name'                 => $this->company_name,
+            'location'                     => $this->location,
+            'created_at'                   => $this->created_at,
+            'number_current_clients'       => $this->number_current_clients,
+            'last_invoiced_at'             => $this->last_invoiced_at,
+            'number_invoices_type_invoice' => $this->number_invoices_type_invoice,
+            'invoiced_net_amount'          => $this->invoiced_net_amount,
+            'invoiced_org_net_amount'      => $this->invoiced_org_net_amount,
+            'invoiced_grp_net_amount'      => $this->invoiced_grp_net_amount,
         ];
     }
 }

@@ -54,6 +54,7 @@ class ShowAgent extends GrpAction
             [
                 'title'                        => __("agent"),
                 'breadcrumbs'                  => $this->getBreadcrumbs(
+                    $agent,
                     $request->route()->originalParameters()
                 ),
                 'navigation'                   => [
@@ -159,7 +160,7 @@ class ShowAgent extends GrpAction
                             'label' => __('product')
                         ] : false,
                     ],
-               ' */
+           ' */
                 )
             )->table(
                 IndexHistory::make()->tableStructure(
@@ -174,9 +175,8 @@ class ShowAgent extends GrpAction
         return new AgentsResource($agent);
     }
 
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(Agent $agent, array $routeParameters, $suffix = null): array
     {
-        $agent = Agent::where('slug', $routeParameters['agent'])->first();
 
         return array_merge(
             ShowSupplyChainDashboard::make()->getBreadcrumbs(),

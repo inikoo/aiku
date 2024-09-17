@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:32 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:32 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Transaction\TransactionFailStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Support\Arr;
@@ -25,9 +26,18 @@ class UpdateTransaction extends OrgAction
 
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
+
         if(Arr::exists($modelData, 'quantity_ordered')) {
-            $net   = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
-            $gross = $transaction->historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+
+            if($this->strict) {
+                $historicAsset=$transaction->historicAsset;
+            } else {
+                $historicAsset=HistoricAsset::withTrashed()->find($transaction->historic_asset_id);
+            }
+
+            $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+            // todo deal with discounts
+            $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
             data_set($modelData, 'gross_amount', $gross);
             data_set($modelData, 'net_amount', $net);
@@ -65,8 +75,9 @@ class UpdateTransaction extends OrgAction
         ];
     }
 
-    public function action(Transaction $transaction, array $modelData): Transaction
+    public function action(Transaction $transaction, array $modelData, bool $strict=true): Transaction
     {
+        $this->strict=$strict;
         $this->initialisationFromShop($transaction->shop, $modelData);
 
         return $this->handle($transaction, $this->validatedData);

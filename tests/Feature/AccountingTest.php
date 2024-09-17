@@ -147,7 +147,6 @@ test(
         $payment  = StorePayment::make()->action(
             customer: $customer,
             paymentAccount: $paymentAccount,
-            invoice: null,
             modelData: $modelData
         );
 

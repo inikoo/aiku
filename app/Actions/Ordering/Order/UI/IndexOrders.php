@@ -43,8 +43,8 @@ class IndexOrders extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    OrderStateEnum::labels(forElements: true),
-                    OrderStateEnum::count($parent, forElements: true)
+                    OrderStateEnum::labels(),
+                    OrderStateEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -191,9 +191,9 @@ class IndexOrders extends OrgAction
             $subNavigation = $this->getCustomerClientSubNavigation($this->parent, $request);
         } elseif ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
-                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+                $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
             } else {
-                $subNavigation = $this->getShopCustomerSubNavigation($this->parent, $request);
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
         }
         $title = __('Orders');

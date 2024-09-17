@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Actions\Traits\Hydrators\WithHydrateInvoices;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -18,6 +19,7 @@ class OrganisationHydrateInvoices
 {
     use AsAction;
     use WithEnumStats;
+    use WithHydrateInvoices;
 
     private Organisation $organisation;
 
@@ -33,10 +35,7 @@ class OrganisationHydrateInvoices
 
     public function handle(Organisation $organisation): void
     {
-        $stats = [
-            'number_invoices' => $organisation->invoices->count(),
-        ];
-
+        $stats=$this->getInvoicesStats($organisation);
 
         $stats = array_merge(
             $stats,

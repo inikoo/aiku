@@ -7,9 +7,13 @@
 
 namespace App\Actions\Dispatching\DeliveryNote;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDeliveryNotes;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\Search\DeliveryNoteRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDeliveryNotes;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
@@ -37,6 +41,7 @@ class UpdateDeliveryNote extends OrgAction
         data_forget($modelData, 'delivery_address');
 
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
+        $changes      =$deliveryNote->getChanges();
 
         if ($deliveryAddressData) {
             if ($deliveryNote->delivery_locked) {
@@ -65,6 +70,17 @@ class UpdateDeliveryNote extends OrgAction
         }
 
         DeliveryNoteRecordSearch::dispatch($deliveryNote);
+
+        if (Arr::hasAny($changes, ['type', 'state','status'])) {
+            DeliveryNoteRecordSearch::dispatch($deliveryNote)->delay($this->hydratorsDelay);
+            GroupHydrateDeliveryNotes::dispatch($deliveryNote->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateDeliveryNotes::dispatch($deliveryNote->organisataion)->delay($this->hydratorsDelay);
+            ShopHydrateDeliveryNotes::dispatch($deliveryNote->shop)->delay($this->hydratorsDelay);
+            CustomerHydrateDeliveryNotes::dispatch($deliveryNote->customer)->delay($this->hydratorsDelay);
+
+        }
+
+
 
         return $deliveryNote;
     }

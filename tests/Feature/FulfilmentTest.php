@@ -7,7 +7,6 @@
 
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
-use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
