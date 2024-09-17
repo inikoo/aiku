@@ -7,10 +7,8 @@
 
 namespace App\Actions\Accounting\Invoice;
 
-use App\Actions\Accounting\CreditTransaction\StoreCreditTransaction;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\OrgAction;
-use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Invoice;
@@ -49,13 +47,13 @@ class PayInvoice extends OrgAction
     {
         $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($invoice, $customer, $paymentAccount,  $this->validatedData);
+        return $this->handle($invoice, $customer, $paymentAccount, $this->validatedData);
     }
 
     public function asController(Invoice $invoice, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): void
     {
         $this->initialisationFromShop($customer->shop, $request);
 
-        $this->handle($invoice, $customer, $paymentAccount,  $this->validatedData);
+        $this->handle($invoice, $customer, $paymentAccount, $this->validatedData);
     }
 }

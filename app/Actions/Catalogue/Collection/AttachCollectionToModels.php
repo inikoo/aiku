@@ -40,18 +40,18 @@ class AttachCollectionToModels extends OrgAction
     }
 
     public function rules(): array
-{
-    return [
-            'products'      => ['nullable', 'array'],
-            'products.*'    => ['exists:products,id'],
-            'families'      => ['nullable', 'array'],
-            'families.*'    => ['exists:product_categories,id'],
-            'departments'   => ['nullable', 'array'],
-            'departments.*' => ['exists:product_categories,id'],
-            'collections'   => ['nullable', 'array'],
-            'collections.*' => ['exists:collections,id'],
-    ];
-}
+    {
+        return [
+                'products'      => ['nullable', 'array'],
+                'products.*'    => ['exists:products,id'],
+                'families'      => ['nullable', 'array'],
+                'families.*'    => ['exists:product_categories,id'],
+                'departments'   => ['nullable', 'array'],
+                'departments.*' => ['exists:product_categories,id'],
+                'collections'   => ['nullable', 'array'],
+                'collections.*' => ['exists:collections,id'],
+        ];
+    }
 
     public function action(Collection $collection, $modelData)
     {

@@ -7,13 +7,13 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditStoredItem extends OrgAction
 {
+    private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
+
     public function handle(StoredItem $storedItem): StoredItem
     {
         return $storedItem;
@@ -30,9 +32,20 @@ class EditStoredItem extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
+            return
+                (
+                    $request->user()->tokenCan('root') or
+                    $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                );
+        } elseif ($this->parent instanceof Warehouse) {
+            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
+        }
+
+        return false;
     }
 
     public function jsonResponse(LengthAwarePaginator $storedItems): AnonymousResourceCollection
@@ -47,6 +60,8 @@ class EditStoredItem extends OrgAction
             'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('stored items'),
@@ -92,37 +107,25 @@ class EditStoredItem extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(StoredItemTabsEnum::values());
 
         return $this->handle($storedItem);
     }
 
-    public function asController(Organisation $organisation, StoredItem $storedItem, ActionRequest $request): StoredItem
+    public function asController(Organisation $organisation, Warehouse $warehouse, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->initialisation($organisation, $request);
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($storedItem);
     }
 
-
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment|FulfilmentCustomer $parent, string $routeName, array $routeParameters, string $suffix = ''): array
     {
         return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
-            [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'label' => __('stored items'),
-                        'icon'  => 'fal fa-bars',
-                    ],
-
-                ]
-            ]
+            ShowStoredItem::make()->getBreadcrumbs($parent, $routeName, $routeParameters, '('.__('Editing').')'),
+            []
         );
     }
 }

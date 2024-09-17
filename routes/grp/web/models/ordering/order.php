@@ -17,7 +17,6 @@ use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
-use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::name('order.')->prefix('order/{order:id}')->group(function () {
