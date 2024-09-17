@@ -62,6 +62,7 @@ import AlertMessage from '@/Components/Utils/AlertMessage.vue'
 import { faExclamationTriangle as fadExclamationTriangle } from '@fad'
 import { faExclamationTriangle, faExclamation } from '@fas'
 import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote } from '@fal'
+import { Currency } from '@/types/LayoutRules'
 library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation)
 
 
@@ -139,6 +140,7 @@ const props = defineProps<{
     }
     // nonProductItems: {}
     transactions: {}
+    currency: Currency
 }>()
 
 // console.log(props.box_stats)
@@ -547,7 +549,9 @@ const onSubmitNote = async (closePopup: Function) => {
                     :totalAmount="box_stats.products.payment.total_amount"
                     :paidAmount="box_stats.products.payment.paid_amount"
                     :payAmount="box_stats.products.payment.pay_amount"
-                    :class="[box_stats.products.payment.pay_amount ? 'hover:bg-gray-100 cursor-pointer' : '']" />
+                    :class="[box_stats.products.payment.pay_amount ? 'hover:bg-gray-100 cursor-pointer' : '']"
+                    :currencyCode="currency.code"
+                />
             </div>
 
             <div class="mt-1 flex items-center w-full flex-none gap-x-1.5">
@@ -583,6 +587,7 @@ const onSubmitNote = async (closePopup: Function) => {
             :data="props[currentTab as keyof typeof props]"
             :tab="currentTab"
             :updateRoute="routes.updateOrderRoute"
+            :state="data?.data?.state"
         />
     </div>
 

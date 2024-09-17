@@ -13,6 +13,7 @@ const props = defineProps<{
     data: any[]
     tab: string
     updateRoute: routeType
+    state?: string
 }>()
     
 function productRoute(product) {
@@ -74,6 +75,7 @@ const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: 
                         :isLoading="isLoading === 'quantity' + item.id"
                         type="number"
                         align="right"
+                        :disabled="state === 'dispatched'"
                     />
                 </div>
             </div>
@@ -84,6 +86,7 @@ const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: 
         <!-- Column: Action -->
         <template #cell(actions)="{ item }">
             <Link
+                v-if="state !== 'dispatched'"
                 :href="route(item.deleteRoute.name, item.deleteRoute.parameters)"
                 as="button"
                 :method="item.deleteRoute.method"

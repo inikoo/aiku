@@ -430,6 +430,7 @@ class ShowOrder extends OrgAction
                         'currency' => CurrencyResource::make($order->currency),
                     ],
                 ],
+                'currency'       => CurrencyResource::make($order->currency)->toArray(request()),
                 'data'           => OrderResource::make($order),
                 // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
