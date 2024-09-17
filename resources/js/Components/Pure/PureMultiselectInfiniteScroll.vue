@@ -25,6 +25,7 @@ const props = defineProps<{
     required?: boolean
     placeholder?: string
     labelProp?: string
+    noOptionsText?: string
 }>()
 const emits = defineEmits<{
     (e: 'optionsList', value: any[]): void
@@ -151,37 +152,25 @@ onUnmounted(() => {
             </template>
 
             <template #spinner>
-                <LoadingIcon class="mr-3" />
+                <!-- <LoadingIcon class="mr-3" /> -->
+                <div />
+            </template>
+
+            <!-- <template #noresults>
+                xxxxxxxx
+            </template> -->
+
+            <template #nooptions>
+                <div v-if="isLoading !== 'fetchProduct'" class="py-2 px-3 text-gray-600 bg-white text-left rtl:text-right">
+                    {{ noOptionsText || trans('No options')}}
+                </div>
+                <div></div>
             </template>
 
             <template #afterlist>
                 <div v-if="isLoading === 'fetchProduct'" class="py-2 flex justify-center text-xl">
                     <LoadingIcon />
                 </div>
-                <!-- <div v-if="optionsMeta?.current_page && optionsList?.length && (optionsLinks?.prev || optionsLinks?.next)" class="flex justify-center border-t border-gray-300 gap-x-2 py-2 px-4 cursor-default">
-                    <div 
-                        @click="() => optionsLinks?.prev ? fetchProductList(optionsLinks?.prev) : false"
-                        class="flex justify-center items-center py-1 px-2 text-gray-500 hover:text-gray-700 border border-transparent hover:border-gray-300 rounded-md"
-                        :class="optionsLinks?.prev ? 'cursor-pointer ' : 'opacity-0'"
-                    >
-                        <FontAwesomeIcon icon='fal fa-chevron-left' class='' fixed-width aria-hidden='true' />
-                    </div>
-
-                    <div v-if="optionsMeta.current_page" class="w-16">
-                        <PureInputNumber
-                            v-model="optionsMeta.current_page"
-                            @update:modelValue="(value) => fetchProductList(getUrlFetch({page: value}))"
-                        />
-                    </div>
-
-                    <div 
-                        @click="() => optionsLinks?.next ? fetchProductList(optionsLinks?.next) : false"
-                        class="flex justify-center items-center py-1 px-2 text-gray-500 hover:text-gray-700 border border-transparent hover:border-gray-300 rounded-md"
-                        :class="optionsLinks?.next ? 'cursor-pointer ' : 'opacity-0'"
-                    >
-                        <FontAwesomeIcon icon='fal fa-chevron-right' class='' fixed-width aria-hidden='true' />
-                    </div>
-                </div> -->
             </template>
         </Multiselect>
     <!-- </div> -->
