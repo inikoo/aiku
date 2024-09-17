@@ -504,7 +504,8 @@ class ShowOrder extends OrgAction
 
         return match ($routeName) {
             'grp.org.shops.show.ordering.orders.show',
-            'grp.org.shops.show.ordering.orders.edit'
+            'grp.org.shops.show.ordering.orders.edit',
+            'grp.org.shops.show.ordering.orders.show.delivery-note'
             => array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
