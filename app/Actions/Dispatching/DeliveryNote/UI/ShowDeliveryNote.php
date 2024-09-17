@@ -187,6 +187,18 @@ class ShowDeliveryNote extends OrgAction
                         'name'          => 'xxxxxxxxxxxxx',
                         'parameters'    => 'xxxxxxx'
                     ],
+                    'pickers_list'  => [
+                        'name'          => 'grp.json.employees.pickers',
+                        'parameters'    => [
+                            'organisation' => $deliveryNote->organisation->slug
+                        ]
+                        ],
+                    'packers_list'  => [
+                        'name'          => 'grp.json.employees.packers',
+                        'parameters'    => [
+                            'organisation' => $deliveryNote->organisation->slug
+                        ]
+                    ]
                 ],
 
                 DeliveryNoteTabsEnum::SKOS_ORDERED->value => $this->tab == DeliveryNoteTabsEnum::SKOS_ORDERED->value ?
