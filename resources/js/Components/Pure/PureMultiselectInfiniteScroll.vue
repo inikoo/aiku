@@ -24,6 +24,7 @@ const props = defineProps<{
     fetchRoute: routeType
     required?: boolean
     placeholder?: string
+    labelProp?: string
 }>()
 const emits = defineEmits<{
     (e: 'optionsList', value: any[]): void
@@ -47,16 +48,17 @@ const optionsList = ref<any[]>([])
 const optionsMeta = ref<Meta | null>(null)
 const optionsLinks = ref<Links | null>(null)
 const fetchProductList = async (url?: string) => {
-    const fetchUrl = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
-
     isLoading.value = 'fetchProduct'
+
+    const urlToFetch = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
+
     try {
-        const xxx = await axios.get(
-            fetchUrl
-        )
-        optionsList.value = optionsList.value.concat(xxx?.data?.data)
+        const xxx = await axios.get(urlToFetch)
+        
+        optionsList.value = [...optionsList.value, ...xxx?.data?.data]
         optionsMeta.value = xxx?.data.meta || null
         optionsLinks.value = xxx?.data.links || null
+
         emits('optionsList', optionsList.value)
     } catch (error) {
         // console.log(error)
@@ -69,7 +71,8 @@ const fetchProductList = async (url?: string) => {
     isLoading.value = false
 }
     
-const onSearchQuery = debounce((query: string) => {
+const onSearchQuery = debounce(async (query: string) => {
+    optionsList.value = []
     fetchProductList(getUrlFetch({'filter[global]': query}))
 }, 500)
 
@@ -108,10 +111,13 @@ onUnmounted(() => {
     <!-- <div class="relative w-full text-gray-600 rounded-sm"> -->
         <Multiselect
             v-model="model"
+            :options="optionsList"
             :classes="{
                 placeholder: 'pointer-events-none absolute top-1/2 z-10 -translate-y-1/2 select-none text-sm text-left w-full pl-4 font-light text-gray-400 opacity-1',
                 ...classes,
             }"
+            valueProp="id"
+            :filterResults="false"
             @change="(e) => console.log('aaa', e)"
             :canClear="!required"
             :mode="mode || 'single'"
@@ -126,24 +132,21 @@ onUnmounted(() => {
             autofocus
             :loading="isLoading === 'fetchProduct'"
             :placeholder="placeholder || trans('Select option')"
-            :options="optionsList"
-            label="name"
             :resolve-on-load="true"
             :min-chars="1"
-            valueProp="id"
             @open="() => optionsList?.length ? false : fetchProductList()"
             @search-change="(ee) => onSearchQuery(ee)"
         >
 
             <template #singlelabel="{ value }">
                 <slot name="singlelabel" :value>
-                    <div class="w-full text-left pl-4">{{ value.name }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
+                    <div class="w-full text-left pl-4">{{ value[labelProp || 'name'] }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
                 </slot>
             </template>
 
             <template #option="{ option, isSelected, isPointed }">
                 <slot name="option" :option :isSelected :isPointed>
-                    <div class="">{{ option.name }} <span class="text-sm" :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
+                    <div class="">{{ option[labelProp || 'name'] }} <span class="text-sm" :class="isSelected(option) ? 'text-indigo-200' : 'text-gray-400'">({{ option.code }})</span></div>
                 </slot>
             </template>
 
