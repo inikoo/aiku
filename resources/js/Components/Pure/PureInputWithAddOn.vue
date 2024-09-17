@@ -33,7 +33,7 @@ defineOptions({
     >
         <div class="flex w-full">
             <div v-if="leftAddOn" class="flex items-center gap-x-1.5">
-                <div class="flex select-none items-center text-gray-400 sm:text-sm">
+                <div class="flex select-none items-center text-gray-400 sm:text-sm whitespace-nowrap">
                     <FontAwesomeIcon v-if="leftAddOn.icon" :icon="leftAddOn.icon" fixed-width aria-hidden="true" />
                     <span v-if="leftAddOn.label" class="leading-none">{{ leftAddOn.label }}</span>
                 </div>
@@ -50,7 +50,7 @@ defineOptions({
 
         <!-- Add On: Right -->
         <div v-if="rightAddOn" class="h-full flex items-center gap-x-1.5">
-            <div class="flex select-none items-center text-gray-400 sm:text-sm">
+            <div class="flex select-none items-center text-gray-400 sm:text-sm whitespace-nowrap">
                 <FontAwesomeIcon v-if="rightAddOn.icon" :icon="rightAddOn.icon" fixed-width aria-hidden="true" />
                 <span v-if="rightAddOn.label" class="leading-none">{{ rightAddOn.label }}</span>
             </div>
