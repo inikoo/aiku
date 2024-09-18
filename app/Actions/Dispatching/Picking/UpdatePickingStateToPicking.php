@@ -38,7 +38,7 @@ class UpdatePickingStateToPicking extends OrgAction
 
         $totalQuantityPicked = (int) Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
 
-        if($totalQuantityPicked > $picking->quantity_required) {
+        if($totalQuantityPicked > $picking->deliveryNoteItem->quantity_required) {
             throw ValidationException::withMessages(['status' => 'Quantity picked reached the quantity required']);
         }
 

@@ -14,6 +14,7 @@ use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -73,4 +74,9 @@ class Picking extends Model
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function deliveryNoteItem(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryNoteItem::class);
+    }
 }
