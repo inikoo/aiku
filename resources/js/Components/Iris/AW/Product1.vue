@@ -14,6 +14,7 @@ const props = defineProps<{
         title: string
         code: string
         rrp: string
+        stock: number
         original_price: {
             price: string
             rrp: string
@@ -22,6 +23,7 @@ const props = defineProps<{
             percentage: number
             price: string
             rrp: string
+            isApplied: boolean
         }
     }
 }>()
@@ -29,7 +31,14 @@ const props = defineProps<{
 
 <template>
     <div class="grid relative border border-gray-300 rounded-md pb-4 ">
-        <FontAwesomeIcon icon='fas fa-circle' class='absolute top-2 right-2 text-green-500 animate-pulse' v-tooltip="'Ready stock'" fixed-width aria-hidden='true' />
+        <FontAwesomeIcon
+            icon='fas fa-circle'
+            class='absolute top-2 right-2'
+            :class="[product.stock ? 'text-green-500 animate-pulse' : 'text-red-500']"
+            v-tooltip="product.stock ? 'Ready stock' : 'Out of stock'"
+            fixed-width
+            aria-hidden='true'
+        />
         <div>
             <img :src="product.image" alt="" class="h-auto w-full rounded-t-full">
             <div class="place-self-start mx-4 mb-2 xl:mb-4">
@@ -50,14 +59,15 @@ const props = defineProps<{
             
                 <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-2">
                     <div class="">
-                        <div class="border border-green-500 bg-green-50 text-green-500 rounded flex items-center text-sm w-fit px-1">
-                            <FontAwesomeIcon icon='fas fa-star' class='' fixed-width aria-hidden='true' />
-                            <div class="flex items-center">
-                                <FontAwesomeIcon icon='fal fa-long-arrow-alt-down' size="sm" class='' fixed-width aria-hidden='true' />
-                                <span class="">{{ product.discount.percentage }}%</span>
-                            </div>
-            
+                        <div class="rounded flex items-center text-sm w-fit px-1"
+                        :class="[product.discount.isApplied ? 'border border-green-500 bg-green-50 text-green-500' : 'border border-gray-500 bg-gray-200 text-gray-500']"
+                    >
+                        <FontAwesomeIcon :icon="product.discount.isApplied ? 'fas fa-star' : 'fas fa-star-half-alt'" class='' fixed-width aria-hidden='true' />
+                        <div class="flex items-center">
+                            <FontAwesomeIcon icon='fal fa-long-arrow-alt-down' size="sm" class='' fixed-width aria-hidden='true' />
+                            <span class="">{{ product.discount.percentage }}%</span>
                         </div>
+                    </div>
                     </div>
                     <div class="col-span-2 text-sm flex items-center justify-between text-gray-500">
                         <div class="text-orange-500">{{ product.discount.price }}</div>

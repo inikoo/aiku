@@ -26,6 +26,7 @@ const productsList = [
         image: "https://www.ancientwisdom.biz/rwi/320x280_1842044.jpeg",
         code: "EID-04",
         rrp: "RRP : £1.35/pack",
+        stock: 43,
         original_price: {
             price: "£4.68",
             rrp: "£0.39/pack"
@@ -33,7 +34,8 @@ const productsList = [
         discount: {
             percentage: 5,
             price: "£4.45",
-            rrp: "£0.37/pack"
+            rrp: "£0.37/pack",
+            isApplied: false
         }
     },
     {
@@ -41,6 +43,7 @@ const productsList = [
         image: "https://www.ancientwisdom.biz/rwi/320x280_1842042.jpeg",
         code: "EID-04C",
         rrp: "RRP : £1.35/pack",
+        stock: 0,
         original_price: {
             price: "£4.68",
             rrp: "£0.39/pack"
@@ -48,7 +51,8 @@ const productsList = [
         discount: {
             percentage: 5,
             price: "£4.45",
-            rrp: "£0.37/pack"
+            rrp: "£0.37/pack",
+            isApplied: true
         }
     },
     {
@@ -56,6 +60,7 @@ const productsList = [
         image: "https://www.ancientwisdom.biz/rwi/320x280_1842018.jpeg",
         code: "EID-51",
         rrp: "RRP : £24.00/Pack",
+        stock: 43,
         original_price: {
             price: "£44.94",
             rrp: "£11.24/Pack"
@@ -63,7 +68,8 @@ const productsList = [
         discount: {
             percentage: 5,
             price: "£42.69",
-            rrp: "£10.67/Pack"
+            rrp: "£10.67/Pack",
+            isApplied: false
         }
     },
     {
@@ -71,6 +77,7 @@ const productsList = [
         image: "https://www.ancientwisdom.biz/rwi/320x280_1851953.jpeg",
         code: "EID-65",
         rrp: "RRP : £2.65/Pack",
+        stock: 43,
         original_price: {
             price: "£32.14",
             rrp: "£0.77/Pack"
@@ -78,14 +85,15 @@ const productsList = [
         discount: {
             percentage: 5,
             price: "£30.53",
-            rrp: "£0.73/Pack"
+            rrp: "£0.73/Pack",
+            isApplied: true
         }
     },
 ]
 </script>
 
 <template>
-    <div class="bg-white text-gray-700 mx-auto max-w-7xl w-full py-16 sm:py-24 space-y-16">
+    <div class="bg-white text-gray-700 w-full py-16 sm:py-24 space-y-16">
         <FamilyBanner :familyBanner />
 
         <div class="grid grid-cols-4 gap-x-2 gap-y-4">

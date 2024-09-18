@@ -25,6 +25,7 @@ class PackersResource extends JsonResource
             'contact_name'   => $this->contact_name,
             'alias'          => $this->alias,
             'user_id'        => $this->user_id,
+            'disabled'       => is_null($this->user_id)
         ];
     }
 }
