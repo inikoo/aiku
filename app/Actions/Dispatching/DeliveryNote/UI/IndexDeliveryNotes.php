@@ -137,7 +137,11 @@ class IndexDeliveryNotes extends OrgAction
         // dd(DeliveryNoteResource::collection($deliveryNotes));
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
-            $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
+            if ($this->parent->is_dropshipping == true) {
+                $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
+            } else {
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+            }
         }
         return Inertia::render(
             'Org/Dispatching/DeliveryNotes',
