@@ -50,7 +50,7 @@ const keyTemplate = uuidv4()
             <Footer :data="footer" :colorThemed="colorThemed"/>
         </div>
 
-        <div class="flex flex-col gap-y-4" >
+        <div class="flex flex-col gap-y-4 divide-y-1 divide-gray-500" >
             <FamilyPage1 />
         </div>
     </div>
