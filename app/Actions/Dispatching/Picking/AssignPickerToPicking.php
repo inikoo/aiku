@@ -9,13 +9,8 @@ namespace App\Actions\Dispatching\Picking;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
-use App\Enums\Dispatching\Picking\PickingStateEnum;
-use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
