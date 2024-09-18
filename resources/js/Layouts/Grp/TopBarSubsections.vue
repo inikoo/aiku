@@ -48,7 +48,7 @@ const isLoading = ref<string | boolean>(false)
             <!-- {{ route(subSection.route.name, subSection.route.parameters) }} -->
             <!-- <FontAwesomeIcon :icon="subSection.icon" fixed-width class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out" aria-hidden="true" /> -->
             <LoadingIcon v-if="isLoading === 'subSection' + idxSubSec" class="h-5 lg:h-3.5 w-auto " />
-            <FontAwesomeIcon v-else-if="subSection.icon" :icon="subSection.icon" fixed-width class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70 transition duration-100 ease-in-out" aria-hidden="true" />
+            <FontAwesomeIcon v-else-if="subSection.icon" :icon="subSection.icon" fixed-width class="h-5 lg:h-3.5 w-auto group-hover:opacity-100 opacity-70" aria-hidden="true" />
             <FontAwesomeIcon v-else icon="fas fa-dot-circle" fixed-width class="h-5 lg:h-3.5" aria-hidden="true" />
             <span v-if="subSection.label" class="hidden lg:inline capitalize whitespace-nowrap">{{ subSection.label }}</span>
         </component>
