@@ -38,7 +38,7 @@ class EditStoredItem extends OrgAction
             return
                 (
                     $request->user()->tokenCan('root') or
-                    $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
+                    $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view")
                 );
         } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");

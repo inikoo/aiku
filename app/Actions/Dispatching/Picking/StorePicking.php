@@ -14,6 +14,7 @@ use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -48,8 +49,17 @@ class StorePicking extends OrgAction
                 'sometimes',
                 Rule::Exists('locations', 'id')->where('warehouse_id', $this->deliveryNoteItem->deliveryNote->warehouse_id)
             ],
-            'quantity_required'     => ['sometimes', 'numeric']
+            'quantity_picked'     => ['sometimes', 'numeric'],
+            'picker_id'           => ['sometimes'],
         ];
+    }
+
+    public function asController(DeliveryNoteItem $deliveryNoteItem, ActionRequest $request): Picking
+    {
+        $this->deliveryNoteItem = $deliveryNoteItem;
+        $this->initialisationFromShop($deliveryNoteItem->shop, $request);
+
+        return $this->handle($deliveryNoteItem, $this->validatedData);
     }
 
     public function action(DeliveryNoteItem $deliveryNoteItem, array $modelData): Picking
