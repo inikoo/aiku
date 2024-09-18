@@ -55,13 +55,13 @@ class IndexLocations extends OrgAction
 
     }
 
-    public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function maya(Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->maya   = true;
-        $this->parent = $organisation;
+        $this->parent = $warehouse;
         $this->initialisation($this->parent, $request);
 
-        return $this->handle(parent: $organisation);
+        return $this->handle(parent: $warehouse);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
