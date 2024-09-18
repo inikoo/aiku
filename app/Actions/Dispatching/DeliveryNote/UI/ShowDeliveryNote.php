@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
+use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItems;
 use App\Actions\Dispatching\Picking\UI\IndexPickings;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -21,6 +22,7 @@ use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Dispatching\PickingsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
@@ -38,7 +40,7 @@ class ShowDeliveryNote extends OrgAction
     use AsAction;
     use WithInertia;
 
-    private Order|Shop|Warehouse $parent;
+    private Order|Shop|Warehouse|Customer $parent;
 
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
@@ -48,6 +50,9 @@ class ShowDeliveryNote extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Order) {
+            $this->canEdit      = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        } elseif ($this->parent instanceof Customer) {
             $this->canEdit      = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
             return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
         }
@@ -83,6 +88,13 @@ class ShowDeliveryNote extends OrgAction
     public function inOrderInShop(Organisation $organisation, Shop $shop, Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
         $this->parent = $order;
+        $this->initialisationFromShop($shop, $request)->withTab(DeliveryNoteTabsEnum::values());
+        return $this->handle($deliveryNote);
+    }
+
+    public function inCustomerInShop(Organisation $organisation, Shop $shop, Customer $customer, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
+    {
+        $this->parent = $customer;
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNoteTabsEnum::values());
         return $this->handle($deliveryNote);
     }
@@ -413,6 +425,27 @@ class ShowDeliveryNote extends OrgAction
                     $suffix
                 ),
             ),
+            'grp.org.shops.show.crm.customers.show.delivery_notes.show',
+            => array_merge(
+                ShowCustomer::make()->getBreadcrumbs(
+                    'grp.org.shops.show.crm.customers.show',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    $deliveryNote,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'customer'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'customer', 'deliveryNote'])
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
             default => []
         };
     }
@@ -427,6 +460,8 @@ class ShowDeliveryNote extends OrgAction
             } elseif ($request->route()->getName() == 'grp.org.shops.show.ordering.orders.show.delivery-note') {
                 $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
                 $query->where('delivery_note_order.order_id', $this->parent->id);
+            } elseif ($request->route()->getName() == 'grp.org.shops.show.crm.customers.show.delivery_notes.show') {
+                $query->where('delivery_notes.customer_id', $this->parent->id);
             }
         })->orderBy('reference', 'desc')->first();
 
@@ -442,6 +477,8 @@ class ShowDeliveryNote extends OrgAction
             } elseif ($request->route()->getName() == 'grp.org.shops.show.ordering.orders.show.delivery-note') {
                 $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
                 $query->where('delivery_note_order.order_id', $this->parent->id);
+            } elseif ($request->route()->getName() == 'grp.org.shops.show.crm.customers.show.delivery_notes.show') {
+                $query->where('delivery_notes.customer_id', $this->parent->id);
             }
         })->orderBy('reference')->first();
 
@@ -494,6 +531,14 @@ class ShowDeliveryNote extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> Arr::only($routeParameters, ['organisation', 'shop', 'order', 'deliveryNote'])
+
+                ]
+            ],
+            'grp.org.shops.show.crm.customers.show.delivery_notes.show'=> [
+                'label'=> $deliveryNote->reference,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> Arr::only($routeParameters, ['organisation', 'shop', 'customer', 'deliveryNote'])
 
                 ]
             ]

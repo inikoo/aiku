@@ -21,6 +21,7 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;
 use App\Models\Dispatching\ShippingEvent;
@@ -118,9 +119,10 @@ test('update delivery note', function ($lastDeliveryNote) {
 })->depends('create delivery note');
 
 test('create delivery note item', function (DeliveryNote $deliveryNote) {
+    $historicAsset = HistoricAsset::find(1);
     try {
         $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
-        $transaction = StoreTransaction::make()->action($this->order, Transaction::factory()->definition());
+        $transaction = StoreTransaction::make()->action($this->order, $historicAsset, Transaction::factory()->definition());
 
         $deliveryNoteData = [
             'delivery_note_id' => $deliveryNote->id,

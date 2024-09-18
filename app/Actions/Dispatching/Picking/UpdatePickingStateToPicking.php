@@ -14,6 +14,7 @@ use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -29,14 +30,27 @@ class UpdatePickingStateToPicking extends OrgAction
     public function handle(Picking $picking, array $modelData): Picking
     {
         if(!$picking->picker_id) {
-            data_set($modelData, 'picker_id', Arr::get($modelData, 'picker'));
+            data_set($modelData, 'picker_id', Arr::pull($modelData, 'picker'));
         }
         if(!$picking->picker_assigned_at) {
             data_set($modelData, 'picker_assigned_at', now());
         }
+
+        $totalQuantityPicked = (int) Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
+
+        if($totalQuantityPicked > $picking->deliveryNoteItem->quantity_required) {
+            throw ValidationException::withMessages(['status' => 'Quantity picked reached the quantity required']);
+        }
+
+        if(Arr::exists($modelData, 'quantity_picked')) {
+            data_set($modelData, 'quantity_picked', $totalQuantityPicked);
+        }
+
         data_set($modelData, 'picking_at', now());
         data_set($modelData, 'state', PickingStateEnum::PICKING->value);
         data_set($modelData, 'vessel_picking', PickingVesselEnum::AIKU->value);
+
+        data_forget($modelData, 'picker');
 
         return $this->update($picking, $modelData);
     }
@@ -44,7 +58,9 @@ class UpdatePickingStateToPicking extends OrgAction
     public function rules(): array
     {
         return [
-            'picker' => ['sometimes', 'exists:users,id'],
+            'picker'          => ['sometimes', 'exists:users,id'],
+            'quantity_picked' => ['sometimes'],
+            'location_id'     => ['sometimes', 'exists:locations,id']
         ];
     }
 

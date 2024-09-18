@@ -10,14 +10,8 @@ namespace App\Actions\Dispatching\DeliveryNote;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
-use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dispatching\DeliveryNoteItem;
-use App\Models\Dispatching\Picking;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class UpdateDeliveryNoteStateToPickerAssigned extends OrgAction
 {
@@ -28,7 +22,7 @@ class UpdateDeliveryNoteStateToPickerAssigned extends OrgAction
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
         data_set($modelData, 'picker_assigned_at', now());
-        data_set($modelData, 'state', DeliveryNoteStateEnum::PICKED->value);
+        data_set($modelData, 'state', DeliveryNoteStateEnum::PICKER_ASSIGNED->value);
 
         return $this->update($deliveryNote, $modelData);
     }

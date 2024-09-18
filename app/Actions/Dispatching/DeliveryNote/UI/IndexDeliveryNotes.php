@@ -7,6 +7,8 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
+use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
@@ -14,6 +16,7 @@ use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
@@ -29,9 +32,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDeliveryNotes extends OrgAction
 {
-    private Warehouse|Shop|Order $parent;
+    use WithCustomerSubNavigation;
+    private Warehouse|Shop|Order|Customer $parent;
 
-    public function handle(Warehouse|Shop|Order $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Warehouse|Shop|Order|Customer $parent, $prefix = null): LengthAwarePaginator
     {
         // dd($parent);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -52,6 +56,8 @@ class IndexDeliveryNotes extends OrgAction
         } elseif ($parent instanceof Order) {
             $query->leftjoin('delivery_note_order', 'delivery_note_order.delivery_note_id', '=', 'delivery_notes.id');
             $query->where('delivery_note_order.order_id', $parent->id);
+        } elseif ($parent instanceof Customer) {
+            $query->where('delivery_notes.customer_id', $parent->id);
         } else {
             abort(419);
         }
@@ -99,7 +105,9 @@ class IndexDeliveryNotes extends OrgAction
             $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
+            if (!$parent instanceof Customer) {
+                $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
+            }
             $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'weight', label: __('weight'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'number_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true);
@@ -109,7 +117,11 @@ class IndexDeliveryNotes extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
+        if ($this->parent instanceof Customer) {
+            return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        } else {
+            return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
+        }
     }
 
 
@@ -122,15 +134,25 @@ class IndexDeliveryNotes extends OrgAction
     public function htmlResponse(LengthAwarePaginator $deliveryNotes, ActionRequest $request): Response
     {
         // dd(DeliveryNoteResource::collection($deliveryNotes));
+        $subNavigation = null;
+        if ($this->parent instanceof Customer) {
+            if ($this->parent->is_dropshipping == true) {
+                $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
+            } else {
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+            }
+        }
         return Inertia::render(
             'Org/Dispatching/DeliveryNotes',
             [
                 'breadcrumbs'    => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters(),
                 ),
                 'title'          => __('delivery notes'),
                 'pageHead'       => [
-                    'title' => __('delivery notes'),
+                    'title'         => __('delivery notes'),
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => DeliveryNotesResource::collection($deliveryNotes),
                 'tabs'        => [
@@ -162,6 +184,14 @@ class IndexDeliveryNotes extends OrgAction
         return $this->handle($shop);
     }
 
+    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $customer;
+        $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
+
+        return $this->handle($customer);
+    }
+
     public function inOrder(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
@@ -169,31 +199,50 @@ class IndexDeliveryNotes extends OrgAction
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs($routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            (new ShowDispatchHub())->getBreadcrumbs($routeParameters),
-            [
+        $headCrumb = function (array $routeParameters = []) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
-                            'parameters' => array_merge(
-                                [
+                        'route' => $routeParameters,
+                        'label' => __('Delivery notes'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.warehouses.show.dispatching.delivery-notes' =>
+            array_merge(
+                ShowDispatchHub::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
+                        'parameters' => array_merge(
+                            [
                                     '_query' => [
                                         'elements[state]' => 'working'
                                     ]
                                 ],
-                                $routeParameters
-                            )
-                        ],
-                        'label' => __('Delivery notes'),
-                        'icon'  => 'fal fa-bars',
-                    ],
-
-                ]
-            ]
-        );
+                            $routeParameters
+                        )
+                    ]
+                )
+            ),
+            'grp.org.shops.show.crm.customers.show.delivery_notes.index' =>
+            array_merge(
+                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }
