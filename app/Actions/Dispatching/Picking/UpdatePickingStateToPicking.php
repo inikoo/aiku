@@ -36,7 +36,7 @@ class UpdatePickingStateToPicking extends OrgAction
             data_set($modelData, 'picker_assigned_at', now());
         }
 
-        $totalQuantityPicked = Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
+        $totalQuantityPicked = (int) Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
 
         if($totalQuantityPicked > $picking->quantity_required) {
             throw ValidationException::withMessages(['status' => 'Quantity picked reached the quantity required']);

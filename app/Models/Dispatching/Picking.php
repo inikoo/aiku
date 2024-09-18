@@ -28,8 +28,8 @@ use Illuminate\Support\Carbon;
  * @property bool $status
  * @property PickingStateEnum $state
  * @property PickingOutcomeEnum $outcome
- * @property string $quantity_required
- * @property string|null $quantity_picked
+ * @property int $quantity_required
+ * @property int $quantity_picked
  * @property string|null $quantity_packed
  * @property string|null $quantity_dispatched
  * @property int|null $org_stock_movement_id
