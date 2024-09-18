@@ -524,7 +524,7 @@ class ShowOrder extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.shops.show.crm.customers.show.orders.show'
+            'grp.org.shops.show.crm.customers.show.orders.show',
             => array_merge(
                 (new ShowCustomer())->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
                 $headCrumb(
