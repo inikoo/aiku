@@ -110,7 +110,7 @@ class StoreDeliveryNote extends OrgAction
             'email'            => ['sometimes', 'nullable', 'email'],
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['required', 'date'],
-            'submitted_at'     => ['required', 'date'],
+            'submitted_at'     => ['sometimes', 'date'],
             'created_at'       => ['sometimes', 'date'],
             'cancelled_at'     => ['sometimes', 'date'],
             'source_id'        => ['sometimes', 'string'],
