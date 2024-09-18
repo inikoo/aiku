@@ -5,6 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToFinalised;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacked;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacking;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicked;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicking;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToSettled;
 use App\Actions\Dispatching\Picking\AssignPackerToPicking;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToDone;
@@ -50,6 +58,16 @@ Route::name('order.')->prefix('order/{order:id}')->group(function () {
 });
 
 Route::name('delivery-note.')->prefix('delivery-note/{deliveryNote:id}')->group(function () {
+    Route::name('state.')->prefix('state')->group(function () {
+        Route::patch('in-queue', UpdateDeliveryNoteStateToInQueue::class)->name('in-queue');
+        Route::patch('picker-assigned', UpdateDeliveryNoteStateToPickerAssigned::class)->name('picker-assigned');
+        Route::patch('picking', UpdateDeliveryNoteStateToPicking::class)->name('picking');
+        Route::patch('picked', UpdateDeliveryNoteStateToPicked::class)->name('picked');
+        Route::patch('packing', UpdateDeliveryNoteStateToPacking::class)->name('packing');
+        Route::patch('packed', UpdateDeliveryNoteStateToPacked::class)->name('packed');
+        Route::patch('finalised', UpdateDeliveryNoteStateToFinalised::class)->name('finalised');
+        Route::patch('settled', UpdateDeliveryNoteStateToSettled::class)->name('settled');
+    });
 });
 
 Route::name('picking.')->prefix('picking/{picking:id}')->group(function () {
@@ -64,7 +82,7 @@ Route::name('picking.')->prefix('picking/{picking:id}')->group(function () {
         Route::patch('queried', UpdatePickingStateToQueried::class)->name('queried');
         Route::patch('waiting', UpdatePickingStateToWaiting::class)->name('waiting');
         Route::patch('picked', UpdatePickingStateToPicked::class)->name('picked');
-        Route::patch('packed', UpdatePickingStateToPacking::class)->name('packing');
+        Route::patch('packing', UpdatePickingStateToPacking::class)->name('packing');
         Route::patch('done', UpdatePickingStateToDone::class)->name('done');
     });
 });

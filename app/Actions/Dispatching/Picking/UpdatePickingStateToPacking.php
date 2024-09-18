@@ -54,4 +54,11 @@ class UpdatePickingStateToPacking extends OrgAction
 
         return $this->handle($picking, $this->validatedData);
     }
+
+    public function action(Picking $picking, array $modelData): Picking
+    {
+        $this->initialisationFromShop($picking->shop, []);
+
+        return $this->handle($picking, $modelData);
+    }
 }
