@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatching\Picking;
+namespace App\Actions\Dispatching\Picking\Maya;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
