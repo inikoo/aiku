@@ -58,7 +58,7 @@ Route::name('picking.')->prefix('picking/{picking:id}')->group(function () {
         Route::patch('picker', AssignPickerToPicking::class)->name('picker');
         Route::patch('packer', AssignPackerToPicking::class)->name('packer');
     });
-    
+
     Route::name('state.')->prefix('state')->group(function () {
         Route::patch('picking', UpdatePickingStateToPicking::class)->name('picking');
         Route::patch('queried', UpdatePickingStateToQueried::class)->name('queried');

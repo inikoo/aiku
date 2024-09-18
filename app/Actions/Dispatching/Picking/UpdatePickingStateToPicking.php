@@ -13,6 +13,7 @@ use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -27,12 +28,10 @@ class UpdatePickingStateToPicking extends OrgAction
 
     public function handle(Picking $picking, array $modelData): Picking
     {
-        if(!$picking->picker_id)
-        {
+        if(!$picking->picker_id) {
             data_set($modelData, 'picker_id', Arr::get($modelData, 'picker'));
-        } 
-        if(!$picking->picker_assigned_at)
-        {
+        }
+        if(!$picking->picker_assigned_at) {
             data_set($modelData, 'picker_assigned_at', now());
         }
         data_set($modelData, 'picking_at', now());
