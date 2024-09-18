@@ -12,6 +12,7 @@ import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import FamilyPage1 from '@/Components/Iris/AW/FamilyPage1.vue'
 
 
 const props = defineProps<{}>()
@@ -47,6 +48,10 @@ const keyTemplate = uuidv4()
             </main>
 
             <Footer :data="footer" :colorThemed="colorThemed"/>
+        </div>
+
+        <div class="flex flex-col gap-y-4" >
+            <FamilyPage1 />
         </div>
     </div>
 
