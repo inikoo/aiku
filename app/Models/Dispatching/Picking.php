@@ -14,6 +14,7 @@ use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -28,6 +29,10 @@ use Illuminate\Support\Carbon;
  * @property bool $status
  * @property PickingStateEnum $state
  * @property PickingOutcomeEnum $outcome
+ * @property int $quantity_required
+ * @property int $quantity_picked
+ * @property string|null $quantity_packed
+ * @property string|null $quantity_dispatched
  * @property int|null $org_stock_movement_id
  * @property int $org_stock_id
  * @property int|null $picker_id
@@ -69,4 +74,9 @@ class Picking extends Model
     protected $attributes = [
         'data' => '{}',
     ];
+
+    public function deliveryNoteItem(): BelongsTo
+    {
+        return $this->belongsTo(DeliveryNoteItem::class);
+    }
 }

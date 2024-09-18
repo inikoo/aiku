@@ -22,7 +22,6 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
-use Cassandra\Type\Custom;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -106,7 +105,7 @@ class IndexDeliveryNotes extends OrgAction
             $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
-            if (!$parent instanceof Customer){
+            if (!$parent instanceof Customer) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
@@ -152,7 +151,7 @@ class IndexDeliveryNotes extends OrgAction
                 ),
                 'title'          => __('delivery notes'),
                 'pageHead'       => [
-                    'title' => __('delivery notes'),
+                    'title'         => __('delivery notes'),
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => DeliveryNotesResource::collection($deliveryNotes),
@@ -223,13 +222,13 @@ class IndexDeliveryNotes extends OrgAction
                     [
                         'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
                         'parameters' => array_merge(
-                                [
+                            [
                                     '_query' => [
                                         'elements[state]' => 'working'
                                     ]
                                 ],
-                                $routeParameters
-                            )
+                            $routeParameters
+                        )
                     ]
                 )
             ),

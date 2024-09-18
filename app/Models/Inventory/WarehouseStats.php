@@ -29,10 +29,15 @@ use Illuminate\Support\Carbon;
  * @property int $number_locations_allow_dropshipping
  * @property string $stock_value
  * @property string $stock_commercial_value
+ * @property string|null $last_delivery_note_created_at
+ * @property string|null $last_delivery_note_dispatched_at
+ * @property string|null $last_delivery_note_type_order_created_at
+ * @property string|null $last_delivery_note_type_order_dispatched_at
+ * @property string|null $last_delivery_note_type_replacement_created_at
+ * @property string|null $last_delivery_note_type_replacement_dispatched_at
  * @property int $number_delivery_notes
  * @property int $number_delivery_notes_type_order
  * @property int $number_delivery_notes_type_replacement
- * @property string|null $last_dispatched_delivery_note_at
  * @property int $number_delivery_notes_state_submitted
  * @property int $number_delivery_notes_state_in_queue
  * @property int $number_delivery_notes_state_picker_assigned

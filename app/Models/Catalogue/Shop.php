@@ -132,6 +132,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read LaravelCollection<int, DeliveryNote> $deliveryNotes
  * @property-read \App\Models\Catalogue\ShopDiscountsStats|null $discountsStats
  * @property-read \App\Models\Catalogue\ShopDropshippingStat|null $dropshippingStats
  * @property-read Fulfilment|null $fulfilment

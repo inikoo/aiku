@@ -67,12 +67,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $packer_id Main packer
  * @property Carbon $date
  * @property string|null $submitted_at
- * @property Carbon|null $assigned_at
+ * @property string|null $in_queue_at
+ * @property string|null $picker_assigned_at
  * @property Carbon|null $picking_at
  * @property Carbon|null $picked_at
  * @property Carbon|null $packing_at
  * @property Carbon|null $packed_at
  * @property string|null $finalised_at
+ * @property string|null $settled_at
  * @property Carbon|null $dispatched_at
  * @property Carbon|null $cancelled_at
  * @property array $data

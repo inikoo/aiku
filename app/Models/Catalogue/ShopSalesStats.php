@@ -16,8 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $shop_id
  * @property int|null $currency_id
- * @property string|null $last_submitted_order_at
- * @property string|null $last_dispatched_order_at
+ * @property string|null $last_order_created_at
+ * @property string|null $last_order_submitted_at
+ * @property string|null $last_order_dispatched_at
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -39,10 +40,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
  * @property string|null $last_invoiced_at
+ * @property string|null $last_delivery_note_created_at
+ * @property string|null $last_delivery_note_dispatched_at
+ * @property string|null $last_delivery_note_type_order_created_at
+ * @property string|null $last_delivery_note_type_order_dispatched_at
+ * @property string|null $last_delivery_note_type_replacement_created_at
+ * @property string|null $last_delivery_note_type_replacement_dispatched_at
  * @property int $number_delivery_notes
  * @property int $number_delivery_notes_type_order
  * @property int $number_delivery_notes_type_replacement
- * @property string|null $last_dispatched_delivery_note_at
  * @property int $number_delivery_notes_state_submitted
  * @property int $number_delivery_notes_state_in_queue
  * @property int $number_delivery_notes_state_picker_assigned
