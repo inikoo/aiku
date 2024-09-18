@@ -6,7 +6,6 @@
  */
 
 
-use App\Actions\Dispatching\Picking\StorePicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToDone;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPacking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
@@ -68,8 +67,6 @@ Route::patch('pallet-return/{palletReturn:id}/dispatch', [DispatchedPalletReturn
 Route::patch('pallet-return-item/{palletReturnItem:id}/pick', SetPalletInReturnAsPicked::class)->name('pallet-return-item.pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/undo-pick', UndoPickingPalletFromReturn::class)->name('pallet-return-item.undo-pick');
 Route::patch('pallet-return-item/{palletReturnItem:id}/not-picked', NotPickedPalletFromReturn::class)->name('pallet-return-item.not-picked');
-
-Route::post('delivery-note-items/{deliveryNoteItem}/pickings', StorePicking::class)->name('pickings.store');
 
 Route::patch('pickings/{picking:id}/picking', UpdatePickingStateToPicking::class)->name('pickings.picking');
 Route::patch('pickings/{picking:id}/queried', UpdatePickingStateToQueried::class)->name('pickings.queried');
