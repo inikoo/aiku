@@ -27,7 +27,7 @@ class UpdateDeliveryNoteStateToPickerAssigned extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
-        data_set($modelData, 'assigned_at', now());
+        data_set($modelData, 'picker_assigned_at', now());
         data_set($modelData, 'state', DeliveryNoteStateEnum::PICKED->value);
 
         return $this->update($deliveryNote, $modelData);
