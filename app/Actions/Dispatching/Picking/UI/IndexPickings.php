@@ -67,12 +67,14 @@ class IndexPickings extends OrgAction
             ->select([
                 'pickings.id',
                 'delivery_note_items.quantity_required',
+                'pickings.quantity_picked',
                 'org_stocks.code as org_stock_code',
                 'org_stocks.name as org_stock_name',
                 'picker_employees.contact_name as picker_name',
                 'packer_employees.contact_name as packer_name',
                 'pickings.vessel_picking',
                 'pickings.vessel_packing',
+                'pickings.location_id',
             ])
             ->allowedSorts(['id', 'org_stock_code', 'org_stock_name', 'picker_name', 'packer_name', 'vessel_picking', 'vessel_packing' ])
             ->allowedFilters([$globalSearch])

@@ -26,6 +26,8 @@ class PickingsResource extends JsonResource
             'packing_at'          => $this->packing_at                ?? null,
             'packed_at'           => $this->packed_at                 ?? null,
             'quantity_required'   => intval($this->quantity_required) ?? 0,
+            'quantity_picked'     => intval($this->quantity_picked)   ?? 0,
+            'location_id'         => $this->location_id,
 
             'assign_picker'  => [
                 'name'          => 'grp.models.picking.assign.picker',
