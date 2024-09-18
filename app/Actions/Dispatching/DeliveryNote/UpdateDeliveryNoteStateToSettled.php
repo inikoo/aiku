@@ -25,6 +25,7 @@ class UpdateDeliveryNoteStateToSettled extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
+        data_set($modelData, 'settled_at', now());
         data_set($modelData, 'state', DeliveryNoteStateEnum::SETTLED->value);
 
         return $this->update($deliveryNote, $modelData);

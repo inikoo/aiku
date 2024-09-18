@@ -47,7 +47,8 @@ class StorePicking extends OrgAction
             'location_id'           => [
                 'sometimes',
                 Rule::Exists('locations', 'id')->where('warehouse_id', $this->deliveryNoteItem->deliveryNote->warehouse_id)
-            ]
+            ],
+            'quantity_required'     => ['sometimes', 'numeric']
         ];
     }
 

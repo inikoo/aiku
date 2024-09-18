@@ -31,7 +31,10 @@ return new class () extends Migration {
             $table->string('state')->default(PickingStateEnum::ASSIGNED->value)->index();
             $table->string('outcome')->default(PickingOutcomeEnum::HANDLING->value)->index();
 
-
+            $table->decimal('quantity_required', 16, 3)->default(0);
+            $table->decimal('quantity_picked', 16, 3)->nullable();
+            $table->decimal('quantity_packed', 16, 3)->nullable();
+            $table->decimal('quantity_dispatched', 16, 3)->nullable();
 
             $table->unsignedInteger('org_stock_movement_id')->nullable()->index();
             $table->foreign('org_stock_movement_id')->references('id')->on('org_stock_movements');
