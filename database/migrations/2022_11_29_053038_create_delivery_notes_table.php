@@ -57,13 +57,15 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index();
 
             $table->dateTimeTz('submitted_at')->nullable();
-            $table->dateTimeTz('assigned_at')->nullable();
+            $table->dateTimeTz('in_queue_at')->nullable();
+            $table->dateTimeTz('picker_assigned_at')->nullable();
             $table->dateTimeTz('picking_at')->nullable();
             $table->dateTimeTz('picked_at')->nullable();
 
             $table->dateTimeTz('packing_at')->nullable();
             $table->dateTimeTz('packed_at')->nullable();
             $table->dateTimeTz('finalised_at')->nullable();
+            $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
 
             $table->dateTimeTz('cancelled_at')->nullable();

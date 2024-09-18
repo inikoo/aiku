@@ -69,6 +69,7 @@ class SendOrderToWarehouse extends OrgAction
             'reference'        => $order->reference,
             'state'            => DeliveryNoteStateEnum::SUBMITTED,
             'status'           => DeliveryNoteStatusEnum::HANDLING,
+            'submitted_at'     => now(),
             'warehouse_id'     => $warehouseId
         ];
 

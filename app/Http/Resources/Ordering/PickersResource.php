@@ -21,10 +21,11 @@ class PickersResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'             => $this->id,
-            'contact_name'   => $this->contact_name,
-            'alias'          => $this->alias,
-            'user_id'        => $this->user_id,
+            'employee_id'             => $this->id,
+            'contact_name'            => $this->contact_name,
+            'alias'                   => $this->alias,
+            'user_id'                 => $this->user_id,
+            'disabled'                => is_null($this->user_id)
         ];
     }
 }

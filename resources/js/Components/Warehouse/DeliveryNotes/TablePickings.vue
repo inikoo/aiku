@@ -6,13 +6,15 @@
 -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 import Table from "@/Components/Table/Table.vue"
 import { Order } from "@/types/order"
 import type { Links, Meta, Table as TableTS } from "@/types/Table"
 import { routeType } from "@/types/route"
 import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
 import { trans } from "laravel-vue-i18n"
+import { ref } from "vue"
+
 // import { useFormatTime } from '@/Composables/useFormatTime'
 
 defineProps<{
@@ -38,6 +40,22 @@ function deliveryNoteRoute(deliveryNote: Order) {
 }
 
 
+const isLoading = ref<{[key: string]: boolean}>({})
+const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowIndex: number, scope: string) => {
+    console.log('dd', selectedPicker)
+    try {
+        router.patch(route(fetchRoute.name, fetchRoute.parameters), {
+            [`${scope}_id`]: selectedPicker.user_id
+        }, {
+            onStart: () => isLoading.value[rowIndex + scope + selectedPicker.user_id] = true,
+            onFinish: () => isLoading.value[rowIndex + scope + selectedPicker.user_id] = false,
+            preserveScroll: true
+        })
+    } catch (error) {
+        
+    }
+}
+
 </script>
 
 <template>
@@ -54,12 +72,15 @@ function deliveryNoteRoute(deliveryNote: Order) {
         <template #cell(picker_name)="{ item }">
             <div class="relative w-[200px]">
                 <PureMultiselectInfiniteScroll
-                    v-model="item.id"
+                    v-model="item.picker.selected"
+                    @update:modelValue="(selectedPicker) => onSubmitPickerPacker(item.assign_picker, selectedPicker, item.rowIndex, 'picker')"
                     :fetchRoute="routes.pickers_list"
                     :placeholder="trans('Select picker')"
-                    valueProp="alias"
                     labelProp="contact_name"
-                    @optionsList="(options) => false"
+                    valueProp="user_id"
+                    object
+                    :loading="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.user_id]"
+                    :disabled="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.user_id]"
                 >
                     <template #singlelabel="{ value }">
                         <div class="w-full text-left pl-3 pr-2 text-sm whitespace-nowrap truncate">
@@ -81,12 +102,15 @@ function deliveryNoteRoute(deliveryNote: Order) {
         <template #cell(packer_name)="{ item }">
             <div class="relative w-[200px]">
                 <PureMultiselectInfiniteScroll
-                    v-model="item.id"
+                    v-model="item.packer.selected"
+                    @update:modelValue="(selectedPacker) => onSubmitPickerPacker(item.assign_packer, selectedPacker, item.rowIndex, 'packer')"
                     :fetchRoute="routes.packers_list"
-                    :placeholder="trans('Select picker')"
-                    valueProp="alias"
+                    :placeholder="trans('Select packer')"
                     labelProp="contact_name"
-                    @optionsList="(options) => false"
+                    valueProp="user_id"
+                    object
+                    :loading="isLoading[item.rowIndex + 'packer' + item.packer?.selected?.user_id]"
+                    :disabled="isLoading[item.rowIndex + 'packer' + item.packer?.selected?.user_id]"
                 >
                     <template #singlelabel="{ value }">
                         <div class="w-full text-left pl-3 pr-2 text-sm whitespace-nowrap truncate">

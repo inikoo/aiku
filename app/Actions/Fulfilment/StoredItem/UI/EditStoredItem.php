@@ -107,7 +107,7 @@ class EditStoredItem extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->parent = $fulfilment;
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(StoredItemTabsEnum::values());
 
         return $this->handle($storedItem);

@@ -72,6 +72,8 @@ class IndexPickings extends OrgAction
                 'org_stocks.name as org_stock_name',
                 'picker_employees.contact_name as picker_name',
                 'packer_employees.contact_name as packer_name',
+                'pickings.picker_id',
+                'pickings.packer_id',
                 'pickings.vessel_picking',
                 'pickings.vessel_packing',
                 'pickings.location_id',

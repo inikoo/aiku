@@ -14,8 +14,8 @@ enum DeliveryNoteStateEnum: string
     use EnumHelperTrait;
 
     case SUBMITTED       = 'submitted';
-    case IN_QUEUE        = 'in-queue';
-    case PICKER_ASSIGNED = 'picker-assigned';
+    case IN_QUEUE        = 'in_queue';
+    case PICKER_ASSIGNED = 'picker_assigned';
     case PICKING         = 'picking';
     case PICKED          = 'picked';
     case PACKING         = 'packing';
@@ -27,8 +27,8 @@ enum DeliveryNoteStateEnum: string
     {
         return [
             'submitted'            => __('Submitted'),
-            'in-queue'             => __('In Queue'),
-            'picker-assigned'      => __('Picker Assigned'),
+            'in_queue'             => __('In Queue'),
+            'picker_assigned'      => __('Picker Assigned'),
             'picking'              => __('Picking'),
             'picked'               => __('Picked'),
             'packing'              => __('Packing'),

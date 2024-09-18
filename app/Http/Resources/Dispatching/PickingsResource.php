@@ -17,8 +17,26 @@ class PickingsResource extends JsonResource
             'id'                  => $this->id,
             'org_stock_code'      => $this->org_stock_code,
             'org_stock_name'      => $this->org_stock_name,
-            'picker_name'         => $this->picker_name               ?? null,
-            'packer_name'         => $this->packer_name               ?? null,
+            // 'picker_name'         => $this->picker_name    ?? null,
+            'picker'            => [
+                'selected' => ($this->picker_id === null && $this->picker_name === null)
+                    ? null
+                    : [
+                        'user_id'      => $this->picker_id ?? 0,
+                        'contact_name' => $this->picker_name,
+                    ],
+                'pickerId'   => $this->picker_id,
+                'pickerName' => $this->picker_name,
+            ],
+            'packer'            => [
+                'selected' => ($this->packer_id === null && $this->packer_name === null)
+                    ? null
+                    : [
+                        'user_id'      => $this->packer_id ?? 0,
+                        'contact_name' => $this->packer_name,
+                    ]
+            ],
+            // 'packer_name'         => $this->packer_name    ?? null,
             'vessel_picking'      => $this->vessel_picking            ?? null,
             'vessel_packing'      => $this->vessel_packing            ?? null,
             'picking_at'          => $this->picking_at                ?? null,

@@ -48,8 +48,10 @@ class ShowDeliveryNote extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Order) {
+            $this->canEdit      = $request->user()->hasPermissionTo("orders.{$this->shop->id}.edit");
             return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
         }
+        $this->canEdit      = $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.edit");
         return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
     }
 
@@ -109,6 +111,141 @@ class ShowDeliveryNote extends OrgAction
 
         $estWeight = ($deliveryNote->estimated_weight ?? 0) / 1000;
 
+        $actions = [];
+        if ($this->canEdit) {
+            $actions = match ($deliveryNote->state) {
+                DeliveryNoteStateEnum::SUBMITTED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('In Queue'),
+                        'label'   => __('In Queue'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.in-queue',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::IN_QUEUE => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Picker Assigned'),
+                        'label'   => __('Picker Assigned'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.picker-assigned',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::PICKER_ASSIGNED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Picking'),
+                        'label'   => __('Picking'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.picking',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::PICKING => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Picked'),
+                        'label'   => __('Picked'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.picked',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::PICKED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Packing'),
+                        'label'   => __('Packing'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.packing',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::PACKING => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Packed'),
+                        'label'   => __('Packed'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.packed',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::PACKED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Finalised'),
+                        'label'   => __('Finalised'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.finalised',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                DeliveryNoteStateEnum::FINALISED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Settled'),
+                        'label'   => __('Settled'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.delivery-note.state.settled',
+                            'parameters' => [
+                                'deliveryNote' => $deliveryNote->id
+                            ]
+                        ]
+                    ]
+                ],
+                default => []
+            };
+        }
+
         return Inertia::render(
             'Org/Dispatching/DeliveryNote',
             [
@@ -129,6 +266,7 @@ class ShowDeliveryNote extends OrgAction
                         'icon'  => 'fal fa-truck',
                         'title' => __('delivery note')
                     ],
+                    'actions' => $actions
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -152,25 +290,9 @@ class ShowDeliveryNote extends OrgAction
                         'estimated_weight' => $estWeight,
                         'number_items'     => $deliveryNote->stats->number_items,
                     ],
-                    'warehouse' => [
-                        'picker' => $deliveryNote->picker->alias ?? null,
-                        'packer' => $deliveryNote->packer->alias ?? null
-                    ]
-                    // 'order_summary'   => [
-                    //     [
-                    //         [
-                    //             'label'       => 'Items',
-                    //             'quantity'    => $order->stats->number_transactions,
-                    //             'price_base'  => 'Multiple',
-                    //             'price_total' => $order->net_amount
-                    //         ],
-                    //     ],
-                    //     [
-                    //         [
-                    //             'label'       => 'Total',
-                    //             'price_total' => $deliveryNote->total_amount
-                    //         ]
-                    //     ],
+                    // 'warehouse' => [
+                    //     'picker' => $deliveryNote->picker->alias ?? null,
+                    //     'packer' => $deliveryNote->packer->alias ?? null
                     // ]
                 ],
                 'routes'    => [
