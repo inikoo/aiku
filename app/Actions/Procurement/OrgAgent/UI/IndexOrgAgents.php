@@ -51,6 +51,7 @@ class IndexOrgAgents extends OrgAction
             ->leftJoin('agents', 'agents.id', 'org_agents.agent_id')
             ->leftJoin('organisations', 'organisations.id', 'agents.organisation_id')
             ->leftJoin('org_agent_stats', 'org_agent_stats.org_agent_id', 'org_agents.id')
+            ->allowedSorts(['code', 'name', 'number_purchase_orders', 'number_org_suppliers', 'number_org_supplier_products' ])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
