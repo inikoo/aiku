@@ -33,12 +33,8 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
-    showcase: {
-        
-    }
-    skos_ordered: {}
+    skos_ordered?: {}
     pickings: {}
-    delivery_note: {}
     alert?: {
         status: string
         title?: string

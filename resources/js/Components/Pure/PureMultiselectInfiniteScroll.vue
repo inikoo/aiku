@@ -5,7 +5,7 @@ import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 import { Links, Meta, Table } from '@/types/Table'
-import { onMounted, onUnmounted, ref } from "vue"
+import { inject, onMounted, onUnmounted, ref } from "vue"
 import { notify } from "@kyvg/vue3-notification"
 import { trans } from "laravel-vue-i18n"
 import axios from "axios"
@@ -15,6 +15,7 @@ import { routeType } from "@/types/route"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronLeft, faChevronRight } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 library.add(faChevronLeft, faChevronRight)
 
 const model = defineModel()
@@ -31,6 +32,7 @@ const emits = defineEmits<{
     (e: 'optionsList', value: any[]): void
 }>()
 
+const layout = inject('layout', layoutStructure)
 
 
 const isLoading = ref<string | boolean>(false)
@@ -59,6 +61,8 @@ const fetchProductList = async (url?: string) => {
         optionsList.value = [...optionsList.value, ...xxx?.data?.data]
         optionsMeta.value = xxx?.data.meta || null
         optionsLinks.value = xxx?.data.links || null
+
+        console.log('fetch', optionsList.value)
 
         emits('optionsList', optionsList.value)
     } catch (error) {
@@ -125,12 +129,12 @@ onUnmounted(() => {
             :closeOnSelect="mode == 'multiple' ? false : true"
             :canDeselect="!required"
             :hideSelected="false"
-            :caret="isLoading ? false : true"
             :clearOnSelect="false"
             searchable
             :clearOnBlur="false"
             clearOnSearch
             autofocus
+            :caret="isLoading ? false : true"
             :loading="isLoading === 'fetchProduct'"
             :placeholder="placeholder || trans('Select option')"
             :resolve-on-load="true"
@@ -140,6 +144,7 @@ onUnmounted(() => {
         >
 
             <template #singlelabel="{ value }">
+            <!-- {{ $attrs }} -->
                 <slot name="singlelabel" :value>
                     <div class="w-full text-left pl-4">{{ value[labelProp || 'name'] }} <span class="text-sm text-gray-400">({{ value.code }})</span></div>
                 </slot>
@@ -152,8 +157,8 @@ onUnmounted(() => {
             </template>
 
             <template #spinner>
-                <!-- <LoadingIcon class="mr-3" /> -->
-                <div />
+                <LoadingIcon class="mr-3" />
+                <!-- <div /> -->
             </template>
 
             <!-- <template #noresults>
@@ -190,11 +195,17 @@ onUnmounted(() => {
 /* For Multiselect */
 .multiselect-option.is-selected,
 .multiselect-option.is-selected.is-pointed {
-	@apply bg-gray-500 text-white;
+    background-color: v-bind('layout?.app?.theme[4]') !important;
+    color: v-bind('layout?.app?.theme[5]') !important;
 }
 
-.multiselect-option.is-selected.is-disabled {
-	@apply bg-gray-200 text-white;
+.multiselect-option.is-pointed {
+	background-color: v-bind('layout?.app?.theme[4] + "15"') !important;
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)`') !important;
+}
+
+.multiselect-option.is-disabled {
+	@apply bg-gray-300 text-gray-500 !important;
 }
 
 .multiselect.is-active {
