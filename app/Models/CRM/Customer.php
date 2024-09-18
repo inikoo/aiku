@@ -17,6 +17,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
@@ -384,5 +385,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function shopifyUser(): HasOne
     {
         return $this->hasOne(ShopifyUser::class);
+    }
+
+    public function deliveryNotes(): HasMany
+    {
+        return $this->hasMany(DeliveryNote::class);
     }
 }
