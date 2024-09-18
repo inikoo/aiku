@@ -12,5 +12,21 @@ export interface Warehouse {
     settings: string,
     created_at: string,
     updated_at: string,
+}
 
+export interface DeliveryNote {
+    id: number
+    slug: string
+    reference: string
+    date: string
+    state: string
+    type: string
+    status: string
+    weight: string
+    created_at: string
+    updated_at: string
+    shop_slug: string | null
+    customer_slug: string | null
+    customer_name: string | null
+    number_items: number | null
 }

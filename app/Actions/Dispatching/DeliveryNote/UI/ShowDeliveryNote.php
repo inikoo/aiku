@@ -272,7 +272,8 @@ class ShowDeliveryNote extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => DeliveryNoteTabsEnum::navigation()
                 ],
-                'data' => new DeliveryNoteResource($deliveryNote),
+                'delivery_note' => DeliveryNoteResource::make($deliveryNote)->toArray(request()),
+
 
                 'alert'     => 'zzzzzzzzzz',
                 'notes'     => 'zzzzzzzzz',

@@ -62,7 +62,7 @@ trait WithCustomerSubNavigation
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-truc'],
+                    'icon'    => ['fal', 'fa-truck'],
                     'tooltip' => __('delivery notes')
                 ]
             ],
@@ -153,7 +153,7 @@ trait WithCustomerSubNavigation
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-truc'],
+                    'icon'    => ['fal', 'fa-truck'],
                     'tooltip' => __('delivery notes')
                 ]
             ],

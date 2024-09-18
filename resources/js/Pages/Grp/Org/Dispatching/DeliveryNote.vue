@@ -25,6 +25,7 @@ import TableSKOSOrdered from '@/Components/Warehouse/DeliveryNotes/TableSKOSOrde
 import TablePickings from '@/Components/Warehouse/DeliveryNotes/TablePickings.vue'
 import { routeType } from '@/types/route'
 import Tabs from '@/Components/Navigation/Tabs.vue'
+import type { DeliveryNote } from '@/types/warehouse'
 
 
 library.add(faFolder, faCube)
@@ -40,6 +41,7 @@ const props = defineProps<{
         title?: string
         description?: string
     }
+    delivery_note: DeliveryNote
     notes: {
         note_list: {
             label: string
@@ -80,7 +82,6 @@ const component = computed(() => {
 
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 
@@ -108,7 +109,7 @@ const component = computed(() => {
         <Timeline
             v-if="timelines"
             :options="timelines"
-            :state="undefined"
+            :state="delivery_note.state"
             :slidesPerView="6"
         />
     </div>

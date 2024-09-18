@@ -70,7 +70,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
         <!-- Column: Picker Name -->
         <template #cell(picker_name)="{ item }">
-            <div class="relative w-[200px]">
+            <div class="relative w-[170px]">
                 <PureMultiselectInfiniteScroll
                     v-model="item.picker.selected"
                     @update:modelValue="(selectedPicker) => onSubmitPickerPacker(item.assign_picker, selectedPicker, item.rowIndex, 'picker')"
@@ -100,7 +100,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
         <!-- Column: Packer Name -->
         <template #cell(packer_name)="{ item }">
-            <div class="relative w-[200px]">
+            <div class="relative w-[170px]">
                 <PureMultiselectInfiniteScroll
                     v-model="item.packer.selected"
                     @update:modelValue="(selectedPacker) => onSubmitPickerPacker(item.assign_packer, selectedPacker, item.rowIndex, 'packer')"
