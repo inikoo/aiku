@@ -28,6 +28,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
@@ -646,6 +647,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function offers(): HasMany
     {
         return $this->hasMany(Offer::class);
+    }
+
+    public function deliveryNotes(): HasMany
+    {
+        return $this->hasMany(DeliveryNote::class);
     }
 
 
