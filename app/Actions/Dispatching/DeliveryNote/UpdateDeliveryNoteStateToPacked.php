@@ -10,14 +10,9 @@ namespace App\Actions\Dispatching\DeliveryNote;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dispatching\DeliveryNoteItem;
-use App\Models\Dispatching\Picking;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class UpdateDeliveryNoteStateToPacked extends OrgAction
 {
@@ -36,10 +31,10 @@ class UpdateDeliveryNoteStateToPacked extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         $deliveryNoteItems = $this->deliveryNote->deliveryNoteItems;
-    
+
         foreach ($deliveryNoteItems as $deliveryNoteItem) {
             $picking = $deliveryNoteItem->pickings;
-    
+
             if (!$picking || $picking->state !== PickingStateEnum::DONE) {
                 abort(403, 'All pickings must be packed.');
             }
