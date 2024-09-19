@@ -48,7 +48,6 @@ class UpdatePickingStateToPicking extends OrgAction
 
         data_set($modelData, 'picking_at', now());
         data_set($modelData, 'state', PickingStateEnum::PICKING->value);
-        data_set($modelData, 'vessel_picking', PickingVesselEnum::AIKU->value);
 
         data_forget($modelData, 'picker');
 

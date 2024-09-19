@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
+use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,6 +31,7 @@ class UpdatePickingStateToDone extends OrgAction
         data_set($modelData, 'packed_at', now());
         data_set($modelData, 'state', PickingStateEnum::DONE->value);
         data_set($modelData, 'outcome', PickingOutcomeEnum::PACKED->value);
+        data_set($modelData, 'vessel_packing', PickingVesselEnum::AIKU->value);
 
         return $this->update($picking, $modelData);
     }
