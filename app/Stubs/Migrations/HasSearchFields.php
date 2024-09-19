@@ -51,7 +51,7 @@ trait HasSearchFields
         }
 
 
-        $table->unsignedSmallInteger('customer_id')->nullable()->index();
+        $table->unsignedInteger('customer_id')->nullable()->index();
         $table->foreign('customer_id')->references('id')->on('customers');
 
         return $this->searchFields($table);
