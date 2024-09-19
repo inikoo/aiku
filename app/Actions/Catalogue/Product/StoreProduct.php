@@ -157,7 +157,8 @@ class StoreProduct extends OrgAction
             $product,
             [
                 'source_id' => $product->historic_source_id
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $asset->updateQuietly(

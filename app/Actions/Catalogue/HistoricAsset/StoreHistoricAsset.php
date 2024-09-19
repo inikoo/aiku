@@ -27,7 +27,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = []): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = [], int $hydratorsDelay =0): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),
@@ -75,21 +75,21 @@ class StoreHistoricAsset
         $historicAsset->stats()->create();
 
         if ($assetModel instanceof Product) {
-            ProductHydrateHistoricAssets::dispatch($assetModel);
+            ProductHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
         }
         if ($assetModel instanceof Service) {
-            ServiceHydrateHistoricAssets::dispatch($assetModel);
+            ServiceHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
         }
         if ($assetModel instanceof Rental) {
-            RentalHydrateHistoricAssets::dispatch($assetModel);
+            RentalHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
         }
         if ($assetModel instanceof Subscription) {
-            SubscriptionHydrateHistoricAssets::dispatch($assetModel);
+            SubscriptionHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
         }
         if ($assetModel instanceof Charge) {
-            ChargeHydrateHistoricAssets::dispatch($assetModel);
+            ChargeHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
         }
-        AssetHydrateHistoricAssets::dispatch($assetModel->asset);
+        AssetHydrateHistoricAssets::dispatch($assetModel->asset)->delay($hydratorsDelay);
 
         return $historicAsset;
     }

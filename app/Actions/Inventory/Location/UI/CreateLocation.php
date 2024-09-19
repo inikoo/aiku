@@ -22,11 +22,9 @@ class CreateLocation extends OrgAction
     public function handle(ActionRequest $request): Response
     {
         // dd($this->parent);
-        if($this->parent instanceof WarehouseArea)
-        {
+        if($this->parent instanceof WarehouseArea) {
             $routeName = preg_replace('/.locations.create$/', '', $request->route()->getName());
-        } elseif ($this->parent instanceof Warehouse)
-        {
+        } elseif ($this->parent instanceof Warehouse) {
             $routeName = preg_replace('/create$/', 'index', $request->route()->getName());
         }
         return Inertia::render(

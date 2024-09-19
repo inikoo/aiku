@@ -39,7 +39,7 @@ class StoreLocation extends OrgAction
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
         $location->updateQuietly(['barcode' => $location->slug]);
-        GroupHydrateLocations::run($organisation->group)->delay($this->hydratorsDelay);
+        GroupHydrateLocations::dispatch($organisation->group)->delay($this->hydratorsDelay);
         OrganisationHydrateLocations::dispatch($organisation)->delay($this->hydratorsDelay);
 
         if ($location->warehouse_area_id) {

@@ -54,7 +54,8 @@ class StoreService extends OrgAction
                     ServiceStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
                     ServiceStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
                 }
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $service->updateQuietly(
@@ -67,7 +68,8 @@ class StoreService extends OrgAction
             $service,
             [
                 'source_id' => $service->historic_source_id
-            ]
+            ],
+            $this->hydratorsDelay
         );
         $asset->update(
             [
@@ -80,9 +82,9 @@ class StoreService extends OrgAction
             ]
         );
 
-        ShopHydrateServices::dispatch($shop);
-        OrganisationHydrateServices::dispatch($shop->organisation);
-        GroupHydrateServices::dispatch($shop->group);
+        ShopHydrateServices::dispatch($shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateServices::dispatch($shop->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateServices::dispatch($shop->group)->delay($this->hydratorsDelay);
 
 
         return $service;
