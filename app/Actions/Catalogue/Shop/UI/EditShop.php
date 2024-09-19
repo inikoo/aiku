@@ -161,46 +161,7 @@ class EditShop extends OrgAction
                                     'value' => $shop->phone,
                                 ],
                             ]
-                        ],
-                        [
-                            'label'  => __('shopify'),
-                            'icon'   => 'fa-light fa-shopping-bag',
-                            'fields' => [
-                                'shopify_shop_name'  => [
-                                    'type'          => 'input',
-                                    'label'         => __('shop name'),
-                                    'placeholder'   => __('Input your shop name'),
-                                    'value'         => Arr::get($shopify, 'shop_name')
-                                ],
-                                'shopify_api_key' => [
-                                    'type'          => 'password',
-                                    'label'         => __('api key'),
-                                    'placeholder'   => __('Input your api key'),
-                                    'value'         => Arr::get($shopify, 'api_key')
-                                ],
-                                'shopify_api_secret' => [
-                                    'type'          => 'password',
-                                    'label'         => __('api secret'),
-                                    'placeholder'   => __('Input your api secret'),
-                                    'value'         => Arr::get($shopify, 'api_secret')
-                                ],
-                                'shopify_access_token' => [
-                                    'type'          => 'password',
-                                    'label'         => __('access token'),
-                                    'placeholder'   => __('Input your access token'),
-                                    'value'         => Arr::get($shopify, 'access_token')
-                                ]
-                            ],
-                            'button' => [
-                                'title' => 'Connect to Shopify',
-                                'route' => [
-                                    'name'       => 'grp.models.shopify.connect',
-                                    'parameters' => [
-                                        'shop' => $shop->slug
-                                    ]
-                                ]
-                            ]
-                        ],
+                        ]
                     ],
                     'args'      => [
                         'updateRoute' => [

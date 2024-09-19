@@ -135,12 +135,21 @@ class IndexDeliveryNotes extends OrgAction
     {
         // dd(DeliveryNoteResource::collection($deliveryNotes));
         $subNavigation = null;
+        $model         = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
                 $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
             } else {
                 $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
             }
+        }
+
+        if ($this->parent instanceof Warehouse) {
+            $icon         =['fal', 'fa-arrow-from-left'];
+            $iconRight    =[
+                'icon' => 'fal fa-truck',
+            ];
+            $model = __('Goods Out');
         }
         return Inertia::render(
             'Org/Dispatching/DeliveryNotes',
@@ -153,6 +162,9 @@ class IndexDeliveryNotes extends OrgAction
                 'pageHead'       => [
                     'title'         => __('delivery notes'),
                     'subNavigation' => $subNavigation,
+                    'model'         => $model,
+                    'icon'          => $icon,
+                    'iconRight'     => $iconRight
                 ],
                 'data'        => DeliveryNotesResource::collection($deliveryNotes),
                 'tabs'        => [

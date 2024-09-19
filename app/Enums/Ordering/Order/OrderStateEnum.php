@@ -56,7 +56,7 @@ enum OrderStateEnum: string
             ],
             'submitted'    => [
                 'tooltip' => __('Submitted'),
-                'icon'    => 'fal fa-share',
+                'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo',
                 'app'     => [
@@ -66,8 +66,8 @@ enum OrderStateEnum: string
             ],
             'in_warehouse'    => [
                 'tooltip' => __('In Warehouse'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-emerald-500',
+                'icon'    => 'fal fa-warehouse',
+                'class'   => 'text-gray-500',
                 'color'   => 'emerald',
                 'app'     => [
                     'name' => 'spell-check',
@@ -76,8 +76,8 @@ enum OrderStateEnum: string
             ],
             'handling'     => [
                 'tooltip' => __('Handling'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-slate-500',
+                'icon'    => 'fal fa-hands-helping',
+                'class'   => 'text-gray-500',
                 'color'   => 'slate',
                 'app'     => [
                     'name' => 'check',
@@ -86,8 +86,8 @@ enum OrderStateEnum: string
             ],
             'packed' => [
                 'tooltip' => __('Packed'),
-                'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500',
+                'icon'    => 'fal fa-box',
+                'class'   => 'text-gray-500',
                 'color'   => 'slate',
                 'app'     => [
                     'name' => 'times',
@@ -96,8 +96,8 @@ enum OrderStateEnum: string
             ],
             'finalised'   => [
                 'tooltip' => __('Finalized'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-purple-500',
+                'icon'    => 'fal fa-tasks',
+                'class'   => 'text-gray-500',
                 'color'   => 'purple',
                 'app'     => [
                     'name' => 'check',
@@ -106,8 +106,8 @@ enum OrderStateEnum: string
             ],
             'dispatched'    => [
                 'tooltip' => __('Dispatched'),
-                'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
+                'icon'    => 'fal fa-shipping-fast',
+                'class'   => 'text-gray-500',
                 'color'   => 'purple',
                 'app'     => [
                     'name' => 'check-double',
@@ -116,8 +116,8 @@ enum OrderStateEnum: string
             ],
             'cancelled'    => [
                 'tooltip' => __('Cancelled'),
-                'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
+                'icon'    => 'fal fa-times-circle',
+                'class'   => 'text-red-500',
                 'color'   => 'purple',
                 'app'     => [
                     'name' => 'check-double',

@@ -22,5 +22,106 @@ enum PurchaseOrderStateEnum: string
     case CHECKED      = 'checked';
     case  SETTLED     = 'settled';
 
+    public static function labels(): array
+    {
+        $labels = [
+            'creating'         => __('Creating'),
+            'submitted'        => __('Submitted'),
+            'confirmed'        => __('Confirmed'),
+            'manufactured'     => __('Manufactured'),
+            'dispatched'       => __('Dispatched'),
+            'received'         => __('Received'),
+            'checked'          => __('Checked'),
+            'settled'          => __('Settled'),
+        ];
+
+        return $labels;
+    }
+
+    public static function stateIcon(): array
+    {
+        return [
+            'creating'   => [
+                'tooltip' => __('Creating'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'submitted'    => [
+                'tooltip' => __('Submitted'),
+                'icon'    => 'fal fa-paper-plane',
+                'class'   => 'text-indigo-400',
+                'color'   => 'indigo',
+                'app'     => [
+                    'name' => 'share',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'confirmed'    => [
+                'tooltip' => __('Confirmed'),
+                'icon'    => 'fal fa-check-circle',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'spell-check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'manufactured'     => [
+                'tooltip' => __('Manufactured'),
+                'icon'    => 'fal fa-industry',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'dispatched' => [
+                'tooltip' => __('Dispatched'),
+                'icon'    => 'fal fa-shipping-fast',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'received'   => [
+                'tooltip' => __('Received'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'checked'    => [
+                'tooltip' => __('Checked'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check-double',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'settled'    => [
+                'tooltip' => __('Settled'),
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check-double',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+        ];
+    }
 
 }

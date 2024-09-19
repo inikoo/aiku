@@ -20,55 +20,66 @@ enum DeliveryNoteItemStateEnum: string
     case FINALISED = 'finalised';
     case SETTLED   = 'settled';
 
+    public static function labels(): array
+    {
+        return [
+            'on-hold'               => __('On Hold'),
+            'handling'              => __('Handling'),
+            'packed'                => __('Packed'),
+            'finalised'             => __('Finalised'),
+            'settled'               => __('Settled'),
+        ];
+    }
+
 
     public static function stateIcon(): array
     {
         return [
             'on-hold'   => [
-                'tooltip' => __('on hold'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'tooltip' => __('On Hold'),
+                'icon'    => 'fal fa-pause-circle',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'handling'   => [
-                'tooltip' => __('handling'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'tooltip' => __('Handling'),
+                'icon'    => 'fal fa-hands-helping',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'packed'   => [
-                'tooltip' => __('packed'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'tooltip' => __('Packed'),
+                'icon'    => 'fal fa-box',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'finalised'   => [
-                'tooltip' => __('finalised'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'tooltip' => __('Finalised'),
+                'icon'    => 'fal fa-tasks',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'settled'   => [
-                'tooltip' => __('settled'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'tooltip' => __('Settled'),
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-indigo-500',  // Color for normal icon (Aiku)
+                'color'   => 'indigo',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'

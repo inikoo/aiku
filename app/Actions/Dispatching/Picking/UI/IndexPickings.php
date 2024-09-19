@@ -77,6 +77,7 @@ class IndexPickings extends OrgAction
                 'pickings.vessel_picking',
                 'pickings.vessel_packing',
                 'pickings.location_id',
+                'pickings.state',
             ])
             ->allowedSorts(['id', 'org_stock_code', 'org_stock_name', 'picker_name', 'packer_name', 'vessel_picking', 'vessel_packing' ])
             ->allowedFilters([$globalSearch])
@@ -101,6 +102,7 @@ class IndexPickings extends OrgAction
                     ]
                 );
 
+            $table->column(key: 'state', label: __('State'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'org_stock_code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'org_stock_name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'quantity_required', label: __('Quantity Required'), canBeHidden: false, sortable: true, searchable: true);

@@ -35,4 +35,91 @@ enum PickingStateEnum: string
             'done'                 => __('Done'),
         ];
     }
+
+    public static function stateIcon(): array
+    {
+        return [
+            'on-hold'   => [
+                'tooltip' => __('On Hold'),
+                'icon'    => 'fal fa-pause-circle',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'assigned'   => [
+                'tooltip' => __('Assigned'),
+                'icon'    => 'fal fa-user-check',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'picking'   => [
+                'tooltip' => __('Picking'),
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'queried'   => [
+                'tooltip' => __('Queried'),
+                'icon'    => 'fal fa-question-circle',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'waiting'   => [
+                'tooltip' => __('Waiting'),
+                'icon'    => 'fal fa-hourglass-half',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'picked'   => [
+                'tooltip' => __('Picked'),
+                'icon'    => 'fal fa-box-check',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'packing'   => [
+                'tooltip' => __('Packing'),
+                'icon'    => 'fal fa-box-open',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'done'   => [
+                'tooltip' => __('Done'),
+                'icon'    => 'fal fa-flag-checkered',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+        ];
+    }
+
 }
