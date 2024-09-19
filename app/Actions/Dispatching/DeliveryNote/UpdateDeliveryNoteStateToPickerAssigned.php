@@ -14,8 +14,6 @@ use App\Models\Dispatching\DeliveryNote;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
-use function PHPUnit\Framework\throwException;
-
 class UpdateDeliveryNoteStateToPickerAssigned extends OrgAction
 {
     use WithActionUpdate;

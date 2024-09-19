@@ -10,7 +10,6 @@ namespace App\Actions\Dispatching\Picking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
-use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Illuminate\Support\Arr;
@@ -34,6 +33,15 @@ class UpdatePickingStateToPicking extends OrgAction
         }
         if(!$picking->picker_assigned_at) {
             data_set($modelData, 'picker_assigned_at', now());
+        }
+
+        $totalQuantityRemoved = Arr::get($modelData, 'quantity_removed');
+        if($totalQuantityRemoved) {
+            if((int) $totalQuantityRemoved > $picking->quantity_picked) {
+                throw ValidationException::withMessages(['status' => 'Quantity picked less than quantity removed']);
+            }
+
+            data_set($modelData, 'quantity_picked', $picking->quantity_picked - $totalQuantityRemoved);
         }
 
         $totalQuantityPicked = (int) Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
