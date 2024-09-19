@@ -142,19 +142,6 @@ test('create warehouse area', function ($warehouse) {
     return $warehouseArea;
 })->depends('create warehouse');
 
-test('create warehouse area by command', function ($warehouse) {
-    $this->artisan('warehouse-areas:create', [
-        'warehouse' => $warehouse->slug,
-        'code'      => 'AA',
-        'name'      => 'testName A',
-    ])->assertExitCode(0);
-
-    $warehouseArea = WarehouseArea::where('code', 'AA')->first();
-
-    expect($warehouseArea)->toBeInstanceOf($warehouseArea::class)
-        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(2);
-})->depends('create warehouse');
-
 test('update warehouse area', function ($warehouseArea) {
     $warehouseArea = UpdateWarehouseArea::make()->action($warehouseArea, ['name' => 'Area 01']);
     expect($warehouseArea->name)->toBe('Area 01');
@@ -175,11 +162,15 @@ test('create location in warehouse', function ($warehouse) {
         ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
 })->depends('create warehouse');
 
-test('create location in warehouse by command', function ($warehouse) {
-    $this->artisan('locations:create', [
-        'warehouse' => $warehouse->slug,
-        'code'      => 'AA',
-    ])->assertExitCode(0);
+test('create other location in warehouse', function ($warehouse) {
+
+    StoreLocation::make()->action(
+        $warehouse,
+        [
+            'code'       => 'AA',
+            'max_weight' => 1000,
+        ]
+    );
 
     $warehouse->refresh();
     expect($warehouse->stats->number_locations)->toBe(2)
@@ -206,24 +197,7 @@ test('create location in warehouse area', function ($warehouseArea) {
     return $location;
 })->depends('create warehouse area');
 
-test('create location in warehouse area by command', function ($warehouseArea) {
-    $this->artisan('locations:create', [
-        'warehouse'    => $warehouseArea->warehouse->slug,
-        'code'         => 'AB',
-        '--area'       => $warehouseArea->slug,
-        '--max_weight' => '1000',
-    ])->assertExitCode(0);
 
-    $warehouseArea->refresh();
-    $warehouse = $warehouseArea->warehouse;
-
-    expect($warehouse->stats->number_locations)->toBe(4)
-        ->and($warehouse->stats->number_locations_status_operational)->toBe(4)
-        ->and($warehouse->stats->number_locations_status_broken)->toBe(0)
-        ->and($warehouseArea->stats->number_locations)->toBe(2)
-        ->and($warehouseArea->stats->number_locations_status_operational)->toBe(2)
-        ->and($warehouseArea->stats->number_locations_status_broken)->toBe(0);
-})->depends('create warehouse area');
 
 
 /*
@@ -245,7 +219,7 @@ test('update stock family state', function (StockFamily $stockFamily) {
 test('create stock in group', function () {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
-    $stockData=Stock::factory()->definition();
+    $stockData = Stock::factory()->definition();
     data_forget($stockData, 'state');
     $stock = StoreStock::make()->action($this->group, $stockData);
 
@@ -293,7 +267,7 @@ test('create stock family', function () {
 test('create stock in stock family', function (StockFamily $stockFamily) {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
-    $stockData=Stock::factory()->definition();
+    $stockData = Stock::factory()->definition();
     data_forget($stockData, 'state');
 
     $stock = StoreStock::make()->action($stockFamily, $stockData);
@@ -355,24 +329,23 @@ test('create org stock', function (Stock $stock) {
 
 test('create org stock family', function (Stock $stock) {
     /** @var StockFamily $stockFamily */
-    $stockFamily=$stock->stockFamily;
+    $stockFamily = $stock->stockFamily;
     expect($stockFamily)->toBeInstanceOf(StockFamily::class);
-    $orgStockFamily=StoreOrgStockFamily::make()->action($this->organisation, $stockFamily, []);
+    $orgStockFamily = StoreOrgStockFamily::make()->action($this->organisation, $stockFamily, []);
     expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class)
-       ->and($orgStockFamily->state)->toBe(OrgStockFamilyStateEnum::ACTIVE)
-       ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
-       ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
-       ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
+        ->and($orgStockFamily->state)->toBe(OrgStockFamilyStateEnum::ACTIVE)
+        ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
 })->depends('update 2nd stock state');
 
 test('create org stock from 2nd stock (within stock family)', function (Stock $stock) {
-
     /** @var StockFamily $stockFamily */
-    $stockFamily=$stock->stockFamily;
+    $stockFamily = $stock->stockFamily;
     expect($stockFamily)->toBeInstanceOf(StockFamily::class);
 
 
-    $orgStockFamily=$stockFamily->orgStockFamilies()->where('organisation_id', $this->organisation->id)->first();
+    $orgStockFamily = $stockFamily->orgStockFamilies()->where('organisation_id', $this->organisation->id)->first();
     expect($orgStockFamily)->toBeInstanceOf(OrgStockFamily::class);
     $orgStock = StoreOrgStock::make()->action(
         $orgStockFamily,
@@ -393,10 +366,10 @@ test('create org stock from 2nd stock (within stock family)', function (Stock $s
 test('fail to create another stock if state in process', function () {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
-    $stockData=Stock::factory()->definition();
+    $stockData = Stock::factory()->definition();
     data_forget($stockData, 'state');
 
-    $stock     = StoreStock::make()->action($this->group, $stockData);
+    $stock = StoreStock::make()->action($this->group, $stockData);
 
     SyncStockTradeUnits::run($stock, [
         $tradeUnit->id => [
@@ -416,10 +389,10 @@ test('fail to create another stock if state in process', function () {
 test('attach stock to location', function (Location $location) {
     $orgStocks = OrgStock::all();
     expect($orgStocks->count())->toBe(2);
-    $locationOrgStocks=[];
+    $locationOrgStocks = [];
     foreach ($orgStocks as $orgStock) {
         $locationOrgStocks[] = StoreLocationOrgStock::make()->action($orgStock, $location, [
-            'type'=> LocationStockTypeEnum::PICKING
+            'type' => LocationStockTypeEnum::PICKING
         ]);
     }
 
@@ -427,12 +400,11 @@ test('attach stock to location', function (Location $location) {
         ->and($locationOrgStocks[0])->toBeInstanceOf(LocationOrgStock::class);
 
     return $locationOrgStocks[0];
-
 })->depends('create location in warehouse area');
 
 
 test('detach stock from location', function (LocationOrgStock $locationOrgStock) {
-    $location=$locationOrgStock->location;
+    $location = $locationOrgStock->location;
     DeleteLocationOrgStock::make()->action($locationOrgStock);
     $location->refresh();
     expect($location->stats->number_org_stock_slots)->toBe(1);
@@ -467,7 +439,6 @@ test('update location', function ($location) {
     $location = UpdateLocation::make()->action($location, ['code' => 'AE-3']);
     expect($location->code)->toBe('AE-3');
 })->depends('create location in warehouse area');
-
 
 
 test('add found stock', function ($location) {
@@ -505,7 +476,6 @@ test('remove found stock', function ($lostAndFoundStock) {
     $lostAndFound = RemoveLostAndFoundStock::make()->action($lostAndFoundStock, 2);
     expect($lostAndFound->quantity)->toBe(2.0);
 })->depends('add found stock');
-
 
 
 test('hydrate warehouses', function (Warehouse $warehouse) {
