@@ -25,14 +25,14 @@ enum PurchaseOrderStateEnum: string
     public static function labels(): array
     {
         $labels = [
-            'creating'       => __('Creating'),
-            'submitted'     => __('Submitted'),
-            'confirmed'     => __('Confirmed'),
+            'creating'         => __('Creating'),
+            'submitted'        => __('Submitted'),
+            'confirmed'        => __('Confirmed'),
             'manufactured'     => __('Manufactured'),
-            'dispatched'     => __('Dispatched'),
-            'received'     => __('Received'),
-            'checked'     => __('Checked'),
-            'settled'     => __('Settled'),
+            'dispatched'       => __('Dispatched'),
+            'received'         => __('Received'),
+            'checked'          => __('Checked'),
+            'settled'          => __('Settled'),
         ];
 
         return $labels;

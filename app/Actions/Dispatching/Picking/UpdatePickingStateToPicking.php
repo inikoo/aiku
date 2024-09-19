@@ -58,6 +58,7 @@ class UpdatePickingStateToPicking extends OrgAction
         data_set($modelData, 'state', PickingStateEnum::PICKING->value);
 
         data_forget($modelData, 'picker');
+        data_forget($modelData, 'quantity_removed');
 
         return $this->update($picking, $modelData);
     }

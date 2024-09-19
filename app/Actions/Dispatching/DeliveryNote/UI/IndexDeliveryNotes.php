@@ -135,7 +135,7 @@ class IndexDeliveryNotes extends OrgAction
     {
         // dd(DeliveryNoteResource::collection($deliveryNotes));
         $subNavigation = null;
-        $model = null;
+        $model         = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
                 $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
@@ -144,8 +144,7 @@ class IndexDeliveryNotes extends OrgAction
             }
         }
 
-        if ($this->parent instanceof Warehouse)
-        {
+        if ($this->parent instanceof Warehouse) {
             $icon         =['fal', 'fa-arrow-from-left'];
             $iconRight    =[
                 'icon' => 'fal fa-truck',
