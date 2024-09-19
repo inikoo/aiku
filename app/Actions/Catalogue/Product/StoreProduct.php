@@ -111,7 +111,8 @@ class StoreProduct extends OrgAction
                     ProductStateEnum::DISCONTINUING => AssetStateEnum::DISCONTINUING,
                     ProductStateEnum::DISCONTINUED  => AssetStateEnum::DISCONTINUED,
                 }
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $product->updateQuietly(

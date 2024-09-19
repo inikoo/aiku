@@ -33,6 +33,7 @@ class FetchAuroraShippingZones extends FetchAuroraAction
                 $shippingZone = StoreShippingZone::make()->action(
                     shippingZoneSchema: $shippingZoneData['shipping-zone-schema'],
                     modelData: $shippingZoneData['shipping-zone'],
+                    hydratorDelay: 60,
                     strict: false,
                 );
             }

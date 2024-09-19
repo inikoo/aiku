@@ -21,7 +21,7 @@ use App\Models\Ordering\ShippingZone;
 
 class StoreAsset extends OrgAction
 {
-    public function handle(Product|Rental|Service|Charge|ShippingZone $parent, array $modelData): Asset
+    public function handle(Product|Rental|Service|Charge|ShippingZone $parent, array $modelData, int $hydratorDelay=0): Asset
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
@@ -45,11 +45,10 @@ class StoreAsset extends OrgAction
         $asset->stats()->create();
         $asset->salesIntervals()->create();
 
-        AssetHydrateHistoricAssets::dispatch($asset);
-        ShopHydrateAssets::dispatch($asset->shop);
-        OrganisationHydrateAssets::dispatch($asset->organisation);
-        GroupHydrateAssets::dispatch($asset->group);
-        AssetHydrateUniversalSearch::dispatch($asset);
+        AssetHydrateHistoricAssets::dispatch($asset)->delay($hydratorDelay);
+        ShopHydrateAssets::dispatch($asset->shop)->delay($hydratorDelay);
+        OrganisationHydrateAssets::dispatch($asset->organisation)->delay($hydratorDelay);
+        GroupHydrateAssets::dispatch($asset->group)->delay($hydratorDelay);
 
         return $asset;
     }

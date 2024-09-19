@@ -57,7 +57,8 @@ class StoreCharge extends OrgAction
                     ChargeStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
                     ChargeStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
                 }
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $charge->updateQuietly(
