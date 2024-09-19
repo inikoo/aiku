@@ -29,6 +29,7 @@ class OfferCampaignsResource extends JsonResource
             'name'       => $this->name,
             'type'       => $this->type,
             'state'      => $this->state,
+            'state_icon' => $this->state->stateIcon()[$this->state->value],
             'status'     => $this->status,
             'shop_slug'  => $this->shop_slug
         ];
