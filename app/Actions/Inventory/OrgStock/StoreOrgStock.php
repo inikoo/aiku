@@ -64,9 +64,9 @@ class StoreOrgStock extends OrgAction
 
 
         OrgStockHydrateUniversalSearch::dispatch($orgStock);
-        OrganisationHydrateOrgStocks::dispatch($organisation);
+        OrganisationHydrateOrgStocks::dispatch($organisation)->delay($this->hydratorsDelay);
         if($orgStock->orgStockFamily) {
-            OrgStockFamilyHydrateOrgStocks::dispatch($orgStock->orgStockFamily);
+            OrgStockFamilyHydrateOrgStocks::dispatch($orgStock->orgStockFamily)->delay($this->hydratorsDelay);
         }
 
         $orgStock->refresh();

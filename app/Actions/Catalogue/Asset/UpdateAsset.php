@@ -9,7 +9,6 @@ namespace App\Actions\Catalogue\Asset;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
-use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
 use App\Actions\Traits\WithActionUpdate;
@@ -58,13 +57,8 @@ class UpdateAsset extends OrgAction
 
         $asset = $this->update($asset, $modelData);
 
-
-        AssetHydrateUniversalSearch::dispatch($asset);
-
         $changed = $asset->getChanges();
-        if (count($changed) > 0) {
-            AssetHydrateUniversalSearch::dispatch($asset);
-        }
+
 
         if (Arr::hasAny($changed, ['state'])) {
             ShopHydrateAssets::dispatch($asset->shop);

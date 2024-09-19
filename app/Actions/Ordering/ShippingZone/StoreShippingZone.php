@@ -44,7 +44,8 @@ class StoreShippingZone extends OrgAction
                 'type'  => AssetTypeEnum::CHARGE,
                 'state' => $shippingZone->status ? AssetStateEnum::ACTIVE : AssetStateEnum::DISCONTINUED,
 
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $shippingZone->updateQuietly(
@@ -54,10 +55,7 @@ class StoreShippingZone extends OrgAction
         );
 
         $historicAsset = StoreHistoricAsset::run(
-            $shippingZone,
-            [
-                'source_id' => $shippingZone->historic_source_id
-            ]
+            $shippingZone
         );
         $asset->update(
             [
@@ -69,7 +67,6 @@ class StoreShippingZone extends OrgAction
                 'current_historic_asset_id' => $historicAsset->id,
             ]
         );
-
 
 
         return $shippingZone;
@@ -102,16 +99,17 @@ class StoreShippingZone extends OrgAction
         if (!$this->strict) {
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['created_at'] = ['sometimes', 'date'];
-            $rules['source_id']  = ['sometimes', 'string','max:255'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, bool $strict = true): ShippingZone
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, int $hydratorDelay = 0, bool $strict = true): ShippingZone
     {
-        $this->strict   = $strict;
-        $this->asAction = true;
+        $this->strict        = $strict;
+        $this->asAction      = true;
+        $this->hydratorDelay = $hydratorDelay;
         $this->initialisationFromShop($shippingZoneSchema->shop, $modelData);
 
         return $this->handle($shippingZoneSchema, $this->validatedData);

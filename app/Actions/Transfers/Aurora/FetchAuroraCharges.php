@@ -21,22 +21,20 @@ class FetchAuroraCharges extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Charge
     {
         if ($chargeData = $organisationSource->fetchCharge($organisationSourceId)) {
-
             if ($charge = Charge::where('source_id', $chargeData['charge']['source_id'])->first()) {
                 $charge = UpdateCharge::make()->action(
                     charge: $charge,
                     modelData: $chargeData['charge'],
                     strict: false,
-                    audit:false
+                    audit: false
                 );
             } else {
                 $charge = StoreCharge::make()->action(
                     shop: $chargeData['shop'],
                     modelData: $chargeData['charge'],
+                    hydratorsDelay: 60,
                     strict: false,
                 );
-
-
             }
 
             return $charge;
