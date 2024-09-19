@@ -10,7 +10,6 @@ namespace App\Actions\Dispatching\Picking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
-use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Illuminate\Support\Arr;
@@ -36,6 +35,15 @@ class UpdatePickingStateToPicking extends OrgAction
             data_set($modelData, 'picker_assigned_at', now());
         }
 
+        $totalQuantityRemoved = Arr::get($modelData, 'quantity_removed');
+        if($totalQuantityRemoved) {
+            if((int) $totalQuantityRemoved > $picking->quantity_picked) {
+                throw ValidationException::withMessages(['status' => 'Quantity picked less than quantity removed']);
+            }
+
+            data_set($modelData, 'quantity_picked', $picking->quantity_picked - $totalQuantityRemoved);
+        }
+
         $totalQuantityPicked = (int) Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
 
         if($totalQuantityPicked > $picking->deliveryNoteItem->quantity_required) {
@@ -57,9 +65,10 @@ class UpdatePickingStateToPicking extends OrgAction
     public function rules(): array
     {
         return [
-            'picker'          => ['sometimes', 'exists:users,id'],
-            'quantity_picked' => ['sometimes'],
-            'location_id'     => ['sometimes', 'exists:locations,id']
+            'picker'           => ['sometimes', 'exists:users,id'],
+            'quantity_picked'  => ['sometimes'],
+            'quantity_removed' => ['sometimes'],
+            'location_id'      => ['sometimes', 'exists:locations,id']
         ];
     }
 

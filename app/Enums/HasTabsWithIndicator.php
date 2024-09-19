@@ -7,10 +7,7 @@
 
 namespace App\Enums;
 
-use App\Models\Catalogue\Collection;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
 
 trait HasTabsWithIndicator
 {

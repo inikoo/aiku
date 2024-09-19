@@ -217,6 +217,10 @@ class IndexPalletReturns extends OrgAction
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
+        } elseif ($this->parent instanceof Warehouse) {
+            $icon         =['fal', 'fa-arrow-from-left'];
+            $model        = __('Goods Out');
+            $iconRight    = ['fal', 'fa-sign-out-alt'];
         }
 
         return Inertia::render(
