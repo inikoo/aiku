@@ -35,4 +35,91 @@ enum PickingStateEnum: string
             'done'                 => __('Done'),
         ];
     }
+
+    public static function stateIcon(): array
+    {
+        return [
+            'on-hold'   => [
+                'tooltip' => __('On Hold'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'assigned'   => [
+                'tooltip' => __('Assigned'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'picking'   => [
+                'tooltip' => __('Picking'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'queried'   => [
+                'tooltip' => __('Queried'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'waiting'   => [
+                'tooltip' => __('Waiting'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'picked'   => [
+                'tooltip' => __('Picked'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'packing'   => [
+                'tooltip' => __('Packing'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'done'   => [
+                'tooltip' => __('Done'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+        ];
+    }
+
 }

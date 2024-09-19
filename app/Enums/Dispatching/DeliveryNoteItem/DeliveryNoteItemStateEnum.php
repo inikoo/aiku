@@ -20,12 +20,23 @@ enum DeliveryNoteItemStateEnum: string
     case FINALISED = 'finalised';
     case SETTLED   = 'settled';
 
+    public static function labels(): array
+    {
+        return [
+            'on-hold'               => __('On Hold'),
+            'handling'              => __('Handling'),
+            'packed'                => __('Packed'),
+            'finalised'             => __('Finalised'),
+            'settled'               => __('Settled'),
+        ];
+    }
+
 
     public static function stateIcon(): array
     {
         return [
             'on-hold'   => [
-                'tooltip' => __('on hold'),
+                'tooltip' => __('On Hold'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
@@ -35,7 +46,7 @@ enum DeliveryNoteItemStateEnum: string
                 ]
             ],
             'handling'   => [
-                'tooltip' => __('handling'),
+                'tooltip' => __('Handling'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
@@ -45,7 +56,7 @@ enum DeliveryNoteItemStateEnum: string
                 ]
             ],
             'packed'   => [
-                'tooltip' => __('packed'),
+                'tooltip' => __('Packed'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
@@ -55,7 +66,7 @@ enum DeliveryNoteItemStateEnum: string
                 ]
             ],
             'finalised'   => [
-                'tooltip' => __('finalised'),
+                'tooltip' => __('Finalised'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
@@ -65,7 +76,7 @@ enum DeliveryNoteItemStateEnum: string
                 ]
             ],
             'settled'   => [
-                'tooltip' => __('settled'),
+                'tooltip' => __('Settled'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)

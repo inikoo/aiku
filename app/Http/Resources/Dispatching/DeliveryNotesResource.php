@@ -15,7 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $created_at
  * @property mixed $updated_at
  * @property string $name
- * @property string $state
+ * @property mixed $state
  * @property string $shop_slug
  * @property string $date
  * @property string $reference
@@ -33,6 +33,7 @@ class DeliveryNotesResource extends JsonResource
             'reference'      => $this->reference,
             'date'           => $this->date,
             'state'          => $this->state,
+            'state_icon'     => $this->state->stateIcon()[$this->state->value],
             'type'           => $this->type,
             'status'         => $this->status,
             'weight'         => $this->weight,
