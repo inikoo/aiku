@@ -108,6 +108,7 @@ class IndexPickings extends OrgAction
             $table->column(key: 'packer_name', label: __('Packer'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'vessel_picking', label: __('Picking Vessel'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'vessel_packing', label: __('Packing Vessel'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: '', label: __('Action'), canBeHidden: false);
         };
     }
 
