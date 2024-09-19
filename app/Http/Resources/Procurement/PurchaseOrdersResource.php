@@ -22,6 +22,7 @@ class PurchaseOrdersResource extends JsonResource
         return [
             'reference'         => $this->reference,
             'state'             => $this->state,
+            'state_icon'        => $this->state->stateIcon()[$this->state->value],
             'amount'            => $this->cost_total,
             'parent_type'       => $this->parent_type,
             'parent_name'       => $this->parent_name,
