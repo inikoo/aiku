@@ -39,14 +39,14 @@ class StoreLocation extends OrgAction
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
         $location->updateQuietly(['barcode' => $location->slug]);
-        GroupHydrateLocations::run($organisation->group);
-        OrganisationHydrateLocations::dispatch($organisation);
+        GroupHydrateLocations::run($organisation->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateLocations::dispatch($organisation)->delay($this->hydratorsDelay);
 
         if ($location->warehouse_area_id) {
-            WarehouseAreaHydrateLocations::dispatch($location->warehouseArea);
+            WarehouseAreaHydrateLocations::dispatch($location->warehouseArea)->delay($this->hydratorsDelay);
         }
 
-        WarehouseHydrateLocations::dispatch($location->warehouse);
+        WarehouseHydrateLocations::dispatch($location->warehouse)->delay($this->hydratorsDelay);
         LocationRecordSearch::dispatch($location);
 
         return $location;
@@ -110,10 +110,11 @@ class StoreLocation extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $modelData, bool $strict=true): Location
+    public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay =0, bool $strict=true): Location
     {
-        $this->asAction = true;
-        $this->strict   = $strict;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         if(class_basename($parent::class) == 'WarehouseArea') {
             $this->warehouse = $parent->warehouse;

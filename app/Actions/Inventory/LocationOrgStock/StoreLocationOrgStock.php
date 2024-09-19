@@ -40,10 +40,10 @@ class StoreLocationOrgStock extends OrgAction
 
         $locationStock = $location->locationOrgStocks()->create($modelData);
 
-        LocationHydrateStocks::dispatch($location);
-        LocationHydrateStockValue::dispatch($location);
-        OrgStockHydrateLocations::dispatch($orgStock);
-        OrgStockHydrateQuantityInLocations::dispatch($orgStock);
+        LocationHydrateStocks::dispatch($location)->delay($this->hydratorsDelay);
+        LocationHydrateStockValue::dispatch($location)->delay($this->hydratorsDelay);
+        OrgStockHydrateLocations::dispatch($orgStock)->delay($this->hydratorsDelay);
+        OrgStockHydrateQuantityInLocations::dispatch($orgStock)->delay($this->hydratorsDelay);
 
         return $locationStock;
     }
