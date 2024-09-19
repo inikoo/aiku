@@ -10,6 +10,7 @@ namespace App\Actions\Dispatching\Picking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
+use App\Enums\Dispatching\Picking\PickingVesselEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,6 +29,7 @@ class UpdatePickingStateToPicked extends OrgAction
     {
         data_set($modelData, 'picked_at', now());
         data_set($modelData, 'state', PickingStateEnum::PICKED->value);
+        data_set($modelData, 'vessel_picking', PickingVesselEnum::AIKU->value);
 
         return $this->update($picking, $modelData);
     }

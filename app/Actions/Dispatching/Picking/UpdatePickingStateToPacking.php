@@ -36,7 +36,6 @@ class UpdatePickingStateToPacking extends OrgAction
         }
         data_set($modelData, 'packing_at', now());
         data_set($modelData, 'state', PickingStateEnum::PACKING->value);
-        data_set($modelData, 'vessel_packing', PickingVesselEnum::AIKU->value);
 
         return $this->update($picking, $modelData);
     }
