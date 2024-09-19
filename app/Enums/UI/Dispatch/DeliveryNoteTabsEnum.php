@@ -10,7 +10,6 @@ namespace App\Enums\UI\Dispatch;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\EnumHelperTrait;
-use App\Enums\HasTabs;
 use App\Enums\HasTabsWithIndicator;
 use App\Models\Dispatching\DeliveryNote;
 
@@ -35,7 +34,7 @@ enum DeliveryNoteTabsEnum: string
     public function blueprint(DeliveryNote $parent): array
     {
         $indicator = false;
-        if ($parent->state == DeliveryNoteStateEnum::IN_QUEUE){
+        if ($parent->state == DeliveryNoteStateEnum::IN_QUEUE) {
             foreach ($parent->deliveryNoteItems as $deliveryNoteItem) {
                 if (!$deliveryNoteItem->pickings || !$deliveryNoteItem->pickings->picker_id) {
                     $indicator = true;
@@ -43,7 +42,7 @@ enum DeliveryNoteTabsEnum: string
             }
         }
 
-        if ($parent->state == DeliveryNoteStateEnum::PICKING){
+        if ($parent->state == DeliveryNoteStateEnum::PICKING) {
             foreach ($parent->deliveryNoteItems as $deliveryNoteItem) {
                 if (!$deliveryNoteItem->pickings->state == PickingStateEnum::PICKED) {
                     $indicator = true;
@@ -51,7 +50,7 @@ enum DeliveryNoteTabsEnum: string
             }
         }
 
-        if ($parent->state == DeliveryNoteStateEnum::PICKED){
+        if ($parent->state == DeliveryNoteStateEnum::PICKED) {
             foreach ($parent->deliveryNoteItems as $deliveryNoteItem) {
                 if (!$deliveryNoteItem->pickings->state == PickingStateEnum::DONE) {
                     $indicator = true;
@@ -72,10 +71,10 @@ enum DeliveryNoteTabsEnum: string
             //     'icon'  => 'fal fa-compress-arrows-alt',
             // ],
             DeliveryNoteTabsEnum::PICKINGS => [
-                'title' => __('pickings '),
-                'icon'  => 'fal fa-box-full',
-                'type'  => 'icon',
-                'align' => 'right',
+                'title'     => __('pickings '),
+                'icon'      => 'fal fa-box-full',
+                'type'      => 'icon',
+                'align'     => 'right',
                 'indicator' => $indicator
             ],
             // DeliveryNoteTabsEnum::CHANGELOG     => [
