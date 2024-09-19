@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue\Asset;
 
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
-use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateUniversalSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
