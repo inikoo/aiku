@@ -11,12 +11,13 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
+use App\Enums\HasTabsWithIndicator;
 use App\Models\Dispatching\DeliveryNote;
 
 enum DeliveryNoteTabsEnum: string
 {
     use EnumHelperTrait;
-    use HasTabs;
+    use HasTabsWithIndicator;
 
     // case SHOWCASE               = 'showcase';
     case SKOS_ORDERED           = 'skos_ordered';
@@ -31,27 +32,27 @@ enum DeliveryNoteTabsEnum: string
 
 
 
-    public function blueprint(DeliveryNote $deliveryNote): array
+    public function blueprint(DeliveryNote $parent): array
     {
         $indicator = false;
-        if ($deliveryNote->state == DeliveryNoteStateEnum::IN_QUEUE){
-            foreach ($deliveryNote->deliveryNoteItems as $deliveryNoteItem) {
+        if ($parent->state == DeliveryNoteStateEnum::IN_QUEUE){
+            foreach ($parent->deliveryNoteItems as $deliveryNoteItem) {
                 if (!$deliveryNoteItem->pickings || !$deliveryNoteItem->pickings->picker_id) {
                     $indicator = true;
                 }
             }
         }
 
-        if ($deliveryNote->state == DeliveryNoteStateEnum::PICKING){
-            foreach ($deliveryNote->deliveryNoteItems as $deliveryNoteItem) {
+        if ($parent->state == DeliveryNoteStateEnum::PICKING){
+            foreach ($parent->deliveryNoteItems as $deliveryNoteItem) {
                 if (!$deliveryNoteItem->pickings->state == PickingStateEnum::PICKED) {
                     $indicator = true;
                 }
             }
         }
 
-        if ($deliveryNote->state == DeliveryNoteStateEnum::PICKED){
-            foreach ($deliveryNote->deliveryNoteItems as $deliveryNoteItem) {
+        if ($parent->state == DeliveryNoteStateEnum::PICKED){
+            foreach ($parent->deliveryNoteItems as $deliveryNoteItem) {
                 if (!$deliveryNoteItem->pickings->state == PickingStateEnum::DONE) {
                     $indicator = true;
                 }
