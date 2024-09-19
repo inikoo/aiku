@@ -59,7 +59,42 @@ class PickingsResource extends JsonResource
                     'picking'   => $this->id
                     ]
                 ],
-
+            'pickingRoute'  => [
+                'name'          => 'grp.models.picking.state.picking',
+                'parameters'    => [
+                    'picking'   => $this->id
+                    ]
+                ],
+            'queriedRoute'  => [
+                'name'          => 'grp.models.picking.state.queried',
+                'parameters'    => [
+                    'picking'   => $this->id
+                    ]
+                ],
+            'waitingRoute'  => [
+                'name'          => 'grp.models.picking.state.waiting',
+                'parameters'    => [
+                    'picking'   => $this->id
+                    ]
+                ],
+            'pickedRoute'  => [
+                'name'          => 'grp.models.picking.state.picked',
+                'parameters'    => [
+                    'picking'   => $this->id
+                    ]
+                ],
+            'packingRoute'  => [
+                'name'          => 'grp.models.picking.state.packed',
+                'parameters'    => [
+                    'picking'   => $this->id
+                    ]
+                ],
+            'doneRoute'  => [
+                'name'          => 'grp.models.picking.state.done',
+                'parameters'    => [
+                    'picking'   => $this->id
+                    ]
+                ],
         ];
     }
 }
