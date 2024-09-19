@@ -37,9 +37,9 @@ enum DeliveryNoteItemStateEnum: string
         return [
             'on-hold'   => [
                 'tooltip' => __('On Hold'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-pause-circle',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -47,9 +47,9 @@ enum DeliveryNoteItemStateEnum: string
             ],
             'handling'   => [
                 'tooltip' => __('Handling'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-hands-helping',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -57,9 +57,9 @@ enum DeliveryNoteItemStateEnum: string
             ],
             'packed'   => [
                 'tooltip' => __('Packed'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-box',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -67,9 +67,9 @@ enum DeliveryNoteItemStateEnum: string
             ],
             'finalised'   => [
                 'tooltip' => __('Finalised'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-tasks',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -77,9 +77,9 @@ enum DeliveryNoteItemStateEnum: string
             ],
             'settled'   => [
                 'tooltip' => __('Settled'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-indigo-500',  // Color for normal icon (Aiku)
+                'color'   => 'indigo',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'

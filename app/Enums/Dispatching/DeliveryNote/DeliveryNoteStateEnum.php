@@ -43,7 +43,7 @@ enum DeliveryNoteStateEnum: string
         return [
             'submitted'   => [
                 'tooltip' => __('Submitted'),
-                'icon'    => 'fal fa-seedling',
+                'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime',  // Color for box (Retina)
                 'app'     => [
@@ -53,9 +53,9 @@ enum DeliveryNoteStateEnum: string
             ],
             'in_queue'    => [
                 'tooltip' => __('In Queue'),
-                'icon'    => 'fal fa-share',
-                'class'   => 'text-indigo-400',
-                'color'   => 'indigo',
+                'icon'    => 'fal fa-hourglass-half',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'share',
                     'type' => 'font-awesome-5'
@@ -63,9 +63,9 @@ enum DeliveryNoteStateEnum: string
             ],
             'picker_assigned'    => [
                 'tooltip' => __('Picker Assigned'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-emerald-500',
-                'color'   => 'emerald',
+                'icon'    => 'fal fa-user-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'spell-check',
                     'type' => 'font-awesome-5'
@@ -73,9 +73,9 @@ enum DeliveryNoteStateEnum: string
             ],
             'picking'     => [
                 'tooltip' => __('Picking'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-slate-500',
-                'color'   => 'slate',
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'
@@ -83,9 +83,9 @@ enum DeliveryNoteStateEnum: string
             ],
             'picked' => [
                 'tooltip' => __('Picked'),
-                'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500',
-                'color'   => 'slate',
+                'icon'    => 'fal fa-box-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'times',
                     'type' => 'font-awesome-5'
@@ -93,9 +93,9 @@ enum DeliveryNoteStateEnum: string
             ],
             'packing'   => [
                 'tooltip' => __('Packing'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
+                'icon'    => 'fal fa-box-open',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'
@@ -104,8 +104,8 @@ enum DeliveryNoteStateEnum: string
             'settled'    => [
                 'tooltip' => __('Settled'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check-double',
                     'type' => 'font-awesome-5'
@@ -113,17 +113,7 @@ enum DeliveryNoteStateEnum: string
             ],
             'finalised'    => [
                 'tooltip' => __('Finalised'),
-                'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
-                'app'     => [
-                    'name' => 'check-double',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'finalised'    => [
-                'tooltip' => __('Finalised'),
-                'icon'    => 'fal fa-check-double',
+                'icon'    => 'fal fa-tasks',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple',
                 'app'     => [
