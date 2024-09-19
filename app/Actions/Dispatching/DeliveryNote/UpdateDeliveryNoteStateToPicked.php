@@ -12,6 +12,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Models\Dispatching\DeliveryNote;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDeliveryNoteStateToPicked extends OrgAction
@@ -36,7 +37,7 @@ class UpdateDeliveryNoteStateToPicked extends OrgAction
             $picking = $deliveryNoteItem->pickings;
 
             if (!$picking || $picking->state !== PickingStateEnum::PICKED) {
-                abort(403, 'All pickings must be picked.');
+                throw ValidationException::withMessages(['All items must be picked']);
             }
         }
     }

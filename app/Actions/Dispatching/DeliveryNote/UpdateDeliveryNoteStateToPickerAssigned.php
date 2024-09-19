@@ -11,7 +11,10 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Models\Dispatching\DeliveryNote;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
+
+use function PHPUnit\Framework\throwException;
 
 class UpdateDeliveryNoteStateToPickerAssigned extends OrgAction
 {
@@ -33,7 +36,7 @@ class UpdateDeliveryNoteStateToPickerAssigned extends OrgAction
 
         foreach ($deliveryNoteItems as $deliveryNoteItem) {
             if (!$deliveryNoteItem->pickings || !$deliveryNoteItem->pickings->picker_id) {
-                abort(403, 'All pickings must have a picker_id.');
+                throw ValidationException::withMessages(['All items must have picker assigned']);
             }
         }
     }
