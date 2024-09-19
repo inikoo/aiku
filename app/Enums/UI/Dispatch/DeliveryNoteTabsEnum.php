@@ -7,8 +7,11 @@
 
 namespace App\Enums\UI\Dispatch;
 
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
+use App\Models\Dispatching\DeliveryNote;
 
 enum DeliveryNoteTabsEnum: string
 {
@@ -28,8 +31,32 @@ enum DeliveryNoteTabsEnum: string
 
 
 
-    public function blueprint(): array
+    public function blueprint(DeliveryNote $deliveryNote): array
     {
+        $indicator = false;
+        if ($deliveryNote->state == DeliveryNoteStateEnum::IN_QUEUE){
+            foreach ($deliveryNote->deliveryNoteItems as $deliveryNoteItem) {
+                if (!$deliveryNoteItem->pickings || !$deliveryNoteItem->pickings->picker_id) {
+                    $indicator = true;
+                }
+            }
+        }
+
+        if ($deliveryNote->state == DeliveryNoteStateEnum::PICKING){
+            foreach ($deliveryNote->deliveryNoteItems as $deliveryNoteItem) {
+                if (!$deliveryNoteItem->pickings->state == PickingStateEnum::PICKED) {
+                    $indicator = true;
+                }
+            }
+        }
+
+        if ($deliveryNote->state == DeliveryNoteStateEnum::PICKED){
+            foreach ($deliveryNote->deliveryNoteItems as $deliveryNoteItem) {
+                if (!$deliveryNoteItem->pickings->state == PickingStateEnum::DONE) {
+                    $indicator = true;
+                }
+            }
+        }
         return match ($this) {
             DeliveryNoteTabsEnum::SKOS_ORDERED     => [
                 'title' => __('SKOs ordered'),
@@ -48,6 +75,7 @@ enum DeliveryNoteTabsEnum: string
                 'icon'  => 'fal fa-box-full',
                 'type'  => 'icon',
                 'align' => 'right',
+                'indicator' => $indicator
             ],
             // DeliveryNoteTabsEnum::CHANGELOG     => [
             //     'title' => __('changelog'),
