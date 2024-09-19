@@ -83,7 +83,11 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <!-- <template #button-action-picked="{ action }">
+            {{action}}
+        </template> -->
+    </PageHeading>
 
     <!-- Section: Pallet Warning -->
     <div v-if="alert?.status" class="p-2 pb-0">
@@ -119,7 +123,7 @@ const component = computed(() => {
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
     <div class="pb-12">
-        <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :routes />
+        <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :routes :state="delivery_note.state" />
     </div>
 
     <!-- <pre>{{ props }}</pre> -->

@@ -885,7 +885,7 @@ const isLoading = ref<string | boolean>(false)
                                             <td v-for="(column, index) in queryBuilderProps.columns"
                                                 v-show="show(column.key)"
                                                 :key="`table-${name}-row-${key}-column-${column.key}`"
-                                                class="text-sm py-2 text-gray-500 whitespace-normal h-full" :class="[
+                                                class="text-sm py-2 text-gray-600 whitespace-normal h-full" :class="[
                                                     column.type === 'avatar' || column.type === 'icon'
                                                         ? 'text-center min-w-fit px-3'  // if type = icon
                                                         : typeof item[column.key] == 'number' || column.type === 'number' || column.type === 'currency'

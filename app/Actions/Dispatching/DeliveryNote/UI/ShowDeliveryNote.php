@@ -180,7 +180,7 @@ class ShowDeliveryNote extends OrgAction
                         'style'   => 'save',
                         'tooltip' => __('Picked'),
                         'label'   => __('Picked'),
-                        'key'     => 'action',
+                        'key'     => 'action-picked',
                         'route'   => [
                             'method'     => 'patch',
                             'name'       => 'grp.models.delivery-note.state.picked',

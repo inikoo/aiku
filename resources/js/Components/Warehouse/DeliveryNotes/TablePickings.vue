@@ -16,6 +16,8 @@ import { trans } from "laravel-vue-i18n"
 import { ref } from "vue"
 
 // import { useFormatTime } from '@/Composables/useFormatTime'
+import { useTruncate } from '@/Composables/useTruncate'
+import Action from "@/Components/Forms/Fields/Action.vue"
 
 defineProps<{
     data: TableTS
@@ -24,6 +26,7 @@ defineProps<{
         pickers_list: routeType
         packers_list: routeType
     }
+    state: string
 }>()
 
 
@@ -70,7 +73,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
         <!-- Column: Picker Name -->
         <template #cell(picker_name)="{ item }">
-            <div class="relative w-[170px]">
+            <div v-if="state === 'submitted' || state === 'in_queue' " class="relative w-[170px]">
                 <PureMultiselectInfiniteScroll
                     v-model="item.picker.selected"
                     @update:modelValue="(selectedPicker) => onSubmitPickerPacker(item.assign_picker, selectedPicker, item.rowIndex, 'picker')"
@@ -96,11 +99,15 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
                 </PureMultiselectInfiniteScroll>
             </div>
+            <div v-else class="whitespace-nowrap" v-tooltip="item.picker?.selected?.contact_name?.length > 15 ? item.picker?.selected?.contact_name : undefined">
+                <span v-if="item.picker?.selected?.contact_name">{{ useTruncate(item.picker?.selected?.contact_name, 15) }}</span>
+                <span v-else class="text-gray-400 italic text-sm">{{ trans('Not set yet') }}</span>
+            </div>
         </template>
 
         <!-- Column: Packer Name -->
         <template #cell(packer_name)="{ item }">
-            <div class="relative w-[170px]">
+            <div v-if="state === 'packing'" class="relative w-[170px]">
                 <PureMultiselectInfiniteScroll
                     v-model="item.packer.selected"
                     @update:modelValue="(selectedPacker) => onSubmitPickerPacker(item.assign_packer, selectedPacker, item.rowIndex, 'packer')"
@@ -126,12 +133,17 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
                 </PureMultiselectInfiniteScroll>
             </div>
+            <div v-else class="whitespace-nowrap" v-tooltip="item.packer?.selected?.contact_name?.length > 15 ? item.packer?.selected?.contact_name : undefined">
+                <span v-if="item.packer?.selected?.contact_name">{{ useTruncate(item.packer?.selected?.contact_name, 15) }}</span>
+                <span v-else class="text-gray-400 italic text-sm">{{ trans('Not set yet') }}</span>
+            </div>
         </template>
 
 
         <!-- Column: Date -->
-        <!-- <template #cell(date)="{ item: order }">
-            {{ useFormatTime(order.date) }}
-        </template> -->
+        <template #cell(actions)="{ item }">
+            <!-- {{ useFormatTime(order.date) }} -->
+            <Action v-if="state === 'picking'" :action="{ label: 'Pick', route: item.routes.pickingRoute, key: 'picking_item1'}" />
+        </template>
     </Table>
 </template>

@@ -6,6 +6,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPencil, faTrashAlt } from "@fal"
 import { ref } from "vue"
 import { notify } from "@kyvg/vue3-notification"
+import { trans } from "laravel-vue-i18n"
 
 library.add( faPencil, faTrashAlt )
 
@@ -40,7 +41,7 @@ const handleClick = (action: Action) => {
                     isLoading.value = false
                 }
                 notify({
-                    title: 'Something went wrong.',
+                    title: trans('Something went wrong.'),
                     text: typeof error === 'string' ? error : Object.values(error || {}).join(', '),
                     type: 'error',
                 })
