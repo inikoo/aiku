@@ -87,7 +87,8 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             @click="onChangeTab(tabSlug)"
                             :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation']"
                             class="relative group flex items-center py-2 px-1 font-medium capitalize text-left text-sm md:text-base w-fit"
-                            :aria-current="tabSlug === currentTab ? 'page' : undefined">
+                            :aria-current="tabSlug === currentTab ? 'page' : undefined"
+                        >
                             <FontAwesomeIcon v-if="tabLoading === tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
@@ -103,14 +104,17 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                         <button
                             v-if="tab.align === 'right'"
                             @click="onChangeTab(tabSlug)"
-                            :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation',
-                                'group inline-flex gap-x-1.5 justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
+                            :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation']"
+                            class="relative group inline-flex gap-x-1.5 justify-center items-center py-2 px-2 border-b-2 font-medium text-sm"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined"
                             v-tooltip="capitalize(tab.title)"
                         >
                             <FontAwesomeIcon v-if="tabLoading === tabSlug" icon="fad fa-spinner-third" class="animate-spin h-5 w-5" aria-hidden="true"/>
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" class="h-5 w-5" aria-hidden="true"/>
                             <span v-if="tab.type!=='icon'" class="capitalize">{{ tab.title }}</span>
+
+                            <FontAwesomeIcon v-if="tab.indicator" icon='fas fa-circle' class='animate-ping absolute top-3 -right-1 text-blue-500 text-[6px]' fixed-width aria-hidden='true' />
+                            <FontAwesomeIcon v-if="tab.indicator" icon='fas fa-circle' class='absolute top-3 -right-1 text-blue-500 text-[6px]' fixed-width aria-hidden='true' />
                         </button>
                     </template>
                 </nav>

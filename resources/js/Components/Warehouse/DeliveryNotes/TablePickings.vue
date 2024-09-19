@@ -82,6 +82,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
                     labelProp="contact_name"
                     valueProp="user_id"
                     object
+                    clearOnBlur
                     :loading="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.user_id]"
                     :disabled="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.user_id]"
                 >
@@ -107,7 +108,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
         <!-- Column: Packer Name -->
         <template #cell(packer_name)="{ item }">
-            <div v-if="state === 'packing'" class="relative w-[170px]">
+            <div v-if="state === 'submitted' || state === 'in_queue' || state === 'picked'" class="relative w-[170px]">
                 <PureMultiselectInfiniteScroll
                     v-model="item.packer.selected"
                     @update:modelValue="(selectedPacker) => onSubmitPickerPacker(item.assign_packer, selectedPacker, item.rowIndex, 'packer')"
@@ -116,6 +117,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
                     labelProp="contact_name"
                     valueProp="user_id"
                     object
+                    clearOnBlur
                     :loading="isLoading[item.rowIndex + 'packer' + item.packer?.selected?.user_id]"
                     :disabled="isLoading[item.rowIndex + 'packer' + item.packer?.selected?.user_id]"
                 >
@@ -142,8 +144,10 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
 
         <!-- Column: Date -->
         <template #cell(actions)="{ item }">
-            <!-- {{ useFormatTime(order.date) }} -->
-            <Action v-if="state === 'picking'" :action="{ label: 'Pick', route: item.routes.pickedRoute, key: 'picking_item1'}" />
+            <!-- <pre>{{item}}</pre> -->
+            <!-- {{item.routes.doneRoute}} -->
+            <Action v-if="state === 'picking' && !item.vessel_picking" :action="{ label: 'Pick', type: 'secondary', route: item.routes.pickedRoute, key: 'picking_item' + item.index}" />
+            <Action v-if="state === 'packing' && !item.vessel_packing" :action="{ label: 'Pack', type: 'secondary', route: item.routes.doneRoute, key: 'packing_item' + item.index}" />
         </template>
     </Table>
 </template>

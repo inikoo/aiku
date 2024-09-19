@@ -96,6 +96,7 @@ const handleClick = (action: Action) => {
         <Button v-else
             @click="handleClick(action)"
             :style="action.style"
+            :type="action.type"
             :label="action.label"
             :icon="action.icon"
             :size="action.size"

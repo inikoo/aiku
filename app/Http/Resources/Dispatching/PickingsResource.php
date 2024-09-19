@@ -89,7 +89,7 @@ class PickingsResource extends JsonResource
                     ]
                 ],
                 'packingRoute'  => [
-                    'name'          => 'grp.models.picking.state.packed',
+                    'name'          => 'grp.models.picking.state.packing',
                     'method'        => 'patch',
                     'parameters'    => [
                         'picking'   => $this->id
