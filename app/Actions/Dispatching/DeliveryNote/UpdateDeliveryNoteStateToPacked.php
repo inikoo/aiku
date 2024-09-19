@@ -12,6 +12,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Models\Dispatching\DeliveryNote;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDeliveryNoteStateToPacked extends OrgAction
@@ -36,7 +37,7 @@ class UpdateDeliveryNoteStateToPacked extends OrgAction
             $picking = $deliveryNoteItem->pickings;
 
             if (!$picking || $picking->state !== PickingStateEnum::DONE) {
-                abort(403, 'All pickings must be packed.');
+                throw ValidationException::withMessages(['All items must be packed']);
             }
         }
     }

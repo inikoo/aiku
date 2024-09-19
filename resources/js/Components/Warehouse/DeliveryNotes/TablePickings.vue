@@ -143,7 +143,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
         <!-- Column: Date -->
         <template #cell(actions)="{ item }">
             <!-- {{ useFormatTime(order.date) }} -->
-            <Action v-if="state === 'picking'" :action="{ label: 'Pick', route: item.routes.pickingRoute, key: 'picking_item1'}" />
+            <Action v-if="state === 'picking'" :action="{ label: 'Pick', route: item.routes.pickedRoute, key: 'picking_item1'}" />
         </template>
     </Table>
 </template>
