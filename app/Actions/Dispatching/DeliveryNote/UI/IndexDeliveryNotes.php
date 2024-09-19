@@ -102,13 +102,13 @@ class IndexDeliveryNotes extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'status', label: __('status'), canBeHidden: false, sortable: false, searchable: true);
+            // $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
             if (!$parent instanceof Customer) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'weight', label: __('weight'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'number_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: '', label: __('export'), canBeHidden: false, sortable: false, searchable: true);
