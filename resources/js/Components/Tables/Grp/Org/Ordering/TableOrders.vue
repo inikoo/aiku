@@ -96,7 +96,7 @@ function customerRoute(order: Order) {
 
         <!-- Column: Date -->
         <template #cell(date)="{ item: order }">
-            {{ useFormatTime(order.date) }}
+            {{ useFormatTime(order.date, {formatTime: 'ddmy'}) }}
         </template>
     </Table>
 </template>

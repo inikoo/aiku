@@ -28,4 +28,40 @@ enum OfferCampaignStateEnum: string
 
         return $labels;
     }
+
+    public static function stateIcon(): array
+    {
+        return [
+            'in-process'   => [
+                'tooltip' => __('In Process'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'active'    => [
+                'tooltip' => __('Active'),
+                'icon'    => 'fal fa-share',
+                'class'   => 'text-indigo-400',
+                'color'   => 'indigo',
+                'app'     => [
+                    'name' => 'share',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'finished'    => [
+                'tooltip' => __('Finished'),
+                'icon'    => 'fal fa-spell-check',
+                'class'   => 'text-emerald-500',
+                'color'   => 'emerald',
+                'app'     => [
+                    'name' => 'spell-check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+        ];
+    }
 }
