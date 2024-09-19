@@ -9,44 +9,50 @@ import { ref } from "vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableWarehouseAreas from "@/Components/Tables/Grp/Org/Inventory/TableWarehouseAreas.vue";
 import { capitalize } from "@/Composables/capitalize";
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import { get } from 'lodash'
-import UploadExcel from "@/Components/Upload/UploadExcel.vue";
+// import Button from "@/Components/Elements/Buttons/Button.vue";
+// import { get } from 'lodash'
+// import UploadExcel from "@/Components/Upload/UploadExcel.vue";
 
 const props = defineProps<{
-    data: object
+    data: {}
     title: string
-    pageHead: object
-    uploadRoutes: object
+    pageHead: {}
+    uploadRoutes: {}
 }>();
 
 const dataModal = ref({ isModalOpen: false });
 
-const onUploadOpen = (action) => {
-    dataModal.value.isModalOpen = true;
-    dataModal.value.uploadRoutes = action.route;
-};
+// const onUploadOpen = (action) => {
+//     dataModal.value.isModalOpen = true;
+//     dataModal.value.uploadRoutes = action.route;
+// }
+
+// const isModalUploadOpen = ref(false)
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-group-upload="{ action }">
+        <!-- <template #button-group-upload="{ action }">
             <Button
                 :style="'upload'"
                 @click="()=>onUploadOpen(action)"
                 class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
             />
-        </template>
+        </template> -->
     </PageHeading>
     <TableWarehouseAreas :data="data" />
 
-    <UploadExcel
-        :propName="'warehouse areas'"
-        description="Adding Warehouse Areas"
-        :routes="{
-            upload: get(dataModal,'uploadRoutes',{})
+    
+    <!-- <UploadExcel
+        v-model="isModalUploadOpen"
+        scope="Warehouse areas"
+        :title="{
+            label: 'Upload your new warehouse areas',
+            information: 'The list of column file: -'
         }"
-        :dataModal="dataModal" />
+        progressDescription="Adding Pallet Deliveries"        
+        :upload_spreadsheet
+    /> -->
 </template>
 
