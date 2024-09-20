@@ -100,10 +100,12 @@ class UpdateRentalAgreement extends OrgAction
                         unset($currentAssetsInClauses[$data['asset_id']]);
                         $clausesUpdated++;
                     } else {
-                        $data['state'] = match ($rentalAgreement->state) {
-                            RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
-                            default                               => RentalAgreementCauseStateEnum::DRAFT
-                        };
+                        if(!Arr::exists($data, 'state')) {
+                            $data['state'] = match ($rentalAgreement->state) {
+                                RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
+                                default                               => RentalAgreementCauseStateEnum::DRAFT
+                            };
+                        }
                         StoreRentalAgreementClause::run($rentalAgreement, $data);
                         $clausesAdded++;
                     }
