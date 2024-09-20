@@ -9,6 +9,7 @@ use App\Actions\Catalogue\Collection\UI\CreateCollection;
 use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
+use App\Actions\Catalogue\Product\GetProductUploadedImages;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct as UIEditProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
@@ -38,6 +39,7 @@ Route::name("products.")->prefix('products')
 
         Route::prefix('{product}')->group(function () {
             Route::get('', ShowProduct::class)->name('show');
+            Route::get('images', GetProductUploadedImages::class)->name('images');
             Route::get('edit', [UIEditProduct::class, 'inShop'])->name('edit');
         });
     });

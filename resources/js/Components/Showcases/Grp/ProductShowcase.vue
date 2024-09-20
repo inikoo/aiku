@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import GalleryManagement from "@/Components/Utils/GalleryManagement.vue"
+import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { notify } from '@kyvg/vue3-notification'
@@ -29,11 +29,17 @@ import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { remove as removeLodash } from 'lodash'
 import { useFormatTime } from '../../../Composables/useFormatTime'
 import { trans } from 'laravel-vue-i18n'
+import { routeType } from "@/types/route"
 library.add(faCircle, faTrash, falTrash, faEdit)
 
 const props = defineProps<{
     data: {
         product: {}
+        stockImageRoutes: routeType
+        uploadImageRoute: routeType
+        attachImageRoute: routeType
+        deleteImageRoute: routeType
+        stats: {}
     }
 }>()
 
@@ -126,12 +132,13 @@ const isModalGallery = ref(false)
                         
                         <!-- Section: Images list -->
                         <div @scroll="(eee) => console.log('on scroll', eee)" class="h-56 overflow-y-auto mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
-                            <TabList class="grid grid-cols-3 gap-x-3 gap-y-4 md:gap-x-5 md:gap-y-5">
+                            <TabList class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 md:gap-x-5 md:gap-y-5">
                                 <Tab v-for="(image,index) in product.images" :key="image.id"
                                     class="relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
                                     v-slot="{ selected }"
                                     
                                 >
+                                    <div class="absolute top-0 left-0 bg-indigo-500 z-10 text-xxs py-[1px] px-[1px]">{{ trans('Primary') }}</div>
                                     <span class="flex items-center absolute inset-0 overflow-hidden rounded-md ">
                                         <Image :src="image.source" alt="" class="" />
                                     </span>
@@ -231,7 +238,10 @@ const isModalGallery = ref(false)
     <Modal :isOpen="isModalGallery" @onClose="() => isModalGallery = false" width="w-3/4" >
         <GalleryManagement
             :uploadRoute="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)"
+            :attachImageRoute="data.attachImageRoute"
+            :stockImageRoutes="data.stockImageRoutes"
             @onSuccessUpload="(data: {}) => product.images = product.images.concat(data.data)"
+            @selectImage="(image: {}) => console.log('image', image)"
         >
         </GalleryManagement>
     </Modal>

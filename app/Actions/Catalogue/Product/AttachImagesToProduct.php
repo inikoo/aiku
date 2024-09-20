@@ -22,14 +22,17 @@ class AttachImagesToProduct extends OrgAction
     use HasWebAuthorisation;
     use WithAttachMediaToModel;
 
-    public function handle(Product $product, $scope, array $modelData): Product
+    public function handle(Product $product, $scope, array $modelData)
     {
         foreach ($modelData['images'] as $image) {
             $media = Media::find($image);
             $this->attachMediaToModel($product, $media, $scope);
         }
 
-        return $product;
+        return response()->json([
+            'message' => 'Images successfully attached'
+        ]);
+        ;
     }
 
     public function rules(): array
@@ -49,6 +52,6 @@ class AttachImagesToProduct extends OrgAction
         $this->scope = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle($product, 'image', $this->validatedData);
+        $this->handle($product, 'image', $this->validatedData);
     }
 }
