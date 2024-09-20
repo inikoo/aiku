@@ -13,12 +13,12 @@ import Image from '@/Components/Image.vue'
 import { notify } from '@kyvg/vue3-notification'
 import { faSpinnerThird } from '@fad'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
+import { routeType } from "@/types/route"
 
 library.add(faSpinnerThird)
 
 const props = defineProps<{
-    imagesUploadedRoutes : routeType,
-    stockImageRoutes : routeType
+    imagesUploadedRoutes : routeType
 }>()
 
 const stockImages = ref([])
@@ -32,7 +32,7 @@ const emits = defineEmits<{
 const getStockImages = async () => {
     try {
         loading.value = true
-        const response = await axios.get(route(props.imagesUploadedRoutes.name,props.imagesUploadedRoutes.parameters));
+        const response = await axios.get(route(props.imagesUploadedRoutes.name, {...props.imagesUploadedRoutes.parameters, perPage: 40}));
         loading.value = false
         stockImages.value = response.data.data
     } catch (error: any) {
