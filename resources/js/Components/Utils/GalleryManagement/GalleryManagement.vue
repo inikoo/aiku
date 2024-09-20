@@ -34,14 +34,6 @@ const props = withDefaults(defineProps<{
 }>(), {
     tabs: () =>  ['upload', 'images_uploaded', 'stock_images'],
     useCrop: false,
-    stockImageRoutes: {
-        name: 'grp.gallery.stock-images.index',
-        parameters: ""
-    },
-    imagesUploadedRoutes: {
-        name: 'grp.gallery.uploaded-images.index',
-        parameters: ""
-    },
     cropProps: {
         ratio: { w: 1, h: 1 }
     }
@@ -138,6 +130,7 @@ const onSubmitUpload = async () => {
 
 <template>
     <div class="">
+    {{ stockImageRoutes }}
         <TabGroup :selectedIndex="selectedTab" @change="(index) => selectedTab = index">
             <TabList class="flex space-x-8 border-b-2">
                 <Tab v-for="tab in tabsData" as="template" :key="tab.key" v-slot="{ selected }">
@@ -161,7 +154,7 @@ const onSubmitUpload = async () => {
                         v-model:files="selectedUploadFiles"
                         :is="getComponent(tab['key'])"
                         :uploadRoute
-                        :imagesUploadedRoutes="imagesUploadedRoutes"
+                        :imagesUploadedRoutes
                         :attachImageRoute
                         :useCrop="useCrop"
                         :cropProps="cropProps"

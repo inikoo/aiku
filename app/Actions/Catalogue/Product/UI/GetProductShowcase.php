@@ -18,7 +18,7 @@ class GetProductShowcase
     public function handle(Product $product): array
     {
         return [
-            'stockImageRoutes' => [
+            'imagesUploadedRoutes' => [
                 'name'       => 'grp.org.shops.show.catalogue.products.images',
                 'parameters' => [
                     'organisation' => $product->organisation->slug,

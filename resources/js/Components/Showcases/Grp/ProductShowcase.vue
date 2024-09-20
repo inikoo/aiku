@@ -39,6 +39,7 @@ const props = defineProps<{
         uploadImageRoute: routeType
         attachImageRoute: routeType
         deleteImageRoute: routeType
+        imagesUploadedRoutes: routeType
         stats: {}
     }
 }>()
@@ -97,12 +98,12 @@ const isModalGallery = ref(false)
 
 
 <template>
-    <div class="grid grid-cols-4 gap-x-1 gap-y-4">
-        <div class="p-5 space-y-5">
+    <div class="grid md:grid-cols-4 gap-x-1 gap-y-4">
+        <div class="p-5 space-y-5 grid grid-cols-1 md:grid-cols-1">
             <div class="relative">
-                <div class=" h-full aspect-square rounded-lg shadow">
+                <div class=" h-full rounded-lg shadow">
                     <!-- Section: Gallery -->
-                    <TabGroup as="div" class="flex flex-col p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
+                    <TabGroup as="div" class="grid grid-cols-2 p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
                         <!-- Section: Main image (big) -->
                         <TabPanels class="overflow-hidden duration-300">
                             <template v-if="product?.images?.length > 0">
@@ -131,7 +132,7 @@ const isModalGallery = ref(false)
                         </TabPanels>
                         
                         <!-- Section: Images list -->
-                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-56 overflow-y-auto mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
+                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-full md:h-56 overflow-y-auto mx-auto mt-6 w-full max-w-2xl hidden sm:block lg:max-w-none">
                             <TabList class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 md:gap-x-5 md:gap-y-5">
                                 <Tab v-for="(image,index) in product.images" :key="image.id"
                                     class="relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
@@ -206,7 +207,7 @@ const isModalGallery = ref(false)
         </div>
 
         <!-- Revenue -->
-        <div class="pt-8 p-4 col-span-3">
+        <div class="pt-8 p-4 md:col-span-3">
             <h3 class="text-base font-semibold leading-6">All sales since: Mon 20 August 2007</h3>
             <dl class="mt-5 grid grid-cols-1 overflow-hidden rounded bg-white md:grid-cols-3 md:gap-x-2 md:gap-y-4">
                 <div v-for="item in stats" :key="item.name" class="px-4 py-5 sm:p-6 border border-gray-200 rounded-md">
@@ -238,6 +239,7 @@ const isModalGallery = ref(false)
     <Modal :isOpen="isModalGallery" @onClose="() => isModalGallery = false" width="w-3/4" >
         <GalleryManagement
             :uploadRoute="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)"
+            :imagesUploadedRoutes="data.imagesUploadedRoutes"
             :attachImageRoute="data.attachImageRoute"
             :stockImageRoutes="data.stockImageRoutes"
             @onSuccessUpload="(data: {}) => product.images = product.images.concat(data.data)"
