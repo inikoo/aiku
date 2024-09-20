@@ -35,19 +35,15 @@ class GetProductUploadedImages extends OrgAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
+        $mediaIds = $product->images()->pluck('media.id');
 
-        $queryBuilder = QueryBuilder::for(Media::class);
-
-        $queryBuilder->leftjoin('model_has_media', 'model_has_media.media_id', '=', 'media.id');
-
-        $queryBuilder->whereNot(function($query) use ($product) {
-            $query->where('model_has_media.model_type', 'Product')
-                    ->where('model_has_media.model_id', $product->id);
-        });
-
+        $queryBuilder = QueryBuilder::for(Media::class)
+        ->leftJoin('model_has_media', 'model_has_media.media_id', '=', 'media.id')
+        ->whereNotIn('model_has_media.media_id', $mediaIds);
+        
         return $queryBuilder
             ->defaultSort('media.name')
-            ->where('group_id', $product->group_id)
+            ->where('media.group_id', $product->group_id)
             ->where('collection_name', 'image')
             ->select(['media.name', 'media.id', 'size', 'mime_type', 'file_name', 'disk', 'media.slug', 'is_animated'])
             ->allowedSorts(['name', 'size'])
