@@ -96,22 +96,20 @@ class ShowLocation extends OrgAction
             unset($navigation[LocationTabsEnum::STOCKS->value]);
             unset($navigation[LocationTabsEnum::STOCK_MOVEMENTS->value]);
         }
-        if ($this->parent instanceof Warehouse)
-        {
+        if ($this->parent instanceof Warehouse) {
             $deleteRoute = [
                             'name'       => 'grp.models.warehouse.location.delete',
                             'parameters' => [
-                                $this->parent->id, 
+                                $this->parent->id,
                                 $location->id
                             ],
                             'method'     => 'delete'
                             ];
-        } elseif ($this->parent instanceof WarehouseArea) 
-        {
+        } elseif ($this->parent instanceof WarehouseArea) {
             $deleteRoute = [
                             'name'       => 'grp.models.warehouse-area.location.delete',
                             'parameters' => [
-                                $this->parent->id, 
+                                $this->parent->id,
                                 $location->id
                             ],
                             'method'     => 'delete'

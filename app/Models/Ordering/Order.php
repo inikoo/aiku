@@ -33,7 +33,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -199,9 +198,9 @@ class Order extends Model implements HasMedia, Auditable
         return $this->hasMany(Transaction::class);
     }
 
-    public function deliveryNotes(): BelongsToMany
+    public function deliveryNotes(): DeliveryNote
     {
-        return $this->belongsToMany(DeliveryNote::class, 'delivery_note_order')->withTimestamps();
+        return $this->belongsToMany(DeliveryNote::class, 'delivery_note_order')->withTimestamps()->first();
     }
 
     public function payments(): MorphToMany
