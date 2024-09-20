@@ -318,6 +318,10 @@ class ShowOrder extends OrgAction
                             'shop'  => $order->shop->slug,
                             'scope' => $order->slug
                         ]
+                    ],
+                    'delivery_note' => [
+                        'name'       => 'grp.org.shops.show.ordering.orders.show.delivery-note',
+                        'parameters' => $request->route()->originalParameters()
                     ]
                 ],
                 // 'alert'   => [  // TODO
@@ -432,7 +436,6 @@ class ShowOrder extends OrgAction
                 ],
                 'currency'       => CurrencyResource::make($order->currency)->toArray(request()),
                 'data'           => OrderResource::make($order),
-                'delivery_note'  => DeliveryNotesResource::make($order->deliveryNotes()),
                 // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 
