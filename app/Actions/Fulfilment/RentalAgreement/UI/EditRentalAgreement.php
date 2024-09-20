@@ -106,11 +106,23 @@ class EditRentalAgreement extends OrgAction
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
                                     'state' => [
-                                        'type'     => 'select',
+                                        'type'     => 'radio',
                                         'label'    => __('state'),
+                                        'mode'     => "tabs",
+                                        'valueProp'=> 'value',
                                         'required' => true,
-                                        'options'  => Options::forEnum(RentalAgreementStateEnum::class),
-                                        'value'    => $rentalAgreement->state
+                                        /* 'options'  => Options::forEnum(RentalAgreementStateEnum::class), */
+                                        'value'    => $rentalAgreement->state,
+                                        'options'  => [
+                                            [
+                                                "label" => "Draft",
+                                                "value" => "draft"
+                                            ],
+                                            [
+                                                "label" => "Active",
+                                                "value" => "active"
+                                            ],
+                                        ],
                                     ],
                                     ...$createWebUserFields,
                                     'clauses'       => [

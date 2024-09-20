@@ -82,6 +82,29 @@ const compareObjects = (objA, objB) => {
                     </RadioGroup>
                 </div>
 
+
+                <div v-if="fieldData.mode === 'tabs'" :class="get(form, ['errors', fieldName]) ? 'errorShake' : ''">
+                    <RadioGroup v-model="form[fieldName]" class="flex space-x-1 rounded-xl bg-white border  flex-wrap gap-y-1">
+                            <RadioGroupOption
+                                v-for="(option, index) in fieldData.options"
+                                :key="option.value"
+                                :value="fieldData.valueProp === 'object' || !fieldData.valueProp ? option : option[fieldData.valueProp]"
+                                v-slot="{ active, checked }">
+                                <div
+                                    :class="[ 
+                                        'cursor-pointer flex items-center justify-center rounded-xl text-sm font-medium capitalize px-2.5 py-3',
+                                        'w-full focus:outline-none',
+                                        checked ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'text-gray-700 hover:bg-gray-50'
+                                    ]">
+                                    <RadioGroupLabel as="span">{{ option.value }}</RadioGroupLabel>
+                                </div>
+                            </RadioGroupOption>
+                    </RadioGroup>
+                </div>
+
+
+
+
                 <!-- Radio: Default -->
                 <div v-else v-for="(option, index) in fieldData.options"
                     :key="option.label + index" class="inline-flex gap-x-2.5 items-center">
