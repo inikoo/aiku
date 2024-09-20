@@ -40,7 +40,7 @@ class UpdateProduct extends OrgAction
         $changed  = $product->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
-            $historicAsset = StoreHistoricAsset::run($product);
+            $historicAsset = StoreHistoricAsset::run($product, [], $this->hydratorsDelay);
             $product->updateQuietly(
                 [
                     'current_historic_asset_id' => $historicAsset->id,
@@ -48,7 +48,7 @@ class UpdateProduct extends OrgAction
             );
         }
 
-        UpdateAsset::run($product->asset);
+        UpdateAsset::run($product->asset, [], $this->hydratorsDelay);
 
         if (Arr::hasAny($changed, ['state'])) {
 

@@ -68,7 +68,7 @@ class ShowFulfilmentCustomer extends OrgAction
             unset($navigation[FulfilmentCustomerTabsEnum::AGREED_PRICES->value]);
         }
 
-        if ($fulfilmentCustomer->status == FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT) {
+        if ($fulfilmentCustomer->status == FulfilmentCustomerStatusEnum::NO_RENTAL_AGREEMENT && !$fulfilmentCustomer->rentalAgreement()->exists()) {
             $additionalActions = [
                 [
                     'type'    => 'button',

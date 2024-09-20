@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Http\Resources\Catalogue\OutersResource;
 use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Catalogue\ServicesResource;
@@ -103,6 +104,13 @@ class EditRentalAgreement extends OrgAction
                                         'placeholder' => '0',
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
+                                    ],
+                                    'state' => [
+                                        'type'     => 'select',
+                                        'label'    => __('state'),
+                                        'required' => true,
+                                        'options'  => Options::forEnum(RentalAgreementStateEnum::class),
+                                        'value'    => $rentalAgreement->state
                                     ],
                                     ...$createWebUserFields,
                                     'clauses'       => [

@@ -24,20 +24,21 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
             if ($location = Location::withTrashed()->where('source_id', $deletedLocationData['location']['source_id'])
                 ->first()) {
                 $location = UpdateLocation::make()->action(
-                    location:  $location,
+                    location: $location,
                     modelData: $deletedLocationData['location'],
-                    strict:   false,
+                    hydratorsDelay: 60,
+                    strict: false,
                     audit: false
                 );
             } else {
-
-
                 $location = StoreLocation::make()->action(
-                    parent:    $deletedLocationData['parent'],
+                    parent: $deletedLocationData['parent'],
                     modelData: $deletedLocationData['location'],
-                    strict:   false
+                    hydratorsDelay: 60,
+                    strict: false,
                 );
             }
+
             return $location;
         }
 

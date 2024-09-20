@@ -28,8 +28,7 @@ class UpdateRental extends OrgAction
 
     public function handle(Rental $rental, array $modelData): Rental
     {
-
-        if(Arr::exists($modelData, 'state')) {
+        if (Arr::exists($modelData, 'state')) {
             $status = false;
             if (Arr::get($modelData, 'state') == RentalStateEnum::ACTIVE) {
                 $status = true;
@@ -40,22 +39,23 @@ class UpdateRental extends OrgAction
         $rental  = $this->update($rental, $modelData);
         $changed = $rental->getChanges();
 
-        if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
-            $historicAsset = StoreHistoricAsset::run($rental);
+        if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
+            $historicAsset = StoreHistoricAsset::run($rental, [], $this->hydratorsDelay);
             $rental->updateQuietly(
                 [
-                     'current_historic_asset_id' => $historicAsset->id,
-                 ]
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
             );
         }
 
-        UpdateAsset::run($rental->asset);
+        UpdateAsset::run($rental->asset, [], $this->hydratorsDelay);
 
 
         if (Arr::hasAny($rental->getChanges(), ['state'])) {
-            ShopHydrateRentals::dispatch($rental->shop);
+            ShopHydrateRentals::dispatch($rental->shop)->delay($this->hydratorsDelay);
         }
         RentalRecordSearch::dispatch($rental);
+
         return $rental;
     }
 
@@ -87,15 +87,15 @@ class UpdateRental extends OrgAction
             ],
             'name'  => ['sometimes', 'required', 'max:250', 'string'],
             'price' => ['sometimes', 'required', 'numeric', 'min:0'],
-            'unit'  => ['sometimes','required', 'string'],
+            'unit'  => ['sometimes', 'required', 'string'],
 
             'description'            => ['sometimes', 'required', 'max:1500'],
             'data'                   => ['sometimes', 'array'],
             'settings'               => ['sometimes', 'array'],
             'status'                 => ['sometimes', 'required', 'boolean'],
             'state'                  => ['sometimes', 'required', Rule::enum(RentalStateEnum::class)],
-            'auto_assign_asset'      => ['sometimes','nullable', 'string', 'in:Pallet,StoredItem'],
-            'auto_assign_asset_type' => ['sometimes','nullable', 'string', 'in:pallet,box,oversize'],
+            'auto_assign_asset'      => ['sometimes', 'nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_asset_type' => ['sometimes', 'nullable', 'string', 'in:pallet,box,oversize'],
         ];
     }
 
