@@ -46,6 +46,7 @@ class AttachImagesToProduct extends OrgAction
 
     public function asController(Organisation $organisation, Product $product, ActionRequest $request)
     {
+        $this->scope = $organisation;
         $this->initialisation($organisation, $request);
 
         return $this->handle($product, 'image', $this->validatedData);
