@@ -321,7 +321,9 @@ class ShowOrder extends OrgAction
                     ],
                     'delivery_note' => [
                         'name'       => 'grp.org.shops.show.ordering.orders.show.delivery-note',
-                        'parameters' => $request->route()->originalParameters()
+                         'parameters' => array_merge($request->route()->originalParameters(), [
+                            'deliveryNote' => $order->deliveryNotes()->slug
+                        ])
                     ]
                 ],
                 // 'alert'   => [  // TODO
