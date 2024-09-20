@@ -118,6 +118,7 @@ use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
+use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\ImportLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
@@ -458,6 +459,7 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
+    Route::delete('location/{location:id}/delete', [DeleteLocation::class, 'inWarehouse'])->name('location.delete');
 });
 
 Route::patch('location/{location:id}', UpdateLocation::class)->name('location.update');
@@ -467,6 +469,7 @@ Route::post('location/{location:id}/tags', [StoreTag::class, 'inLocation'])->nam
 Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
     Route::post('location/upload', [ImportLocation::class, 'inWarehouseArea'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouseArea'])->name('location.store');
+    Route::delete('location/{location:id}/delete', [DeleteLocation::class, 'inWarehouseArea'])->name('location.delete');
 });
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');

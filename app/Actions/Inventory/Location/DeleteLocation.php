@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Http\RedirectResponse;
@@ -16,10 +17,12 @@ use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use App\Models\Inventory\Location;
 
-class DeleteLocation
+class DeleteLocation extends OrgAction
 {
     use AsController;
     use WithAttributes;
+
+    private Warehouse|WarehouseArea $parent;
 
     public function handle(Location $location): Location
     {
@@ -30,7 +33,7 @@ class DeleteLocation
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.edit");
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
     }
 
     public function asController(Location $location, ActionRequest $request): Location
@@ -44,7 +47,8 @@ class DeleteLocation
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
-        $request->validate();
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($location);
     }
@@ -52,7 +56,8 @@ class DeleteLocation
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $request->validate();
+        $this->parent = $warehouseArea;
+        $this->initialisationFromWarehouse($warehouseArea->warehouse, $request);
 
         return $this->handle($location);
     }
@@ -66,22 +71,24 @@ class DeleteLocation
     }
 
 
-    public function htmlResponse(Warehouse | WarehouseArea | Location $parent): RedirectResponse
+    public function htmlResponse(): RedirectResponse
     {
-        if (class_basename($parent::class) == 'WarehouseArea') {
+        if ($this->parent instanceof Warehouse) {
             return Redirect::route(
-                route: 'grp.org.hr.workplace.show.clocking_machines.show.locations.index',
+                route: 'grp.org.warehouses.show.infrastructure.locations.index',
                 parameters: [
-                    'warehouse'       => $parent->warehouse->slug,
-                    'warehouseArea'   => $parent->slug
+                    'organisation'       => $this->parent->organisation->slug,
+                    'warehouse'          => $this->parent->slug
                 ]
             );
 
-        } elseif (class_basename($parent::class) == 'Warehouse') {
+        } elseif ($this->parent instanceof WarehouseArea) {
             return Redirect::route(
-                route: 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.index',
+                route: 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
                 parameters: [
-                    'warehouse' => $parent->slug
+                    'organisation'       => $this->parent->organisation->slug,
+                    'warehouse'          => $this->parent->warehouse->slug,
+                    'warehouseArea'      => $this->parent->slug
                 ]
             );
         } else {

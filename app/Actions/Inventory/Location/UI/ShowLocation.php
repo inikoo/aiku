@@ -96,6 +96,27 @@ class ShowLocation extends OrgAction
             unset($navigation[LocationTabsEnum::STOCKS->value]);
             unset($navigation[LocationTabsEnum::STOCK_MOVEMENTS->value]);
         }
+        if ($this->parent instanceof Warehouse)
+        {
+            $deleteRoute = [
+                            'name'       => 'grp.models.warehouse.location.delete',
+                            'parameters' => [
+                                $this->parent->id, 
+                                $location->id
+                            ],
+                            'method'     => 'delete'
+                            ];
+        } elseif ($this->parent instanceof WarehouseArea) 
+        {
+            $deleteRoute = [
+                            'name'       => 'grp.models.warehouse-area.location.delete',
+                            'parameters' => [
+                                $this->parent->id, 
+                                $location->id
+                            ],
+                            'method'     => 'delete'
+                            ];
+        }
 
         return Inertia::render(
             'Org/Warehouse/Location',
@@ -117,7 +138,14 @@ class ShowLocation extends OrgAction
                     ],
                     'title'     => $location->slug,
                     'actions'   => [
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
+                        $this->canDelete ? [
+                            'type'    => 'button',
+                            'tooltip' => __('Delete'),
+                            'icon'    => 'fal fa-trash-alt',
+                            'style'   => 'negative',
+                            'route'   => $deleteRoute
+                        ]
+                        : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
