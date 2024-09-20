@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\OrgAction;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -40,6 +41,13 @@ class EditLocation extends OrgAction
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($location);
+    }
+
+    public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+    {
+        $this->initialisationFromWarehouse($warehouse,$request);
 
         return $this->handle($location);
     }
@@ -228,6 +236,7 @@ class EditLocation extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
+                        'organisation' => $location->organisation->slug,
                         'warehouse'     => $location->warehouse->slug,
                         'warehouseArea' => $location->warehouseArea->slug,
                         'location'      => $location->slug

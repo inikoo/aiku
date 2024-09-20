@@ -38,7 +38,7 @@ Route::scopeBindings()->prefix('areas')->name('warehouse-areas.')->group(functio
 
             Route::scopeBindings()->prefix('{location}')->group(function () {
                 Route::get('', ShowLocation::class)->name('show');
-                Route::get('edit', EditLocation::class)->name('edit');
+                Route::get('edit', [EditLocation::class, 'inWarehouseArea'])->name('edit');
             });
         });
 
