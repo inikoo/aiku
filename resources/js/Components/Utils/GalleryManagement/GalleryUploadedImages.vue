@@ -34,6 +34,7 @@ library.add(faSpinnerThird)
 const props = defineProps<{
     imagesUploadedRoutes: routeType
     attachImageRoute: routeType
+    closePopup: Function
 }>()
 
 const stockImagesList = ref<Images[]>([])
@@ -92,7 +93,8 @@ const submitSelectedImages = () => {
                 isLoading.value = false
             },
             onSuccess: (zzz) => {
-                selectedImages.value = []
+                selectedImages.value = [],
+                props.closePopup()
             },
             onError: (err) => {
                 notify({
@@ -118,7 +120,7 @@ const submitSelectedImages = () => {
                 </div>
             </div>
 
-            <div class="p-1 overflow-y-auto h-min grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-1 overflow-y-auto h-min grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-8 gap-4">
                 <template v-if="stockImagesList.length > 0">
                     <li v-for="image in stockImagesList" :key="image.name"
                         class="relative overflow-hidden ring-1 ring-gray-300 transition-transform duration-75 cursor-pointer rounded-md"

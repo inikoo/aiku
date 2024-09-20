@@ -29,10 +29,7 @@ class AttachImagesToProduct extends OrgAction
             $this->attachMediaToModel($product, $media, $scope);
         }
 
-        return response()->json([
-            'message' => 'Images successfully attached'
-        ]);
-        ;
+        return $product;
     }
 
     public function rules(): array

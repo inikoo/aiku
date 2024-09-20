@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
     tabs?: string[]
     useCrop?: boolean
     cropProps?: {}
+    closePopup: Function
 }>(), {
     tabs: () =>  ['upload', 'images_uploaded', 'stock_images'],
     useCrop: false,
@@ -159,6 +160,7 @@ const onSubmitUpload = async () => {
                         :cropProps="cropProps"
                         :isLoading
                         :stockImageRoutes="stockImageRoutes"
+                        :closePopup
                         @onUpload="onUpload"
                         @onSubmitUpload="onSubmitUpload"
                         @selectImage="(image: {}) => emits('selectImage', image)"

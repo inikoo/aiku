@@ -59,7 +59,7 @@ const stats = [
 ]
 
 const product = ref({
-    images: props.data?.product?.data?.images,
+    images: props.data?.product?.data?.images,   // TODO: No need to use this, 'props.data.product.data.images' instead
 })
 
 const deleteImage = async (data, index) => {
@@ -99,7 +99,7 @@ const isModalGallery = ref(false)
 
 <template>
     <div class="grid md:grid-cols-4 gap-x-1 gap-y-4">
-        <div class="p-5 space-y-5 grid grid-cols-1 md:grid-cols-1">
+        <div class="p-5 space-y-5 grid grid-cols-1 md:grid-cols-1 max-w-[500px]">
             <div class="relative">
                 <div class=" h-full rounded-lg md:shadow ">
                     <!-- Section: Gallery (primary and list) -->
@@ -132,7 +132,7 @@ const isModalGallery = ref(false)
                         </TabPanels>
                         
                         <!-- Section: Images list -->
-                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-44 md:h-56 overflow-y-auto mx-auto md:mt-6 w-full max-w-2xl block lg:max-w-none">
+                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-44 md:h-64 md:max-h-80 overflow-y-auto mx-auto md:mt-6 w-full max-w-2xl block lg:max-w-none">
                             <TabList class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 md:gap-x-2 md:gap-y-5">
                                 <Tab v-for="(image,index) in product.images" :key="image.id"
                                     class="group relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
@@ -243,6 +243,7 @@ const isModalGallery = ref(false)
             :imagesUploadedRoutes="data.imagesUploadedRoutes"
             :attachImageRoute="data.attachImageRoute"
             :stockImageRoutes="data.stockImageRoutes"
+            :closePopup="() => isModalGallery = false"
             @onSuccessUpload="(data: {}) => product.images = product.images.concat(data.data)"
             @selectImage="(image: {}) => console.log('image', image)"
         >
