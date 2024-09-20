@@ -69,6 +69,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_delivery_notes_state_packed
  * @property int $number_delivery_notes_state_finalised
  * @property int $number_delivery_notes_state_settled
+ * @property int $number_delivery_notes_status_handling
+ * @property int $number_delivery_notes_status_settled_dispatched
+ * @property int $number_delivery_notes_status_settled_with_missing
+ * @property int $number_delivery_notes_status_settled_fail
+ * @property int $number_delivery_notes_status_settled_cancelled
  * @property int $number_delivery_notes_cancelled_at_state_submitted
  * @property int $number_delivery_notes_cancelled_at_state_in_queue
  * @property int $number_delivery_notes_cancelled_at_state_picker_assigned

@@ -41,7 +41,7 @@ class UpdateCharge extends OrgAction
         $changed = $charge->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code'])) {
-            $historicAsset = StoreHistoricAsset::run($charge);
+            $historicAsset = StoreHistoricAsset::run($charge, [], $this->hydratorsDelay);
             $charge->updateQuietly(
                 [
                     'current_historic_asset_id' => $historicAsset->id,
@@ -49,11 +49,15 @@ class UpdateCharge extends OrgAction
             );
         }
 
-        UpdateAsset::run($charge->asset, [
-            'price' => null,
-            'unit'  => 'charge',
-            'units' => 1
-        ]);
+        UpdateAsset::run(
+            $charge->asset,
+            [
+                'price' => null,
+                'unit'  => 'charge',
+                'units' => 1
+            ],
+            $this->hydratorsDelay
+        );
 
         return $charge;
     }

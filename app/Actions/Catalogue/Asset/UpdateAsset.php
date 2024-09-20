@@ -9,7 +9,6 @@ namespace App\Actions\Catalogue\Asset;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
-use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
 use App\Actions\Traits\WithActionUpdate;
@@ -30,7 +29,7 @@ class UpdateAsset extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Asset $asset, array $modelData = []): Asset
+    public function handle(Asset $asset, array $modelData = [], int $hydratorsDelay =0): Asset
     {
         /** @var Product|Rental|Service|Subscription $model */
         $model = $asset->model;
@@ -58,18 +57,13 @@ class UpdateAsset extends OrgAction
 
         $asset = $this->update($asset, $modelData);
 
-
-        AssetHydrateUniversalSearch::dispatch($asset);
-
         $changed = $asset->getChanges();
-        if (count($changed) > 0) {
-            AssetHydrateUniversalSearch::dispatch($asset);
-        }
+
 
         if (Arr::hasAny($changed, ['state'])) {
-            ShopHydrateAssets::dispatch($asset->shop);
-            OrganisationHydrateAssets::dispatch($asset->organisation);
-            GroupHydrateAssets::dispatch($asset->group);
+            ShopHydrateAssets::dispatch($asset->shop)->delay($hydratorsDelay);
+            OrganisationHydrateAssets::dispatch($asset->organisation)->delay($hydratorsDelay);
+            GroupHydrateAssets::dispatch($asset->group)->delay($hydratorsDelay);
         }
 
 

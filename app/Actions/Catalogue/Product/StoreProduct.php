@@ -111,7 +111,8 @@ class StoreProduct extends OrgAction
                     ProductStateEnum::DISCONTINUING => AssetStateEnum::DISCONTINUING,
                     ProductStateEnum::DISCONTINUED  => AssetStateEnum::DISCONTINUED,
                 }
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $product->updateQuietly(
@@ -156,7 +157,8 @@ class StoreProduct extends OrgAction
             $product,
             [
                 'source_id' => $product->historic_source_id
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $asset->updateQuietly(

@@ -53,7 +53,7 @@ enum PurchaseOrderStateEnum: string
             ],
             'submitted'    => [
                 'tooltip' => __('Submitted'),
-                'icon'    => 'fal fa-share',
+                'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo',
                 'app'     => [
@@ -63,9 +63,9 @@ enum PurchaseOrderStateEnum: string
             ],
             'confirmed'    => [
                 'tooltip' => __('Confirmed'),
-                'icon'    => 'fal fa-spell-check',
-                'class'   => 'text-emerald-500',
-                'color'   => 'emerald',
+                'icon'    => 'fal fa-check-circle',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'spell-check',
                     'type' => 'font-awesome-5'
@@ -73,9 +73,9 @@ enum PurchaseOrderStateEnum: string
             ],
             'manufactured'     => [
                 'tooltip' => __('Manufactured'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-slate-500',
-                'color'   => 'slate',
+                'icon'    => 'fal fa-industry',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'
@@ -83,9 +83,9 @@ enum PurchaseOrderStateEnum: string
             ],
             'dispatched' => [
                 'tooltip' => __('Dispatched'),
-                'icon'    => 'fal fa-times',
-                'class'   => 'text-red-500',
-                'color'   => 'slate',
+                'icon'    => 'fal fa-shipping-fast',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'times',
                     'type' => 'font-awesome-5'
@@ -94,8 +94,8 @@ enum PurchaseOrderStateEnum: string
             'received'   => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check',
                     'type' => 'font-awesome-5'
@@ -103,9 +103,9 @@ enum PurchaseOrderStateEnum: string
             ],
             'checked'    => [
                 'tooltip' => __('Checked'),
-                'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check-double',
                     'type' => 'font-awesome-5'
@@ -114,8 +114,8 @@ enum PurchaseOrderStateEnum: string
             'settled'    => [
                 'tooltip' => __('Settled'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
                     'name' => 'check-double',
                     'type' => 'font-awesome-5'

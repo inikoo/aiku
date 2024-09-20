@@ -41,7 +41,7 @@ class UpdateService extends OrgAction
         $changed = $service->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
-            $historicAsset = StoreHistoricAsset::run($service);
+            $historicAsset = StoreHistoricAsset::run($service, [], $this->hydratorsDelay);
             $service->updateQuietly(
                 [
                     'current_historic_asset_id' => $historicAsset->id,
@@ -49,11 +49,11 @@ class UpdateService extends OrgAction
             );
         }
 
-        UpdateAsset::run($service->asset);
+        UpdateAsset::run($service->asset, [], $this->hydratorsDelay);
 
 
         if (Arr::hasAny($service->getChanges(), ['state'])) {
-            ShopHydrateServices::dispatch($service->shop);
+            ShopHydrateServices::dispatch($service->shop)->delay($this->hydratorsDelay);
         }
 
 

@@ -211,20 +211,20 @@ class IndexWarehouseAreas extends OrgAction
                     'actions'   => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.index' ? [
                             'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
+                            // 'key'    => 'upload-add',
                             'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'primary',
-                                    'icon'  => ['fal', 'fa-upload'],
-                                    'label' => 'upload',
-                                    'route' => [
-                                        'name'       => 'grp.models.warehouse.warehouse-areas.upload',
-                                        'parameters' => [
-                                            $this->parent->id
-                                        ]
-                                    ]
-                                ],
+                                // [
+                                //     'type'  => 'button',
+                                //     'style' => 'primary',
+                                //     'icon'  => ['fal', 'fa-upload'],
+                                //     'label' => 'upload',
+                                //     'route' => [
+                                //         'name'       => 'grp.models.warehouse.warehouse-areas.upload',
+                                //         'parameters' => [
+                                //             $this->parent->id
+                                //         ]
+                                //     ]
+                                // ],
                                 [
 
                                     'type'  => 'button',

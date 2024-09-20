@@ -27,12 +27,12 @@ class UpdateLocation extends OrgAction
     {
         $location = $this->update($location, $modelData, ['data']);
         if ($location->wasChanged('status')) {
-            GroupHydrateLocations::run($location->group);
-            OrganisationHydrateLocations::dispatch($location->organisation);
+            GroupHydrateLocations::run($location->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateLocations::dispatch($location->organisation)->delay($this->hydratorsDelay);
         }
 
         LocationRecordSearch::dispatch($location);
-        HydrateLocation::run($location);
+        HydrateLocation::run($location)->delay($this->hydratorsDelay);
 
         return $location;
     }
@@ -83,14 +83,15 @@ class UpdateLocation extends OrgAction
 
     }
 
-    public function action(Location $location, array $modelData, bool $strict=true, bool $audit=true): Location
+    public function action(Location $location, array $modelData, int $hydratorsDelay =0, bool $strict=true, bool $audit=true): Location
     {
         $this->strict = $strict;
         if(!$audit) {
             Location::disableAuditing();
         }
-        $this->asAction = true;
-        $this->location = $location;
+        $this->asAction       = true;
+        $this->location       = $location;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($location->organisation, $modelData);
 
         return $this->handle($location, $this->validatedData);

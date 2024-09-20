@@ -41,9 +41,9 @@ enum PickingStateEnum: string
         return [
             'on-hold'   => [
                 'tooltip' => __('On Hold'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-pause-circle',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -51,9 +51,9 @@ enum PickingStateEnum: string
             ],
             'assigned'   => [
                 'tooltip' => __('Assigned'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-user-check',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -61,9 +61,9 @@ enum PickingStateEnum: string
             ],
             'picking'   => [
                 'tooltip' => __('Picking'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -71,9 +71,9 @@ enum PickingStateEnum: string
             ],
             'queried'   => [
                 'tooltip' => __('Queried'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-question-circle',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -81,9 +81,9 @@ enum PickingStateEnum: string
             ],
             'waiting'   => [
                 'tooltip' => __('Waiting'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-hourglass-half',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -91,9 +91,9 @@ enum PickingStateEnum: string
             ],
             'picked'   => [
                 'tooltip' => __('Picked'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-box-check',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -101,9 +101,9 @@ enum PickingStateEnum: string
             ],
             'packing'   => [
                 'tooltip' => __('Packing'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-box-open',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -111,9 +111,9 @@ enum PickingStateEnum: string
             ],
             'done'   => [
                 'tooltip' => __('Done'),
-                'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+                'icon'    => 'fal fa-flag-checkered',
+                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
+                'color'   => 'gray',  // Color for box (Retina)
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'

@@ -29,8 +29,8 @@ use Illuminate\Support\Carbon;
  * @property bool $status
  * @property PickingStateEnum $state
  * @property PickingOutcomeEnum $outcome
- * @property int $quantity_required
- * @property int $quantity_picked
+ * @property string $quantity_required
+ * @property string|null $quantity_picked
  * @property string|null $quantity_packed
  * @property string|null $quantity_dispatched
  * @property int|null $org_stock_movement_id
@@ -49,6 +49,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $packed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read \App\Models\Dispatching\DeliveryNoteItem $deliveryNoteItem
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop

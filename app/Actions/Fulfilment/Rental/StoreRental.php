@@ -56,7 +56,8 @@ class StoreRental extends OrgAction
                     RentalStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
                     RentalStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
                 }
-            ]
+            ],
+            $this->hydratorsDelay
         );
 
         $rental->updateQuietly(
@@ -69,7 +70,8 @@ class StoreRental extends OrgAction
             $rental,
             [
                 'source_id' => $rental->historic_source_id
-            ]
+            ],
+            $this->hydratorsDelay
         );
         $asset->update(
             [
@@ -82,9 +84,9 @@ class StoreRental extends OrgAction
             ]
         );
 
-        ShopHydrateRentals::dispatch($shop);
-        OrganisationHydrateRentals::dispatch($shop->organisation);
-        GroupHydrateRentals::dispatch($shop->group);
+        ShopHydrateRentals::dispatch($shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateRentals::dispatch($shop->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateRentals::dispatch($shop->group)->delay($this->hydratorsDelay);
         RentalRecordSearch::dispatch($rental);
 
         return $rental;
