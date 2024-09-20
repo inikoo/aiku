@@ -25,6 +25,13 @@ class GetProductShowcase
                     'product'      => $product->id
                 ]
             ],
+            'attachImageRoute' => [
+                'name'       => 'grp.models.org.product.images.attachs',
+                'parameters' => [
+                    'organisation' => $product->organisation_id,
+                    'product'      => $product->id
+                ]
+            ],
             'deleteImageRoute' => [
                 'name'       => 'grp.models.org.product.images.delete',
                 'parameters' => [
