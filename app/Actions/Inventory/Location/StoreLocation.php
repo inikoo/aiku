@@ -17,8 +17,6 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
-use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,14 +39,14 @@ class StoreLocation extends OrgAction
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
         $location->updateQuietly(['barcode' => $location->slug]);
-        GroupHydrateLocations::run($organisation->group);
-        OrganisationHydrateLocations::dispatch($organisation);
+        GroupHydrateLocations::dispatch($organisation->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateLocations::dispatch($organisation)->delay($this->hydratorsDelay);
 
         if ($location->warehouse_area_id) {
-            WarehouseAreaHydrateLocations::dispatch($location->warehouseArea);
+            WarehouseAreaHydrateLocations::dispatch($location->warehouseArea)->delay($this->hydratorsDelay);
         }
 
-        WarehouseHydrateLocations::dispatch($location->warehouse);
+        WarehouseHydrateLocations::dispatch($location->warehouse)->delay($this->hydratorsDelay);
         LocationRecordSearch::dispatch($location);
 
         return $location;
@@ -112,10 +110,11 @@ class StoreLocation extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $modelData, bool $strict=true): Location
+    public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay =0, bool $strict=true): Location
     {
-        $this->asAction = true;
-        $this->strict   = $strict;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         if(class_basename($parent::class) == 'WarehouseArea') {
             $this->warehouse = $parent->warehouse;
@@ -144,65 +143,6 @@ class StoreLocation extends OrgAction
                 $location->slug
             ]);
         }
-    }
-
-    public string $commandSignature = 'locations:create {warehouse : warehouse slug} {code} {--a|area=} {--w|max_weight=} {--u|max_volume=} ';
-
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-        $this->warehouse = $warehouse;
-        $parent          = $warehouse;
-        $this->setRawAttributes([
-            'code' => $command->argument('code'),
-        ]);
-
-        if($command->option('max_weight')) {
-            $this->fill([
-                'max_weight' => $command->option('max_weight'),
-            ]);
-        }
-        if($command->option('max_volume')) {
-            $this->fill([
-                'max_volume' => $command->option('max_volume'),
-            ]);
-        }
-
-
-        if($command->option('area')) {
-            try {
-                $warehouseArea = WarehouseArea::where('slug', $command->option('area'))->firstOrFail();
-            } catch (Exception) {
-                $command->error("Warehouse area {$command->option('area')} not found");
-                return 1;
-            }
-            $this->warehouse = $warehouseArea->warehouse;
-
-            $parent = $warehouseArea;
-        }
-
-
-        try {
-            $validatedData = $this->validateAttributes();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $location = $this->handle($parent, $validatedData);
-
-        $command->info("Location: $location->code created successfully 🎉");
-
-        return 0;
     }
 
 }

@@ -16,8 +16,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseArea
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
-use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
@@ -89,40 +87,6 @@ class StoreWarehouseArea extends OrgAction
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
         return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.index', $warehouseArea->warehouse->slug);
-    }
-
-    public string $commandSignature = 'warehouse-areas:create {warehouse : warehouse slug} {code} {name}';
-
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-        $this->warehouse = $warehouse;
-        $this->setRawAttributes([
-            'code' => $command->argument('code'),
-            'name' => $command->argument('name'),
-        ]);
-
-        try {
-            $validatedData = $this->validateAttributes();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $warehouseArea = $this->handle($warehouse, $validatedData);
-
-        $command->info("Warehouse area $warehouseArea->code created successfully 🎉");
-
-        return 0;
     }
 
 }

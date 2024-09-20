@@ -151,7 +151,7 @@ class UpdateRentalAgreement extends OrgAction
                 UpdatePalletReturnFulfilmentTransactionClause::run($return);
             }
         }
-        if ($updateTrigger === true) {
+        if ($updateTrigger === true && $rentalAgreement->state === RentalAgreementStateEnum::ACTIVE) {
             foreach ($rentalAgreement->fulfilmentCustomer->currentRecurringBill->palletDeliveries as $delivery) {
                 UpdatePalletDeliveryFulfilmentTransactionClause::run($delivery);
             }

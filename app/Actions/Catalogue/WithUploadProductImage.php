@@ -24,10 +24,7 @@ trait WithUploadProductImage
     {
         $medias = [];
 
-
-
         foreach ($modelData['images'] as $imageFile) {
-
 
             $imageData = [
                 'path'         => $imageFile->getPathName(),
@@ -49,8 +46,8 @@ trait WithUploadProductImage
     public function rules(): array
     {
         return [
-            '0'   => ['required'],
-            '0.*' => ["mimes:jpg,png,jpeg,gif", "max:50000"]
+            'images'   => ['required', 'array'],
+            'images.*' => ["mimes:jpg,png,jpeg,gif", "max:50000"]
         ];
     }
 

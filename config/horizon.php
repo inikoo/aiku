@@ -322,9 +322,9 @@ return [
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 5,
+                'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
+                'balanceCooldown' => 10,
             ],
             'low-priority' => [
                 'maxProcesses'    => 2,
@@ -359,7 +359,7 @@ return [
                 'balanceCooldown' => 3,
             ],
             'universal-search' => [
-                'maxProcesses'    => 2,
+                'maxProcesses'    => 10,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],

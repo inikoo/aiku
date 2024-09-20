@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment;
 
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -32,7 +33,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         ];
 
-        if($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->exists()) {
+        if($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
             $subNavigation[]=[
                 'href' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',

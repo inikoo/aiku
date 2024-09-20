@@ -103,7 +103,7 @@ class IndexStockDeliveries extends OrgAction
         return Inertia::render(
             'Procurement/StockDeliveries',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
                     'title'  => __('supplier deliveries'),
@@ -122,11 +122,11 @@ class IndexStockDeliveries extends OrgAction
         )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return
             array_merge(
-                ShowProcurementDashboard::make()->getBreadcrumbs(),
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',

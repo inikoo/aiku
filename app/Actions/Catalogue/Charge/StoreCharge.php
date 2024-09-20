@@ -71,7 +71,8 @@ class StoreCharge extends OrgAction
             $charge,
             [
                 'source_id' => $charge->historic_source_id
-            ]
+            ],
+            $this->hydratorsDelay
         );
         $asset->update(
             [
@@ -84,9 +85,9 @@ class StoreCharge extends OrgAction
             ]
         );
 
-        ShopHydrateCharges::dispatch($shop);
-        OrganisationHydrateCharges::dispatch($shop->organisation);
-        GroupHydrateCharges::dispatch($shop->group);
+        ShopHydrateCharges::dispatch($shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateCharges::dispatch($shop->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateCharges::dispatch($shop->group)->delay($this->hydratorsDelay);
         ChargeHydrateUniversalSearch::dispatch($charge);
 
 

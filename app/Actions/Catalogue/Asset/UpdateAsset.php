@@ -29,7 +29,7 @@ class UpdateAsset extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Asset $asset, array $modelData = []): Asset
+    public function handle(Asset $asset, array $modelData = [], int $hydratorsDelay =0): Asset
     {
         /** @var Product|Rental|Service|Subscription $model */
         $model = $asset->model;
@@ -61,9 +61,9 @@ class UpdateAsset extends OrgAction
 
 
         if (Arr::hasAny($changed, ['state'])) {
-            ShopHydrateAssets::dispatch($asset->shop);
-            OrganisationHydrateAssets::dispatch($asset->organisation);
-            GroupHydrateAssets::dispatch($asset->group);
+            ShopHydrateAssets::dispatch($asset->shop)->delay($hydratorsDelay);
+            OrganisationHydrateAssets::dispatch($asset->organisation)->delay($hydratorsDelay);
+            GroupHydrateAssets::dispatch($asset->group)->delay($hydratorsDelay);
         }
 
 

@@ -28,6 +28,8 @@ class FetchAuroraLocations extends FetchAuroraAction
                     $location = UpdateLocation::make()->action(
                         location: $location,
                         modelData: $locationData['location'],
+                        hydratorsDelay: 60,
+                        strict: false,
                         audit: false
                     );
                     $this->recordChange($organisationSource, $location->wasChanged());
@@ -41,6 +43,8 @@ class FetchAuroraLocations extends FetchAuroraAction
                     $location = StoreLocation::make()->action(
                         parent: $locationData['parent'],
                         modelData: $locationData['location'],
+                        hydratorsDelay: 60,
+                        strict: false
                     );
 
                     $this->recordNew($organisationSource);

@@ -25,6 +25,7 @@ class FetchAuroraCharges extends FetchAuroraAction
                 $charge = UpdateCharge::make()->action(
                     charge: $charge,
                     modelData: $chargeData['charge'],
+                    hydratorsDelay: 60,
                     strict: false,
                     audit: false
                 );
