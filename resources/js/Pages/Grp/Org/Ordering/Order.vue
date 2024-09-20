@@ -138,17 +138,19 @@ const props = defineProps<{
     routes: {
         updateOrderRoute: routeType
         products_list: routeType
+        delivery_note: routeType
     }
     // nonProductItems: {}
     transactions: {}
     currency: Currency
-    delivery_notes: {},
-    delivery_note : {
+    delivery_notes: {
+        data : Array<any>
+    },
+    /* delivery_note : {
         reference : String
-    }
+    } */
 }>()
 
-console.log(props)
 
 // console.log(props.box_stats)
 
@@ -572,15 +574,15 @@ const onSubmitNote = async (closePopup: Function) => {
             </div>
 
 
-            <div class="mt-1 flex items-center w-full flex-none justify-between">
-                <div class="flex items-center gap-3 gap-x-1.5 primaryLink cursor-pointer">
+            <div v-if="delivery_notes.data[0]" class="mt-1 flex items-center w-full flex-none justify-between">
+                <Link :href="route(routes.delivery_note.name,routes.delivery_note.parameters)" class="flex items-center gap-3 gap-x-1.5 primaryLink cursor-pointer">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-truck' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
                     <dd class="text-gray-500 " v-tooltip="trans('Delivery Note')">
-                        {{ delivery_note.reference }}
+                        {{ delivery_notes.data[0]?.reference }}
                     </dd>
-                </div>
+                </Link>
                    <!--  <Link href="/your-route" class="flex items-center"> -->
                         <button class="flex items-center">
                             <dt class="flex-none">
