@@ -100,12 +100,10 @@ class UpdateRentalAgreement extends OrgAction
                         unset($currentAssetsInClauses[$data['asset_id']]);
                         $clausesUpdated++;
                     } else {
-                        if(!Arr::exists($data, 'state')) {
-                            $data['state'] = match ($rentalAgreement->state) {
-                                RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
-                                default                               => RentalAgreementCauseStateEnum::DRAFT
-                            };
-                        }
+                        $data['state'] = match ($rentalAgreement->state) {
+                            RentalAgreementStateEnum::ACTIVE      => RentalAgreementCauseStateEnum::ACTIVE,
+                            default                               => RentalAgreementCauseStateEnum::DRAFT
+                        };
                         StoreRentalAgreementClause::run($rentalAgreement, $data);
                         $clausesAdded++;
                     }
@@ -171,7 +169,8 @@ class UpdateRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'update_all'                              => ['required'],
+            'state'                                   => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
+            'update_all'                              => ['sometimes'],
             'billing_cycle'                           => ['sometimes', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                           => ['sometimes', 'integer', 'min:1', 'max:10000'],
             'clauses'                                 => ['sometimes', 'array'],

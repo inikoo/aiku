@@ -277,6 +277,7 @@ class ShowOrder extends OrgAction
                 default => []
             };
         }
+
         return Inertia::render(
             'Org/Ordering/Order',
             [
@@ -431,6 +432,7 @@ class ShowOrder extends OrgAction
                 ],
                 'currency'       => CurrencyResource::make($order->currency)->toArray(request()),
                 'data'           => OrderResource::make($order),
+                'delivery_note'  => DeliveryNotesResource::make($order->deliveryNotes()),
                 // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 

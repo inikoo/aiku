@@ -47,7 +47,7 @@ class EditLocation extends OrgAction
 
     public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
-        $this->initialisationFromWarehouse($warehouse,$request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($location);
     }
@@ -236,7 +236,7 @@ class EditLocation extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'organisation' => $location->organisation->slug,
+                        'organisation'  => $location->organisation->slug,
                         'warehouse'     => $location->warehouse->slug,
                         'warehouseArea' => $location->warehouseArea->slug,
                         'location'      => $location->slug

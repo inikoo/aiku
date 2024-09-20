@@ -328,7 +328,14 @@ class ShowDeliveryNote extends OrgAction
                         'parameters'    => [
                             'organisation' => $deliveryNote->organisation->slug
                         ]
-                    ]
+                    ],
+                    'exportPdfRoute' => [
+                        'name'       => 'grp.org.accounting.invoices.download',
+                        'parameters' => [
+                            'organisation' => $deliveryNote->organisation->slug,
+                            'invoice'      => $deliveryNote->slug
+                        ]
+                    ],
                 ],
 
                 DeliveryNoteTabsEnum::SKOS_ORDERED->value => $this->tab == DeliveryNoteTabsEnum::SKOS_ORDERED->value ?

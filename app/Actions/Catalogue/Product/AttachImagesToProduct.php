@@ -7,8 +7,6 @@
 
 namespace App\Actions\Catalogue\Product;
 
-use App\Actions\Catalogue\WithUploadProductImage;
-use App\Actions\Helpers\Media\StoreMediaFromFile;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithAttachMediaToModel;
@@ -16,9 +14,7 @@ use App\Http\Resources\Helpers\ImageResource;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Media;
 use App\Models\SysAdmin\Organisation;
-use Google\Service\ShoppingContent\ActionReason;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
 
 class AttachImagesToProduct extends OrgAction
