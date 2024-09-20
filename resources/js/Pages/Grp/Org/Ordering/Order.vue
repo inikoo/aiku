@@ -580,7 +580,7 @@ const onSubmitNote = async (closePopup: Function) => {
                         <FontAwesomeIcon icon='fal fa-truck' fixed-width aria-hidden='true' class="text-gray-500" />
                     </dt>
                     <dd class="text-gray-500 " v-tooltip="trans('Delivery Note')">
-                        {{ delivery_notes.data[0]?.reference }}
+                        {{ delivery_notes?.data[0]?.reference }}
                     </dd>
                 </Link>
                    <!--  <Link href="/your-route" class="flex items-center"> -->
