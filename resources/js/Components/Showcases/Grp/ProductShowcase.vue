@@ -101,9 +101,9 @@ const isModalGallery = ref(false)
     <div class="grid md:grid-cols-4 gap-x-1 gap-y-4">
         <div class="p-5 space-y-5 grid grid-cols-1 md:grid-cols-1">
             <div class="relative">
-                <div class=" h-full rounded-lg shadow">
-                    <!-- Section: Gallery -->
-                    <TabGroup as="div" class="grid grid-cols-2 p-2.5" :selectedIndex="selectedImage" @change="changeSelectedImage">
+                <div class=" h-full rounded-lg md:shadow ">
+                    <!-- Section: Gallery (primary and list) -->
+                    <TabGroup as="div" class="grid grid-cols-2 md:grid-cols-1 p-0 md:p-2.5 gap-x-3 h-full" :selectedIndex="selectedImage" @change="changeSelectedImage">
                         <!-- Section: Main image (big) -->
                         <TabPanels class="overflow-hidden duration-300">
                             <template v-if="product?.images?.length > 0">
@@ -132,26 +132,27 @@ const isModalGallery = ref(false)
                         </TabPanels>
                         
                         <!-- Section: Images list -->
-                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-full md:h-56 overflow-y-auto mx-auto mt-6 w-full max-w-2xl hidden sm:block lg:max-w-none">
-                            <TabList class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 md:gap-x-5 md:gap-y-5">
+                        <div @scroll="(eee) => console.log('on scroll', eee)" class="h-44 md:h-56 overflow-y-auto mx-auto md:mt-6 w-full max-w-2xl block lg:max-w-none">
+                            <TabList class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 md:gap-x-2 md:gap-y-5">
                                 <Tab v-for="(image,index) in product.images" :key="image.id"
-                                    class="relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
+                                    class="group relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
                                     v-slot="{ selected }"
                                     
                                 >
-                                    <div class="absolute top-0 left-0 bg-indigo-500 z-10 text-xxs py-[1px] px-[1px]">{{ trans('Primary') }}</div>
+                                    <!-- <div class="absolute top-0 left-0 bg-indigo-500 z-10 text-xxs py-[1px] px-[1px]">{{ trans('Primary') }}</div> -->
                                     <span class="flex items-center absolute inset-0 overflow-hidden rounded-md ">
                                         <Image :src="image.source" alt="" class="" />
                                     </span>
+
                                     <div :class="[selected ? 'ring-2 ring-offset-2 ring-indigo-500' : 'ring-1 ring-gray-300', 'pointer-events-none absolute inset-0 rounded-md ']"
                                         aria-hidden="true">
 
                                     </div>
 
-                                    <div v-if="!isLoading.includes(image.id)" @click.stop="deleteImage(image,index)" class="absolute top-0.5 right-0.5 py-1 px-0.5 rounded flex justify-center items-center bg-red-500/50 hover:bg-red-500 cursor-pointer text-white">
+                                    <div v-if="!isLoading.includes(image.id)" @click.stop="deleteImage(image,index)" class="hidden absolute top-0.5 right-0.5 py-1 px-0.5 rounded group-hover:flex justify-center items-center bg-red-500/50 hover:bg-red-500 cursor-pointer text-white">
                                         <FontAwesomeIcon icon='fal fa-trash' class='text-xs' fixed-width aria-hidden='true' />
                                     </div>
-                                    <div v-else class="absolute top-1.5 right-1.5 py-1 px-0.5 rounded-sm flex justify-center items-center bg-red-500/70 hover:bg-red-500 cursor-pointer text-white">
+                                    <div v-else class="absolute inset-0 rounded-sm flex justify-center items-center bg-red-500/70 cursor-pointer text-white">
                                         <LoadingIcon />
                                     </div>
                                 </Tab>

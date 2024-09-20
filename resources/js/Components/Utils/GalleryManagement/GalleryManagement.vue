@@ -130,7 +130,6 @@ const onSubmitUpload = async () => {
 
 <template>
     <div class="">
-    {{ stockImageRoutes }}
         <TabGroup :selectedIndex="selectedTab" @change="(index) => selectedTab = index">
             <TabList class="flex space-x-8 border-b-2">
                 <Tab v-for="tab in tabsData" as="template" :key="tab.key" v-slot="{ selected }">
