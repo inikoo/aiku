@@ -63,6 +63,7 @@ class EditRentalAgreement extends OrgAction
             ],
         ];
 
+        $stateOptions = [];
         if($rentalAgreement->state !== RentalAgreementStateEnum::ACTIVE) {
             $stateOptions = [
                 'state' => [
