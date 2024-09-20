@@ -18,6 +18,14 @@ class GetProductShowcase
     public function handle(Product $product): array
     {
         return [
+            'fetchImagesRoute' => [
+                'name'       => 'grp.org.shops.show.catalogue.products.images',
+                'parameters' => [
+                    'organisation' => $product->organisation->slug,
+                    'shop'         => $product->shop->slug,
+                    'product'      => $product->slug
+                ]
+            ],
             'uploadImageRoute' => [
                 'name'       => 'grp.models.org.product.images.store',
                 'parameters' => [
