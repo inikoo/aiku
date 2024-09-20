@@ -152,7 +152,7 @@ const props = defineProps<{
 }>()
 
 
-// console.log(props.box_stats)
+console.log(props)
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -574,7 +574,7 @@ const onSubmitNote = async (closePopup: Function) => {
             </div>
 
 
-            <div v-if="delivery_notes.data[0]" class="mt-1 flex items-center w-full flex-none justify-between">
+            <div v-if="delivery_notes" class="mt-1 flex items-center w-full flex-none justify-between">
                 <Link :href="route(routes.delivery_note.name,routes.delivery_note.parameters)" class="flex items-center gap-3 gap-x-1.5 primaryLink cursor-pointer">
                     <dt class="flex-none">
                         <FontAwesomeIcon icon='fal fa-truck' fixed-width aria-hidden='true' class="text-gray-500" />
