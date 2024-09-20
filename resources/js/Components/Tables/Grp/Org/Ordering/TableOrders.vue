@@ -10,6 +10,11 @@ import Table from "@/Components/Table/Table.vue"
 import { Order } from "@/types/order"
 import type { Links, Meta } from "@/types/Table"
 import { useFormatTime } from '@/Composables/useFormatTime'
+import Icon from "@/Components/Icon.vue"
+
+import { faSeedling, faPaperPlane, faWarehouse, faHandsHelping, faBox, faTasks, faShippingFast, faTimesCircle } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faSeedling, faPaperPlane, faWarehouse, faHandsHelping, faBox, faTasks, faShippingFast, faTimesCircle)
 
 defineProps<{
     data: {
@@ -73,6 +78,11 @@ function customerRoute(order: Order) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Reference -->
+        <template #cell(state)="{ item: order }">
+            <Icon :data="order.state_icon" />
+        </template>
+
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: order }">
             <Link :href="orderRoute(order)" class="primaryLink">

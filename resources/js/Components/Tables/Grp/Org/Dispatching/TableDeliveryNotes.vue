@@ -13,6 +13,7 @@ import type { Table as TableTS } from "@/types/Table"
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useFormatTime } from '@/Composables/useFormatTime'
+import Icon from "@/Components/Icon.vue"
 
 const props = defineProps<{
     data: TableTS,
@@ -76,6 +77,14 @@ function customerRoute(deliveryNote: DeliveryNote) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(status)="{ item: deliveryNote }">
+            <!-- {{deliveryNote.state_icon}} -->
+            <Icon :data="deliveryNote.state_icon" />
+            <!-- <Link :href="deliveryNoteRoute(deliveryNote)" class="primaryLink">
+                {{ deliveryNote["reference"] }}
+            </Link> -->
+        </template>
+
         <template #cell(reference)="{ item: deliveryNote }">
             <Link :href="deliveryNoteRoute(deliveryNote)" class="primaryLink">
                 {{ deliveryNote["reference"] }}
