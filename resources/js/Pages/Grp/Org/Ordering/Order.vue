@@ -62,9 +62,9 @@ import AlertMessage from '@/Components/Utils/AlertMessage.vue'
 
 import { faExclamationTriangle as fadExclamationTriangle } from '@fad'
 import { faExclamationTriangle, faExclamation } from '@fas'
-import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote } from '@fal'
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faTruck, faFilePdf } from '@fal'
 import { Currency } from '@/types/LayoutRules'
-library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation)
+library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf)
 
 
 const props = defineProps<{
@@ -142,8 +142,13 @@ const props = defineProps<{
     // nonProductItems: {}
     transactions: {}
     currency: Currency
-    delivery_notes: {}
+    delivery_notes: {},
+    delivery_note : {
+        reference : String
+    }
 }>()
+
+console.log(props)
 
 // console.log(props.box_stats)
 
@@ -561,10 +566,30 @@ const onSubmitNote = async (closePopup: Function) => {
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-weight' fixed-width aria-hidden='true' class="text-gray-500" />
                 </dt>
-                <dd class="text-gray-500" v-tooltip="trans('Estimated weight of all products')">
+                <dd class="text-gray-500 sep" v-tooltip="trans('Estimated weight of all products')">
                     {{ box_stats?.products.estimated_weight || 0 }} kilograms
                 </dd>
             </div>
+
+
+            <div class="mt-1 flex items-center w-full flex-none justify-between">
+                <div class="flex items-center gap-3 gap-x-1.5 primaryLink cursor-pointer">
+                    <dt class="flex-none">
+                        <FontAwesomeIcon icon='fal fa-truck' fixed-width aria-hidden='true' class="text-gray-500" />
+                    </dt>
+                    <dd class="text-gray-500 " v-tooltip="trans('Delivery Note')">
+                        {{ delivery_note.reference }}
+                    </dd>
+                </div>
+                   <!--  <Link href="/your-route" class="flex items-center"> -->
+                        <button class="flex items-center">
+                            <dt class="flex-none">
+                                <FontAwesomeIcon :icon="faFilePdf" fixed-width aria-hidden="true" class="text-gray-500 hover:text-indigo-500 transition-colors duration-200" />
+                            </dt>
+                        </button>
+                <!--     </Link> -->
+            </div>
+
         </BoxStatPallet>
 
         <!-- Box: Order summary -->
