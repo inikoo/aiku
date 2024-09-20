@@ -63,6 +63,30 @@ class EditRentalAgreement extends OrgAction
             ],
         ];
 
+        if($rentalAgreement->state !== RentalAgreementStateEnum::ACTIVE) {
+            $stateOptions = [
+                'state' => [
+                    'type'     => 'radio',
+                    'label'    => __('state'),
+                    'mode'     => "tabs",
+                    'valueProp'=> 'value',
+                    'required' => true,
+                    /* 'options'  => Options::forEnum(RentalAgreementStateEnum::class), */
+                    'value'    => $rentalAgreement->state,
+                    'options'  => [
+                        [
+                            "label" => "Draft",
+                            "value" => "draft"
+                        ],
+                        [
+                            "label" => "Active",
+                            "value" => "active"
+                        ],
+                    ],
+                ],
+            ];
+        }
+
 
         return Inertia::render(
             'EditModel',
@@ -105,25 +129,7 @@ class EditRentalAgreement extends OrgAction
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
-                                    'state' => [
-                                        'type'     => 'radio',
-                                        'label'    => __('state'),
-                                        'mode'     => "tabs",
-                                        'valueProp'=> 'value',
-                                        'required' => true,
-                                        /* 'options'  => Options::forEnum(RentalAgreementStateEnum::class), */
-                                        'value'    => $rentalAgreement->state,
-                                        'options'  => [
-                                            [
-                                                "label" => "Draft",
-                                                "value" => "draft"
-                                            ],
-                                            [
-                                                "label" => "Active",
-                                                "value" => "active"
-                                            ],
-                                        ],
-                                    ],
+                                    ...$stateOptions,
                                     ...$createWebUserFields,
                                     'clauses'       => [
                                         'type'           => 'rental',
