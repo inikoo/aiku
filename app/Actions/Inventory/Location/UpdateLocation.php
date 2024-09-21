@@ -32,7 +32,7 @@ class UpdateLocation extends OrgAction
         }
 
         LocationRecordSearch::dispatch($location);
-        HydrateLocation::run($location)->delay($this->hydratorsDelay);
+        HydrateLocation::dispatch($location)->delay($this->hydratorsDelay);
 
         return $location;
     }
