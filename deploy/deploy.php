@@ -35,7 +35,7 @@ set('shared_files', [
     'aurora_crm_migration.sh',
     'aurora_ds_migration.sh',
     'aurora_fulfilment_migration.sh',
-    'aurora_helpers_migration.sh',
+    'aurora_stock_migration.sh',
     'aurora_hr_migration.sh',
     'aurora_inventory_migration.sh',
     'aurora_orders_migration.sh',
