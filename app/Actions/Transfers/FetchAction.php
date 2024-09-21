@@ -148,7 +148,7 @@ class FetchAction
             'model_data' => $modelData,
             'data'       => $e->getMessage(),
             'type'       => FetchRecordTypeEnum::ERROR,
-            'source_id'  => $modelData['source_id'],
+            'source_id'  => Arr::get($modelData, 'source_id'),
             'model_type' => $modelType,
             'error_on'   => $errorOn
         ]);
