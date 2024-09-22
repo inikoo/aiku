@@ -8,6 +8,8 @@
 namespace App\Actions\Inventory\Location;
 
 use App\Actions\Inventory\Location\Search\LocationRecordSearch;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
+use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
@@ -27,12 +29,16 @@ class UpdateLocation extends OrgAction
     {
         $location = $this->update($location, $modelData, ['data']);
         if ($location->wasChanged('status')) {
-            GroupHydrateLocations::run($location->group)->delay($this->hydratorsDelay);
+            GroupHydrateLocations::dispatch($location->group)->delay($this->hydratorsDelay);
             OrganisationHydrateLocations::dispatch($location->organisation)->delay($this->hydratorsDelay);
+            WarehouseHydrateLocations::dispatch($location->warehouse)->delay($this->hydratorsDelay);
+
+            if ($location->warehouse_area_id) {
+                WarehouseAreaHydrateLocations::dispatch($location->warehouseArea)->delay($this->hydratorsDelay);
+            }
         }
 
         LocationRecordSearch::dispatch($location);
-        HydrateLocation::dispatch($location)->delay($this->hydratorsDelay);
 
         return $location;
     }
@@ -78,6 +84,7 @@ class UpdateLocation extends OrgAction
                 'max:64',
                 'string',
             ];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
         return $rules;
 

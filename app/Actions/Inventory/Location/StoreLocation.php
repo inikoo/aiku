@@ -41,12 +41,12 @@ class StoreLocation extends OrgAction
         $location->updateQuietly(['barcode' => $location->slug]);
         GroupHydrateLocations::dispatch($organisation->group)->delay($this->hydratorsDelay);
         OrganisationHydrateLocations::dispatch($organisation)->delay($this->hydratorsDelay);
+        WarehouseHydrateLocations::dispatch($location->warehouse)->delay($this->hydratorsDelay);
 
         if ($location->warehouse_area_id) {
             WarehouseAreaHydrateLocations::dispatch($location->warehouseArea)->delay($this->hydratorsDelay);
         }
 
-        WarehouseHydrateLocations::dispatch($location->warehouse)->delay($this->hydratorsDelay);
         LocationRecordSearch::dispatch($location);
 
         return $location;
@@ -63,7 +63,7 @@ class StoreLocation extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'code'       => [
                 'required',
                 'max:64',
@@ -75,19 +75,19 @@ class StoreLocation extends OrgAction
                     ]
                 ),
             ],
-            'max_weight'   => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'max_volume'   => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'source_id'    => ['sometimes', 'string'],
-            'deleted_at'   => ['sometimes', 'nullable', 'date'],
-            'fetched_at'   => ['sometimes', 'date'],
+            'max_weight' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
         ];
 
-        if(!$this->strict) {
-            $rules['code'] = [
+        if (!$this->strict) {
+            $rules['code']       = [
                 'required',
                 'max:64',
                 'string',
             ];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string'];
         }
 
         return $rules;
@@ -110,13 +110,13 @@ class StoreLocation extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay =0, bool $strict=true): Location
+    public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Location
     {
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
-        if(class_basename($parent::class) == 'WarehouseArea') {
+        if (class_basename($parent::class) == 'WarehouseArea') {
             $this->warehouse = $parent->warehouse;
         } else {
             $this->warehouse = $parent;
