@@ -128,6 +128,8 @@ class StoreWebpage extends OrgAction
             'type'      => ['required', Rule::enum(WebpageTypeEnum::class)],
             'state'     => ['sometimes', Rule::enum(WebpageStateEnum::class)],
             'is_fixed'  => ['sometimes', 'boolean'],
+            'ready_at'  => ['sometimes', 'date'],
+            'live_at'   => ['sometimes', 'date'],
         ];
 
         if ($this->parent instanceof Webpage) {
@@ -152,9 +154,6 @@ class StoreWebpage extends OrgAction
         if (!$this->strict) {
             $rules['source_id']  = ['sometimes', 'string'];
             $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['ready_at']   = ['sometimes', 'date'];
-            $rules['live_at']    = ['sometimes', 'date'];
-
         }
 
         return $rules;
