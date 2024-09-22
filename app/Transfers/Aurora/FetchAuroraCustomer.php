@@ -86,7 +86,7 @@ class FetchAuroraCustomer extends FetchAurora
             }
         }
 
-        $internalNotes          = $this->auroraModelData->{'Customer Sticky Notes'};
+        $internalNotes          = $this->auroraModelData->{'Customer Sticky Note'};
         $warehouseInternalNotes = $this->auroraModelData->{'Customer Order Sticky Note'};
         $warehousePublicNotes   = $this->auroraModelData->{'Customer Delivery Sticky Note'};
 
