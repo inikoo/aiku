@@ -46,7 +46,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::get('', [IndexProducts::class, 'current'])->name('index');
         Route::get('create', CreateProduct::class)->name('create');
         Route::prefix('{product}')->group(function () {
-            Route::get('', [ShowProduct::class, 'current'])->name('show');
+            Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
             Route::get('edit', [EditProduct::class, 'current'])->name('edit');
         });
@@ -56,7 +56,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::get('', [IndexProducts::class, 'inProcess'])->name('index');
         Route::get('create', CreateProduct::class)->name('create');
         Route::prefix('{product}')->group(function () {
-            Route::get('', [ShowProduct::class, 'inProcess'])->name('show');
+            Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
             Route::get('edit', [EditProduct::class, 'inProcess'])->name('edit');
         });
@@ -66,7 +66,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::get('', [IndexProducts::class, 'discontinued'])->name('index');
         Route::get('create', CreateProduct::class)->name('create');
         Route::prefix('{product}')->group(function () {
-            Route::get('', [ShowProduct::class, 'discontinued'])->name('show');
+            Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
             Route::get('edit', [EditProduct::class, 'discontinued'])->name('edit');
         });

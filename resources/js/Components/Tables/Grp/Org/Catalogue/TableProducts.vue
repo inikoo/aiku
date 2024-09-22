@@ -38,8 +38,19 @@ function productRoute(product: Product) {
         return route(
           'grp.org.shops.show.catalogue.products.current_products.show',
           [route().params['organisation'], route().params['shop'], product.slug])
+      case 'grp.org.shops.show.catalogue.products.in_process_products.index':
+        return route(
+          'grp.org.shops.show.catalogue.products.in_process_products.show',
+          [route().params['organisation'], route().params['shop'], product.slug])
+      case 'grp.org.shops.show.catalogue.products.discontinued_products.index':
+        return route(
+          'grp.org.shops.show.catalogue.products.discontinued_products.show',
+          [route().params['organisation'], route().params['shop'], product.slug])
+      case 'grp.org.shops.show.catalogue.products.all_products.index':
+        return route(
+          'grp.org.shops.show.catalogue.products.all_products.show',
+          [route().params['organisation'], route().params['shop'], product.slug])
 
-        case "grp.org.shops.show.catalogue.products.index":
         case "grp.org.shops.show.catalogue.collections.show":
         case "grp.org.shops.show.catalogue.dashboard":
             return route(

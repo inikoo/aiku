@@ -9,7 +9,6 @@ namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
-use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
@@ -80,7 +79,7 @@ class ShowProduct extends OrgAction
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFamilyinDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, Product $product, ActionRequest $request): Product
+    public function inFamilyInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, Product $product, ActionRequest $request): Product
     {
         $this->parent = $family;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
@@ -105,6 +104,7 @@ class ShowProduct extends OrgAction
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $product,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -173,9 +173,9 @@ class ShowProduct extends OrgAction
         return new ProductsResource($product);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(Product $product, string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Product $product, array $routeParameters, $suffix) {
+        $headCrumb = function (Product $product, array $routeParameters, $suffix, $suffixIndex='') {
             return [
 
                 [
@@ -183,7 +183,7 @@ class ShowProduct extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('Products')
+                            'label' => __('Products').$suffixIndex,
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -197,45 +197,83 @@ class ShowProduct extends OrgAction
             ];
         };
 
-        $product = Product::where('slug', $routeParameters['product'])->first();
-
         return match ($routeName) {
-            'shops.products.show' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs('grp.org.shops.index', $routeParameters['organisation']),
-                $headCrumb(
-                    $routeParameters['product'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.products.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'model' => [
-                            'name'       => 'shops.products.show',
-                            'parameters' => $routeParameters
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
-            'grp.org.shops.show.catalogue.products.show' =>
+            'grp.org.shops.show.catalogue.products.current_products.show' =>
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $product,
                     [
                         'index' => [
-                            'name'       => 'grp.org.shops.show.catalogue.products.index',
+                            'name'       => 'grp.org.shops.show.catalogue.products.current_products.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.shops.show.catalogue.products.show',
+                            'name'       => 'grp.org.shops.show.catalogue.products.current_products.show',
                             'parameters' => $routeParameters
                         ]
                     ],
-                    $suffix
+                    $suffix,
+                    ' ('.__('Current').')'
                 )
             ),
+            'grp.org.shops.show.catalogue.products.in_process_products.show' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $product,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.catalogue.products.current_products.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.catalogue.products.current_products.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix,
+                    ' ('.__('In process').')'
+                )
+            ),
+            'grp.org.shops.show.catalogue.products.discontinued_products.show' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $product,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.catalogue.products.discontinued_products.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.catalogue.products.discontinued_products.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix,
+                    ' ('.__('Discontinued').')'
+                )
+            ),
+            'grp.org.shops.show.catalogue.products.all_products.show' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $product,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.catalogue.products.all_products.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.catalogue.products.all_products.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix,
+                )
+            ),
+
             'grp.org.fulfilments.show.products.show' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
