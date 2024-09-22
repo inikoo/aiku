@@ -46,8 +46,8 @@ Route::prefix('{customer}')->as('show')->group(function () {
         });
     });
     Route::prefix('customer-clients')->as('.customer-clients')->group(function () {
-        Route::get('', [IndexCustomerClients::class, 'inCustomer'])->name('.index');
-        Route::get('create', [CreateCustomerClient::class, 'inCustomer'])->name('.create');
+        Route::get('', IndexCustomerClients::class)->name('.index');
+        Route::get('create', CreateCustomerClient::class)->name('.create');
         Route::prefix('{customerClient}')->group(function () {
             Route::get('', ShowCustomerClient::class)->name('.show');
             // Route::get('edit', [EditWebUser::class, 'inCustomerInShop'])->name('.edit');
@@ -58,7 +58,7 @@ Route::prefix('{customer}')->as('show')->group(function () {
         });
     });
     Route::prefix('portfolios')->as('.portfolios')->group(function () {
-        Route::get('', [IndexPortfolios::class, 'inCustomer'])->name('.index');
+        Route::get('', IndexPortfolios::class)->name('.index');
         Route::get('products', IndexFilteredProducts::class)->name('.filtered-products');
         // Route::get('create', [CreateCustomerClient::class, 'inCustomer'])->name('.create');
         // Route::prefix('{customerClient}')->group(function () {

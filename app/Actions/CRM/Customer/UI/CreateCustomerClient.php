@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -112,7 +112,7 @@ class CreateCustomerClient extends OrgAction
     }
 
 
-    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);
         return $this->handle($customer, $request);
