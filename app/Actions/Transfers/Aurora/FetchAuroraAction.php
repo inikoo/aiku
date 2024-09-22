@@ -64,7 +64,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:pallets',
             'fetch:families',
             'fetch:outers',
-            'fetch:portfolios'
+            'fetch:portfolios',
+            'fetch:stock_movements',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

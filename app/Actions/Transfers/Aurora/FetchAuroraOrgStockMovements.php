@@ -8,6 +8,7 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Inventory\OrgStockMovement\StoreOrgStockMovement;
+use App\Actions\Inventory\OrgStockMovement\UpdateOrgStockMovement;
 use App\Models\Inventory\OrgStockMovement;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrgStockMovements extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:stock_movements {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:stock_movements {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?OrgStockMovement
     {
@@ -24,7 +25,12 @@ class FetchAuroraOrgStockMovements extends FetchAuroraAction
             //  print_r($orgStockMovementData);
             if ($orgStockMovement = OrgStockMovement::where('source_id', $orgStockMovementData['orgStockMovement']['source_id'])
                 ->first()) {
-                //
+                UpdateOrgStockMovement::make()->action(
+                    $orgStockMovement,
+                    modelData: $orgStockMovementData['orgStockMovement'],
+                    hydratorsDelay: 60,
+                    strict: false
+                );
             } else {
                 //
 
@@ -55,18 +61,27 @@ class FetchAuroraOrgStockMovements extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Inventory Transaction Fact')
             ->select('Inventory Transaction Key as source_id')
-            ->whereIn('Inventory Transaction Record Type', ['Movement', 'Helper'])
-            ->orderBy('Date');
+            ->whereIn('Inventory Transaction Record Type', ['Movement', 'Helper']);
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+        $query->orderBy('Date');
+
+        return $query;
     }
 
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Inventory Transaction Fact')
-            ->whereIn('Inventory Transaction Record Type', ['Movement', 'Helper'])
-            ->count();
+        $query = DB::connection('aurora')->table('Inventory Transaction Fact')
+            ->whereIn('Inventory Transaction Record Type', ['Movement', 'Helper']);
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 }

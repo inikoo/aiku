@@ -51,8 +51,6 @@ class StoreOrgStockMovement extends OrgAction
 
         data_set($modelData, 'flow', $flow);
 
-        //print_r($modelData);
-
         $orgStockMovement = $orgStock->orgStockMovements()->create($modelData);
 
         OrgStockHydrateMovements::dispatch($orgStock)->delay($this->hydratorsDelay);

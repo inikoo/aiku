@@ -9,6 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementFlowEnum;
 use App\Enums\Inventory\OrgStockMovement\OrgStockMovementTypeEnum;
+use App\Models\Traits\InWarehouse;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -42,8 +43,11 @@ use Illuminate\Support\Carbon;
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Inventory\Location|null $location
  * @property-read \App\Models\Inventory\OrgStock $orgStock
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static Builder|OrgStockMovement newModelQuery()
  * @method static Builder|OrgStockMovement newQuery()
  * @method static Builder|OrgStockMovement query()
@@ -51,6 +55,8 @@ use Illuminate\Support\Carbon;
  */
 class OrgStockMovement extends Model
 {
+    use InWarehouse;
+
     protected $casts = [
         'data'         => 'array',
         'type'         => OrgStockMovementTypeEnum::class,
