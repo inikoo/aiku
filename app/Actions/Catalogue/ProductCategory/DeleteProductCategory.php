@@ -1,58 +1,59 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 24 Jun 2023 13:12:05 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Sat, 24 Jun 2023 13:12:05 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Catalogue\ProductCategory;
 
+use App\Actions\OrgAction;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Shop;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Validation\Validator;
 
-class DeleteProductCategory
+class DeleteProductCategory extends OrgAction
 {
     use AsController;
     use WithAttributes;
 
-    public function handle(ProductCategory $department): ProductCategory
+
+    private ProductCategory $productCategory;
+
+    public function handle(ProductCategory $productCategory): ProductCategory
     {
-        $department->products()->delete();
-        $department->stats()->delete();
-        $department->delete();
-        return $department;
+        $productCategory->stats()->delete();
+        $productCategory->delete();
+        return $productCategory;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.edit");
+        return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
     }
 
-    public function asController(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        $request->validate();
+        if($this->productCategory->products()->exists()) {
+            $validator->errors()->add('products', 'This category has products associated with it.');
+        }
 
-        return $this->handle($department);
+        if($this->productCategory->children()->exists()) {
+            $validator->errors()->add('children', 'This category has sub-categories associated with it.');
+        }
+
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
-        $request->validate();
+        $this->productCategory=$productCategory;
+        $this->initialisationFromShop($productCategory->shop, $request);
 
-        return $this->handle($department);
+        return $this->handle($productCategory);
     }
 
 
-
-    public function htmlResponse(ProductCategory $department): RedirectResponse
-    {
-        return Redirect::route('grp.shops.show', $department->shop->slug);
-    }
 
 }
