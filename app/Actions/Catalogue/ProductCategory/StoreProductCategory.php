@@ -7,20 +7,8 @@
 
 namespace App\Actions\Catalogue\ProductCategory;
 
-use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateSubDepartments;
-use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
-use App\Actions\Catalogue\ProductCategory\Hydrators\SubDepartmentHydrateSubDepartments;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDepartments;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateFamilies;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSubDepartments;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDepartments;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateFamilies;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubDepartments;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubDepartments;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
@@ -35,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreProductCategory extends OrgAction
 {
+    use HasProductCategoryHydrators;
+
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
         data_set($modelData, 'group_id', $parent->group_id);
@@ -45,9 +35,9 @@ class StoreProductCategory extends OrgAction
             data_set($modelData, 'department_id', $parent->id);
             data_set($modelData, 'parent_id', $parent->id);
 
-            if($parent->type==ProductCategoryTypeEnum::DEPARTMENT) {
+            if ($parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 data_set($modelData, 'department_id', $parent->id);
-            } elseif($parent->type==ProductCategoryTypeEnum::SUB_DEPARTMENT) {
+            } elseif ($parent->type == ProductCategoryTypeEnum::SUB_DEPARTMENT) {
                 data_set($modelData, 'sub_department_id', $parent->id);
             }
         } else {
@@ -64,39 +54,7 @@ class StoreProductCategory extends OrgAction
 
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
 
-        switch ($productCategory->type) {
-            case ProductCategoryTypeEnum::DEPARTMENT:
-                GroupHydrateDepartments::dispatch($productCategory->group)->delay($this->hydratorsDelay);
-                OrganisationHydrateDepartments::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
-                ShopHydrateDepartments::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
-
-                break;
-            case ProductCategoryTypeEnum::FAMILY:
-                GroupHydrateFamilies::dispatch($productCategory->group)->delay($this->hydratorsDelay);
-                OrganisationHydrateFamilies::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
-                ShopHydrateFamilies::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
-
-                if($productCategory->parent_id) {
-                    ProductCategoryHydrateFamilies::dispatch($productCategory->parent)->delay($this->hydratorsDelay);
-                }
-                break;
-            case ProductCategoryTypeEnum::SUB_DEPARTMENT:
-                GroupHydrateSubDepartments::dispatch($productCategory->group)->delay($this->hydratorsDelay);
-                OrganisationHydrateSubDepartments::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
-                ShopHydrateSubDepartments::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
-
-                if($productCategory->department_id) {
-                    DepartmentHydrateSubDepartments::dispatch($productCategory->department)->delay($this->hydratorsDelay);
-                }
-                if($productCategory->sub_department_id) {
-                    SubDepartmentHydrateSubDepartments::dispatch($productCategory->subDepartment)->delay($this->hydratorsDelay);
-
-                }
-
-
-                break;
-        }
-
+        $this->productCategoryHydrators($productCategory);
 
 
         return $productCategory;
@@ -104,7 +62,7 @@ class StoreProductCategory extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'type'                 => ['required', Rule::enum(ProductCategoryTypeEnum::class)],
             'code'                 => [
                 'required',
@@ -114,7 +72,7 @@ class StoreProductCategory extends OrgAction
                     table: 'product_categories',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ],
@@ -125,20 +83,24 @@ class StoreProductCategory extends OrgAction
             'created_at'           => ['sometimes', 'date'],
             'source_department_id' => ['sometimes', 'string', 'max:255'],
             'source_family_id'     => ['sometimes', 'string', 'max:255'],
-            /*
-            'department_id'        => [
-                'sometimes','nullable',
-                Rule::Exists('product_categories', 'id')->where('shop_id', $this->shop->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT)
-            ]
-            */
         ];
+
+        if (!$this->strict) {
+            $rules['source_department_id'] = ['sometimes', 'string', 'max:255'];
+            $rules['source_family_id']     = ['sometimes', 'string', 'max:255'];
+            $rules['created_at']           = ['sometimes', 'date'];
+            $rules['fetched_at']           = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
 
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0): ProductCategory
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): ProductCategory
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         if ($parent instanceof Shop) {
             $shop = $parent;
         } else {

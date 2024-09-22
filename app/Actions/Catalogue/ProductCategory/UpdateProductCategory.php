@@ -8,10 +8,7 @@
 namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDepartments;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDepartments;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -27,21 +24,18 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateProductCategory extends OrgAction
 {
     use WithActionUpdate;
+    use HasProductCategoryHydrators;
 
     private ProductCategory $productCategory;
 
     public function handle(ProductCategory $productCategory, array $modelData): ProductCategory
     {
-
-
         $productCategory = $this->update($productCategory, $modelData, ['data']);
 
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
 
-        if($productCategory->wasChanged('state')) {
-            GroupHydrateDepartments::dispatch($productCategory->group);
-            OrganisationHydrateDepartments::dispatch($productCategory->organisation);
-            ShopHydrateDepartments::dispatch($productCategory->shop);
+        if ($productCategory->wasChanged('state')) {
+            $this->productCategoryHydrators($productCategory);
         }
 
         return $productCategory;
@@ -57,12 +51,10 @@ class UpdateProductCategory extends OrgAction
     }
 
 
-
-
     public function rules(): array
     {
-        return [
-            'code'          => [
+        $rules = [
+            'code'        => [
                 'sometimes',
                 'max:32',
                 new AlphaDashDot(),
@@ -77,27 +69,38 @@ class UpdateProductCategory extends OrgAction
                     ]
                 ),
             ],
-            'name'          => ['sometimes', 'max:250', 'string'],
-            'image_id'      => ['sometimes', 'required', 'exists:media,id'],
-            'state'         => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
-            'description'   => ['sometimes', 'required', 'max:1500'],
-            'created_at'    => ['sometimes', 'date'], // todo delete this after all fetching from aurora is done
+            'name'        => ['sometimes', 'max:250', 'string'],
+            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
+            'state'       => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
+            'description' => ['sometimes', 'required', 'max:1500'],
         ];
+
+        if (!$this->strict) {
+            $rules['source_department_id'] = ['sometimes', 'string', 'max:255'];
+            $rules['source_family_id']     = ['sometimes', 'string', 'max:255'];
+            $rules['created_at']           = ['sometimes', 'date'];
+            $rules['last_fetched_at']      = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
-
-        if($this->productCategory->type==ProductCategoryTypeEnum::DEPARTMENT) {
+        if ($this->productCategory->type == ProductCategoryTypeEnum::DEPARTMENT) {
             $this->set('department_id', null);
         }
-
     }
 
-    public function action(ProductCategory $productCategory, array $modelData): ProductCategory
+    public function action(ProductCategory $productCategory, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): ProductCategory
     {
+        if (!$audit) {
+            ProductCategory::disableAuditing();
+        }
         $this->asAction        = true;
         $this->productCategory = $productCategory;
+        $this->hydratorsDelay  = $hydratorsDelay;
+        $this->strict          = $strict;
         $this->initialisationFromShop($productCategory->shop, $modelData);
 
         return $this->handle($productCategory, $this->validatedData);

@@ -21,18 +21,21 @@ class FetchAuroraFamilies extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductCategory
     {
         if ($familyData = $organisationSource->fetchFamily($organisationSourceId)) {
-
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
-
                 $family = UpdateProductCategory::make()->action(
                     productCategory: $family,
                     modelData: $familyData['family'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
             } else {
                 $family = StoreProductCategory::make()->action(
                     parent: $familyData['parent'],
-                    modelData: $familyData['family']
+                    modelData: $familyData['family'],
+                    hydratorsDelay: 60,
+                    strict: false
                 );
             }
 

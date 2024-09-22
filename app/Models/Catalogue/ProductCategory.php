@@ -99,9 +99,14 @@ class ProductCategory extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'data'  => 'array',
-        'state' => ProductCategoryStateEnum::class,
-        'type'  => ProductCategoryTypeEnum::class,
+        'data'             => 'array',
+        'state'            => ProductCategoryStateEnum::class,
+        'type'             => ProductCategoryTypeEnum::class,
+        'activated_at'     => 'datetime',
+        'discontinuing_at' => 'datetime',
+        'discontinued_at'  => 'datetime',
+        'fetched_at'       => 'datetime',
+        'last_fetched_at'  => 'datetime',
     ];
 
     protected $attributes = [
@@ -186,7 +191,6 @@ class ProductCategory extends Model implements Auditable, HasMedia
             ProductCategoryTypeEnum::FAMILY     => $this->hasMany(Product::class, 'family_id'),
             default                             => null
         };
-
     }
 
     public function collections(): MorphToMany

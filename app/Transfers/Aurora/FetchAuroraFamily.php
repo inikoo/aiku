@@ -34,11 +34,13 @@ class FetchAuroraFamily extends FetchAurora
 
 
         $this->parsedData['family'] = [
-            'type'                   => ProductCategoryTypeEnum::FAMILY,
-            'code'                   => $code,
-            'name'                   => $this->auroraModelData->{'Category Label'},
-            'source_family_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
-            'images'                 => $this->parseImages()
+            'type'                     => ProductCategoryTypeEnum::FAMILY,
+            'code'                     => $code,
+            'name'                     => $this->auroraModelData->{'Category Label'},
+            'source_family_id'         => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'images'                   => $this->parseImages(),
+            'fetched_at'               => now(),
+            'last_fetched_at'          => now(),
         ];
 
         $createdAt = $this->parseDate($this->auroraModelData->{'Product Category Valid From'});

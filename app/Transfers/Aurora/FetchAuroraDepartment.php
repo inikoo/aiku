@@ -19,27 +19,28 @@ class FetchAuroraDepartment extends FetchAurora
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Category Code'});
 
-        if($code=='40%') {
-            $code='40off';
+        if ($code == '40%') {
+            $code = '40off';
         }
 
-        if(strlen($code) > 32) {
-            $code =Abbreviate::run($code, 32);
+        if (strlen($code) > 32) {
+            $code = Abbreviate::run($code, 32);
         }
 
 
         $this->parsedData['department'] = [
-            'type'                  => ProductCategoryTypeEnum::DEPARTMENT,
-            'code'                  => $code,
-            'name'                  => $this->auroraModelData->{'Category Label'},
-            'source_department_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'type'                 => ProductCategoryTypeEnum::DEPARTMENT,
+            'code'                 => $code,
+            'name'                 => $this->auroraModelData->{'Category Label'},
+            'source_department_id' => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
+            'fetched_at'           => now(),
+            'last_fetched_at'      => now(),
         ];
 
-        $createdAt= $this->parseDate($this->auroraModelData->{'Product Category Valid From'});
-        if($createdAt) {
+        $createdAt = $this->parseDate($this->auroraModelData->{'Product Category Valid From'});
+        if ($createdAt) {
             $this->parsedData['department']['created_at'] = $createdAt;
         }
-
     }
 
     protected function fetchData($id): object|null
