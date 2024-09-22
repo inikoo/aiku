@@ -7,9 +7,7 @@ name: Psalm Security Scan
 
 on:
   push:
-    branches: [ "main" ]
-  schedule:
-    - cron: '0 0 */3 * *'
+    branches: [ "scan" ]
 
 permissions:
   contents: read

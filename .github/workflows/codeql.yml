@@ -13,7 +13,7 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "scan" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
