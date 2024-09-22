@@ -33,6 +33,8 @@ class CustomerRecordSearch
                 'shop_slug'         => $customer->shop->slug,
                 'sections'          => ['crm'],
                 'haystack_tier_1'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
+                'haystack_tier_2'   => trim($customer->internal_notes.' '.$customer->warehouse_internal_notes.' '.$customer->warehouse_public_notes),
+
                 'result'            => [
                     // 'route'     => $route,
                     'container' => [

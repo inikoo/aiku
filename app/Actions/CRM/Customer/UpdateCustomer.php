@@ -143,6 +143,9 @@ class UpdateCustomer extends OrgAction
             'language_id'              => ['sometimes', 'nullable', 'exists:languages,id'],
             'balance'                  => ['sometimes', 'nullable'],
             'last_fetched_at'          => ['sometimes', 'date'],
+            'internal_notes'           => ['sometimes', 'nullable', 'string'],
+            'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
+            'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
         ];
 
         if ($this->strict) {

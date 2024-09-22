@@ -91,7 +91,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $settings
  * @property string|null $internal_notes
- * @property string|null $warehouse_notes
+ * @property string|null $warehouse_internal_notes
+ * @property string|null $warehouse_public_notes
  * @property int|null $prospects_sender_email_id
  * @property int|null $image_id
  * @property Carbon|null $fetched_at

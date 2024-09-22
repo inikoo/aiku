@@ -47,7 +47,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->text('internal_notes')->nullable();
-            $table->text('warehouse_notes')->nullable();
+            $table->text('warehouse_internal_notes')->nullable();
+            $table->text('warehouse_public_notes')->nullable();
             $table->unsignedSmallInteger('prospects_sender_email_id')->nullable();
             $table->foreign('prospects_sender_email_id')->references('id')->on('sender_emails');
             $table->unsignedInteger('image_id')->nullable();

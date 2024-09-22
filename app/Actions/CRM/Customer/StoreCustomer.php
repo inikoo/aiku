@@ -178,14 +178,18 @@ class StoreCustomer extends OrgAction
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
 
 
-            'timezone_id' => ['nullable', 'exists:timezones,id'],
-            'language_id' => ['nullable', 'exists:languages,id'],
-            'data'        => ['sometimes', 'array'],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'created_at'  => ['sometimes', 'nullable', 'date'],
-            'deleted_at'  => ['sometimes', 'nullable', 'date'],
-            'fetched_at'  => ['sometimes', 'date'],
-            'password'    =>
+            'timezone_id'              => ['nullable', 'exists:timezones,id'],
+            'language_id'              => ['nullable', 'exists:languages,id'],
+            'data'                     => ['sometimes', 'array'],
+            'source_id'                => ['sometimes', 'nullable', 'string'],
+            'created_at'               => ['sometimes', 'nullable', 'date'],
+            'deleted_at'               => ['sometimes', 'nullable', 'date'],
+            'fetched_at'               => ['sometimes', 'date'],
+            'internal_notes'           => ['sometimes', 'nullable', 'string'],
+            'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
+            'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
+
+            'password' =>
                 [
                     'sometimes',
                     'required',

@@ -63,10 +63,9 @@ class FetchAuroraCustomer extends FetchAurora
             $contactName = $this->auroraModelData->{'Customer Name'};
             $contactName = $this->cleanName($contactName);
             $contactName = $this->cleanCompanyName($contactName);
-            if(!$contactName) {
-                $contactName='***';
+            if (!$contactName) {
+                $contactName = '***';
             }
-
         }
 
         $phone = $this->cleanPhone($this->auroraModelData->{'Customer Main Plain Mobile'});
@@ -87,17 +86,24 @@ class FetchAuroraCustomer extends FetchAurora
             }
         }
 
+        $internalNotes          = $this->auroraModelData->{'Customer Sticky Notes'};
+        $warehouseInternalNotes = $this->auroraModelData->{'Customer Order Sticky Note'};
+        $warehousePublicNotes   = $this->auroraModelData->{'Customer Delivery Sticky Note'};
+
         $this->parsedData['customer'] =
             [
-                'reference'       => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
-                'state'           => $state,
-                'status'          => $status,
-                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
-                'created_at'      => $this->auroraModelData->{'Customer First Contacted Date'},
-                'contact_address' => $billingAddress,
-                'tax_number'      => $taxNumber,
-                'fetched_at'      => now(),
-                'last_fetched_at' => now()
+                'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),
+                'state'                    => $state,
+                'status'                   => $status,
+                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
+                'created_at'               => $this->auroraModelData->{'Customer First Contacted Date'},
+                'contact_address'          => $billingAddress,
+                'tax_number'               => $taxNumber,
+                'fetched_at'               => now(),
+                'last_fetched_at'          => now(),
+                'internal_notes'           => $internalNotes,
+                'warehouse_internal_notes' => $warehouseInternalNotes,
+                'warehouse_public_notes'   => $warehousePublicNotes
             ];
 
         if ($contactName != '') {
@@ -267,7 +273,7 @@ class FetchAuroraCustomer extends FetchAurora
     protected function cleanUrl($url): string
     {
         $url = $this->cleanName($url);
-        if (in_array($url, ['www.'])) {
+        if ($url == 'www.') {
             $url = '';
         }
 
