@@ -27,12 +27,18 @@ class UpdateInvoice extends OrgAction
 
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
+        //todo remove thi s, is only for debugging
+        if(!$invoice->billingAddress) {
+            dd($invoice);
+        }
+
         $billingAddressData = Arr::get($modelData, 'billing_address');
         data_forget($modelData, 'billing_address');
 
         $invoice = $this->update($invoice, $modelData, ['data']);
 
         if ($billingAddressData) {
+
             $invoice = $this->updateFixedAddress(
                 $invoice,
                 $invoice->billingAddress,
