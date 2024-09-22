@@ -177,7 +177,7 @@ class IndexProducts extends OrgAction
             }
 
             if (class_basename($parent) == 'Shop') {
-                if ($bucket == 'current') {
+                if ($bucket == 'current' or $bucket == 'all') {
                     foreach ($this->getElementGroups($parent, $bucket) as $key => $elementGroup) {
                         $table->elementGroup(
                             key: $key,
@@ -218,30 +218,27 @@ class IndexProducts extends OrgAction
                             ] : null
                         ],
                         'Shop' => [
-                            'title' => __("No products found"),
-                            'count' => $parent->stats->number_products,
+                            'title' => match ($bucket) {
+                                'in_process'   => __("There is no products in process"),
+                                'discontinued' => __('There is no discontinued products'),
+                                default        => __("No products found"),
+                            },
+
+
+                            'count' => match ($bucket) {
+                                'current'      => $parent->stats->number_current_products,
+                                'in_process'   => $parent->stats->number_products_state_in_process,
+                                'discontinued' => $parent->stats->number_products_state_discontinued,
+                                default        => $parent->stats->number_products,
+                            }
+
                         ],
                         default => null
                     }
-
-                    /*
-                    [
-                        'title'       => __('no products'),
-                        'description' => $canEdit ? __('Get started by creating a new product.') : null,
-                        'count'       => $this->organisation->stats->number_products,
-                        'action'      => $canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new product'),
-                            'label'   => __('product'),
-                            'route'   => [
-                                'name'       => 'shops.products.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : null
-                    ]*/
-                )
-                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                );
+            if (!($parent instanceof Shop and in_array($bucket, ['in_process', 'discontinued']))) {
+                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            }
             if ($parent instanceof Organisation) {
                 $table->column(
                     key: 'shop_code',
@@ -585,7 +582,7 @@ class IndexProducts extends OrgAction
                     trim('('.__('In process').') '.$suffix)
                 )
             ),
-            'grp.org.shops.show.catalogue.products.discontinued_products.index'=>
+            'grp.org.shops.show.catalogue.products.discontinued_products.index' =>
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

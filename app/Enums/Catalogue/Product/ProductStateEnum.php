@@ -21,10 +21,9 @@ enum ProductStateEnum: string
     case DISCONTINUED  = 'discontinued';
 
 
-    public static function labels($bucket=null): array
+    public static function labels($bucket = null): array
     {
-
-        if(!$bucket) {
+        if (!$bucket or $bucket == 'all') {
             return [
                 'in-process'    => __('In Process'),
                 'active'        => __('Active'),
@@ -32,7 +31,7 @@ enum ProductStateEnum: string
                 'discontinued'  => __('Discontinued'),
             ];
         }
-        if($bucket=='current') {
+        if ($bucket == 'current') {
             return [
                 'active'        => __('Active'),
                 'discontinuing' => __('Discontinuing'),
@@ -40,7 +39,6 @@ enum ProductStateEnum: string
         }
 
         return [];
-
     }
 
     public static function stateIcon(): array
@@ -88,11 +86,11 @@ enum ProductStateEnum: string
         ];
     }
 
-    public static function count(Shop|ProductCategory $parent, $bucket=null): array
+    public static function count(Shop|ProductCategory $parent, $bucket = null): array
     {
         $stats = $parent->stats;
 
-        if(!$bucket) {
+        if (!$bucket or $bucket == 'all') {
             return [
                 'in-process'    => $stats->number_products_state_in_process,
                 'active'        => $stats->number_products_state_active,
@@ -101,7 +99,7 @@ enum ProductStateEnum: string
             ];
         }
 
-        if($bucket=='current') {
+        if ($bucket == 'current') {
             return [
                 'active'        => $stats->number_products_state_active,
                 'discontinuing' => $stats->number_products_state_discontinuing,
