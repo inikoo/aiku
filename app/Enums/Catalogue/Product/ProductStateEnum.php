@@ -8,6 +8,7 @@
 namespace App\Enums\Catalogue\Product;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 
 enum ProductStateEnum: string
@@ -20,14 +21,26 @@ enum ProductStateEnum: string
     case DISCONTINUED  = 'discontinued';
 
 
-    public static function labels(): array
+    public static function labels($bucket=null): array
     {
-        return [
-            'in-process'    => __('In Process'),
-            'active'        => __('Active'),
-            'discontinuing' => __('Discontinuing'),
-            'discontinued'  => __('Discontinued'),
-        ];
+
+        if(!$bucket) {
+            return [
+                'in-process'    => __('In Process'),
+                'active'        => __('Active'),
+                'discontinuing' => __('Discontinuing'),
+                'discontinued'  => __('Discontinued'),
+            ];
+        }
+        if($bucket=='current') {
+            return [
+                'active'        => __('Active'),
+                'discontinuing' => __('Discontinuing'),
+            ];
+        }
+
+        return [];
+
     }
 
     public static function stateIcon(): array
@@ -75,16 +88,27 @@ enum ProductStateEnum: string
         ];
     }
 
-    public static function count(Shop $parent): array
+    public static function count(Shop|ProductCategory $parent, $bucket=null): array
     {
         $stats = $parent->stats;
 
-        return [
-            'in-process'    => $stats->number_physical_goods_state_in_process,
-            'active'        => $stats->number_physical_goods_state_active,
-            'discontinuing' => $stats->number_physical_goods_state_discontinuing,
-            'discontinued'  => $stats->number_physical_goods_state_discontinued
-        ];
+        if(!$bucket) {
+            return [
+                'in-process'    => $stats->number_products_state_in_process,
+                'active'        => $stats->number_products_state_active,
+                'discontinuing' => $stats->number_products_state_discontinuing,
+                'discontinued'  => $stats->number_products_state_discontinued
+            ];
+        }
+
+        if($bucket=='current') {
+            return [
+                'active'        => $stats->number_products_state_active,
+                'discontinuing' => $stats->number_products_state_discontinuing,
+            ];
+        }
+
+        return [];
     }
 
 

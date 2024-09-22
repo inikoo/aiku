@@ -33,7 +33,7 @@ class ShopHydrateCreditTransactions
             'number_credit_transactions' => $shop->creditTransactions()->count(),
         ];
 
-        $shop->stats()->update($stats);
+        $shop->accountingStats()->update($stats);
     }
 
 

@@ -255,19 +255,7 @@ class IndexOrgStocks extends OrgAction
                 'number' => $stats->number_current_org_stocks
             ],
 
-            /*
-            [
-                'label'  => __('Discounting'),
-                'root'   => 'grp.org.warehouses.show.inventory.org_stocks.discontinuing_org_stocks.',
-                'href'   => [
-                    'name'       => 'grp.org.warehouses.show.inventory.org_stocks.discontinuing_org_stocks.index',
-                    'parameters' => [
-                        $this->organisation->slug
-                    ]
-                ],
-                'number' => 0
-            ],
-            */
+
             [
                 'label'  => __('Discontinued'),
                 'root'   => 'grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.',

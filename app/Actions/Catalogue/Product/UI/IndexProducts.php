@@ -16,8 +16,7 @@ use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\Catalogue\Asset\AssetStateEnum;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\InertiaTable\InertiaTable;
@@ -42,17 +41,19 @@ class IndexProducts extends OrgAction
     use WithFamilySubNavigation;
     use WithCollectionSubNavigation;
 
+    private string $bucket;
+
     private Shop|ProductCategory|Organisation|Collection $parent;
 
-    protected function getElementGroups(Shop|ProductCategory|Organisation|Collection $parent): array
+    protected function getElementGroups(Shop|ProductCategory|Organisation|Collection $parent, $bucket = null): array
     {
         return [
 
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    AssetStateEnum::labels(),
-                    AssetStateEnum::count($parent)
+                    ProductStateEnum::labels($bucket),
+                    ProductStateEnum::count($parent, $bucket)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -60,23 +61,15 @@ class IndexProducts extends OrgAction
                 }
 
             ],
-            'type'  => [
-                'label'    => __('Type'),
-                'elements' => array_merge_recursive(
-                    AssetTypeEnum::labels($parent),
-                    AssetTypeEnum::count($parent)
-                ),
-
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('type', $elements);
-                }
-
-            ],
         ];
     }
 
-    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
+        if ($bucket) {
+            $this->bucket = $bucket;
+        }
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('products.name', $value)
@@ -92,6 +85,30 @@ class IndexProducts extends OrgAction
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('products.shop_id', $parent->id);
+            if ($bucket == 'current') {
+                $queryBuilder->whereIn('products.state', [ProductStateEnum::ACTIVE, ProductStateEnum::DISCONTINUING]);
+                foreach ($this->getElementGroups($parent, $bucket) as $key => $elementGroup) {
+                    $queryBuilder->whereElementGroup(
+                        key: $key,
+                        allowedElements: array_keys($elementGroup['elements']),
+                        engine: $elementGroup['engine'],
+                        prefix: $prefix
+                    );
+                }
+            } elseif ($bucket == 'discontinued') {
+                $queryBuilder->where('products.state', ProductStateEnum::DISCONTINUED);
+            } elseif ($bucket == 'in_process') {
+                $queryBuilder->where('products.state', ProductStateEnum::IN_PROCESS);
+            } else {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $queryBuilder->whereElementGroup(
+                        key: $key,
+                        allowedElements: array_keys($elementGroup['elements']),
+                        engine: $elementGroup['engine'],
+                        prefix: $prefix
+                    );
+                }
+            }
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('products.organisation_id', $parent->id);
             $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
@@ -111,21 +128,22 @@ class IndexProducts extends OrgAction
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('products.id', '=', 'model_has_collections.model_id')
-                        ->where('model_has_collections.model_type', '=', 'Product')
-                        ->where('model_has_collections.collection_id', '=', $parent->id);
+                    ->where('model_has_collections.model_type', '=', 'Product')
+                    ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         } else {
             abort(419);
         }
 
-
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if (class_basename($parent) != 'Shop') {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
         }
 
 
@@ -149,23 +167,34 @@ class IndexProducts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit, $bucket) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if (class_basename($parent) == 'Shop') {
+                if ($bucket == 'current') {
+                    foreach ($this->getElementGroups($parent, $bucket) as $key => $elementGroup) {
+                        $table->elementGroup(
+                            key: $key,
+                            label: $elementGroup['label'],
+                            elements: $elementGroup['elements']
+                        );
+                    }
+                }
+            } else {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
-
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
@@ -225,7 +254,7 @@ class IndexProducts extends OrgAction
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if($parent instanceof Collection) {
+            if ($parent instanceof Collection) {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }
         };
@@ -234,6 +263,68 @@ class IndexProducts extends OrgAction
     public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
     {
         return ProductsResource::collection($products);
+    }
+
+    public function getShopProductsSubNavigation(): array
+    {
+        $stats = $this->parent->stats;
+
+        return [
+
+            [
+                'label'  => __('Current'),
+                'root'   => 'grp.org.shops.show.catalogue.products.current_products.',
+                'href'   => [
+                    'name'       => 'grp.org.shops.show.catalogue.products.current_products.index',
+                    'parameters' => [
+                        $this->organisation->slug,
+                        $this->shop->slug
+                    ]
+                ],
+                'number' => $stats->number_current_products
+            ],
+
+            [
+                'label'  => __('In Process'),
+                'root'   => 'grp.org.shops.show.catalogue.products.in_process_products.',
+                'href'   => [
+                    'name'       => 'grp.org.shops.show.catalogue.products.in_process_products.index',
+                    'parameters' => [
+                        $this->organisation->slug,
+                        $this->shop->slug
+                    ]
+                ],
+                'number' => $stats->number_products_state_in_process
+            ],
+            [
+                'label'  => __('Discontinued'),
+                'root'   => 'grp.org.shops.show.catalogue.products.discontinued_products.',
+                'href'   => [
+                    'name'       => 'grp.org.shops.show.catalogue.products.discontinued_products.index',
+                    'parameters' => [
+                        $this->organisation->slug,
+                        $this->shop->slug
+                    ]
+                ],
+                'number' => $stats->number_products_state_discontinued,
+                'align'  => 'right'
+            ],
+            [
+                'label'  => __('All'),
+                'icon'   => 'fal fa-bars',
+                'root'   => 'grp.org.shops.show.catalogue.products.all_products.',
+                'href'   => [
+                    'name'       => 'grp.org.shops.show.catalogue.products.all_products.index',
+                    'parameters' => [
+                        $this->organisation->slug,
+                        $this->shop->slug
+                    ]
+                ],
+                'number' => $stats->number_products,
+                'align'  => 'right'
+            ],
+
+        ];
     }
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
@@ -247,7 +338,10 @@ class IndexProducts extends OrgAction
             }
         } elseif ($this->parent instanceof Collection) {
             $subNavigation = $this->getCollectionSubNavigation($this->parent);
+        } elseif ($this->parent instanceof Shop) {
+            $subNavigation = $this->getShopProductsSubNavigation();
         }
+
 
         $title      = __('products');
         $icon       = [
@@ -260,59 +354,60 @@ class IndexProducts extends OrgAction
 
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
-                $title = $this->parent->name;
-                $model = __('department');
-                $icon  = [
+                $title      = $this->parent->name;
+                $model      = __('department');
+                $icon       = [
                     'icon'  => ['fal', 'fa-folder-tree'],
                     'title' => __('Department')
                 ];
-                $iconRight    =[
+                $iconRight  = [
                     'icon' => 'fal fa-cube',
                 ];
-                $afterTitle= [
-                    'label'     => __('Products')
+                $afterTitle = [
+                    'label' => __('Products')
                 ];
             }
         } elseif ($this->parent instanceof Collection) {
-            $title = $this->parent->name;
-            $model = __('collection');
-            $icon  = [
+            $title      = $this->parent->name;
+            $model      = __('collection');
+            $icon       = [
                 'icon'  => ['fal', 'fa-cube'],
                 'title' => __('collection')
             ];
-            $iconRight    =[
+            $iconRight  = [
                 'icon' => 'fal fa-cube',
             ];
-            $afterTitle= [
-                'label'     => __('Products')
+            $afterTitle = [
+                'label' => __('Products')
             ];
         } elseif ($this->parent instanceof Shop) {
             $model = __('catalogue');
         }
         $routes = null;
-        if($this->parent instanceof Collection) {
+        if ($this->parent instanceof Collection) {
             $routes = [
-                        'dataList'  => [
-                            'name'          => 'grp.json.shop.catalogue.collection.products',
-                            'parameters'    => [
-                                'shop'  => $this->parent->shop->slug,
-                                'scope' => $this->parent->slug
-                            ]
-                        ],
-                        'submitAttach'  => [
-                            'name'          => 'grp.models.collection.attach-models',
-                            'parameters'    => [
-                                'collection' => $this->parent->id
-                            ]
-                        ],
-                        'detach'        => [
-                            'name'          => 'grp.models.collection.detach-models',
-                            'parameters'    => [
-                                'collection' => $this->parent->id
-                            ]
-                        ]
-                    ];
+                'dataList'     => [
+                    'name'       => 'grp.json.shop.catalogue.collection.products',
+                    'parameters' => [
+                        'shop'  => $this->parent->shop->slug,
+                        'scope' => $this->parent->slug
+                    ]
+                ],
+                'submitAttach' => [
+                    'name'       => 'grp.models.collection.attach-models',
+                    'parameters' => [
+                        'collection' => $this->parent->id
+                    ]
+                ],
+                'detach'       => [
+                    'name'       => 'grp.models.collection.detach-models',
+                    'parameters' => [
+                        'collection' => $this->parent->id
+                    ]
+                ]
+            ];
         }
+
         return Inertia::render(
             'Org/Catalogue/Products',
             [
@@ -344,12 +439,12 @@ class IndexProducts extends OrgAction
                         ] : false,
 
                         class_basename($this->parent) == 'Collection' ? [
-                            'type'     => 'button',
-                            'style'    => 'secondary',
-                            'key'      => 'attach-product',
-                            'icon'     => 'fal fa-plus',
-                            'tooltip'  => __('Attach product to this collection'),
-                            'label'    => __('Attach product'),
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'key'     => 'attach-product',
+                            'icon'    => 'fal fa-plus',
+                            'tooltip' => __('Attach product to this collection'),
+                            'label'   => __('Attach product'),
                         ] : false
                     ],
                     'subNavigation' => $subNavigation,
@@ -359,59 +454,95 @@ class IndexProducts extends OrgAction
 
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, bucket: $this->bucket));
     }
 
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle(parent: $organisation);
+        return $this->handle(parent: $organisation, bucket: $this->bucket);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $family;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $family);
+        return $this->handle(parent: $family, bucket: $this->bucket);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inFamilyInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $family;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $family);
+        return $this->handle(parent: $family, bucket: $this->bucket);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $department;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $department);
+        return $this->handle(parent: $department, bucket: $this->bucket);
     }
 
     public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $collection;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $collection);
+        return $this->handle(parent: $collection, bucket: $this->bucket);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle(parent: $shop);
+        return $this->handle(parent: $shop, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function current(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'current';
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $shop, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inProcess(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'in_process';
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $shop, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function discontinued(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'discontinued';
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $shop, bucket: $this->bucket);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
@@ -475,7 +606,10 @@ class IndexProducts extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.shops.show.catalogue.products.index' =>
+            'grp.org.shops.show.catalogue.products.current_products.index',
+            'grp.org.shops.show.catalogue.products.in_process_products.index',
+            'grp.org.shops.show.catalogue.products.discontinued_products.index',
+            'grp.org.shops.show.catalogue.products.all_products.index'=>
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

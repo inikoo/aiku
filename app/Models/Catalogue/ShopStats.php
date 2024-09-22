@@ -84,20 +84,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_adjustments_type_error_net
  * @property int $number_adjustments_type_error_tax
  * @property int $number_adjustments_type_credit
- * @property int $number_credit_transactions
- * @property string $customer_balances_amount
- * @property string $customer_positive_balances_amount
- * @property string $customer_negative_balances_amount
- * @property string $customer_balances_org_amount
- * @property string $customer_positive_balances_org_amount
- * @property string $customer_negative_balances_org_amount
- * @property string $customer_balances_grp_amount
- * @property string $customer_positive_balances_grp_amount
- * @property string $customer_negative_balances_grp_amount
- * @property int $number_top_ups
- * @property int $number_top_ups_status_in_process
- * @property int $number_top_ups_status_success
- * @property int $number_top_ups_status_fail
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop

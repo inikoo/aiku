@@ -50,7 +50,7 @@ class ShopHydrateTopUps
             )
         );
 
-        $shop->stats()->update($stats);
+        $shop->accountingStats()->update($stats);
     }
 
 }

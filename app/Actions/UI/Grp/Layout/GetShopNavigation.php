@@ -89,7 +89,7 @@ class GetShopNavigation
                             "icon"    => ["fal", "fa-cube"],
                             'root'    => 'grp.org.shops.show.catalogue.products.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.catalogue.products.index",
+                                "name"       => "grp.org.shops.show.catalogue.products.current_products.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
