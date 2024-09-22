@@ -320,7 +320,7 @@ class ShowOrder extends OrgAction
                         ]
                     ],
                     'delivery_note' => [
-                        'name'       => 'grp.org.shops.show.ordering.orders.show.delivery-note',
+                        'name'        => 'grp.org.shops.show.ordering.orders.show.delivery-note',
                          'parameters' => array_merge($request->route()->originalParameters(), [
                             'deliveryNote' => $order->deliveryNotes()->slug
                         ])

@@ -63,6 +63,10 @@ class FetchAuroraCustomer extends FetchAurora
             $contactName = $this->auroraModelData->{'Customer Name'};
             $contactName = $this->cleanName($contactName);
             $contactName = $this->cleanCompanyName($contactName);
+            if(!$contactName) {
+                $contactName='***';
+            }
+
         }
 
         $phone = $this->cleanPhone($this->auroraModelData->{'Customer Main Plain Mobile'});

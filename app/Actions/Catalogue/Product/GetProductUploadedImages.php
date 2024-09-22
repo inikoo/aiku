@@ -7,14 +7,12 @@
 
 namespace App\Actions\Catalogue\Product;
 
-use App\Actions\GrpAction;
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\ImageResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Media;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -40,7 +38,7 @@ class GetProductUploadedImages extends OrgAction
         $queryBuilder = QueryBuilder::for(Media::class)
         ->leftJoin('model_has_media', 'model_has_media.media_id', '=', 'media.id')
         ->whereNotIn('model_has_media.media_id', $mediaIds);
-        
+
         return $queryBuilder
             ->defaultSort('media.name')
             ->where('media.group_id', $product->group_id)
