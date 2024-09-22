@@ -94,7 +94,7 @@ class UpdateWebpage extends OrgAction
                 'max:64',
                 'alpha_dash',
                 new IUnique(
-                    table: 'shops',
+                    table: 'webpages',
                     extraConditions: [
 
                         ['column' => 'website_id', 'value' => $this->webpage->website_id],
