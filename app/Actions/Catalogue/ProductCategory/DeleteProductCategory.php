@@ -10,16 +10,10 @@ namespace App\Actions\Catalogue\ProductCategory;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\ProductCategory;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsController;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Illuminate\Validation\Validator;
 
 class DeleteProductCategory extends OrgAction
 {
-    use AsController;
-    use WithAttributes;
-
-
     private ProductCategory $productCategory;
 
     public function handle(ProductCategory $productCategory): ProductCategory

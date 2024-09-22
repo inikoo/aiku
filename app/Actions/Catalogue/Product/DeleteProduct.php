@@ -15,12 +15,9 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class DeleteProduct extends OrgAction
@@ -50,7 +47,7 @@ class DeleteProduct extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("shops.edit");
+        return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
     }
 
     public function asController(Product $product, ActionRequest $request): Product
@@ -64,6 +61,7 @@ class DeleteProduct extends OrgAction
     public function asCommand(Command $command): int
     {
         try {
+            /** @var Product $product */
             $product = Product::findOrFail($command->argument('id'));
         } catch (Exception) {
             $command->error('Product not found');
@@ -75,8 +73,5 @@ class DeleteProduct extends OrgAction
         return 0;
     }
 
-    public function htmlResponse(Asset $product): RedirectResponse
-    {
-        return Redirect::route('grp.shops.show', $product->shop->slug);
-    }
+
 }
