@@ -563,6 +563,50 @@ class IndexProducts extends OrgAction
 
 
         return match ($routeName) {
+            'grp.org.shops.show.catalogue.products.current_products.index', =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Current').') '.$suffix)
+                )
+            ),
+            'grp.org.shops.show.catalogue.products.in_process_products.index' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('In process').') '.$suffix)
+                )
+            ),
+            'grp.org.shops.show.catalogue.products.discontinued_products.index'=>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Discontinued').') '.$suffix)
+                )
+            ),
+            'grp.org.shops.show.catalogue.products.all_products.index' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
             'grp.org.shops.show.catalogue.departments.show.products.index' =>
             array_merge(
                 ShowDepartment::make()->getBreadcrumbs(
@@ -606,20 +650,7 @@ class IndexProducts extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.shops.show.catalogue.products.current_products.index',
-            'grp.org.shops.show.catalogue.products.in_process_products.index',
-            'grp.org.shops.show.catalogue.products.discontinued_products.index',
-            'grp.org.shops.show.catalogue.products.all_products.index'=>
-            array_merge(
-                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
+
             'grp.org.shops.show.catalogue.collections.products.index' =>
             array_merge(
                 ShowCollection::make()->getBreadcrumbs('grp.org.shops.show.catalogue.collections.show', $routeParameters),

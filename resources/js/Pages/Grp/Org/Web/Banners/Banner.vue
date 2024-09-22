@@ -13,7 +13,7 @@ import {useTabChange} from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import {capitalize} from "@/Composables/capitalize"
-import TableCustomerHistories from "@/Components/Tables/TableCustomerHistories.vue";
+//import TableCustomerHistories from "@/Components/Tables/TableCustomerHistories.vue";
 import {faSign, faGlobe, faPencil, faSeedling, faPaste, faLayerGroup} from '@fal'
 import TableSnapshots from '@/Components/Tables/TableSnapshots.vue';
 import BannerShowcase from "@/Pages/Grp/Org/Web/Banners/BannerShowcase.vue";
