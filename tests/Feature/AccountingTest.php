@@ -205,15 +205,15 @@ test('check customer balance and stats', function ($topUp) {
 
 })->depends('create and set success 1st top up');
 
-test('check shop stats', function ($topUp) {
+test('check shop stats', function (TopUp $topUp) {
     $shop = $topUp->shop;
 
     expect($shop)->toBeInstanceOf(Shop::class)
-        ->and($shop->stats->number_top_ups)->toBe(1)
-        ->and($shop->stats->number_top_ups_status_in_process)->toBe(0)
-        ->and($shop->stats->number_top_ups_status_success)->toBe(1)
-        ->and($shop->stats->number_top_ups_status_fail)->toBe(0)
-        ->and($shop->stats->number_credit_transactions)->toBe(1);
+        ->and($shop->accountingStats->number_top_ups)->toBe(1)
+        ->and($shop->accountingStats->number_top_ups_status_in_process)->toBe(0)
+        ->and($shop->accountingStats->number_top_ups_status_success)->toBe(1)
+        ->and($shop->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($shop->accountingStats->number_credit_transactions)->toBe(1);
 
 })->depends('create and set success 1st top up');
 
@@ -280,15 +280,15 @@ test('check customer balance and stats 2nd time', function ($topUp) {
 
 })->depends('create and set success 2nd top up');
 
-test('check shop stats 2nd time', function ($topUp) {
+test('check shop stats 2nd time', function (TopUp $topUp) {
     $shop = $topUp->shop;
 
     expect($shop)->toBeInstanceOf(Shop::class)
-        ->and($shop->stats->number_top_ups)->toBe(2)
-        ->and($shop->stats->number_top_ups_status_in_process)->toBe(0)
-        ->and($shop->stats->number_top_ups_status_success)->toBe(2)
-        ->and($shop->stats->number_top_ups_status_fail)->toBe(0)
-        ->and($shop->stats->number_credit_transactions)->toBe(2);
+        ->and($shop->accountingStats->number_top_ups)->toBe(2)
+        ->and($shop->accountingStats->number_top_ups_status_in_process)->toBe(0)
+        ->and($shop->accountingStats->number_top_ups_status_success)->toBe(2)
+        ->and($shop->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($shop->accountingStats->number_credit_transactions)->toBe(2);
 
 })->depends('create and set success 2nd top up');
 
@@ -347,15 +347,15 @@ test('check customer balance 3rd time', function ($topUp) {
 
 })->depends('create 3rd top up');
 
-test('check shop stats 3rd time', function ($topUp) {
+test('check shop stats 3rd time', function (TopUp $topUp) {
     $shop = $topUp->shop;
 
     expect($shop)->toBeInstanceOf(Shop::class)
-        ->and($shop->stats->number_top_ups)->toBe(3)
-        ->and($shop->stats->number_top_ups_status_in_process)->toBe(1)
-        ->and($shop->stats->number_top_ups_status_success)->toBe(2)
-        ->and($shop->stats->number_top_ups_status_fail)->toBe(0)
-        ->and($shop->stats->number_credit_transactions)->toBe(2);
+        ->and($shop->accountingStats->number_top_ups)->toBe(3)
+        ->and($shop->accountingStats->number_top_ups_status_in_process)->toBe(1)
+        ->and($shop->accountingStats->number_top_ups_status_success)->toBe(2)
+        ->and($shop->accountingStats->number_top_ups_status_fail)->toBe(0)
+        ->and($shop->accountingStats->number_credit_transactions)->toBe(2);
 
 })->depends('create 3rd top up');
 
