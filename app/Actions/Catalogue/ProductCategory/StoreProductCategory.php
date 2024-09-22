@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreProductCategory extends OrgAction
 {
-    use HasProductCategoryHydrators;
+    use WithProductCategoryHydrators;
 
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {

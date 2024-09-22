@@ -37,9 +37,9 @@ return new class () extends Migration {
             $table->dateTimeTz('activated_at')->nullable();
             $table->dateTimeTz('discontinuing_at')->nullable();
             $table->dateTimeTz('discontinued_at')->nullable();
+            $table->timestampstz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampstz();
             $table = $this->softDeletes($table);
             $table->string('source_department_id')->nullable()->unique();
             $table->string('source_family_id')->nullable()->unique();

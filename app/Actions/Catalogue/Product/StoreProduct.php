@@ -10,12 +10,7 @@ namespace App\Actions\Catalogue\Product;
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
-use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
-use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -37,6 +32,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreProduct extends OrgAction
 {
+    use WithProductHydrators;
+
     private AssetStateEnum|null $state = null;
 
     public function handle(Shop|ProductCategory $parent, array $modelData): Product
@@ -172,16 +169,9 @@ class StoreProduct extends OrgAction
             ]
         );
 
+        $this->productHydrators($product);
 
-        GroupHydrateProducts::dispatch($product->group)->delay($this->hydratorsDelay);
-        OrganisationHydrateProducts::dispatch($product->organisation)->delay($this->hydratorsDelay);
-        ShopHydrateProducts::dispatch($product->shop)->delay($this->hydratorsDelay);
-        if ($product->department_id) {
-            DepartmentHydrateProducts::dispatch($product->department)->delay($this->hydratorsDelay);
-        }
-        if ($product->family_id) {
-            FamilyHydrateProducts::dispatch($product->family)->delay($this->hydratorsDelay);
-        }
+
 
         return $product;
     }
@@ -234,11 +224,8 @@ class StoreProduct extends OrgAction
             'unit'               => ['sometimes', 'required', 'string'],
             'rrp'                => ['sometimes', 'required', 'numeric', 'min:0'],
             'description'        => ['sometimes', 'required', 'max:1500'],
-            'source_id'          => ['sometimes', 'required', 'string', 'max:255'],
-            'historic_source_id' => ['sometimes', 'required', 'string', 'max:255'],
             'data'               => ['sometimes', 'array'],
             'settings'           => ['sometimes', 'array'],
-            'created_at'         => ['sometimes', 'date'],
             'is_main'            => ['required', 'boolean'],
             'main_product_id'    => [
                 'sometimes',
@@ -264,7 +251,12 @@ class StoreProduct extends OrgAction
         } else {
             $rules['org_stocks'] = ['required', 'array'];
         }
-
+        if (!$this->strict) {
+            $rules['created_at']         = ['sometimes', 'date'];
+            $rules['fetched_at']         = ['sometimes', 'date'];
+            $rules['source_id']          = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['historic_source_id'] = ['sometimes', 'required', 'string', 'max:255'];
+        }
 
         return $rules;
     }

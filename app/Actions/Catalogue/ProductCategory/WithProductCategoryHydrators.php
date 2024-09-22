@@ -22,7 +22,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubDepartment
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
 
-trait HasProductCategoryHydrators
+trait WithProductCategoryHydrators
 {
     protected function productCategoryHydrators(ProductCategory $productCategory)
     {

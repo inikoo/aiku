@@ -45,6 +45,8 @@ return new class () extends Migration {
 
 
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->string('historic_source_id')->nullable()->index();

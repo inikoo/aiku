@@ -24,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateProductCategory extends OrgAction
 {
     use WithActionUpdate;
-    use HasProductCategoryHydrators;
+    use WithProductCategoryHydrators;
 
     private ProductCategory $productCategory;
 

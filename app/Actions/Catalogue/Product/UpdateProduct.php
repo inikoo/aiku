@@ -10,12 +10,7 @@ namespace App\Actions\Catalogue\Product;
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Product\Search\ProductRecordSearch;
-use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
-use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Http\Resources\Catalogue\ProductResource;
@@ -30,16 +25,16 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateProduct extends OrgAction
 {
     use WithActionUpdate;
+    use WithProductHydrators;
 
     private Product $product;
 
     public function handle(Product $product, array $modelData): Product
     {
+        $product = $this->update($product, $modelData);
+        $changed = $product->getChanges();
 
-        $product  = $this->update($product, $modelData);
-        $changed  = $product->getChanges();
-
-        if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
+        if (Arr::hasAny($changed, ['name', 'code', 'price', 'units', 'unit'])) {
             $historicAsset = StoreHistoricAsset::run($product, [], $this->hydratorsDelay);
             $product->updateQuietly(
                 [
@@ -51,21 +46,11 @@ class UpdateProduct extends OrgAction
         UpdateAsset::run($product->asset, [], $this->hydratorsDelay);
 
         if (Arr::hasAny($changed, ['state'])) {
-
-            GroupHydrateProducts::dispatch($product->group)->delay($this->hydratorsDelay);
-            OrganisationHydrateProducts::dispatch($product->organisation)->delay($this->hydratorsDelay);
-            ShopHydrateProducts::dispatch($product->shop)->delay($this->hydratorsDelay);
-            if($product->department_id) {
-                DepartmentHydrateProducts::dispatch($product->department)->delay($this->hydratorsDelay);
-            }
-            if($product->family_id) {
-                FamilyHydrateProducts::dispatch($product->family)->delay($this->hydratorsDelay);
-            }
-
+            $this->productHydrators($product);
         }
 
-        if(count($changed)>0) {
-            ProductRecordSearch::dispatch($product)->delay($this->hydratorsDelay);
+        if (count($changed) > 0) {
+            ProductRecordSearch::dispatch($product);
         }
 
 
@@ -83,7 +68,7 @@ class UpdateProduct extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'        => [
                 'sometimes',
                 'required',
@@ -93,7 +78,7 @@ class UpdateProduct extends OrgAction
                     table: 'products',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ['column' => 'id', 'value' => $this->product->id, 'operator' => '!=']
                     ]
                 ),
@@ -107,6 +92,12 @@ class UpdateProduct extends OrgAction
             'status'      => ['sometimes', 'required', 'boolean'],
             'state'       => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
     public function asController(Product $product, ActionRequest $request): Product
@@ -117,11 +108,16 @@ class UpdateProduct extends OrgAction
         return $this->handle($product, $this->validatedData);
     }
 
-    public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Product
+    public function action(Product $product, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Product
     {
+        if (!$audit) {
+            Product::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->product        = $product;
+        $this->strict         = $strict;
 
         $this->initialisationFromShop($product->shop, $modelData);
 

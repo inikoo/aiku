@@ -65,6 +65,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $main_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $historic_source_id
@@ -111,15 +113,17 @@ class Product extends Model implements Auditable, HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'variant_ratio'                      => 'decimal:3',
-        'price'                              => 'decimal:2',
-        'rrp'                                => 'decimal:2',
-        'data'                               => 'array',
-        'settings'                           => 'array',
-        'status'                             => 'boolean',
-        'variant_is_visible'                 => 'boolean',
-        'state'                              => ProductStateEnum::class,
-        'unit_relationship_type'             => ProductUnitRelationshipType::class
+        'variant_ratio'          => 'decimal:3',
+        'price'                  => 'decimal:2',
+        'rrp'                    => 'decimal:2',
+        'data'                   => 'array',
+        'settings'               => 'array',
+        'status'                 => 'boolean',
+        'variant_is_visible'     => 'boolean',
+        'state'                  => ProductStateEnum::class,
+        'unit_relationship_type' => ProductUnitRelationshipType::class,
+        'fetched_at'             => 'datetime',
+        'last_fetched_at'        => 'datetime'
     ];
 
     protected $attributes = [
@@ -199,7 +203,7 @@ class Product extends Model implements Auditable, HasMedia
             null,
             'trade_units',
         )
-            ->withPivot(['quantity','notes'])
+            ->withPivot(['quantity', 'notes'])
             ->withTimestamps();
     }
 
