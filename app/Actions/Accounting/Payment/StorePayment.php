@@ -96,15 +96,15 @@ class StorePayment extends OrgAction
             'group_amount' => ['sometimes', 'numeric'],
             'data'         => ['sometimes', 'array'],
             'date'         => ['sometimes', 'date'],
-            'created_at'   => ['sometimes', 'date'],
-            'completed_at' => ['sometimes', 'nullable', 'date'],
             'status'       => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
             'state'        => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
         ];
 
         if (!$this->strict) {
             $rules['source_id']    = ['sometimes', 'string'];
-            $rules['cancelled_at'] = ['sometimes', 'date'];
+            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['completed_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['created_at']   = ['sometimes', 'date'];
         }
 
         return $rules;

@@ -27,39 +27,39 @@ class FetchAuroraPayments extends FetchAuroraAction
 
             if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])->first()) {
 
-                try {
-                    $payment = UpdatePayment::make()->action(
-                        payment: $payment,
-                        modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydrateDelay
-                    );
-                    $this->markAuroraModel($payment);
-                } catch (Exception $e) {
-                    //print_r($paymentData['payment']);
-                    //dd($e);
-                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
-
-                    return null;
-                }
+                //  try {
+                $payment = UpdatePayment::make()->action(
+                    payment: $payment,
+                    modelData: $paymentData['payment'],
+                    hydratorsDelay: $this->hydrateDelay
+                );
+                $this->markAuroraModel($payment);
+                //                } catch (Exception $e) {
+                //                    //print_r($paymentData['payment']);
+                //                    //dd($e);
+                //                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
+                //
+                //                    return null;
+                //                }
 
             } elseif ($paymentData['customer']) {
 
-                try {
-                    $payment = StorePayment::make()->action(
-                        customer: $paymentData['customer'],
-                        paymentAccount: $paymentData['paymentAccount'],
-                        modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydrateDelay,
-                        strict: false
-                    );
-                    $this->markAuroraModel($payment);
-                } catch (Exception $e) {
-                    //print_r($paymentData['payment']);
-                    //dd($e);
-                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
-
-                    return null;
-                }
+                //  try {
+                $payment = StorePayment::make()->action(
+                    customer: $paymentData['customer'],
+                    paymentAccount: $paymentData['paymentAccount'],
+                    modelData: $paymentData['payment'],
+                    hydratorsDelay: $this->hydrateDelay,
+                    strict: false
+                );
+                $this->markAuroraModel($payment);
+                //                } catch (Exception $e) {
+                //                    //print_r($paymentData['payment']);
+                //                    //dd($e);
+                //                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
+                //
+                //                    return null;
+                //                }
 
             }
 
